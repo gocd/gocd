@@ -787,7 +787,7 @@ task newSPA {
           //tslint:disable-next-line
           new ${entityName}SPA();
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("${pagesBase}/${spaName}.tsx").withWriter { out ->
@@ -817,7 +817,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("${widgetBase}/${spaName}_widget.tsx").withWriter { out ->
@@ -837,7 +837,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("${modelsBase}/${spaName}.ts").withWriter { out ->
@@ -859,7 +859,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
     }
 
     file("spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/${entityName}Controller.java").withWriter { out ->
@@ -905,7 +905,7 @@ task newSPA {
             }
           }
         """
-      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim() + "\n")
     }
 
     addUrlRewriteRule("${spaName} UI")
@@ -915,7 +915,7 @@ task newSPA {
     lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Controller(authenticationHelper, templateEngineFactory.create(${entityName}Controller.class, () -> COMPONENT_LAYOUT_PATH)));")
 
     file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').withWriter { out ->
-      out.println(lines.join("\n").trim())
+      out.println(lines.join("\n").trim() + "\n")
     }
 
     addRoute(entityName, spaName)
@@ -939,7 +939,7 @@ task removeApi {
         .stream()
         .filter({ eachLine -> !eachLine.contains("base-package=\"${packageName}\"") })
         .collect(Collectors.joining("\n"))
-        .trim()
+        .trim() + "\n"
       out.println(newContents)
     }
 
@@ -949,7 +949,7 @@ task removeApi {
         .stream()
         .filter({ eachLine -> !eachLine.contains("api:${newProjectName}") })
         .collect(Collectors.joining("\n"))
-        .trim()
+        .trim() + "\n"
       out.println(newContents)
     }
 
@@ -959,7 +959,7 @@ task removeApi {
         .stream()
         .filter({ eachLine -> !eachLine.startsWith("api/${newProjectName}/") })
         .collect(Collectors.joining("\n"))
-        .trim()
+        .trim() + "\n"
       out.println(newContents)
     }
 
@@ -1028,7 +1028,7 @@ task newApi {
             testRuntimeOnly project.deps.junit5Engine
           }
         """
-      out.println(contents.stripIndent().trim())
+      out.println(contents.stripIndent().trim() + "\n")
     }
 
     file("${basePackage}/${controllerClassName}.java").withWriter { out ->
@@ -1139,7 +1139,7 @@ task newApi {
               }
           }
         """
-      out.println(contents.stripIndent().trim())
+      out.println(contents.stripIndent().trim() + "\n")
     }
 
     file("${testPackage}/${controllerClassName}Test.groovy").withWriter { out ->
@@ -1210,7 +1210,7 @@ task newApi {
             }
           }
         """
-      out.println(contents.stripIndent().trim())
+      out.println(contents.stripIndent().trim() + "\n")
     }
 
     addRoute(entityClassName, apiName)
@@ -1305,7 +1305,7 @@ private void addUrlRewriteRule(String name) {
   lines.add(insertionIdx + 1, rule.stripIndent().trim())
 
   file("${project(':server').webAppDir}/WEB-INF/urlrewrite.xml").withWriter { out ->
-    out.println(lines.join("\n").trim())
+    out.println(lines.join("\n").trim() + "\n")
   }
 }
 
@@ -1314,7 +1314,7 @@ private void addRoute(String entityName, String route) {
   lines.add(lines.size() - 1, "\tpublic class ${entityName} {public static final String BASE = \"/admin/api/${route}\";}")
 
   file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').withWriter { out ->
-    out.println(lines.join("\n").trim())
+    out.println(lines.join("\n").trim() + "\n")
   }
 }
 
@@ -1324,7 +1324,7 @@ private void addPackageToSpringClasspathScanning(String packageName) {
   lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
 
   file("server/src/main/resources/applicationContext-global.xml").withWriter { out ->
-    out.println(lines.join("\n").trim())
+    out.println(lines.join("\n").trim() + "\n")
   }
 }
 

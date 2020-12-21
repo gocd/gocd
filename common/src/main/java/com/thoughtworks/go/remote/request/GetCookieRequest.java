@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.remote.request;
 
-import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

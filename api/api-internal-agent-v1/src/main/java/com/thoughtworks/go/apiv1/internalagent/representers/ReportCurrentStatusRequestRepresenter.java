@@ -25,7 +25,7 @@ public class ReportCurrentStatusRequestRepresenter {
     private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest reportCurrentStatusRequest) {
-        return gson.toJson(reportCurrentStatusRequest);
+        return gson.toJson(reportCurrentStatusRequest, AgentRequest.class);
     }
 
     public static ReportCurrentStatusRequest fromJSON(String request) {

@@ -25,7 +25,7 @@ public class IsIgnoredRequestRepresenter {
     private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest isIgnoredRequest) {
-        return gson.toJson(isIgnoredRequest);
+        return gson.toJson(isIgnoredRequest, AgentRequest.class);
     }
 
     public static IsIgnoredRequest fromJSON(String json) {

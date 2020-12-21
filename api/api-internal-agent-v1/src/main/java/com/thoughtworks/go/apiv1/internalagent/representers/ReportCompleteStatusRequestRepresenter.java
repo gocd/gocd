@@ -25,7 +25,7 @@ public class ReportCompleteStatusRequestRepresenter {
     private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest reportCompleteStatusRequest) {
-        return gson.toJson(reportCompleteStatusRequest);
+        return gson.toJson(reportCompleteStatusRequest, AgentRequest.class);
     }
 
     public static ReportCompleteStatusRequest fromJSON(String request) {

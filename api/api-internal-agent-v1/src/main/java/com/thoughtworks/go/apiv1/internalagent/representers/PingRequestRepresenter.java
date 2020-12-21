@@ -25,7 +25,7 @@ public class PingRequestRepresenter {
     private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest request) {
-        return gson.toJson(request);
+        return gson.toJson(request, AgentRequest.class);
     }
 
     public static PingRequest fromJSON(String json) {

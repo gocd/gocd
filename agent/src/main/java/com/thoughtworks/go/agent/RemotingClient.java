@@ -156,7 +156,7 @@ public class RemotingClient implements BuildRepositoryRemote {
     private HttpRequestBase postRequestFor(String action, AgentRequest payload) {
         final HttpPost request = new HttpPost(urls.remotingUrlFor(action));
         request.addHeader("Accept", "application/vnd.go.cd+json");
-        request.setEntity(new StringEntity(GSON.toJson(payload), ContentType.APPLICATION_JSON));
+        request.setEntity(new StringEntity(GSON.toJson(payload, AgentRequest.class), ContentType.APPLICATION_JSON));
         return request;
     }
 

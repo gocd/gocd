@@ -41,6 +41,7 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
+import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -78,6 +79,7 @@ public class Serialization {
                 .registerTypeAdapterFactory(materialInstanceAdapter())
                 .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
                 .registerTypeAdapterFactory(fetchHandlerAdapter())
+                .registerTypeAdapterFactory(agentRequestAdapter())
                 .create();
     }
 
@@ -135,6 +137,16 @@ public class Serialization {
                 .registerSubtype(ChecksumFileHandler.class, "ChecksumFileHandler")
                 .registerSubtype(DirHandler.class, "DirHandler")
                 .registerSubtype(FileHandler.class, "FileHandler");
+    }
+
+    private static RuntimeTypeAdapterFactory<AgentRequest> agentRequestAdapter() {
+        return RuntimeTypeAdapterFactory.of(AgentRequest.class, "type")
+                .registerSubtype(GetCookieRequest.class, "GetCookieRequest")
+                .registerSubtype(GetWorkRequest.class, "GetWorkRequest")
+                .registerSubtype(IsIgnoredRequest.class, "IsIgnoredRequest")
+                .registerSubtype(PingRequest.class, "PingRequest")
+                .registerSubtype(ReportCompleteStatusRequest.class, "ReportCompleteStatusRequest")
+                .registerSubtype(ReportCurrentStatusRequest.class, "ReportCurrentStatusRequest");
     }
 
     /**

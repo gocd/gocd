@@ -26,7 +26,7 @@ public class GetWorkRequestRepresenter {
     private static final Gson gson = Serialization.instance();
 
     public static String toJSON(AgentRequest request) {
-        return gson.toJson(request);
+        return gson.toJson(request, AgentRequest.class);
     }
 
     public static GetWorkRequest fromJSON(String json) {

@@ -157,7 +157,7 @@ public class Serialization {
         public JsonElement serialize(ConfigurationProperty src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject serialized = new JsonObject();
             serialized.add("key", new JsonPrimitive(src.getConfigKeyName()));
-            serialized.add("value", new JsonPrimitive(src.getValue()));
+            serialized.add("value", new JsonPrimitive(src.getResolvedValue()));
 
             return serialized;
         }

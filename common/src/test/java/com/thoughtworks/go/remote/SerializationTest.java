@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
@@ -180,6 +181,17 @@ class SerializationTest {
             assertEquals("a", config.get("one"));
             assertEquals("b", config.get("two"));
         }, "ArtifactStore should deserialize without error because its type adapter never deserializes to secret properties");
+    }
+
+    @Test
+    void configurationPropertyWithSecretParamsShouldSerializeResolvedValues() {
+        ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("db_password"),
+                new ConfigurationValue("{{SECRET:[test_id][password]}}"));
+        configurationProperty.getSecretParams().get(0).setValue("secret");
+
+        String json = Serialization.instance().toJson(configurationProperty);
+
+        assertThat(json).isEqualTo("{\"key\":\"db_password\",\"value\":\"secret\"}");
     }
 
     @SuppressWarnings("SameParameterValue")

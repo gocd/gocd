@@ -39,6 +39,7 @@ import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInsta
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
+import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.security.*;
@@ -113,13 +114,14 @@ public class Serialization {
 
     private static RuntimeTypeAdapterFactory<MaterialInstance> materialInstanceAdapter() {
         return RuntimeTypeAdapterFactory.of(MaterialInstance.class, "type")
-                .registerSubtype(DependencyMaterialInstance.class, "DependencyMaterial")
-                .registerSubtype(GitMaterialInstance.class, "GitMaterial")
-                .registerSubtype(HgMaterialInstance.class, "HgMaterial")
-                .registerSubtype(P4MaterialInstance.class, "P4Material")
-                .registerSubtype(PackageMaterialInstance.class, "PackageMaterial")
-                .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterial")
-                .registerSubtype(SvnMaterialInstance.class, "SvnMaterial");
+                .registerSubtype(DependencyMaterialInstance.class, "DependencyMaterialInstance")
+                .registerSubtype(GitMaterialInstance.class, "GitMaterialInstance")
+                .registerSubtype(HgMaterialInstance.class, "HgMaterialInstance")
+                .registerSubtype(P4MaterialInstance.class, "P4MaterialInstance")
+                .registerSubtype(PackageMaterialInstance.class, "PackageMaterialInstance")
+                .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterialInstance")
+                .registerSubtype(SvnMaterialInstance.class, "SvnMaterialInstance")
+                .registerSubtype(TfsMaterialInstance.class, "TfsMaterialInstance");
     }
 
     private static RuntimeTypeAdapterFactory<AgentRuntimeInfo> agentRuntimeInfoAdapter() {

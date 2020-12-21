@@ -342,8 +342,11 @@ public class ModificationsMother {
     public static MaterialRevisions getMaterialRevisions(HashMap<Material, String> checkins) {
         MaterialRevisions revisions = new MaterialRevisions();
         for (Material material : checkins.keySet()) {
-            revisions.addRevision(material, aCheckIn(checkins.get(material), "file1.txt"));
+            Modification modification = aCheckIn(checkins.get(material), "file1.txt");
+            modification.setMaterialInstance(material.createMaterialInstance());
+            revisions.addRevision(material, modification);
         }
+
         return revisions;
     }
 

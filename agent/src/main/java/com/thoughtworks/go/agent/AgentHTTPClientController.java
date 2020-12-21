@@ -166,7 +166,11 @@ public class AgentHTTPClientController extends AgentController {
     }
 
     private BuildRepositoryRemote remote() {
-        return useLegacy() ? legacyRmi : client;
+        boolean useLegacy = useLegacy();
+
+        LOG.debug("Remoting type used: {}", (useLegacy ? "RMI" : "JSON"));
+
+        return useLegacy ? legacyRmi : client;
     }
 
     private boolean useLegacy() {

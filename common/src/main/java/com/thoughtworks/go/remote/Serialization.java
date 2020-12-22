@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
@@ -38,7 +39,9 @@ import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInsta
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
+import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
+import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -76,6 +79,7 @@ public class Serialization {
                 .registerTypeAdapterFactory(materialInstanceAdapter())
                 .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
                 .registerTypeAdapterFactory(fetchHandlerAdapter())
+                .registerTypeAdapterFactory(agentRequestAdapter())
                 .create();
     }
 
@@ -106,18 +110,20 @@ public class Serialization {
                 .registerSubtype(P4Material.class, "P4Material")
                 .registerSubtype(PackageMaterial.class, "PackageMaterial")
                 .registerSubtype(PluggableSCMMaterial.class, "PluggableSCMMaterial")
-                .registerSubtype(SvnMaterial.class, "SvnMaterial");
+                .registerSubtype(SvnMaterial.class, "SvnMaterial")
+                .registerSubtype(TfsMaterial.class, "TfsMaterial");
     }
 
     private static RuntimeTypeAdapterFactory<MaterialInstance> materialInstanceAdapter() {
         return RuntimeTypeAdapterFactory.of(MaterialInstance.class, "type")
-                .registerSubtype(DependencyMaterialInstance.class, "DependencyMaterial")
-                .registerSubtype(GitMaterialInstance.class, "GitMaterial")
-                .registerSubtype(HgMaterialInstance.class, "HgMaterial")
-                .registerSubtype(P4MaterialInstance.class, "P4Material")
-                .registerSubtype(PackageMaterialInstance.class, "PackageMaterial")
-                .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterial")
-                .registerSubtype(SvnMaterialInstance.class, "SvnMaterial");
+                .registerSubtype(DependencyMaterialInstance.class, "DependencyMaterialInstance")
+                .registerSubtype(GitMaterialInstance.class, "GitMaterialInstance")
+                .registerSubtype(HgMaterialInstance.class, "HgMaterialInstance")
+                .registerSubtype(P4MaterialInstance.class, "P4MaterialInstance")
+                .registerSubtype(PackageMaterialInstance.class, "PackageMaterialInstance")
+                .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterialInstance")
+                .registerSubtype(SvnMaterialInstance.class, "SvnMaterialInstance")
+                .registerSubtype(TfsMaterialInstance.class, "TfsMaterialInstance");
     }
 
     private static RuntimeTypeAdapterFactory<AgentRuntimeInfo> agentRuntimeInfoAdapter() {
@@ -131,6 +137,16 @@ public class Serialization {
                 .registerSubtype(ChecksumFileHandler.class, "ChecksumFileHandler")
                 .registerSubtype(DirHandler.class, "DirHandler")
                 .registerSubtype(FileHandler.class, "FileHandler");
+    }
+
+    private static RuntimeTypeAdapterFactory<AgentRequest> agentRequestAdapter() {
+        return RuntimeTypeAdapterFactory.of(AgentRequest.class, "type")
+                .registerSubtype(GetCookieRequest.class, "GetCookieRequest")
+                .registerSubtype(GetWorkRequest.class, "GetWorkRequest")
+                .registerSubtype(IsIgnoredRequest.class, "IsIgnoredRequest")
+                .registerSubtype(PingRequest.class, "PingRequest")
+                .registerSubtype(ReportCompleteStatusRequest.class, "ReportCompleteStatusRequest")
+                .registerSubtype(ReportCurrentStatusRequest.class, "ReportCurrentStatusRequest");
     }
 
     /**
@@ -155,7 +171,7 @@ public class Serialization {
         public JsonElement serialize(ConfigurationProperty src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject serialized = new JsonObject();
             serialized.add("key", new JsonPrimitive(src.getConfigKeyName()));
-            serialized.add("value", new JsonPrimitive(src.getValue()));
+            serialized.add("value", new JsonPrimitive(src.getResolvedValue()));
 
             return serialized;
         }

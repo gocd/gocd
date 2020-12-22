@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.AgentInstruction;
+import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 
 import java.util.ArrayList;
@@ -77,4 +77,5 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
     public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
         throw new RuntimeException("implement me");
     }
+
 }

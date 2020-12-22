@@ -39,10 +39,13 @@ import java.util.zip.GZIPInputStream;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 
+@Deprecated(forRemoval = true)
+// This class should be removed once we remove the RMI buildRepository endpoint because RMI is vulnerable to a remote
+// execution attack payload. This will be superceded by RemotingClient.
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
-    private DefaultAgentRegistry defaultAgentRegistry;
+    private final DefaultAgentRegistry defaultAgentRegistry;
 
     public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, DefaultAgentRegistry defaultAgentRegistry) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;

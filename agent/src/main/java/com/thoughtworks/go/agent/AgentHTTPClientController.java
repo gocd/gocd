@@ -29,8 +29,8 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.AgentInstruction;
+import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
@@ -39,29 +39,34 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import static com.thoughtworks.go.remote.AgentInstruction.NONE;
+import static java.util.Objects.requireNonNullElse;
 
 @Component
 public class AgentHTTPClientController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
 
-    private BuildRepositoryRemote server;
-    private GoArtifactsManipulator manipulator;
-    private SslInfrastructureService sslInfrastructureService;
+    private final RemotingClient client;
+    private final BuildRepositoryRemote legacyRmi;
+    private final GoArtifactsManipulator manipulator;
+    private final SslInfrastructureService sslInfrastructureService;
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private final PluginJarLocationMonitor pluginJarLocationMonitor;
 
     private JobRunner runner;
-    private PackageRepositoryExtension packageRepositoryExtension;
-    private SCMExtension scmExtension;
-    private TaskExtension taskExtension;
+    private final PackageRepositoryExtension packageRepositoryExtension;
+    private final SCMExtension scmExtension;
+    private final TaskExtension taskExtension;
     private AgentInstruction agentInstruction = NONE;
 
     @Autowired
-    public AgentHTTPClientController(BuildRepositoryRemote server,
+    public AgentHTTPClientController(RemotingClient client,
+                                     @Qualifier("buildLoopServer")
+                                     BuildRepositoryRemote legacyRmi,
                                      GoArtifactsManipulator manipulator,
                                      SslInfrastructureService sslInfrastructureService,
                                      AgentRegistry agentRegistry,
@@ -77,29 +82,33 @@ public class AgentHTTPClientController extends AgentController {
                                      AgentHealthHolder agentHealthHolder,
                                      PluginJarLocationMonitor pluginJarLocationMonitor) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
+        this.client = client;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
-        this.server = server;
+        this.legacyRmi = legacyRmi;
         this.manipulator = manipulator;
         this.sslInfrastructureService = sslInfrastructureService;
         this.artifactExtension = artifactExtension;
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
         this.pluginJarLocationMonitor = pluginJarLocationMonitor;
+
+        LOG.info("Configured remoting type: {}", remote().getClass().getSimpleName());
     }
 
     @Override
     public void ping() {
+        final BuildRepositoryRemote client = remote();
         try {
             if (sslInfrastructureService.isRegistered()) {
                 AgentIdentifier agent = agentIdentifier();
-                LOG.trace("{} is pinging server [{}]", agent, server);
+                LOG.trace("{} is pinging server [{}]", agent, client);
 
                 getAgentRuntimeInfo().refreshUsableSpace();
 
-                agentInstruction = server.ping(getAgentRuntimeInfo());
+                agentInstruction = client.ping(getAgentRuntimeInfo());
                 pingSuccess();
-                LOG.trace("{} pinged server [{}]", agent, server);
+                LOG.trace("{} pinged server [{}]", agent, client);
             }
         } catch (Throwable e) {
             LOG.error("Error occurred when agent tried to ping server: ", e);
@@ -128,24 +137,25 @@ public class AgentHTTPClientController extends AgentController {
     private void retrieveCookieIfNecessary() {
         if (!getAgentRuntimeInfo().hasCookie() && sslInfrastructureService.isRegistered()) {
             LOG.info("About to get cookie from the server.");
-            String cookie = server.getCookie(getAgentRuntimeInfo());
+            String cookie = remote().getCookie(getAgentRuntimeInfo());
             getAgentRuntimeInfo().setCookie(cookie);
             LOG.info("Got cookie: {}", cookie);
         }
     }
 
     void retrieveWork() {
+        final BuildRepositoryRemote client = remote();
         AgentIdentifier agentIdentifier = agentIdentifier();
         LOG.debug("[Agent Loop] {} is checking for work from Go", agentIdentifier);
         Work work;
         try {
             getAgentRuntimeInfo().idle();
-            work = server.getWork(getAgentRuntimeInfo());
+            work = client.getWork(getAgentRuntimeInfo());
             if (!(work instanceof NoWork)) {
                 LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             }
             runner = new JobRunner();
-            final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, server, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
+            final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);
         } catch (UnregisteredAgentException e) {
             LOG.warn("[Agent Loop] Invalid agent certificate with fingerprint {}. Registering with server on next iteration.", e.getUuid());
@@ -155,4 +165,20 @@ public class AgentHTTPClientController extends AgentController {
         }
     }
 
+    private BuildRepositoryRemote remote() {
+        boolean useLegacy = useLegacy();
+
+        LOG.debug("Remoting type used: {}", (useLegacy ? "RMI" : "JSON"));
+
+        return useLegacy ? legacyRmi : client;
+    }
+
+    private boolean useLegacy() {
+        return "true".equalsIgnoreCase(
+                requireNonNullElse(
+                        System.getProperty("gocd.agent.remoting.legacy"),
+                        "false"
+                ).trim()
+        );
+    }
 }

@@ -31,6 +31,12 @@
   </rule>
 
   <rule>
+    <name>Internal Agents API for agent-server communication</name>
+    <from> /remoting/api/agent/(.*)$</from>
+    <to last="true">/spark/remoting/api/agent/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>Preference SPA</name>
     <from>^/preferences/notifications(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="preferenceSPA"/>

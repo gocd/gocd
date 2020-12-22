@@ -43,14 +43,14 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     private static final int TRUNCATED_NAME_MAX_LENGTH = 20;
 
     protected CaseInsensitiveString name;
-    protected String type;
+    protected String materialType;
     private Map<String, Object> sqlCriteria;
     private Map<String, Object> attributesForXml;
     private String pipelineUniqueFingerprint;
     protected String fingerprint;
 
-    public AbstractMaterial(String typeName) {
-        type = typeName;
+    public AbstractMaterial(String materialType) {
+        this.materialType = materialType;
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public final Map<String, Object> getSqlCriteria() {
         if (sqlCriteria == null) {
             Map<String, Object> map = new LinkedHashMap<>();
-            map.put("type", type);
+            map.put("type", materialType);
             appendCriteria(map);
             sqlCriteria = Collections.unmodifiableMap(map);
         }
@@ -77,7 +77,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     @Override
     public final Map<String, Object> getAttributesForScope() {
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put("type", type);
+        map.put("type", materialType);
         map.put("autoUpdate", isAutoUpdate());
         appendCriteria(map);
         return Collections.unmodifiableMap(map);
@@ -87,7 +87,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public final Map<String, Object> getAttributesForXml() {
         if (attributesForXml == null) {
             Map<String, Object> map = new LinkedHashMap<>();
-            map.put("type", type);
+            map.put("type", materialType);
             appendAttributes(map);
             attributesForXml = Collections.unmodifiableMap(map);
         }
@@ -146,8 +146,8 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     @Override
-    public String getType() {
-        return type;
+    public String getMaterialType() {
+        return materialType;
     }
 
     @Override
@@ -179,7 +179,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (materialType != null ? !materialType.equals(that.materialType) : that.materialType != null) {
             return false;
         }
 
@@ -189,13 +189,13 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (materialType != null ? materialType.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("AbstractMaterial{name=%s, type=%s}", name, type);
+        return String.format("AbstractMaterial{name=%s, type=%s}", name, materialType);
     }
 
     protected void resetCachedIdentityAttributes() {
@@ -241,7 +241,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
-        throw new UnsupportedOperationException(String.format("'checkConnection' cannot be performed on material of type %s", type));
+        throw new UnsupportedOperationException(String.format("'checkConnection' cannot be performed on material of type %s", materialType));
     }
 
     boolean dataHasSecureValue(EnvironmentVariableContext context, Map.Entry<String, String> dataEntry) {

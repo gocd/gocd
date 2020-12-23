@@ -47,9 +47,11 @@ import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
+import java.io.File;
 import java.lang.reflect.Type;
 
 import static java.lang.String.format;
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 
 public class Serialization {
 
@@ -73,6 +75,7 @@ public class Serialization {
                 .registerTypeAdapter(DESCipherProvider.class, new SecurityRejectingAdapter<DESCipherProvider>())
                 .registerTypeAdapter(ArtifactStore.class, new ArtifactStoreAdapter())
                 .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
+                .registerTypeAdapter(File.class, new FileAdapter())
                 .registerTypeAdapterFactory(builderAdapter())
                 .registerTypeAdapterFactory(materialAdapter())
                 .registerTypeAdapterFactory(workAdapter())
@@ -162,6 +165,14 @@ public class Serialization {
         @Override
         public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
             throw new IllegalArgumentException(format("Refusing to serialize a %s instance and leak security details!", typeOfSrc.getTypeName()));
+        }
+    }
+
+    private static class FileAdapter implements JsonDeserializer<File> {
+        @Override
+        public File deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            String path = json.getAsJsonObject().get("path").getAsString();
+            return new File(separatorsToSystem(path));
         }
     }
 

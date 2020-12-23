@@ -90,7 +90,7 @@
     "cache-loader": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^5.0.1",
-    "eslint": "^7.15.0",
+    "eslint": "^7.16.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-es5": "^1.5.0",
     "eslint-plugin-react": "^7.21.5",
@@ -135,7 +135,7 @@
     "upath": "^2.0.1",
     "url-loader": "^4.1.1",
     "webpack": "^4.44.2",
-    "webpack-build-notifier": "^2.1.0",
+    "webpack-build-notifier": "^2.1.1",
     "webpack-cli": "^4.2.0"
   }
 }

@@ -1087,10 +1087,10 @@
   resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.6.tgz#1e2a482b0d8bcfe83f4d61e4c370ec8534903984"
   integrity sha512-oOyFr99rKH+94uKHjIVKTL9uaUaxtXJgtZOZkjhWIAY8twr9YzxfEmYARMJkWC3aVg52We8d4wtLhqQ99+fXpw==
 
-"@types/node@*", "@types/node@^14.14.14":
-  version "14.14.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.14.tgz#f7fd5f3cc8521301119f63910f0fb965c7d761ae"
-  integrity sha512-UHnOPWVWV1z+VV8k6L1HhG7UbGBgIdghqF3l9Ny9ApPghbjICXkUJSd/b9gOgQfjM1r+37cipdw/HJ3F6ICEnQ==
+"@types/node@*", "@types/node@^14.14.16":
+  version "14.14.16"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.16.tgz#3cc351f8d48101deadfed4c9e4f116048d437b4b"
+  integrity sha512-naXYePhweTi+BMv11TgioE2/FXU4fSl29HAH1ffxVciNsH3rYXjNP2yM8wqmSm7jS20gM8TIklKiTen+1iVncw==
 
 "@types/optimize-css-assets-webpack-plugin@^5.0.1":
   version "5.0.1"
@@ -3830,7 +3830,7 @@ for-in@^1.0.2:
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
   integrity sha1-gQaNKVqBQuwKxybG4iAMMPttXoA=
 
-fork-ts-checker-webpack-plugin@^6.0.8:
+fork-ts-checker-webpack-plugin@^6:
   version "6.0.8"
   resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-6.0.8.tgz#437bcc0e4e1f9f56e08e61defa5df92648eef27d"
   integrity sha512-2K6Ozamm6TSL5heFIwPhX5+VsOBiiKf9PzaPFS7kwzrILKX+jlN3DBQc5v/6YYZ2oKJyImg3bY0/uZc7cDbDYQ==

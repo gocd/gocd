@@ -106,7 +106,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
             if (!StringUtils.isBlank(value)) {
                 String[] arguments = value.split("\\R");
                 for (String arg : arguments) {
-                    argList.add(new Argument(arg));
+                    argList.add(new Argument(arg.trim()));
                 }
             }
         }
@@ -123,7 +123,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     public void setArgsList(String[] arguments) {
         clearCurrentArgsAndArgList();
         for (String arg : arguments) {
-            argList.add(new Argument(arg));
+            argList.add(new Argument(arg.trim()));
         }
     }
 

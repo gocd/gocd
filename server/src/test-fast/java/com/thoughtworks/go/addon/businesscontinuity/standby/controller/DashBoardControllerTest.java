@@ -182,7 +182,6 @@ class DashBoardControllerTest {
     void shouldGetStandbyServerDetails() {
         HashMap<ConfigFileType, String> fileMd5Map = new HashMap<>();
         fileMd5Map.put(ConfigFileType.CRUISE_CONFIG_XML, "md51");
-        fileMd5Map.put(ConfigFileType.DES_CIPHER, "md52");
         fileMd5Map.put(ConfigFileType.AES_CIPHER, "md53");
 
         Map<String, String> plugins = new HashMap<>();
@@ -200,7 +199,7 @@ class DashBoardControllerTest {
 
         JsonFluentAssert.assertThatJson(gson.toJson(standbyDetails)).isEqualTo("{\"CRUISE_CONFIG_XML\":\"md51\",\"lastUpdateTime\":\"" +
                 new SimpleDateFormat("MMM d, YYYY HH:mm:ss").format(new Date(time)) +
-                "\",\"primaryStatusCheckInterval\":60000,\"pluginStatus\":\"plugin-one=md51, plugin-two=md52\",\"DES_CIPHER\":\"md52\",\"AES_CIPHER\":\"md53\",\"latestReceivedDatabaseWalLocation\":\"12345\"}");
+                "\",\"primaryStatusCheckInterval\":60000,\"pluginStatus\":\"plugin-one=md51, plugin-two=md52\",\"AES_CIPHER\":\"md53\",\"latestReceivedDatabaseWalLocation\":\"12345\"}");
     }
 
     @Test
@@ -211,7 +210,6 @@ class DashBoardControllerTest {
 
         HashMap<ConfigFileType, FileDetails> fileDetailsMap = new HashMap<>();
         fileDetailsMap.put(ConfigFileType.CRUISE_CONFIG_XML, new FileDetails("md51"));
-        fileDetailsMap.put(ConfigFileType.DES_CIPHER, new FileDetails("md52"));
         fileDetailsMap.put(ConfigFileType.AES_CIPHER, new FileDetails("md53"));
 
         Map<String, String> pluginOne = new HashMap<>();
@@ -232,7 +230,7 @@ class DashBoardControllerTest {
         doReturn(plugins).when(primaryServerCommunicationService).getLatestPluginsStatus();
 
         Map<String, Object> primaryServerDetails = controller.primaryServerDetails();
-        JsonFluentAssert.assertThatJson(gson.toJson(primaryServerDetails)).isEqualTo("{\"CRUISE_CONFIG_XML\":{\"md5\":\"md51\"},\"configFilesUpdateInterval\":60000,\"latestDatabaseWalLocation\":\"12345\",\"pluginStatus\":\"plugin-one=md51, plugin-two=md52\",\"DES_CIPHER\":{\"md5\":\"md52\"},\"AES_CIPHER\":{\"md5\":\"md53\"},\"url\":\"https://localhost:8154\",\"lastConfigUpdateTime\":\"" +
+        JsonFluentAssert.assertThatJson(gson.toJson(primaryServerDetails)).isEqualTo("{\"CRUISE_CONFIG_XML\":{\"md5\":\"md51\"},\"configFilesUpdateInterval\":60000,\"latestDatabaseWalLocation\":\"12345\",\"pluginStatus\":\"plugin-one=md51, plugin-two=md52\",\"AES_CIPHER\":{\"md5\":\"md53\"},\"url\":\"https://localhost:8154\",\"lastConfigUpdateTime\":\"" +
                         new SimpleDateFormat("MMM d, YYYY HH:mm:ss").format(new Date(time)) + "\"}");
     }
 

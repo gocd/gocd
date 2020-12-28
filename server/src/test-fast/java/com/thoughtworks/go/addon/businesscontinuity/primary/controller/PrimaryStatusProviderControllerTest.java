@@ -59,7 +59,7 @@ class PrimaryStatusProviderControllerTest {
         primaryStatusProviderController.latestStatus(httpServletResponse);
 
         ServerStatusResponse serverStatusResponse = new Gson().fromJson(httpServletResponse.getContentAsString(), ServerStatusResponse.class);
-        assertThat(serverStatusResponse.getFileDetailsMap().size(), is(4));
+        assertThat(serverStatusResponse.getFileDetailsMap().size(), is(3));
         assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.CRUISE_CONFIG_XML).getMd5(), is("a"));
         assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.AES_CIPHER).getMd5(), is("AES-CIPHER"));
         assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.JETTY_XML).getMd5(), is("c"));

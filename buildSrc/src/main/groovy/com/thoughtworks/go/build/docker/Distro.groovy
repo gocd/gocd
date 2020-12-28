@@ -179,7 +179,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: '16.04', releaseName: 'xenial', eolDate: parseDate('2021-04-01')),
+        new DistroVersion(version: '16.04', releaseName: 'xenial', eolDate: parseDate('2021-04-01'), continueToBuild: true),
         new DistroVersion(version: '18.04', releaseName: 'bionic', eolDate: parseDate('2023-04-01'))
       ]
     }

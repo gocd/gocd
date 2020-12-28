@@ -39,7 +39,6 @@ public class PrimaryServerEndPoint {
     public PrimaryServerEndPoint(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
         urlMap.put(ConfigFileType.CRUISE_CONFIG_XML, createBusinessContinuityAddOnApiURLFor("/cruise_config"));
-        urlMap.put(ConfigFileType.DES_CIPHER, createBusinessContinuityAddOnApiURLFor("/cipher"));
         urlMap.put(ConfigFileType.AES_CIPHER, createBusinessContinuityAddOnApiURLFor("/cipher.aes"));
         urlMap.put(ConfigFileType.JETTY_XML, createBusinessContinuityAddOnApiURLFor("/jetty_config"));
         urlMap.put(ConfigFileType.USER_FEATURE_TOGGLE, createBusinessContinuityAddOnApiURLFor("/user_feature_toggle"));

@@ -44,7 +44,6 @@ class GoFilesStatusProviderTest {
         String configDirForTest = getClass().getResource("/config_directory_1").getFile();
         when(systemEnvironment.getConfigDir()).thenReturn(configDirForTest);
         when(systemEnvironment.getCruiseConfigFile()).thenReturn(new File(configDirForTest, "cruise-config.xml").getAbsolutePath());
-        when(systemEnvironment.getDESCipherFile()).thenReturn(new File(configDirForTest, "cipher"));
         when(systemEnvironment.getAESCipherFile()).thenReturn(new File(configDirForTest, "cipher.aes"));
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File(configDirForTest, "jetty.xml"));
         when(cruiseConfig.getMd5()).thenReturn("cruise-config-md5");
@@ -56,7 +55,6 @@ class GoFilesStatusProviderTest {
     @Test
     void shouldInitializeFileStatusMapWithRequiredFilesAndInitializeUpdateThread() {
         assertThat(getFileStatus(ConfigFileType.CRUISE_CONFIG_XML), is(EMPTY));
-        assertThat(getFileStatus(ConfigFileType.DES_CIPHER), is(EMPTY));
         assertThat(getFileStatus(ConfigFileType.AES_CIPHER), is(EMPTY));
         assertThat(getFileStatus(ConfigFileType.JETTY_XML), is(EMPTY));
         assertThat(getFileStatus(ConfigFileType.USER_FEATURE_TOGGLE), is(EMPTY));
@@ -70,7 +68,6 @@ class GoFilesStatusProviderTest {
         goFilesStatusProvider = new GoFilesStatusProvider(goConfigService, systemEnvironment, new MockScheduledExecutorService(), addOnConfiguration);
 
         assertThat(getFileStatus(ConfigFileType.CRUISE_CONFIG_XML), is("cruise-config-md5"));
-        assertThat(getFileStatus(ConfigFileType.DES_CIPHER), is("e38bf9c7ca52c1327ac0ebb08d90b070"));
         assertThat(getFileStatus(ConfigFileType.AES_CIPHER), is("0b4335edfaeacf4d61c0db1ae0820ac3"));
         assertThat(getFileStatus(ConfigFileType.JETTY_XML), is("ee710ce0aa67ef28f22210c659deb6d2"));
         assertThat(getFileStatus(ConfigFileType.USER_FEATURE_TOGGLE), is("c08744f9efd2574c8f93a75bef98de1f"));

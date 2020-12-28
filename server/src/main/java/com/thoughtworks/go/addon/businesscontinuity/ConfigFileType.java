@@ -26,8 +26,6 @@ public enum ConfigFileType {
         return new File(systemEnvironment.getCruiseConfigFile());
     }),
 
-    DES_CIPHER(SystemEnvironment::getDESCipherFile),
-
     AES_CIPHER(SystemEnvironment::getAESCipherFile),
 
     JETTY_XML(SystemEnvironment::getJettyConfigFile),

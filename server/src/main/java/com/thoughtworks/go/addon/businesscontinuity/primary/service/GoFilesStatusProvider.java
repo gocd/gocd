@@ -65,7 +65,6 @@ public class GoFilesStatusProvider {
 
     void initializeFileStatus() {
         setFileStatus(ConfigFileType.CRUISE_CONFIG_XML, EMPTY);
-        setFileStatus(ConfigFileType.DES_CIPHER, EMPTY);
         setFileStatus(ConfigFileType.AES_CIPHER, EMPTY);
         setFileStatus(ConfigFileType.JETTY_XML, EMPTY);
         setFileStatus(ConfigFileType.USER_FEATURE_TOGGLE, EMPTY);
@@ -75,11 +74,7 @@ public class GoFilesStatusProvider {
         if (addOnConfiguration.isServerInStandby()) return;
         for (ConfigFileType configFileType : fileStatus.keySet()) {
             File file = configFileType.load(systemEnvironment);
-            if (!file.exists()) {
-                LOGGER.warn(String.format("Could not find file %s", file.getAbsolutePath()));
-                continue;
-            }
-            // TODO: in standby mode goConfigService.getCurrentConfig().getMd5() could always be null. handle the case.
+            if (!file.exists()) continue;
             if (configFileType.equals(ConfigFileType.CRUISE_CONFIG_XML) && goConfigService.getCurrentConfig().getMd5() != null) {
                 setFileStatus(ConfigFileType.CRUISE_CONFIG_XML, goConfigService.getCurrentConfig().getMd5());
             } else {

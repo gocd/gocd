@@ -99,11 +99,6 @@ public class PrimaryStatusProviderController {
         serveFile(ConfigFileType.USER_FEATURE_TOGGLE.load(systemEnvironment), response, "text/json");
     }
 
-    @RequestMapping(value = "/cipher", method = RequestMethod.GET)
-    public void getLatestDESCipher(HttpServletResponse response) {
-        serveFile(ConfigFileType.DES_CIPHER.load(systemEnvironment), response, "text/plain");
-    }
-
     @RequestMapping(value = "/cipher.aes", method = RequestMethod.GET)
     public void getLatestAESCipher(HttpServletResponse response) {
         serveFile(ConfigFileType.AES_CIPHER.load(systemEnvironment), response, "text/plain");

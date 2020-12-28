@@ -51,7 +51,6 @@ class PrimaryStatusProviderControllerTest {
     void shouldRespondWithLatestStatus() throws IOException {
         Map<ConfigFileType, String> latestStatus = new HashMap<>();
         latestStatus.put(ConfigFileType.CRUISE_CONFIG_XML, "a");
-        latestStatus.put(ConfigFileType.DES_CIPHER, "b");
         latestStatus.put(ConfigFileType.AES_CIPHER, "AES-CIPHER");
         latestStatus.put(ConfigFileType.JETTY_XML, "c");
         when(goFilesStatusProvider.getLatestStatusMap()).thenReturn(latestStatus);
@@ -60,9 +59,8 @@ class PrimaryStatusProviderControllerTest {
         primaryStatusProviderController.latestStatus(httpServletResponse);
 
         ServerStatusResponse serverStatusResponse = new Gson().fromJson(httpServletResponse.getContentAsString(), ServerStatusResponse.class);
-        assertThat(serverStatusResponse.getFileDetailsMap().size(), is(4));
+        assertThat(serverStatusResponse.getFileDetailsMap().size(), is(3));
         assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.CRUISE_CONFIG_XML).getMd5(), is("a"));
-        assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.DES_CIPHER).getMd5(), is("b"));
         assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.AES_CIPHER).getMd5(), is("AES-CIPHER"));
         assertThat(serverStatusResponse.getFileDetailsMap().get(ConfigFileType.JETTY_XML).getMd5(), is("c"));
     }
@@ -76,17 +74,6 @@ class PrimaryStatusProviderControllerTest {
         assertThat(httpServletResponse.getContentType(), is("text/xml"));
         assertThat(httpServletResponse.getCharacterEncoding(), is("UTF-8"));
         assertThat(httpServletResponse.getContentAsByteArray(), is(FileUtils.readFileToByteArray(new File(systemEnvironment.getCruiseConfigFile()))));
-    }
-
-    @Test
-    void shouldRespondWithLatestDESCipher() throws Exception {
-        when(systemEnvironment.getDESCipherFile()).thenReturn(new File(configDirectory, "cipher"));
-
-        primaryStatusProviderController.getLatestDESCipher(httpServletResponse);
-
-        assertThat(httpServletResponse.getContentType(), is("text/plain"));
-        assertThat(httpServletResponse.getCharacterEncoding(), is("UTF-8"));
-        assertThat(httpServletResponse.getContentAsByteArray(), is(FileUtils.readFileToByteArray(systemEnvironment.getDESCipherFile())));
     }
 
     @Test

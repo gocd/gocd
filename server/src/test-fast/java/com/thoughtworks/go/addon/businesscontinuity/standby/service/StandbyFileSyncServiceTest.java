@@ -70,7 +70,6 @@ public class StandbyFileSyncServiceTest {
             return null;
         };
         doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.CRUISE_CONFIG_XML), any(File.class));
-        doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.DES_CIPHER), any(File.class));
         doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.AES_CIPHER), any(File.class));
         doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.JETTY_XML), any(File.class));
 
@@ -85,7 +84,6 @@ public class StandbyFileSyncServiceTest {
     void shouldSyncConfigFiles() throws Exception {
         Map<ConfigFileType, FileDetails> latestStatusMap = new HashMap<ConfigFileType, FileDetails>() {{
             put(ConfigFileType.CRUISE_CONFIG_XML, new FileDetails("new-md5"));
-            put(ConfigFileType.DES_CIPHER, new FileDetails("new-md5"));
             put(ConfigFileType.AES_CIPHER, new FileDetails("new-md5"));
             put(ConfigFileType.JETTY_XML, new FileDetails("new-md5"));
         }};
@@ -99,7 +97,6 @@ public class StandbyFileSyncServiceTest {
         new StandbyFileSyncService(systemEnvironment, primaryServerCommunicationService, new MockScheduledExecutorService(), addOnConfiguration);
 
         assertThat(FileUtils.readFileToString(new File(systemEnvironment.getCruiseConfigFile()), UTF_8), is("CRUISE_CONFIG_XML contents"));
-        assertThat(FileUtils.readFileToString(systemEnvironment.getDESCipherFile(), UTF_8), is("DES_CIPHER contents"));
         assertThat(FileUtils.readFileToString(systemEnvironment.getAESCipherFile(), UTF_8), is("AES_CIPHER contents"));
         assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is("JETTY_XML contents"));
         verify(primaryServerCommunicationService).getLatestFileStatus();

@@ -93,7 +93,7 @@
     "eslint": "^7.16.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-es5": "^1.5.0",
-    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react": "^7.22.0",
     "fibers": "^5.0.0",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6",

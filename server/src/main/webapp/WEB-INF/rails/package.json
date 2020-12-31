@@ -76,7 +76,7 @@
     "@types/lru-cache": "^5.1.0",
     "@types/mini-css-extract-plugin": "^1.2.2",
     "@types/mithril": "^2.0.6",
-    "@types/node": "^14.14.16",
+    "@types/node": "^14.14.17",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.1",
     "@types/prismjs": "^1.16.2",
     "@types/shell-quote": "^1.7.0",

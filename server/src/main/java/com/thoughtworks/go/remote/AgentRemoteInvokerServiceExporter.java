@@ -32,10 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
@@ -47,14 +45,14 @@ import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
  */
 public class AgentRemoteInvokerServiceExporter extends HttpInvokerServiceExporter {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AgentRemoteInvokerServiceExporter.class);
-    private static final Set<MethodSignature> SKIP_AUTH = Set.of(new MethodSignature("isIgnored", JobIdentifier.class));
-    private static final Map<MethodSignature, Function<Object[], String>> KNOWN_METHODS_NEEDING_UUID_VALIDATION = Map.of(
-            new MethodSignature("ping", AgentRuntimeInfo.class), AgentUUID::fromRuntimeInfo0,
-            new MethodSignature("getWork", AgentRuntimeInfo.class), AgentUUID::fromRuntimeInfo0,
-            new MethodSignature("reportCurrentStatus", AgentRuntimeInfo.class, JobIdentifier.class, JobState.class), AgentUUID::fromRuntimeInfo0,
-            new MethodSignature("reportCompleting", AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class), AgentUUID::fromRuntimeInfo0,
-            new MethodSignature("reportCompleted", AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class), AgentUUID::fromRuntimeInfo0,
-            new MethodSignature("getCookie", AgentIdentifier.class, String.class), AgentUUID::fromIdentifier0
+    private static final Set<MethodSignature> KNOWN_METHODS_NEEDING_UUID_VALIDATION = Set.of(
+            new MethodSignature("ping", AgentRuntimeInfo.class),
+            new MethodSignature("getWork", AgentRuntimeInfo.class),
+            new MethodSignature("reportCurrentStatus", AgentRuntimeInfo.class, JobIdentifier.class, JobState.class),
+            new MethodSignature("reportCompleting", AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class),
+            new MethodSignature("reportCompleted", AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class),
+            new MethodSignature("isIgnored", AgentRuntimeInfo.class, JobIdentifier.class),
+            new MethodSignature("getCookie", AgentRuntimeInfo.class)
     );
 
     @Override
@@ -89,13 +87,8 @@ public class AgentRemoteInvokerServiceExporter extends HttpInvokerServiceExporte
 
         LOG.debug(format("Checking authorization for agent [%s] on invocation: %s", uuid, invocation));
 
-        if (SKIP_AUTH.contains(current)) {
-            LOG.debug(format("ALLOWING REQUEST: Agent [%s] does not need authorization for: %s", uuid, invocation));
-            return true;
-        }
-
-        if (KNOWN_METHODS_NEEDING_UUID_VALIDATION.containsKey(current)) {
-            final String askingFor = KNOWN_METHODS_NEEDING_UUID_VALIDATION.get(current).apply(invocation.getArguments());
+        if (KNOWN_METHODS_NEEDING_UUID_VALIDATION.contains(current)) {
+            final String askingFor = AgentUUID.fromRuntimeInfo0(invocation.getArguments());
 
             if (!uuid.equals(askingFor)) {
                 LOG.error(format("DENYING REQUEST: Agent [%s] is attempting a request on behalf of [%s]: %s", uuid, askingFor, invocation));
@@ -135,10 +128,6 @@ public class AgentRemoteInvokerServiceExporter extends HttpInvokerServiceExporte
     private static class AgentUUID {
         private static String fromRuntimeInfo0(Object[] args) {
             return ((AgentRuntimeInfo) args[0]).getIdentifier().getUuid();
-        }
-
-        private static String fromIdentifier0(Object[] args) {
-            return ((AgentIdentifier) args[0]).getUuid();
         }
     }
 

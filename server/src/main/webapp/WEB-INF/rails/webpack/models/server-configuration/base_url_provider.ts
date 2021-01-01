@@ -25,9 +25,10 @@ interface LocationLike {
 }
 
 export function baseUrlProvider(s: SiteUrls, fallback: () => string) {
+  const g = (u?: string) => u ? currentUrlOriginAndPath(new URL(`${u}/go`)) : u;
   return cascading((s) => !!(s || "").trim().length,
-    () => s.secureSiteUrl()!,
-    () => s.siteUrl()!,
+    () => g(s.secureSiteUrl()),
+    () => g(s.siteUrl()),
     fallback
   );
 }

@@ -21,21 +21,21 @@ describe("basic_url_provider", () => {
   describe("baseUrlProvider()", () => {
     it("returns the configured site URL", () => {
       const fallback = jasmine.createSpy("fallback");
-      const url = baseUrlProvider(new SiteUrls("http://my.gocd/go"), fallback);
+      const url = baseUrlProvider(new SiteUrls("http://my.gocd"), fallback);
       expect(url()).toBe("http://my.gocd/go");
       expect(fallback).not.toHaveBeenCalled();
     });
 
     it("returns the configured secure site URL", () => {
       const fallback = jasmine.createSpy("fallback");
-      const url = baseUrlProvider(new SiteUrls(void 0, "https://my.secured.gocd/go"), fallback);
+      const url = baseUrlProvider(new SiteUrls(void 0, "https://my.secured.gocd"), fallback);
       expect(url()).toBe("https://my.secured.gocd/go");
       expect(fallback).not.toHaveBeenCalled();
     });
 
     it("favors the secure site URL over site URL when both are configured", () => {
       const fallback = jasmine.createSpy("fallback");
-      const url = baseUrlProvider(new SiteUrls("http://my.gocd/go", "https://my.secured.gocd/go"), fallback);
+      const url = baseUrlProvider(new SiteUrls("http://my.gocd", "https://my.secured.gocd"), fallback);
       expect(url()).toBe("https://my.secured.gocd/go");
       expect(fallback).not.toHaveBeenCalled();
     });

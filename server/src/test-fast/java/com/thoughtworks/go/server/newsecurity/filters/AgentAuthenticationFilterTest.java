@@ -29,47 +29,47 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.openMocks;
 
-@EnableRuleMigrationSupport
 public class AgentAuthenticationFilterTest {
-    @TempDir
-    File tempDir;
-    private TemporaryFolder temporaryFolder;
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private final FilterChain filterChain = mock(FilterChain.class);
     private final TestingClock clock = new TestingClock();
 
+    @Mock
+    private GoConfigService goConfigService;
+
+    @Mock
+    private AgentService agentService;
+
     @BeforeEach
-    void setUp() throws IOException {
-        temporaryFolder = new TemporaryFolder(tempDir);
-        temporaryFolder.create();
+    void setUp() throws Exception {
+        openMocks(this).close();
+        ClearSingleton.clearSingletons();
+    }
+
+    @AfterEach
+    void tearDown() {
+        ClearSingleton.clearSingletons();
     }
 
     @Nested
     class TokenBased {
         @Test
         void shouldPopulateAgentUserInSessionIfAgentExistsInConfig() throws Exception {
-            GoConfigService goConfigService = mock(GoConfigService.class);
-            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
@@ -97,8 +97,6 @@ public class AgentAuthenticationFilterTest {
 
         @Test
         void shouldRejectRequestIfUUIDIsNotInConfig() throws Exception {
-            GoConfigService goConfigService = mock(GoConfigService.class);
-            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
@@ -122,8 +120,6 @@ public class AgentAuthenticationFilterTest {
 
         @Test
         void shouldRejectRequestWith403IfCredentialsAreBad() throws Exception {
-            GoConfigService goConfigService = mock(GoConfigService.class);
-            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
@@ -157,11 +153,9 @@ public class AgentAuthenticationFilterTest {
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
-            AgentService agentService = mock(AgentService.class);
             when(agentService.isRegistered(uuid)).thenReturn(true);
-
-            GoConfigService goConfigService = mock(GoConfigService.class);
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
+
             AgentAuthenticationFilter authenticationFilter = new AgentAuthenticationFilter(goConfigService, clock, agentService);
 
             String token = authenticationFilter.hmacOf(uuid);
@@ -189,8 +183,6 @@ public class AgentAuthenticationFilterTest {
         void shouldReAuthenticateIfSessionContainsTheSameTokenAsInRequest() throws ServletException, IOException {
             String uuid = "blah";
 
-            GoConfigService goConfigService = mock(GoConfigService.class);
-            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 

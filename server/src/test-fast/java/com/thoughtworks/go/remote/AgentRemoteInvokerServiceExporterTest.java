@@ -23,6 +23,7 @@ import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -33,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 
+import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -47,20 +49,34 @@ public class AgentRemoteInvokerServiceExporterTest {
     private MockHttpServletResponse res;
 
     @Mock
+    private SystemEnvironment env;
+
+    @Mock
     private BuildRepositoryMessageProducer target;
 
     @BeforeEach
     void setup() throws Exception {
         openMocks(this).close();
+        when(env.get(AGENT_EXTRA_PROPERTIES)).thenReturn("gocd.agent.remoting.legacy=true");
         req = new MockHttpServletRequest();
         req.addHeader("X-Agent-GUID", AGENT_UUID);
         res = new MockHttpServletResponse();
     }
 
     @Test
+    void rejectsWhenLegacyDisabled() throws Exception {
+        when(env.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
+        final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("ping", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
+        invoker.handleRequest(req, res);
+        verify(target, never()).ping(agent);
+        assertEquals(SC_GONE, res.getStatus());
+    }
+
+    @Test
     void isIgnored_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("isIgnored", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class}, new Object[]{agent, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("isIgnored", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class}, new Object[]{agent, null}));
         invoker.handleRequest(req, res);
         verify(target, only()).isIgnored(agent, null);
         assertEquals(SC_OK, res.getStatus());
@@ -69,7 +85,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void isIgnored_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("isIgnored", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class}, new Object[]{agent, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("isIgnored", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class}, new Object[]{agent, null}));
         invoker.handleRequest(req, res);
         verify(target, never()).isIgnored(any(AgentRuntimeInfo.class), any(JobIdentifier.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -78,7 +94,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void ping_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("ping", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("ping", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verify(target, only()).ping(agent);
         assertEquals(SC_OK, res.getStatus());
@@ -87,7 +103,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void ping_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("ping", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("ping", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verify(target, never()).ping(any(AgentRuntimeInfo.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -96,7 +112,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void getWork_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getWork", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getWork", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verify(target, only()).getWork(agent);
         assertEquals(SC_OK, res.getStatus());
@@ -105,7 +121,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void getWork_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getWork", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getWork", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verify(target, never()).getWork(any(AgentRuntimeInfo.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -114,7 +130,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void getCookie_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getCookie", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getCookie", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verify(target, only()).getCookie(agent);
         assertEquals(SC_OK, res.getStatus());
@@ -123,7 +139,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void getCookie_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getCookie", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("getCookie", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verify(target, never()).getCookie(any(AgentRuntimeInfo.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -132,7 +148,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void reportCurrentStatus_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCurrentStatus", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobState.class}, new Object[]{agent, null, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCurrentStatus", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobState.class}, new Object[]{agent, null, null}));
         invoker.handleRequest(req, res);
         verify(target, only()).reportCurrentStatus(agent, null, null);
         assertEquals(SC_OK, res.getStatus());
@@ -141,7 +157,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void reportCurrentStatus_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCurrentStatus", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobState.class}, new Object[]{agent, null, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCurrentStatus", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobState.class}, new Object[]{agent, null, null}));
         invoker.handleRequest(req, res);
         verify(target, never()).reportCurrentStatus(any(AgentRuntimeInfo.class), any(JobIdentifier.class), any(JobState.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -150,7 +166,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void reportCompleting_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleting", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleting", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}));
         invoker.handleRequest(req, res);
         verify(target, only()).reportCompleting(agent, null, null);
         assertEquals(SC_OK, res.getStatus());
@@ -159,7 +175,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void reportCompleting_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleting", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleting", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}));
         invoker.handleRequest(req, res);
         verify(target, never()).reportCompleting(any(AgentRuntimeInfo.class), any(JobIdentifier.class), any(JobResult.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -168,7 +184,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void reportCompleted_allowedForSameUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleted", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleted", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}));
         invoker.handleRequest(req, res);
         verify(target, only()).reportCompleted(agent, null, null);
         assertEquals(SC_OK, res.getStatus());
@@ -177,7 +193,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void reportCompleted_rejectedForDifferentUUID() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo("other");
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleted", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("reportCompleted", new Class[]{AgentRuntimeInfo.class, JobIdentifier.class, JobResult.class}, new Object[]{agent, null, null}));
         invoker.handleRequest(req, res);
         verify(target, never()).reportCompleted(any(AgentRuntimeInfo.class), any(JobIdentifier.class), any(JobResult.class));
         assertEquals(SC_FORBIDDEN, res.getStatus());
@@ -186,7 +202,7 @@ public class AgentRemoteInvokerServiceExporterTest {
     @Test
     void rejectsUnknownMethod() throws Exception {
         final AgentRuntimeInfo agent = runtimeInfo(AGENT_UUID);
-        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("nonexistent", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}), target);
+        final AgentRemoteInvokerServiceExporter invoker = deserializingWith(new RemoteInvocation("nonexistent", new Class[]{AgentRuntimeInfo.class}, new Object[]{agent}));
         invoker.handleRequest(req, res);
         verifyNoInteractions(target);
         assertEquals(SC_BAD_REQUEST, res.getStatus());
@@ -200,11 +216,11 @@ public class AgentRemoteInvokerServiceExporterTest {
         return new AgentIdentifier(null, null, uuid);
     }
 
-    private static AgentRemoteInvokerServiceExporter deserializingWith(final RemoteInvocation invocation, final BuildRepositoryMessageProducer proxy) {
-        final AgentRemoteInvokerServiceExporter invoker = new AgentRemoteInvokerServiceExporter() {
+    private AgentRemoteInvokerServiceExporter deserializingWith(final RemoteInvocation invocation) {
+        final AgentRemoteInvokerServiceExporter invoker = new AgentRemoteInvokerServiceExporter(env) {
             @Override
             protected Object getProxyForService() {
-                return proxy;
+                return target;
             }
 
             @Override

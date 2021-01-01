@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.LoggerFactory;
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 import org.springframework.remoting.support.RemoteInvocation;
@@ -35,9 +36,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.lang.String.format;
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * Custom invoker service exporter that validates UUID authorization on agent requests. This prevents compromised agents
@@ -55,8 +56,29 @@ public class AgentRemoteInvokerServiceExporter extends HttpInvokerServiceExporte
             new MethodSignature("getCookie", AgentRuntimeInfo.class)
     );
 
+    private final SystemEnvironment env;
+
+    public AgentRemoteInvokerServiceExporter() {
+        this(new SystemEnvironment());
+    }
+
+    public AgentRemoteInvokerServiceExporter(SystemEnvironment env) {
+        this.env = env;
+    }
+
     @Override
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (rejectRMI()) {
+            // yes, ideally, this should be short-circuited in the agent auth filter, but keeping this logic here has
+            // some advantages:
+            //   - it keeps all deprecated RMI logic in one place so it's easier to remove (just remove this class)
+            //   - it's 100% reliable by virtue of its proximity to the RMI invocation code and can't be thwarted by
+            //     some clever URI encoding to circumvent the uri path test that we would need to write at the filter
+            //     level in order to selectively apply this logic to the RMI endpoint and not the JSON API endpoint
+            reject(response, SC_GONE, "This RMI endpoint is disabled.");
+            return;
+        }
+
         try {
             RemoteInvocation invocation = readRemoteInvocation(request);
 
@@ -69,6 +91,11 @@ public class AgentRemoteInvokerServiceExporter extends HttpInvokerServiceExporte
         } catch (ClassNotFoundException ex) {
             throw new NestedServletException("Class not found during deserialization", ex);
         }
+    }
+
+    private boolean rejectRMI() {
+        final String props = env.get(AGENT_EXTRA_PROPERTIES).toLowerCase();
+        return !Arrays.asList(props.split("\\s+")).contains("gocd.agent.remoting.legacy=true");
     }
 
     /**

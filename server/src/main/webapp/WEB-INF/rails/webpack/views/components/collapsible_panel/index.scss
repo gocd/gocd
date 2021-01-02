@@ -27,6 +27,23 @@ $collapsible-header-height: 50px;
   margin-bottom: 10px;
   transition:    $transition;
 
+  &[data-tag] {
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 10px;
+    }
+  }
+
+  &[data-tag="a"]::before {
+    background-color: lighten($go-primary, 25%);
+  }
+
+  &[data-tag="b"]::before {
+    background-color: lighten($go-secondary, 25%);
+  }
+
   &.expanded {
     transition: $transition;
     box-shadow: 0 0 10px $box-shadow-color;
@@ -42,7 +59,7 @@ $collapsible-header-height: 50px;
 }
 
 .collapse-header {
-  @include icon-before($fa-var-angle-right);
+  @include icon-after($fa-var-angle-right);
   position:       relative;
   display:        flex;
   flex-wrap:      wrap;
@@ -59,7 +76,7 @@ $collapsible-header-height: 50px;
     align-items:    center;
   }
 
-  &:before {
+  &:after {
     position:   absolute;
     right:      16px;
     font-size:  22px;
@@ -71,7 +88,7 @@ $collapsible-header-height: 50px;
   }
 
   &.expanded {
-    &:before {
+    &:after {
       transform:  rotate(90deg) translateY(-50%);
       transition: $transition;
       right:      25px;
@@ -96,7 +113,7 @@ $collapsible-header-height: 50px;
     align-items:    center;
   }
 
-  &:before {
+  &:after {
     position:   absolute;
     right:      16px;
     font-size:  22px;
@@ -108,7 +125,7 @@ $collapsible-header-height: 50px;
   }
 
   &.expanded {
-    &:before {
+    &:after {
       transform:  rotate(90deg) translateY(-50%);
       transition: $transition;
       right:      25px;

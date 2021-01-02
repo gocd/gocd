@@ -199,6 +199,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
     const configRepoHasErrors  = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
     const title = !repo.canAdminister() ? "You are not authorised to perform this action!" : "";
+    const auto = repo.material().attributes()!.autoUpdate();
 
     return <Anchor id={repo.id()} sm={sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel error={configRepoHasErrors}
@@ -211,6 +212,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
                                                  title={title}
                                                  vm={vm}/>}
                         vm={this}
+                        tagColor={auto ? void 0 : "b"}
                         onexpand={() => vm.notify("expand")}>
         {maybeWarning}
 

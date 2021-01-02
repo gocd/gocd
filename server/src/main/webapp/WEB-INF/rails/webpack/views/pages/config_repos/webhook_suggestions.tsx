@@ -58,11 +58,18 @@ export class WebhookSuggestionPane extends MithrilComponent<PaneAttrs> {
           " provider. Please make any necessary corrections to the URL."
         ]} />)}
 
-      <h3>Configure your {provider.name} webhook to <code>POST</code> to this URL:</h3>
+      <h3>1. Configure your {provider.name} webhook to <code>POST</code> to this URL:</h3>
 
       <CopySnippet reader={() => url} />
 
-      <h3>Configure your {provider.name} webhook to trigger on these events:</h3>
+      <dl>
+        <dt><h3>2. Ensure your webhook sends the payload as:</h3></dt>
+        <dd>
+          <code>Content-Type: application/json</code>
+        </dd>
+      </dl>
+
+      <h3>3. Configure your webhook to trigger on these events:</h3>
 
       <ul>
         {_.map(events, (ev) => <li><code>{ev}{showIf(onlyForPR(ev), () => <sup class={styles.ref}>*</sup>)}</code></li>)}

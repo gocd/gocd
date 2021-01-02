@@ -15,22 +15,31 @@
  */
 
 import classnames from "classnames";
-import {MithrilComponent} from "jsx/mithril-component";
+import { RestyleAttrs, RestyleComponent } from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import styles from "./index.scss";
+import defaultStyles from "./index.scss";
+
+type Styles = typeof defaultStyles;
+type Tags = "a" | "b"; // add some arbitrary options as needed
+
+interface TagAttrs {
+  "data-tag"?: Tags;
+}
 
 interface CollapsibleStateModel {
   expanded: (newVal?: boolean) => boolean;
 }
 
-interface Attrs {
+interface Attrs extends RestyleAttrs<Styles> {
   dataTestId?: string;
   actions?: m.Children;
   header: m.Children;
   error?: boolean;
   warning?: boolean;
+
+  tagColor?: Tags;
 
   // this property is a bit misleading. it only controls
   // the initial state, but after init(), the expand/collapse
@@ -54,7 +63,9 @@ interface State extends CollapsibleStateModel {
   fireEvents: (expanded: boolean) => void;
 }
 
-export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
+export class CollapsiblePanel extends RestyleComponent<Styles, Attrs, State> {
+  css = defaultStyles;
+
   oninit(vnode: m.Vnode<Attrs, State>) {
     const defaultState = Stream(false);
 
@@ -95,41 +106,51 @@ export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>) {
     const collapsibleClasses = classnames({
-      [styles.expanded]: vnode.state.expanded(),
-      [styles.error]: vnode.attrs.error,
-      [styles.warning]: vnode.attrs.warning
+      [this.css.expanded]: vnode.state.expanded(),
+      [this.css.error]: vnode.attrs.error,
+      [this.css.warning]: vnode.attrs.warning
     });
     let actions;
     if (vnode.attrs.actions) {
-      actions = <div class={styles.actions}>
+      actions = <div class={this.css.actions}>
         {vnode.attrs.actions}
       </div>;
     }
 
     const expandCollapseState = vnode.attrs.nonExpandable || vnode.state.expanded() ? "expanded" : "collapsed";
     const toggle              = vnode.attrs.nonExpandable ? _.noop : vnode.state.toggle;
-    const header              = vnode.attrs.nonExpandable ? styles.nonCollapseHeader : styles.collapseHeader;
+    const header              = vnode.attrs.nonExpandable ? this.css.nonCollapseHeader : this.css.collapseHeader;
 
     return (
       <div data-test-id={vnode.attrs.dataTestId}
            data-test-element-state={expandCollapseState}
            data-test-has-error={vnode.attrs.error}
            data-test-has-warning={vnode.attrs.warning}
-           class={classnames(styles.collapse, collapsibleClasses)}>
+           class={classnames(this.css.collapse, collapsibleClasses)} {...this.tagAttrs(vnode.attrs)}>
         <div class={classnames(header, collapsibleClasses)}
              data-test-id="collapse-header"
              onclick={toggle}>
-          <div class={styles.headerDetails}>
+          <div class={this.css.headerDetails}>
             {vnode.attrs.header}
           </div>
           {actions}
         </div>
 
         <div data-test-id="collapse-body"
-             class={classnames(styles.collapseBody, {[styles.hide]: expandCollapseState === "collapsed"})}>
+             class={classnames(this.css.collapseBody, {[this.css.hide]: expandCollapseState === "collapsed"})}>
           {vnode.children}
         </div>
       </div>
     );
+  }
+
+  tagAttrs({ tagColor, tagText }: Attrs): TagAttrs {
+    const tags: TagAttrs = {};
+
+    if (tagColor) {
+      tags["data-tag"] = tagColor;
+    }
+
+    return tags;
   }
 }

@@ -1,4 +1,5 @@
 {
+  "action": "opened",
   "repository": {
     "full_name": "gocd/spaceship",
     "html_url": "https://github.com/gocd/spaceship"

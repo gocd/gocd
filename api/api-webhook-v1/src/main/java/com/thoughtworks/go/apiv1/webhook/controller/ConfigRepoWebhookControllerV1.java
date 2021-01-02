@@ -86,7 +86,18 @@ public class ConfigRepoWebhookControllerV1 extends BaseWebhookController {
             return acknowledge(res);
         }
 
-        return triggerRepoUpdate(res, determinePayload(github), repoFromRequest(req));
+        final Payload payload = determinePayload(github);
+
+        if (payload instanceof GitHubPR) {
+            final GitHubPR pr = (GitHubPR) payload;
+
+            if (!pr.isInteresting()) {
+                LOGGER.debug("[WebHook] Ignoring {} because we are not interested in action: {}", pr.descriptor(), pr.action());
+                return success(res);
+            }
+        }
+
+        return triggerRepoUpdate(res, payload, repoFromRequest(req));
     }
 
     String gitlab(Request req, Response res) {

@@ -17,9 +17,11 @@
 package com.thoughtworks.go.apiv1.webhook.controller
 
 import com.thoughtworks.go.apiv1.webhook.controller.validation.Bitbucket
+import com.thoughtworks.go.apiv1.webhook.controller.validation.GitHub
 import com.thoughtworks.go.apiv1.webhook.helpers.Fixtures
 import com.thoughtworks.go.apiv1.webhook.helpers.PostHelper
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
+import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
@@ -39,7 +41,7 @@ import static com.thoughtworks.go.apiv1.webhook.helpers.PostHelper.SECRET
 import static com.thoughtworks.go.util.Iters.first
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
+import static org.mockito.MockitoAnnotations.openMocks
 
 class ConfigRepoWebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigRepoWebhookControllerV1>, PostHelper.Mixin {
     static final String REPO_ID = "repo"
@@ -55,7 +57,7 @@ class ConfigRepoWebhookControllerV1Test implements SecurityServiceTrait, Control
 
     @BeforeEach
     void setUp() {
-        initMocks(this)
+        openMocks(this).close()
         when(serverConfigService.webhookSecret).thenReturn(SECRET)
     }
 
@@ -95,6 +97,34 @@ class ConfigRepoWebhookControllerV1Test implements SecurityServiceTrait, Control
         }
 
         @Nested
+        class GitHubOnly implements PostHelper.Mixin {
+            @Mock
+            ConfigRepoConfig repo
+
+            @BeforeEach
+            void setup() {
+                openMocks(this).close()
+
+                when(repo.id).thenReturn(REPO_ID)
+                when(service.getConfigRepo(REPO_ID)).thenReturn(repo)
+            }
+
+            @Test
+            void 'ignores events when the PR payload action is not interesting'() {
+                final PostHelper req = withGitHub('/github-pr.json')
+                req.payload().put('action', 'edited') // this action should not trigger an update
+
+                final String path = controller.controllerPath(Routes.Webhook.ConfigRepo.GITHUB.replace(":id", REPO_ID))
+                postWithApiHeader(path, req.header(first(GitHub.PR)), req.payload())
+                verify(materialUpdateService, never()).updateMaterial(any() as Material)
+
+                assertThatResponse()
+                        .isAccepted()
+                        .hasJsonMessage("OK!")
+            }
+        }
+
+        @Nested
         class BitbucketOnly implements PostHelper.Mixin {
             @Mock
             ConfigRepoConfig repo
@@ -104,7 +134,7 @@ class ConfigRepoWebhookControllerV1Test implements SecurityServiceTrait, Control
 
             @BeforeEach
             void setup() {
-                initMocks(this)
+                openMocks(this).close()
 
                 when(repo.id).thenReturn(REPO_ID)
                 when(service.getConfigRepo(REPO_ID)).thenReturn(repo)
@@ -114,7 +144,7 @@ class ConfigRepoWebhookControllerV1Test implements SecurityServiceTrait, Control
 
             @Test
             void 'extracts webhook secret from first segment of userinfo'() {
-                PostHelper req = withBitbucket('/bitbucket-push.json')
+                final PostHelper req = withBitbucket('/bitbucket-push.json')
 
                 final String path = controller.controllerPath(Routes.Webhook.ConfigRepo.BITBUCKET.replace(":id", REPO_ID))
                 def header = req.header(first(Bitbucket.PUSH), "${SECRET}:anything-can-go-here")
@@ -154,7 +184,7 @@ class ConfigRepoWebhookControllerV1Test implements SecurityServiceTrait, Control
 
         @BeforeEach
         void setup() {
-            initMocks(this)
+            openMocks(this).close()
 
             when(repo.id).thenReturn(REPO_ID)
             when(service.getConfigRepo(REPO_ID)).thenReturn(repo)

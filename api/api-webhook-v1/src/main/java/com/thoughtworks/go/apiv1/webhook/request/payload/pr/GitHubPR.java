@@ -19,16 +19,30 @@ package com.thoughtworks.go.apiv1.webhook.request.payload.pr;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.apiv1.webhook.request.json.GitHubRepository;
 
+import java.util.Set;
+
 import static com.thoughtworks.go.apiv1.webhook.request.payload.pr.PrPayload.State.CLOSED;
 import static com.thoughtworks.go.apiv1.webhook.request.payload.pr.PrPayload.State.OPEN;
 import static java.lang.String.format;
 
 @SuppressWarnings({"unused", "RedundantSuppression"})
 public class GitHubPR implements PrPayload {
+    private static final Set<String> INTERESTING = Set.of("opened", "closed", "reopened");
+
     private GitHubRepository repository;
+
+    private String action;
 
     @SerializedName("pull_request")
     private PR pr;
+
+    public boolean isInteresting() {
+        return INTERESTING.contains(action.toLowerCase());
+    }
+
+    public String action() {
+        return action;
+    }
 
     @Override
     public String identifier() {

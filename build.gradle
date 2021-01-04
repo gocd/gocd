@@ -112,8 +112,8 @@ List<String> partitionFiles(Collection originalFiles) {
 }
 
 def GO_VERSION_PREVIOUS = '20.10.0'
-def GO_VERSION_SEGMENTS = [year: 20, releaseInYear: 11, patch: 0]
-def GO_VERSION_NEXT = '21.1.0'
+def GO_VERSION_SEGMENTS = [year: 21, releaseInYear: 1, patch: 0]
+def GO_VERSION_NEXT = '21.2.0'
 
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
 def DIST_VERSION = releaseRevision()

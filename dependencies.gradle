@@ -32,7 +32,7 @@ final Map<String, String> libraries = [
   aspectj             : 'org.aspectj:aspectjrt:1.9.6',
   assertJ             : 'org.assertj:assertj-core:3.18.1',
   assertJ_DB          : 'org.assertj:assertj-db:1.3.0',
-  bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.67', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
+  bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.68', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
   bundler             : 'rubygems:bundler:2.1.1',
   cglib               : 'cglib:cglib:3.3.0',
   cloning             : 'uk.com.robust-it:cloning:1.9.12',
@@ -55,7 +55,7 @@ final Map<String, String> libraries = [
   gradleDownload      : 'de.undercouch:gradle-download-task:4.1.1',
   grolifant           : 'org.ysb33r.gradle:grolifant:0.17.0',
   gson                : 'com.google.code.gson:gson:2.8.6',
-  guava               : 'com.google.guava:guava:30.0-jre',
+  guava               : 'com.google.guava:guava:30.1-jre',
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest-core:2.2',
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
@@ -83,7 +83,7 @@ final Map<String, String> libraries = [
   logback             : 'ch.qos.logback:logback-classic:1.2.3',
   lombok              : 'org.projectlombok:lombok:1.18.16',
   mail                : 'com.sun.mail:mailapi:1.6.1',
-  mockito             : 'org.mockito:mockito-core:3.6.28',
+  mockito             : 'org.mockito:mockito-core:3.7.0',
   mybatis             : 'org.mybatis:mybatis:3.4.6',
   mybatisSpring       : 'org.mybatis:mybatis-spring:1.3.2',
   mysql               : 'mysql:mysql-connector-java:8.0.22',
@@ -108,7 +108,7 @@ final Map<String, String> libraries = [
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
   velocity            : 'org.apache.velocity:velocity:1.7',
   xalan               : 'xalan:xalan:2.7.1',
-  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.8.1',
+  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.8.2',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',
 ]
 

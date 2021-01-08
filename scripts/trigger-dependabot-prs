@@ -1,0 +1,143 @@
+#!/usr/bin/env ruby
+
+require "faraday"
+require "json"
+require "optparse"
+
+$verbose = false
+
+def main(args)
+  options = parse_opts args
+  pred = make_filter_predicate(options)
+
+  PR.all("gocd/gocd", options[:params]).each { |pr|
+    if pred.call(pr)
+      puts "triggering PR ##{pr.number} #{pr.title}"
+      pr.trigger_action(options[:action], options[:dry])
+    else
+      trace "skipping PR ##{pr.number} #{pr.title}"
+    end
+  }
+end
+
+def make_filter_predicate(options={})
+  options[:labels] ?
+    -> (pr) { pr.author == "dependabot-preview[bot]" && options[:labels].all? { |l| pr.has_label? l } } :
+    -> (pr) { pr.author == "dependabot-preview[bot]" }
+end
+
+def parse_opts(args)
+  options = { action: "rebase", params: { "per_page" => 100 } }
+
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{$0} [options]"
+
+    opts.on("-aCOMMAND", "--action=COMMAND", "Action to pass to dependabot; defaults to \"rebase\"") do |a|
+      options[:action] = a
+    end
+
+    opts.on("-sSTATE", "--state=STATE", "Filter PRs by state; valid options are open|closed|all") do |s|
+      options[:params] ||= {}
+      die "Valid states are open|closed|all" unless %w(open closed all).include?(s.downcase)
+      options[:params]["state"] = s.downcase
+    end
+
+    opts.on("-bNUM", "--begin-page=NUM", Integer, "Start on page") do |n|
+      options[:params] = {}
+      options[:params][:page] = n
+    end
+
+    opts.on("-lLABEL", "--label=LABEL", "Filter PRs by label; multiple invocations are logically ANDed together") do |l|
+      options[:labels] ||= []
+      options[:labels] << l
+      options[:labels].uniq!
+    end
+
+    opts.on("-n", "--dry-run", "Show what we would do, but don't actually trigger anything") do |n|
+      options[:dry] = n
+    end
+
+    opts.on("-v", "--verbose", "Print some verbose output") do |v|
+      options[:verbose] = v
+      $verbose = v
+    end
+
+    opts.on("-h", "--help", "Prints this help") do
+      puts opts
+      exit
+    end
+  end.parse args
+
+  options.tap { |o| trace "Effective options: #{o}" }
+end
+
+def die(msg)
+  $stderr.puts msg
+  exit 1
+end
+
+def trace(msg)
+  puts "[TRACE] #{msg}" if $verbose
+end
+
+def token()
+  ENV.fetch "GH_TOKEN"
+rescue => e
+  die "You must set the environment variable GH_TOKEN to your GitHub personal access token"
+end
+
+def headers
+  {
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": "token #{token}"
+  }
+end
+
+class PR
+  attr_reader :number, :title, :author, :labels
+
+  class << self
+    def all(repo, params={})
+      trace "GET params: #{params}"
+      resp = Faraday.get("https://api.github.com/repos/#{repo}/pulls", params, headers)
+
+      trace "GET response headers: #{resp.headers}"
+      trace "GET response body: #{resp.body}"
+      JSON.parse(resp.body).map {|r| PR.from_hash(r) }
+    end
+
+    def from_hash(r)
+      self.new(
+        number:   r["number"],
+        title:    r["title"],
+        author:   r["user"]["login"],
+        labels:   r["labels"].map {|lb| lb["name"]},
+        comments: r["comments_url"]
+      )
+    end
+  end
+
+  def initialize(opts)
+    @number = opts[:number]
+    @title = opts[:title]
+    @author = opts[:author]
+    @labels = opts[:labels]
+    @comments_url = opts[:comments]
+  end
+
+  def has_label?(label)
+    @labels.include? label
+  end
+
+  def trigger_action(action="rebase", dry=false)
+    if dry
+      puts "[DRY RUN] Would trigger `@dependabot-bot #{action}` on PR ##{number}"
+      return
+    end
+    Faraday.post(@comments_url, {body: "@dependabot-bot #{action}\n"}.to_json, headers).tap {|resp|
+      $stderr.puts "error when triggering PR ##{number}" if resp.status >= 300
+    }
+  end
+end
+
+main ARGV

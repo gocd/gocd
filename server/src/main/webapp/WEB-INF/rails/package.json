@@ -134,7 +134,7 @@
     "unused-webpack-plugin": "^2.4.0",
     "upath": "^2.0.1",
     "url-loader": "^4.1.1",
-    "webpack": "^4.44.2",
+    "webpack": "^4.45.0",
     "webpack-build-notifier": "^2.1.1",
     "webpack-cli": "^4.3.1"
   }

@@ -790,7 +790,7 @@ task verifyWar(type: VerifyJarTask) {
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archiveFile.get().asFile.name })
         + [
         "FastInfoset-1.2.15.jar",
-        "JavaEWAH-1.1.7.jar",
+        "JavaEWAH-1.1.6.jar",
         "activation-1.1.jar",
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",

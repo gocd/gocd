@@ -73,7 +73,7 @@ final Map<String, String> libraries = [
   jodaTime            : 'joda-time:joda-time:2.9.9', // joda-time version has to be compatible with the jruby version
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.1',
   jruby               : 'org.jruby:jruby-complete:9.2.0.0',
-  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.14.0',
+  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.22.0',
   jsontools           : 'com.sdicons.jsontools:jsontools-core:1.7',
   jsoup               : 'org.jsoup:jsoup:1.13.1',
   junit4              : 'junit:junit:4.13',

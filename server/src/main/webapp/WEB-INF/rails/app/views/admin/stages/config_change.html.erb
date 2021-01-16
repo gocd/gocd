@@ -9,10 +9,9 @@
     <% else %>
       <% changes_lines = @changes.strip.split("\n") %>
       <% changes_lines.each do |line|
-        trimmed_line = line.strip
-        css_class = 'add' if trimmed_line.start_with?('+')
-        css_class = 'remove' if trimmed_line.start_with?('-')
-        css_class = 'line-info' if trimmed_line.start_with?('@@')
+        css_class = 'add' if line.start_with?('+')
+        css_class = 'remove' if line.start_with?('-')
+        css_class = 'line-info' if line.start_with?('@@')
         css_class = 'context' unless css_class %>
         <tr class="<%= css_class -%>"><td><pre><%= html_escape(line) -%></pre></td></tr>
       <% end %>

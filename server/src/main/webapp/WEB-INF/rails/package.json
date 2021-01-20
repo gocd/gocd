@@ -136,6 +136,6 @@
     "url-loader": "^4.1.1",
     "webpack": "^4.46.0",
     "webpack-build-notifier": "^2.1.1",
-    "webpack-cli": "^4.3.1"
+    "webpack-cli": "^4.4.0"
   }
 }

@@ -23,7 +23,7 @@ import java.util.regex.Pattern
 OperatingSystem currentOS = OperatingSystem.current()
 
 final Map<String, String> seleniumDrivers = [
-  chromedriver: '88.0.4324.96',
+  chromedriver: '87.0.4280.88',
   geckodriver : '0.27.0',
 ]
 

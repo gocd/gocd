@@ -23,7 +23,7 @@ enum Distro implements DistroBehavior {
   alpine{
     @Override
     List<DistroVersion> getSupportedVersions() {
-      def installSasl_Post_3_9 = ['apk add --no-cache cyrus-sasl cyrus-sasl-plain']
+      def installSasl_Post_3_9 = ['apk add --no-cache libsasl']
 
       return [
         new DistroVersion(version: '3.10', releaseName: '3.10', eolDate: parseDate('2021-05-01'), installPrerequisitesCommands: installSasl_Post_3_9, continueToBuild: true),
@@ -194,7 +194,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: ['apk add --no-cache cyrus-sasl cyrus-sasl-plain sudo'])
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: ['apk add --no-cache libsasl sudo'])
       ]
     }
 

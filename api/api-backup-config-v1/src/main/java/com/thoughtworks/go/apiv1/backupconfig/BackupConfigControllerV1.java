@@ -65,7 +65,9 @@ public class BackupConfigControllerV1 extends ApiController implements SparkSpri
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
-
+            before("/*", mimeType, this::setContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             // change the line below to enable appropriate security
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);

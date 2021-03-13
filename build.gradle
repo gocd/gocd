@@ -159,16 +159,16 @@ rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 project.ext.defaultJvmArgs = []
 
 project.ext.compilerOptions = [
-  sourceCompatibility: 11,
-  targetCompatibility: 11,
+  sourceCompatibility: 13,
+  targetCompatibility: 13,
 ]
 
 project.ext.packaging = [
   adoptOpenjdk: [
     featureVersion: 15,
     interimVersion: 0, // set to `null` for the first release
-    updateVersion : 1, // set to `null` for the first release
-    buildVersion  : 9
+    updateVersion : 2, // set to `null` for the first release
+    buildVersion  : 7
   ]
 ]
 

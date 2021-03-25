@@ -89,7 +89,7 @@
     "babel-loader": "^8.2.2",
     "cache-loader": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
-    "css-loader": "^5.0.2",
+    "css-loader": "^5.2.0",
     "eslint": "^7.19.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-es5": "^1.5.0",

@@ -7574,10 +7574,10 @@ text-table@^0.2.0, text-table@~0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-thread-loader@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/thread-loader/-/thread-loader-3.0.1.tgz#059752d5c3e223ec58fad5868fe6405e8375d480"
-  integrity sha512-c8Mr7jooXEAochk72XoQ1vPauwFToz9GVwqevqQShAypCUW0nRzYIbkzZo3KErNhhYf/+ga5cUQWxVXQteJj/g==
+thread-loader@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/thread-loader/-/thread-loader-3.0.2.tgz#b1c85893767258c7aa1186a36588feeeec5ffa06"
+  integrity sha512-yNNiWjQKM+aS3WufFFMv8jdDaTX65oIBLpnzQpGZ7krhgK8L7WrF5nFa7yTdsVxfXEJlEpPRWd5L353qlWkxig==
   dependencies:
     loader-runner "^4.1.0"
     loader-utils "^2.0.0"

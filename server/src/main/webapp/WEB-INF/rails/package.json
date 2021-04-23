@@ -26,7 +26,7 @@
     "classnames": "^2.2.6",
     "clipboard-polyfill": "^3.0.2",
     "core-js": "^3.8.3",
-    "filesize": "^6.1.0",
+    "filesize": "^6.2.6",
     "font-awesome": "^4.7.0",
     "foundation-sites": "=6.3.0",
     "hack-font": "^3.3.0",

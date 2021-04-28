@@ -1,0 +1,295 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/server/src/main/webapp/WEB-INF/rails"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: foundation-sites
+    versions:
+    - "> 6.3.0"
+  - dependency-name: jquery
+    versions:
+    - "> 2.2.4"
+  - dependency-name: core-js
+    versions:
+    - 3.10.0
+    - 3.10.1
+    - 3.10.2
+    - 3.9.0
+    - 3.9.1
+  - dependency-name: "@types/node"
+    versions:
+    - 14.14.24
+    - 14.14.25
+    - 14.14.26
+    - 14.14.28
+    - 14.14.30
+    - 14.14.31
+    - 14.14.32
+    - 14.14.33
+    - 14.14.34
+    - 14.14.35
+    - 14.14.36
+    - 14.14.37
+    - 14.14.39
+    - 14.14.41
+    - 15.0.0
+  - dependency-name: ts-loader
+    versions:
+    - 8.0.15
+    - 8.0.16
+    - 8.0.17
+    - 8.0.18
+    - 8.1.0
+    - 9.0.0
+    - 9.1.0
+  - dependency-name: fork-ts-checker-webpack-plugin
+    versions:
+    - 6.1.1
+    - 6.2.0
+    - 6.2.1
+    - 6.2.4
+  - dependency-name: filesize
+    versions:
+    - 6.2.2
+    - 6.3.0
+  - dependency-name: thread-loader
+    versions:
+    - 3.0.2
+  - dependency-name: eslint
+    versions:
+    - 7.19.0
+    - 7.20.0
+    - 7.21.0
+    - 7.22.0
+    - 7.23.0
+    - 7.24.0
+  - dependency-name: css-loader
+    versions:
+    - 5.0.2
+    - 5.1.0
+    - 5.1.1
+    - 5.1.2
+    - 5.1.3
+    - 5.2.0
+    - 5.2.1
+  - dependency-name: "@babel/core"
+    versions:
+    - 7.12.13
+    - 7.12.16
+    - 7.12.17
+    - 7.13.1
+    - 7.13.10
+    - 7.13.13
+    - 7.13.14
+    - 7.13.15
+    - 7.13.8
+  - dependency-name: "@babel/parser"
+    versions:
+    - 7.12.13
+    - 7.12.14
+    - 7.12.15
+    - 7.12.16
+    - 7.12.17
+    - 7.13.0
+    - 7.13.10
+    - 7.13.11
+    - 7.13.12
+    - 7.13.13
+    - 7.13.15
+    - 7.13.4
+    - 7.13.9
+  - dependency-name: mini-css-extract-plugin
+    versions:
+    - 1.3.5
+    - 1.3.6
+    - 1.3.7
+    - 1.3.8
+    - 1.3.9
+    - 1.4.0
+    - 1.4.1
+  - dependency-name: "@types/fs-extra"
+    versions:
+    - 9.0.10
+    - 9.0.7
+    - 9.0.8
+    - 9.0.9
+  - dependency-name: "@types/mini-css-extract-plugin"
+    versions:
+    - 1.2.3
+    - 1.4.0
+    - 1.4.1
+  - dependency-name: classnames
+    versions:
+    - 2.3.0
+  - dependency-name: "@types/jasmine"
+    versions:
+    - 3.6.4
+    - 3.6.6
+    - 3.6.7
+    - 3.6.8
+    - 3.6.9
+  - dependency-name: "@types/webpack"
+    versions:
+    - 5.0.0
+  - dependency-name: "@types/prismjs"
+    versions:
+    - 1.16.3
+    - 1.16.4
+  - dependency-name: karma
+    versions:
+    - 6.0.3
+    - 6.1.0
+    - 6.1.1
+    - 6.1.2
+    - 6.2.0
+    - 6.3.0
+    - 6.3.1
+  - dependency-name: eslint-plugin-react
+    versions:
+    - 7.23.1
+  - dependency-name: "@babel/preset-env"
+    versions:
+    - 7.12.13
+    - 7.12.16
+    - 7.12.17
+    - 7.13.0
+    - 7.13.10
+    - 7.13.12
+    - 7.13.5
+    - 7.13.8
+    - 7.13.9
+  - dependency-name: mockdate
+    versions:
+    - 3.0.3
+    - 3.0.4
+  - dependency-name: jasmine-core
+    versions:
+    - 3.7.0
+  - dependency-name: typescript
+    versions:
+    - 4.1.4
+    - 4.1.5
+    - 4.2.2
+    - 4.2.3
+  - dependency-name: "@types/chart.js"
+    versions:
+    - 2.9.30
+    - 2.9.31
+  - dependency-name: "@babel/plugin-proposal-decorators"
+    versions:
+    - 7.12.13
+    - 7.13.0
+    - 7.13.5
+  - dependency-name: "@babel/plugin-transform-destructuring"
+    versions:
+    - 7.12.13
+    - 7.13.0
+  - dependency-name: sass
+    versions:
+    - 1.32.7
+    - 1.32.8
+  - dependency-name: "@babel/plugin-transform-react-jsx"
+    versions:
+    - 7.12.13
+    - 7.12.16
+    - 7.12.17
+  - dependency-name: url-parse
+    versions:
+    - 1.5.0
+  - dependency-name: "@babel/plugin-proposal-numeric-separator"
+    versions:
+    - 7.12.13
+  - dependency-name: "@babel/plugin-proposal-class-properties"
+    versions:
+    - 7.12.13
+  - dependency-name: webpack-cli
+    versions:
+    - 4.5.0
+  - dependency-name: "@babel/plugin-proposal-export-namespace-from"
+    versions:
+    - 7.12.13
+  - dependency-name: "@babel/preset-react"
+    versions:
+    - 7.12.13
+  - dependency-name: "@babel/plugin-proposal-function-sent"
+    versions:
+    - 7.12.13
+  - dependency-name: "@babel/plugin-proposal-json-strings"
+    versions:
+    - 7.12.13
+  - dependency-name: speed-measure-webpack-plugin
+    versions:
+    - 1.4.2
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - 4.2.2
+    - 4.3.0
+    - 4.3.1
+    - 4.3.2
+    - 4.3.3
+  - dependency-name: org.owasp:dependency-check-gradle
+    versions:
+    - 6.1.0
+    - 6.1.1
+    - 6.1.2
+    - 6.1.3
+    - 6.1.4
+  - dependency-name: org.springframework:spring-core
+    versions:
+    - 5.3.3
+    - 5.3.4
+    - 5.3.5
+  - dependency-name: org.jruby:jruby-complete
+    versions:
+    - 9.2.14.0
+    - 9.2.15.0
+    - 9.2.16.0
+  - dependency-name: com.fasterxml.jackson.core:jackson-core
+    versions:
+    - 2.12.2
+  - dependency-name: org.eclipse.jetty:jetty-server
+    versions:
+    - 11.0.0
+    - 11.0.1
+  - dependency-name: org.mockito:mockito-core
+    versions:
+    - 3.8.0
+  - dependency-name: org.postgresql:postgresql
+    versions:
+    - 42.2.19
+  - dependency-name: org.springframework.security:spring-security-config
+    versions:
+    - 5.4.2
+    - 5.4.4
+    - 5.4.5
+  - dependency-name: org.testcontainers:testcontainers
+    versions:
+    - 1.15.2
+  - dependency-name: org.eclipse.jgit:org.eclipse.jgit
+    versions:
+    - 5.10.0.202012080955-r
+  - dependency-name: com.sun.mail:mailapi
+    versions:
+    - 2.0.0
+  - dependency-name: net.javacrumbs.json-unit:json-unit-fluent
+    versions:
+    - 2.23.0
+    - 2.24.0
+  - dependency-name: org.projectlombok:lombok
+    versions:
+    - 1.18.18
+  - dependency-name: org.assertj:assertj-core
+    versions:
+    - 3.19.0
+  - dependency-name: org.hibernate:hibernate-ehcache
+    versions:
+    - 5.4.27.Final

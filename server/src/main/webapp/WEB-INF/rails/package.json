@@ -135,7 +135,7 @@
     "upath": "^2.0.1",
     "url-loader": "^4.1.1",
     "webpack": "^4.46.0",
-    "webpack-build-notifier": "^2.1.1",
+    "webpack-build-notifier": "^2.2.1",
     "webpack-cli": "^4.5.0"
   }
 }

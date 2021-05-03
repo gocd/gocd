@@ -8063,10 +8063,10 @@ watchpack@^1.7.4:
     chokidar "^3.4.1"
     watchpack-chokidar2 "^2.0.1"
 
-webpack-build-notifier@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/webpack-build-notifier/-/webpack-build-notifier-2.1.1.tgz#dd837885bc3a155a2ae5a3cfaa60e5074e30a672"
-  integrity sha512-ZQKXP8jqAL5Kw/H2xcfXZLEExrSudu+MM/dl1yUsv1gBfD9gF5DJpPaIgOgROm/Au66c9WbzJbsO0+kK4XEhlg==
+webpack-build-notifier@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/webpack-build-notifier/-/webpack-build-notifier-2.2.1.tgz#5a7a5e0c6fb6134e4e644d577fa23d831f455d59"
+  integrity sha512-peh2puAwNUxbZVhHbqAKxruHHDgnRy2WPpL5Ibe9QqVoU+clxxzjYJf7WzgO/89p+YqCx+hAdgOdhvmypAxuyA==
   dependencies:
     node-notifier "9.0.0"
     strip-ansi "^6.0.0"

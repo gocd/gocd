@@ -68,7 +68,7 @@
     "@types/classnames": "^2.2.11",
     "@types/fs-extra": "^9.0.6",
     "@types/html-webpack-plugin": "^3.2.4",
-    "@types/jasmine": "^3.6.3",
+    "@types/jasmine": "^3.7.0",
     "@types/jasmine-ajax": "^3.3.2",
     "@types/jquery": "^3.5.5",
     "@types/license-checker": "^25.0.1",

@@ -44,7 +44,7 @@
     "shell-quote": "^1.7.2",
     "shellwords-ts": "^3.0.0",
     "underscore.string": "^3.3.5",
-    "url-parse": "^1.4.7",
+    "url-parse": "^1.5.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

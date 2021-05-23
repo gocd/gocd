@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -25,7 +25,7 @@ import styles from "views/components/site_menu/index.scss";
 import * as defaultStyles from "./tree.scss";
 
 type Styles = typeof defaultStyles;
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 interface Attrs extends RestyleAttrs<Styles> {
   datum: m.Children; // usually a single `string`, but could be a Vnode;

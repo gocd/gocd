@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import styles from "./index.scss";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 const activeItem = (href?: string): boolean => {
   if (!!href) {

@@ -320,17 +320,17 @@ describe("Material Types", () => {
     it('should return the url as display name if name is undefined', () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://repo.git"));
 
-      expect(material.displayName()).toBe('http://repo.git');
+      expect(material.displayName()).toBe('http://repo.git/');
     });
 
     it('should mask the user info for http/https url', () => {
       const attrs    = new GitMaterialAttributes(undefined, true, "http://user:pass@repo.git");
       const material = new Material("git", attrs);
 
-      expect(material.displayName()).toBe('http://user:******@repo.git');
+      expect(material.displayName()).toBe('http://user:******@repo.git/');
 
       attrs.url("http://user@repo.git");
-      expect(material.displayName()).toBe('http://******@repo.git');
+      expect(material.displayName()).toBe('http://******@repo.git/');
     });
 
     it("should not mask Git SCP-style URLs", () => {
@@ -353,17 +353,17 @@ describe("Material Types", () => {
     it('should return the url as display name if name is undefined', () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://repo.git"));
 
-      expect(material.displayName()).toBe('http://repo.git');
+      expect(material.displayName()).toBe('http://repo.git/');
     });
 
     it('should mask the user info for http/https url', () => {
       const attrs    = new GitMaterialAttributes(undefined, true, "http://user:pass@repo.git");
       const material = new Material("git", attrs);
 
-      expect(material.displayName()).toBe('http://user:******@repo.git');
+      expect(material.displayName()).toBe('http://user:******@repo.git/');
 
       attrs.url("http://user@repo.git");
-      expect(material.displayName()).toBe('http://******@repo.git');
+      expect(material.displayName()).toBe('http://******@repo.git/');
     });
 
     it("should not mask Git SCP-style URLs", () => {
@@ -385,10 +385,10 @@ describe("Material Types", () => {
       const hgAttrs  = new HgMaterialAttributes(undefined, true, "http://user:pass@example.com");
       const material = new Material("hg", hgAttrs);
 
-      expect(material.displayName()).toBe('http://user:******@example.com');
+      expect(material.displayName()).toBe('http://user:******@example.com/');
 
       hgAttrs.url("http://user@example.com");
-      expect(material.displayName()).toBe('http://******@example.com');
+      expect(material.displayName()).toBe('http://******@example.com/');
     });
   });
 });

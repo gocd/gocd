@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -24,7 +24,7 @@ import * as Buttons from "../buttons";
 import styles from "./index.scss";
 import {ModalManager} from "./modal_manager";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 //todo: Remove extraLargeHackForEAProfiles once we fix plugins view to provide the modal container dimensions
 export enum Size {small, medium, large, extraLargeHackForEaProfiles}

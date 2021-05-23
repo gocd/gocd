@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import m from "mithril";
@@ -31,7 +31,7 @@ import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 import {StagesWidget} from "./stages/stages_widget";
 import {TimelineModal} from "./timeline_modal";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 interface Attrs extends InstanceAttrs {
   apiService: ApiService;

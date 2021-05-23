@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -33,7 +33,7 @@ import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import styles from "../fetch.scss";
 
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 
 export interface Attrs {
   attributes: FetchTaskAttributes;

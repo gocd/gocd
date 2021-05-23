@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
@@ -29,7 +29,7 @@ import {OperationState} from "views/pages/page_operations";
 import {Modal, ModalState, Size} from "./index";
 import styles from "./index.scss";
 
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;

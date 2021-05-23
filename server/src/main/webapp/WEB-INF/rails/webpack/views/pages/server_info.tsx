@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import {Page} from "views/pages/page";
-import {ServerInfoWidget} from "views/pages/server_info/server_info_widget.tsx";
+import {ServerInfoWidget} from "views/pages/server_info/server_info_widget";
 
 export interface MetaJSON {
   go_server_version: string;

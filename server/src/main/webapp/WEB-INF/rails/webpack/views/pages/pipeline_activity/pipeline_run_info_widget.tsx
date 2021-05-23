@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
@@ -28,7 +28,7 @@ import {BuildCauseWidget} from "./build_cause_widget";
 import {CommentWidget} from "./comment_widget";
 import styles from "./index.scss";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 interface PipelineRunAttrs {
   canOperatePipeline: boolean;

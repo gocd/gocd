@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -32,7 +32,7 @@ import {GoCDRoleModalBodyWidget, PluginRoleModalBodyWidget} from "views/pages/ro
 import styles from "./index.scss";
 import {CreatePolicyWidget} from "./policy_widget";
 
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 
 export enum Action {
   NEW, CLONE, EDIT

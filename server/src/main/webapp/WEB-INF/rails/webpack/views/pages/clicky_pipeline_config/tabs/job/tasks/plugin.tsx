@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PluginConfiguration} from "models/admin_templates/templates";
@@ -31,7 +31,7 @@ import {OnCancelView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/co
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 
 export class PluggableTaskModal extends AbstractTaskModal {
   private readonly task: PluggableTask;

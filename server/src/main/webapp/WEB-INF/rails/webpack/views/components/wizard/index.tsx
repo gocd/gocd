@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -24,7 +24,7 @@ import styles from "./index.scss";
 
 import { v4 as uuid4 } from 'uuid';
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 export abstract class Step {
   abstract header(): m.Children;

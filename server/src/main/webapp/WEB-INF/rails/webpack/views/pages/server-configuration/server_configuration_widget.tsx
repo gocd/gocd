@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {ServerConfigVM} from "models/server-configuration/server_configuration_vm";
@@ -26,7 +26,7 @@ import {ArtifactsManagementWidget} from "./artifacts_management_widget";
 import styles from "./index.scss";
 import {JobTimeoutConfigurationWidget} from "./job_timeout_configuration_widget";
 
-const classnames = bind(style);
+const classnames = classNames.bind(style);
 
 interface Attrs extends ArtifactManagementAttrs, ServerManagementAttrs, MailServerManagementAttrs, JobTimeoutAttrs, Routing {
 }

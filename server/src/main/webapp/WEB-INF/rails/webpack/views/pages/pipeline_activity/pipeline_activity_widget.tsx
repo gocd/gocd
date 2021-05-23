@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -23,7 +23,7 @@ import styles from "./index.scss";
 import {PipelineRunWidget} from "./pipeline_run_info_widget";
 import {ShowForceBuildActionWidget} from "./show_force_build_action_widget";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 interface Attrs {
   canOperatePipeline: boolean;

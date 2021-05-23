@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
@@ -33,7 +33,7 @@ import {AgentStatusWidget} from "views/pages/agents/agent_status_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import style from "./index.scss";
 
-const classnames = bind(style);
+const classnames = classNames.bind(style);
 
 interface AgentsWidgetAttrs extends RequiresPluginInfos {
   agentsVM: StaticAgentsVM;

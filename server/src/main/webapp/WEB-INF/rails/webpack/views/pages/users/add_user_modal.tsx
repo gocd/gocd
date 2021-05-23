@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -29,7 +29,7 @@ import {Table} from "views/components/table";
 import {OperationState} from "views/pages/page_operations";
 import styles from "views/pages/users/index.scss";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 export class UserSearchModal extends Modal {
 

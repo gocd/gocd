@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
@@ -30,7 +30,7 @@ import {EnvironmentsDropdownButton} from "views/pages/agents/environment_dropdow
 import {ResourcesDropdownButton} from "views/pages/agents/resources_dropdown_button";
 import style from "./index.scss";
 
-const classnames = bind(style);
+const classnames = classNames.bind(style);
 
 interface AgentHeaderPanelAttrs {
   agentsVM: StaticAgentsVM;

@@ -15,7 +15,7 @@
  */
 
 type ReferableKey = string | symbol; // keys can also be numbers in TS >= 4.2, but we don't care about those
-type KeysOf<T> = Extract<keyof T, ReferableKey>
+type KeysOf<T> = Extract<keyof T, ReferableKey>;
 
 type maybeString = string | undefined;
 type Partial<T> = { [P in keyof T]?: maybeString }; // represents a subset of attrs on a `styles` object

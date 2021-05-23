@@ -16,7 +16,7 @@
 
 yell() { echo "$0: $*" >&2; }
 die() { yell "$*"; exit 111; }
-try() { echo "$ $@" 1>&2; "$@" || die "cannot $*"; }
+try() { echo "$ $*" 1>&2; "$@" || die "cannot $*"; }
 
 declare -a _stringToArgs
 function stringToArgsArray() {
@@ -96,7 +96,7 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
   # write out each system property using its own index
   for array_index in "${!GOCD_SERVER_JVM_OPTS[@]}"
   do
-    tanuki_index=$(($array_index + 100))
+    tanuki_index=$((array_index + 100))
     echo "wrapper.java.additional.${tanuki_index}=${GOCD_SERVER_JVM_OPTS[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
   done
 

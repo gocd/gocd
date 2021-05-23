@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agent, BuildDetails} from "models/agents/agents";
 import style from "views/pages/agents/index.scss";
 
-const classnames = bind(style);
+const classnames = classNames.bind(style);
 
 interface AgentStatusWidgetAttrs {
   agent: Agent;

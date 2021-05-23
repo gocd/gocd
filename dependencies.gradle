@@ -50,7 +50,7 @@ final Map<String, String> libraries = [
   dbunit              : 'org.dbunit:dbunit:2.7.0',
   dom4j               : 'dom4j:dom4j:1.6.1',
   ehcache             : 'net.sf.ehcache:ehcache:2.10.9.2',
-  felix               : 'org.apache.felix:org.apache.felix.framework:5.6.10',
+  felix               : 'org.apache.felix:org.apache.felix.framework:7.0.0',
   freemarker          : 'org.freemarker:freemarker:2.3.31',
   gradleDownload      : 'de.undercouch:gradle-download-task:4.1.1',
   grolifant           : 'org.ysb33r.gradle:grolifant:0.17.0',

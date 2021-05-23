@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
@@ -39,7 +39,7 @@ import {
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import styles from ".//index.scss";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 export type ClusterProfileOperations = EditOperation<ClusterProfile> & DeleteOperation<string> & AddOperation<void> & CloneOperation<ClusterProfile>;
 
 export interface Attrs extends ElasticProfilesWidgetAttrs {

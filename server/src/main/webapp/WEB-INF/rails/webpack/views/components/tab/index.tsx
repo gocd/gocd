@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import styles from "./index.scss";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 interface Attrs {
   initialSelection?: number;

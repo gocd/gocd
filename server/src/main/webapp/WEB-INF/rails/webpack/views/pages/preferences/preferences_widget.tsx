@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {PreferenceVM} from "models/new_preferences/preferences";
@@ -24,7 +24,7 @@ import styles from "views/pages/server-configuration/index.scss";
 import {EmailSettingsWidget} from "./email_settings_widget";
 import {NotificationsWidget} from "./notifications_widget";
 
-const classnames = bind(style);
+const classnames = classNames.bind(style);
 
 export enum Sections {
   MY_NOTIFICATIONS = "my-notifications",

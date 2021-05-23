@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -21,7 +21,7 @@ import s from "underscore.string";
 import style from "views/pages/agents/index.scss";
 import styles from "./index.scss";
 
-const classnames = bind(style);
+const classnames = classNames.bind(style);
 
 interface Attrs {
   imageUrl?: string; //an image URL of the icon

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
@@ -36,7 +36,7 @@ import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new").AngularPluginNew;
 
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 
 enum ModalType {
   edit, clone, create

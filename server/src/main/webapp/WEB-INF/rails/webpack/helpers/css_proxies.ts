@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+type ReferableKey = string | symbol; // keys can also be numbers in TS >= 4.2, but we don't care about those
+type KeysOf<T> = Extract<keyof T, ReferableKey>;
+
 type maybeString = string | undefined;
 type Partial<T> = { [P in keyof T]?: maybeString }; // represents a subset of attrs on a `styles` object
 
@@ -21,11 +24,11 @@ type Partial<T> = { [P in keyof T]?: maybeString }; // represents a subset of at
  * This is the foundation of all subsequent proxies; takes a `styles` object
  * and applies an arbitrary lambda transformation to a given CSS className.
  */
-export function remapCss<T>(obj: T, transform: (key: keyof T) => maybeString): T {
+export function remapCss<T>(obj: T, transform: (key: KeysOf<T>) => maybeString): T {
   if ("function" === typeof Proxy) {
     return new Proxy(obj, {
-      get: (target: any, key: (keyof T)) => {
-        if (key in target) {
+      get: (target: any, key: KeysOf<T>) => {
+        if (key as ReferableKey in target) {
           return transform(key);
         }
         throw new ReferenceError(`Cannot find classname ${key}`);
@@ -33,7 +36,7 @@ export function remapCss<T>(obj: T, transform: (key: keyof T) => maybeString): T
     });
   }
 
-  return (Object.keys(obj) as Array<keyof T>).reduce((result, key) => {
+  return (Object.keys(obj) as Array<KeysOf<T>>).reduce((result, key) => {
     Object.defineProperty(result, key, {
       get() { return transform(key); }
     });

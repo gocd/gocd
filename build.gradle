@@ -33,9 +33,9 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:6.1.0'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.25.0'
-    classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0'
+    classpath 'org.owasp:dependency-check-gradle:6.1.6'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
+    classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1'
     classpath 'com.github.jk1:gradle-license-report:1.16'
     classpath "com.github.jruby-gradle:jruby-gradle-core-plugin:2.0.0-alpha.7"
   }
@@ -111,9 +111,9 @@ List<String> partitionFiles(Collection originalFiles) {
   return currentPartition ?: []
 }
 
-def GO_VERSION_PREVIOUS = '21.1.0'
-def GO_VERSION_SEGMENTS = [year: 21, releaseInYear: 2, patch: 0]
-def GO_VERSION_NEXT = '21.3.0'
+def GO_VERSION_PREVIOUS = '21.2.0'
+def GO_VERSION_SEGMENTS = [year: 21, releaseInYear: 3, patch: 0]
+def GO_VERSION_NEXT = '21.4.0'
 
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
 def DIST_VERSION = releaseRevision()
@@ -159,16 +159,16 @@ rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 project.ext.defaultJvmArgs = []
 
 project.ext.compilerOptions = [
-  sourceCompatibility: 11,
-  targetCompatibility: 11,
+  sourceCompatibility: 13,
+  targetCompatibility: 13,
 ]
 
 project.ext.packaging = [
   adoptOpenjdk: [
     featureVersion: 15,
     interimVersion: 0, // set to `null` for the first release
-    updateVersion : 1, // set to `null` for the first release
-    buildVersion  : 9
+    updateVersion : 2, // set to `null` for the first release
+    buildVersion  : 7
   ]
 ]
 
@@ -236,7 +236,6 @@ allprojects {
   repositories {
     mavenCentral()
     maven { url "https://repo1.maven.org/maven2/" } // for things that disappeared from repo.maven.apache.org
-    maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
   }
 }
 

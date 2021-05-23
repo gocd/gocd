@@ -22,7 +22,7 @@ import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {DisabledSubsystemsWidget} from "views/pages/maintenance_mode/disabled_susbsystems_widget";
-import {JobInfoWidget} from "views/pages/maintenance_mode/running_jobs_widget.tsx";
+import {JobInfoWidget} from "views/pages/maintenance_mode/running_jobs_widget";
 import {MDUInfoWidget} from "views/pages/maintenance_mode/running_mdus_widget";
 import styles from "./index.scss";
 

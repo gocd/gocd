@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
@@ -38,7 +38,7 @@ import conceptDiagramStyles from "views/pages/elastic_agents/wizard_concept_diag
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {PageState} from "views/pages/page";
 
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
 
 const clusterProfileImg      = require("../../../../app/assets/images/elastic_agents/cluster_profile.svg");

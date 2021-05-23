@@ -67,7 +67,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                                             filename: "[name]-[hash].css",
                                             chunkFilename: "[id]-[hash].css",
                                             ignoreOrder: true
-                                          }));
+                                          }) as unknown as webpack.Plugin);
   } else {
     const jasmineFiles = jasmineCore.files;
 

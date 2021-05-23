@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ArtifactStores} from "models/artifact_stores/artifact_stores";
@@ -39,7 +39,7 @@ import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
-const foundationClassNames = bind(foundationStyles);
+const foundationClassNames = classNames.bind(foundationStyles);
 
 export class ArtifactsTabContent extends TabContent<Job> {
   public artifactStores: Stream<ArtifactStores> = Stream(new ArtifactStores());

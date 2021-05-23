@@ -15,10 +15,10 @@
  */
 import m from "mithril";
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import defaultStyles from "./index.scss";
 
-const classnames = bind(defaultStyles);
+const classnames = classNames.bind(defaultStyles);
 type Styles = typeof defaultStyles;
 
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";

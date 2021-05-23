@@ -17,12 +17,12 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import * as Icons from "views/components/icons";
 import {InfoCircle, QuestionCircle} from "views/components/icons";
 import styles from "./index.scss";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 export enum TooltipSize {
   small,

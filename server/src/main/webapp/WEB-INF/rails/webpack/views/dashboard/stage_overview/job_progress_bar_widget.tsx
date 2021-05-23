@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classNames from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
@@ -23,7 +23,7 @@ import {JobDuration} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
 
-const classnames = bind(styles);
+const classnames = classNames.bind(styles);
 
 export interface Attrs {
   job: JobJSON;

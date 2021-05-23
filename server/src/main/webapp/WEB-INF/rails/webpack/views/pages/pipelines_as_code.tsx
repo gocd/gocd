@@ -29,7 +29,7 @@ import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model
 
 // components
 import {ConceptDiagram} from "views/components/concept_diagram";
-import {MaterialCheck} from "views/components/config_repos/material_check.tsx";
+import {MaterialCheck} from "views/components/config_repos/material_check";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {CheckboxField} from "views/components/forms/input_fields";
 import {ShowMore} from "views/components/show_more_doc/more";

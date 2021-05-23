@@ -96,7 +96,7 @@
     "fibers": "^5.0.0",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "html-webpack-plugin": "^4.5.2",
     "jasmine": "^3.7.0",
     "jasmine-ajax": "^4.0.0",

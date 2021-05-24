@@ -20,7 +20,7 @@ description = 'GoCD TFS SDK wrapper v14'
 
 dependencies {
   implementation project(':common')
-  implementation project.deps.tfsSdk
+  implementation files('tfssdk/lib/com.microsoft.tfs.sdk-14.135.0.jar')
   // not an implementation dependency, but some classloader hell
   implementation project.deps.xalan
   testCompileOnly project.deps.junit4
@@ -42,7 +42,7 @@ task fatJar(type: Jar) {
   from(jar.archiveFile) { into('lib/') }
 
   from(project.configurations.compileClasspath.findAll {
-    it.absolutePath.contains('tfs-sdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
+    it.absolutePath.contains('tfssdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
   }) {
     into 'lib/'
   }
@@ -58,7 +58,7 @@ task verifyJar(type: VerifyJarTask) {
   expectedJars = [
       "lib": [
           "tfs-impl-14-${project.version}-classes.jar",
-          "tfs-sdk-${project.versions.tfsSdk}.jar",
+          "com.microsoft.tfs.sdk-14.135.0.jar",
       ]
   ]
 }

@@ -20,7 +20,11 @@ description = 'GoCD TFS SDK wrapper v14'
 
 dependencies {
   implementation project(':common')
+
+  // Don't upgrade unless you have to!
+  // https://github.com/Microsoft/team-explorer-everywhere/issues/268
   implementation files('tfssdk/lib/com.microsoft.tfs.sdk-14.118.0.jar')
+
   // not an implementation dependency, but some classloader hell
   implementation project.deps.xalan
   testCompileOnly project.deps.junit4

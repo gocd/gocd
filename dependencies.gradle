@@ -78,7 +78,6 @@ final Map<String, String> libraries = [
   jsoup               : 'org.jsoup:jsoup:1.13.1',
   junit4              : 'junit:junit:4.13.2',
   junit5              : 'org.junit.jupiter:junit-jupiter-api:5.7.2',
-  junitExt            : 'com.googlecode:junit-ext:1.0',
   liquibase           : 'org.liquibase:liquibase-core:3.9.0',
   logback             : 'ch.qos.logback:logback-classic:1.2.3',
   lombok              : 'org.projectlombok:lombok:1.18.20',

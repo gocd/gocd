@@ -1018,7 +1018,7 @@ task licenseReportAggregate {
       ]
     ],
     [
-      moduleName    : 'com.microsoft:tfs-sdk',
+      moduleName    : ':com.microsoft.tfs.sdk',
       moduleVersion : '14.118.0',
       moduleUrls    : [
         "https://github.com/Microsoft/team-explorer-everywhere"

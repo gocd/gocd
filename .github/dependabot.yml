@@ -1,0 +1,13 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 99
+- package-ecosystem: npm
+  directory: "/server/src/main/webapp/WEB-INF/rails"
+  schedule:
+    interval: weekly
+    day: friday
+  open-pull-requests-limit: 99

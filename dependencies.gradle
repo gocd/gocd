@@ -93,7 +93,7 @@ final Map<String, String> libraries = [
   quartz              : 'org.quartz-scheduler:quartz:2.3.2',
   rack                : 'org.jruby.rack:jruby-rack:1.1.21',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.0',
-  servletApi          : 'javax.servlet:javax.servlet-api:3.1.0',
+  servletApi          : 'javax.servlet:javax.servlet-api:4.0.1',
   slf4j               : 'org.slf4j:slf4j-api:1.7.30',
   spark               : 'com.sparkjava:spark-core:2.7.2',
   spring              : 'org.springframework:spring-core:4.3.29.RELEASE',

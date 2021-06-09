@@ -1018,6 +1018,19 @@ task licenseReportAggregate {
       ]
     ],
     [
+      moduleName    : 'com.googlecode.javaewah:JavaEWAH',
+      moduleVersion : '1.1.6',
+      moduleUrls    : [
+        "https://github.com/lemire/javaewah"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
+        ]
+      ]
+    ],
+    [
       moduleName    : ':com.microsoft.tfs.sdk',
       moduleVersion : '14.118.0',
       moduleUrls    : [

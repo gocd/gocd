@@ -1152,10 +1152,10 @@
   resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.3.2.tgz#5faf8babea4e64e04e37223678b2b24a8d5aa3e4"
   integrity sha512-HxfL3/vhg7EWdZrPudIXuJ8BN8orqpDvfHUkrn2ws8TkWkr6itQW44dIxMPSgYa29jGraAGoMFRLbAut3fMHZQ==
 
-"@types/jasmine@^3.7.6":
-  version "3.7.6"
-  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-3.7.6.tgz#cd7cb8d1ff9d54ea77dea1eebc6e0ddd59ac2336"
-  integrity sha512-7Z6PZskqJZL7grgTg6L0JYLqaP6rEAecBZvHz3bzVZVMeun2kQ3QZ6Wx+cFjvjAR7le9p066WBDzLDobz9rlyQ==
+"@types/jasmine@^3.7.7":
+  version "3.7.7"
+  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-3.7.7.tgz#56718af036be3c9f86eca560a22e39440b2b0784"
+  integrity sha512-yZzGe1d1T0y+imXDZ79F030nn8qbmiwpWKCZKvKN0KbTzwXAVYShUxkIxu1ba+vhIdabTGVGCfbtZC0oOam8TQ==
 
 "@types/jquery@^3.5.5":
   version "3.5.5"

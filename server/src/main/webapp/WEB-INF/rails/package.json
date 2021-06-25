@@ -89,7 +89,7 @@
     "cache-loader": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^5.2.6",
-    "eslint": "^7.27.0",
+    "eslint": "^7.29.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-es5": "^1.5.0",
     "eslint-plugin-react": "^7.24.0",

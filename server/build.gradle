@@ -424,7 +424,7 @@ task fastUnitTest(type: Test) { thisTask ->
 
     def badFiles = files.findAll { eachFile ->
       def text = eachFile.getText("utf-8")
-      text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration") || text.contains("@GoJUnitExtSpringRunner")
+      text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration")
     }
 
     if (!badFiles.isEmpty()) {
@@ -463,7 +463,7 @@ task integrationTest(type: Test) { thisTask ->
 
     def badFiles = files.findAll { eachFile ->
       def text = eachFile.getText("utf-8")
-      text.contains("@Test") && !(text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration") || text.contains("@GoJUnitExtSpringRunner"))
+      text.contains("@Test") && !(text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration"))
     }
 
     badFiles.removeIf { badFile ->

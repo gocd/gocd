@@ -17,7 +17,6 @@ package com.thoughtworks.go.plugin.infra.service;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.core.FileAppender;
-import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -25,6 +24,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -41,7 +42,6 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 class DefaultPluginLoggingServiceIntegrationTest {
-    private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private DefaultPluginLoggingService pluginLoggingService;
     private Map<Integer, String> plugins;
     private SystemEnvironment systemEnvironment;
@@ -85,10 +85,8 @@ class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void shouldGetCurrentLogDirectoryByLookingAtFileAppenderOfRootLogger() {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         FileAppender fileAppender = new FileAppender();
         fileAppender.setFile("/var/log/go-server/go-server.log");
 

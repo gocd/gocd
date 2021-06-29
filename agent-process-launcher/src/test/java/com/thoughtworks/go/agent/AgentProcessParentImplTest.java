@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent;
 
 import ch.qos.logback.classic.Level;
-import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
@@ -25,7 +24,11 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.*;
+import org.junit.Rule;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -40,31 +43,29 @@ import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.lang.System.getProperty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class AgentProcessParentImplTest {
 
     @Rule
     public FakeGoServer server = new FakeGoServer();
 
-    private static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
     private final File stderrLog = new File("logs", AgentProcessParentImpl.GO_AGENT_STDERR_LOG);
     private final File stdoutLog = new File("logs", AgentProcessParentImpl.GO_AGENT_STDOUT_LOG);
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         System.setProperty("sleep.for.download", "10");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cleanup();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.clearProperty("sleep.for.download");
         FileUtils.deleteQuietly(stdoutLog);
@@ -246,7 +247,7 @@ public class AgentProcessParentImplTest {
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
-                "http://localhost:" + server.getPort() +"/go/",
+                "http://localhost:" + server.getPort() + "/go/",
                 "-sslVerificationMode",
                 "NONE",
                 "-rootCertFile",
@@ -291,7 +292,8 @@ public class AgentProcessParentImplTest {
         }
     }
 
-    @Test(timeout = 10 * 1000)//if it fails with timeout, that means stderr was not flushed -jj
+    @Test
+    @Timeout(10) //if it fails with timeout, that means stderr was not flushed
     public void shouldLogErrorStreamOfSubprocess() throws InterruptedException, IOException {
         final List<String> cmd = new ArrayList<>();
         Process subProcess = mockProcess();
@@ -348,42 +350,39 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldNotDownloadPluginsZipIfPresent() throws Exception {
-        if (!OS_CHECKER.satisfy()) {
-            TEST_AGENT_PLUGINS.copyTo(AGENT_PLUGINS_ZIP);
-            AGENT_PLUGINS_ZIP.setLastModified(System.currentTimeMillis() - 10 * 1000);
+        TEST_AGENT_PLUGINS.copyTo(AGENT_PLUGINS_ZIP);
+        AGENT_PLUGINS_ZIP.setLastModified(System.currentTimeMillis() - 10 * 1000);
 
-            long expectedModifiedDate = AGENT_PLUGINS_ZIP.lastModified();
-            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
-            bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
-            assertThat(Downloader.AGENT_PLUGINS_ZIP.lastModified(), is(expectedModifiedDate));
-        }
+        long expectedModifiedDate = AGENT_PLUGINS_ZIP.lastModified();
+        AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
+        bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        assertThat(Downloader.AGENT_PLUGINS_ZIP.lastModified(), is(expectedModifiedDate));
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldDownloadPluginsZipIfMissing() throws Exception {
-        if (!OS_CHECKER.satisfy()) {
-            File stalePluginZip = randomFile(AGENT_PLUGINS_ZIP);
-            long original = stalePluginZip.length();
+        File stalePluginZip = randomFile(AGENT_PLUGINS_ZIP);
+        long original = stalePluginZip.length();
 
-            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
-            bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
+        bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
-            assertThat(stalePluginZip.length(), not(original));
-        }
+        assertThat(stalePluginZip.length(), not(original));
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldDownload_TfsImplJar_IfTheCurrentJarIsStale() throws Exception {
-        if (!OS_CHECKER.satisfy()) {
-            File staleFile = randomFile(TFS_IMPL_JAR);
-            long original = staleFile.length();
+        File staleFile = randomFile(TFS_IMPL_JAR);
+        long original = staleFile.length();
 
-            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
-            bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+        AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
+        bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
-            assertThat(staleFile.length(), not(original));
-        }
+        assertThat(staleFile.length(), not(original));
     }
 
     private File randomFile(final File pathname) throws IOException {

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
@@ -45,7 +44,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
@@ -81,6 +79,8 @@ import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import java.io.ByteArrayOutputStream;
@@ -95,8 +95,6 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.lang.String.format;
@@ -1124,7 +1122,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
+    @DisabledOnOs(OS.WINDOWS)
     void shouldNotAllowAbsoluteDestFolderNamesOnLinux() {
         String materials1 =
                 "  <materials>\n"
@@ -1135,7 +1133,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
+    @DisabledOnOs(OS.WINDOWS)
     void shouldNotAllowAbsoluteDestFolderNamesOnWindows() {
         String materials1 =
                 "  <materials>\n"

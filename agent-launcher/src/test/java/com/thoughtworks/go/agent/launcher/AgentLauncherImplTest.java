@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.agent.launcher;
 
-import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.CurrentGoCDVersion;
@@ -23,10 +22,13 @@ import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,19 +46,18 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@EnableRuleMigrationSupport
 public class AgentLauncherImplTest {
 
     @Rule
     public FakeGoServer server = new FakeGoServer();
 
-    public static final OSChecker OS_CHECKER = new OSChecker(OSChecker.WINDOWS);
-
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    public void setUp() {
         cleanup();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         cleanup();
     }
@@ -70,7 +71,7 @@ public class AgentLauncherImplTest {
     }
 
     @Test
-    public void shouldPassLauncherVersionToAgent() throws InterruptedException, IOException {
+    public void shouldPassLauncherVersionToAgent() throws IOException {
         final List<String> actualVersion = new ArrayList<>();
         final AgentLauncher launcher = new AgentLauncherImpl(new AgentLauncherImpl.AgentProcessParentRunner() {
             @Override
@@ -116,39 +117,36 @@ public class AgentLauncherImplTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldDownload_AgentJar_IfTheCurrentJarIsStale() throws Exception {
-        if (!OS_CHECKER.satisfy()) {
-            TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
-            File staleJar = randomFile(AGENT_BINARY_JAR);
-            long original = staleJar.length();
-            new AgentLauncherImpl().launch(launchDescriptor());
-            assertThat(staleJar.length(), not(original));
-        }
+        TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+        File staleJar = randomFile(AGENT_BINARY_JAR);
+        long original = staleJar.length();
+        new AgentLauncherImpl().launch(launchDescriptor());
+        assertThat(staleJar.length(), not(original));
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void should_NOT_Download_AgentJar_IfTheCurrentJarIsUpToDate() throws Exception {
-        if (!OS_CHECKER.satisfy()) {
-            TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
-            TEST_AGENT.copyTo(AGENT_BINARY_JAR);
+        TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+        TEST_AGENT.copyTo(AGENT_BINARY_JAR);
 
-            assertTrue(AGENT_BINARY_JAR.setLastModified(0));
-            new AgentLauncherImpl().launch(launchDescriptor());
-            assertThat(AGENT_BINARY_JAR.lastModified(), is(0L));
-        }
+        assertTrue(AGENT_BINARY_JAR.setLastModified(0));
+        new AgentLauncherImpl().launch(launchDescriptor());
+        assertThat(AGENT_BINARY_JAR.lastModified(), is(0L));
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void should_NOT_Download_TfsImplJar_IfTheCurrentJarIsUpToDate() throws Exception {
-        if (!OS_CHECKER.satisfy()) {
-            TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
-            TEST_AGENT.copyTo(AGENT_BINARY_JAR);
-            TEST_TFS_IMPL.copyTo(TFS_IMPL_JAR);
+        TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+        TEST_AGENT.copyTo(AGENT_BINARY_JAR);
+        TEST_TFS_IMPL.copyTo(TFS_IMPL_JAR);
 
-            assertTrue(TFS_IMPL_JAR.setLastModified(0));
-            new AgentLauncherImpl().launch(launchDescriptor());
-            assertThat(TFS_IMPL_JAR.lastModified(), is(0L));
-        }
+        assertTrue(TFS_IMPL_JAR.setLastModified(0));
+        new AgentLauncherImpl().launch(launchDescriptor());
+        assertThat(TFS_IMPL_JAR.lastModified(), is(0L));
     }
 
     @Test

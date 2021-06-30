@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.plugin.activation;
 
-import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.plugin.activation.test.*;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
@@ -37,6 +36,8 @@ import org.apache.felix.framework.util.FelixConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.ops4j.pax.tinybundles.core.InnerClassStrategy;
 import org.ops4j.pax.tinybundles.core.TinyBundle;
@@ -187,11 +188,8 @@ class DefaultGoPluginActivatorIntegrationTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void shouldRegisterANestedClassImplementingGoPluginAsAnOSGiService() throws Exception {
-        if (new OSChecker(OSChecker.WINDOWS).satisfy()) {
-            return; // The class files in this test become too big for a Windows filesystem to handle.
-        }
-
         File bundleWithActivator = createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, TestPluginOuterClass.class,
                 TestPluginOuterClass.NestedClass.class,
                 TestPluginOuterClass.InnerClass.class,

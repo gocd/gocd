@@ -43,7 +43,6 @@ dependencies {
   runtimeOnly project.deps.junit5Engine
   api project.deps.junit5Params
 
-  api files('vendored/com.googlecode.junit-ext-1.0.jar')
   api project.deps.hamcrest
   api project.deps.hamcrestLibrary
 

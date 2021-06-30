@@ -32,6 +32,7 @@ dependencies {
   testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junit5Migration
   testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
 }

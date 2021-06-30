@@ -23,7 +23,6 @@ dependencies {
   annotationProcessor project.deps.lombok
 
   testImplementation project(':test:test-utils')
-  testImplementation files('../test/test-utils/vendored/com.googlecode.junit-ext-1.0.jar')
   testCompileOnly project.deps.junit4
   testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5

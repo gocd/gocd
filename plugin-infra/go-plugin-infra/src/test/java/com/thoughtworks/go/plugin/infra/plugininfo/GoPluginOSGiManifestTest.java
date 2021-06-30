@@ -15,13 +15,14 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
@@ -37,8 +38,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.osgi.framework.Constants.*;
 
+@DisabledOnOs(OS.WINDOWS)
 class GoPluginOSGiManifestTest {
-    private static final OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private File tmpDir;
     private File manifestFile;
     private File bundleLocation;
@@ -48,9 +49,6 @@ class GoPluginOSGiManifestTest {
     @BeforeEach
     void setUp(@TempDir File rootDir) throws Exception {
         final FileHelper temporaryFolder = new FileHelper(rootDir);
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         tmpDir = temporaryFolder.newFolder();
         bundleLocation = createPluginBundle("test-plugin-bundle");
         manifestFile = new File(bundleLocation, "META-INF/MANIFEST.MF");
@@ -61,9 +59,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldCreateABundleManifestFromTheGivenPluginDescriptor() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNull();
         assertThat(valueFor(BUNDLE_CLASSPATH)).isNull();
 
@@ -80,9 +75,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldAddGoPluginActivatorJarToDependenciesOnlyOnceAtTheBeginning() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/go-plugin-activator.jar"), "Some data", UTF_8);
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("pluginId").pluginJarFileLocation("some-plugin.jar").bundleLocation(bundleLocation).isBundledPlugin(true).build());
@@ -94,9 +86,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldCreateManifestWithProperClassPathForAllDependencyJarsInPluginDependenciesDirectory() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-1.jar"), "Some data", UTF_8);
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-2.jar"), "Some data", UTF_8);
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-3.jar"), "Some data", UTF_8);
@@ -116,9 +105,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldCreateManifestWithProperClassPathWhenDependencyDirDoesNotExist() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         FileUtils.deleteDirectory(bundleDependencyDir);
 
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("pluginId").pluginJarFileLocation("some-plugin.jar").bundleLocation(bundleLocation).isBundledPlugin(true).build());
@@ -129,9 +115,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldMarkThePluginInvalidIfItsManifestAlreadyContainsSymbolicName() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         addHeaderToManifest(BUNDLE_SYMBOLICNAME, "Dummy Value");
 
         assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNotNull();
@@ -146,9 +129,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldOverrideTheBundleClassPathInTheManifestIfItAlreadyHasIt() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         addHeaderToManifest(BUNDLE_CLASSPATH, "Dummy Value");
 
         assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNull();
@@ -163,9 +143,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldOverrideTheBundleActivatorInTheManifestIfItAlreadyHasIt() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         addHeaderToManifest(BUNDLE_ACTIVATOR, "Dummy Value");
         assertThat(valueFor(BUNDLE_ACTIVATOR)).isNotNull();
 
@@ -178,9 +155,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void shouldCreateManifestWithProperClassPathWhenDependencyDirIsEmpty() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         FileUtils.deleteQuietly(new File(bundleLocation, "lib/dependency.jar"));
         assertThat(bundleDependencyDir.listFiles().length).isEqualTo(0);
 
@@ -192,9 +166,6 @@ class GoPluginOSGiManifestTest {
 
     @Test
     void manifestCreatorShouldUpdateTheGoPluginManifest() throws Exception {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
         assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isNull();
         assertThat(valueFor(BUNDLE_CLASSPATH)).isNull();
 

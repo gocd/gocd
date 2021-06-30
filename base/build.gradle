@@ -37,7 +37,6 @@ dependencies {
   testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
-  testImplementation files('../test/test-utils/vendored/com.googlecode.junit-ext-1.0.jar')
   testImplementation project.deps.hamcrest
   testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.mockito

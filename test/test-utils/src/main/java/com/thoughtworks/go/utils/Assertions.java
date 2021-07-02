@@ -21,7 +21,7 @@ import java.util.function.BooleanSupplier;
 
 import static com.thoughtworks.go.utils.Timeout.TWENTY_SECONDS;
 import static com.thoughtworks.go.utils.Timeout.TWO_MINUTES;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Assertions {
     public static <T> void assertWillHappen(T obj, Matcher<T> matcher) {

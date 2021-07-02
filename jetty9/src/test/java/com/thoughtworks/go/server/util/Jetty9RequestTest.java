@@ -60,6 +60,7 @@ public class Jetty9RequestTest {
         HttpURI requestUri = new HttpURI("foo/bar/baz");
         when(request.getHttpURI()).thenReturn(requestUri);
         jetty9Request.setRequestURI("foo/junk?a=b&c=d");
-        assertThat(requestUri.getPath(), is("foo/junk?a=b&c=d"));
+        assertThat(requestUri.getPath(), is("foo/junk"));
+        assertThat(requestUri.getQuery(), is("a=b&c=d"));
     }
 }

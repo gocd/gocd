@@ -19,10 +19,9 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -37,17 +36,16 @@ import java.net.URL;
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT_LAUNCHER;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnableRuleMigrationSupport
 public class AgentBootstrapperFunctionalTest {
 
     @Rule
     public FakeGoServer server = new FakeGoServer();
-
-    @Before
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -91,7 +89,7 @@ public class AgentBootstrapperFunctionalTest {
                 }
             }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             agentJar.delete();
-            assertThat(new String(os.toByteArray()), containsString("Hello World Fellas!"));
+            assertThat(os.toString(), containsString("Hello World Fellas!"));
         } finally {
             System.setErr(err);
         }
@@ -107,7 +105,7 @@ public class AgentBootstrapperFunctionalTest {
             void jvmExit(int returnValue) {
             }
         }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
-        assertTrue("No agent downloaded", agentJar.exists());
+        assertTrue(agentJar.exists(), "No agent downloaded");
         agentJar.delete();
     }
 

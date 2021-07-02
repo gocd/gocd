@@ -17,7 +17,7 @@ package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StreamPumperTest {
 
@@ -49,7 +49,8 @@ public class StreamPumperTest {
         assertThat(consumer.wasLineConsumed(line2, 1000), is(true));
     }
 
-    @Test public void shouldKnowIfPumperExpired() throws Exception {
+    @Test
+    public void shouldKnowIfPumperExpired() throws Exception {
         PipedOutputStream output = new PipedOutputStream();
         InputStream inputStream = new PipedInputStream(output);
         try {
@@ -68,7 +69,9 @@ public class StreamPumperTest {
             output.close();
         }
     }
-    @Test public void shouldNotHaveExpiredTimeoutWhenCompleted() throws Exception {
+
+    @Test
+    public void shouldNotHaveExpiredTimeoutWhenCompleted() throws Exception {
         PipedOutputStream output = new PipedOutputStream();
         InputStream inputStream = new PipedInputStream(output);
         TestingClock clock = new TestingClock();

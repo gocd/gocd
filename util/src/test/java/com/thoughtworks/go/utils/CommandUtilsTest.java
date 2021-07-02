@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommandUtilsTest {
     @Test
@@ -46,10 +46,10 @@ public class CommandUtilsTest {
         assertEquals(wrapQuotes(unmatchedDoubleQuotes.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(unmatchedDoubleQuotes));
         assertEquals(alreadyProperlyEscaped, CommandUtils.quoteArgument(alreadyProperlyEscaped));
         assertEquals(wrapQuotes(bashScript.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(bashScript));
-        assertEquals("Should blindly escape internal double quotes; don't try to be smart and fix " +
+        assertEquals(wrapQuotes("I was \\\\\"so\\\" lazy I forgot to escape the other quote"), CommandUtils.quoteArgument(someQuotesEscapedSomeNot),
+                "Should blindly escape internal double quotes; don't try to be smart and fix " +
                         "only the unescaped quotes because that it would make it hard for users to determine why " +
-                        "improperly quoted commands fail to execute",
-                wrapQuotes("I was \\\\\"so\\\" lazy I forgot to escape the other quote"), CommandUtils.quoteArgument(someQuotesEscapedSomeNot));
+                        "improperly quoted commands fail to execute");
     }
 
     @Test

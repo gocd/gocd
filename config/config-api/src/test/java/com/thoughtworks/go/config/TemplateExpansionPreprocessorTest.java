@@ -19,16 +19,16 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TemplateExpansionPreprocessorTest {
     private TemplateExpansionPreprocessor preprocessor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         preprocessor = new TemplateExpansionPreprocessor();
     }

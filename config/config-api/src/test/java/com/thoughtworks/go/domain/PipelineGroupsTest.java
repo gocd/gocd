@@ -28,7 +28,7 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +39,9 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PipelineGroupsTest {
 
@@ -170,13 +170,13 @@ public class PipelineGroupsTest {
         assertThat(pipelineGroups.findGroup("defaultGroup"), is(defaultGroup));
     }
 
-    @Test(expected = RecordNotFoundException.class)
+    @Test
     public void shouldThrowGroupNotFoundExceptionWhenSearchingForANonExistingGroup() {
         PipelineConfig pipeline = createPipelineConfig("pipeline1", "stage1");
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipeline);
         PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
 
-        pipelineGroups.findGroup("NonExistantGroup");
+        assertThrows(RecordNotFoundException.class, () -> pipelineGroups.findGroup("NonExistantGroup"));
     }
 
     @Test
@@ -316,13 +316,14 @@ public class PipelineGroupsTest {
         assertThat(groups.size(), is(0));
     }
 
-    @Test(expected = UnprocessableEntityException.class)
+    @Test
     public void shouldThrowExceptionWhenDeletingGroupWhenNotEmpty() {
         PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
 
         PipelineConfigs group = createGroup("group", p1Config);
 
         PipelineGroups groups = new PipelineGroups(group);
-        groups.deleteGroup("group");
+
+        assertThrows(UnprocessableEntityException.class, () -> groups.deleteGroup("group"));
     }
 }

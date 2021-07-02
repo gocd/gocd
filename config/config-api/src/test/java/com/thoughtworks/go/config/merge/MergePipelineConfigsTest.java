@@ -21,15 +21,15 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
 
@@ -126,22 +126,22 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         assertThat(group.get(0).getLabelTemplate(), is("blah"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldFailToUpdateName() {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
-        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
-        assertThat(group.getGroup(), is("my-new-group"));
+        assertThrows(RuntimeException.class, () -> {
+            group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
+        });
+        assertThat(group.getGroup(), nullValue());
     }
 
     @Override
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldSetToDefaultGroupWithGroupNameIsEmptyString() {
         PipelineConfigs pipelineConfigs = new MergePipelineConfigs(new BasicPipelineConfigs());
-        pipelineConfigs.setGroup("");
-
-        assertThat(pipelineConfigs.getGroup(), is(BasicPipelineConfigs.DEFAULT_GROUP));
+        assertThrows(RuntimeException.class, () -> pipelineConfigs.setGroup(""));
     }
 
     @Test
@@ -218,9 +218,9 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 is("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowOnPartsWithDifferentGroupNames() {
-        new MergePipelineConfigs(new BasicPipelineConfigs("one", null), new BasicPipelineConfigs("two", null));
+        assertThrows(IllegalArgumentException.class , () -> new MergePipelineConfigs(new BasicPipelineConfigs("one", null), new BasicPipelineConfigs("two", null)));
     }
 
     @Test

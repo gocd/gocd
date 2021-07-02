@@ -16,17 +16,17 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.config.Admin;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SecurityConfigTest {
 
@@ -37,7 +37,7 @@ public class SecurityConfigTest {
     @Test
     public void shouldNotSaySecurityEnabledIfSecurityHasNoAuthenticatorsDefined() {
         ServerConfig serverConfig = new ServerConfig();
-        assertFalse("Security should not be enabled by default", serverConfig.isSecurityEnabled());
+        assertFalse(serverConfig.isSecurityEnabled(), "Security should not be enabled by default");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class SecurityConfigTest {
     @Test
     public void shouldSaySecurityEnabledIfPasswordFileSecurityEnabled() {
         ServerConfig serverConfig = server(passwordFileAuthConfig(), admins());
-        assertTrue("Security should be enabled when password file config present", serverConfig.isSecurityEnabled());
+        assertTrue(serverConfig.isSecurityEnabled(), "Security should be enabled when password file config present");
     }
 
     @Test

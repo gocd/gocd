@@ -16,8 +16,8 @@
 package com.thoughtworks.go.security;
 
 import org.apache.commons.codec.DecoderException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class DESEncrypterTest {
 
     private DESEncrypter desEncrypter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         DESCipherProvider cipherProvider = mock(DESCipherProvider.class);
         when(cipherProvider.getKey()).thenReturn(decodeHex("269298bc31c44620"));

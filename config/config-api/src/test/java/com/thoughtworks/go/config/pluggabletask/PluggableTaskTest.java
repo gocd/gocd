@@ -34,8 +34,8 @@ import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.DataStructureUtils;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +43,9 @@ import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -130,7 +130,7 @@ public class PluggableTaskTest {
         assertProperty(propertiesForDisplay.get(2), "key3", "****", "key3");
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         for (String pluginId : PluggableTaskConfigStore.store().pluginIds()) {
             PluggableTaskConfigStore.store().removePreferenceFor(pluginId);

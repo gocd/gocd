@@ -18,13 +18,13 @@ package com.thoughtworks.go.security;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.*;
 
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class ResetCipher extends ExternalResource {
+public class ResetCipher implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
     private final SystemEnvironment systemEnvironment;
     private final AESCipherProvider aesCipherProvider;
     private final DESCipherProvider desCipherProvider;
@@ -40,13 +40,23 @@ public class ResetCipher extends ExternalResource {
     }
 
     @Override
-    protected void before() throws Throwable {
+    public void beforeEach(ExtensionContext context) throws Exception {
         removeCachedKey();
     }
 
     @Override
-    protected void after() {
+    public void afterEach(ExtensionContext context) throws Exception {
         removeCachedKey();
+    }
+
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter().getType() == ResetCipher.class;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return this;
     }
 
     private void removeCachedKey() {

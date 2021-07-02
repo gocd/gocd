@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.util.ClonerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
@@ -35,12 +35,13 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PartialConfigMother.createRepoOrigin;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), createPartial());

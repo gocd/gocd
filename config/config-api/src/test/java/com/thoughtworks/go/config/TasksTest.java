@@ -18,14 +18,14 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.service.TaskFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class TasksTest {

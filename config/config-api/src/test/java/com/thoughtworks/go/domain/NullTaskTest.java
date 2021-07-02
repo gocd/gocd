@@ -16,13 +16,13 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ValidationContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class NullTaskTest {
     private ValidationContext validationContext;

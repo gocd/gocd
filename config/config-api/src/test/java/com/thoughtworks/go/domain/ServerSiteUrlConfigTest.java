@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ServerSiteUrlConfigTest {
     @Test

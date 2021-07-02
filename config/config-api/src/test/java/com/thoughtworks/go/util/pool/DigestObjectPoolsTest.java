@@ -20,13 +20,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -38,13 +38,15 @@ public class DigestObjectPoolsTest {
 
     private DigestObjectPools pools;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         pools = new DigestObjectPools();
         pools.clearThreadLocals();
 
     }
 
-    @After public void tearDown() throws Exception {
+    @AfterEach
+    public void tearDown() throws Exception {
         pools.clearThreadLocals();
     }
 
@@ -68,12 +70,9 @@ public class DigestObjectPoolsTest {
 
     @Test
     public void shouldResetDigestForFutureUsage() {
-        DigestObjectPools.DigestOperation operation = new DigestObjectPools.DigestOperation() {
-            @Override
-            public String perform(MessageDigest digest) throws IOException {
-                digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8("foo"));
-                return Hex.encodeHexString(digest.digest());
-            }
+        DigestObjectPools.DigestOperation operation = digest -> {
+            digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8("foo"));
+            return Hex.encodeHexString(digest.digest());
         };
         String shaFirst = pools.computeDigest(DigestObjectPools.SHA_256, operation);
         String shaSecond = pools.computeDigest(DigestObjectPools.SHA_256, operation);
@@ -109,12 +108,9 @@ public class DigestObjectPoolsTest {
             pools.computeDigest(DigestObjectPools.SHA_256, operation);
             pools.computeDigest(DigestObjectPools.SHA_256, operation);
 
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    pools.computeDigest(DigestObjectPools.SHA_256, operation);
-                    pools.computeDigest(DigestObjectPools.SHA_256, operation);
-                }
+            Thread thread = new Thread(() -> {
+                pools.computeDigest(DigestObjectPools.SHA_256, operation);
+                pools.computeDigest(DigestObjectPools.SHA_256, operation);
             });
             thread.start();
             thread.join();

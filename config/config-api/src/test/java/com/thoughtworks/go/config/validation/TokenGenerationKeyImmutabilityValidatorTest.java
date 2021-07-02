@@ -19,23 +19,20 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TokenGenerationKeyImmutabilityValidatorTest {
     private TokenGenerationKeyImmutabilityValidator tokenGenerationKeyImmutabilityValidator;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.enforceServerImmutability()).thenReturn(true);
@@ -53,16 +50,14 @@ public class TokenGenerationKeyImmutabilityValidatorTest {
     }
 
     @Test
-    public void shouldErrorOutIfTokenGenerationKeyIsChanged() throws Exception {
+    public void shouldErrorOutIfTokenGenerationKeyIsChanged() {
         final BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         tokenGenerationKeyImmutabilityValidator.validate(cruiseConfig);
         assertThat(tokenGenerationKeyImmutabilityValidator.getTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
-
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.");
-
-        tokenGenerationKeyImmutabilityValidator.validate(GoConfigMother.defaultCruiseConfig());
+        assertThatThrownBy(() -> tokenGenerationKeyImmutabilityValidator.validate(GoConfigMother.defaultCruiseConfig()))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.");
     }
 
     @Test

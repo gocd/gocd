@@ -16,23 +16,22 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class XpathUtilsTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     private File testFile;
     private static final String XML = "<root>\n"
@@ -42,7 +41,7 @@ public class XpathUtilsTest {
             + "</son>\n"
             + "</root>";
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (testFile != null && testFile.exists()) {
             testFile.delete();
@@ -70,9 +69,9 @@ public class XpathUtilsTest {
         assertThat(value, is(""));
     }
 
-    @Test(expected = XPathExpressionException.class)
-    public void shouldThrowExceptionForIllegalXpath() throws Exception {
-        XpathUtils.evaluate(getTestFile(), "//");
+    @Test
+    public void shouldThrowExceptionForIllegalXpath() {
+        assertThrows(XPathExpressionException.class, () -> XpathUtils.evaluate(getTestFile(), "//"));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class XpathUtilsTest {
     }
 
     private File getTestFileUsingUTFWithBOM() throws IOException {
-        testFile = temporaryFolder.newFile();
+        testFile = File.createTempFile("xpath", null, temporaryFolder);
         saveUtfFileWithBOM(testFile, XML);
 
         return testFile;
@@ -129,7 +128,7 @@ public class XpathUtilsTest {
                 fos.write(bom);
             }
 
-            osw = new OutputStreamWriter(fos, "UTF-8");
+            osw = new OutputStreamWriter(fos, UTF_8);
             bw = new BufferedWriter(osw);
             if (content != null) {
                 bw.write(content);
@@ -160,7 +159,7 @@ public class XpathUtilsTest {
     }
 
     private File getTestFile(String xml) throws IOException {
-        testFile = temporaryFolder.newFile();
+        testFile = File.createTempFile("xpath", null, temporaryFolder);
         FileUtils.writeStringToFile(testFile, xml, UTF_8);
         return testFile;
     }

@@ -17,14 +17,14 @@ package com.thoughtworks.go.domain.packagerepository;
 
 import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.domain.config.*;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class PackageMaterialTestBase {
-    @After
+    @AfterEach
     public void tearDown() {
         RepositoryMetadataStoreHelper.clear();
         teardown();

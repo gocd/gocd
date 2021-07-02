@@ -21,10 +21,10 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.thoughtworks.go.helper.SecurityConfigMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ArtifactDirValidatorTest {
     @Test

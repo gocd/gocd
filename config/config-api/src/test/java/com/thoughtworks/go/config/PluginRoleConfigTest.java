@@ -36,9 +36,10 @@ import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

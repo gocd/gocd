@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.security;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.crypto.BadPaddingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -31,7 +31,7 @@ public class AESEncrypterTest {
 
     private AESEncrypter aesEncrypter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         AESCipherProvider cipherProvider = mock(AESCipherProvider.class);
         when(cipherProvider.getKey()).thenReturn(decodeHex("fdf500c4ec6e51172477145db6be63c5"));

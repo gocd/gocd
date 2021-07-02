@@ -23,8 +23,10 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,28 +40,28 @@ import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableSCMMaterialConfigTest {
     private PluggableSCMMaterialConfig pluggableSCMMaterialConfig;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
         SCMMetadataStore.getInstance().clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         SCMMetadataStore.getInstance().clear();
     }
 
     @Test
-    public void shouldAddErrorIfMaterialDoesNotHaveASCMId() throws Exception {
+    public void shouldAddErrorIfMaterialDoesNotHaveASCMId() {
         pluggableSCMMaterialConfig.setScmId(null);
         pluggableSCMMaterialConfig.validateConcreteMaterial(new ConfigSaveValidationContext(null, null));
 
@@ -68,7 +70,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldAddErrorIfSCMNameUniquenessValidationFails() throws Exception {
+    public void shouldAddErrorIfSCMNameUniquenessValidationFails() {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         PluggableSCMMaterialConfig existingMaterial = new PluggableSCMMaterialConfig("scm-id");
         nameToMaterialMap.put(new CaseInsensitiveString("scm-id"), existingMaterial);
@@ -84,7 +86,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldPassMaterialUniquenessIfIfNoDuplicateSCMFound() throws Exception {
+    public void shouldPassMaterialUniquenessIfIfNoDuplicateSCMFound() {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         nameToMaterialMap.put(new CaseInsensitiveString("scm-id-new"), new PluggableSCMMaterialConfig("scm-id-new"));
         nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
@@ -96,7 +98,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldNotAddErrorDuringUniquenessValidationIfSCMNameIsEmpty() throws Exception {
+    public void shouldNotAddErrorDuringUniquenessValidationIfSCMNameIsEmpty() {
         pluggableSCMMaterialConfig.setScmId("");
 
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
@@ -130,7 +132,7 @@ public class PluggableSCMMaterialConfigTest {
 
 
     @Test
-    public void shouldAddErrorWhenMatchingScmConfigDoesNotExist() throws Exception {
+    public void shouldAddErrorWhenMatchingScmConfigDoesNotExist() {
         PipelineConfigSaveValidationContext validationContext = mock(PipelineConfigSaveValidationContext.class);
         when(validationContext.findScmById(anyString())).thenReturn(null);
         SCM scmConfig = mock(SCM.class);
@@ -143,7 +145,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldAddErrorWhenAssociatedSCMPluginIsMissing() throws Exception {
+    public void shouldAddErrorWhenAssociatedSCMPluginIsMissing() {
         PipelineConfigSaveValidationContext configSaveValidationContext = mock(PipelineConfigSaveValidationContext.class);
         when(configSaveValidationContext.findScmById(anyString())).thenReturn(mock(SCM.class));
         SCM scmConfig = mock(SCM.class);
@@ -156,7 +158,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesForSCMMaterial() throws Exception {
+    public void shouldSetConfigAttributesForSCMMaterial() {
         Map<String, String> attributes = new HashMap<>();
         attributes.put(PluggableSCMMaterialConfig.SCM_ID, "scm-id");
         attributes.put(PluggableSCMMaterialConfig.FOLDER, "dest");
@@ -173,7 +175,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldSetConfigAttributesForSCMMaterialWhenDataIsEmpty() throws Exception {
+    public void shouldSetConfigAttributesForSCMMaterialWhenDataIsEmpty() {
         Map<String, String> attributes = new HashMap<>();
         attributes.put(PluggableSCMMaterialConfig.SCM_ID, "scm-id");
         attributes.put(PluggableSCMMaterialConfig.FOLDER, "");
@@ -200,7 +202,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldSetSCMIdToNullIfConfigAttributesForSCMMaterialDoesNotContainSCMId() throws Exception {
+    public void shouldSetSCMIdToNullIfConfigAttributesForSCMMaterialDoesNotContainSCMId() {
         Map<String, String> attributes = new HashMap<>();
 
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
@@ -228,7 +230,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldCheckEquals() throws Exception {
+    public void shouldCheckEquals() {
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
 
         // same fingerprint
@@ -263,7 +265,7 @@ public class PluggableSCMMaterialConfigTest {
     }
 
     @Test
-    public void shouldDelegateToSCMConfigForAutoUpdate() throws Exception {
+    public void shouldDelegateToSCMConfigForAutoUpdate() {
         SCM scm = mock(SCM.class);
         when(scm.isAutoUpdate()).thenReturn(false);
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scm-name"), scm, null, null, false);
@@ -313,7 +315,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f1/f2");
         assertFalse(pluggableSCMMaterialConfig.errors().isEmpty());
-        Assert.assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
     }
 
     @Test
@@ -329,19 +331,19 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1/../../f3");
 
         pluggableSCMMaterialConfig.validateConcreteMaterial(null);
-        Assert.assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder."));
     }
 
     @Test
     public void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
         pluggableSCMMaterialConfig.setFolder("f1/f2/../../f3");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f3/f4");
-        Assert.assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
     }
 
     @Test
     public void shouldNotValidateNestingOfMaterialDirectoriesBasedOnServerSideFileSystem() throws IOException {
-        final File workingDir = temporaryFolder.newFolder("go-working-dir");
+        final File workingDir = Files.createDirectory(temporaryFolder.resolve("go-working-dir")).toFile();
         final File material1 = new File(workingDir, "material1");
         material1.mkdirs();
 

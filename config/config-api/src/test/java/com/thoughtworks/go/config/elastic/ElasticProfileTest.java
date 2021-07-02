@@ -29,16 +29,17 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ElasticProfileTest {
 
@@ -48,7 +49,7 @@ public class ElasticProfileTest {
     private String pluginId;
     private BasicCruiseConfig config;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pluginId = "cd.go.elastic-agent.docker-swarm";
         clusterProfileId = "prod-cluster";
@@ -57,7 +58,7 @@ public class ElasticProfileTest {
         validationContext = new ConfigSaveValidationContext(config);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         store.clear();
     }

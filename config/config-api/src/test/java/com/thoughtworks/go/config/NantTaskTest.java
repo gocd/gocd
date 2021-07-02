@@ -16,13 +16,13 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class NantTaskTest {
     @Test

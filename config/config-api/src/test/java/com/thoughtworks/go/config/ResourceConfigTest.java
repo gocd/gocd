@@ -16,18 +16,18 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ResourceConfigTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 

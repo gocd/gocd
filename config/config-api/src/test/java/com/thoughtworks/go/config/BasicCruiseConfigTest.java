@@ -48,10 +48,10 @@ import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.ClonerFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,22 +62,22 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(ResetCipher.class)
 public class BasicCruiseConfigTest extends CruiseConfigTestBase {
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new BasicCruiseConfig(pipelines);
         goConfigMother = new GoConfigMother();
     }
 
-    @After
+    @AfterEach
     public void clear() {
         ArtifactMetadataStore.instance().clear();
     }
@@ -308,7 +308,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllTemplatesInConfig() throws IOException, CryptoException {
+    public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllTemplatesInConfig(ResetCipher resetCipher) throws IOException, CryptoException {
         setArtifactPluginInfo();
         resetCipher.setupAESCipherFile();
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -343,7 +343,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldEncryptSecureRoleConfigProperties() throws IOException, CryptoException {
+    public void shouldEncryptSecureRoleConfigProperties(ResetCipher resetCipher) throws IOException, CryptoException {
         setAuthorizationPluginInfo();
         resetCipher.setupAESCipherFile();
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -375,7 +375,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldEncryptElasticAgentProfileConfigProperties() throws IOException, CryptoException {
+    public void shouldEncryptElasticAgentProfileConfigProperties(ResetCipher resetCipher) throws IOException, CryptoException {
         setEAPluginInfo();
         resetCipher.setupAESCipherFile();
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -407,7 +407,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllPipelinesInConfig() throws IOException, CryptoException {
+    public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllPipelinesInConfig(ResetCipher resetCipher) throws IOException, CryptoException {
         // ancestor => parent => child [fetch pluggable artifact(ancestor), fetch pluggable artifact(parent)]
 
         resetCipher.setupAESCipherFile();
@@ -557,14 +557,14 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         assertThat(config.getGroups().isEmpty(), is(true));
     }
 
-    @Test(expected = UnprocessableEntityException.class)
+    @Test
     public void shouldNotDeletePipelineGroupIfNotEmpty() {
         PipelineConfigs group = createGroup("group", createPipelineConfig("pipeline", "stage"));
         CruiseConfig config = createCruiseConfig();
         config.setGroup(new PipelineGroups(group));
 
         assertThat(config.getGroups().isEmpty(), is(false));
-        config.deletePipelineGroup("group");
+        assertThrows(UnprocessableEntityException.class, () -> config.deletePipelineGroup("group"));
     }
 
     @Test

@@ -16,12 +16,10 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,11 +81,7 @@ class ScmMaterialConfigTest {
     }
 
     @Nested
-    @EnableRuleMigrationSupport
     class validate {
-        @Rule
-        public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
         @Test
         void shouldNotValidateEmptyDestinationFolder() {
             material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
@@ -127,8 +121,7 @@ class ScmMaterialConfigTest {
         }
 
         @Test
-        void shouldNotValidateNestingOfMaterialDirectoriesBasedOnServerSideFileSystem() throws IOException {
-            final File workingDir = temporaryFolder.newFolder("go-working-dir");
+        void shouldNotValidateNestingOfMaterialDirectoriesBasedOnServerSideFileSystem(@TempDir File workingDir) throws IOException {
             final File material1 = new File(workingDir, "material1");
             material1.mkdirs();
 

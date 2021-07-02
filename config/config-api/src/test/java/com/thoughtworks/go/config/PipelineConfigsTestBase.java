@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.DISABLED;
 import static com.thoughtworks.go.config.Authorization.PrivilegeState.OFF;
@@ -35,7 +35,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class PipelineConfigsTestBase {
 

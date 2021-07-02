@@ -16,11 +16,9 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.ResourceConfig;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;

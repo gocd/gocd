@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.api.response;
 
 import org.hamcrest.MatcherAssert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;

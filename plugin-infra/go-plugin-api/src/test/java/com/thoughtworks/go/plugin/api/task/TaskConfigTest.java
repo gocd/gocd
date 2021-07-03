@@ -18,23 +18,23 @@ package com.thoughtworks.go.plugin.api.task;
 import java.util.List;
 
 import com.thoughtworks.go.plugin.api.config.Property;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TaskConfigTest {
 
     private TaskConfig taskConfig;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() {
         taskConfig = new TaskConfig();
     }
 
     @Test
-    public void shouldAddPropertyWithGiveName() throws Exception {
+    public void shouldAddPropertyWithGiveName() {
         String abcd = "Abcd";
         String abcdDefault = "first of alphabets";
         String wxyz = "wxyz";

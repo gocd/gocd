@@ -16,16 +16,16 @@
 package com.thoughtworks.go.plugin.api.task;
 
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class JobConsoleLoggerTest {
@@ -34,8 +34,8 @@ public class JobConsoleLoggerTest {
     private JobConsoleLogger consoleLogger;
     private EnvironmentVariables environment;
 
-    @Before
-    public void setup() throws NoSuchMethodException {
+    @BeforeEach
+    public void setup() {
         taskExecutionContext = mock(TaskExecutionContext.class);
         mockedConsole = mock(com.thoughtworks.go.plugin.api.task.Console.class);
         when(taskExecutionContext.console()).thenReturn(mockedConsole);
@@ -45,7 +45,7 @@ public class JobConsoleLoggerTest {
         consoleLogger = JobConsoleLogger.getConsoleLogger();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         ReflectionUtil.setStaticField(JobConsoleLogger.class, "context", null);
     }

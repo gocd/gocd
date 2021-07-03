@@ -16,21 +16,21 @@
 package com.thoughtworks.go.plugin.configrepo.contract;
 
 import com.google.gson.JsonParseException;
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
 
     private final CRBuiltInArtifact artifact;
     private final CRBuiltInArtifact invalidNoSource;
 
-    public CRBuiltInArtifactTest()
-    {
+    public CRBuiltInArtifactTest() {
         artifact = new CRBuiltInArtifact("src","dest", CRArtifactType.build);
         invalidNoSource = new CRBuiltInArtifact(null,"dest",CRArtifactType.test);
     }
@@ -45,10 +45,8 @@ public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
         examples.put("invalidNoSource",invalidNoSource);
     }
 
-
     @Test
-    public void shouldDeserializeFromAPILikeObject()
-    {
+    public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
                 "      \"source\": \"test\",\n" +
                 "      \"destination\": \"res1\",\n" +
@@ -61,20 +59,19 @@ public class CRBuiltInArtifactTest extends AbstractCRTest<CRBuiltInArtifact> {
         assertThat(crBuiltInArtifact.getType(),is(CRArtifactType.test));
 
         ErrorCollection errors = deserializedValue.getErrors();
-        TestCase.assertTrue(errors.isEmpty());
+        assertTrue(errors.isEmpty());
     }
 
     @Test
-    public void shouldHandleBadArtifactTypeWhenDeserializing()
-    {
+    public void shouldHandleBadArtifactTypeWhenDeserializing() {
         String json = "{\n" +
                 "      \"source\": \"test\",\n" +
                 "      \"destination\": \"res1\",\n" +
                 "      \"type\": \"bla\"\n" +
                 "    }";
 
-        thrown.expect(JsonParseException.class);
-        thrown.expectMessage("Invalid or unknown task type 'bla'");
-        gson.fromJson(json,CRArtifact.class);
+        assertThatThrownBy(() -> gson.fromJson(json,CRArtifact.class))
+                .isInstanceOf(JsonParseException.class)
+                .hasMessageContaining("Invalid or unknown task type 'bla'");
     }
 }

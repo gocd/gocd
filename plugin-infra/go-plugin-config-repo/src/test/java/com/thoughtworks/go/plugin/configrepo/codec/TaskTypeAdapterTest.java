@@ -19,16 +19,18 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@ExtendWith(MockitoExtension.class)
 public class TaskTypeAdapterTest {
 
     private TaskTypeAdapter taskTypeAdapter;
@@ -39,17 +41,13 @@ public class TaskTypeAdapterTest {
     @Mock
     private Type type;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    public void setUp() {
         taskTypeAdapter = new TaskTypeAdapter();
     }
 
     @Test
-    public void shouldInstantiateATaskOfTypeExec() throws Exception {
+    public void shouldInstantiateATaskOfTypeExec() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "exec");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -58,7 +56,7 @@ public class TaskTypeAdapterTest {
     }
 
     @Test
-    public void shouldInstantiateATaskOfTypeAnt() throws Exception {
+    public void shouldInstantiateATaskOfTypeAnt() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "ant");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -67,7 +65,7 @@ public class TaskTypeAdapterTest {
     }
 
     @Test
-    public void shouldInstantiateATaskForTypeNant() throws Exception {
+    public void shouldInstantiateATaskForTypeNant() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "nant");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -76,7 +74,7 @@ public class TaskTypeAdapterTest {
     }
 
     @Test
-    public void shouldInstantiateATaskForTypeRake() throws Exception {
+    public void shouldInstantiateATaskForTypeRake() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "rake");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -85,7 +83,7 @@ public class TaskTypeAdapterTest {
     }
 
     @Test
-    public void shouldInstantiateATaskForTypeFetch() throws Exception {
+    public void shouldInstantiateATaskForTypeFetch() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
         jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "gocd");
@@ -95,7 +93,7 @@ public class TaskTypeAdapterTest {
     }
 
     @Test
-    public void shouldInstantiateATaskForTypeFetchPluggableArtifact() throws Exception {
+    public void shouldInstantiateATaskForTypeFetchPluggableArtifact() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
         jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "external");
@@ -105,14 +103,13 @@ public class TaskTypeAdapterTest {
     }
 
     @Test
-    public void shouldThrowExceptionForFetchIfOriginIsInvalid() throws Exception {
+    public void shouldThrowExceptionForFetchIfOriginIsInvalid() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
         jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "fsg");
 
-        thrown.expectMessage("Invalid artifact origin 'fsg' for fetch task.");
-        thrown.expect(JsonParseException.class);
-
-        taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
+        assertThatThrownBy(() -> taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext))
+                .isInstanceOf(JsonParseException.class)
+                .hasMessageContaining("Invalid artifact origin 'fsg' for fetch task.");
     }
 }

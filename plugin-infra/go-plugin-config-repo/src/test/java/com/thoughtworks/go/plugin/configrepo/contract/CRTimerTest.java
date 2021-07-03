@@ -15,21 +15,20 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRTimerTest extends AbstractCRTest<CRTimer> {
 
     private final CRTimer timer;
     private final CRTimer invalidNoTimerSpec;
 
-    public CRTimerTest()
-    {
+    public CRTimerTest() {
         timer = new CRTimer("0 15 10 * * ? *", false);
 
         invalidNoTimerSpec = new CRTimer();
@@ -46,8 +45,7 @@ public class CRTimerTest extends AbstractCRTest<CRTimer> {
     }
 
     @Test
-    public void shouldDeserializeFromAPILikeObject()
-    {
+    public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
                 "    \"spec\": \"0 0 22 ? * MON-FRI\",\n" +
                 "    \"only_on_changes\": true\n" +
@@ -58,6 +56,6 @@ public class CRTimerTest extends AbstractCRTest<CRTimer> {
         assertThat(deserializedValue.isOnlyOnChanges(),is(true));
 
         ErrorCollection errors = deserializedValue.getErrors();
-        TestCase.assertTrue(errors.isEmpty());
+        assertTrue(errors.isEmpty());
     }
 }

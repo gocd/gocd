@@ -17,11 +17,11 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRBuildTask;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRTask;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class CRJobTest extends AbstractCRTest<CRJob> {

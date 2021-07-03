@@ -26,6 +26,7 @@ dependencies {
   testImplementation project.deps.hamcrest
   testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoJunit5
   testImplementation project(':test:test-utils')
 }
 

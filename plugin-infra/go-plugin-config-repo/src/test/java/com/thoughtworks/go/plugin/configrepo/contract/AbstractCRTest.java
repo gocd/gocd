@@ -20,30 +20,24 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class AbstractCRTest<T extends CRBase> {
 
     private boolean printExamples = false;
     protected Gson gson;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void SetUp()
-    {
+    @BeforeEach
+    public void setUp() {
         GsonBuilder builder = new GsonBuilder();
 
         if(printExamples)
@@ -60,8 +54,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
     /**
      * Gets collection of example instances. Key is name of example to identify it during tests.
      */
-    public Map<String,T> getExamples()
-    {
+    public Map<String,T> getExamples() {
         Map<String, T> examples = new HashMap<>();
         this.addGoodExamples(examples);
         this.addBadExamples(examples);
@@ -70,8 +63,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
     /**
      * Gets collection of good example instances. Key is name of example to identify it during tests.
      */
-    public Map<String,T> getGoodExamples()
-    {
+    public Map<String,T> getGoodExamples() {
         Map<String, T> examples = new HashMap<>();
         this.addGoodExamples(examples);
         return examples;
@@ -80,18 +72,16 @@ public abstract class AbstractCRTest<T extends CRBase> {
     /**
      * Gets collection of bad example instances. Key is name of example to identify it during tests.
      */
-    public Map<String,T> getBadExamples()
-    {
+    public Map<String,T> getBadExamples() {
         Map<String, T> examples = new HashMap<>();
         this.addBadExamples(examples);
         return examples;
     }
 
     @Test
-    public void shouldHaveEqualsImplementedForTests()
-    {
+    public void shouldHaveEqualsImplementedForTests() {
         //just try equality of each example with other
-        for(Object o : getExamples().entrySet()) {
+        for (Object o : getExamples().entrySet()) {
             Map.Entry<String, T> right = (Map.Entry<String, T>) o;
             for (Map.Entry<String, T> left : getExamples().entrySet()) {
                 if (left.getValue() == right.getValue())
@@ -105,11 +95,9 @@ public abstract class AbstractCRTest<T extends CRBase> {
     }
 
     @Test
-    public void shouldSerializeToJson()
-    {
+    public void shouldSerializeToJson() {
         Map<String,T> examples = getExamples();
-        for(Map.Entry<String,T> example : examples.entrySet())
-        {
+        for(Map.Entry<String,T> example : examples.entrySet()) {
             String exampleName = example.getKey();
             T value = example.getValue();
             String json = gson.toJson(value);
@@ -122,15 +110,13 @@ public abstract class AbstractCRTest<T extends CRBase> {
         }
     }
     @Test
-    public void shouldReturnLocation()
-    {
+    public void shouldReturnLocation() {
         Map<String,T> examples = getExamples();
-        for(Map.Entry<String,T> example : examples.entrySet())
-        {
+        for(Map.Entry<String,T> example : examples.entrySet()) {
             String exampleName = example.getKey();
             T value = example.getValue();
             String location = value.getLocation("TEST_PARENT");
-            if(printExamples) {
+            if (printExamples) {
                 System.out.print("-----\n");
                 System.out.print(String.format("Example '%s' Location:\n", exampleName));
                 System.out.print(location);
@@ -140,8 +126,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
     }
 
     @Test
-    public void shouldIgnoreWhenJsonHasUnknownElements()
-    {
+    public void shouldIgnoreWhenJsonHasUnknownElements() {
         Map<String,T> examples = getExamples();
         for(Map.Entry<String,T> example : examples.entrySet()) {
             T value = example.getValue();
@@ -156,11 +141,9 @@ public abstract class AbstractCRTest<T extends CRBase> {
     }
 
     @Test
-    public void shouldSerializeToJsonAndDeserialize()
-    {
+    public void shouldSerializeToJsonAndDeserialize() {
         Map<String,T> examples = getExamples();
-        for(Map.Entry<String,T> example : examples.entrySet())
-        {
+        for(Map.Entry<String,T> example : examples.entrySet()) {
             T value = example.getValue();
             String json = gson.toJson(value);
 
@@ -170,12 +153,11 @@ public abstract class AbstractCRTest<T extends CRBase> {
         }
     }
     @Test
-    public void shouldGetErrorsWhenDeserializedFromEmptyBlock()
-    {
+    public void shouldGetErrorsWhenDeserializedFromEmptyBlock() {
         String json = "{}";
 
         Class<? extends CRBase> typeOfT = null;
-        for(T example : getGoodExamples().values()) {
+        for (T example : getGoodExamples().values()) {
             typeOfT = example.getClass();
             break;
         }
@@ -186,11 +168,9 @@ public abstract class AbstractCRTest<T extends CRBase> {
         deserializedValue.getErrors(errorCollection,"GetErrorsWhenDeserializedFromEmptyBlockTest");
     }
     @Test
-    public void shouldThrowWhenJsonFormatIsInvalid()
-    {
+    public void shouldThrowWhenJsonFormatIsInvalid() {
         Map<String,T> examples = getExamples();
-        for(Map.Entry<String,T> example : examples.entrySet())
-        {
+        for(Map.Entry<String,T> example : examples.entrySet()) {
             T value = example.getValue();
             String json = gson.toJson(value);
 
@@ -198,9 +178,7 @@ public abstract class AbstractCRTest<T extends CRBase> {
 
             try {
                 gson.fromJson(json, value.getClass());
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 return;
             }
             fail("Should have thrown invalid format for " + example.getKey());
@@ -208,21 +186,20 @@ public abstract class AbstractCRTest<T extends CRBase> {
     }
 
     @Test
-    public void shouldErrorWhenBadExample(){
+    public void shouldErrorWhenBadExample() {
         Map<String,T> examples = getBadExamples();
-        for(Map.Entry<String,T> example : examples.entrySet())
-        {
+        for(Map.Entry<String,T> example : examples.entrySet()) {
             ErrorCollection errorCollection = new ErrorCollection();
             example.getValue().getErrors(errorCollection,"ErrorWhenBadExampleTest");
             assertThat(String.format("Example %s - invalid value should return errors",example.getKey()),
                     errorCollection.isEmpty(),is(false));
         }
     }
+
     @Test
-    public void shouldNotErrorWhenGoodExample(){
+    public void shouldNotErrorWhenGoodExample() {
         Map<String,T> examples = getGoodExamples();
-        for(Map.Entry<String,T> example : examples.entrySet())
-        {
+        for(Map.Entry<String,T> example : examples.entrySet()) {
             ErrorCollection errorCollection = new ErrorCollection();
             example.getValue().getErrors(errorCollection,"NotErrorWhenGoodExampleTest");
             assertThat(String.format("Example %s - valid value should not return errors",example.getKey()),

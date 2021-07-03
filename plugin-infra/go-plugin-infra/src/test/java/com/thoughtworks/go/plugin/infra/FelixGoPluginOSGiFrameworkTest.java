@@ -30,7 +30,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 
@@ -41,9 +43,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.Mockito.*;;
 
+@ExtendWith(MockitoExtension.class)
 class FelixGoPluginOSGiFrameworkTest {
     private static final String TEST_SYMBOLIC_NAME = "testplugin.descriptorValidator";
 
@@ -51,9 +53,9 @@ class FelixGoPluginOSGiFrameworkTest {
     private BundleContext bundleContext;
     @Mock
     private Bundle bundle;
-    @Mock
+    @Mock(lenient = true)
     private Framework framework;
-    @Mock
+    @Mock(lenient = true)
     private PluginRegistry registry;
     @Mock
     private SystemEnvironment systemEnvironment;
@@ -61,7 +63,6 @@ class FelixGoPluginOSGiFrameworkTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         FelixGoPluginOSGiFramework goPluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
@@ -74,7 +75,7 @@ class FelixGoPluginOSGiFrameworkTest {
         spy = spy(goPluginOSGiFramework);
         when(framework.getBundleContext()).thenReturn(bundleContext);
         when(registry.getPlugin(TEST_SYMBOLIC_NAME)).thenReturn(buildExpectedDescriptor(TEST_SYMBOLIC_NAME));
-        doReturn(framework).when(spy).getFelixFramework(any());
+        lenient().doReturn(framework).when(spy).getFelixFramework(any());
     }
 
     @AfterEach
@@ -254,33 +255,32 @@ class FelixGoPluginOSGiFrameworkTest {
         for (SomeInterface someInterface : someInterfaces) {
             ServiceReference<SomeInterface> reference = mock(ServiceReference.class);
             Bundle bundle = mock(Bundle.class);
-            when(reference.getBundle()).thenReturn(bundle);
-            when(bundleContext.getService(reference)).thenReturn(someInterface);
+            lenient().when(reference.getBundle()).thenReturn(bundle);
+            lenient().when(bundleContext.getService(reference)).thenReturn(someInterface);
             references.add(reference);
         }
 
         String propertyFormat = String.format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginID, Constants.BUNDLE_CATEGORY, extensionType);
-        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(references);
+        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(references);
         when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
     }
 
     private void registerService(SomeInterface someInterface, String pluginID, String extension) throws InvalidSyntaxException {
         ServiceReference<SomeInterface> reference = mock(ServiceReference.class);
 
-        when(reference.getBundle()).thenReturn(bundle);
-        when(bundleContext.getService(reference)).thenReturn(someInterface);
-        when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
+        lenient().when(reference.getBundle()).thenReturn(bundle);
+        lenient().when(bundleContext.getService(reference)).thenReturn(someInterface);
+        lenient().when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
 
         String propertyFormat = String.format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginID, Constants.BUNDLE_CATEGORY, extension);
-        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(singletonList(reference));
-
-        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(singletonList(reference));
+        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(singletonList(reference));
+        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(singletonList(reference));
     }
 
     private void registerService(String pluginID, GoPlugin... someInterfaces) throws InvalidSyntaxException {
         final List<ServiceReference<GoPlugin>> serviceReferences = Arrays.stream(someInterfaces).map(someInterface -> {
             ServiceReference<GoPlugin> reference = mock(ServiceReference.class);
-            when(reference.getBundle()).thenReturn(bundle);
+            lenient().when(reference.getBundle()).thenReturn(bundle);
             when(bundleContext.getService(reference)).thenReturn(someInterface);
             when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
             return reference;

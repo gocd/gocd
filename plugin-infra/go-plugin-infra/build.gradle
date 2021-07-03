@@ -33,10 +33,10 @@ dependencies {
 
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoJunit5
   testImplementation project(':test:test-utils')
   testImplementation project.deps.tinybundles
   testImplementation project.deps.junit5
-  testRuntimeOnly project.deps.junit4
   testRuntimeOnly project.deps.junit5Engine
 }
 

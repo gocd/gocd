@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.StringUtil.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StringUtilTest {
     @Test public void shouldQuoteJavascriptString() throws Exception {

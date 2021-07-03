@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,20 +26,20 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TempFilesTest {
     TempFiles files;
     private Properties original;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         original = new Properties();
         original.putAll(System.getProperties());
         files = new TempFiles();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         System.setProperties(original);
         files.cleanUp();

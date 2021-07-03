@@ -15,15 +15,16 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TriStateTest {
 
     @Test
-    public void testTrueShouldBeTruthy() throws Exception {
+    public void testTrueShouldBeTruthy() {
         TriState triState = TriState.from("tRuE");
         assertTrue(triState.isTrue());
         assertTrue(triState.isTruthy());
@@ -32,7 +33,7 @@ public class TriStateTest {
     }
 
     @Test
-    public void testFalseShouldBeTruthy() throws Exception {
+    public void testFalseShouldBeTruthy() {
         TriState triState = TriState.from("FaLsE");
         assertTrue(triState.isFalsy());
         assertTrue(triState.isFalse());
@@ -42,7 +43,7 @@ public class TriStateTest {
 
 
     @Test
-    public void testUnsetShouldBeTruthy() throws Exception {
+    public void testUnsetShouldBeTruthy() {
         TriState triState = TriState.from(null);
         assertTrue(triState.isFalsy());
         assertFalse(triState.isFalse());
@@ -50,8 +51,8 @@ public class TriStateTest {
         assertFalse(triState.isTruthy());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testBadStringShouldRaiseError() throws Exception {
-        TriState.from("foo");
+    @Test
+    public void testBadStringShouldRaiseError() {
+        assertThrows(IllegalArgumentException.class, () -> TriState.from("foo"));
     }
 }

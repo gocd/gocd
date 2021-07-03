@@ -15,34 +15,33 @@
  */
 package com.thoughtworks.go.logging;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LogConfiguratorTest {
 
     private final ByteArrayOutputStream stdout = new ByteArrayOutputStream();
     private final ByteArrayOutputStream stderr = new ByteArrayOutputStream();
 
-    @Rule
-    public final TemporaryFolder folder = new TemporaryFolder();
     private PrintStream originalErr;
     private PrintStream originalOut;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         originalErr = System.err;
         originalOut = System.out;
@@ -51,7 +50,7 @@ public class LogConfiguratorTest {
         System.setOut(new PrintStream(stdout));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         System.setErr(originalErr);
         System.setOut(originalOut);
@@ -94,10 +93,10 @@ public class LogConfiguratorTest {
     }
 
     @Test
-    public void shouldFallbackToDefaultFileIfLog4jConfigFound() throws Exception {
-        File configFile = folder.newFile("foo.properties");
+    public void shouldFallbackToDefaultFileIfLog4jConfigFound(@TempDir Path temporaryFolder) throws Exception {
+        Path configFile = Files.createTempFile(temporaryFolder, "config", null);
         final URL[] initializeFromPropertiesFile = {null};
-        LogConfigurator logConfigurator = new LogConfigurator(configFile.getParentFile().getAbsolutePath(), configFile.getName()) {
+        LogConfigurator logConfigurator = new LogConfigurator(temporaryFolder.toAbsolutePath().toString(), configFile.getFileName().toString()) {
             @Override
             protected void configureWith(URL resource) {
                 initializeFromPropertiesFile[0] = resource;
@@ -106,7 +105,7 @@ public class LogConfiguratorTest {
 
         logConfigurator.initialize();
 
-        assertThat(initializeFromPropertiesFile[0], is(configFile.toURI().toURL()));
+        assertThat(initializeFromPropertiesFile[0], is(configFile.toUri().toURL()));
 
         assertThat(stderr.toString(), containsString(String.format("Using logback configuration from file %s", configFile)));
         assertThat(stdout.toString(), is(""));

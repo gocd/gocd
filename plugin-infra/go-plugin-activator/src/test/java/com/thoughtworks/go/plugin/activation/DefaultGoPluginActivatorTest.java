@@ -24,12 +24,14 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -42,11 +44,12 @@ import java.util.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class DefaultGoPluginActivatorTest {
     private static final String CONSTRUCTOR_FAIL_MSG = "Ouch! Failed construction";
     private static final String PLUGIN_ID = "plugin-id";
@@ -56,17 +59,15 @@ public class DefaultGoPluginActivatorTest {
     private DefaultGoPluginActivator activator;
     @Captor private ArgumentCaptor<List<String>> errorMessageCaptor;
     @Mock private BundleContext context;
-    @Mock private Bundle bundle;
+    @Mock(lenient = true) private Bundle bundle;
     @Mock private ServiceReference<PluginRegistryService> pluginRegistryServiceReference;
     @Mock private PluginRegistryService pluginRegistryService;
     @Mock private ServiceReference<LoggingService> loggingServiceReference;
     @Mock private LoggingService loggingService;
     private Enumeration<URL> emptyListOfClassesInBundle = new Hashtable<URL, String>().keys();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
-
         when(context.getServiceReference(PluginRegistryService.class)).thenReturn(pluginRegistryServiceReference);
         when(context.getServiceReference(LoggingService.class)).thenReturn(loggingServiceReference);
         when(context.getService(pluginRegistryServiceReference)).thenReturn(pluginRegistryService);
@@ -80,7 +81,7 @@ public class DefaultGoPluginActivatorTest {
         activator = new DefaultGoPluginActivator();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         Logger.initialize(null);
     }

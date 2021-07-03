@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server;
 
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import static org.mockito.Mockito.*;
 

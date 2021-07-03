@@ -17,22 +17,24 @@ package com.thoughtworks.go.server.util;
 
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.server.Request;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class Jetty9RequestTest {
     private Jetty9Request jetty9Request;
-    @Mock private Request request;
+    @Mock(lenient = true)
+    private Request request;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         jetty9Request = new Jetty9Request(request);
         when(request.getHttpURI()).thenReturn(new HttpURI("foo/bar/baz"));
         when(request.getRootURL()).thenReturn(new StringBuilder("http://junk/"));

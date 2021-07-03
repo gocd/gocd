@@ -31,14 +31,17 @@ import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -49,25 +52,26 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
 public class Jetty9ServerTest {
-    @Mock
+    @Mock(lenient = true)
     private Server server;
-    @Mock
+    @Mock(lenient = true)
     private SystemEnvironment systemEnvironment;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Mock
+    @Mock(lenient = true)
     private SSLSocketFactory sslSocketFactory;
-    @Mock
+    @Mock(lenient = true)
     private DeploymentManager deploymentManager;
 
     @Rule
@@ -75,19 +79,20 @@ public class Jetty9ServerTest {
 
     private Jetty9Server jetty9Server;
     private Handler serverLevelHandler;
-    private File configDir;
     private ArgumentCaptor<App> appCaptor;
 
-    @Before
+    @TempDir
+    File configDir;
+
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         when(server.getThreadPool()).thenReturn(new QueuedThreadPool(1));
         Answer<Void> setHandlerMock = invocation -> {
             serverLevelHandler = (Handler) invocation.getArguments()[0];
             serverLevelHandler.setServer((Server) invocation.getMock());
             return null;
         };
-        Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
+        Mockito.lenient().doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
 
         appCaptor = ArgumentCaptor.forClass(App.class);
         Mockito.doNothing().when(deploymentManager).addApp(appCaptor.capture());
@@ -99,7 +104,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
-        when(systemEnvironment.configDir()).thenReturn(configDir = temporaryFolder.newFolder());
+        when(systemEnvironment.configDir()).thenReturn(configDir);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
         when(systemEnvironment.sessionTimeoutInSeconds()).thenReturn(1234);
@@ -254,8 +259,8 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldReplaceJettyXmlIfItDoesNotContainCorrespondingJettyVersionNumber() throws IOException {
-        File jettyXml = temporaryFolder.newFile("jetty.xml");
+    public void shouldReplaceJettyXmlIfItDoesNotContainCorrespondingJettyVersionNumber(@TempDir Path temporaryFolder) throws IOException {
+        File jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml")).toFile();
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
         String originalContent = "jetty-v6.2.3\nsome other local changes";
@@ -265,8 +270,8 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldNotReplaceJettyXmlIfItAlreadyContainsCorrespondingVersionNumber() throws IOException {
-        File jettyXml = temporaryFolder.newFile("jetty.xml");
+    public void shouldNotReplaceJettyXmlIfItAlreadyContainsCorrespondingVersionNumber(@TempDir Path temporaryFolder) throws IOException {
+        File jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml")).toFile();
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
         String originalContent = "jetty-v9.4.8.v20171121\nsome other local changes";

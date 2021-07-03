@@ -16,11 +16,11 @@
 package com.thoughtworks.go.server.util;
 
 import org.eclipse.jetty.server.Response;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +28,7 @@ public class Jetty9ResponseTest {
     private Jetty9Response jetty9Response;
     private Response response;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         response = mock(Response.class);
         jetty9Response = new Jetty9Response(response);

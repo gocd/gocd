@@ -25,9 +25,11 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,12 +38,11 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AssetsContextHandlerTest {
-
 
     private AssetsContextHandler handler;
     @Mock
@@ -49,9 +50,8 @@ public class AssetsContextHandlerTest {
     @Mock
     private WebAppContext webAppContext;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         when(webAppContext.getInitParameter("rails.root")).thenReturn("/rails.root");
         when(webAppContext.getWebInf()).thenReturn(Resource.newResource("WEB-INF"));
@@ -72,7 +72,6 @@ public class AssetsContextHandlerTest {
 
     @Test
     public void shouldPassOverHandlingToResourceHandler() throws Exception {
-        when(systemEnvironment.useCompressedJs()).thenReturn(true);
         String target = "/go/assets/junk";
         Request request = mock(Request.class);
         HttpServletResponse response = mock(HttpServletResponse.class);

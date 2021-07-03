@@ -26,11 +26,10 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,20 +41,17 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ConfigRepositoryTest {
     private ConfigRepository configRepo;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private SystemEnvironment systemEnvironment;
 
-    @Before
-    public void setUp() throws IOException {
-        File configRepoDir = this.temporaryFolder.newFolder();
+    @BeforeEach
+    public void setUp(@TempDir File configRepoDir) throws IOException {
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getConfigRepoDir()).thenReturn(configRepoDir);
         when(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE)).thenReturn(true);
@@ -64,7 +60,7 @@ public class ConfigRepositoryTest {
         configRepo.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configRepo.git().close();
         configRepo.getGitRepo().close();

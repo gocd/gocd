@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.ByteArrayOutputStream;
 
@@ -28,7 +28,7 @@ public abstract class AbstractConfigXmlWriterTest {
     MagicalGoConfigXmlWriter xmlWriter;
     MagicalGoConfigXmlLoader xmlLoader;
 
-    @Before
+    @BeforeEach
     public void setup() {
         output = new ByteArrayOutputStream();
         ConfigCache configCache = new ConfigCache();

@@ -20,10 +20,8 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.input.JDOMParseException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -32,60 +30,47 @@ import java.io.InputStream;
 
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XmlUtilsTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
     private ConfigElementImplementationRegistry configElementImplementationRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
     }
 
     @Test
-    public void shouldThrowExceptionWithTranslatedErrorMessage() throws Exception {
+    public void shouldThrowExceptionWithTranslatedErrorMessage() {
         String xmlContent = "<foo name='invalid'/>";
         InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
-        try {
-            buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds());
-            fail("Should throw a XsdValidationException");
-        } catch (Exception e) {
-            assertThat(e, is(instanceOf(XsdValidationException.class)));
-        }
+        assertThatThrownBy(() -> buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds()))
+                .isInstanceOf(XsdValidationException.class);
     }
 
     @Test
-    public void shouldThrowExceptionWhenXmlIsMalformed() throws Exception {
-        expectedException.expect(JDOMParseException.class);
-        expectedException.expectMessage(containsString("Error on line 1: XML document structures must start and end within the same entity"));
-
+    public void shouldThrowExceptionWhenXmlIsMalformed() {
         String xmlContent = "<foo name='invalid'";
-        buildXmlDocument(xmlContent, GoConfigSchema.getCurrentSchema());
+        assertThatThrownBy(() -> buildXmlDocument(xmlContent, GoConfigSchema.getCurrentSchema()))
+                .isInstanceOf(JDOMParseException.class)
+                .hasMessageContaining("Error on line 1: XML document structures must start and end within the same entity");
     }
 
     @Test
-    public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocuments() throws Exception {
-        expectDOCTYPEDisallowedException();
-        buildXmlDocument(xxeFileContent(), GoConfigSchema.getCurrentSchema());
+    public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocuments() {
+        assertThatThrownBy(() -> buildXmlDocument(xxeFileContent(), GoConfigSchema.getCurrentSchema()))
+                .isInstanceOf(JDOMParseException.class)
+                .hasMessageContaining("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true");
     }
 
     @Test
-    public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocumentsWithExternalXsds() throws Exception {
-        expectDOCTYPEDisallowedException();
-        buildXmlDocument(new ByteArrayInputStream(xxeFileContent().getBytes()), GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds());
+    public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocumentsWithExternalXsds() {
+        assertThatThrownBy(() -> buildXmlDocument(new ByteArrayInputStream(xxeFileContent().getBytes()), GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds()))
+                .isInstanceOf(JDOMParseException.class)
+                .hasMessageContaining("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true");
     }
 
-    private void expectDOCTYPEDisallowedException() {
-        expectedException.expect(JDOMParseException.class);
-        expectedException.expectMessage(containsString("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true"));
-    }
 
     private String xxeFileContent() throws IOException {
         return FileUtils.readFileToString(new File(this.getClass().getResource("/data/xml-with-xxe.xml").getFile()), UTF_8);

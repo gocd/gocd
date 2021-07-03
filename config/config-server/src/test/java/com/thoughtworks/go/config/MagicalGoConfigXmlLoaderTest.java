@@ -75,13 +75,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -103,11 +102,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
 
 
-@EnableRuleMigrationSupport
+@ExtendWith(ResetCipher.class)
 public class MagicalGoConfigXmlLoaderTest {
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
-
     private MagicalGoConfigXmlLoader xmlLoader;
     private static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested";
     private ConfigCache configCache = new ConfigCache();
@@ -3580,7 +3576,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateEncryptedEnvironmentVariablesWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+    void shouldMigrateEncryptedEnvironmentVariablesWithNewlineAndSpaces_XslMigrationFrom88To90(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
@@ -3616,7 +3612,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateEncryptedPluginPropertyValueWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+    void shouldMigrateEncryptedPluginPropertyValueWithNewlineAndSpaces_XslMigrationFrom88To90(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
@@ -3647,7 +3643,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateEncryptedMaterialPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+    void shouldMigrateEncryptedMaterialPasswordWithNewlineAndSpaces_XslMigrationFrom88To90(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
@@ -3699,7 +3695,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateServerMailhostEncryptedPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+    void shouldMigrateServerMailhostEncryptedPasswordWithNewlineAndSpaces_XslMigrationFrom88To90(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
@@ -4047,7 +4043,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateDESEncryptedEnvironmentVariables_XslMigrationFrom108To109() throws Exception {
+    void shouldMigrateDESEncryptedEnvironmentVariables_XslMigrationFrom108To109(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
@@ -4081,7 +4077,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldRemoveEmptySCMPasswordAndEncryptedPasswordAttributes_XslMigrationFrom109To110() throws Exception {
+    void shouldRemoveEmptySCMPasswordAndEncryptedPasswordAttributes_XslMigrationFrom109To110(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String content = configWithPipeline(
@@ -4119,7 +4115,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateDESEncryptedPluginPropertyValue_XslMigrationFrom108To109() throws Exception {
+    void shouldMigrateDESEncryptedPluginPropertyValue_XslMigrationFrom108To109(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
@@ -4153,7 +4149,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateDESEncryptedMaterialPassword_XslMigrationFrom108To109() throws Exception {
+    void shouldMigrateDESEncryptedMaterialPassword_XslMigrationFrom108To109(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
@@ -4193,7 +4189,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldMigrateDESServerMailhostEncryptedPassword_XslMigrationFrom108To109() throws Exception {
+    void shouldMigrateDESServerMailhostEncryptedPassword_XslMigrationFrom108To109(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";

@@ -33,9 +33,9 @@ dependencies {
   testImplementation project.deps.junit5Migration
   testImplementation project.deps.assertJ
   testImplementation project.deps.xmlUnit
-  testCompileOnly project.deps.junit4
   testRuntimeOnly project.deps.junit5Vintage
   testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.mockitoJunit5
 
 }
 

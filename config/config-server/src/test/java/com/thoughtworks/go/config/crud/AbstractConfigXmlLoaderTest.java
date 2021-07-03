@@ -19,20 +19,20 @@ import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractConfigXmlLoaderTest {
     MagicalGoConfigXmlLoader xmlLoader;
     ConfigCache configCache = new ConfigCache();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         SCMMetadataStore.getInstance().clear();
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         SCMMetadataStore.getInstance().clear();
     }

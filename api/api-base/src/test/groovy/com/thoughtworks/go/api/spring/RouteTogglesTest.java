@@ -19,9 +19,10 @@ package com.thoughtworks.go.api.spring;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.spring.RouteEntry;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import spark.Route;
 import spark.route.HttpMethod;
 
@@ -31,16 +32,11 @@ import static com.thoughtworks.go.api.ApiVersion.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class RouteTogglesTest {
     @Mock
     FeatureToggleService features;
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this);
-    }
 
     @Test
     void matches() {

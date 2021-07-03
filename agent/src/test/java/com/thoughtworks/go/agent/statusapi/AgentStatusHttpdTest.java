@@ -20,15 +20,17 @@ import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AgentStatusHttpdTest {
 
     @Mock
@@ -41,7 +43,6 @@ class AgentStatusHttpdTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         this.agentStatusHttpd = new AgentStatusHttpd(systemEnvironment, new IsConnectedToServerV1(agentHealthHolder));
     }
 

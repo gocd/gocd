@@ -18,6 +18,10 @@ import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Agent'
 
+repositories {
+  maven { url 'https://jitpack.io' }
+}
+
 sourceSets {
   functionalTest {
     java {
@@ -79,6 +83,7 @@ dependencies {
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Migration
+  testImplementation project.deps.springTestJunit5
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')

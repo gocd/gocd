@@ -22,16 +22,18 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AgentPluginsInitializerTest {
     @Mock
     private ZipUtil zipUtil;
@@ -46,7 +48,6 @@ class AgentPluginsInitializerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, zipUtil, systemEnvironment);
         when(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH)).thenReturn(SystemEnvironment.PLUGINS_PATH);
     }
@@ -79,11 +80,6 @@ class AgentPluginsInitializerTest {
     @Test
     void shouldAllExceptionsExceptionQuietly() throws Exception {
         doThrow(new IOException()).when(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
-        try {
-            doThrow(new RuntimeException("message")).when(pluginJarLocationMonitor).initialize();
-            agentPluginsInitializer.onApplicationEvent(null);
-        } catch (Exception e) {
-            fail("should have handled IOException");
-        }
+        agentPluginsInitializer.onApplicationEvent(null);
     }
 }

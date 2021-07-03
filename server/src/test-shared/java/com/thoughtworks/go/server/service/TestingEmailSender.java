@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestingEmailSender implements EmailSender {
     private String sentMessage = NO_MESSAGE;

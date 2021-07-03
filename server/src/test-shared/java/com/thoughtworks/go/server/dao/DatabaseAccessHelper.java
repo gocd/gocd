@@ -53,7 +53,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -71,6 +70,7 @@ import java.util.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -556,11 +556,11 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     static void assertNotInserted(long instanceId) {
-        Assert.assertThat("Already thinks it's inserted", instanceId, is(NOT_PERSISTED));
+        assertThat("Already thinks it's inserted", instanceId, is(NOT_PERSISTED));
     }
 
     static void assertIsInserted(long instanceId) {
-        Assert.assertThat("Not inserted", instanceId, is(not(NOT_PERSISTED)));
+        assertThat("Not inserted", instanceId, is(not(NOT_PERSISTED)));
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, Clock clock) {

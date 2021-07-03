@@ -30,10 +30,11 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -47,8 +48,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class MaterialRevisionTest {
     private static final StringRevision REVISION_0 = new StringRevision("b61d12de515d82d3a377ae3aae6e8abe516a2651");
     private static final StringRevision REVISION_2 = new StringRevision("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
@@ -57,14 +59,14 @@ public class MaterialRevisionTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File workingFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         HgTestRepo hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         workingFolder = temporaryFolder.newFolder();
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         temporaryFolder.delete();
         TestRepo.internalTearDown();

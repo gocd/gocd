@@ -18,16 +18,16 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 public class EmptyPipelineInstanceModelTest {
     private EmptyPipelineInstanceModel instanceModel;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         instanceModel = PipelineInstanceModel.createEmptyPipelineInstanceModel("pipeline", BuildCause.createNeverRun(), new StageInstanceModels());
     }

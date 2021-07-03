@@ -16,25 +16,25 @@
 package com.thoughtworks.go.util.validators;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FileValidatorTest {
     private String realConfigDir;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         realConfigDir = new SystemEnvironment().getPropertyImpl("cruise.config.dir");
         new SystemEnvironment().setProperty("cruise.config.dir", new SystemEnvironment().getPropertyImpl("java.io.tmpdir"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (realConfigDir != null) {
             new SystemEnvironment().setProperty("cruise.config.dir", realConfigDir);

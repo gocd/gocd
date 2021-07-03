@@ -19,16 +19,17 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -38,20 +39,22 @@ public class AgentRuntimeInfoTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         pipelinesFolder = new File("pipelines");
         pipelinesFolder.mkdirs();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         FileUtils.deleteQuietly(pipelinesFolder);
     }
 
-    @Test(expected = Exception.class)
-    public void should() throws Exception {
-        AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux");
+    @Test
+    public void shouldThrowOnEmptyLocation() throws Exception {
+        assertThatThrownBy(() -> AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux"))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Agent should not register without installation path");
     }
 
     @Test

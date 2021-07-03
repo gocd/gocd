@@ -21,15 +21,16 @@ import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class StageTest {
@@ -46,7 +47,7 @@ public class StageTest {
     private TimeProvider timeProvider;
     private long nextId = 0;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         timeProvider = new TimeProvider() {
             @Override
@@ -189,7 +190,7 @@ public class StageTest {
         firstJob.assign("AGENT-1", time1.toDate());
         secondJob.assign("AGENT-2", time3.toDate());
 
-        assertNull("Completed date should be null", stage.completedDate());
+        assertNull(stage.completedDate(), "Completed date should be null");
     }
 
     @Test

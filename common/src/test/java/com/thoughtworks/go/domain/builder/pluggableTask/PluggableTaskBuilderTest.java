@@ -31,22 +31,24 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluggableTaskBuilderTest {
 
     public static final String TEST_PLUGIN_ID = "test-plugin-id";
@@ -54,7 +56,7 @@ public class PluggableTaskBuilderTest {
     private RunIfConfigs runIfConfigs;
     @Mock
     private Builder cancelBuilder;
-    @Mock
+    @Mock(lenient = true)
     private PluggableTask pluggableTask;
     @Mock
     private PluginManager pluginManager;
@@ -66,9 +68,8 @@ public class PluggableTaskBuilderTest {
     private DefaultGoPublisher goPublisher;
     private TaskExtension taskExtension;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
         PluginManagerReference.reference().setPluginManager(pluginManager);
         when(pluggableTask.getPluginConfiguration()).thenReturn(new PluginConfiguration(TEST_PLUGIN_ID, "1.0"));
         HashMap<String, Map<String, String>> pluginConfig = new HashMap<>();
@@ -76,7 +77,7 @@ public class PluggableTaskBuilderTest {
         taskExtension = new TaskExtension(pluginManager, extensionsRegistry);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         JobConsoleLoggerInternal.unsetContext();
     }
@@ -235,7 +236,6 @@ public class PluggableTaskBuilderTest {
     @Test
     public void shouldPublishErrorMessageIfPluginThrowsAnException() throws CruiseControlException {
         PluggableTask task = mock(PluggableTask.class);
-        when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
@@ -258,7 +258,6 @@ public class PluggableTaskBuilderTest {
     @Test
     public void shouldPublishErrorMessageIfPluginReturnsAFailureResponse() throws CruiseControlException {
         PluggableTask task = mock(PluggableTask.class);
-        when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {

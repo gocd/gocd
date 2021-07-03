@@ -17,10 +17,10 @@ package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -21,8 +21,8 @@ import java.util.ArrayList;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.command.ConsoleResult;
-import org.junit.Test;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import org.joda.time.DateTime;
 

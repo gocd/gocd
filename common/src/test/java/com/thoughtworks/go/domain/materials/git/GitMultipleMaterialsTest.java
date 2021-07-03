@@ -21,10 +21,11 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -32,8 +33,9 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class GitMultipleMaterialsTest {
     private GitTestRepo repo;
     private File pipelineDir;
@@ -41,13 +43,13 @@ public class GitMultipleMaterialsTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void createRepo() throws IOException {
         repo = new GitTestRepo(temporaryFolder);
         pipelineDir = temporaryFolder.newFolder();
     }
 
-    @After
+    @AfterEach
     public void cleanupRepo() {
         repo.tearDown();
     }

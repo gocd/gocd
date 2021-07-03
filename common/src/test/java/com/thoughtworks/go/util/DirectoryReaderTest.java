@@ -25,28 +25,23 @@ import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
 import static org.hamcrest.Matchers.is;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 
 public class DirectoryReaderTest {
-    private File testFolder;
+    @TempDir
+    File testFolder;
     private JobIdentifier jobIdentifier;
     private String folderRoot;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
-        testFolder = TestFileUtil.createTempFolder("testFiles");
         jobIdentifier = new JobIdentifier("pipelineName", -1, "LATEST", "stageName", "LATEST", "buildName", 123L);
         folderRoot = "/" + testFolder.getName();
-    }
-
-    @After
-    public void tearDown() {
-        FileUtils.deleteQuietly(testFolder);
     }
 
     @Test

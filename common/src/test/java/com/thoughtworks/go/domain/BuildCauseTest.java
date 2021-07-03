@@ -26,11 +26,11 @@ import com.thoughtworks.go.domain.materials.Modification;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import com.thoughtworks.go.helper.MaterialsMother;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BuildCauseTest {
 

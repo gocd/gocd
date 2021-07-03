@@ -17,11 +17,11 @@ package com.thoughtworks.go.domain.materials.tfs;
 
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -41,7 +41,7 @@ public class TfsCommandFactoryTest {
     private final String PASSWORD = "password";
     private final UrlArgument URL = new UrlArgument("url");
 
-    @Before
+    @BeforeEach
     public void setup() {
         executionContext = mock(SubprocessExecutionContext.class);
         when(executionContext.getProcessNamespace(materialFingerprint)).thenReturn(computedWorkspaceName);

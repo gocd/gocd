@@ -30,9 +30,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ScmMaterialTest {
     private DummyMaterial material;

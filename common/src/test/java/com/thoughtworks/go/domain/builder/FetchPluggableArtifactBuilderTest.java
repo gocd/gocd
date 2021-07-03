@@ -30,9 +30,10 @@ import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -51,10 +52,11 @@ import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class FetchPluggableArtifactBuilderTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -70,7 +72,7 @@ public class FetchPluggableArtifactBuilderTest {
     private PluginRequestProcessorRegistry registry;
     private static final String PLUGIN_ID = "cd.go.s3";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         publisher = mock(DefaultGoPublisher.class);
         artifactExtension = mock(ArtifactExtension.class);

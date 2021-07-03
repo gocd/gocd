@@ -16,14 +16,14 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StageHistoryTest {
     private StageInstanceModels stageHistory;
@@ -33,7 +33,7 @@ public class StageHistoryTest {
     private static final Date EARLIEAR_DATE = new Date(1000000000);
     private static final Date DATE = new Date(2000000000);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         stageHistory = new StageInstanceModels();
         stageHistory.add(new StageInstanceModel(STAGE_UT, "1", new JobHistory()));

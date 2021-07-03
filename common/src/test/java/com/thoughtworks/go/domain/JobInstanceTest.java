@@ -22,21 +22,22 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import static java.text.MessageFormat.format;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JobInstanceTest {
     public TimeProvider timeProvider;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         timeProvider = mock(TimeProvider.class);
     }
@@ -120,7 +121,7 @@ public class JobInstanceTest {
         long before = Long.parseLong(instance.getCurrentBuildDuration());
         when(timeProvider.currentTime()).thenReturn(new Date(5000000));
         long after = Long.parseLong(instance.getCurrentBuildDuration());
-        assertTrue("after " + after + " should bigger than " + before, after > before);
+        assertTrue(after > before, "after " + after + " should bigger than " + before);
     }
 
     @Test

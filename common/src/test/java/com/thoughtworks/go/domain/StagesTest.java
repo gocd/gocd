@@ -17,14 +17,15 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.StageMother;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class StagesTest {
 
@@ -35,9 +36,9 @@ public class StagesTest {
         assertThat(new Stages(expected).byId(1), is(expected));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionWhenIdNotFound() throws Exception {
-        new Stages().byId(100);
+        assertThatThrownBy(() -> new Stages().byId(100)).isExactlyInstanceOf(RuntimeException.class);
     }
 
     @Test

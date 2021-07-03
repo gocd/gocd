@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ConsoleStreamerTest {
     @Test

@@ -20,22 +20,22 @@ import java.util.*;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfig;
-import com.thoughtworks.go.config.ResourceConfigs;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import org.hamcrest.Matchers;
-import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TriStateSelectionTest {
     private Set<ResourceConfig> resourceConfigs;
     private Agents agents;
 
-    @Before
+    @BeforeEach
     public void before() {
         resourceConfigs = new HashSet<>();
         resourceConfigs.add(new ResourceConfig("one"));

@@ -19,9 +19,9 @@ import com.thoughtworks.go.domain.materials.NullRevision;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class PipelineInstanceModelRealRevisionTest {
 

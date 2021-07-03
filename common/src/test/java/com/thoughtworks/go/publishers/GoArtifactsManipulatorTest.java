@@ -27,9 +27,10 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import javax.servlet.http.HttpServletResponse;
@@ -40,10 +41,11 @@ import java.util.Properties;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class GoArtifactsManipulatorTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -55,7 +57,7 @@ public class GoArtifactsManipulatorTest {
     private DefaultGoPublisher goPublisher;
     private File artifactFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         httpService = mock(HttpService.class);
         artifactFolder = temporaryFolder.newFolder("artifact_folder");

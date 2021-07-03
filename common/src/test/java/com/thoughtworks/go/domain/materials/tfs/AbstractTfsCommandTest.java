@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AbstractTfsCommandTest {
@@ -46,7 +46,7 @@ public class AbstractTfsCommandTest {
     private StringRevision revision = new StringRevision("1");
     AbstractTfsCommand tfsCommand;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tfsCommand = tfsCommandFor(null, url, domain, user, password, workspace, projectPath);
         assertThat(workDir.exists(), is(true));

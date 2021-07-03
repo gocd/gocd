@@ -21,9 +21,9 @@ import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Arrays;
@@ -32,8 +32,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,14 +41,14 @@ public class ArtifactPlanTest {
     private File testFolder;
     private File srcFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         testFolder = new File("test.com");
         srcFolder = new File(testFolder, "src");
         srcFolder.mkdirs();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         FileUtils.deleteQuietly(testFolder);
     }

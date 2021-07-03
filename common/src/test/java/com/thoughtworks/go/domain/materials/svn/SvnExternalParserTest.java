@@ -18,8 +18,8 @@ package com.thoughtworks.go.domain.materials.svn;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class SvnExternalParserTest {
 

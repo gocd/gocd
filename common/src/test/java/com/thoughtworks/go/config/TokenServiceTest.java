@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.config;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class TokenServiceTest extends IdFileServiceTestBase {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         idFileService = new TokenService();
 

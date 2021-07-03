@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class GuidServiceTest extends IdFileServiceTestBase {
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         idFileService = new GuidService();
 

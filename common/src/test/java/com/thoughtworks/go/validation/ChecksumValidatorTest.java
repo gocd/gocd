@@ -21,9 +21,9 @@ import java.io.IOException;
 import com.thoughtworks.go.agent.ChecksumValidationPublisher;
 import com.thoughtworks.go.domain.ArtifactMd5Checksums;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,12 +35,13 @@ public class ChecksumValidatorTest {
     private ArtifactMd5Checksums checksums;
     private ChecksumValidationPublisher checksumValidationPublisher;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         checksums = mock(ArtifactMd5Checksums.class);
         checksumValidationPublisher = mock(ChecksumValidationPublisher.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         verifyNoMoreInteractions(checksumValidationPublisher);
     }

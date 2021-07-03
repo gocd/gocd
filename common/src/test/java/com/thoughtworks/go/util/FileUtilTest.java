@@ -18,15 +18,11 @@ package com.thoughtworks.go.util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.AbstractAssert;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -38,20 +34,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class FileUtilTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @BeforeEach
-    void setUp() throws Exception {
-        temporaryFolder.create();
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        temporaryFolder.delete();
-    }
+    @TempDir
+    File folder;
 
     @Test
     void shouldBeHiddenIfFileStartWithDot() {
@@ -144,21 +130,18 @@ public class FileUtilTest {
 
     @Test
     void FolderIsEmptyWhenItHasNoContents() throws Exception {
-        File folder = temporaryFolder.newFolder();
         assertThat(FileUtil.isFolderEmpty(folder)).isTrue();
     }
 
     @Test
     void FolderIsNotEmptyWhenItHasContents() throws Exception {
-        File folder = temporaryFolder.newFolder();
         new File(folder, "subfolder").createNewFile();
         assertThat(FileUtil.isFolderEmpty(folder)).isFalse();
     }
 
     @Test
     void shouldReturnCanonicalPath() throws IOException {
-        File f = temporaryFolder.newFolder();
-        assertThat(FileUtil.getCanonicalPath(f)).isEqualTo(f.getCanonicalPath());
+        assertThat(FileUtil.getCanonicalPath(folder)).isEqualTo(folder.getCanonicalPath());
         File spyFile = spy(new File("/xyz/non-existent-file"));
         IOException canonicalPathException = new IOException("Failed to build the canonical path");
         when(spyFile.getCanonicalPath()).thenThrow(canonicalPathException);
@@ -205,7 +188,7 @@ public class FileUtilTest {
 
     @Test
     void shouldCalculateSha1Digest() throws IOException {
-        File tempFile = temporaryFolder.newFile();
+        File tempFile = folder.toPath().resolve("testFile.txt").toFile();
         FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
         assertThat(FileUtil.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
     }

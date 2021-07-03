@@ -23,10 +23,11 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -34,8 +35,9 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class MixedMultipleMaterialsTest {
     private SvnTestRepo svnRepo;
     private HgTestRepo hgRepo;
@@ -45,7 +47,7 @@ public class MixedMultipleMaterialsTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void createRepo() throws IOException {
         svnRepo = new SvnTestRepo(temporaryFolder);
         hgRepo = new HgTestRepo(temporaryFolder);
@@ -53,7 +55,7 @@ public class MixedMultipleMaterialsTest {
         pipelineDir = temporaryFolder.newFolder();
     }
 
-    @After
+    @AfterEach
     public void cleanupRepo() {
         svnRepo.tearDown();
         hgRepo.tearDown();

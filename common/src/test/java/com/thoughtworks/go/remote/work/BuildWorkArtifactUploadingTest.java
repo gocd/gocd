@@ -43,12 +43,15 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.utils.SvnRepoFixture;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,9 +64,10 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(MockitoExtension.class)
+@EnableRuleMigrationSupport
 public class BuildWorkArtifactUploadingTest {
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
@@ -87,9 +91,8 @@ public class BuildWorkArtifactUploadingTest {
     @Mock
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
-        initMocks(this);
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
         svnRepoFixture = new SvnRepoFixture("../common/src/test/resources/data/svnrepo", temporaryFolder);
@@ -101,7 +104,7 @@ public class BuildWorkArtifactUploadingTest {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
         FileUtils.deleteQuietly(buildWorkingDirectory);

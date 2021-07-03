@@ -17,10 +17,11 @@ package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -28,8 +29,9 @@ import java.io.IOException;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class DirectoryCleanerTest {
     private File baseFolder;
     private DirectoryCleaner cleaner;
@@ -38,7 +40,7 @@ public class DirectoryCleanerTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void createBaseDirectory() throws IOException {
         consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
         baseFolder = temporaryFolder.newFolder("directoryCleaner");
@@ -169,7 +171,7 @@ public class DirectoryCleanerTest {
     public void shouldNotProcessFilesOutsideTheBaseFolder() {
         try {
             cleaner.allowed("/../..");
-            Assert.fail("Should not allow file outside the baseDirectory");
+            Assertions.fail("Should not allow file outside the baseDirectory");
         } catch (Exception e) {
             assertThat(
                     e.getMessage(),

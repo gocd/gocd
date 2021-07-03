@@ -22,10 +22,11 @@ import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.input.SAXBuilder;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -35,9 +36,10 @@ import java.util.List;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
+@EnableRuleMigrationSupport
 public class SvnCommandRemoteTest {
     public SvnRemoteRepository repository;
     private static final String HARRY = "harry";
@@ -48,7 +50,7 @@ public class SvnCommandRemoteTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void startRepo() throws Exception {
         repository = new SvnRemoteRepository(temporaryFolder);
         repository.addUser(HARRY, HARRYS_PASSWORD);
@@ -58,7 +60,7 @@ public class SvnCommandRemoteTest {
         outputStreamConsumer = inMemoryConsumer();
     }
 
-    @After
+    @AfterEach
     public void stopRepo() throws Exception {
         if (repository!=null) repository.stop();
     }

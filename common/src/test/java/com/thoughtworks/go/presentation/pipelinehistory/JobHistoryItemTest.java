@@ -19,8 +19,8 @@ import java.util.Date;
 
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import org.junit.Test;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class JobHistoryItemTest {

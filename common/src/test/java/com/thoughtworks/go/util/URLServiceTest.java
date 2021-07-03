@@ -16,13 +16,13 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.endsWith;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class URLServiceTest {
     private static final String BASE_URL = "http://localhost:9090/go";
@@ -30,13 +30,13 @@ public class URLServiceTest {
     private URLService urlService;
     private JobIdentifier jobIdentifier;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         urlService = new URLService();
         jobIdentifier = new JobIdentifier("pipelineName", -2, "LATEST", "stageName", "LATEST", "buildName", 123L);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         new SystemEnvironment().clearProperty("serviceUrl");
     }

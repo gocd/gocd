@@ -22,15 +22,15 @@ import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -199,16 +199,16 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
-        Assert.assertThat(result.isSuccessful(), is(false));
+       assertThat(result.isSuccessful(), is(false));
 
 
         ValidationError error1 = result.getErrors().get(0);
         ValidationError error2 = result.getErrors().get(1);
 
-        Assert.assertThat(error1.getKey(), is("key1"));
-        Assert.assertThat(error1.getMessage(), is("err1"));
-        Assert.assertThat(error2.getKey(), is("key2"));
-        Assert.assertThat(error2.getMessage(), is("err2"));
+       assertThat(error1.getKey(), is("key1"));
+       assertThat(error1.getMessage(), is("err1"));
+       assertThat(error2.getKey(), is("key2"));
+       assertThat(error2.getMessage(), is("err2"));
     }
 
     @Test
@@ -223,15 +223,15 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
-        Assert.assertThat(result.isSuccessful(), is(true));
+       assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
     public void shouldThrowExceptionForWrongJsonWhileConvertingJsonResponseToValidation() {
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
-        Assert.assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
+       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{\"errors\":{}}").isSuccessful());
+       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("{}").isSuccessful());
+       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult("").isSuccessful());
+       assertTrue(new JsonBasedTaskExtensionHandler_V1().toValidationResult(null).isSuccessful());
 
         String jsonResponse2 = "{\"errors\":{\"key1\":\"err1\",\"key2\":true}}";
         try {
@@ -264,8 +264,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         TaskView view = new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse);
 
-        Assert.assertThat(view.displayValue(), is("MyTaskPlugin"));
-        Assert.assertThat(view.template(), is("<html>junk</html>"));
+       assertThat(view.displayValue(), is("MyTaskPlugin"));
+       assertThat(view.template(), is("<html>junk</html>"));
     }
 
     @Test

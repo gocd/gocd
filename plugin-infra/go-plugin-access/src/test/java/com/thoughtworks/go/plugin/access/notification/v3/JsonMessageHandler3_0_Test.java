@@ -25,32 +25,31 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler3_0_Test {
     private JsonMessageHandler3_0 messageHandler;
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     public static final String DATE_PATTERN_FOR_V3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         messageHandler = new JsonMessageHandler3_0();
     }
 
     @Test
-    public void shouldBuildNotificationsInterestedInFromResponseBody() throws Exception {
+    public void shouldBuildNotificationsInterestedInFromResponseBody() {
         String responseBody = "{notifications=[\"pipeline-status\",\"stage-status\"]}";
         List<String> notificationsInterestedIn = messageHandler.responseMessageForNotificationsInterestedIn(responseBody);
 
@@ -64,7 +63,7 @@ public class JsonMessageHandler3_0_Test {
     }
 
     @Test
-    public void shouldBuildSuccessResultFromNotify() throws Exception {
+    public void shouldBuildSuccessResultFromNotify() {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForNotify(responseBody);
 
@@ -72,7 +71,7 @@ public class JsonMessageHandler3_0_Test {
     }
 
     @Test
-    public void shouldBuildFailureResultFromNotify() throws Exception {
+    public void shouldBuildFailureResultFromNotify() {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForNotify(responseBody);
 
@@ -80,7 +79,7 @@ public class JsonMessageHandler3_0_Test {
     }
 
     @Test
-    public void shouldHandleNullMessagesForNotify() throws Exception {
+    public void shouldHandleNullMessagesForNotify() {
         assertSuccessResult(messageHandler.responseMessageForNotify("{\"status\":\"success\"}"), new ArrayList<>());
         assertFailureResult(messageHandler.responseMessageForNotify("{\"status\":\"failure\"}"), new ArrayList<>());
     }
@@ -125,7 +124,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+ gitModifiedTime +"\",\n" +
+                "       \"modified-time\": \"" + gitModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -138,7 +137,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+hgModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + hgModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -153,7 +152,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+svnModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + svnModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -169,7 +168,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+tfsModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + tfsModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -185,7 +184,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+p4ModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + p4ModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -199,7 +198,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"pipeline-name/1/stage-name/1\",\n" +
-                "       \"modified-time\": \""+dependencyModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + dependencyModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -216,7 +215,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+packageMaterialModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + packageMaterialModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }, {\n" +
@@ -230,7 +229,7 @@ public class JsonMessageHandler3_0_Test {
                 "     \"changed\": true,\n" +
                 "     \"modifications\": [{\n" +
                 "       \"revision\": \"1\",\n" +
-                "       \"modified-time\": \""+pluggableScmModifiedTime+"\",\n" +
+                "       \"modified-time\": \"" + pluggableScmModifiedTime + "\",\n" +
                 "       \"data\": {}\n" +
                 "     }]\n" +
                 "   }],\n" +
@@ -260,17 +259,14 @@ public class JsonMessageHandler3_0_Test {
         JsonFluentAssert.assertThatJson(expected).isEqualTo(request);
     }
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
-    public void shouldThrowExceptionIfAnUnhandledObjectIsPassed(){
-        thrown.expectMessage(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
-        messageHandler.requestMessageForNotify(new Pipeline());
+    public void shouldThrowExceptionIfAnUnhandledObjectIsPassed() {
+        assertThatThrownBy(() -> messageHandler.requestMessageForNotify(new Pipeline()))
+                .hasMessageContaining(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
     }
 
     @Test
-    public void shouldConstructAgentNotificationRequestMessage() throws Exception {
+    public void shouldConstructAgentNotificationRequestMessage() {
         Date transition_time = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_PATTERN_FOR_V3);
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -290,7 +286,7 @@ public class JsonMessageHandler3_0_Test {
                 "    \"ip_address\": \"127.0.0.1\",\n" +
                 "    \"operating_system\": \"rh\",\n" +
                 "    \"uuid\": \"agent_uuid\",\n" +
-                "    \"transition_time\": \""+ time + "\"\n" +
+                "    \"transition_time\": \"" + time + "\"\n" +
                 "}\n";
 
         String message = messageHandler.requestMessageForNotify(agentNotificationData);

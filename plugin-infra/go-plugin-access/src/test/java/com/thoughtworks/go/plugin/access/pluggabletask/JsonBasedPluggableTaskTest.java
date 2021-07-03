@@ -27,8 +27,8 @@ import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
@@ -37,8 +37,8 @@ import java.util.List;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class JsonBasedPluggableTaskTest {
@@ -48,7 +48,7 @@ public class JsonBasedPluggableTaskTest {
     private GoPluginApiResponse goPluginApiResponse;
     private String pluginId;
 
-    @Before
+    @BeforeEach
     public void setup() {
         pluginManager = mock(PluginManager.class);
         pluginId = "plugin-id";

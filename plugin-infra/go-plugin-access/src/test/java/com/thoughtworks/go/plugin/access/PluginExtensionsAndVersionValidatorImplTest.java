@@ -19,7 +19,9 @@ import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,19 +33,18 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class PluginExtensionsAndVersionValidatorImplTest {
     private static final String PLUGIN_ID = "Some-Plugin-Id";
-    @Mock
+    @Mock(lenient = true)
     private ExtensionsRegistry extensionsRegistry;
-    @Mock
+    @Mock(lenient = true)
     private GoPluginDescriptor descriptor;
     private PluginExtensionsAndVersionValidatorImpl pluginExtensionsAndVersionValidator;
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         when(descriptor.id()).thenReturn(PLUGIN_ID);
         when(extensionsRegistry.allRegisteredExtensions())
                 .thenReturn(Stream.of(ELASTIC_AGENT_EXTENSION, AUTHORIZATION_EXTENSION).collect(Collectors.toSet()));

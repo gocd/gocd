@@ -23,12 +23,8 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
@@ -38,14 +34,14 @@ import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SU
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.REQUEST_GET_PLUGIN_SETTINGS_ICON;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 public class ElasticAgentExtensionTest {
     private static final String PLUGIN_ID = "cd.go.example.plugin";
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     protected PluginManager pluginManager;
     private ExtensionsRegistry extensionsRegistry;
@@ -53,7 +49,7 @@ public class ElasticAgentExtensionTest {
     protected GoPluginDescriptor descriptor;
     protected ElasticAgentExtension extension;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
         extensionsRegistry = mock(ExtensionsRegistry.class);
@@ -78,7 +74,7 @@ public class ElasticAgentExtensionTest {
 
             final VersionedElasticAgentExtension extension = this.extension.getVersionedElasticAgentExtension(PLUGIN_ID);
 
-            assertNotNull(message, extension);
+            assertNotNull(extension, message);
 
             assertThat(ReflectionUtil.getField(extension, "VERSION"), is(supportedVersion));
         }
@@ -95,7 +91,7 @@ public class ElasticAgentExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() {
-        assertTrue(new ElasticAgentExtension(pluginManager, extensionsRegistry) instanceof AbstractExtension);
+        assertThat(new ElasticAgentExtension(pluginManager, extensionsRegistry), instanceOf(AbstractExtension.class));
     }
 
     @Test
@@ -115,9 +111,9 @@ public class ElasticAgentExtensionTest {
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
-        Assert.assertThat(request.requestName(), Matchers.is(requestName));
-        Assert.assertThat(request.extensionVersion(), Matchers.is(extensionVersion));
-        Assert.assertThat(request.extension(), Matchers.is(ELASTIC_AGENT_EXTENSION));
+        assertThat(request.requestName(), is(requestName));
+        assertThat(request.extensionVersion(), is(extensionVersion));
+        assertThat(request.extension(), is(ELASTIC_AGENT_EXTENSION));
         assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }

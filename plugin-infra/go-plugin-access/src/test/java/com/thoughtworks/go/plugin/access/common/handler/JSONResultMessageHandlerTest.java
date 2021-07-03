@@ -18,20 +18,20 @@ package com.thoughtworks.go.plugin.access.common.handler;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JSONResultMessageHandlerTest {
     private JSONResultMessageHandler messageHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         messageHandler = new JSONResultMessageHandler();
     }

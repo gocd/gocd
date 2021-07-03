@@ -25,26 +25,25 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler4_0_Test {
     private JsonMessageHandler4_0 messageHandler;
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     public static final String DATE_PATTERN_FOR_V3 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         messageHandler = new JsonMessageHandler4_0();
     }
@@ -279,13 +278,10 @@ public class JsonMessageHandler4_0_Test {
         JsonFluentAssert.assertThatJson(expected).isEqualTo(request);
     }
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void shouldThrowExceptionIfAnUnhandledObjectIsPassed(){
-        thrown.expectMessage(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
-        messageHandler.requestMessageForNotify(new Pipeline());
+        assertThatThrownBy(() -> messageHandler.requestMessageForNotify(new Pipeline()))
+                .hasMessageContaining(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
     }
 
     @Test

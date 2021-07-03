@@ -16,14 +16,14 @@
 package com.thoughtworks.go.plugin.access.scm.revision;
 
 import com.thoughtworks.go.plugin.access.scm.exceptions.InvalidSCMRevisionDataException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SCMRevisionTest {
     @Test

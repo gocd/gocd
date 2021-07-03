@@ -18,8 +18,8 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -29,7 +29,7 @@ public class ElasticAgentMetadataLoaderTest {
     private ElasticAgentMetadataStore metadataStore;
     private PluginManager pluginManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(ElasticAgentExtension.class);
         infoBuilder = mock(ElasticAgentPluginInfoBuilder.class);
@@ -67,8 +67,8 @@ public class ElasticAgentMetadataLoaderTest {
 
         metadataLoader.pluginLoaded(descriptor);
 
-        verifyZeroInteractions(infoBuilder);
-        verifyZeroInteractions(metadataStore);
+        verifyNoMoreInteractions(infoBuilder);
+        verifyNoMoreInteractions(metadataStore);
     }
 
     @Test

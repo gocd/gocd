@@ -27,29 +27,30 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class SCMExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
 
-    @Mock
+    @Mock(lenient = true)
     private PluginManager pluginManager;
     @Mock
     private ExtensionsRegistry extensionsRegistry;
@@ -64,12 +65,9 @@ public class SCMExtensionTest {
     private SCMPropertyConfiguration scmPropertyConfiguration;
     private Map<String, String> materialData;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         scmExtension = new SCMExtension(pluginManager, extensionsRegistry);
         scmExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
         scmExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);

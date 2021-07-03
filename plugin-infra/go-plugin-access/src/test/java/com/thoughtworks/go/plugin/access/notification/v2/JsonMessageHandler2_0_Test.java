@@ -25,10 +25,8 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
 import org.apache.commons.lang3.NotImplementedException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -40,14 +38,15 @@ import java.util.List;
 import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler2_0_Test {
     private JsonMessageHandler2_0 messageHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         messageHandler = new JsonMessageHandler2_0();
     }
@@ -263,22 +262,18 @@ public class JsonMessageHandler2_0_Test {
         assertThatJson(expected).isEqualTo(request);
     }
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void shouldThrowExceptionIfAnUnhandledObjectIsPassed(){
-        thrown.expectMessage(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
-        messageHandler.requestMessageForNotify(new Pipeline());
+        assertThatThrownBy(() -> messageHandler.requestMessageForNotify(new Pipeline()))
+                .hasMessageContaining(String.format("Converter for %s not supported", Pipeline.class.getCanonicalName()));
     }
 
     @Test
-    public void shouldNotHandleAgentNotificationRequest() throws Exception {
-        thrown.expect(NotImplementedException.class);
-        thrown.expectMessage(String.format("Converter for %s not supported", AgentNotificationData.class.getCanonicalName()));
-
-        messageHandler.requestMessageForNotify(new AgentNotificationData(null, null, false,
-                null, null, null, null, null, null, null));
+    public void shouldNotHandleAgentNotificationRequest() {
+        assertThatThrownBy(() -> messageHandler.requestMessageForNotify(new AgentNotificationData(null, null, false,
+                null, null, null, null, null, null, null)))
+                .isInstanceOf(NotImplementedException.class)
+                .hasMessageContaining(String.format("Converter for %s not supported", AgentNotificationData.class.getCanonicalName()));
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {

@@ -17,8 +17,8 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -29,7 +29,7 @@ public class SCMMetadataLoaderTest {
     private SCMExtension scmExtension;
     private PluginManager pluginManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         pluginManager = mock(PluginManager.class);

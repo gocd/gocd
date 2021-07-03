@@ -15,27 +15,24 @@
  */
 package com.thoughtworks.go.plugin.access.elastic.v4;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CapabilitiesConverterV4Test {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     @Mock
     private CapabilitiesDTO capabilitiesDTO;
     private CapabilitiesConverterV4 capabilitiesConverter;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         capabilitiesConverter = new CapabilitiesConverterV4();
     }
 

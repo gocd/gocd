@@ -27,28 +27,28 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ConfigRepoExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-    @Mock
+    @Mock(lenient = true)
     private PluginManager pluginManager;
     @Mock
     private JsonMessageHandler1_0 jsonMessageHandler1;
@@ -69,9 +69,8 @@ public class ConfigRepoExtensionTest {
 
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         extension = new ConfigRepoExtension(pluginManager, extensionsRegistry);
         extension.getMessageHandlerMap().put("1.0", jsonMessageHandler1);
         extension.getMessageHandlerMap().put("2.0", jsonMessageHandler2);
@@ -89,7 +88,7 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() {
-        assertTrue(extension instanceof AbstractExtension);
+        assertThat(extension, instanceOf(AbstractExtension.class));
     }
 
     @Test
@@ -144,13 +143,13 @@ public class ConfigRepoExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("1.0");
         ConfigFileList responseV1 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
 
-        assertTrue("should have errors", responseV1.hasErrors());
+        assertTrue(responseV1.hasErrors(), "should have errors");
         assertThat(responseV1.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
         ConfigFileList responseV2 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
 
-        assertTrue("should have errors", responseV2.hasErrors());
+        assertTrue(responseV2.hasErrors(), "should have errors");
         assertThat(responseV2.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
     }
 

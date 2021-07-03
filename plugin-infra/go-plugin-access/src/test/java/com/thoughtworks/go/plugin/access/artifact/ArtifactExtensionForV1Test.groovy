@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.FetchPluggableArtifactTask
 import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.REQUEST_FETCH_ARTIFACT

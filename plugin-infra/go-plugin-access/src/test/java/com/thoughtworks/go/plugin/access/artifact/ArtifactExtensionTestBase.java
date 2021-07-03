@@ -28,10 +28,8 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
@@ -41,8 +39,9 @@ import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConsta
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public abstract class ArtifactExtensionTestBase {
@@ -52,18 +51,14 @@ public abstract class ArtifactExtensionTestBase {
     ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     ExtensionsRegistry extensionsRegistry;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     abstract String versionToTestAgainst();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
         extensionsRegistry = mock(ExtensionsRegistry.class);
         artifactExtension = new ArtifactExtension(pluginManager, extensionsRegistry);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-
 
         when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ARTIFACT_EXTENSION, artifactExtension.goSupportedVersions())).thenReturn(versionToTestAgainst());
@@ -71,15 +66,11 @@ public abstract class ArtifactExtensionTestBase {
 
     @Test
     public void shouldGetSupportedVersions() {
-        final ArtifactExtension artifactExtension = new ArtifactExtension(null, null);
-
         assertThat(artifactExtension.goSupportedVersions(), containsInAnyOrder("1.0", "2.0"));
     }
 
     @Test
     public void shouldRegisterMessageHandler() {
-        final ArtifactExtension artifactExtension = new ArtifactExtension(null, null);
-
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV1.VERSION) instanceof ArtifactMessageConverterV1);
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION) instanceof ArtifactMessageConverterV2);
         assertThat(artifactExtension.getMessageHandler("3.0"), is(nullValue()));

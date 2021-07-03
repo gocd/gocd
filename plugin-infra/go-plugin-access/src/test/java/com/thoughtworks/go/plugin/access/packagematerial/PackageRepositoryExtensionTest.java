@@ -30,12 +30,12 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -46,18 +46,20 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PackageRepositoryExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-    @Mock
+    @Mock(lenient = true)
     private PluginManager pluginManager;
     @Mock
     private ExtensionsRegistry extensionsRegistry;
@@ -70,12 +72,9 @@ public class PackageRepositoryExtensionTest {
     private RepositoryConfiguration repositoryConfiguration;
     private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         extension = new PackageRepositoryExtension(pluginManager, extensionsRegistry);
 
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
@@ -94,7 +93,7 @@ public class PackageRepositoryExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() throws Exception {
-        assertTrue(extension instanceof AbstractExtension);
+        assertThat(extension, instanceOf(AbstractExtension.class));
     }
 
     @Test

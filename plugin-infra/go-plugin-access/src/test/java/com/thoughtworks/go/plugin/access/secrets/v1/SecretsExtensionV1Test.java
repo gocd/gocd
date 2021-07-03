@@ -32,8 +32,10 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,8 +49,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class SecretsExtensionV1Test {
     @Mock
     private PluginManager pluginManager;
@@ -59,8 +61,6 @@ public class SecretsExtensionV1Test {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
-
         this.pluginRequestHelper = new PluginRequestHelper(pluginManager, asList("1.0"), SECRETS_EXTENSION);
         this.requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         this.secretsExtensionV1 = new SecretsExtensionV1(pluginRequestHelper);

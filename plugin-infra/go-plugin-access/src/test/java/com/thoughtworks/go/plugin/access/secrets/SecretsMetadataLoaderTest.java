@@ -18,8 +18,8 @@ package com.thoughtworks.go.plugin.access.secrets;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -30,7 +30,7 @@ public class SecretsMetadataLoaderTest {
     private SecretsMetadataStore metadataStore;
     private PluginManager pluginManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(SecretsExtension.class);
         infoBuilder = mock(SecretsPluginInfoBuilder.class);
@@ -68,8 +68,8 @@ public class SecretsMetadataLoaderTest {
 
         metadataLoader.pluginLoaded(descriptor);
 
-        verifyZeroInteractions(infoBuilder);
-        verifyZeroInteractions(metadataStore);
+        verifyNoMoreInteractions(infoBuilder);
+        verifyNoMoreInteractions(metadataStore);
     }
 
     @Test

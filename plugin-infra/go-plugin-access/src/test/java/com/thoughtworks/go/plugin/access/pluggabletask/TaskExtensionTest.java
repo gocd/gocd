@@ -31,23 +31,25 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class TaskExtensionTest {
-    @Mock
+    @Mock(lenient = true)
     private PluginManager pluginManager;
     @Mock
     private ExtensionsRegistry extensionsRegistry;
@@ -56,17 +58,13 @@ public class TaskExtensionTest {
     @Mock
     private JsonBasedTaskExtensionHandler jsonMessageHandler;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private TaskExtension extension;
     private String pluginId;
     private PluginSettingsConfiguration pluginSettingsConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         extension = new TaskExtension(pluginManager, extensionsRegistry);
         pluginId = "plugin-id";
         when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(List.class))).thenReturn("1.0");
@@ -76,12 +74,12 @@ public class TaskExtensionTest {
     }
 
     @Test
-    public void shouldExtendAbstractExtension() throws Exception {
-        assertTrue(extension instanceof AbstractExtension);
+    public void shouldExtendAbstractExtension() {
+       assertThat(extension, instanceOf(AbstractExtension.class));
     }
 
     @Test
-    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() {
         extension.registerHandler("1.0", pluginSettingsJSONMessageHandler);
         extension.messageHandlerMap.put("1.0", jsonMessageHandler);
 
@@ -100,7 +98,7 @@ public class TaskExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToGetPluginSettingsView() throws Exception {
+    public void shouldTalkToPluginToGetPluginSettingsView() {
         extension.registerHandler("1.0", pluginSettingsJSONMessageHandler);
         extension.messageHandlerMap.put("1.0", jsonMessageHandler);
 
@@ -119,7 +117,7 @@ public class TaskExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPluginToValidatePluginSettings() throws Exception {
+    public void shouldTalkToPluginToValidatePluginSettings() {
         extension.registerHandler("1.0", pluginSettingsJSONMessageHandler);
         extension.messageHandlerMap.put("1.0", jsonMessageHandler);
 

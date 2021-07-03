@@ -15,19 +15,14 @@
  */
 package com.thoughtworks.go.plugin.domain.analytics;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 class AnalyticsDataTest {
     private String viewPath;
     private AnalyticsData analyticsData;
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void shouldGetFullViewPathForLinuxOperatingSystem() {

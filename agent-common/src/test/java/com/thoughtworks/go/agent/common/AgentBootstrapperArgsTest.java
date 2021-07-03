@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.agent.common;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URL;

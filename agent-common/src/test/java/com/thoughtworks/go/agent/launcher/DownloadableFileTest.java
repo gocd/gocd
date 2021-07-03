@@ -17,21 +17,19 @@ package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DownloadableFileTest {
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
     @Test
     public void shouldReturnTrueIfChecksumIsEqual() throws Exception {
         File inputFile = new File("src/test/resources/checksum.txt");
@@ -63,8 +61,8 @@ public class DownloadableFileTest {
     public void shouldThrowExceptionIfUrlIsInvalid() throws Exception {
         ServerUrlGenerator serverUrlGenerator = mock(ServerUrlGenerator.class);
         when(serverUrlGenerator.serverUrlFor("admin/agent")).thenReturn("invalidUrl");
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("URL you provided to access Go Server: " + "invalidUrl" + " is not valid");
-        DownloadableFile.AGENT.validatedUrl(serverUrlGenerator);
+        assertThatThrownBy(() -> DownloadableFile.AGENT.validatedUrl(serverUrlGenerator))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("URL you provided to access Go Server: " + "invalidUrl" + " is not valid");
     }
 }

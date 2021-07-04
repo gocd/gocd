@@ -29,17 +29,14 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -48,21 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
-@EnableRuleMigrationSupport
 public class MaterialsTest {
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @BeforeEach
-    void setup() throws IOException {
-        temporaryFolder.create();
-    }
-
-    @AfterEach
-    void tearDown() {
-        temporaryFolder.delete();
-    }
 
     @Test
     void shouldKnowModificationCheckInterval() {
@@ -261,29 +244,27 @@ public class MaterialsTest {
     }
 
     @Test
-    void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
-        File junkFolder = temporaryFolder.newFolder("junk-folder");
+    void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse(@TempDir Path temporaryFolder) throws Exception {
+        File junkFolder = Files.createDirectory(temporaryFolder.resolve("junk-folder")).toFile();
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
         materials.add(gitMaterial);
 
-        materials.cleanUp(temporaryFolder.getRoot(), mock(ConsoleOutputStreamConsumer.class));
+        materials.cleanUp(temporaryFolder.toFile(), mock(ConsoleOutputStreamConsumer.class));
 
         assertThat(junkFolder.exists()).isFalse();
-        temporaryFolder.delete();
     }
 
     @Test
-    void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
-        File junkFolder = temporaryFolder.newFolder("junk-folder");
+    void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue(@TempDir Path temporaryFolder) throws Exception {
+        File junkFolder =  Files.createDirectory(temporaryFolder.resolve("junk-folder")).toFile();
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
         materials.add(gitMaterial);
 
-        materials.cleanUp(temporaryFolder.getRoot(), mock(ConsoleOutputStreamConsumer.class));
+        materials.cleanUp(temporaryFolder.toFile(), mock(ConsoleOutputStreamConsumer.class));
 
         assertThat(junkFolder.exists()).isTrue();
-        temporaryFolder.delete();
     }
 
 }

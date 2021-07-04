@@ -32,10 +32,12 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,8 +46,8 @@ import static com.thoughtworks.go.config.ConfigReposMaterialParseResultManager.C
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ConfigReposMaterialParseResultManagerTest {
     @Mock
     ServerHealthService serverHealthService;
@@ -56,12 +58,10 @@ class ConfigReposMaterialParseResultManagerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
-
-        when(serverHealthService.filterByScope(any())).thenReturn(Collections.emptyList());
+        lenient().when(serverHealthService.filterByScope(any())).thenReturn(Collections.emptyList());
         ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
-        when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
+        lenient().when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
 
         manager = new ConfigReposMaterialParseResultManager(serverHealthService, configRepoService);
     }

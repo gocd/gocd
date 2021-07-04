@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.cache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
@@ -35,7 +35,7 @@ public class LazyCacheTest {
 
         Supplier supplier = mock(Supplier.class);
         assertThat(new LazyCache(ehcache, null).get("foo", supplier)).isSameAs(valueInCache);
-        verifyZeroInteractions(supplier);
+        verifyNoInteractions(supplier);
     }
 
     @Test

@@ -24,14 +24,14 @@ import com.thoughtworks.go.remote.BuildRepositoryRemoteImpl;
 import com.thoughtworks.go.server.messaging.scheduling.WorkAssignments;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class BuildRepositoryMessageProducerTest {
@@ -46,7 +46,7 @@ public class BuildRepositoryMessageProducerTest {
     private static final AgentIdentifier AGENT = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
     private static final AgentRuntimeInfo AGENT_INFO = new AgentRuntimeInfo(AGENT, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         oldImplementation = mock(BuildRepositoryRemoteImpl.class);
         newImplementation = mock(WorkAssignments.class);

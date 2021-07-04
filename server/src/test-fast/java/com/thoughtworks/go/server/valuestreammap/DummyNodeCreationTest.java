@@ -24,16 +24,16 @@ import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.VSMTestHelper;
 import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
 import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DummyNodeCreationTest {
     private DummyNodeCreation dummyNodeCreation;
 
-    @Before
+    @BeforeEach
     public void setup(){
         dummyNodeCreation = new DummyNodeCreation();
     }

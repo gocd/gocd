@@ -23,8 +23,8 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +50,7 @@ public class FullConfigSaveNormalFlowTest {
     private CachedGoPartials cachedGoPartials;
     private List<PartialConfig> partials;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configForEdit = new BasicCruiseConfig();
         updateConfigCommand = new FullConfigUpdateCommand(configForEdit, "md5");

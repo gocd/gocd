@@ -24,19 +24,18 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,10 +43,8 @@ public class RolesConfigBulkUpdateCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
@@ -94,7 +91,7 @@ public class RolesConfigBulkUpdateCommandTest {
         assertThat(result.httpCode(), is(403));
     }
 
-    @Test(expected = RecordNotFoundException.class)
+    @Test
     public void shouldNotContinueIfExistingRoleIsDeleted() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
@@ -103,6 +100,8 @@ public class RolesConfigBulkUpdateCommandTest {
                 new GoCDRolesBulkUpdateRequest.Operation("role_that_doesnt_exist", Collections.emptyList(), Collections.emptyList())));
         RolesConfigBulkUpdateCommand command = new RolesConfigBulkUpdateCommand(request, currentUser, goConfigService, result);
 
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig))
+            .isInstanceOf(RecordNotFoundException.class)
+        ;
     }
 }

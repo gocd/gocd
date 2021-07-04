@@ -21,15 +21,15 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.ui.JobInstanceModel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.building;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 
@@ -38,7 +38,7 @@ public class JobPresentationServiceTest {
     private JobDurationStrategy jobDurationStrategy;
     private AgentService agentService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         jobDurationStrategy = mock(JobDurationStrategy.class);
         agentService = mock(AgentService.class);

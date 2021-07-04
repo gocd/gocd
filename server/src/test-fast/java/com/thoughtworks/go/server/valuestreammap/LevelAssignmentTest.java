@@ -26,12 +26,12 @@ import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
 import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class LevelAssignmentTest {
 

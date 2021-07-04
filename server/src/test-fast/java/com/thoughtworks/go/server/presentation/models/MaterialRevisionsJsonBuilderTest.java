@@ -30,8 +30,8 @@ import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -39,14 +39,14 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MaterialRevisionsJsonBuilderTest {
     private MaterialRevisions materialRevisions;
     private SvnMaterial svnMaterial;
     private MaterialRevisionsJsonBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         svnMaterial = MaterialsMother.svnMaterial("http://url", "svn-folder");
 

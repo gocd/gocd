@@ -18,15 +18,15 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +34,7 @@ public class AuthorityGranterTest {
     private AuthorityGranter authorityGranter;
     private SecurityService securityService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         securityService = mock(SecurityService.class);
         authorityGranter = new AuthorityGranter(securityService);

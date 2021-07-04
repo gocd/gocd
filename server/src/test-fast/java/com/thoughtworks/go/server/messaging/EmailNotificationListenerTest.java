@@ -21,8 +21,8 @@ import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.config.MailHost;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -32,7 +32,7 @@ public class EmailNotificationListenerTest {
     public EmailNotificationListener.GoMailSenderFactory goMailSenderFactory;
     public EmailNotificationListener emailNotificationListener;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         goMailSenderFactory = mock(EmailNotificationListener.GoMailSenderFactory.class);

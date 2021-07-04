@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.server.service.AgentService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -32,7 +32,7 @@ public class JobResultListenerTest {
     private static final String AGENT_UUID = "uuid";
     private AgentInstance agentInstance;
 
-    @Before
+    @BeforeEach
     public void setup() {
         agentService = mock(AgentService.class);
         listener = new JobResultListener(new JobResultTopic(null), agentService);

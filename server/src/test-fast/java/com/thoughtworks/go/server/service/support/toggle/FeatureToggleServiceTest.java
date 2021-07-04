@@ -21,25 +21,22 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class FeatureToggleServiceTest {
     @Mock
     private FeatureToggleRepository repository;
     @Mock
     private GoCache goCache;
-
-    @Before
-    public void setUp() throws Exception {
-        initMocks(this);
-    }
 
     @Test
     public void shouldListAllFeatureToggles() throws Exception {
@@ -94,7 +91,6 @@ public class FeatureToggleServiceTest {
                 new FeatureToggle("key2", "description2", false)
         );
 
-        when(repository.availableToggles()).thenReturn(existingToggles);
         when(repository.userToggles()).thenReturn(new FeatureToggles(
                 new FeatureToggle("key3", "whatever", true)
         ));

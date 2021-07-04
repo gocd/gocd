@@ -29,14 +29,14 @@ import com.thoughtworks.go.util.ThrowingFn;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.Date;
@@ -44,16 +44,17 @@ import java.util.Optional;
 
 import static com.thoughtworks.go.server.service.BackupService.ABORTED_BACKUPS_MESSAGE;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class BackupServiceTest {
 
     @Mock
     private SystemEnvironment systemEnvironment;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    File configDir;
 
     @Mock
     private ConfigRepository configRepo;
@@ -73,11 +74,10 @@ public class BackupServiceTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ArtifactsDirHolder artifactsDirHolder;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        when(systemEnvironment.getConfigDir()).thenReturn(temporaryFolder.newFolder("config_dir").getAbsolutePath());
-        when(configRepo.doLocked(any(ThrowingFn.class))).thenCallRealMethod();
+        lenient().when(systemEnvironment.getConfigDir()).thenReturn(configDir.getAbsolutePath());
+        lenient().when(configRepo.doLocked(any(ThrowingFn.class))).thenCallRealMethod();
     }
 
     @Test
@@ -181,6 +181,6 @@ public class BackupServiceTest {
 
         backupService.initialize();
 
-        verifyZeroInteractions(serverBackupRepository);
+        verifyNoInteractions(serverBackupRepository);
     }
 }

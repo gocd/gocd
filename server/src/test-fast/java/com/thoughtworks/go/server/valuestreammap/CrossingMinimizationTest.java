@@ -24,17 +24,17 @@ import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
 import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
 import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class CrossingMinimizationTest {
 
     private CrossingMinimization crossingMinimization;
 
-    @Before
+    @BeforeEach
     public void setup(){
         crossingMinimization = new CrossingMinimization();
     }

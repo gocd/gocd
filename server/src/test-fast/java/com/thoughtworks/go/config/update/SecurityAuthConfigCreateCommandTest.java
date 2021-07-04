@@ -28,14 +28,12 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -44,10 +42,8 @@ import static org.mockito.Mockito.when;
 public class SecurityAuthConfigCreateCommandTest {
 
     private AuthorizationExtension extension;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
     }
@@ -71,12 +67,9 @@ public class SecurityAuthConfigCreateCommandTest {
         PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
-        thrown.expect(RecordNotFoundException.class);
-        thrown.expectMessage(EntityType.SecurityAuthConfig.notFoundMessage(newProfile.getId()));
-        command.isValid(cruiseConfig);
-        command.update(cruiseConfig);
-        assertThat(newProfile.first().errors().size(), is(1));
-        assertThat(newProfile.first().errors().asString(), is("error"));
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessageContaining(EntityType.SecurityAuthConfig.notFoundMessage(newProfile.getId()));
     }
 
 }

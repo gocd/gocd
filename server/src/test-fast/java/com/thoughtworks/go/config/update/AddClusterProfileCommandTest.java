@@ -25,14 +25,16 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AddClusterProfileCommandTest {
     @Mock
     private GoConfigService goConfigService;
@@ -47,7 +49,6 @@ class AddClusterProfileCommandTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         config = new BasicCruiseConfig();
         clusterProfile = new ClusterProfile("cluster-id", "plugin-id");
         username = new Username("Bob");

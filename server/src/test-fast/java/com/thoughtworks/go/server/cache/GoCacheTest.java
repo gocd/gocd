@@ -28,17 +28,22 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class GoCacheTest {
@@ -47,24 +52,24 @@ public class GoCacheTest {
     private GoCache goCache;
     private String largeObject;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         cacheManager = CacheManager.newInstance(new Configuration().name(GoCacheTest.class.getName()));
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Cache cache = new Cache(new CacheConfiguration(getClass().getName(), 100).memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU));
         cacheManager.addCache(cache);
         this.goCache = new GoCache(cache, mock(TransactionSynchronizationManager.class));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         cacheManager.removeAllCaches();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         cacheManager.shutdown();
     }

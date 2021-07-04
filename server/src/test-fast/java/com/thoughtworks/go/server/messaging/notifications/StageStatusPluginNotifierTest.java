@@ -15,22 +15,21 @@
  */
 package com.thoughtworks.go.server.messaging.notifications;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class StageStatusPluginNotifierTest {
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
@@ -45,9 +44,8 @@ public class StageStatusPluginNotifierTest {
 
     private StageStatusPluginNotifier stageStatusPluginNotifier;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         stageStatusPluginNotifier = new StageStatusPluginNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 
@@ -76,12 +74,6 @@ public class StageStatusPluginNotifierTest {
     public void shouldNotifyInterestedPluginsIfStageStateIsScheduled() throws Exception {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(true);
-        when(stage.isReRun()).thenReturn(false);
-        when(stage.getState()).thenReturn(StageState.Unknown);
-        String pipelineName = "pipeline-name";
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier(pipelineName, 1, "stage", "1"));
-        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn("group1");
-        when(pipelineSqlMapDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, stage.getIdentifier().getPipelineCounter())).thenReturn(BuildCause.createManualForced());
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
         verify(pluginNotificationService).notifyStageStatus(stage);
@@ -92,8 +84,6 @@ public class StageStatusPluginNotifierTest {
         when(notificationPluginRegistry.isAnyPluginInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(true);
         when(stage.isScheduled()).thenReturn(false);
         when(stage.isReRun()).thenReturn(true);
-        when(stage.getState()).thenReturn(StageState.Unknown);
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("pipeline-name", 1, "stage", "1"));
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 
@@ -106,7 +96,6 @@ public class StageStatusPluginNotifierTest {
         when(stage.isScheduled()).thenReturn(false);
         when(stage.isReRun()).thenReturn(false);
         when(stage.getState()).thenReturn(StageState.Passed);
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("pipeline-name", 1, "stage", "1"));
 
         stageStatusPluginNotifier.stageStatusChanged(stage);
 

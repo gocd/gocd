@@ -38,7 +38,6 @@ import java.util.Date;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ConsoleActivityMonitorTest {
@@ -223,11 +222,11 @@ class ConsoleActivityMonitorTest {
         stubInitializerCallsForActivityMonitor(jobInstanceService);
 
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
-        verifyZeroInteractions(jobInstanceService);
+        verifyNoMoreInteractions(jobInstanceService);
 
         when(timeProvider.currentTimeMillis()).thenReturn(now + UNRESPONSIVE_JOB_KILL_THRESHOLD - 1);//just below threshold
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
-        verifyZeroInteractions(jobInstanceService);
+        verifyNoMoreInteractions(jobInstanceService);
 
         when(timeProvider.currentTimeMillis()).thenReturn(now + UNRESPONSIVE_JOB_KILL_THRESHOLD + 1);//just above threshold
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);

@@ -31,13 +31,14 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class JMSMessageListenerAdapterTest {
@@ -47,7 +48,7 @@ public class JMSMessageListenerAdapterTest {
     private SystemEnvironment systemEnvironment;
     private ServerHealthService serverHealthService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         consumer = mock(MessageConsumer.class);
         systemEnvironment = mock(SystemEnvironment.class);

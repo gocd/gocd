@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1;
 
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,12 +25,12 @@ import java.util.List;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ElasticAgentProcessorConverterV1Test {
     private ElasticAgentProcessorConverterV1 elasticAgentProcessorConverterV1;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         elasticAgentProcessorConverterV1 = new ElasticAgentProcessorConverterV1();
     }

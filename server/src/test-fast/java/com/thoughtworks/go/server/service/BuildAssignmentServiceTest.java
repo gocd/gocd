@@ -43,9 +43,11 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.IOException;
@@ -64,8 +66,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class BuildAssignmentServiceTest {
 
     @Mock
@@ -111,7 +113,6 @@ class BuildAssignmentServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        initMocks(this);
         transactionTemplate = dummy();
         buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService,
                 environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory,
@@ -129,10 +130,10 @@ class BuildAssignmentServiceTest {
         profiles.put(elasticProfile1.getId(), elasticProfile1);
         profiles.put(elasticProfile2.getId(), elasticProfile2);
         schedulingContext = new DefaultSchedulingContext("me", new Agents(elasticAgent), profiles);
-        when(jobInstanceService.orderedScheduledBuilds()).thenReturn(jobPlans);
-        when(environmentConfigService.filterJobsByAgent(ArgumentMatchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
-        when(environmentConfigService.envForPipeline(any(String.class))).thenReturn("");
-        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
+        lenient().when(jobInstanceService.orderedScheduledBuilds()).thenReturn(jobPlans);
+        lenient().when(environmentConfigService.filterJobsByAgent(ArgumentMatchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
+        lenient().when(environmentConfigService.envForPipeline(any(String.class))).thenReturn("");
+        lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
     }
 
     @Test
@@ -153,7 +154,7 @@ class BuildAssignmentServiceTest {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan1);
-        when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getClusterProfile(), null)).thenReturn(false);
+        lenient().when(elasticAgentPluginService.shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan1.getElasticProfile(), jobPlan1.getClusterProfile(), null)).thenReturn(false);
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
@@ -303,7 +304,7 @@ class BuildAssignmentServiceTest {
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
-            when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+            lenient().when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
             when(environmentConfigService.environmentForPipeline(anyString())).thenReturn(environmentConfig);
             doAnswer(invocation -> {
@@ -343,9 +344,9 @@ class BuildAssignmentServiceTest {
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
-            when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+            lenient().when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-            doAnswer(invocation -> {
+            lenient().doAnswer(invocation -> {
                 BuildAssignment assignment = invocation.getArgument(0);
                 assignment.getSecretParams().findFirst("GIT_PASSWORD").ifPresent(param -> param.setValue("some-password"));
                 return assignment;
@@ -355,8 +356,8 @@ class BuildAssignmentServiceTest {
 
             assertThat(gitMaterial.hasSecretParams()).isTrue();
             verify(scheduleService, never()).failJob(any(JobInstance.class));
-            verifyZeroInteractions(consoleService);
-            verifyZeroInteractions(jobStatusTopic);
+            verifyNoInteractions(consoleService);
+            verifyNoInteractions(jobStatusTopic);
             ScmMaterial material = (ScmMaterial) work.getAssignment().materialRevisions().getMaterialRevision(0).getMaterial();
             assertThat(material.passwordForCommandLine()).isEqualTo("some-password");
             assertThat(work.getAssignment().initialEnvironmentVariableContext().hasProperty(GO_AGENT_RESOURCES)).isFalse();
@@ -380,7 +381,7 @@ class BuildAssignmentServiceTest {
             when(jobInstanceService.buildById(jobPlan1.getJobId())).thenReturn(jobInstance);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
             when(jobInstance.getState()).thenReturn(JobState.Completed);
-            doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'"))
+            lenient().doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'"))
                     .when(secretParamResolver).resolve(any(BuildAssignment.class));
 
             assertThatCode(() -> buildAssignmentService.assignWorkToAgent(agentInstance))
@@ -404,13 +405,10 @@ class BuildAssignmentServiceTest {
             when(jobInstance.getState()).thenReturn(JobState.Completed);
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
-            when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
-            when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
-            when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
             when(environmentConfigService.environmentForPipeline(anyString())).thenReturn(new BasicEnvironmentConfig());
             when(jobInstanceService.buildById(anyLong())).thenReturn(jobInstance);
             doThrow(new RulesViolationException("Failed resolving params for keys: 'key1'"))
@@ -453,7 +451,7 @@ class BuildAssignmentServiceTest {
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
-            when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+            lenient().when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
             doAnswer(invocation -> {
                 BuildAssignment assignment = invocation.getArgument(0);

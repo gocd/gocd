@@ -37,19 +37,21 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings({"unused", "PMD.UnusedPrivateField"})
 public class ApplicationInitializerTest {
     @Mock
@@ -137,9 +139,8 @@ public class ApplicationInitializerTest {
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         ApplicationContext context = mock(ApplicationContext.class);
         when(contextRefreshedEvent.getApplicationContext()).thenReturn(context);
         when(context.getParent()).thenReturn(null);

@@ -4,10 +4,9 @@ import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +17,14 @@ import static org.mockito.Mockito.when;
 
 public class AuthTokenTest {
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private SystemEnvironment systemEnvironment;
-    private File configDir;
+    @TempDir
+    File configDir;
     private File tokenFile;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
-        configDir = temporaryFolder.newFolder("config");
         tokenFile = new File(configDir, "business-continuity-token");
         when(systemEnvironment.configDir()).thenReturn(configDir);
     }

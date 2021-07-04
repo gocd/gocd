@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.messaging.EmailNotificationTopic;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 

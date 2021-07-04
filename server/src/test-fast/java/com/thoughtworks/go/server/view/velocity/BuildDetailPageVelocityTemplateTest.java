@@ -28,7 +28,7 @@ import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel
 import com.thoughtworks.go.server.service.ArtifactsService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Date;
@@ -40,7 +40,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineMother.schedule;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

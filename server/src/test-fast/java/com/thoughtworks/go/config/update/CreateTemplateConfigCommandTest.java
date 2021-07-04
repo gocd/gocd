@@ -23,18 +23,18 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CreateTemplateConfigCommandTest {
 
     @Mock
@@ -50,13 +50,8 @@ public class CreateTemplateConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private PipelineTemplateConfig pipelineTemplateConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         result = new HttpLocalizedOperationResult();
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();

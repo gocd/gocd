@@ -28,10 +28,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
 import org.eclipse.jetty.server.Request;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,19 +42,18 @@ import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class GoVelocityViewTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     private GoVelocityView view;
     private HttpServletRequest request;
     private Context velocityContext;
-    @Mock
+    @Mock(lenient = true)
     private RailsAssetsService railsAssetsService;
     @Mock
     private FeatureToggleService featureToggleService;
@@ -68,18 +68,17 @@ public class GoVelocityViewTest {
     @Mock
     private MaintenanceModeService maintenanceModeService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-        when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
+        lenient().when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
         view = spy(new GoVelocityView());
-        doReturn(railsAssetsService).when(view).getRailsAssetsService();
-        doReturn(versionInfoService).when(view).getVersionInfoService();
-        doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
-        doReturn(webpackAssetsService).when(view).webpackAssetsService();
-        doReturn(securityService).when(view).getSecurityService();
-        doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
+        lenient().doReturn(railsAssetsService).when(view).getRailsAssetsService();
+        lenient().doReturn(versionInfoService).when(view).getVersionInfoService();
+        lenient().doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
+        lenient().doReturn(webpackAssetsService).when(view).webpackAssetsService();
+        lenient().doReturn(securityService).when(view).getSecurityService();
+        lenient().doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
     }
@@ -109,7 +108,7 @@ public class GoVelocityViewTest {
         AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(supportedAnalytics), null);
 
         when(securityService.isUserAdmin(any())).thenReturn(false);
-        when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
+        lenient().when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
 
         view.exposeHelpers(velocityContext, request);
 
@@ -166,13 +165,13 @@ public class GoVelocityViewTest {
     @Test
     public void shouldNotSetPrincipalIfNoSession() throws Exception {
         view.exposeHelpers(velocityContext, request);
-        assertNull("Principal should be null", velocityContext.get(GoVelocityView.PRINCIPAL));
+        assertNull(velocityContext.get(GoVelocityView.PRINCIPAL), "Principal should be null");
     }
 
     @Test
     public void shouldNotSetPrincipalIfAuthenticationInformationNotAvailable() throws Exception {
         view.exposeHelpers(velocityContext, request);
-        assertNull("Principal should be null", velocityContext.get(GoVelocityView.PRINCIPAL));
+        assertNull(velocityContext.get(GoVelocityView.PRINCIPAL), "Principal should be null");
     }
 
     @Test
@@ -196,7 +195,6 @@ public class GoVelocityViewTest {
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
-        doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
         doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         doReturn(securityService).when(view).getSecurityService();
@@ -222,7 +220,6 @@ public class GoVelocityViewTest {
         GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
-        doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
         doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         doReturn(securityService).when(view).getSecurityService();

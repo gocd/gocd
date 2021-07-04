@@ -762,7 +762,7 @@ public class UserServiceTest {
         void shouldNotDoAnythingIfTheUserIsAnAnonymousUser() {
             User anonymousUser = new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()));
             userService.addOrUpdateUser(anonymousUser, new SecurityAuthConfig());
-            verifyZeroInteractions(userDao);
+            verifyNoInteractions(userDao);
         }
 
         @Test
@@ -863,7 +863,7 @@ public class UserServiceTest {
             assertThatCode(() -> userService.addNotificationFilter(100L, filter))
                 .isInstanceOf(UnprocessableEntityException.class)
                 .hasMessage("Notification filter validation failed.");
-            verifyZeroInteractions(userDao);
+            verifyNoInteractions(userDao);
         }
 
         @Test
@@ -891,7 +891,7 @@ public class UserServiceTest {
             assertThatCode(() -> userService.addNotificationFilter(100L, filter))
                 .isInstanceOf(UnprocessableEntityException.class)
                 .hasMessage("Notification filter validation failed.");
-            verifyZeroInteractions(userDao);
+            verifyNoInteractions(userDao);
         }
 
         @Test
@@ -979,7 +979,7 @@ public class UserServiceTest {
             assertThatCode(() -> userService.updateNotificationFilter(100L, filter))
                 .isInstanceOf(UnprocessableEntityException.class)
                 .hasMessage("Notification filter validation failed.");
-            verifyZeroInteractions(userDao);
+            verifyNoInteractions(userDao);
         }
 
         @Test
@@ -1004,7 +1004,7 @@ public class UserServiceTest {
             assertThatCode(() -> userService.updateNotificationFilter(100L, filter))
                 .isInstanceOf(UnprocessableEntityException.class)
                 .hasMessage("Notification filter validation failed.");
-            verifyZeroInteractions(userDao);
+            verifyNoInteractions(userDao);
         }
 
         @Test

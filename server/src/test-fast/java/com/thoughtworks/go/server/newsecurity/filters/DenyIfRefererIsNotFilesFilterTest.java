@@ -17,27 +17,21 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.ExpectedException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@EnableRuleMigrationSupport
 class DenyIfRefererIsNotFilesFilterTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private HttpServletRequest request;
     private HttpServletResponse response;
     private FilterChain chain;
@@ -65,10 +59,9 @@ class DenyIfRefererIsNotFilesFilterTest {
                 .withHeader("Referer", "http://example.com/go/files/file1")
                 .build();
 
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Filter should not be invoked for `/files/` urls.");
-
-        new DenyIfRefererIsNotFilesFilter().doFilter(request, response, chain);
+        assertThatThrownBy(() -> new DenyIfRefererIsNotFilesFilter().doFilter(request, response, chain))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("Filter should not be invoked for `/files/` urls.");
     }
 
     @Test

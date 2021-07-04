@@ -24,20 +24,19 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class UpdateArtifactStoreConfigCommandTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Username currentUser;
     @Mock
@@ -45,9 +44,8 @@ public class UpdateArtifactStoreConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         currentUser = new Username("bob");
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
@@ -59,9 +57,7 @@ public class UpdateArtifactStoreConfigCommandTest {
 
         UpdateArtifactStoreConfigCommand command = new UpdateArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult(), null, null);
 
-        thrown.expect(RecordNotFoundException.class);
-
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
     }
 
     @Test

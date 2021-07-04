@@ -25,18 +25,19 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class DeleteTemplateConfigCommandTest {
 
     @Mock
@@ -50,13 +51,8 @@ public class DeleteTemplateConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private PipelineTemplateConfig pipelineTemplateConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
@@ -77,10 +73,9 @@ public class DeleteTemplateConfigCommandTest {
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", pipelineTemplateConfig.name().toString(), "s1", "j1");
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
-        thrown.expectMessage("The template 'template' is being referenced by pipeline(s): [p1]");
-        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .hasMessageContaining("The template 'template' is being referenced by pipeline(s): [p1]");
     }
-
 
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
@@ -105,8 +100,6 @@ public class DeleteTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWhenTemplateNoLongerExists() {
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
-
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));

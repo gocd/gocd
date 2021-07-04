@@ -23,9 +23,7 @@ import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.junit.Test;
-
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -53,7 +51,7 @@ public class BaseUrlChangeListenerTest {
         newCruiseConfig.setServerConfig(serverConfigWith("", ""));
 
         listener.onConfigChange(newCruiseConfig);
-        verifyZeroInteractions(cache);
+        verifyNoInteractions(cache);
     }
 
     private ServerConfig serverConfigWith(String siteUrl, String secureUrl) {

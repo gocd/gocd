@@ -23,12 +23,12 @@ import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableTaskBuilderCreatorTest {
@@ -41,7 +41,7 @@ public class PluggableTaskBuilderCreatorTest {
     private BuilderFactory builderFactory;
     private UpstreamPipelineResolver resolver;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         pluggableTask = new PluggableTask(new PluginConfiguration("test-plugin-id", "13.4"), new Configuration());
         pluggableTaskBuilderCreator = new PluggableTaskBuilderCreator();
@@ -50,7 +50,7 @@ public class PluggableTaskBuilderCreatorTest {
         resolver = mock(UpstreamPipelineResolver.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         verifyNoMoreInteractions(resolver);
     }

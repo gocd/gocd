@@ -14,10 +14,12 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 @EnableRuleMigrationSupport
 public class PrimaryServerCommunicationServiceTest {
 
@@ -51,12 +53,11 @@ public class PrimaryServerCommunicationServiceTest {
     private HttpClientMock httpClientMock;
 
     private PrimaryServerEndPoint primaryServerEndPoint;
-    @Mock
+    @Mock(lenient = true)
     private AuthToken authToken;
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         httpClientMock = new HttpClientMock();
 
         System.setProperty("bc.primary.url", "https://localhost:1234");

@@ -16,14 +16,14 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ConsoleOutViewTest {

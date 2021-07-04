@@ -36,15 +36,17 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ConfigRepositoryInitializerTest {
     @Mock
     private PluginManager pluginManager;
@@ -76,7 +78,6 @@ class ConfigRepositoryInitializerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         yamlPluginDescriptor = GoPluginDescriptor.builder().id(YAML_PLUGIN_ID).build();
         yamlPluginDescriptor.setBundleDescriptor(new GoPluginBundleDescriptor(yamlPluginDescriptor));
 
@@ -96,10 +97,10 @@ class ConfigRepositoryInitializerTest {
 
         repoConfigs.add(repoConfig1);
 
-        when(configRepoService.getConfigRepos()).thenReturn(repoConfigs);
+        lenient().when(configRepoService.getConfigRepos()).thenReturn(repoConfigs);
 
-        when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, YAML_PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, JSON_PLUGIN_ID)).thenReturn(true);
+        lenient().when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, YAML_PLUGIN_ID)).thenReturn(true);
+        lenient().when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, JSON_PLUGIN_ID)).thenReturn(true);
     }
 
     @Test

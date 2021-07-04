@@ -26,14 +26,14 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class PipelinePauseServiceTest {
@@ -49,7 +49,7 @@ public class PipelinePauseServiceTest {
     private static final String INVALID_PIPELINE = "nonexistent-pipeline";
     private static final Username INVALID_USER = new Username(new CaseInsensitiveString("someone-who-not-operate"));
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigDao = mock(GoConfigDao.class);
@@ -264,7 +264,7 @@ public class PipelinePauseServiceTest {
             pipelinePauseService.pause(VALID_PIPELINE, "reason", VALID_USER, result);
 
             synchronized (logFixture) {
-                assertTrue(logFixture.getLog(), logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"));
+                assertTrue(logFixture.contains(Level.WARN, "Failed to notify listener (ListenerWhichFails)"), logFixture.getLog());
             }
             assertThat(result.isSuccessful(), is(true));
             assertThat(result.httpCode(), is(HttpStatus.SC_OK));

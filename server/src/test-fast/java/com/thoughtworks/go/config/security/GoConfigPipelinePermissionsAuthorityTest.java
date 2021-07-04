@@ -22,9 +22,9 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,8 +37,8 @@ import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     private PluginRoleUsersStore pluginRoleUsersStore;
     private SystemEnvironment systemEnvironment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configService = mock(GoConfigService.class);
         systemEnvironment = mock(SystemEnvironment.class);
@@ -61,7 +61,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         pluginRoleUsersStore = PluginRoleUsersStore.instance();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         pluginRoleUsersStore.clearAll();
     }

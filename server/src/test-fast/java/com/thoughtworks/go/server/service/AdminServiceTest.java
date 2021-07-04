@@ -17,15 +17,15 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AdminServiceTest {
@@ -33,7 +33,7 @@ public class AdminServiceTest {
     private AdminService adminService;
     private String fileLocation = "file location";
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         goConfigService = mock(GoConfigService.class);
 

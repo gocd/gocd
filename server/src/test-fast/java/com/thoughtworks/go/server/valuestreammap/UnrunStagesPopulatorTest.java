@@ -26,13 +26,13 @@ import com.thoughtworks.go.domain.Stages;
 import com.thoughtworks.go.domain.valuestreammap.*;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ public class UnrunStagesPopulatorTest {
     private GoConfigService goConfigService;
     private UnrunStagesPopulator unrunStagesPopulator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         unrunStagesPopulator = new UnrunStagesPopulator(goConfigService);

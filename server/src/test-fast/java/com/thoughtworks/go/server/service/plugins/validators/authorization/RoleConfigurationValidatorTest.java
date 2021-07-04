@@ -23,14 +23,15 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class RoleConfigurationValidatorTest {
@@ -38,7 +39,7 @@ public class RoleConfigurationValidatorTest {
     private AuthorizationExtension extension;
     private RoleConfigurationValidator validator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         validator = new RoleConfigurationValidator(extension);

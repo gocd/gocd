@@ -24,18 +24,19 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 @EnableRuleMigrationSupport
 class UpdateTemplateConfigCommandTest {
 
@@ -54,12 +55,8 @@ class UpdateTemplateConfigCommandTest {
     private PipelineTemplateConfig pipelineTemplateConfig;
     private Authorization authorization;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @BeforeEach
     void setup() {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         result = new HttpLocalizedOperationResult();
@@ -122,14 +119,15 @@ class UpdateTemplateConfigCommandTest {
     void shouldThrowAnExceptionIfTemplateConfigNotFound() {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
-        thrown.expect(RecordNotFoundException.class);
-        thrown.expectMessage(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessageContaining(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
     }
 
     @Test
     void shouldCopyOverAuthorizationAsIsWhileUpdatingTemplateStageConfig() {
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));;
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        ;
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
@@ -179,8 +177,8 @@ class UpdateTemplateConfigCommandTest {
     void shouldNotContinueWithConfigSaveIfObjectIsNotFound() {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
-        thrown.expectMessage(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
-        command.canContinue(cruiseConfig);
+        assertThatThrownBy(() -> command.canContinue(cruiseConfig))
+                .hasMessageContaining(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
     }
 
     @Test

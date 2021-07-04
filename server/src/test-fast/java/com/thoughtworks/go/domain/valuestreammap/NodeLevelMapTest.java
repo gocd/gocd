@@ -18,11 +18,11 @@ package com.thoughtworks.go.domain.valuestreammap;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 
 public class NodeLevelMapTest {
 

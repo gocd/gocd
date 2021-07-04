@@ -20,27 +20,21 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JobDetailPresentationModelJMockTest {
     private JobInstance stubJobInstance;
     private JobDetailPresentationModel jobDetailPresenter;
-    private File testFolder;
     private ArtifactsService artifactService;
     private JobIdentifier jobIdentifier;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         stubJobInstance = mock(JobInstance.class);
         artifactService = mock(ArtifactsService.class);
@@ -55,13 +49,6 @@ public class JobDetailPresentationModelJMockTest {
         TrackingTool trackingTool = new TrackingTool();
         jobDetailPresenter = new JobDetailPresentationModel(stubJobInstance,
                 null, null, pipeline, new Tabs(), trackingTool, artifactService, null);
-
-        testFolder = TestFileUtil.createTempFolder("testFiles");
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(testFolder);
     }
 
     @Test

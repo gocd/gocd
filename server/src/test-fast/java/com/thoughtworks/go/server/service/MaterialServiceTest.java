@@ -61,32 +61,36 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(Theories.class)
+@ExtendWith(MockitoExtension.class)
 public class MaterialServiceTest {
     private static List MODIFICATIONS = new ArrayList<Modification>();
 
@@ -107,9 +111,8 @@ public class MaterialServiceTest {
 
     private MaterialService materialService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
         materialService = new MaterialService(materialRepository, goConfigService, securityService,
                 packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver);
     }
@@ -154,8 +157,7 @@ public class MaterialServiceTest {
         verify(operationResult).notFound("Pipeline '" + "pipeline" + "' does not contain material with fingerprint '" + "sha" + "'.", HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
     }
 
-    @DataPoint
-    public static RequestDataPoints GIT_LATEST_MODIFICATIONS = new RequestDataPoints(new GitMaterial("url") {
+    private static Arguments GIT_LATEST_MODIFICATIONS = Arguments.of(new GitMaterial("url") {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -172,8 +174,7 @@ public class MaterialServiceTest {
         }
     }, GitMaterial.class);
 
-    @DataPoint
-    public static RequestDataPoints SVN_LATEST_MODIFICATIONS = new RequestDataPoints(new SvnMaterial("url", "username", "password", true) {
+    private static Arguments SVN_LATEST_MODIFICATIONS = Arguments.of(new SvnMaterial("url", "username", "password", true) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -185,8 +186,7 @@ public class MaterialServiceTest {
         }
     }, SvnMaterial.class);
 
-    @DataPoint
-    public static RequestDataPoints HG_LATEST_MODIFICATIONS = new RequestDataPoints(new HgMaterial("url", null) {
+    private static Arguments HG_LATEST_MODIFICATIONS = Arguments.of(new HgMaterial("url", null) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -198,8 +198,7 @@ public class MaterialServiceTest {
         }
     }, HgMaterial.class);
 
-    @DataPoint
-    public static RequestDataPoints TFS_LATEST_MODIFICATIONS = new RequestDataPoints(new TfsMaterial() {
+    private static Arguments TFS_LATEST_MODIFICATIONS = Arguments.of(new TfsMaterial() {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -212,8 +211,7 @@ public class MaterialServiceTest {
 
     }, TfsMaterial.class);
 
-    @DataPoint
-    public static RequestDataPoints P4_LATEST_MODIFICATIONS = new RequestDataPoints(new P4Material("url", "view", "user") {
+    private static Arguments P4_LATEST_MODIFICATIONS = Arguments.of(new P4Material("url", "view", "user") {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -225,8 +223,7 @@ public class MaterialServiceTest {
         }
     }, P4Material.class);
 
-    @DataPoint
-    public static RequestDataPoints DEPENDENCY_LATEST_MODIFICATIONS = new RequestDataPoints(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
+    private static Arguments DEPENDENCY_LATEST_MODIFICATIONS = Arguments.of(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -239,39 +236,55 @@ public class MaterialServiceTest {
     }, DependencyMaterial.class);
 
 
-    @Theory
-    public void shouldGetLatestModificationsForGivenMaterial(RequestDataPoints data) {
+    private static class MaterialRequests implements ArgumentsProvider {
+        @Override
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            return Stream.of(
+                    GIT_LATEST_MODIFICATIONS,
+                    SVN_LATEST_MODIFICATIONS,
+                    HG_LATEST_MODIFICATIONS,
+                    TFS_LATEST_MODIFICATIONS,
+                    P4_LATEST_MODIFICATIONS,
+                    DEPENDENCY_LATEST_MODIFICATIONS
+            );
+        }
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(MaterialRequests.class)
+    public void shouldGetLatestModificationsForGivenMaterial(Material material, Class klass) {
         MaterialService spy = spy(materialService);
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
-        doReturn(data.klass).when(spy).getMaterialClass(data.material);
-        List<Modification> actual = spy.latestModification(data.material, null, execCtx);
+        doReturn(klass).when(spy).getMaterialClass(material);
+        List<Modification> actual = spy.latestModification(material, null, execCtx);
         assertThat(actual, is(MODIFICATIONS));
     }
 
-    @Theory
-    public void shouldGetModificationsSinceARevisionForGivenMaterial(RequestDataPoints data) {
+    @ParameterizedTest
+    @ArgumentsSource(MaterialRequests.class)
+    public void shouldGetModificationsSinceARevisionForGivenMaterial(Material material, Class klass) {
         Revision revision = mock(Revision.class);
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
         MaterialService spy = spy(materialService);
-        doReturn(data.klass).when(spy).getMaterialClass(data.material);
-        List<Modification> actual = spy.modificationsSince(data.material, null, revision, execCtx);
+        doReturn(klass).when(spy).getMaterialClass(material);
+        List<Modification> actual = spy.modificationsSince(material, null, revision, execCtx);
         assertThat(actual, is(MODIFICATIONS));
     }
 
-    @Theory
-    public void shouldCheckoutAGivenRevision(RequestDataPoints data) {
+    @ParameterizedTest
+    @ArgumentsSource(MaterialRequests.class)
+    public void shouldCheckoutAGivenRevision(Material material) {
         Revision revision = mock(Revision.class);
         MaterialPoller materialPoller = mock(MaterialPoller.class);
         MaterialService spy = spy(materialService);
         File baseDir = mock(File.class);
         SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
 
-        doReturn(data.klass).when(spy).getMaterialClass(data.material);
-        doReturn(materialPoller).when(spy).getPollerImplementation(data.material);
+        doReturn(materialPoller).when(spy).getPollerImplementation(material);
 
-        spy.checkout(data.material, baseDir, revision, execCtx);
+        spy.checkout(material, baseDir, revision, execCtx);
 
-        verify(materialPoller).checkout(data.material, baseDir, revision, execCtx);
+        verify(materialPoller).checkout(material, baseDir, revision, execCtx);
     }
 
     @Test
@@ -290,8 +303,6 @@ public class MaterialServiceTest {
         MaterialService spy = spy(materialService);
         GitPoller gitPoller = mock(GitPoller.class);
 
-        doReturn(GitMaterial.class).when(spy).getMaterialClass(gitMaterial);
-        doReturn(true).when(gitMaterial).hasSecretParams();
         doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
         when(gitPoller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
 
@@ -307,8 +318,6 @@ public class MaterialServiceTest {
         GitPoller gitPoller = mock(GitPoller.class);
         Class<GitMaterial> toBeReturned = GitMaterial.class;
 
-        doReturn(toBeReturned).when(spy).getMaterialClass(gitMaterial);
-        doReturn(true).when(gitMaterial).hasSecretParams();
         doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
         when(gitPoller.modificationsSince(any(), any(), any(), any())).thenReturn(new ArrayList<>());
 
@@ -322,7 +331,6 @@ public class MaterialServiceTest {
         PackageMaterial material = new PackageMaterial();
         PackageDefinition packageDefinition = create("id", "package", new Configuration(), PackageRepositoryMother.create("id", "name", "plugin-id", "plugin-version", new Configuration()));
         material.setPackageDefinition(packageDefinition);
-
 
         when(packageRepositoryExtension.getLatestRevision(eq("plugin-id"),
                 any(PackageConfiguration.class),
@@ -610,24 +618,12 @@ public class MaterialServiceTest {
         assertThat(materialService.hasModificationFor(hgMaterial), is(b));
     }
 
-    private static class RequestDataPoints<T extends Material> {
-        final T material;
-        final Class klass;
-
-        public RequestDataPoints(T material, Class klass) {
-            this.material = material;
-            this.klass = klass;
-        }
-    }
-
     @Test
     public void latestModification_shouldResolveSecretsForPluggableScmMaterial() {
         PluggableSCMMaterial pluggableSCMMaterial = spy(new PluggableSCMMaterial());
         MaterialService serviceSpy = spy(materialService);
         PluggableSCMMaterialPoller poller = mock(PluggableSCMMaterialPoller.class);
 
-        doReturn(PluggableSCMMaterial.class).when(serviceSpy).getMaterialClass(pluggableSCMMaterial);
-        doReturn(true).when(pluggableSCMMaterial).hasSecretParams();
         doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
         when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
 
@@ -642,10 +638,8 @@ public class MaterialServiceTest {
         MaterialService serviceSpy = spy(materialService);
         PluggableSCMMaterialPoller poller = mock(PluggableSCMMaterialPoller.class);
 
-        doReturn(PluggableSCMMaterial.class).when(serviceSpy).getMaterialClass(pluggableSCMMaterial);
-        doReturn(true).when(pluggableSCMMaterial).hasSecretParams();
-        doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
-        when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
+        lenient().doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
+        lenient().when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
 
         serviceSpy.modificationsSince(pluggableSCMMaterial, null, null, null);
 
@@ -658,13 +652,12 @@ public class MaterialServiceTest {
         MaterialService serviceSpy = spy(materialService);
         PluggableSCMMaterialPoller poller = mock(PluggableSCMMaterialPoller.class);
 
-        doReturn(PluggableSCMMaterial.class).when(serviceSpy).getMaterialClass(pluggableSCMMaterial);
-        doReturn(true).when(pluggableSCMMaterial).hasSecretParams();
-        doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
-        when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
+        lenient().doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
+        lenient().when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
 
         serviceSpy.checkout(pluggableSCMMaterial, null, null, null);
 
         verify(secretParamResolver).resolve(pluggableSCMMaterial);
     }
+
 }

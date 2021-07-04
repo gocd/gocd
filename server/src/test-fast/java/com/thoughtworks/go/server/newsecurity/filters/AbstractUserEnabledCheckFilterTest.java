@@ -149,7 +149,7 @@ class AbstractUserEnabledCheckFilterTest {
             filter.doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(request, response);
-            verifyZeroInteractions(userService);
+            verifyNoInteractions(userService);
             verify(filter, never()).handleFailure(any(), any(), anyString());
         }
 
@@ -159,7 +159,7 @@ class AbstractUserEnabledCheckFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(userService);
+            verifyNoInteractions(userService);
             verify(filterChain).doFilter(request, response);
             verify(filter, never()).handleFailure(any(), any(), anyString());
         }
@@ -176,7 +176,7 @@ class AbstractUserEnabledCheckFilterTest {
         void shouldContinueFilterChain() throws IOException, ServletException {
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(userService);
+            verifyNoInteractions(userService);
             verify(filterChain).doFilter(request, response);
             verify(filter, never()).handleFailure(any(), any(), anyString());
         }

@@ -26,15 +26,15 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,12 +44,9 @@ public class SecurityAuthConfigCommandTest {
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
 
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private AuthorizationExtension extension;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
@@ -104,8 +101,8 @@ public class SecurityAuthConfigCommandTest {
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
 
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        thrown.expectMessage(EntityType.SecurityAuthConfig.idCannotBeBlank());
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .hasMessageContaining(EntityType.SecurityAuthConfig.idCannotBeBlank());
     }
 
     @Test

@@ -36,8 +36,8 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.verification.NoMoreInteractions;
 
@@ -46,7 +46,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineSchedulerTest {
@@ -55,7 +55,7 @@ public class PipelineSchedulerTest {
     private GoConfigService configService;
     private BuildCauseProducerService buildCauseProducerService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         queue = mock(ScheduleCheckQueue.class);
         configService = mock(GoConfigService.class);

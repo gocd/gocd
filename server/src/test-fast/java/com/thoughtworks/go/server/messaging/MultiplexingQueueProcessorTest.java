@@ -18,8 +18,9 @@ package com.thoughtworks.go.server.messaging;
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.server.messaging.MultiplexingQueueProcessor.Action;
 import com.thoughtworks.go.util.LogFixture;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.InOrder;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
@@ -27,14 +28,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class MultiplexingQueueProcessorTest {
     private MultiplexingQueueProcessor queueProcessor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         queueProcessor = new MultiplexingQueueProcessor("queue1");
     }
@@ -77,7 +78,8 @@ public class MultiplexingQueueProcessorTest {
         }
     }
 
-    @Test(timeout = 5000)
+    @Test
+    @Timeout(5)
     public void shouldLogAndIgnoreAnyActionsWhichFail() throws Exception {
         Action successfulAction1 = mock(Action.class);
         Action successfulAction2 = mock(Action.class);

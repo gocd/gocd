@@ -494,7 +494,7 @@ public class StageServiceTest {
             }
         });
 
-        verifyZeroInteractions(topic);
+        verifyNoInteractions(topic);
     }
 
     @Test

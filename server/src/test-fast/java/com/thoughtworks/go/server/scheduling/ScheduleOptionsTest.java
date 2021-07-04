@@ -18,21 +18,21 @@ package com.thoughtworks.go.server.scheduling;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ScheduleOptionsTest {
 
     private GoCipher goCipher;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goCipher = new GoCipher();
     }

@@ -18,17 +18,17 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,18 +36,11 @@ public class ConsoleServiceTest {
 
     private ArtifactDirectoryChooser chooser;
     private ConsoleService service;
-    @Rule
-    public final TemporaryFolder testFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         chooser = mock(ArtifactDirectoryChooser.class);
         service = new ConsoleService(chooser);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        testFolder.delete();
     }
 
     @Test
@@ -107,11 +100,11 @@ public class ConsoleServiceTest {
     }
 
     @Test
-    public void shouldMoveConsoleArtifacts() throws Exception {
+    public void shouldMoveConsoleArtifacts(@TempDir Path testFolder) throws Exception {
         JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
 
-        File temporaryConsoleLog = testFolder.newFile("temporary_console.log");
-        File finalConsoleLog = new File(testFolder.getRoot(), "final_console.log");
+        File temporaryConsoleLog = Files.createFile(testFolder.resolve("temporary_console.log")).toFile();
+        File finalConsoleLog = testFolder.resolve("final_console.log").toFile();
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
         when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleLog);
@@ -123,11 +116,11 @@ public class ConsoleServiceTest {
     }
 
     @Test
-    public void shouldCreateTemporaryConsoleFileAndMoveIfItDoesNotExist() throws Exception {
+    public void shouldCreateTemporaryConsoleFileAndMoveIfItDoesNotExist(@TempDir Path testFolder) throws Exception {
         JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
 
-        File temporaryConsoleLog = new File(testFolder.getRoot(), "temporary_console.log");
-        File finalConsoleLog = new File(testFolder.getRoot(), "final_console.log");
+        File temporaryConsoleLog = testFolder.resolve("temporary_console.log").toFile();
+        File finalConsoleLog = testFolder.resolve("final_console.log").toFile();
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(temporaryConsoleLog);
         when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(finalConsoleLog);

@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service.tasks;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
@@ -30,26 +29,22 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.List;
-import java.util.function.Predicate;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(ClearSingleton.class)
 public class PluggableTaskServiceTest {
     private PluggableTaskService pluggableTaskService;
     private TaskExtension taskExtension;
     private String pluginId = "abc.def";
 
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         taskExtension = mock(TaskExtension.class);
         pluggableTaskService = new PluggableTaskService(taskExtension);
@@ -99,7 +94,7 @@ public class PluggableTaskServiceTest {
 
         assertFalse(pluggableTaskService.isValid(pluggableTask));
 
-        verifyZeroInteractions(taskExtension);
+        verifyNoInteractions(taskExtension);
     }
 
     @Test

@@ -24,8 +24,8 @@ import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -37,7 +37,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
     private ScheduleService scheduleService;
     private ConsoleActivityMonitor consoleActivityMonitor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         agentService = mock(AgentService.class);
         jobInstanceService = mock(JobInstanceService.class);

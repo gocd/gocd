@@ -30,8 +30,8 @@ import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import static org.hamcrest.Matchers.is;
 
 import org.joda.time.Duration;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class StageSummaryModelTest {
     private static final JobDurationStrategy JOB_DURATION_STRATEGY = JobDurationStrategy.ALWAYS_ZERO;

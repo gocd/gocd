@@ -32,21 +32,20 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTimeUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SCMMaterialSourceTest {
@@ -59,7 +58,7 @@ public class SCMMaterialSourceTest {
     private Material svnMaterial = MaterialsMother.svnMaterial();
     private Material gitMaterial = MaterialsMother.gitMaterial("http://my.repo");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         systemEnvironment = new SystemEnvironment();
@@ -70,7 +69,7 @@ public class SCMMaterialSourceTest {
         source = new SCMMaterialSource(goConfigService, systemEnvironment, materialConfigConverter, materialUpdateService);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT);
     }

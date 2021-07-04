@@ -17,27 +17,27 @@ package com.thoughtworks.go.config.security.users;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.PluginRoleUsersStore;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AllowedUsersTest {
     private PluginRoleUsersStore pluginRoleUsersStore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pluginRoleUsersStore = PluginRoleUsersStore.instance();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         pluginRoleUsersStore.clearAll();
     }

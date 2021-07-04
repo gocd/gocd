@@ -27,13 +27,13 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -46,7 +46,8 @@ public class AutoBuildTriangleDependencyTest {
     private CruiseConfig cruiseConfig;
     private MaterialChecker materialChecker;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = mock(BasicCruiseConfig.class);
         pipelineService = mock(PipelineService.class);

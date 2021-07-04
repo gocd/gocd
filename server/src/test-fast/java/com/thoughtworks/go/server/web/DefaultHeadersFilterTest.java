@@ -16,10 +16,12 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -28,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class DefaultHeadersFilterTest {
 
     private static final String ENABLE_HSTS_HEADER = "gocd.enable.hsts.header";
@@ -42,14 +44,13 @@ public class DefaultHeadersFilterTest {
     private DefaultHeadersFilter filter;
     private SystemEnvironment systemEnvironment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         filter = new DefaultHeadersFilter();
         systemEnvironment = new SystemEnvironment();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         systemEnvironment.clearProperty(ENABLE_HSTS_HEADER);
     }

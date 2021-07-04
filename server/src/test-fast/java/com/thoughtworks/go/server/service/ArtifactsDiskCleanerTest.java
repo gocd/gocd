@@ -30,8 +30,9 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -39,7 +40,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -58,7 +59,7 @@ public class ArtifactsDiskCleanerTest {
     private ConfigDbStateRepository configDbStateRepository;
     private ServerHealthService serverHealthService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         sysEnv = mock(SystemEnvironment.class);
 
@@ -88,7 +89,8 @@ public class ArtifactsDiskCleanerTest {
         assertThat(artifactsDiskCleaner.limitInMb(), is(15 * GoConstants.MEGABYTES_IN_GIGABYTE));
     }
 
-    @Test(timeout = 20 * 1000)
+    @Test
+    @Timeout(20)
     public void shouldTriggerCleanupWhenLimitReached() throws InterruptedException {
         serverConfig.setPurgeLimits(20.0, 30.0);
         final boolean[] artifactsDeletionTriggered = {false};
@@ -103,10 +105,7 @@ public class ArtifactsDiskCleanerTest {
             }
         };
         Thread cleaner = (Thread) ReflectionUtil.getField(artifactsDiskCleaner, "cleaner");
-        while(true) {
-            if (cleaner.getState().equals(Thread.State.WAITING)) {
-                break;
-            }
+        while (!cleaner.getState().equals(Thread.State.WAITING)) {
             Thread.sleep(5);
         }
         artifactsDiskCleaner.createFailure(new HttpOperationResult(), 10, 100);

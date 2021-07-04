@@ -26,8 +26,8 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -44,7 +44,7 @@ public class DependencyMaterialUpdateNotifierTest {
     private ServerHealthService serverHealthService;
     private Material dependencyMaterial = MaterialsMother.dependencyMaterial();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         materialConfigConverter = mock(MaterialConfigConverter.class);

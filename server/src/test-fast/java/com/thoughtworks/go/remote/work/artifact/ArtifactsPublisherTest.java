@@ -26,12 +26,10 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
 
 import java.io.File;
@@ -41,32 +39,27 @@ import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsPublisherTest {
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
-    private File workingFolder;
+    @TempDir
+    File workingFolder;
     private ArtifactsPublisher artifactsPublisher;
     private ArtifactExtension artifactExtension;
     private StubGoPublisher publisher;
     private PluginRequestProcessorRegistry registry;
     private final EnvironmentVariableContext env = new EnvironmentVariableContext("foo", "bar");
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
-        workingFolder = temporaryFolder.newFolder("temporaryFolder");
         artifactExtension = mock(ArtifactExtension.class);
         registry = mock(PluginRequestProcessorRegistry.class);
         publisher = new StubGoPublisher();
@@ -76,12 +69,6 @@ public class ArtifactsPublisherTest {
         File file = new File(workingFolder, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
         file.createNewFile();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        workingFolder.setWritable(true);
-        workingFolder.delete();
     }
 
     @Test
@@ -204,7 +191,7 @@ public class ArtifactsPublisherTest {
 
     @Test
     public void shouldErrorOutWhenFailedToCreateFolderToWritePluggableArtifactMetadata() {
-        assumeFalse("Do not run on windows.", IS_WINDOWS);
+        Assumptions.assumeFalse(IS_WINDOWS, "Do not run on windows.");
 
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
@@ -213,13 +200,12 @@ public class ArtifactsPublisherTest {
         when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("[go] Could not create pluggable artifact metadata folder");
-
         workingFolder.setWritable(false);
 
-        new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(Arrays.asList(artifactPlan), env);
+        assertThatThrownBy(() -> new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+                .publishArtifacts(Arrays.asList(artifactPlan), env))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("[go] Could not create pluggable artifact metadata folder");
     }
 
     @Test

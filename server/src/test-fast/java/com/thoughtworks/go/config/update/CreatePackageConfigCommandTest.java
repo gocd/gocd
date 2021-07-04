@@ -27,19 +27,23 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CreatePackageConfigCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -59,9 +63,8 @@ public class CreatePackageConfigCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 
@@ -174,7 +177,6 @@ public class CreatePackageConfigCommandTest {
     public void shouldNotContinueIfTheRepositoryWithSpecifiedRepoIdDoesNotexist() throws Exception {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         cruiseConfig.setPackageRepositories(new PackageRepositories());
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repoId));
@@ -186,7 +188,7 @@ public class CreatePackageConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+        lenient().when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
 
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
 

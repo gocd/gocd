@@ -24,29 +24,32 @@ import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class KillAllChildProcessTaskBuilderTest {
     private BuilderFactory builderFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         builderFactory = mock(BuilderFactory.class);
     }
 
-    @Test(timeout = 11 * 60 * 1000)//11 minutes
-    public void shouldKillAllChildProcessOnbuild() throws Exception {
+    @Test
+    @Timeout(value=11, unit=MINUTES)
+    public void shouldKillAllChildProcessOnBuild() throws Exception {
         ProcessWrapper processWrapper = platformSpecificSleepCommand().withArg(String.valueOf(10 * 60)).withEncoding("utf-8").execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
                 null);//10 mins
 

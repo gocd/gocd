@@ -23,16 +23,18 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PipelineScheduleQueueTest {
 
     private PipelineScheduleQueue pipelineScheduleQueue;
@@ -44,9 +46,8 @@ public class PipelineScheduleQueueTest {
     @Mock
     private InstanceFactory instanceFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         pipelineScheduleQueue = new PipelineScheduleQueue(pipelineService, transactionTemplate, instanceFactory);
     }
 

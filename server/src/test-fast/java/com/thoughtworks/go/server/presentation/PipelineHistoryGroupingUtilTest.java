@@ -20,15 +20,15 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryGroups;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PipelineHistoryGroupingUtilTest {
     private PipelineHistoryGroupingUtil groupingUtil;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         groupingUtil = new PipelineHistoryGroupingUtil();
     }

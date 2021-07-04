@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.providers;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
@@ -35,13 +36,10 @@ import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 
 import java.util.Arrays;
@@ -49,8 +47,10 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(ClearSingleton.class)
 class PasswordBasedPluginAuthenticationProviderTest {
     private static final String USERNAME = "bob";
     private static final String PASSWORD = "p@ssw0rd";
@@ -82,17 +82,9 @@ class PasswordBasedPluginAuthenticationProviderTest {
         provider = new PasswordBasedPluginAuthenticationProvider(authorizationExtension, authorityGranter, goConfigService, pluginRoleService, userService, clock);
     }
 
-    @AfterEach
-    void tearDown() {
-        com.thoughtworks.go.ClearSingleton.clearSingletons();
-    }
 
     @Nested
-    @EnableRuleMigrationSupport
     class Authenticate {
-        @Rule
-        public ExpectedException thrown = ExpectedException.none();
-
         @Test
         void shouldBeAbleToAuthenticateUserUsingAnyOfTheAuthorizationPlugins() {
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_1);
@@ -243,19 +235,14 @@ class PasswordBasedPluginAuthenticationProviderTest {
             doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any(), eq(githubSecurityAuthconfig));
             when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
 
-            thrown.expect(OnlyKnownUsersAllowedException.class);
-            thrown.expectMessage("Please ask the administrator to add you to GoCD.");
-
-            provider.authenticate(CREDENTIALS, null);
+            assertThatThrownBy(() -> provider.authenticate(CREDENTIALS, null))
+                    .isInstanceOf(OnlyKnownUsersAllowedException.class)
+                    .hasMessageContaining("Please ask the administrator to add you to GoCD.");
         }
     }
 
     @Nested
-    @EnableRuleMigrationSupport
     class ReAuthenticate {
-        @Rule
-        public ExpectedException thrown = ExpectedException.none();
-
         @Test
         void shouldReAuthenticateUserUsingAuthenticationToken() {
             final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
@@ -375,10 +362,9 @@ class PasswordBasedPluginAuthenticationProviderTest {
             doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any(), any());
             when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
 
-            thrown.expect(OnlyKnownUsersAllowedException.class);
-            thrown.expectMessage("Please ask the administrator to add you to GoCD.");
-
-            provider.reauthenticate(authenticationToken);
+            assertThatThrownBy(() -> provider.reauthenticate(authenticationToken))
+                    .isInstanceOf(OnlyKnownUsersAllowedException.class)
+                    .hasMessageContaining("Please ask the administrator to add you to GoCD.");
         }
     }
 

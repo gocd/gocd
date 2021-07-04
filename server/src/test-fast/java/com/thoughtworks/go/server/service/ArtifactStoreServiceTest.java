@@ -26,16 +26,18 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ArtifactStoreServiceTest {
     @Mock
     private GoConfigService configService;
@@ -45,9 +47,8 @@ public class ArtifactStoreServiceTest {
     private EntityHashingService entityHashingService;
     private ArtifactStoreService artifactStoreService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         artifactStoreService = new ArtifactStoreService(configService, entityHashingService, extension);
     }

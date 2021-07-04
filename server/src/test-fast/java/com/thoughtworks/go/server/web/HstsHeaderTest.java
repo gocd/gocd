@@ -16,25 +16,25 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HstsHeaderTest {
 
     private SystemEnvironment systemEnvironment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         systemEnvironment = new SystemEnvironment();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         systemEnvironment.clearProperty("gocd.enable.hsts.header");
         systemEnvironment.clearProperty("gocd.hsts.header.max.age");

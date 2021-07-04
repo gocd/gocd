@@ -40,7 +40,6 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.*;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
@@ -54,11 +53,13 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.util.*;
@@ -66,11 +67,11 @@ import java.util.*;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class BuildCauseProducerServiceTest {
     private static final ServerHealthState SERVER_ERROR = error("something", "else", HealthStateType.general(GLOBAL));
 
@@ -109,12 +110,11 @@ public class BuildCauseProducerServiceTest {
     private TriggerMonitor triggerMonitor;
     private BuildCauseProducerService buildCauseProducerService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         triggerMonitor = new TriggerMonitor();
         healthStateType = HealthStateType.general(HealthStateScope.forPipeline(CaseInsensitiveString.str(pipelineConfig.name())));
-        when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
+        lenient().when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
 
         buildCauseProducerService = createBuildCauseProducerService(mockMaterialUpdateStatusNotifier);
     }
@@ -141,8 +141,6 @@ public class BuildCauseProducerServiceTest {
 
         HttpOperationResult result = new HttpOperationResult();
         when(materialConfigConverter.toMaterial(materialConfig)).thenReturn(material);
-        when(materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs())).thenReturn(pipelineConfig.materialConfigs());
-        when(materialConfigConverter.toMaterials(pipelineConfig.materialConfigs())).thenReturn(new Materials(material));
         when(goConfigService.pipelineConfigNamed(pipelineConfig.name())).thenReturn(pipelineConfig);
         buildCauseProducerService.manualSchedulePipeline(Username.CRUISE_TIMER, pipelineConfig.name(), new ScheduleOptions(), result);
         assertThat(result.httpCode(), is(202));
@@ -176,7 +174,7 @@ public class BuildCauseProducerServiceTest {
         Username user = Username.ANONYMOUS;
         final HttpOperationResult result = new HttpOperationResult();
 
-        when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer(new Answer<Boolean>() {
+        lenient().when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
                 result.accepted("junk", "junk", healthStateType);
@@ -217,7 +215,6 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterial(hgMaterialConfig)).thenReturn(hgMaterial);
         when(specificMaterialRevisionFactory.create("pipeline", new HashMap<>())).thenReturn(new MaterialRevisions());
         when(pipelineScheduleQueue.mostRecentScheduled(pipelineConfig.name())).thenReturn(BuildCause.createNeverRun());
-        when(materialRepository.findLatestModification(hgMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(hgMaterial, new ArrayList<>())));
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         assertThat(triggerMonitor.isAlreadyTriggered(pipelineConfig.name()), is(true));
@@ -302,7 +299,6 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void shouldUpdateResultAsAcceptedOnSuccess() throws Exception {
-        when(mockMaterialUpdateStatusNotifier.hasListenerFor(pipelineConfig)).thenReturn(false);
         when(operationResult.canContinue()).thenReturn(true);
         buildCauseProducerService.manualSchedulePipeline(Username.BLANK, pipelineConfig.name(), new ScheduleOptions(), operationResult);
         verify(operationResult).accepted(eq("Request to schedule pipeline pipeline accepted"), any(String.class),
@@ -424,7 +420,6 @@ public class BuildCauseProducerServiceTest {
         pipelineConfig.addMaterialConfig(materialConfig1);
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig2, "plug", "id"), "revision1"));
 
-        when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(new MaterialConfigConverter().toMaterial(materialConfig2));
 
         ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>());
@@ -468,7 +463,6 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterials(updatedPipelineConfig.materialConfigs())).thenReturn(materials);
         when(materialExpansionService.expandMaterialConfigsForScheduling(updatedPipelineConfig.materialConfigs())).thenReturn(updatedPipelineConfig.materialConfigs());
         when(pipelineScheduleQueue.mostRecentScheduled(updatedPipelineConfig.name())).thenReturn(BuildCause.createNeverRun());
-        when(materialChecker.findLatestRevisions(any(), eq(materials))).thenReturn(new MaterialRevisions());
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
         statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
 
@@ -495,14 +489,13 @@ public class BuildCauseProducerServiceTest {
         config.addMaterialConfig(svnMaterial.config());
         config.addMaterialConfig(dependencyMaterial.config());
 
-        when(pipelineService.getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(BasicCruiseConfig.class), any(CaseInsensitiveString.class))).thenThrow(
+        lenient().when(pipelineService.getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(BasicCruiseConfig.class), any(CaseInsensitiveString.class))).thenThrow(
                 new NoModificationsPresentForDependentMaterialException("P/1/S/1"));
         when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName))).thenReturn(BuildCause.createNeverRun());
         Modification modification = ModificationsMother.checkinWithComment("r", "c", new Date(), "f1");
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(ModificationsMother.createSvnMaterialWithMultipleRevisions(1, modification));
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(new MaterialRevisions(ModificationsMother.changedDependencyMaterialRevision("up", 1, "1", "s", 1, new Date())));
         when(specificMaterialRevisionFactory.create(any(String.class), anyMap())).thenReturn(MaterialRevisions.EMPTY);
-        when(goConfigService.upstreamDependencyGraphOf(any(String.class), any(BasicCruiseConfig.class))).thenReturn(new PipelineConfigDependencyGraph(config));
 
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs(svnMaterial.config(), dependencyMaterial.config());
         Materials materials = new Materials(svnMaterial, dependencyMaterial);

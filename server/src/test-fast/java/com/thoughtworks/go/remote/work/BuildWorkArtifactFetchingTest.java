@@ -22,10 +22,9 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +36,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {
     private static final String PIPELINE_NAME = "pipeline1";
@@ -46,7 +45,6 @@ public class BuildWorkArtifactFetchingTest {
     private static final String DEST = "lib";
 
     private static final String AGENT_UUID = "uuid";
-    private File buildWorkingDirectory;
 
     private static final String WITH_FETCH_FILE =
             "<job name=\"" + JOB_NAME + "\">\n"
@@ -73,19 +71,17 @@ public class BuildWorkArtifactFetchingTest {
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private EnvironmentVariableContext environmentVariableContext;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
-        buildWorkingDirectory = new File("tmp");
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", AGENT_UUID);
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
         environmentVariableContext = new EnvironmentVariableContext();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
-        FileUtils.deleteQuietly(buildWorkingDirectory);
     }
 
     @Test

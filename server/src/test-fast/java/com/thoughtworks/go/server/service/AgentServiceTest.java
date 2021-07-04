@@ -78,9 +78,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 class AgentServiceTest {
@@ -258,7 +256,7 @@ class AgentServiceTest {
             @Test
             void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgents() {
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(singletonList("uuid"), emptyStrList, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
-                verifyZeroInteractions(agentDao);
+                verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agents."));
             }
 
@@ -269,7 +267,7 @@ class AgentServiceTest {
                 when(agentInstances.filterBy(uuids, Null)).thenReturn(uuids);
 
                 RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
-                verifyZeroInteractions(agentDao);
+                verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Agents with uuids [uuid1] were not found!"));
             }
 
@@ -281,7 +279,7 @@ class AgentServiceTest {
 
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-                verifyZeroInteractions(agentDao);
+                verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Resources on elastic agents with uuids [uuid1] can not be updated."));
             }
 
@@ -291,7 +289,7 @@ class AgentServiceTest {
 
                 UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-                verifyZeroInteractions(agentDao);
+                verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}"));
             }
 
@@ -303,7 +301,7 @@ class AgentServiceTest {
 
                 BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
-                verifyZeroInteractions(agentDao);
+                verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Pending agents [uuid1] must be explicitly enabled or disabled when performing any operations on them."));
             }
 
@@ -880,7 +878,7 @@ class AgentServiceTest {
 
             boolean registration = agentService.requestRegistration(runtimeInfo);
             assertThat(registration, is(false));
-            verifyZeroInteractions(agentDao);
+            verifyNoInteractions(agentDao);
             verify(agent, never()).getCookie();
             verify(agent, never()).setCookie(anyString());
             verify(agent, never()).validate();
@@ -1497,7 +1495,7 @@ class AgentServiceTest {
         void shouldDoNothingIfEmptyListIsPassed() {
             agentService.deleteAgentsWithoutValidations(emptyStrList);
 
-            verifyZeroInteractions(agentDao);
+            verifyNoInteractions(agentDao);
         }
     }
 

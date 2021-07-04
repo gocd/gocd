@@ -22,23 +22,19 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SecurityAuthConfigDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
@@ -61,8 +57,7 @@ public class SecurityAuthConfigDeleteCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
         SecurityAuthConfigDeleteCommand command = new SecurityAuthConfigDeleteCommand(null, authConfig, null, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(RecordNotFoundException.class);
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
 
         assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
     }
@@ -73,9 +68,9 @@ public class SecurityAuthConfigDeleteCommandTest {
         cruiseConfig.server().security().addRole(new PluginRoleConfig("blackbird", "foo"));
 
         SecurityAuthConfigDeleteCommand command = new SecurityAuthConfigDeleteCommand(null, authConfig, null, null, new HttpLocalizedOperationResult());
-        thrown.expect(GoConfigInvalidException.class);
-        thrown.expectMessage("The security auth config 'foo' is being referenced by role(s): blackbird.");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(GoConfigInvalidException.class)
+                .hasMessageContaining("The security auth config 'foo' is being referenced by role(s): blackbird.");
     }
 
     @Test

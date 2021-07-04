@@ -30,8 +30,8 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -45,9 +45,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.PipelineState.NOT_LOCKED;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PipelineStateDaoCachingTest {
@@ -60,7 +61,7 @@ public class PipelineStateDaoCachingTest {
     private SqlMapClientTemplate mockTemplate;
     private Session session;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
@@ -104,7 +105,7 @@ public class PipelineStateDaoCachingTest {
         pipelineStateDao.pipelineStateFor(pipelineName);
         PipelineState actual = pipelineStateDao.pipelineStateFor(pipelineName);
 
-        assertNull("got " + actual, actual);
+        assertNull(actual);
         assertThat(goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName)), is(NOT_LOCKED));
 
         verify(transactionTemplate, times(1)).execute(any(org.springframework.transaction.support.TransactionCallback.class));

@@ -22,16 +22,18 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluggableSCMMaterialUpdaterTest {
     @Mock
     MaterialRepository materialRepository;
@@ -41,9 +43,8 @@ public class PluggableSCMMaterialUpdaterTest {
     private TransactionTemplate transactionTemplate;
     private PluggableSCMMaterialUpdater materialUpdater;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         transactionTemplate = new TransactionTemplate(null) {
             @Override
             public Object execute(TransactionCallback action) {

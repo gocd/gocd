@@ -24,13 +24,15 @@ import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ConfigRepoServiceTest {
     @Mock
     private GoConfigService goConfigService;
@@ -49,7 +51,6 @@ class ConfigRepoServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
 
         MaterialConfig repoMaterial = git("https://foo.git", "master");
         this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, "json-config-repo-plugin", "repo-1");

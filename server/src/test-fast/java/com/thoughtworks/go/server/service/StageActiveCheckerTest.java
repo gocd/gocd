@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -34,7 +34,7 @@ public class StageActiveCheckerTest {
     private String stageName;
     private OperationResult result;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         service = mock(StageService.class);
         pipelineName = "cruise";

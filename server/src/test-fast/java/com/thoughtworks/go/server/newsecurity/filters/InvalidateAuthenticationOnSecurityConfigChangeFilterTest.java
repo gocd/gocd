@@ -34,9 +34,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.servlet.FilterChain;
@@ -48,8 +50,8 @@ import java.util.List;
 import static com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter.SECURITY_CONFIG_LAST_CHANGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
     @Mock
     private GoConfigService goConfigService;
@@ -72,7 +74,6 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         //request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         clock = new TestingClock();
@@ -126,7 +127,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         assertThat(SessionUtils.getAuthenticationToken(request).isAuthenticated(clock, systemEnvironment)).isTrue();
         assertThat(request.getSession(false)).isSameAs(originalSession);
         assertThat(request.getSession(false).getAttribute(SECURITY_CONFIG_LAST_CHANGE)).isEqualTo(timeBeforeConfigChange);
-        verifyZeroInteractions(cacheService);
+        verifyNoInteractions(cacheService);
     }
 
     @Test

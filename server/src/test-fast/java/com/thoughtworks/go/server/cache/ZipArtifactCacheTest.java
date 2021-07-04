@@ -20,20 +20,19 @@ import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.web.ArtifactFolder;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,12 +41,13 @@ public class ZipArtifactCacheTest {
     private static final String JOB_FOLDERS = "pipelines/pipeline-name/label-111/stage-name/1/job-name/666";
 
     private ZipArtifactCache zipArtifactCache;
-    private File folder;
+    @TempDir
+    File folder;
     private ArtifactFolder artifactFolder;
     private ArtifactsDirHolder artifactsDirHolder;
 
-    @Before public void setUp() throws Exception {
-        folder = TestFileUtil.createTempFolder("ZipArtifactCacheTest-" + System.currentTimeMillis());
+    @BeforeEach
+    public void setUp() throws Exception {
         File artifact = new File(folder, JOB_FOLDERS);
         artifact.mkdirs();
         TestFileUtil.createTestFolder(artifact, "dir");
@@ -57,10 +57,6 @@ public class ZipArtifactCacheTest {
         when(artifactsDirHolder.getArtifactsDir()).thenReturn(folder);
         zipArtifactCache = new ZipArtifactCache(this.artifactsDirHolder, new ZipUtil());
         artifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
-    }
-
-    @After public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(folder);
     }
 
     @Test public void shouldKnowWhenCacheAlreadyCreated() throws Exception {

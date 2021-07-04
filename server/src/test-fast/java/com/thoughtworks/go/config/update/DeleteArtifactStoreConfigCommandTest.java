@@ -24,24 +24,21 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(MockitoExtension.class)
 public class DeleteArtifactStoreConfigCommandTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private BasicCruiseConfig cruiseConfig;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
@@ -60,9 +57,8 @@ public class DeleteArtifactStoreConfigCommandTest {
         ArtifactStore artifactStore = new ArtifactStore("foo", "cd.go.docker");
         assertThat(cruiseConfig.getArtifactStores()).isEmpty();
 
-        thrown.expect(RecordNotFoundException.class);
-
-        new DeleteArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult()).update(cruiseConfig);
+        assertThatThrownBy(() -> new DeleteArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult()).update(cruiseConfig))
+                .isInstanceOf(RecordNotFoundException.class);
 
         assertThat(cruiseConfig.getArtifactStores()).isEmpty();
     }
@@ -76,10 +72,10 @@ public class DeleteArtifactStoreConfigCommandTest {
 
         DeleteArtifactStoreConfigCommand command = new DeleteArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(GoConfigInvalidException.class);
-        thrown.expectMessage("The artifact store 'foo' is being referenced by pipeline(s): JobConfigIdentifier[up42:up42_stage:dev].");
 
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(GoConfigInvalidException.class)
+                .hasMessageContaining("The artifact store 'foo' is being referenced by pipeline(s): JobConfigIdentifier[up42:up42_stage:dev].");
     }
 
     @Test

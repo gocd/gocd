@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.view.velocity;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ExceptionTemplateTest {
     public static final String TEMPLATE_PATH = "/WEB-INF/vm/exceptions_page.vm";

@@ -32,15 +32,17 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AccessTokenBasedPluginAuthenticationProviderTest {
     private final String pluginId = "pluginId";
     private final String authConfigId = "auth-config-id";
@@ -67,7 +69,6 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         provider = new AccessTokenBasedPluginAuthenticationProvider(authorizationService, authorityGranter, goConfigService, pluginRoleService, userService, clock);
         provider.setStore(store);
 

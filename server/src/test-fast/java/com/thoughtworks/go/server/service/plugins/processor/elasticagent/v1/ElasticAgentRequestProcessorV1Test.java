@@ -24,9 +24,11 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
@@ -34,8 +36,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ElasticAgentRequestProcessorV1Test {
     @Mock
     private AgentService agentService;
@@ -46,9 +48,8 @@ public class ElasticAgentRequestProcessorV1Test {
     private ElasticAgentRequestProcessorV1 processor;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         when(pluginDescriptor.id()).thenReturn("cd.go.example.plugin");
 

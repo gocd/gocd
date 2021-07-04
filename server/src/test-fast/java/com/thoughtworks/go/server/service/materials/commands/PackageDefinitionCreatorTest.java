@@ -26,10 +26,10 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -47,7 +47,7 @@ public class PackageDefinitionCreatorTest {
     String pkgId = "pkg-id";
     String pkgName = "pkg-name";
 
-    @Before
+    @BeforeEach
     public void setup() {
         packageDefinitionService = mock(PackageDefinitionService.class);
         doNothing().when(packageDefinitionService).performPluginValidationsFor(any(PackageDefinition.class));

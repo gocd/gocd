@@ -28,20 +28,20 @@ import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationMana
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class JobInstanceSqlMapDaoTest {
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
     @Mock
@@ -68,7 +68,6 @@ class JobInstanceSqlMapDaoTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
                 cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
@@ -125,20 +124,19 @@ class JobInstanceSqlMapDaoTest {
 
             when(template.queryForObject("findJobId", attrs)).thenReturn(jobIdentifier);
 
-            Assert.assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+           assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
                     new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
-                    jobNameInDifferentCase),
-                    is(jobIdentifier));
+                    jobNameInDifferentCase)).isEqualTo(jobIdentifier);
 
             verify(template).queryForObject("findJobId", attrs);
 
-            Assert.assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+           assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
                     new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
-                    jobNameInDifferentCase), not(sameInstance(jobIdentifier)));
+                    jobNameInDifferentCase)).isNotSameAs(jobIdentifier);
 
-            Assert.assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+           assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
                     new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
-                    jobName), is(jobIdentifier));
+                    jobName)).isEqualTo(jobIdentifier);
 
             verifyNoMoreInteractions(template);
         }

@@ -22,8 +22,8 @@ import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -40,7 +40,7 @@ public class MaterialUpdateListenerTest {
     private MDUPerformanceLogger mduPerformanceLogger;
     private MaintenanceModeService maintenanceModeService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         topic = mock(MaterialUpdateCompletedTopic.class);
         updater = mock(MaterialDatabaseUpdater.class);
@@ -62,7 +62,7 @@ public class MaterialUpdateListenerTest {
     public void shouldNotUpdateOnMessageWhenServerIsInMaintenanceMode() {
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
-        verifyZeroInteractions(updater);
+        verifyNoInteractions(updater);
     }
 
     @Test

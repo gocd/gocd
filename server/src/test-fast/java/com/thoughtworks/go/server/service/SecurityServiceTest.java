@@ -20,21 +20,21 @@ import com.thoughtworks.go.config.policy.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SecurityServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);

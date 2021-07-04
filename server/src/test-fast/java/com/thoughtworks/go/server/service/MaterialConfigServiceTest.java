@@ -29,7 +29,9 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
@@ -40,13 +42,13 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class MaterialConfigServiceTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Mock
+    @Mock(lenient = true)
     private SecurityService securityService;
 
     private String user;
@@ -54,7 +56,6 @@ class MaterialConfigServiceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        initMocks(this);
 
         user = "looser";
         when(securityService.hasViewPermissionForGroup(user, "group1")).thenReturn(true);

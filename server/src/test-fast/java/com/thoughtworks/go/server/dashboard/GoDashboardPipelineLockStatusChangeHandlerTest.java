@@ -18,22 +18,23 @@ package com.thoughtworks.go.server.dashboard;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.service.GoDashboardService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class GoDashboardPipelineLockStatusChangeHandlerTest {
     @Mock
     private GoDashboardService cacheUpdateService;
 
     private GoDashboardPipelineLockStatusChangeHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         handler = new GoDashboardPipelineLockStatusChangeHandler(cacheUpdateService);
     }

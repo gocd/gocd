@@ -29,8 +29,8 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -42,9 +42,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PipelineRepositoryTest {
@@ -59,7 +60,7 @@ public class PipelineRepositoryTest {
     private Session session;
     private SQLQuery sqlQuery;
 
-    @Before
+    @BeforeEach
     public void setup() {
         session = mock(Session.class);
         sqlQuery = mock(SQLQuery.class);

@@ -40,20 +40,20 @@ import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.http.HttpStatus;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class PackageRepositoryServiceTest {
 
     @Mock
@@ -70,12 +70,8 @@ public class PackageRepositoryServiceTest {
     @Mock
     private SecretParamResolver secretParamResolver;
 
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     @BeforeEach
     void setUp() {
-        initMocks(this);
         service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
     }
 
@@ -140,7 +136,6 @@ public class PackageRepositoryServiceTest {
 
     @Test
     void shouldAddErrorWhenPluginIdIsInvalid() {
-        when(pluginManager.plugins()).thenReturn(Arrays.asList(getPluginDescriptor("valid")));
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration("missing-plugin", "1.0"));
         service.performPluginValidationsFor(packageRepository);

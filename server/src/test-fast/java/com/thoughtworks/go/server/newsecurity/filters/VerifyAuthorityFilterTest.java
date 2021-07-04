@@ -21,11 +21,10 @@ import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.newsecurity.handlers.ResponseHandler;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -38,11 +37,9 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
+@ExtendWith(ClearSingleton.class)
 public class VerifyAuthorityFilterTest {
 
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
     private FilterChain filterChain;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
@@ -66,7 +63,7 @@ public class VerifyAuthorityFilterTest {
                     .doFilter(request, response, filterChain);
 
             verify(responseHandler).handle(request, response, SC_FORBIDDEN, "You are not authorized to access this resource!");
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
         }
 
         @Test
@@ -76,7 +73,7 @@ public class VerifyAuthorityFilterTest {
             new VerifyAuthorityFilter(singleton(ROLE_TEMPLATE_SUPERVISOR.asAuthority()), responseHandler)
                     .doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(responseHandler);
+            verifyNoInteractions(responseHandler);
             assertThat(response.getStatus()).isEqualTo(200);
             verify(filterChain).doFilter(request, response);
         }
@@ -91,7 +88,7 @@ public class VerifyAuthorityFilterTest {
                     .doFilter(request, response, filterChain);
 
             verify(responseHandler).handle(request, response, SC_UNAUTHORIZED, "You are not authenticated!");
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
         }
     }
 }

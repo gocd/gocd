@@ -24,13 +24,15 @@ import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AgentStatusChangeNotifierTest {
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
@@ -39,9 +41,8 @@ public class AgentStatusChangeNotifierTest {
 
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         agentStatusChangeNotifier = new AgentStatusChangeNotifier(notificationPluginRegistry, pluginNotificationService);
     }
 
@@ -82,6 +83,6 @@ public class AgentStatusChangeNotifierTest {
 
         agentStatusChangeNotifier.onAgentStatusChange(agentInstance);
 
-        verifyZeroInteractions(pluginNotificationService);
+        verifyNoInteractions(pluginNotificationService);
     }
 }

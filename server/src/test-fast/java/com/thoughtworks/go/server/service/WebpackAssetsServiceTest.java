@@ -17,12 +17,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletContext;
 import java.io.File;
@@ -30,23 +30,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class WebpackAssetsServiceTest {
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
-
-    @Rule
-    public final ExpectedException expectedException = ExpectedException.none();
-
-    private File assetsDir;
+    @TempDir File assetsDir;
     private WebpackAssetsService webpackAssetsService;
     @Mock
     private ServletContext context;
@@ -55,10 +49,8 @@ public class WebpackAssetsServiceTest {
     private File manifestFile;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-        assetsDir = tempFolder.newFolder("assets-" + UUID.randomUUID().toString());
         manifestFile = new File(assetsDir, "public/assets/webpack/manifest.json");
         manifestFile.getParentFile().mkdirs();
         webpackAssetsService = spy(new WebpackAssetsService(systemEnvironment));
@@ -124,10 +116,9 @@ public class WebpackAssetsServiceTest {
             FileUtils.copyInputStreamToFile(is, manifestFile);
         }
 
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("Can't find entry point 'junk' in webpack manifest");
-
-        webpackAssetsService.getAssetPaths("junk");
+        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Can't find entry point 'junk' in webpack manifest");
     }
 
     @Test
@@ -136,10 +127,9 @@ public class WebpackAssetsServiceTest {
             FileUtils.copyInputStreamToFile(is, manifestFile);
         }
 
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("Could not find any entrypoints in the manifest.json file.");
-
-        webpackAssetsService.getAssetPaths("junk");
+        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Could not find any entrypoints in the manifest.json file.");
     }
 
     @Test
@@ -148,17 +138,16 @@ public class WebpackAssetsServiceTest {
             FileUtils.copyInputStreamToFile(is, manifestFile);
         }
 
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("There were errors in manifest.json file");
-
-        webpackAssetsService.getAssetPaths("anything");
+        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("anything"))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("There were errors in manifest.json file");
     }
 
     @Test
     public void shouldBlowUpIfManifestIsNotFound() throws IOException {
-        expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("Could not load compiled manifest from 'webpack/manifest.json' - have you run `rake webpack:compile`?");
-        webpackAssetsService.getAssetPaths("junk");
+        assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessage("Could not load compiled manifest from 'webpack/manifest.json' - have you run `rake webpack:compile`?");
     }
 
     @Test

@@ -31,9 +31,11 @@ import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,11 +44,11 @@ import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pip
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class GoDashboardServiceTest {
     @Mock private GoDashboardCache cache;
     @Mock private GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
@@ -60,14 +62,13 @@ public class GoDashboardServiceTest {
     private GoConfigMother configMother;
     private CruiseConfig config;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         configMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();
         Toggles.initializeWith(featureToggleService);
-        when(cache.allEntries()).thenReturn(this.pipelines);
+        lenient().when(cache.allEntries()).thenReturn(this.pipelines);
         service = new GoDashboardService(cache, dashboardCurrentStateLoader, permissionsAuthority, goConfigService);
 
         GoConfigMother.addUserAsSuperAdmin(config, "superduper");
@@ -306,7 +307,7 @@ public class GoDashboardServiceTest {
         service.updateCacheForPipeline(pipelineConfig);
         verify(cache).remove(pipelineConfig.getName());
         verify(dashboardCurrentStateLoader).clearEntryFor(pipelineConfig.getName());
-        verifyZeroInteractions(dashboardCurrentStateLoader);
+        verifyNoMoreInteractions(dashboardCurrentStateLoader);
     }
 
     @Test
@@ -320,7 +321,7 @@ public class GoDashboardServiceTest {
         service.updateCacheForPipeline(pipelineConfig.name());
         verify(cache).remove(pipelineConfig.getName());
         verify(dashboardCurrentStateLoader).clearEntryFor(pipelineConfig.getName());
-        verifyZeroInteractions(dashboardCurrentStateLoader);
+        verifyNoMoreInteractions(dashboardCurrentStateLoader);
     }
 
     private List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username username) {

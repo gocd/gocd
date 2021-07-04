@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -53,10 +52,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -72,8 +73,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class MaterialUpdateServiceTest {
     private MaterialUpdateService service;
     private static final SvnMaterial svnMaterial = MaterialsMother.svnMaterial();
@@ -118,7 +119,6 @@ public class MaterialUpdateServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         service = new MaterialUpdateService(queue, configQueue, completed, watchList, goConfigService, systemEnvironment,
                 serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter,
                 dependencyMaterialUpdateQueue, maintenanceModeService, secretParamResolver, exponentialBackoffService);
@@ -129,16 +129,16 @@ public class MaterialUpdateServiceTest {
 
         HashSet<MaterialConfig> materialConfigs = new HashSet(Collections.singleton(MATERIAL_CONFIG));
         HashSet<Material> materials = new HashSet(Collections.singleton(svnMaterial));
-        when(goConfigService.getSchedulableMaterials()).thenReturn(materialConfigs);
-        when(materialConfigConverter.toMaterials(materialConfigs)).thenReturn(materials);
+        lenient().when(goConfigService.getSchedulableMaterials()).thenReturn(materialConfigs);
+        lenient().when(materialConfigConverter.toMaterials(materialConfigs)).thenReturn(materials);
         username = new Username(new CaseInsensitiveString("loser"));
         result = new HttpLocalizedOperationResult();
         validMaterialType = mock(PostCommitHookMaterialType.class);
-        when(validMaterialType.isKnown()).thenReturn(true);
-        when(validMaterialType.isValid(anyString())).thenReturn(true);
+        lenient().when(validMaterialType.isKnown()).thenReturn(true);
+        lenient().when(validMaterialType.isValid(anyString())).thenReturn(true);
         invalidMaterialType = mock(PostCommitHookMaterialType.class);
-        when(invalidMaterialType.isKnown()).thenReturn(false);
-        when(invalidMaterialType.isValid(anyString())).thenReturn(false);
+        lenient().when(invalidMaterialType.isKnown()).thenReturn(false);
+        lenient().when(invalidMaterialType.isValid(anyString())).thenReturn(false);
     }
 
     @AfterEach
@@ -161,8 +161,6 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_whenServerIsInMaintenanceMode() {
             when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
-            when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial)));
-            when(exponentialBackoffService.shouldBackOff(any())).thenReturn(PERMIT);
 
             service.onTimer();
 
@@ -207,7 +205,7 @@ public class MaterialUpdateServiceTest {
 
         @Test
         void shouldPostUpdateMessageOnDependencyMaterialUpdateQueueForDependencyMaterial() {
-            when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(false);
+            lenient().when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(false);
 
             assertThat(service.updateMaterial(dependencyMaterial)).isTrue();
 
@@ -263,7 +261,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
             ScmMaterial material = mock(ScmMaterial.class);
-            when(material.isAutoUpdate()).thenReturn(true);
+            lenient().when(material.isAutoUpdate()).thenReturn(true);
             MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
             doNothing().when(queue).post(message);
 
@@ -276,7 +274,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() throws Exception {
             ScmMaterial material = mock(ScmMaterial.class);
-            when(material.isAutoUpdate()).thenReturn(false);
+            lenient().when(material.isAutoUpdate()).thenReturn(false);
             MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
             doNothing().when(queue).post(message);
 
@@ -345,7 +343,6 @@ public class MaterialUpdateServiceTest {
 
             CruiseConfig config = mock(BasicCruiseConfig.class);
             when(goConfigService.currentCruiseConfig()).thenReturn(config);
-            when(config.getGroups()).thenReturn(new PipelineGroups());
 
             when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<Material>());
 
@@ -445,12 +442,9 @@ public class MaterialUpdateServiceTest {
         //given
         service = spy(service);
         systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT, 2);
-        ProcessManager processManager = mock(ProcessManager.class);
         Material material = mock(Material.class);
         service.updateMaterial(material);
-        when(service.getProcessManager()).thenReturn(processManager);
         when(material.getFingerprint()).thenReturn("fingerprint");
-        when(processManager.getIdleTimeFor(new MaterialFingerprintTag("fingerprint"))).thenReturn(60010L);
 
         //when
         service.updateMaterial(material);
@@ -496,11 +490,10 @@ public class MaterialUpdateServiceTest {
     @Test
     void shouldNotRemoveServerHealthMessageOnMaterialUpdateSkippedMessage() {
         Material material = mock(Material.class);
-        when(material.getFingerprint()).thenReturn("fingerprint");
 
         service.onMessage(new MaterialUpdateSkippedMessage(material, 0));
 
-        verifyZeroInteractions(serverHealthService);
+        verifyNoInteractions(serverHealthService);
     }
 
     @Test
@@ -509,8 +502,8 @@ public class MaterialUpdateServiceTest {
 
         service.onMessage(new MaterialUpdateSkippedMessage(material, 0));
 
-        verifyZeroInteractions(dependencyMaterialUpdateNotifier);
-        verifyZeroInteractions(scmMaterialSource);
+        verifyNoInteractions(dependencyMaterialUpdateNotifier);
+        verifyNoInteractions(scmMaterialSource);
     }
 
     @Test

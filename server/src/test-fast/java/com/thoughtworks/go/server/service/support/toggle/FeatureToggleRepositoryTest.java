@@ -22,40 +22,39 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class FeatureToggleRepositoryTest {
     public static final String TEST_AVAILABLE_TOGGLES_PATH = "/available.test.toggles";
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path temporaryFolder;
 
-    @Mock
+    @Mock(lenient = true)
     private SystemEnvironment environment;
 
-    @Before
-    public void setUp() throws Exception {
-        initMocks(this);
-    }
-
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         FileUtils.writeStringToFile(availableTogglesFile(), "", UTF_8);
     }
@@ -125,7 +124,7 @@ public class FeatureToggleRepositoryTest {
 
     @Test
     public void shouldAllowChangingValueOfAToggleWhenTheUserTogglesFileDoesNotExist() throws Exception {
-        File togglesDir = temporaryFolder.newFolder("toggles.dir");
+        File togglesDir = Files.createDirectory(temporaryFolder.resolve("toggles.dir")).toFile();
         File nonExistentUserToggleFile = new File(togglesDir, "a-non-existent-file");
         setupUserToggleFileAs(nonExistentUserToggleFile);
         setupAvailableToggles(new FeatureToggle("key1", "desc1", true));
@@ -169,9 +168,9 @@ public class FeatureToggleRepositoryTest {
     @Test
     public void whileChangingAToggleValue_shouldNotPersist_ValueHasBeenChangedFlag() throws Exception {
         String fieldForHasBeenChangedFlag = "hasBeenChangedFromDefault";
-        assertNotNull("This can never be null, but can throw an exception. If you've renamed the field mentioned above" +
-                        "(in FeatureToggle class), please change it in this test too. Otherwise, this test can pass, wrongly.",
-                FeatureToggle.class.getDeclaredField(fieldForHasBeenChangedFlag));
+        assertNotNull(FeatureToggle.class.getDeclaredField(fieldForHasBeenChangedFlag),
+                "This can never be null, but can throw an exception. If you've renamed the field mentioned above" +
+                        "(in FeatureToggle class), please change it in this test too. Otherwise, this test can pass, wrongly.");
 
         setupAvailableToggles(new FeatureToggle("key1", "desc1", true));
         File userTogglesFile = setupUserToggles(new FeatureToggle("key1", "desc1", false).withValueHasBeenChangedFlag(true));
@@ -225,7 +224,7 @@ public class FeatureToggleRepositoryTest {
     }
 
     private File setupUserToggles(FeatureToggle... toggles) throws Exception {
-        File toggleFile = temporaryFolder.newFile("user.toggle.test");
+        File toggleFile = Files.createFile(temporaryFolder.resolve("user.toggle.test")).toFile();
         setupUserToggleFileAs(toggleFile);
         FileUtils.writeStringToFile(toggleFile, convertTogglesToJson(toggles), UTF_8);
         return toggleFile;

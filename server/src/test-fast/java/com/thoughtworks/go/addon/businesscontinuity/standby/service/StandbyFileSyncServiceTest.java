@@ -8,9 +8,11 @@ import org.junit.Rule;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
@@ -19,30 +21,27 @@ import java.util.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 @EnableRuleMigrationSupport
 public class StandbyFileSyncServiceTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
     public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
-    @Mock
+    @Mock(lenient = true)
     private SystemEnvironment systemEnvironment;
     @Mock
     private PrimaryServerCommunicationService primaryServerCommunicationService;
     @Mock
     private AddOnConfiguration addOnConfiguration;
-    @Mock
+    @Mock(lenient = true)
     private AuthToken authToken;
 
 
     @BeforeEach
     void setUp() throws Exception {
-        initMocks(this);
         when(authToken.forHttp()).thenReturn("foo:bar");
 
         File tempFolder = temporaryFolder.newFolder();
@@ -69,15 +68,15 @@ public class StandbyFileSyncServiceTest {
             FileUtils.writeStringToFile(file, pluginName + " contents", UTF_8);
             return null;
         };
-        doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.CRUISE_CONFIG_XML), any(File.class));
-        doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.AES_CIPHER), any(File.class));
-        doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.JETTY_XML), any(File.class));
+        lenient().doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.CRUISE_CONFIG_XML), any(File.class));
+        lenient().doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.AES_CIPHER), any(File.class));
+        lenient().doAnswer(answerWithFile).when(primaryServerCommunicationService).downloadConfigFile(eq(ConfigFileType.JETTY_XML), any(File.class));
 
-        doAnswer(answerWithPlugin).when(primaryServerCommunicationService).downloadPlugin(eq("external"), eq("external-1.jar"), any(File.class));
-        doAnswer(answerWithPlugin).when(primaryServerCommunicationService).downloadPlugin(eq("external"), eq("external-2.jar"), any(File.class));
+        lenient().doAnswer(answerWithPlugin).when(primaryServerCommunicationService).downloadPlugin(eq("external"), eq("external-1.jar"), any(File.class));
+        lenient().doAnswer(answerWithPlugin).when(primaryServerCommunicationService).downloadPlugin(eq("external"), eq("external-2.jar"), any(File.class));
 
         when(addOnConfiguration.isServerInStandby()).thenReturn(true);
-        when(primaryServerCommunicationService.ableToConnect()).thenReturn(true);
+        lenient().when(primaryServerCommunicationService.ableToConnect()).thenReturn(true);
     }
 
     @Test

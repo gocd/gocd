@@ -16,7 +16,7 @@
 package com.thoughtworks.go.validators;
 
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -40,7 +40,7 @@ public class ValidatorTest {
         LocalizedOperationResult result = mock(LocalizedOperationResult.class);
 
         new PortValidator().validate(1, result);
-        verifyZeroInteractions(result);
+        verifyNoInteractions(result);
 
         result = mock(LocalizedOperationResult.class);
         new PortValidator().validate(234444, result);

@@ -19,51 +19,38 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobIdentifierMother;
-import com.thoughtworks.go.util.TestFileUtil;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 public class ArtifactDirectoryChooserTest {
     JobIdentifier jobId = new JobIdentifier("pipeline-name", -2, "label-111", "stage-name", "1", "job-name", 666L);
 
-    private File root1;
-    private File root2;
+    @TempDir
+    File root1;
+    @TempDir
+    File root2;
     private File root1ArtifactLocation;
     private File root2ArtifactLocation;
 
     private ArtifactDirectoryChooser chooser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        root1 = TestFileUtil.createTempFolder("root1");
-        root2 = TestFileUtil.createTempFolder("root2");
-
         root1ArtifactLocation = new File(root1, "pipelines/pipeline-name/label-111/stage-name/1/job-name");
         root2ArtifactLocation = new File(root2, "pipelines/pipeline-name/label-111/stage-name/1/job-name");
 
         chooser = new ArtifactDirectoryChooser();
         chooser.add(new PathBasedArtifactsLocator(root1));
         chooser.add(new PathBasedArtifactsLocator(root2));
-    }
-
-    @After
-    public void removeTestDirectories() {
-        if (root1.exists()) {
-            FileUtils.deleteQuietly(root1);
-        }
-        if (root2.exists()) {
-            FileUtils.deleteQuietly(root2);
-        }
     }
 
     @Test
@@ -74,7 +61,7 @@ public class ArtifactDirectoryChooserTest {
     }
 
     @Test
-    public void shouldChooseFirstLocatorForPreferredAtifactLocation() {
+    public void shouldChooseFirstLocatorForPreferredArtifactLocation() {
         assertThat(chooser.preferredRoot(jobId), is(root1ArtifactLocation));
     }
 

@@ -24,19 +24,21 @@ import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluginNotificationsQueueHandlerTest {
     @Mock
     private MessagingService messagingService;
@@ -50,9 +52,8 @@ public class PluginNotificationsQueueHandlerTest {
     private ServerHealthService serverHealthService;
     private PluginNotificationsQueueHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         handler = new PluginNotificationsQueueHandler(messagingService, notificationExtension, pluginManager, systemEnvironment, serverHealthService);
     }
 

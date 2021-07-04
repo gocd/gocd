@@ -22,19 +22,21 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AdminsConfigServiceTest {
 
     @Mock
@@ -47,12 +49,10 @@ public class AdminsConfigServiceTest {
     @Mock
     private EntityHashingService entityHashingService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+        lenient().when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         adminsConfigService = new AdminsConfigService(goConfigService, entityHashingService);
     }
 

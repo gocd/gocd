@@ -17,11 +17,11 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +29,7 @@ public class JobResolverServiceTest {
     private JobInstanceDao jobDao;
     private JobResolverService jobResolverService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
          jobDao = mock(JobInstanceDao.class);
          jobResolverService = new JobResolverService(jobDao);

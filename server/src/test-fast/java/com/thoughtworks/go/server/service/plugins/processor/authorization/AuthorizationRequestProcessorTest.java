@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.plugins.processor.authorization;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -26,16 +25,18 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.INVALIDATE_CACHE_REQUEST;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AuthorizationRequestProcessorTest {
 
     @Mock
@@ -50,19 +51,17 @@ public class AuthorizationRequestProcessorTest {
     private SecurityConfig securityConfig;
     private SecurityAuthConfigs securityAuthConfigsSpy;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         when(pluginDescriptor.id()).thenReturn("cd.go.authorization.github");
-        when(goConfigService.security()).thenReturn(securityConfig);
+        lenient().when(goConfigService.security()).thenReturn(securityConfig);
         securityAuthConfigsSpy = spy(new SecurityAuthConfigs());
-        when(securityConfig.securityAuthConfigs()).thenReturn(securityAuthConfigsSpy);
+        lenient().when(securityConfig.securityAuthConfigs()).thenReturn(securityAuthConfigsSpy);
     }
 
     @Test
     public void shouldProcessInvalidateCacheRequest() throws Exception {
         PluginRoleService pluginRoleService = mock(PluginRoleService.class);
-        when(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).thenReturn(new AuthorizationMessageConverterV1());
 
         GoApiRequest request = new DefaultGoApiRequest(INVALIDATE_CACHE_REQUEST.requestName(), "1.0", null);
         AuthorizationRequestProcessor authorizationRequestProcessor = new AuthorizationRequestProcessor(registry, pluginRoleService);

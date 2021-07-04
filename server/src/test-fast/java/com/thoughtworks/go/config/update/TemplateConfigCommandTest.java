@@ -25,19 +25,19 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class TemplateConfigCommandTest {
 
     @Mock
@@ -52,13 +52,8 @@ public class TemplateConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private Username currentUser;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
     }
@@ -77,17 +72,16 @@ public class TemplateConfigCommandTest {
         PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(null, StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         cruiseConfig.addTemplate(templateConfig);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
-        thrown.expectMessage("Template name cannot be null.");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .hasMessageContaining("Template name cannot be null.");
     }
 
     @Test
     public void shouldThrowAnExceptionIfTemplateConfigCannotBeFound() {
         PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("non-existent-template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
-        thrown.expectMessage(EntityType.Template.notFoundMessage(templateConfig.name()));
-        command.isValid(cruiseConfig);
-        assertThat(result.toString(), containsString(EntityType.Template.notFoundMessage(templateConfig.name())));
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .hasMessageContaining(EntityType.Template.notFoundMessage(templateConfig.name()));
     }
 
     @Test

@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.dao.handlers.BuildStateTypeHandlerCallback;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class BuildStateTypeHandlerCallbackTest {

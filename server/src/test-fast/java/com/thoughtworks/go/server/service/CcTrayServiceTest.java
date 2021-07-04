@@ -22,10 +22,11 @@ import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.DateUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,8 +36,9 @@ import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class CcTrayServiceTest {
     @Mock
     private CcTrayCache ccTrayCache;
@@ -45,12 +47,8 @@ public class CcTrayServiceTest {
 
     private CcTrayService ccTrayService;
 
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         ccTrayService = new CcTrayService(ccTrayCache, goConfigService);
     }
 

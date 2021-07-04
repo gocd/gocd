@@ -17,22 +17,23 @@ package com.thoughtworks.go.server.service.plugins.processor.serverhealth.v1;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.server.service.plugins.processor.serverhealth.PluginHealthMessage;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MessageHandlerForServerHealthRequestProcessorV1Test {
     private MessageHandlerForServerHealthRequestProcessorV1 processor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         processor = new MessageHandlerForServerHealthRequestProcessorV1();
     }

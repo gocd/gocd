@@ -22,9 +22,11 @@ import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationMana
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionCallback;
@@ -33,12 +35,12 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class UserSqlMapDaoTest {
     @Mock
     private SessionFactory sessionFactory;
@@ -53,9 +55,8 @@ public class UserSqlMapDaoTest {
     @Mock
     private AccessTokenDao accessTokenDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         dao = new UserSqlMapDao(sessionFactory, transactionTemplate, goCache, accessTokenDao, transactionSynchronizationManager);
     }

@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
@@ -35,8 +35,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FullConfigSaveMergeFlowTest {
@@ -53,7 +54,7 @@ public class FullConfigSaveMergeFlowTest {
     private CachedGoPartials cachedGoPartials;
     private List<PartialConfig> partials;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configForEdit = mock(CruiseConfig.class);
         updateConfigCommand = new FullConfigUpdateCommand(configForEdit, "md5");
@@ -103,29 +104,32 @@ public class FullConfigSaveMergeFlowTest {
         verify(writer).verifyXsdValid(document);
     }
 
-    @Test(expected = ConfigMergePreValidationException.class)
+    @Test
     public void shouldErrorOutIfPreprocessOrValidateFails() throws Exception {
         when(loader.preprocessAndValidate(configForEdit)).thenThrow(new Exception());
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
-        flow.execute(updateConfigCommand, partials, null);
+        assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))
+                .isInstanceOf(ConfigMergePreValidationException.class);
     }
 
-    @Test(expected = ConfigMergePostValidationException.class)
+    @Test
     public void shouldErrorOutIfSavingConfigPostValidationFails() throws Exception {
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenThrow(new Exception());
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenReturn("merged_config");
 
-        flow.execute(updateConfigCommand, partials, null);
+        assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))
+                .isInstanceOf(ConfigMergePostValidationException.class);
     }
 
-    @Test(expected = ConfigMergeException.class)
+    @Test
     public void shouldErrorOutIfConfigMergeFails() throws Exception {
         when(configRepository.getConfigMergedWithLatestRevision(any(GoConfigRevision.class), anyString())).thenThrow(new ConfigMergeException("merge fails"));
 
-        flow.execute(updateConfigCommand, partials, null);
+        assertThatThrownBy(() -> flow.execute(updateConfigCommand, partials, null))
+                .isInstanceOf(ConfigMergeException.class);
     }
 
     @Test

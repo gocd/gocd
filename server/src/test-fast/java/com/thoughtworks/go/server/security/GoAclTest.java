@@ -18,10 +18,10 @@ package com.thoughtworks.go.server.security;
 import java.util.ArrayList;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GoAclTest {
 

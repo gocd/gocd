@@ -8,7 +8,9 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.Map;
@@ -18,18 +20,18 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class GoFilesStatusProviderTest {
-    @Mock
+    @Mock(lenient = true)
     private GoConfigService goConfigService;
-    @Mock
+    @Mock(lenient = true)
     private SystemEnvironment systemEnvironment;
-    @Mock
+    @Mock(lenient = true)
     private CruiseConfig cruiseConfig;
     @Mock
     private ScheduledExecutorService scheduledExecutorService;
@@ -40,7 +42,6 @@ class GoFilesStatusProviderTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         String configDirForTest = getClass().getResource("/config_directory_1").getFile();
         when(systemEnvironment.getConfigDir()).thenReturn(configDirForTest);
         when(systemEnvironment.getCruiseConfigFile()).thenReturn(new File(configDirForTest, "cruise-config.xml").getAbsolutePath());

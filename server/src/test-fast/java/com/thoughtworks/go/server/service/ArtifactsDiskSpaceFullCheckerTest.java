@@ -25,9 +25,9 @@ import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -42,7 +42,7 @@ public class ArtifactsDiskSpaceFullCheckerTest {
     private ArtifactsDiskSpaceFullChecker checker;
     private ArtifactsDiskIsFull full;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goConfigService = mockGoConfigServiceToHaveSiteUrl();
         when(goConfigService.artifactsDir()).thenReturn(new File("."));
@@ -51,7 +51,7 @@ public class ArtifactsDiskSpaceFullCheckerTest {
         full = new ArtifactsDiskIsFull();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         full.onTearDown();
         verifyNoMoreInteractions(emailSender);

@@ -31,11 +31,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
@@ -47,11 +46,9 @@ import static com.thoughtworks.go.config.ConfigCipherUpdater.FLAWED_VALUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConfigCipherUpdaterTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
     private ConfigCipherUpdater updater;
     private String timestamp;
@@ -62,9 +59,9 @@ public class ConfigCipherUpdaterTest {
     private final String password = "password";
     private File originalConfigFile;
 
-    @Before
-    public void setUp() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, temporaryFolder.newFolder().getAbsolutePath());
+    @BeforeEach
+    public void setUp(@TempDir File configDir) throws Exception {
+        systemEnvironment.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, configDir.getAbsolutePath());
         final Date currentTime = new DateTime().toDate();
         timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(currentTime);
         updater = new ConfigCipherUpdater(systemEnvironment, new TimeProvider() {
@@ -86,7 +83,7 @@ public class ConfigCipherUpdaterTest {
         writeStringToFile(originalConfigFile, readFileToString(configFileEncryptedWithFlawedCipher, UTF_8), UTF_8);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         new SystemEnvironment().clearProperty(SystemEnvironment.CONFIG_DIR_PROPERTY);
     }

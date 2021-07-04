@@ -22,29 +22,26 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ArtifactStoreConfigCommandTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Username currentUser;
     @Mock
@@ -54,9 +51,8 @@ public class ArtifactStoreConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         currentUser = new Username("bob");
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
@@ -89,7 +85,7 @@ public class ArtifactStoreConfigCommandTest {
     public void shouldNotContinueWithConfigSaveIfUserIsGroupAdmin() {
         ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        when(goConfigService.isGroupAdministrator(currentUser)).thenReturn(true);
+        lenient().when(goConfigService.isGroupAdministrator(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
@@ -105,8 +101,10 @@ public class ArtifactStoreConfigCommandTest {
         cruiseConfig.getArtifactStores().add(artifactStore);
 
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
-        thrown.expectMessage(EntityType.ArtifactStore.idCannotBeBlank());
-        command.isValid(cruiseConfig);
+
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(EntityType.ArtifactStore.idCannotBeBlank());
     }
 
     @Test
@@ -114,7 +112,6 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
         cruiseConfig.getArtifactStores().add(artifactStore);
-        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), anyMap())).thenReturn(new ValidationResult());
 
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
         boolean isValid = command.isValid(cruiseConfig);
@@ -138,7 +135,7 @@ public class ArtifactStoreConfigCommandTest {
         ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
 
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
+        lenient().when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
@@ -152,9 +149,8 @@ public class ArtifactStoreConfigCommandTest {
         cruiseConfig.getArtifactStores().clear();
         StubCommand command = new StubCommand(null, new ArtifactStore("foo", "cd.go.docker"), null, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(RecordNotFoundException.class);
-
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(RecordNotFoundException.class);
     }
 
     private class StubCommand extends ArtifactStoreConfigCommand {

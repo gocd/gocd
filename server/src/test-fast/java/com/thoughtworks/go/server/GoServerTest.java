@@ -19,19 +19,19 @@ import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
-import javax.net.ssl.SSLSocketFactory;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GoServerTest {
@@ -40,7 +40,7 @@ public class GoServerTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         temporaryFolder.create();
         systemEnvironment = new SystemEnvironment();
@@ -48,7 +48,7 @@ public class GoServerTest {
         addonsDir = temporaryFolder.newFolder("test-addons");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         temporaryFolder.delete();
     }
@@ -154,10 +154,10 @@ public class GoServerTest {
         String extraJars = (String) appServer.calls.get("addExtraJarsToClasspath");
         List<String> actualExtraClassPath = Arrays.asList(extraJars.split(","));
 
-        assertEquals("Number of jars wrong. Expected: " + Arrays.asList(expectedClassPathJars) + ". Actual: " + actualExtraClassPath, expectedClassPathJars.length, actualExtraClassPath.size());
+        assertEquals(expectedClassPathJars.length, actualExtraClassPath.size(), "Number of jars wrong. Expected: " + Arrays.asList(expectedClassPathJars) + ". Actual: " + actualExtraClassPath);
         for (String expectedClassPathJar : expectedClassPathJars) {
             String platformIndependantNameOfExpectedJar = expectedClassPathJar.replace("/", File.separator);
-            assertTrue("Expected " + extraJars + " to contain: " + platformIndependantNameOfExpectedJar, actualExtraClassPath.contains(platformIndependantNameOfExpectedJar));
+            assertTrue(actualExtraClassPath.contains(platformIndependantNameOfExpectedJar), "Expected " + extraJars + " to contain: " + platformIndependantNameOfExpectedJar);
         }
     }
 

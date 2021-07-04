@@ -23,23 +23,19 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElasticAgentProfileDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
@@ -62,8 +58,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(RecordNotFoundException.class);
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
     }
@@ -79,9 +74,9 @@ public class ElasticAgentProfileDeleteCommandTest {
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
-        thrown.expect(GoConfigInvalidException.class);
-        thrown.expectMessage("The elastic agent profile 'foo' is being referenced by pipeline(s): JobConfigIdentifier[build-linux:mingle:defaultJob].");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(GoConfigInvalidException.class)
+                .hasMessageContaining("The elastic agent profile 'foo' is being referenced by pipeline(s): JobConfigIdentifier[build-linux:mingle:defaultJob].");
     }
 
     @Test

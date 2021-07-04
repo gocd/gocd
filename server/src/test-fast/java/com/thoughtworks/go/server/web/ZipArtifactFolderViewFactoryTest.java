@@ -18,45 +18,43 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ZipArtifactFolderViewFactoryTest {
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier("pipeline-name", "label-111", "stage-name", 1, "job-name", 666L);
-    private File folder;
+    @TempDir
+    Path folder;
     private ZipArtifactFolderViewFactory folderViewFactory;
     private File cacheZipFile;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @Before public void setUp() throws Exception {
-        folder = temporaryFolder.newFolder("ZipArtifactFolderViewFactoryTest");
-        new File(folder, "dir").mkdirs();
-        temporaryFolder.newFolder("cache");
-        cacheZipFile = temporaryFolder.newFile("cache/dir.zip");
+    @BeforeEach
+    public void setUp(@TempDir Path cache) throws Exception {
+        Files.createDirectory(folder.resolve("dir"));
+        cacheZipFile = Files.createFile(cache.resolve("dir.zip")).toFile();
     }
 
     @Test public void shouldCreateArtifactCacheIfDoesNotExist() throws Exception {
         folderViewFactory = new ZipArtifactFolderViewFactory(cacheNotCreated());
 
-        ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder, "dir"));
+        ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder.toFile(), "dir"));
         assertThat(modelAndView.getView(), is(instanceOf(PreparingArtifactFile.class)));
     }
 
     @Test public void shouldViewCachedZipArtifactIfAlreadyCreated() throws Exception {
         folderViewFactory = new ZipArtifactFolderViewFactory(cacheAlreadyCreated());
 
-        ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder, "dir"));
+        ModelAndView modelAndView = folderViewFactory.createView(JOB_IDENTIFIER, new ArtifactFolder(JOB_IDENTIFIER, folder.toFile(), "dir"));
         assertThat(modelAndView.getViewName(), is("fileView"));
         File targetFile = (File) modelAndView.getModel().get("targetFile");
         assertThat(targetFile, is(cacheZipFile));

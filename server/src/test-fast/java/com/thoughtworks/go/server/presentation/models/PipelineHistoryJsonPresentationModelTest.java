@@ -29,9 +29,9 @@ import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConf
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PipelineHistoryJsonPresentationModelTest {
     private PipelineConfig pipelineConfig;
@@ -55,7 +55,7 @@ public class PipelineHistoryJsonPresentationModelTest {
     private Date modificationDate = new Date();
     private boolean hasModification = false;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pipelineConfig = PipelineConfigMother.pipelineConfig("mingle", StageConfigMother.custom("dev", "defaultJob"),
                 StageConfigMother.manualStage("ft"));
@@ -82,7 +82,7 @@ public class PipelineHistoryJsonPresentationModelTest {
         return new PipelineHistoryGroupingUtil().createGroups(pipelineHistory);
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         pipelinePauseInfo.setPaused(false);
     }

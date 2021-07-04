@@ -17,7 +17,9 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -30,8 +32,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class DashBoardControllerTest {
     @Mock
     private AddOnConfiguration addOnConfiguration;
@@ -61,7 +63,6 @@ class DashBoardControllerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         gson = new GsonBuilder().setDateFormat("MMM d, YYYY HH:mm:ss").create();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         httpClientMock = new HttpClientMock();
@@ -126,7 +127,6 @@ class DashBoardControllerTest {
     void shouldResolveDashboardViewForStandby() {
         when(authToken.isValid()).thenReturn(true);
         when(authToken.toUsernamePassword()).thenReturn(new UsernamePassword(USERNAME, PASSWORD));
-        when(authToken.forHttp()).thenReturn(CREDENTIALS);
 
         when(addOnConfiguration.isServerInStandby()).thenReturn(true);
         when(railsAssetsService.getAssetPath("application.css")).thenReturn("application.css");
@@ -154,7 +154,6 @@ class DashBoardControllerTest {
     void shouldResolveDashboardViewNonStandbyServer() {
         when(authToken.isValid()).thenReturn(true);
         when(authToken.toUsernamePassword()).thenReturn(new UsernamePassword(USERNAME, PASSWORD));
-        when(authToken.forHttp()).thenReturn(CREDENTIALS);
 
         when(addOnConfiguration.isServerInStandby()).thenReturn(false);
         when(railsAssetsService.getAssetPath("application.css")).thenReturn("application.css");
@@ -204,10 +203,6 @@ class DashBoardControllerTest {
 
     @Test
     void shouldGetPrimaryServerDetails() {
-        when(authToken.isValid()).thenReturn(true);
-        when(authToken.toUsernamePassword()).thenReturn(new UsernamePassword(USERNAME, PASSWORD));
-        when(authToken.forHttp()).thenReturn(CREDENTIALS);
-
         HashMap<ConfigFileType, FileDetails> fileDetailsMap = new HashMap<>();
         fileDetailsMap.put(ConfigFileType.CRUISE_CONFIG_XML, new FileDetails("md51"));
         fileDetailsMap.put(ConfigFileType.AES_CIPHER, new FileDetails("md53"));
@@ -236,8 +231,6 @@ class DashBoardControllerTest {
 
     @Test
     public void shouldHandleExceptionWhenRetrievingPrimaryServerDetails() {
-        when(authToken.isValid()).thenReturn(true);
-        when(authToken.toUsernamePassword()).thenReturn(new UsernamePassword(USERNAME, PASSWORD));
         when(authToken.forHttp()).thenReturn(CREDENTIALS);
 
         doThrow(new RuntimeException("with this message")).when(primaryServerCommunicationService).getLatestFileStatus();

@@ -25,9 +25,11 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,11 +37,10 @@ import java.util.Map;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class PluginSettingsRequestProcessorTest {
     @Mock
     private PluginRequestProcessorRegistry applicationAccessor;
@@ -52,17 +53,16 @@ public class PluginSettingsRequestProcessorTest {
 
     private PluginSettingsRequestProcessor processor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
 
         Map<String, String> configuration = new HashMap<>();
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
 
-        when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
-        when(pluginSqlMapDao.findPlugin("plugin-id-2")).thenReturn(null);
-        when(pluginExtension.extensionName()).thenReturn("extension1");
+        lenient().when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
+        lenient().when(pluginSqlMapDao.findPlugin("plugin-id-2")).thenReturn(null);
+        lenient().when(pluginExtension.extensionName()).thenReturn("extension1");
 
         processor = new PluginSettingsRequestProcessor(applicationAccessor, pluginSqlMapDao);
     }

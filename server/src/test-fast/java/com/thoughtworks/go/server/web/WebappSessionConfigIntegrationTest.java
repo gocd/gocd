@@ -18,10 +18,9 @@ package com.thoughtworks.go.server.web;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.servlet.SessionTrackingMode;
 import java.io.File;
@@ -29,16 +28,15 @@ import java.io.IOException;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class WebappSessionConfigIntegrationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private File webapp;
 
-    @Before
+    @TempDir
+    File webapp;
+
+    @BeforeEach
     public void setup() throws IOException {
-        webapp = temporaryFolder.newFolder();
         File webInf = new File(webapp, "WEB-INF");
         webInf.mkdirs();
         File webXmlForTest = new File(webInf, "web.xml");

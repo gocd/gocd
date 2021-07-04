@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.server.web;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpSession;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TokenInterceptorTest {
@@ -33,14 +33,14 @@ public class TokenInterceptorTest {
     private HttpServletRequest request;
     private HttpServletResponse response;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         manager = mock(TokenManager.class);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);

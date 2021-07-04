@@ -17,17 +17,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ArtifactConfig;
 import com.thoughtworks.go.config.ArtifactDirectory;
-import com.thoughtworks.go.config.ConfigSaveState;
-import com.thoughtworks.go.config.MailHost;
 import com.thoughtworks.go.config.update.UpdateArtifactConfigCommand;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.composite;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ServerConfigServiceTest {

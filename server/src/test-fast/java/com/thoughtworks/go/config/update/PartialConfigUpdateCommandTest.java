@@ -25,11 +25,13 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class PartialConfigUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private ConfigRepoConfig configRepoConfig;
@@ -40,7 +42,6 @@ class PartialConfigUpdateCommandTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         cruiseConfig = new BasicCruiseConfig();
         configRepoConfig = new ConfigRepoConfig();
         partial = new PartialConfig();

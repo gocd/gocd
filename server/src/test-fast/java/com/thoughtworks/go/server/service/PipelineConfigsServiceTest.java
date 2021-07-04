@@ -34,15 +34,15 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -58,7 +58,7 @@ public class PipelineConfigsServiceTest {
     private HttpLocalizedOperationResult result;
     private CruiseConfig cruiseConfig;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);

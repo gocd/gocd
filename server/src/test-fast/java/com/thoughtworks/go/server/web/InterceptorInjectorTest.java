@@ -16,8 +16,7 @@
 package com.thoughtworks.go.server.web;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -26,6 +25,7 @@ import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -65,9 +65,9 @@ public class InterceptorInjectorTest {
         HandlerExecutionChain handlers =
                 injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        Assert.assertEquals(2, handlers.getInterceptors().length);
-        Assert.assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
-        Assert.assertSame(interceptorOfTab, handlers.getInterceptors()[1]);
+       assertEquals(2, handlers.getInterceptors().length);
+       assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
+       assertSame(interceptorOfTab, handlers.getInterceptors()[1]);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class InterceptorInjectorTest {
         HandlerExecutionChain handlers =
                 injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        Assert.assertNull(handlers);
+       assertNull(handlers);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class InterceptorInjectorTest {
         HandlerExecutionChain handlers =
                 injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        Assert.assertSame(handler, handlers.getHandler());
+       assertSame(handler, handlers.getHandler());
     }
 
     @Test
@@ -109,8 +109,8 @@ public class InterceptorInjectorTest {
         HandlerExecutionChain handlers =
                 injector.mergeInterceptorsToTabs(proceedingJoinPoint);
 
-        Assert.assertEquals(1, handlers.getInterceptors().length);
-        Assert.assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
+       assertEquals(1, handlers.getInterceptors().length);
+       assertSame(interceptorOfFramework, handlers.getInterceptors()[0]);
     }
 
 }

@@ -29,26 +29,26 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.*;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class GoFileConfigDataSourceTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
     private GoFileConfigDataSource dataSource;
     @Mock
     private SystemEnvironment systemEnvironment;
@@ -76,12 +76,9 @@ public class GoFileConfigDataSourceTest {
     private GoConfigFileReader goConfigFileReader;
     @Mock
     private PartialConfigHelper partials;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         dataSource = new GoFileConfigDataSource(goConfigMigration,
                 configRepository, systemEnvironment, timeProvider, xmlLoader, xmlWriter,
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, goConfigFileWriter, partials);
@@ -104,8 +101,8 @@ public class GoFileConfigDataSourceTest {
             }, new GoConfigHolder(cruiseConfig, cruiseConfig));
             fail("expected the test to fail");
         } catch (Exception e) {
-            verifyZeroInteractions(configRepository);
-            verifyZeroInteractions(serverHealthService);
+            verifyNoInteractions(configRepository);
+            verifyNoInteractions(serverHealthService);
             verify(xmlLoader, times(1)).loadConfigHolder(any(String.class), any(MagicalGoConfigXmlLoader.Callback.class));
         }
     }
@@ -171,7 +168,7 @@ public class GoFileConfigDataSourceTest {
         verify(fullConfigSaveNormalFlow).execute(updatingCommand, valid, "loser_boozer");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldNotRetryConfigUpdateIfLastKnownPartialsAreEmpty_OnWriteFullConfigWithLock() throws Exception {
         List<PartialConfig> known = new ArrayList<>();
 
@@ -184,10 +181,11 @@ public class GoFileConfigDataSourceTest {
         when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
                 thenThrow(new GoConfigInvalidException(configForEdit, "error"));
 
-        dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
+        assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
+                .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldNotRetryConfigUpdateIfLastKnownAndValidPartialsAreSame_OnWriteFullConfigWithLock() throws Exception {
         PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id"), "git_r1"));
         List<PartialConfig> known = asList(partialConfig1);
@@ -203,10 +201,11 @@ public class GoFileConfigDataSourceTest {
         when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
                 thenThrow(new GoConfigInvalidException(configForEdit, "error"));
 
-        dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
+        assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
+            .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldErrorOutOnTryingToMergeConfigsIfConfigMergeFeatureIsDisabled_OnWriteFullConfigWithLock() throws Exception {
         BasicCruiseConfig configForEdit = new BasicCruiseConfig();
         MagicalGoConfigXmlLoader.setMd5(configForEdit, "new_md5");
@@ -216,7 +215,8 @@ public class GoFileConfigDataSourceTest {
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, false);
 
-        dataSource.writeFullConfigWithLock(updatingCommand, configHolder);
+        assertThatThrownBy(() -> dataSource.writeFullConfigWithLock(updatingCommand, configHolder))
+            .isInstanceOf(RuntimeException.class);
 
         verify(fullConfigSaveMergeFlow, never()).execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class));
         verify(fullConfigSaveNormalFlow, never()).execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class));

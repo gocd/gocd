@@ -19,13 +19,13 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineStagesFeedServiceTest {
@@ -36,7 +36,8 @@ public class PipelineStagesFeedServiceTest {
     private HttpLocalizedOperationResult operationResult;
     private SecurityService securityService;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         user = new Username(new CaseInsensitiveString("barrow"));
         expected = new FeedEntries();
         stageService = mock(StageService.class);

@@ -24,12 +24,14 @@ import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.GoConfigMother;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
@@ -37,10 +39,10 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CcTrayConfigChangeHandlerTest {
     @Mock
     private CcTrayCache cache;
@@ -55,15 +57,14 @@ public class CcTrayConfigChangeHandlerTest {
     private CcTrayConfigChangeHandler handler;
     private PluginRoleUsersStore pluginRoleUsersStore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         goConfigMother = new GoConfigMother();
         handler = new CcTrayConfigChangeHandler(cache, stageStatusLoader, pipelinePermissionsAuthority);
         pluginRoleUsersStore = PluginRoleUsersStore.instance();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         pluginRoleUsersStore.clearAll();
     }
@@ -83,7 +84,7 @@ public class CcTrayConfigChangeHandlerTest {
         handler.call(GoConfigMother.configWithPipelines("pipeline2", "pipeline1")); /* Adds pipeline1 first in config. Then pipeline2. */
 
         verify(cache).replaceAllEntriesInCacheWith(eq(asList(pipeline1_stage1, pipeline1_stage1_job, pipeline2_stage1, pipeline2_stage1_job)));
-        verifyZeroInteractions(stageStatusLoader);
+        verifyNoInteractions(stageStatusLoader);
     }
 
     @Test
@@ -102,7 +103,7 @@ public class CcTrayConfigChangeHandlerTest {
 
 
         verify(cache).replaceAllEntriesInCacheWith(eq(asList(existingStageStatus, existingJobStatus)));
-        verifyZeroInteractions(stageStatusLoader);
+        verifyNoInteractions(stageStatusLoader);
     }
 
     @Test
@@ -199,7 +200,7 @@ public class CcTrayConfigChangeHandlerTest {
 
         ProjectStatus expectedNullStatusForNewJob = new ProjectStatus.NullProjectStatus(projectNameOfNewJob);
         verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InCache, statusOfJob1InCache, expectedNullStatusForNewJob)));
-        verifyZeroInteractions(stageStatusLoader);
+        verifyNoInteractions(stageStatusLoader);
     }
 
     @Test
@@ -213,7 +214,6 @@ public class CcTrayConfigChangeHandlerTest {
         ProjectStatus statusOfOldJobInCache = new ProjectStatus(projectNameOfJobWhichWillBeRemoved, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "job2-url");
         when(cache.get(stage1ProjectName)).thenReturn(statusOfStage1InCache);
         when(cache.get(job1ProjectName)).thenReturn(statusOfJob1InCache);
-        when(cache.get(projectNameOfJobWhichWillBeRemoved)).thenReturn(statusOfOldJobInCache);
 
         CruiseConfig config = new BasicCruiseConfig();
         goConfigMother.addPipeline(config, "pipeline1", "stage1", "job1");
@@ -223,7 +223,7 @@ public class CcTrayConfigChangeHandlerTest {
 
 
         verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InCache, statusOfJob1InCache)));
-        verifyZeroInteractions(stageStatusLoader);
+        verifyNoInteractions(stageStatusLoader);
     }
 
     @Test
@@ -281,12 +281,8 @@ public class CcTrayConfigChangeHandlerTest {
 
         ProjectStatus statusOfPipeline1StageInCache = new ProjectStatus(pipeline1Stage, "OldActivity", "OldStatus", "OldLabel", new Date(), "p1-stage-url");
         ProjectStatus statusOfPipeline1JobInCache = new ProjectStatus(pipeline1job, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "p1-job-url");
-        ProjectStatus statusOfPipeline2StageInCache = new ProjectStatus(pipeline1Stage, "OldActivity", "OldStatus", "OldLabel", new Date(), "p2-stage-url");
-        ProjectStatus statusOfPipeline2JobInCache = new ProjectStatus(pipeline1job, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "p2-job2-url");
         when(cache.get(pipeline1Stage)).thenReturn(statusOfPipeline1StageInCache);
         when(cache.get(pipeline1job)).thenReturn(statusOfPipeline1JobInCache);
-        when(cache.get(pipeline2stage)).thenReturn(statusOfPipeline2StageInCache);
-        when(cache.get(pipeline2job)).thenReturn(statusOfPipeline2JobInCache);
 
         PipelineConfig pipeline1Config = GoConfigMother.pipelineHavingJob("pipeline1", "stage1", "job1", "arts", "dir").pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
 

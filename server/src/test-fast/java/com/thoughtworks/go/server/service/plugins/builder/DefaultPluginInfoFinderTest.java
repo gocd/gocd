@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.plugin.access.notification.NotificationMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStore;
 import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
@@ -24,9 +25,9 @@ import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -36,8 +37,9 @@ import java.util.Collection;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(ClearSingleton.class)
 public class DefaultPluginInfoFinderTest {
     @Mock
     private PluginManager pluginManager;
@@ -48,19 +50,13 @@ public class DefaultPluginInfoFinderTest {
     private SecretsMetadataStore secretsMetadataStore;
     private final String SECRET_PLUGIN_ID = "secret-plugin-id";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        com.thoughtworks.go.ClearSingleton.clearSingletons();
         taskMetadataStore = PluggableTaskMetadataStore.instance();
         notificationMetadataStore = NotificationMetadataStore.instance();
         secretsMetadataStore = SecretsMetadataStore.instance();
 
         finder = new DefaultPluginInfoFinder(pluginManager);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        com.thoughtworks.go.ClearSingleton.clearSingletons();
     }
 
     @Test

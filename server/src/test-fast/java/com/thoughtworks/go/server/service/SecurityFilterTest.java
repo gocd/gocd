@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
@@ -31,7 +31,7 @@ public class SecurityFilterTest {
     private PipelineGroupVisitor pipelineGroupVisitor;
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         pipelineGroupVisitor = mock(PipelineGroupVisitor.class);
         securityService = mock(SecurityService.class);

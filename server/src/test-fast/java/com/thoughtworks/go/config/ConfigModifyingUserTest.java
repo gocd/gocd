@@ -16,19 +16,15 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.ClearSingleton;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@EnableRuleMigrationSupport
+@ExtendWith(ClearSingleton.class)
 public class ConfigModifyingUserTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     @Test
     public void shouldIdentifyPassedInUserNameAsConfigModifyingUser() {
         ConfigModifyingUser user = new ConfigModifyingUser("loser_boozer");

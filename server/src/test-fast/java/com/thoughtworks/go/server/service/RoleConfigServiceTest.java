@@ -23,8 +23,8 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.validators.authorization.RoleConfigurationValidator;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -44,7 +44,7 @@ public class RoleConfigServiceTest {
     private RoleConfigService roleConfigService;
     private BasicCruiseConfig cruiseConfig;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configService = mock(GoConfigService.class);
         extension = mock(AuthorizationExtension.class);
@@ -85,7 +85,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.create(null, role, null);
 
-        verifyZeroInteractions(configurationValidator);
+        verifyNoInteractions(configurationValidator);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.create(null, role, null);
 
-        verifyZeroInteractions(configurationValidator);
+        verifyNoInteractions(configurationValidator);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.update(null, "md5", role, null);
 
-        verifyZeroInteractions(configurationValidator);
+        verifyNoInteractions(configurationValidator);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class RoleConfigServiceTest {
 
         roleConfigService.update(null, "md5", role, null);
 
-        verifyZeroInteractions(configurationValidator);
+        verifyNoInteractions(configurationValidator);
     }
 
     @Test

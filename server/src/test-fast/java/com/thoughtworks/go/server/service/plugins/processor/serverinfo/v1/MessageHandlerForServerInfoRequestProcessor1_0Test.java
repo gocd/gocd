@@ -16,11 +16,11 @@
 package com.thoughtworks.go.server.service.plugins.processor.serverinfo.v1;
 
 import com.thoughtworks.go.config.ServerConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MessageHandlerForServerInfoRequestProcessor1_0Test {
     @Test

@@ -25,8 +25,8 @@ import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
@@ -40,7 +40,7 @@ import java.io.InputStream;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -56,7 +56,7 @@ public class ArtifactsControllerTest {
     private SystemEnvironment systemEnvironment;
     private JobInstanceDao jobInstanceDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         consoleActivityMonitor = mock(ConsoleActivityMonitor.class);
 

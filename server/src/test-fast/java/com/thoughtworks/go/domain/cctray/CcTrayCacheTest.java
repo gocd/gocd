@@ -16,8 +16,8 @@
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.domain.activity.ProjectStatus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
@@ -25,13 +25,13 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CcTrayCacheTest {
     private CcTrayCache cache;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cache = new CcTrayCache();
     }

@@ -19,8 +19,8 @@ import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -29,7 +29,7 @@ public class ConsoleLogSocketCreatorTest {
     private ServletUpgradeRequest request;
     private ConsoleLogSocketCreator creator;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         restfulService = mock(RestfulService.class);
 

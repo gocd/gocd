@@ -29,8 +29,10 @@ import org.dom4j.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 
@@ -40,17 +42,15 @@ import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineInstanceM
 import static com.thoughtworks.go.server.dao.FeedModifier.Before;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class FeedServiceTest {
     @Mock
     private Username username;
     @Mock
     private PipelineHistoryService pipelineHistoryService;
-    @Mock
+    @Mock(lenient = true)
     private XmlApiService xmlApiService;
     @Mock
     private StageService stageService;
@@ -69,8 +69,6 @@ public class FeedServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
-
         when(xmlApiService.write(any(XmlRepresentable.class), eq(BASE_URL))).thenReturn(document);
     }
 
@@ -85,9 +83,9 @@ public class FeedServiceTest {
         verify(pipelineHistoryService).latestInstancesForConfiguredPipelines(username);
         verify(xmlApiService).write(any(PipelinesXmlRepresenter.class), eq(BASE_URL));
         verifyNoMoreInteractions(xmlApiService);
-        verifyZeroInteractions(goConfigService);
-        verifyZeroInteractions(securityService);
-        verifyZeroInteractions(stageService);
+        verifyNoInteractions(goConfigService);
+        verifyNoInteractions(securityService);
+        verifyNoInteractions(stageService);
     }
 
     @Nested
@@ -126,8 +124,8 @@ public class FeedServiceTest {
             verify(stageService).findStageFeedBy(pipelineName, pipelineCounter, Before, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
-            verifyZeroInteractions(pipelineHistoryService);
-            verifyZeroInteractions(jobInstanceService);
+            verifyNoInteractions(pipelineHistoryService);
+            verifyNoInteractions(jobInstanceService);
         }
 
         @Test
@@ -143,8 +141,8 @@ public class FeedServiceTest {
             verify(stageService).findStageFeedBy(pipelineName, pipelineCounter, Before, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
-            verifyZeroInteractions(pipelineHistoryService);
-            verifyZeroInteractions(jobInstanceService);
+            verifyNoInteractions(pipelineHistoryService);
+            verifyNoInteractions(jobInstanceService);
         }
     }
 
@@ -161,8 +159,8 @@ public class FeedServiceTest {
             verify(pipelineHistoryService).load(pipelineName, 100, username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(pipelineHistoryService);
-            verifyZeroInteractions(stageService);
-            verifyZeroInteractions(jobInstanceService);
+            verifyNoInteractions(stageService);
+            verifyNoInteractions(jobInstanceService);
         }
     }
 
@@ -180,8 +178,8 @@ public class FeedServiceTest {
             verify(stageService).findStageWithIdentifier(pipelineName, 100, stageName, "1", username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(stageService);
-            verifyZeroInteractions(pipelineHistoryService);
-            verifyZeroInteractions(jobInstanceService);
+            verifyNoInteractions(pipelineHistoryService);
+            verifyNoInteractions(jobInstanceService);
         }
     }
 
@@ -200,8 +198,8 @@ public class FeedServiceTest {
             verify(jobInstanceService).findJobInstance(pipelineName, stageName, jobName, 100, 1, username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
-            verifyZeroInteractions(stageService);
-            verifyZeroInteractions(pipelineHistoryService);
+            verifyNoInteractions(stageService);
+            verifyNoInteractions(pipelineHistoryService);
         }
     }
 
@@ -216,8 +214,8 @@ public class FeedServiceTest {
             verify(jobInstanceService).waitingJobPlans(username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
-            verifyZeroInteractions(stageService);
-            verifyZeroInteractions(pipelineHistoryService);
+            verifyNoInteractions(stageService);
+            verifyNoInteractions(pipelineHistoryService);
         }
     }
 
@@ -252,8 +250,8 @@ public class FeedServiceTest {
             assertThat(document).isNotNull();
             verify(xmlApiService).write(any(MaterialXmlRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
-            verifyZeroInteractions(jobInstanceService);
-            verifyZeroInteractions(stageService);
+            verifyNoInteractions(jobInstanceService);
+            verifyNoInteractions(stageService);
         }
     }
 }

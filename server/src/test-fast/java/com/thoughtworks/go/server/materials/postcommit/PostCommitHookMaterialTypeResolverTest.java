@@ -19,28 +19,30 @@ import com.thoughtworks.go.server.materials.postcommit.git.GitPostCommitHookImpl
 import com.thoughtworks.go.server.materials.postcommit.mercurial.MercurialPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.pluggablescm.PluggableSCMPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class PostCommitHookMaterialTypeResolverTest {
 
     private PostCommitHookMaterialTypeResolver resolver;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         resolver = new PostCommitHookMaterialTypeResolver();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldReturnUnknownPostCommitHookMaterialType() {
         final PostCommitHookMaterialType materialType = resolver.toType("some_invalid_type");
         assertThat(materialType instanceof PostCommitHookMaterialTypeResolver.UnknownPostCommitHookMaterialType, is(true));
         assertThat(materialType.isKnown(), is(false));
         assertThat(materialType.isValid("some_invalid_type"), is(false));
-        materialType.getImplementer();
+        assertThatThrownBy(materialType::getImplementer)
+                .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test

@@ -24,29 +24,27 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -68,16 +66,13 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
 
     private GoConfigFileHelper configHelper;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
     @Autowired
     private ScheduleService scheduleService;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(@TempDir File configDir) throws Exception {
         dbHelper.onSetUp();
-        File configDir = temporaryFolder.newFolder();
         String absolutePath = new File(configDir, "cruise-config.xml").getAbsolutePath();
         systemEnvironment.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, absolutePath);
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
@@ -88,7 +83,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         goDashboardCurrentStateLoader.reset();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configHelper.onTearDown();
         dbHelper.onTearDown();

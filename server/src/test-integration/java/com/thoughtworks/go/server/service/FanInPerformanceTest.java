@@ -32,21 +32,23 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -73,7 +75,7 @@ public class FanInPerformanceTest {
     private ScheduleTestUtil u;
     private GraphGenerator graphGenerator;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigFileDao).initializeConfigFile();
@@ -83,13 +85,14 @@ public class FanInPerformanceTest {
         graphGenerator = new GraphGenerator(configHelper, u);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configHelper.onTearDown();
         dbHelper.onTearDown();
     }
 
-    @Test(timeout = 240000)
+    @Test
+    @Timeout(value = 4, unit = MINUTES)
     public void shouldTestFanInForMesh() throws Exception {
         int numberOfNodesPerLevel = 10;
         int numberOfLevels = 10;

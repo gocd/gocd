@@ -34,32 +34,37 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.*;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static junit.framework.Assert.fail;
-import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class ConfigMaterialUpdateListenerIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -97,7 +102,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
 
     private ConfigTestRepo configTestRepo;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
         hgRepo = new HgTestRepo("testHgRepo", temporaryFolder);
@@ -126,7 +131,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     }
 
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
         TestRepo.internalTearDown();
@@ -164,7 +169,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         int i = 0;
         while (serverHealthService.filterByScope(healthStateScope).isEmpty() && goConfigRepoConfigDataSource.getRevisionAtLastAttempt(material.config()) == null) {
             if (!materialUpdateService.isInProgress(material))
-                Assert.fail("should be still in progress");
+                fail("should be still in progress");
 
             Thread.sleep(1);
             if (i++ > 10000)
@@ -243,7 +248,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         configTestRepo.addPipelineToRepositoryAndPush(fileName, pipelineConfig);
 
         materialUpdateService.updateMaterial(material);
-        Assert.assertThat(materialUpdateService.isInProgress(material), is(true));
+       assertThat(materialUpdateService.isInProgress(material), is(true));
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
 
@@ -265,8 +270,8 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         waitForMaterialNotInProgress();
 
         File flyweightDir = materialRepository.folderFor(material);
-        Assert.assertThat(flyweightDir.exists(), is(true));
-        Assert.assertThat(new File(flyweightDir, "pipe1.gocd.xml").exists(), is(true));
+       assertThat(flyweightDir.exists(), is(true));
+       assertThat(new File(flyweightDir, "pipe1.gocd.xml").exists(), is(true));
     }
 
     @Test
@@ -287,9 +292,9 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         waitForMaterialNotInProgress();
 
         File flyweightDir = materialRepository.folderFor(material);
-        Assert.assertThat(flyweightDir.exists(), is(true));
-        Assert.assertThat(new File(flyweightDir, "pipe1.gocd.xml").exists(), is(true));
-        Assert.assertThat("shouldContainFilesAddedLater", new File(flyweightDir, "pipe2.gocd.xml").exists(), is(true));
+       assertThat(flyweightDir.exists(), is(true));
+       assertThat(new File(flyweightDir, "pipe1.gocd.xml").exists(), is(true));
+       assertThat("shouldContainFilesAddedLater", new File(flyweightDir, "pipe2.gocd.xml").exists(), is(true));
     }
 
     @Test

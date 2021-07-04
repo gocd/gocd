@@ -22,27 +22,34 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class MaterialExpansionServiceCachingTest {
     @ClassRule
     public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -56,17 +63,18 @@ public class MaterialExpansionServiceCachingTest {
     private static SvnTestRepoWithExternal svnRepo;
     private static MaterialExpansionService materialExpansionService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void copyRepository() throws IOException {
+        temporaryFolder.create();
         svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteRepository() throws IOException {
         TestRepo.internalTearDown();
     }

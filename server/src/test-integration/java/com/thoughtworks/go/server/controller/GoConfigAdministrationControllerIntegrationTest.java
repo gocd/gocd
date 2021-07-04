@@ -24,16 +24,15 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayOutputStream;
 
@@ -41,9 +40,10 @@ import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedExceptio
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(ClearSingleton.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -51,9 +51,6 @@ import static org.junit.Assert.assertThat;
         "classpath:/spring-all-servlet.xml"
 })
 public class GoConfigAdministrationControllerIntegrationTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     @Autowired private GoConfigAdministrationController controller;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoFileConfigDataSource dataSource;
@@ -61,7 +58,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
-    @Before public void setup() throws Exception {
+    @BeforeEach
+    public void setup() throws Exception {
         dataSource.reloadEveryTime();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
@@ -71,7 +69,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
         SessionUtilsHelper.loginAs("admin");
     }
 
-    @After public void teardown() throws Exception {
+    @AfterEach
+    public void teardown() throws Exception {
         configHelper.onTearDown();
     }
 

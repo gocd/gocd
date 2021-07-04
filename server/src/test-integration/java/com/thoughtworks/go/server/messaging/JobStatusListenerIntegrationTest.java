@@ -29,20 +29,20 @@ import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.PipelineMother.withSingleStageWithMaterials;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -80,7 +80,7 @@ public class JobStatusListenerIntegrationTest {
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goCache.clear();
         dbHelper.onSetUp();
@@ -95,7 +95,7 @@ public class JobStatusListenerIntegrationTest {
         stageStatusTopic = mock(StageStatusTopic.class);
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
         goCache.clear();

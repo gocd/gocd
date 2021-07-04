@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.messaging;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.Timeout;
-import org.eclipse.jetty.util.ConcurrentHashSet;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,7 +32,7 @@ import java.util.Set;
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -43,7 +43,7 @@ public class GoQueueTest {
     @Autowired private MessagingService messageService;
     Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<String>());
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
     }
@@ -59,7 +59,7 @@ public class GoQueueTest {
             queue.addListener(new StubGoMessageListener(i));
         }
 
-        Set<String> expectMessages = new ConcurrentHashSet<>();
+        Set<String> expectMessages = Sets.newConcurrentHashSet();
         for (int i = 0; i < numberOfMessages; i++) {
             String text = "Message-" + i;
             queue.post(new GoTextMessage(text));

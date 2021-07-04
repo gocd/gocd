@@ -19,8 +19,8 @@ import java.io.UnsupportedEncodingException;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 public class RestfulActionTestHelper {

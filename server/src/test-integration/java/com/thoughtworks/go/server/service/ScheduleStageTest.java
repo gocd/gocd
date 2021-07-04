@@ -27,15 +27,16 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,19 +46,18 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(ClearSingleton.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class ScheduleStageTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     @Autowired
     private ScheduleService scheduleService;
     @Autowired
@@ -76,7 +76,7 @@ public class ScheduleStageTest {
     private PipelineWithMultipleStages fixture;
     private GoConfigFileHelper configHelper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(dao);
         fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
@@ -84,7 +84,7 @@ public class ScheduleStageTest {
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         fixture.onTearDown();
     }

@@ -24,24 +24,24 @@ import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -58,12 +58,12 @@ public class UserSqlMapDaoIntegrationTest {
     @Autowired
     private AccessTokenService accessTokenService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         dbHelper.onSetUp();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
     }
@@ -383,18 +383,20 @@ public class UserSqlMapDaoIntegrationTest {
                 .list();
     }
 
-    @Test(expected = RecordNotFoundException.class)
+    @Test
     public void shouldThrowExceptionWhenUserIsNotFound() {
         String userName = "invaliduser";
-        userDao.deleteUser(userName, "currentUser");
+        assertThatThrownBy(() -> userDao.deleteUser(userName, "currentUser"))
+                .isInstanceOf(RecordNotFoundException.class);
     }
 
-    @Test(expected = UserEnabledException.class)
+    @Test
     public void shouldThrowExceptionWhenUserIsNotDisabled() {
         String userName = "enabledUser";
         User user = new User(userName);
         userDao.saveOrUpdate(user);
-        userDao.deleteUser(userName, "currentUser");
+        assertThatThrownBy(() -> userDao.deleteUser(userName, "currentUser"))
+                .isInstanceOf(UserEnabledException.class);
     }
 
     @Test

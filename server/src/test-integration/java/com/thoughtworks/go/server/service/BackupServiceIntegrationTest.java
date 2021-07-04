@@ -44,19 +44,20 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -68,12 +69,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -102,15 +102,13 @@ public class BackupServiceIntegrationTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private File backupsDirectory;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private byte[] originalCipher;
     private Username admin;
     private final String WRAPPER_CONFIG_DIR  = "wrapper-config";
     private SystemEnvironment systemEnvSpy;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configHelper.onSetUp();
         dbHelper.onSetUp();
@@ -132,7 +130,7 @@ public class BackupServiceIntegrationTest {
                 systemEnvSpy, configRepository, databaseStrategy, null);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
         cleanupBackups();
@@ -218,7 +216,7 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
-    public void shouldBackupConfigRepository() throws IOException {
+    public void shouldBackupConfigRepository(@TempDir Path temporaryFolder) throws IOException {
         configHelper.addPipeline("too-unique-to-be-present", "stage-name");
 
         ServerBackup backup = backupService.startBackup(admin);
@@ -226,9 +224,9 @@ public class BackupServiceIntegrationTest {
         assertThat(backup.getMessage(), is("Backup was generated successfully."));
 
         File repoZip = backedUpFile("config-repo.zip");
-        File repoDir = temporaryFolder.newFolder("expanded-config-repo-backup");
+        File repoDir = Files.createDirectory(temporaryFolder.resolve("expanded-config-repo-backup")).toFile();
         new ZipUtil().unzip(repoZip, repoDir);
-        File cloneDir = temporaryFolder.newFolder("cloned-config-repo-backup");
+        File cloneDir = Files.createDirectory(temporaryFolder.resolve("cloned-config-repo-backup")).toFile();
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
 
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);

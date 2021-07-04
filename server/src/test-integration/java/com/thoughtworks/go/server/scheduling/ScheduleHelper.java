@@ -45,8 +45,8 @@ import java.util.Map;
 import static com.thoughtworks.go.utils.Assertions.assertAlwaysHappens;
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
 import static com.thoughtworks.go.utils.Timeout.TEN_SECONDS;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Component
 public class ScheduleHelper {

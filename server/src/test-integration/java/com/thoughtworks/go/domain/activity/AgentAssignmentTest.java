@@ -23,27 +23,29 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class AgentAssignmentTest {
     @Autowired private AgentAssignment agentAssignment;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -55,7 +57,7 @@ public class AgentAssignmentTest {
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
@@ -63,7 +65,7 @@ public class AgentAssignmentTest {
         agentAssignment.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         fixture.onTearDown();
         agentAssignment.clear();

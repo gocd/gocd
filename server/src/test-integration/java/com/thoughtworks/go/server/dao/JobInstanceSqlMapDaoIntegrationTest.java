@@ -43,20 +43,19 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -65,11 +64,11 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -117,7 +116,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     private DefaultSchedulingContext schedulingContext;
     private SqlMapClientTemplate actualSqlClientTemplate;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         goCache.clear();
@@ -139,7 +138,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         configHelper.onSetUp();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         jobInstanceDao.setSqlMapClientTemplate(actualSqlClientTemplate);
         dbHelper.onTearDown();
@@ -147,7 +146,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveAndRetrieveIncompleteBuild() throws Exception {
+    public void shouldSaveAndRetrieveIncompleteBuild() {
         JobInstance expected = scheduled(JOB_NAME, new Date());
         expected = jobInstanceDao.save(stageId, expected);
         assertThat(expected.getId(), is(not(0L)));
@@ -157,7 +156,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetBuildIngBuildAsMostRecentBuildByPipelineLabelAndStageCounter() throws Exception {
+    public void shouldGetBuildIngBuildAsMostRecentBuildByPipelineLabelAndStageCounter() {
         JobInstance expected = JobInstanceMother.building(JOB_NAME);
         expected.setScheduledDate(MOST_RECENT_DATE);
         expected = jobInstanceDao.save(stageId, expected);
@@ -172,7 +171,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetCompletedBuildAsMostRecentBuildByPipelineLabelAndStageCounter() throws Exception {
+    public void shouldGetCompletedBuildAsMostRecentBuildByPipelineLabelAndStageCounter() {
         JobInstance expected = JobInstanceMother.completed(JOB_NAME, JobResult.Unknown);
         expected.setScheduledDate(MOST_RECENT_DATE);
         expected = jobInstanceDao.save(stageId, expected);
@@ -184,7 +183,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetAllRunningJobs() throws Exception {
+    public void shouldGetAllRunningJobs() {
         //setup schedules 2 jobs, keeping it as is.
         List<JobInstance> runningJobs = jobInstanceDao.getRunningJobs();
 
@@ -194,7 +193,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldNotIncludeCompletedJobsAsPartOfRunningJobs() throws Exception {
+    public void shouldNotIncludeCompletedJobsAsPartOfRunningJobs() {
         JobInstance completed = JobInstanceMother.completed("Completed_Job", JobResult.Unknown);
         completed.setScheduledDate(MOST_RECENT_DATE);
         completed = jobInstanceDao.save(stageId, completed);
@@ -227,14 +226,14 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindJobIdByPipelineCounter() throws Exception {
+    public void shouldFindJobIdByPipelineCounter() {
         long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(savedPipeline, savedStage), JOB_NAME).getBuildId();
 
         assertThat(actual, is(savedStage.getJobInstances().getByName(JOB_NAME).getId()));
     }
 
     @Test
-    public void shouldInvalidateSessionAndFetchJobIdentifier_WhenNewJobIsInserted() throws Exception {
+    public void shouldInvalidateSessionAndFetchJobIdentifier_WhenNewJobIsInserted() {
         configHelper.addPipeline(pipelineConfig);
         configHelper.turnOffSecurity();
 
@@ -250,14 +249,14 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindJobIdByPipelineLabel() throws Exception {
+    public void shouldFindJobIdByPipelineLabel() {
         long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), null, STAGE_NAME, String.valueOf(counter)), JOB_NAME).getBuildId();
 
         assertThat(actual, is(savedStage.getJobInstances().getByName(JOB_NAME).getId()));
     }
 
     @Test
-    public void findByJobIdShouldBeJobNameCaseAgnostic() throws Exception {
+    public void findByJobIdShouldBeJobNameCaseAgnostic() {
         long actual = jobInstanceDao.findOriginalJobIdentifier(new StageIdentifier(PIPELINE_NAME, savedPipeline.getCounter(),
                 null, STAGE_NAME, String.valueOf(counter)), JOB_NAME_IN_DIFFERENT_CASE).getBuildId();
 
@@ -265,7 +264,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void findByJobIdShouldLoadOriginalJobWhenCopiedForJobRerun() throws Exception {
+    public void findByJobIdShouldLoadOriginalJobWhenCopiedForJobRerun() {
         Stage firstOldStage = savedPipeline.getStages().get(0);
         Stage newStage = instanceFactory.createStageForRerunOfJobs(firstOldStage, a(JOB_NAME), new DefaultSchedulingContext("loser", new Agents()), pipelineConfig.get(0), new TimeProvider(), "md5");
 
@@ -284,7 +283,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void findJobIdShouldExcludeIgnoredJob() throws Exception {
+    public void findJobIdShouldExcludeIgnoredJob() {
         JobInstance oldJob = savedStage.getJobInstances().getByName(JOB_NAME);
         jobInstanceDao.ignore(oldJob);
 
@@ -297,7 +296,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindAllInstancesOfJobsThatAreRunOnAllAgents() throws Exception {
+    public void shouldFindAllInstancesOfJobsThatAreRunOnAllAgents() {
         List<JobInstance> before = stageDao.mostRecentJobsForStage(PIPELINE_NAME, STAGE_NAME);
 
         String uuid1 = UUID.randomUUID().toString();
@@ -314,7 +313,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindAllInstancesOfJobsThatAreRunMultipleInstance() throws Exception {
+    public void shouldFindAllInstancesOfJobsThatAreRunMultipleInstance() {
         List<JobInstance> before = stageDao.mostRecentJobsForStage(PIPELINE_NAME, STAGE_NAME);
 
         JobInstance instance1 = savedJobForAgent(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("job", 1), null, false, true);
@@ -350,14 +349,14 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         });
     }
 
-    @Test(expected = DataRetrievalFailureException.class)
-    public void shouldReturnNullObjectWhenNoBuildInstanceFound() throws Exception {
-        JobInstance actual = jobInstanceDao.buildByIdWithTransitions(999);
-        assertThat(actual.isNull(), is(true));
+    @Test
+    public void shouldThrowWhenNoBuildInstanceFound() {
+        assertThatThrownBy(() -> jobInstanceDao.buildByIdWithTransitions(999))
+                .isInstanceOf(DataRetrievalFailureException.class);
     }
 
     @Test
-    public void shouldReturnBuildInstanceIfItExists() throws Exception {
+    public void shouldReturnBuildInstanceIfItExists() {
         JobInstance jobInstance = JobInstanceMother.completed("Baboon", JobResult.Passed);
         JobInstance instance = jobInstanceDao.save(stageId, jobInstance);
         JobInstance actual = jobInstanceDao.buildByIdWithTransitions(instance.getId());
@@ -365,7 +364,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLogStatusUpdatesOfCompletedJobs() throws Exception {
+    public void shouldLogStatusUpdatesOfCompletedJobs() {
         try (LogFixture logFixture = logFixtureFor(JobInstanceSqlMapDao.class, Level.DEBUG)) {
             JobInstance instance = runningJob("1");
             completeJobs(instance);
@@ -395,7 +394,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateBuildResult() throws Exception {
+    public void shouldUpdateBuildResult() {
         JobInstance jobInstance = JobInstanceMother.scheduled("Baboon");
         jobInstanceDao.save(stageId, jobInstance);
         jobInstance.cancel();
@@ -411,7 +410,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteJobPlanAssociatedEntities() throws Exception {
+    public void shouldDeleteJobPlanAssociatedEntities() {
         JobInstance jobInstance = JobInstanceMother.building("Baboon");
 
         JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans());
@@ -439,7 +438,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteVariablesAttachedToJobAfterTheJobReschedules() throws Exception {
+    public void shouldDeleteVariablesAttachedToJobAfterTheJobReschedules() {
         JobInstance jobInstance = JobInstanceMother.building("Baboon");
 
         JobPlan jobPlan = JobInstanceMother.jobPlanWithAssociatedEntities(jobInstance.getName(), jobInstance.getId(), artifactPlans());
@@ -468,10 +467,10 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
     }
 
-    @Test(expected = DataRetrievalFailureException.class)
-    public void shouldReturnNullObjectIfItNotExists() throws Exception {
-        JobInstance actual = jobInstanceDao.buildByIdWithTransitions(1);
-        assertThat(actual.isNull(), is(true));
+    @Test
+    public void shouldThrowIfItNotExists() {
+        assertThatThrownBy(() -> jobInstanceDao.buildByIdWithTransitions(1))
+                .isInstanceOf(DataRetrievalFailureException.class);
     }
 
     @Test
@@ -488,7 +487,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         assertThat(myinstances.get(0).getName(), is(newName));
     }
 
-    private long createSomeJobs(String jobName, int count) throws SQLException {
+    private long createSomeJobs(String jobName, int count) {
         long stageId = 0;
         for (int i = 0; i < count; i++) {
             Pipeline newPipeline = createNewPipeline(pipelineConfig);
@@ -499,7 +498,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         return stageId;
     }
 
-    private void createCopiedJobs(long stageId, String jobName, int count) throws SQLException {
+    private void createCopiedJobs(long stageId, String jobName, int count) {
         for (int i = 0; i < count; i++) {
             JobInstance job = JobInstanceMother.completed(jobName, JobResult.Failed);
             job.setOriginalJobId(1L);
@@ -561,8 +560,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetMostRecentCompletedBuildsWhenTwoStagesWithIdenticalStageNamesAndBuildPlanNames()
-            throws Exception {
+    public void shouldGetMostRecentCompletedBuildsWhenTwoStagesWithIdenticalStageNamesAndBuildPlanNames() {
 
         Pipeline otherPipeline = PipelineMother.passedPipelineInstance(PIPELINE_NAME + "2", STAGE_NAME, JOB_NAME);
         dbHelper.savePipelineWithStagesAndMaterials(otherPipeline);
@@ -578,7 +576,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldIgnoreBuildingBuilds() throws Exception {
+    public void shouldIgnoreBuildingBuilds() {
         JobInstance instance = JobInstanceMother.completed("shouldnotload", JobResult.Passed);
         jobInstanceDao.save(stageId, instance);
         JobInstance building = JobInstanceMother.building(JOB_NAME);
@@ -645,7 +643,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetAllScheduledBuildsInOrder() throws Exception {
+    public void shouldGetAllScheduledBuildsInOrder() {
         // in setup, we created 2 scheduled builds
         assertThat(jobInstanceDao.orderedScheduledBuilds().size(), is(2));
 
@@ -680,7 +678,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateStateTransitions() throws Exception {
+    public void shouldUpdateStateTransitions() {
         JobInstance expected = scheduled(JOB_NAME, new Date(1000));
         jobInstanceDao.save(stageId, expected);
         JobInstance actual = jobInstanceDao.buildByIdWithTransitions(expected.getId());
@@ -695,7 +693,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateBuildStatus() throws Exception {
+    public void shouldUpdateBuildStatus() {
         JobInstance expected = scheduled(JOB_NAME);
         jobInstanceDao.save(stageId, expected);
         expected.changeState(JobState.Building);
@@ -706,7 +704,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateAssignedInfo() throws Exception {
+    public void shouldUpdateAssignedInfo() {
         JobInstance expected = scheduled(JOB_NAME);
         jobInstanceDao.save(stageId, expected);
         expected.changeState(JobState.Building);
@@ -719,7 +717,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateCompletingInfo() throws Exception {
+    public void shouldUpdateCompletingInfo() {
         JobInstance expected = scheduled(JOB_NAME);
         jobInstanceDao.save(stageId, expected);
         expected.changeState(JobState.Completing);
@@ -945,7 +943,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetInProgressJobs() throws Exception {
+    public void shouldGetInProgressJobs() {
         JobInstance buildingJob1 = building(projectOne, new Date(1));
         buildingJob1.setAgentUuid("uuid1");
         jobInstanceDao.save(stageId, buildingJob1);

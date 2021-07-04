@@ -59,15 +59,16 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -78,16 +79,18 @@ import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceIntegrationTest {
 
     @Rule
@@ -153,7 +156,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     private SvnMaterial materialForManualTriggerPipeline;
     private Username username;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
         new HgTestRepo("testHgRepo", temporaryFolder);
@@ -201,7 +204,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         username = Username.ANONYMOUS;
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
         TestRepo.internalTearDown();

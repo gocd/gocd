@@ -54,26 +54,30 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ClonerFactory;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,10 +91,10 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AG
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(ResetCipher.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -130,23 +134,20 @@ public class CachedGoConfigIntegrationTest {
     @Autowired
     private ConfigCache configCache;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path temporaryFolder;
+
     private Modification latestModification;
     private ConfigRepoConfig configRepo;
     private File externalConfigRepo;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
     private MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
-        externalConfigRepo = temporaryFolder.newFolder();
+        externalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo")).toFile();
         latestModification = setupExternalConfigRepo(externalConfigRepo);
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(externalConfigRepo.getAbsolutePath()), XmlPartialConfigProvider.providerName, "gocd-id"));
         goConfigService.forceNotifyListeners();
@@ -156,7 +157,7 @@ public class CachedGoConfigIntegrationTest {
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         cachedGoPartials.clear();
         for (PartialConfig partial : cachedGoPartials.lastValidPartials()) {
@@ -171,8 +172,8 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldRecoverFromDeepConfigRepoReferencesBug1901When2Repos() throws Exception {
         // pipeline references are like this: pipe1 -> downstream
-        File downstreamExternalConfigRepo = temporaryFolder.newFolder();
         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
+        File downstreamExternalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo_downstream")).toFile();
         Modification downstreamLatestModification = setupExternalConfigRepo(downstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(downstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id"));
         goConfigService.forceNotifyListeners();//TODO what if this is not called?
@@ -205,11 +206,11 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldRecoverFromDeepConfigRepoReferencesBug1901When3Repos() throws Exception {
         // pipeline references are like this: pipe1 -> downstream -> downstream2
-        File secondDownstreamExternalConfigRepo = temporaryFolder.newFolder();
+        File secondDownstreamExternalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo_downstream_2")).toFile();
         /*here is a pipeline 'downstream2' with material dependency on 'downstream' in other repository*/
         Modification secondDownstreamLatestModification = setupExternalConfigRepo(secondDownstreamExternalConfigRepo, "external_git_config_repo_referencing_second");
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(secondDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id1"));
-        File firstDownstreamExternalConfigRepo = temporaryFolder.newFolder();
+        File firstDownstreamExternalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo_downstream_1")).toFile();
         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
         Modification firstDownstreamLatestModification = setupExternalConfigRepo(firstDownstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(firstDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id2"));
@@ -864,8 +865,7 @@ public class CachedGoConfigIntegrationTest {
             }
         });
 
-        thrown.expectMessage(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (%s at r1)", upstream, configRepo.getRepo().getDisplayName()));
-        cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
+        assertThatThrownBy(() -> cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(upstream)).getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
@@ -876,7 +876,7 @@ public class CachedGoConfigIntegrationTest {
             public String unmodifiedMd5() {
                 return md5;
             }
-        });
+        })).hasMessageContaining(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (%s at r1)", upstream, configRepo.getRepo().getDisplayName()));
     }
 
     @Test
@@ -1198,7 +1198,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldEncryptPluggablePublishArtifactPropertiesDuringSave() throws Exception {
+    public void shouldEncryptPluggablePublishArtifactPropertiesDuringSave(ResetCipher resetCipher) throws Exception {
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
         setupMetadataForPlugin();
@@ -1219,7 +1219,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldEncryptPluggableFetchArtifactPropertiesDuringSave() throws IOException, CryptoException {
+    public void shouldEncryptPluggableFetchArtifactPropertiesDuringSave(ResetCipher resetCipher) throws IOException, CryptoException {
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
         setupMetadataForPlugin();

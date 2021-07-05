@@ -37,8 +37,6 @@ dependencies {
   testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
   testImplementation project(path: ':domain', configuration: 'testOutput')
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.assertJ

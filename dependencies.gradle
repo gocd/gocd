@@ -209,7 +209,6 @@ final Map<String, String> related = [
   junit5Engine            : "org.junit.jupiter:junit-jupiter-engine:${v.junit5}",
   junit5Migration         : "org.junit.jupiter:junit-jupiter-migrationsupport:${v.junit5}",
   junit5Params            : "org.junit.jupiter:junit-jupiter-params:${v.junit5}",
-  junit5Vintage           : "org.junit.vintage:junit-vintage-engine:${v.junit5}",
   mockitoJunit5           : "org.mockito:mockito-junit-jupiter:${v.mockito}",
   mailSmtp                : "com.sun.mail:smtp:${v.mail}",
   slf4jJcl                : "org.slf4j:jcl-over-slf4j:${v.slf4j}",

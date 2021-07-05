@@ -37,9 +37,8 @@ dependencies {
   testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
   testImplementation project.deps.guava
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Migration
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Params
   testImplementation project.deps.mockitoJunit5

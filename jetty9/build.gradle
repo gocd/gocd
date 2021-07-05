@@ -44,8 +44,5 @@ dependencies {
   testImplementation project.deps.junit5Params
   testImplementation project.deps.mockito
   testImplementation project.deps.mockitoJunit5
-  testCompileOnly project.deps.junit4
   testRuntimeOnly project.deps.junit5Engine
-  testRuntimeOnly project.deps.junit5Vintage
-  testImplementation project.deps.junit5Migration
 }

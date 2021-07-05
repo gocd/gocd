@@ -22,8 +22,6 @@ dependencies {
   implementation project(':plugin-infra:go-plugin-domain')
   testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
 }

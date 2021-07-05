@@ -37,7 +37,6 @@ dependencies {
 
   api project.deps.assertJ
   compileOnly project.deps.junit4
-  runtimeOnly project.deps.junit5Vintage
   api project.deps.junit5
   api project.deps.junit5Params
   api project.deps.systemStubs

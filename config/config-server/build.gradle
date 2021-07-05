@@ -30,10 +30,8 @@ dependencies {
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5
-  testImplementation project.deps.junit5Migration
   testImplementation project.deps.assertJ
   testImplementation project.deps.xmlUnit
-  testRuntimeOnly project.deps.junit5Vintage
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockitoJunit5
 

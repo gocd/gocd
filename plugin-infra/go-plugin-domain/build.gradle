@@ -24,8 +24,6 @@ dependencies {
   implementation project.deps.commonsLang3
   testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockito

@@ -29,7 +29,6 @@ dependencies {
   testImplementation project.deps.hamcrestLibrary
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   extractedAtTopLevel project(':jar-class-loader')
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Migration

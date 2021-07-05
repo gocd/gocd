@@ -16,7 +16,6 @@
 
 dependencies {
   implementation project.deps.assertJ
-  implementation project.deps.junit4
   implementation project.deps.commonsLang3
   implementation project.deps.servletApi
   implementation project.deps.gson

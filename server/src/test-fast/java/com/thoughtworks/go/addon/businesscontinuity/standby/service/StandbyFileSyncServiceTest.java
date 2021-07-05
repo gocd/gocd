@@ -4,16 +4,16 @@ import com.thoughtworks.go.addon.businesscontinuity.*;
 import com.thoughtworks.go.addon.businesscontinuity.primary.ServerStatusResponse;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.util.*;
@@ -24,12 +24,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@EnableRuleMigrationSupport
+@ExtendWith(SystemStubsExtension.class)
 public class StandbyFileSyncServiceTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    @SystemStub
+    private SystemProperties systemProperties;
     @Mock(lenient = true)
     private SystemEnvironment systemEnvironment;
     @Mock
@@ -41,10 +39,9 @@ public class StandbyFileSyncServiceTest {
 
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp(@TempDir File tempFolder) throws Exception {
         when(authToken.forHttp()).thenReturn("foo:bar");
 
-        File tempFolder = temporaryFolder.newFolder();
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
         when(systemEnvironment.getCruiseConfigFile()).thenReturn(new File(tempFolder, "cruise-config.xml").getAbsolutePath());
         when(systemEnvironment.getDESCipherFile()).thenReturn(new File(tempFolder, "cipher"));

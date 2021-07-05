@@ -23,12 +23,12 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TestRule;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,10 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
+@ExtendWith(SystemStubsExtension.class)
 public class AgentUpgradeServiceTest {
-    @Rule
-    public final TestRule restoreSystemProperties = new RestoreSystemProperties();
+    @SystemStub
+    private SystemProperties systemProperties;
 
     private SystemEnvironment systemEnvironment;
     private AgentUpgradeService agentUpgradeService;

@@ -3,23 +3,24 @@ package com.thoughtworks.go.addon.businesscontinuity.standby.service;
 import com.thoughtworks.go.addon.businesscontinuity.ConfigFileType;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
+@ExtendWith(SystemStubsExtension.class)
 class PrimaryServerEndPointTest {
 
     private PrimaryServerEndPoint primaryServerEndPoint;
     private SystemEnvironment systemEnvironment;
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    @SystemStub
+    private SystemProperties systemProperties;
 
     @BeforeEach
     void setUp() {

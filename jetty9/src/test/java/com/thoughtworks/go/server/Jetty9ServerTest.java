@@ -31,18 +31,18 @@ import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import javax.net.ssl.SSLSocketFactory;
 import javax.servlet.DispatcherType;
@@ -62,7 +62,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
+@ExtendWith(SystemStubsExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class Jetty9ServerTest {
     @Mock(lenient = true)
@@ -74,8 +74,8 @@ public class Jetty9ServerTest {
     @Mock(lenient = true)
     private DeploymentManager deploymentManager;
 
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    @SystemStub
+    private SystemProperties systemProperties;
 
     private Jetty9Server jetty9Server;
     private Handler serverLevelHandler;

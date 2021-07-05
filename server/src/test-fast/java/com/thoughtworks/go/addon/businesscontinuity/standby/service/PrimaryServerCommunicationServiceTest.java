@@ -10,7 +10,6 @@ import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,9 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,13 +35,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(SystemStubsExtension.class)
 @EnableRuleMigrationSupport
 public class PrimaryServerCommunicationServiceTest {
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    @SystemStub
+    private SystemProperties systemProperties;
 
     private static final String CREDENTIALS = "bob:s3cr3t";
     private static final String CREDENTIALS_AS_BASE64 = Base64.getEncoder().encodeToString(CREDENTIALS.getBytes(UTF_8));
@@ -179,8 +182,8 @@ public class PrimaryServerCommunicationServiceTest {
     class AbleToConnect {
         @Rule
         public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-        @Rule
-        public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+        @SystemStub
+        private SystemProperties systemProperties;
 
         @Test
         void shouldReturnFalseIfUnableToConnect() {

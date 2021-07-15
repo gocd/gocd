@@ -35,7 +35,7 @@ final Map<String, String> libraries = [
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.68', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
   bundler             : 'rubygems:bundler:2.1.1',
   cglib               : 'cglib:cglib:3.3.0',
-  cloning             : 'uk.com.robust-it:cloning:1.9.12',
+  cloning             : 'io.github.kostaskougios:cloning:1.10.3',
   commonsBeanUtils    : 'commons-beanutils:commons-beanutils:1.9.4',
   commonsCodec        : 'commons-codec:commons-codec:1.15',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',

@@ -47,7 +47,7 @@ final Map<String, String> libraries = [
   commonsLang         : 'commons-lang:commons-lang:2.6',
   commonsLang3        : 'org.apache.commons:commons-lang3:3.12.0',
   commonsPool         : 'org.apache.commons:commons-pool2:2.10.0',
-  dbunit              : 'org.dbunit:dbunit:2.7.0',
+  dbunit              : 'org.dbunit:dbunit:2.7.1',
   dom4j               : 'dom4j:dom4j:1.6.1',
   ehcache             : 'net.sf.ehcache:ehcache:2.10.9.2',
   felix               : 'org.apache.felix:org.apache.felix.framework:5.6.10',

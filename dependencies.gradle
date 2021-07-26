@@ -79,7 +79,7 @@ final Map<String, String> libraries = [
   junit4              : 'junit:junit:4.13.2',
   junit5              : 'org.junit.jupiter:junit-jupiter-api:5.7.2',
   liquibase           : 'org.liquibase:liquibase-core:4.3.5',
-  logback             : 'ch.qos.logback:logback-classic:1.2.3',
+  logback             : 'ch.qos.logback:logback-classic:1.2.4-groovyless',
   lombok              : 'org.projectlombok:lombok:1.18.20',
   mail                : 'com.sun.mail:mailapi:1.6.1',
   mockito             : 'org.mockito:mockito-core:3.10.0',

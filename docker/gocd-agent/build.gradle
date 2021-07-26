@@ -3,6 +3,7 @@ import com.thoughtworks.go.build.docker.Distro
 import com.thoughtworks.go.build.docker.DistroVersion
 import com.thoughtworks.go.build.docker.ImageType
 import groovy.json.JsonOutput
+import org.apache.tools.ant.util.TeeOutputStream
 
 /*
  * Copyright 2021 ThoughtWorks, Inc.
@@ -100,43 +101,52 @@ subprojects {
 
     task.verifyHelper = {
       // test image
+
       // daemonize the container
       project.exec {
         workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "run", "--rm", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
+        commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
         standardOutput = System.out
         errorOutput = System.err
       }
 
       Thread.sleep(5000)
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream()
+      ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "logs", docker.dockerImageName]
+        standardOutput = containerOutput
+        errorOutput = containerOutput
+        ignoreExitValue = true
+      }
 
       // run a `ps aux`
+      ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
       project.exec {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "exec", docker.dockerImageName, "ps", "aux"]
-        standardOutput = baos
-        errorOutput = baos
+        standardOutput = new TeeOutputStream(psOutput, System.out)
+        errorOutput = new TeeOutputStream(psOutput, System.err)
+        ignoreExitValue = true
       }
 
-      // stop the container
+      // remove the container
       project.exec {
         workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "stop", docker.dockerImageName]
+        commandLine = ["docker", "rm", "--force", docker.dockerImageName]
         standardOutput = System.out
         errorOutput = System.err
       }
 
       // assert if process was running
       def expectedString = "lib/agent-bootstrapper.jar -serverUrl http://localhost:8153/go"
-      def processList = baos.toString()
+      def processList = psOutput.toString()
       if (!processList.contains(expectedString)) {
-        throw new GradleException("Expected process output to contain ${expectedString}, but was: ${processList}".toString())
+        throw new GradleException("Expected process output to contain [${expectedString}], but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
       }
     }
   }
-  //create a task for git push - depends on dockerfile
 }
 
 task generateManifest() {

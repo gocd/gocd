@@ -33,7 +33,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:6.2.0'
+    classpath 'org.owasp:dependency-check-gradle:6.2.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.39.0'
     classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0'
     classpath 'com.github.jk1:gradle-license-report:1.16'
@@ -182,8 +182,8 @@ dependencyCheck {
       baseUrl = "https://nvd.nist.gov/feeds"
     }
 
-    urlModified = "${baseUrl}/json/cve/1.0/nvdcve-1.0-modified.json.gz"
-    urlBase = "${baseUrl}/json/cve/1.0/nvdcve-1.0-%d.json.gz"
+    urlModified = "${baseUrl}/json/cve/1.1/nvdcve-1.1-modified.json.gz"
+    urlBase = "${baseUrl}/json/cve/1.1/nvdcve-1.1-%d.json.gz"
   }
 
   suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()

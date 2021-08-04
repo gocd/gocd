@@ -186,6 +186,10 @@ dependencyCheck {
     urlBase = "${baseUrl}/json/cve/1.1/nvdcve-1.1-%d.json.gz"
   }
 
+  analyzers {
+    bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
+  }
+
   suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
 }
 

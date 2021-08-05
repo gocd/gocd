@@ -193,8 +193,15 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<DistroVersion> getSupportedVersions() {
+      def installSasl = [
+              'apk add --no-cache libsasl sudo',
+              // Workaround for https://github.com/docker-library/docker/commit/75e26edc9ea7fff4aa3212fafa5966f4d6b00022
+              // which causes a clash with glibc, which is installed later for AdoptOpenJDK and will serve the same purpose
+              'apk del --purge libc6-compat'
+      ]
+
       return [
-        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: ['apk add --no-cache libsasl sudo'])
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: installSasl)
       ]
     }
 

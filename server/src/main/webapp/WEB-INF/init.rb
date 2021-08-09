@@ -15,14 +15,13 @@
 #
 
 gem_home = nil
-gem_ruby_version = "#{RUBY_VERSION}".gsub(/\.[0-9]+$/, '.0')
 gemfile_location = nil
 
 if $servlet_context
-  gem_home = $servlet_context.getRealPath("/WEB-INF/rails/gems/jruby/#{gem_ruby_version}")
+  gem_home = $servlet_context.getRealPath("/WEB-INF/rails/gems/jruby/#{RUBY_VERSION}")
   gemfile_location ||= $servlet_context.getRealPath('/WEB-INF/rails/Gemfile')
 else
-  gem_home = File.expand_path(File.join('..', "/rails/gems/jruby/#{gem_ruby_version}"), __FILE__)
+  gem_home = File.expand_path(File.join('..', "/rails/gems/jruby/#{RUBY_VERSION}"), __FILE__)
   gemfile_location ||= File.expand_path(File.join('..', '/rails/Gemfile'), __FILE__)
 end
 

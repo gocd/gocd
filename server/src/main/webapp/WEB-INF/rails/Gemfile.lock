@@ -254,7 +254,7 @@ DEPENDENCIES
   versionist
 
 RUBY VERSION
-   ruby 2.5.8p0 (jruby 9.2.19.0)
+   ruby 2.5.0p0 (jruby 9.2.0.0)
 
 BUNDLED WITH
    2.1.1

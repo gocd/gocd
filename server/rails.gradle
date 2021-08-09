@@ -111,7 +111,6 @@ task initializeRailsGems {
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
   inputs.properties([
-    jrubyVersion: project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
     railsRoot: project.railsRoot
   ])
@@ -129,7 +128,7 @@ task initializeRailsGems {
     project.jrubyexec {
       workingDir = project.railsRoot
 
-      args = ['-S', 'gem', 'install', '--quiet', '--no-document', '--local', '--ignore-dependencies', '--install-dir', project.bundledGemDir]
+      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies', '--install-dir', project.bundledGemDir]
       args += project.configurations.jrubyGems
       maxHeapSize = '1g'
     }

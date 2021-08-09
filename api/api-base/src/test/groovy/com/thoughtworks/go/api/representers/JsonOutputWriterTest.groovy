@@ -20,11 +20,13 @@ import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.thoughtworks.go.api.base.JsonOutputWriter
 import com.thoughtworks.go.spark.mocks.TestRequestContext
-import org.apache.poi.util.LocaleUtil
 import org.junit.jupiter.api.Test
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat
-import static org.assertj.core.api.AssertionsForClassTypes.fail
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+
+import static org.assertj.core.api.Assertions.assertThat
+import static org.assertj.core.api.Assertions.fail
 
 class JsonOutputWriterTest {
   @Test
@@ -45,12 +47,11 @@ class JsonOutputWriterTest {
   void 'should output time'() {
     def result = new StringWriter()
 
-    def calendar = Calendar.getInstance(LocaleUtil.TIMEZONE_UTC)
-    calendar.set(2000, Calendar.JANUARY, 2, 10, 11, 12)
+    def time = ZonedDateTime.of(2000, 1, 2, 10, 11, 12, 0, ZoneOffset.UTC)
 
     new JsonOutputWriter(result, new TestRequestContext()).forTopLevelObject { writer ->
-      writer.add("key1", calendar.getTime())
-      writer.addIfNotNull("key2", calendar.getTime())
+      writer.add("key1", time.toDate())
+      writer.addIfNotNull("key2", time.toDate())
       writer.addIfNotNull("key3", (Date) null)
     }
 

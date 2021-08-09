@@ -36,6 +36,7 @@ final Map<String, String> libraries = [
   bundler             : 'rubygems:bundler:2.1.1',
   cglib               : 'cglib:cglib:3.3.0',
   cloning             : 'uk.com.robust-it:cloning:1.9.12',
+  commonsBeanUtils    : 'commons-beanutils:commons-beanutils:1.9.4',
   commonsCodec        : 'commons-codec:commons-codec:1.15',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
   commonsCollections4 : 'org.apache.commons:commons-collections4:4.4',
@@ -119,6 +120,7 @@ final Map<String, String> v = [
   bouncyCastle        : versionOf(libraries.bouncyCastle),
   cglib               : versionOf(libraries.cglib),
   cloning             : versionOf(libraries.cloning),
+  commonsBeanutils    : versionOf(libraries.commonsBeanUtils),
   commonsCodec        : versionOf(libraries.commonsCodec),
   commonsCollections  : versionOf(libraries.commonsCollections),
   commonsCollections4 : versionOf(libraries.commonsCollections4),
@@ -178,7 +180,6 @@ final Map<String, String> v = [
   ztExec              : versionOf(libraries.ztExec),
 
   // misc
-  commonsBeanutils    : '1.9.3',
   tanuki              : '3.5.41',
   tini                : '0.18.0',
   velocityToolsView   : '1.4',

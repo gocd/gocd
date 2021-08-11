@@ -26,9 +26,9 @@ trait DistroBehavior {
   }
 
   DistroVersion getVersion(String version) {
-    return supportedVersions.find { supportedVersion ->
+    return (supportedVersions.find { supportedVersion ->
       supportedVersion.version == version
-    }
+    }) ?: {throw new RuntimeException("Version [${version}] is not defined for this distro.")}()
   }
 
   List<String> getCreateUserAndGroupCommands() {

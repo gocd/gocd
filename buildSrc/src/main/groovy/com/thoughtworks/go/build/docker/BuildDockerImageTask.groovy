@@ -22,6 +22,11 @@ import freemarker.template.Configuration
 import freemarker.template.Template
 import freemarker.template.TemplateExceptionHandler
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 enum ImageType {
@@ -30,14 +35,14 @@ enum ImageType {
 }
 
 class BuildDockerImageTask extends DefaultTask {
-  Distro distro
-  DistroVersion distroVersion
-  String tiniVersion
-  File artifactZip
-  ImageType imageType
-  File outputDir
-  Closure templateHelper
-  Closure verifyHelper
+  @Input Distro distro
+  @Input DistroVersion distroVersion
+  @Input String tiniVersion
+  @InputFile File artifactZip
+  @Input ImageType imageType
+  @OutputDirectory File outputDir
+  @Internal Closure templateHelper
+  @Internal Closure verifyHelper
 
   BuildDockerImageTask() {
     outputs.cacheIf { false }
@@ -99,9 +104,11 @@ class BuildDockerImageTask extends DefaultTask {
       }
 
       // delete the image, to save space
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "rmi", imageNameWithTag]
+      if (!project.hasProperty('dockerBuildKeepImages')) {
+        project.exec {
+          workingDir = project.rootProject.projectDir
+          commandLine = ["docker", "rmi", imageNameWithTag]
+        }
       }
 
       if (System.getenv('GO_SERVER_URL')) {
@@ -131,14 +138,17 @@ class BuildDockerImageTask extends DefaultTask {
     }
   }
 
+  @Internal
   protected GString getImageNameWithTag() {
     "${dockerImageName}:${imageTag}"
   }
 
+  @Input
   GString getImageTag() {
     "v${project.fullVersion}"
   }
 
+  @OutputFile
   File getImageTarFile() {
     project.file("${outputDir}/gocd-${imageType.name()}-${dockerImageName}-v${project.fullVersion}.tar")
   }
@@ -178,10 +188,12 @@ class BuildDockerImageTask extends DefaultTask {
     "Dockerfile.${imageType.name()}.ftl"
   }
 
+  @Internal
   File getGitRepoDirectory() {
     project.file("${project.buildDir}/${gitHubRepoName}")
   }
 
+  @Internal
   String getGitHubRepoName() {
     if (imageType == ImageType.agent) {
       if (distro == Distro.docker) {
@@ -197,6 +209,7 @@ class BuildDockerImageTask extends DefaultTask {
     }
   }
 
+  @Internal
   String getDockerImageName() {
     if (imageType == ImageType.agent) {
       if (distro == Distro.docker) {
@@ -212,10 +225,12 @@ class BuildDockerImageTask extends DefaultTask {
     }
   }
 
+  @Internal
   protected File getDockerfile() {
     project.file("${gitRepoDirectory}/Dockerfile")
   }
 
+  @Internal
   Map<String, Map<String, String>> getAdditionalFiles() {
     return [
       '/usr/local/sbin/tini': [

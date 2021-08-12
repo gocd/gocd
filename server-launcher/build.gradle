@@ -197,6 +197,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "tfs-impl-14.jar",
     ],
     "lib"         : [
+      "bcutil-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
       "commons-io-${project.versions.commonsIO}.jar",

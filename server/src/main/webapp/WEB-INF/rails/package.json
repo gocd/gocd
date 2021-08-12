@@ -69,7 +69,7 @@
     "@types/fs-extra": "^9.0.11",
     "@types/html-webpack-plugin": "^3.2.5",
     "@types/jasmine": "^3.7.6",
-    "@types/jasmine-ajax": "^3.3.2",
+    "@types/jasmine-ajax": "^3.3.3",
     "@types/jquery": "^3.5.5",
     "@types/license-checker": "^25.0.1",
     "@types/lodash": "^4.14.172",

@@ -25,8 +25,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 enum ImageType {
@@ -40,7 +38,7 @@ class BuildDockerImageTask extends DefaultTask {
   @Input String tiniVersion
   @InputFile File artifactZip
   @Input ImageType imageType
-  @OutputDirectory File outputDir
+  @Input File outputDir // Not really a classic output dir from Gradle perspective, as multiple tasks share dir from parent with unique tarballs per distribution
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
 
@@ -109,13 +107,12 @@ class BuildDockerImageTask extends DefaultTask {
           workingDir = project.rootProject.projectDir
           commandLine = ["docker", "rmi", imageNameWithTag]
         }
-      }
-
-      if (System.getenv('GO_SERVER_URL')) {
-        // delete the parent image, to save space
-        project.exec {
-          workingDir = project.rootProject.projectDir
-          commandLine = ["docker", "rmi", "${distro.name()}:${distroVersion.releaseName}"]
+        if (System.getenv('GO_SERVER_URL')) {
+          // delete the parent image, to save space
+          project.exec {
+            workingDir = project.rootProject.projectDir
+            commandLine = ["docker", "rmi", "${distro.name()}:${distroVersion.releaseName}"]
+          }
         }
       }
     }
@@ -148,12 +145,12 @@ class BuildDockerImageTask extends DefaultTask {
     "v${project.fullVersion}"
   }
 
-  @OutputFile
+  @Internal
   File getImageTarFile() {
     project.file("${outputDir}/gocd-${imageType.name()}-${dockerImageName}-v${project.fullVersion}.tar")
   }
 
-  void writeTemplateToFile(String templatefile, File outputFile) {
+  void writeTemplateToFile(String templateFile, File outputFile) {
     Configuration configuration = new Configuration(Configuration.VERSION_2_3_28)
     configuration.setDefaultEncoding("utf-8")
     configuration.setLogTemplateExceptions(true)
@@ -162,7 +159,7 @@ class BuildDockerImageTask extends DefaultTask {
     configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER)
     configuration.setTemplateLoader(new ClassTemplateLoader(BuildDockerImageTask.classLoader, "/gocd-docker-${imageType.name()}"))
 
-    Template template = configuration.getTemplate(templatefile, "utf-8")
+    Template template = configuration.getTemplate(templateFile, "utf-8")
 
     def map = [
       distro         : distro,

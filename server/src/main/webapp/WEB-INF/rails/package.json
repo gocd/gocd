@@ -73,7 +73,7 @@
     "@types/jquery": "^3.5.5",
     "@types/license-checker": "^25.0.1",
     "@types/lodash": "^4.14.172",
-    "@types/lru-cache": "^5.1.0",
+    "@types/lru-cache": "^5.1.1",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.0.6",
     "@types/node": "^15.6.2",

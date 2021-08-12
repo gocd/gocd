@@ -133,6 +133,7 @@ task verifyJar(type: VerifyJarTask) {
       "base-${project.version}.jar",
       "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
+      "bcutil-jdk15on-${project.versions.bouncyCastle}.jar",
       "checker-qual-3.12.0.jar",
       "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",

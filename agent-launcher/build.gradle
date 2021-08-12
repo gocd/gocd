@@ -59,6 +59,7 @@ task verifyJar(type: VerifyJarTask) {
           "base-${project.version}.jar",
           "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
           "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
+          "bcutil-jdk15on-${project.versions.bouncyCastle}.jar",
           "commons-codec-${project.versions.commonsCodec}.jar",
           "commons-io-${project.versions.commonsIO}.jar",
           "commons-lang3-${project.versions.commonsLang3}.jar",

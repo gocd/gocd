@@ -188,6 +188,7 @@ dependencyCheck {
 
   analyzers {
     bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
+    assemblyEnabled  = false
   }
   skipConfigurations = ['pmd']
   suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()

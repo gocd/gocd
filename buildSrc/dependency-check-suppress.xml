@@ -15,64 +15,70 @@
   ~ limitations under the License.
   -->
 
-<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
-  <suppress>
-    <notes><![CDATA[
-   file name: jruby-rack-1.1.21.jar
-   CVE-2010-1330 requires JRuby upto and including 1.4.0
-   CVE-2011-4838 requires JRuby upto and including 1.6.5
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+   Suppressing false positive as GoCD internal mysql support JAR is not the same thing as MySQL and MySQL server.
    ]]></notes>
-    <gav>org.jruby.rack:jruby-rack:1.1.21</gav>
-    <cve>CVE-2010-1330</cve>
-    <cve>CVE-2011-4838</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   file name: api-scms-v1.jar (project :api:api-scms-v1)
+        <cpe>cpe:/a:mysql:mysql</cpe>
+        <cpe>cpe:/a:mysql:mysql_server</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   Suppressing false positive caused by OWASP Dependency Check thinking the shaded/packaged dirgra library is the same
+   as the JRuby version. These are versioned independently and not the same thing.
    ]]></notes>
-    <sha1>05aac153a024b559e3056be75c1f1ae46af6313c</sha1>
-    <cpe>cpe:/a:scms_project:scms</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   file name: spring-security-web-4.2.13.RELEASE.jar
-   file name: spring-security-config-4.2.13.RELEASE.jar
-   file name: spring-security-core-4.2.13.RELEASE.jar
-   This one only affects spring-security 5.0.5
+        <packageUrl regex="true">^pkg:maven/org\.jruby/dirgra@.*$</packageUrl>
+        <cpe>cpe:/a:jruby:jruby</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   Suppressing false positive caused by OWASP Dependency Check thinking shaded RubyGems are the same thing as
+   as JRuby or their related libraries independently. These are not the same things.
    ]]></notes>
-    <gav regex="true">^org\.springframework\.security:(spring-security-web|spring-security-config|spring-security-core):4\.2\.13\.RELEASE$</gav>
-    <cve>CVE-2018-1258</cve>
-  </suppress>
+        <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
+        <cpe>cpe:/a:jruby:jruby</cpe>
+        <cpe>cpe:/a:openssl:openssl</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   Suppressing false positive caused by OWASP Dependency Check thinking jruby-rack is the same thing as
+   as JRuby independently. These are not the same things.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
+        <vulnerabilityName>CVE-2010-1330</vulnerabilityName>
+        <vulnerabilityName>CVE-2011-4838</vulnerabilityName>
+    </suppress>
 
-  <suppress>
-    <notes><![CDATA[
+    <suppress>
+        <notes><![CDATA[
+   This one only affects Spring Framework 5.0.5 when combined with Spring Security so is a false positive.
+   https://nvd.nist.gov/vuln/detail/CVE-2018-1258 OWASP Dependency Check codes not currently understanding "A and B"
+   CPE constraints. See https://github.com/jeremylong/DependencyCheck/issues/1827
+   ]]></notes>
+        <gav regex="true">^org\.springframework\.security:spring-security-.*:4\..*$</gav>
+        <cve>CVE-2018-1258</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    file name: jruby-complete-9.2.0.0.jar/META-INF/jruby.home/lib/ruby/stdlib/rdoc/generator/template/darkfish/js/jquery.js
    this is a file used by rdoc used in the final generated rdoc, which we do not use in dev or prod
    ]]></notes>
-    <!-- this is the sha1 of the jquery.js file, not of jruby jar -->
-    <sha1>71cce71820cc47b3bd1098618d248325fcf24ddb</sha1>
-    <cve>CVE-2015-9251</cve>
-    <cve>CVE-2012-6708</cve>
-    <cve>CVE-2019-11358</cve>
-  </suppress>
+        <!-- this is the sha1 of the jquery.js file, not of jruby jar -->
+        <sha1>71cce71820cc47b3bd1098618d248325fcf24ddb</sha1>
+        <cve>CVE-2015-9251</cve>
+        <cve>CVE-2012-6708</cve>
+        <cve>CVE-2019-11358</cve>
+    </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-   file name: api-scms-v1.jar (project :api:api-scms-v1)
+    <suppress>
+        <notes><![CDATA[
+   https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
+   separately and which is not used within GoCD.
    ]]></notes>
-    <cpe>cpe:/a:scms_project:scms</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   file name: jackson-databind-2.9.9.jar
-
-   This only applies if we're using `enableDefaultTyping`
-   ]]></notes>
-    <gav>com.fasterxml.jackson.core:jackson-databind:2.9.9</gav>
-    <cve>CVE-2019-12814</cve>
-  </suppress>
+        <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
+        <cve>CVE-2020-13697</cve>
+    </suppress>
 
 </suppressions>

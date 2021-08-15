@@ -128,6 +128,7 @@ task verifyJar(type: VerifyJarTask) {
       "FastInfoset-1.2.15.jar",
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
+      "animal-sniffer-annotations-1.9.jar",
       "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",
       "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",

@@ -35,7 +35,7 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.server.service.BackupScheduler.BACKUP_SCHEDULER_TIMER_GROUP;
 import static com.thoughtworks.go.server.service.BackupScheduler.BACKUP_SCHEDULER_TIMER_NAME;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 

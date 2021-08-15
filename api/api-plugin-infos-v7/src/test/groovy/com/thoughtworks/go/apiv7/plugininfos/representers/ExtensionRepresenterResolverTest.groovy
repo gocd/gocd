@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.apiv7.plugininfos.representers.ExtensionRepresenterResolver.resolveRepresenterFor
 import static com.thoughtworks.go.helpers.PluginInfoMother.createSecretConfigPluginInfo
-import static org.assertj.core.api.Java6Assertions.assertThat
+import static org.assertj.core.api.Assertions.assertThat
 
 class ExtensionRepresenterResolverTest {
 

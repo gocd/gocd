@@ -22,8 +22,8 @@ import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
-import static org.assertj.core.api.Java6Assertions.assertThat
-import static org.assertj.core.api.Java6Assertions.assertThatCode
+import static org.assertj.core.api.Assertions.assertThat
+import static org.assertj.core.api.Assertions.assertThatCode
 
 class SecurityAuthConfigRepresenterTest {
   @Test

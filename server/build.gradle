@@ -952,27 +952,14 @@ task licenseReportAggregate {
       ]
     ],
     [
-      moduleName    : 'net.sf.ehcache:ehcache',
-      moduleVersion : '2.10.5',
+      moduleName    : 'org.ow2.asm:asm',
+      moduleVersion : '7.1',
       moduleUrls    : [
-        "http://ehcache.org",
-        'http://www.terracotta.org'
+        "https://asm.ow2.io/"
       ],
       moduleLicenses: [
         [
-          moduleLicense   : 'Apache License, Version 2.0',
-          moduleLicenseUrl: "http://www.apache.org/licenses/LICENSE-2.0"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'asm:asm',
-      moduleVersion : '1.5.3',
-      moduleUrls    : [
-        "http://asm.objectweb.org/"
-      ],
-      moduleLicenses: [
-        [
+          // License is automatically detected as 0BSD by gradle-license-report, but appears to actually be BSD-3-Clause in nature
           moduleLicense   : 'BSD-3-Clause',
           moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
         ]
@@ -1009,19 +996,6 @@ task licenseReportAggregate {
       moduleVersion : project.versions.jolt,
       moduleUrls    : [
         "https://github.com/bazaarvoice/jolt"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Apache-2.0',
-          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'com.googlecode.javaewah:JavaEWAH',
-      moduleVersion : '1.1.7',
-      moduleUrls    : [
-        "https://github.com/lemire/javaewah"
       ],
       moduleLicenses: [
         [
@@ -1073,15 +1047,16 @@ task licenseReportAggregate {
       moduleName    : 'jaxen:jaxen',
       moduleVersion : project.versions.jaxen,
       moduleUrls    : [
-        "http://jaxen.codehaus.org/"
+        "http://www.cafeconleche.org/jaxen/"
       ],
       moduleLicenses: [
         [
+          // License is automatically detected as 0BSD by gradle-license-report, but appears to actually be BSD-3-Clause in nature
           moduleLicense   : 'BSD-3-Clause',
           moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
         ]
       ]
-    ]
+    ],
   ]
 
   def goCDJarsWithoutLicenses = ['agent-launcher.jar',

@@ -58,7 +58,7 @@ enum SpdxLicense {
   BSD_2_CLAUSE("BSD-2-Clause", "BSD 2-clause \"Simplified\" License", "The 2-Clause BSD License"),
   BSD_2_CLAUSE_FREEBSD("BSD-2-Clause-FreeBSD", "BSD 2-clause FreeBSD License"),
   BSD_2_CLAUSE_NETBSD("BSD-2-Clause-NetBSD", "BSD 2-clause NetBSD License"),
-  BSD_3_CLAUSE("BSD-3-Clause", "BSD 3-clause \"New\" or \"Revised\" License", "BSD 3-Clause", "The BSD 3-Clause License", "The 3-Clause BSD License"),
+  BSD_3_CLAUSE("BSD-3-Clause", "BSD 3-clause \"New\" or \"Revised\" License", "BSD 3-Clause", "The BSD 3-Clause License", "The 3-Clause BSD License", "BSD License 2.0"),
   BSD_3_CLAUSE_CLEAR("BSD-3-Clause-Clear", "BSD 3-clause Clear License"),
   BSD_4_ClAUSE("BSD-4-Clause", "BSD 4-clause \"Original\" or \"Old\" License"),
   BSD_PROTECTION("BSD-Protection", "BSD Protection License"),

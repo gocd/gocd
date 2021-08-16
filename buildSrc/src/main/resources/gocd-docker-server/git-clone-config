@@ -7,7 +7,7 @@ try() { echo "$ $@" 1>&2; "$@" || die "cannot $*"; }
 try cd /godata/config
 # somehow this script and install-gocd-plugins called 2 times
 # so check if git repo already exists
-if [ ! -z "$CONFIG_GIT_REPO" ] && [ ! `git status` ]; then 
+if [ -n "$CONFIG_GIT_REPO" ] && ! git status; then
   yell "fill /godata/config from $CONFIG_GIT_REPO"
   BRANCH=$([ ! -z $CONFIG_GIT_BRANCH ] && echo $CONFIG_GIT_BRANCH || echo "master" )
   try git init

@@ -18,11 +18,11 @@ package com.thoughtworks.go.config.builder;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.security.GoCipher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConfigurationPropertyBuilderTest {
     @Test

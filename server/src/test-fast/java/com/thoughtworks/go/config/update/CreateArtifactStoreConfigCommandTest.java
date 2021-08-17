@@ -19,28 +19,18 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 public class CreateArtifactStoreConfigCommandTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Mock
     private ArtifactExtension extension;
-
-
-    @Before
-    public void setUp() throws Exception {
-        initMocks(this);
-    }
 
     @Test
     public void shouldAddArtifactStoreToConfig() throws Exception {

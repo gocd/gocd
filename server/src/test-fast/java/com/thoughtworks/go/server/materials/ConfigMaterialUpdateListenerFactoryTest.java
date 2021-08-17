@@ -16,16 +16,17 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.internal.verification.Times;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ConfigMaterialUpdateListenerFactoryTest {
     @Mock
     private SystemEnvironment systemEnvironment;
@@ -33,10 +34,6 @@ public class ConfigMaterialUpdateListenerFactoryTest {
     @Mock
     ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
 
-    @Before
-    public void setUp() throws Exception {
-        initMocks(this);
-    }
 
     @Test
     public void shouldCreateCompetingConsumersForSuppliedDependencyMaterialQueue() {

@@ -23,8 +23,8 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -34,9 +34,10 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
@@ -55,7 +56,8 @@ public class PipelineTimelineTest {
     private int txnStatus;
 
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         now = new DateTime();
         pipelineRepository = mock(PipelineRepository.class);
         materials = Arrays.asList("first", "second", "third", "fourth");
@@ -86,8 +88,8 @@ public class PipelineTimelineTest {
         PipelineTimelineEntry actualBefore = mods.runBefore(actual.getId(), new CaseInsensitiveString(pipelineName));
         PipelineTimelineEntry actualAfter = mods.runAfter(actual.getId(), new CaseInsensitiveString(pipelineName));
 
-        assertEquals("Expected " + before + " to be before " + actual + ". Got " + actualBefore, actualBefore, before);
-        assertEquals("Expected " + after + " to be after " + actual + ". Got " + actualAfter, actualAfter, after);
+        assertEquals(actualBefore, before, "Expected " + before + " to be before " + actual + ". Got " + actualBefore);
+        assertEquals(actualAfter, after, "Expected " + after + " to be after " + actual + ". Got " + actualAfter);
     }
 
     @Test public void shouldPopulateTheBeforeAndAfterNodesForAGivenPMMDuringAddition() throws Exception {

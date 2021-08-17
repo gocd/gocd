@@ -15,13 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DefaultAgentRegistryTest {
     private DefaultAgentRegistry agentRegistry;
@@ -30,7 +31,7 @@ public class DefaultAgentRegistryTest {
     private GuidService guidService;
     private TokenService tokenService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         agentRegistry = new DefaultAgentRegistry();
         guidService = new GuidService();
@@ -40,7 +41,7 @@ public class DefaultAgentRegistryTest {
         tokenService.store(TOKEN);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         guidService.delete();
         tokenService.delete();

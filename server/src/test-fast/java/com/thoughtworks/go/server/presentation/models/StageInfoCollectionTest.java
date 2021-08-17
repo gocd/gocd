@@ -19,8 +19,8 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class StageInfoCollectionTest {
 

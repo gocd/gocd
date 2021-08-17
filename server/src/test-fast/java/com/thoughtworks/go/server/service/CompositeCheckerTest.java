@@ -19,11 +19,11 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.server.service.CompositeCheckerTest.StubCheckerFactory.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CompositeCheckerTest {
 

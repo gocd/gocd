@@ -18,9 +18,9 @@ package com.thoughtworks.go.domain;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
-import org.junit.Assert;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class StageIdentifierTest {
 
@@ -50,7 +50,7 @@ public class StageIdentifierTest {
         StageIdentifier identifier = new StageIdentifier("cruise", null, "label", "dev", "");
         try {
             identifier.ccTrayLastBuildLabel();
-            Assert.fail("should throw exception if stage counter is not number");
+            Assertions.fail("should throw exception if stage counter is not number");
         } catch (Exception e) {
             assertThat(e, instanceOf(NumberFormatException.class));
         }

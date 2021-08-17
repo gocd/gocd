@@ -27,8 +27,8 @@ import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
 import com.thoughtworks.go.domain.valuestreammap.PipelineRevision;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.dao.StageDao;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +40,7 @@ public class RunStagesPopulatorTest {
     private RunStagesPopulator runStagesPopulator;
     private StageDao stageDao;
 
-    @Before
+    @BeforeEach
     public void setup() {
         stageDao = mock(StageDao.class);
         runStagesPopulator = new RunStagesPopulator(stageDao);

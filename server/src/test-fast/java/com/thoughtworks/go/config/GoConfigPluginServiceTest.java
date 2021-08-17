@@ -22,15 +22,15 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static junit.framework.TestCase.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -45,9 +45,8 @@ public class GoConfigPluginServiceTest {
     private Collection<CRPipeline> pipelines = new ArrayList<>();
     private ErrorCollection errors = new ErrorCollection();
 
-    @Before
-    public void SetUp()
-    {
+    @BeforeEach
+    public void SetUp() {
         extension = mock(ConfigRepoExtension.class);
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
                 mock(CachedGoConfig.class), mock(AgentService.class));

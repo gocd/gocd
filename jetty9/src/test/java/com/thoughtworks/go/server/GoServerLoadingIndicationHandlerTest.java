@@ -23,19 +23,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class GoServerLoadingIndicationHandlerTest {
     @Mock
     private WebAppContext webAppContext;
@@ -47,10 +49,8 @@ class GoServerLoadingIndicationHandlerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         handler = new GoServerLoadingIndicationHandler(webAppContext, systemEnvironment);
     }
-
 
     @Nested
     @DisplayName("When web app has started")
@@ -199,12 +199,12 @@ class GoServerLoadingIndicationHandlerTest {
         if (acceptHeaderValue != null) {
             httpFields.add("Accept", acceptHeaderValue);
         }
-        when(baseRequest.getHttpFields()).thenReturn(httpFields);
+        lenient().when(baseRequest.getHttpFields()).thenReturn(httpFields);
 
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         PrintWriter printWriter = mock(PrintWriter.class);
-        when(servletResponse.getWriter()).thenReturn(printWriter);
+        lenient().when(servletResponse.getWriter()).thenReturn(printWriter);
 
         handler.getHandler().handle(target, baseRequest, servletRequest, servletResponse);
 

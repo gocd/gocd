@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.agent.common;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -29,7 +29,7 @@ public class AgentCLITest {
     private ByteArrayOutputStream errorStream;
     private AgentCLI agentCLI;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         errorStream = new ByteArrayOutputStream();
         AgentCLI.SystemExitter exitter = status -> {

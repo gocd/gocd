@@ -21,22 +21,23 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerConfigTest {
     private ServerConfig defaultServerConfig;
     private ServerConfig another;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         defaultServerConfig = new ServerConfig("artifactsDir", new SecurityConfig());
         another = new ServerConfig("artifactsDir", new SecurityConfig());

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.service.ConfigRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;

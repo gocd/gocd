@@ -22,8 +22,8 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.util.DirectoryReader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.UUID;
@@ -32,7 +32,7 @@ import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.StageMother.custom;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -43,7 +43,7 @@ public class JobDetailPresentationModelTest {
     private DirectoryReader directoryReader;
     private ArtifactsService artifactsService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         directoryReader = mock(DirectoryReader.class);
         artifactsService = mock(ArtifactsService.class);

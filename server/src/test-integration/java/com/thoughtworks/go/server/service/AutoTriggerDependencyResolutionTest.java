@@ -44,23 +44,26 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-@RunWith(SpringJUnit4ClassRunner.class)
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -70,22 +73,33 @@ import static org.mockito.Mockito.when;
 public class AutoTriggerDependencyResolutionTest {
     public static final String STAGE_NAME = "s";
     public static final Cloner CLONER = ClonerFactory.instance();
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoCache goCache;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private MaterialChecker materialChecker;
-    @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private MaterialChecker materialChecker;
+    @Autowired
+    private PipelineTimeline pipelineTimeline;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -96,7 +110,7 @@ public class AutoTriggerDependencyResolutionTest {
         notifier.disableUpdates();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         notifier.enableUpdates();
         systemEnvironment.reset(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
@@ -2000,7 +2014,7 @@ public class AutoTriggerDependencyResolutionTest {
 
     }
 
-    @Test(expected = MaxBackTrackLimitReachedException.class)
+    @Test
     public void shouldResolveSimpleDiamondAndThrowLimitException() {
         int i = 1;
         GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder");
@@ -2031,10 +2045,12 @@ public class AutoTriggerDependencyResolutionTest {
 
         systemEnvironment.set(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT, 1);
 
-        getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
+        assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p4, cruiseConfig, given))
+                .isInstanceOf(MaxBackTrackLimitReachedException.class);
     }
 
-    @Test(timeout = 10 * 1000, expected = NoCompatibleUpstreamRevisionsException.class)
+    @Test
+    @Timeout(10)
     public void shouldContinueBackTrackingFromItsLastKnownPositionAndNotFromTheBeginning() {
         int i = 1;
         GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder1");
@@ -2058,6 +2074,7 @@ public class AutoTriggerDependencyResolutionTest {
                 u.mr(p1, true, p1_1),
                 u.mr(p2, true, p2_2));
 
-        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(given));
+        assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p3, cruiseConfig, given))
+                .isInstanceOf(NoCompatibleUpstreamRevisionsException.class);
     }
 }

@@ -34,14 +34,13 @@ import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import com.thoughtworks.go.server.service.materials.PluggableSCMMaterialPoller;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
@@ -51,10 +50,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(ClearSingleton.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -62,9 +62,6 @@ import static org.mockito.Mockito.*;
         "classpath:/spring-all-servlet.xml",
 })
 public class PluggableSCMMaterialUpdaterIntegrationTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     @Autowired
     private MaterialRepository materialRepository;
     @Autowired
@@ -81,7 +78,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     private ScmMaterialUpdater scmMaterialUpdater;
     private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         scmExtension = mock(SCMExtension.class);
@@ -90,7 +87,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
     }

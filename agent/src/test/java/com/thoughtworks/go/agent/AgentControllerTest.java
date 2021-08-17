@@ -23,13 +23,11 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Rule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -37,12 +35,9 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
 public class AgentControllerTest {
-    @Rule
-    public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
     private SslInfrastructureService sslInfrastructureService;
     @Mock
@@ -60,11 +55,6 @@ public class AgentControllerTest {
     private TestingClock clock = new TestingClock();
     private final int pingInterval = 5000;
     private AgentHealthHolder agentHealthHolder = new AgentHealthHolder(clock, pingInterval);
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this);
-    }
 
     @Test
     void shouldReturnTrueIfCausedBySecurity() {

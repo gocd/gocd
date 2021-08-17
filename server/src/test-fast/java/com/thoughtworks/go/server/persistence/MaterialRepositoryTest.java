@@ -25,8 +25,8 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class MaterialRepositoryTest {
@@ -51,7 +51,7 @@ public class MaterialRepositoryTest {
     private MaterialExpansionService materialExpansionService;
     private Database databaseStrategy;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         databaseStrategy = mock(Database.class);
         sessionFactory = mock(SessionFactory.class);
@@ -114,8 +114,8 @@ public class MaterialRepositoryTest {
     public void shouldNotSaveAndClearCacheWhenThereAreNoModifications() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", null, UUID.randomUUID().toString());
         materialRepository.saveModifications(materialInstance, new ArrayList<>());
-        verifyZeroInteractions(mockHibernateTemplate);
-        verifyZeroInteractions(goCache);
+        verifyNoInteractions(mockHibernateTemplate);
+        verifyNoInteractions(goCache);
     }
 
 }

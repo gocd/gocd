@@ -26,14 +26,15 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 public class DeleteEnvironmentCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -45,9 +46,8 @@ public class DeleteEnvironmentCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         environmentName = new CaseInsensitiveString("Dev");

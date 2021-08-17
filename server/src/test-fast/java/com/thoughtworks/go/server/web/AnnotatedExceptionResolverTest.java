@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.web;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.server.util.ErrorHandler;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,7 +33,7 @@ public class AnnotatedExceptionResolverTest {
     private MockHttpServletResponse response;
     private final ModelAndView mov = new ModelAndView();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -44,7 +44,7 @@ public class AnnotatedExceptionResolverTest {
         ControllerFake controllerFake = new ControllerFake();
         ModelAndView modelAndView =
                 new AnnotatedExceptionResolver().resolveException(request, response, controllerFake, null);
-        assertTrue("the method should be invoked", controllerFake.isInvoked());
+        assertTrue(controllerFake.isInvoked(), "the method should be invoked");
         assertEquals(mov, modelAndView);
     }
 

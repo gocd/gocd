@@ -22,23 +22,21 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.*;
-import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
@@ -47,12 +45,13 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class UpdatePackageConfigCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -72,9 +71,8 @@ public class UpdatePackageConfigCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
 
@@ -140,7 +138,6 @@ public class UpdatePackageConfigCommandTest {
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        when(entityHashingService.hashForEntity(oldPackageDefinition)).thenReturn("digest");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToEdit(newPackageDefinition.getId(), currentUser.getUsername()), forbidden());
 
@@ -238,7 +235,7 @@ public class UpdatePackageConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+        lenient().when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(this.entityHashingService.hashForEntity(any(PackageDefinition.class))).thenReturn("digest");
 
@@ -264,7 +261,6 @@ public class UpdatePackageConfigCommandTest {
     @Test
     public void shouldNotContinueIfPackageIdIsChanged() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.hashForEntity(oldPackageDefinition)).thenReturn("digest");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.unprocessableEntity("Changing the package id is not supported by this API.");
 
@@ -279,7 +275,6 @@ public class UpdatePackageConfigCommandTest {
     public void shouldNotContinueIfTheRepositoryToWhichThePackageBelongsDoesNotExist() throws Exception {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         cruiseConfig.setPackageRepositories(new PackageRepositories());
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         newPackageDefinition.setRepository(new PackageRepository("id", "name", null, null));
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();

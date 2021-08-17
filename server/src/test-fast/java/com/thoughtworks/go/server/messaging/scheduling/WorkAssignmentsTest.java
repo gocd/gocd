@@ -21,13 +21,13 @@ import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.work.FakeWork;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -43,7 +43,7 @@ public class WorkAssignmentsTest {
     private AgentIdentifier agentIdentifier;
     private WorkAssignedTopic assignedWorkTopic;
 
-    @Before
+    @BeforeEach
     public void setup() {
         idleAgentsTopic = mock(IdleAgentTopic.class, "idle_topic");
         assignedWorkTopic = mock(WorkAssignedTopic.class, "assigned_work_topic");
@@ -52,7 +52,7 @@ public class WorkAssignmentsTest {
         agent = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         verify(assignedWorkTopic).addListener(any(WorkAssignments.class));
     }

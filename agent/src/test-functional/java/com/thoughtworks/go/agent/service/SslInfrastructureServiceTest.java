@@ -29,14 +29,13 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import java.io.File;
@@ -45,15 +44,12 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
 public class SslInfrastructureServiceTest {
     private SslInfrastructureService sslInfrastructureService;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private GuidService guidService = new GuidService();
     private TokenService tokenService = new TokenService();
 
@@ -68,9 +64,6 @@ public class SslInfrastructureServiceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        temporaryFolder.create();
-        initMocks(this);
-
         sslInfrastructureService = new SslInfrastructureService(urlService, httpClient, agentRegistry);
         guidService = new GuidService();
         guidService.store("uuid");
@@ -78,7 +71,6 @@ public class SslInfrastructureServiceTest {
 
     @AfterEach
     void teardown() {
-        temporaryFolder.delete();
         guidService.delete();
         tokenService.delete();
     }
@@ -131,8 +123,6 @@ public class SslInfrastructureServiceTest {
         when(agentRegistry.tokenPresent()).thenReturn(true);
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
         when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.FORBIDDEN.value(), null));
-        when(httpResponse.getEntity()).thenReturn(new StringEntity(""));
-        when(httpResponseForbidden.getEntity()).thenReturn(new StringEntity("Not a valid token."));
         when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
         sslInfrastructureService.createSslInfrastructure();
 

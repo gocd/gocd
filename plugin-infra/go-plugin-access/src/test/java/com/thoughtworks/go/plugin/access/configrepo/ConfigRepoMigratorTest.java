@@ -18,24 +18,16 @@ package com.thoughtworks.go.plugin.access.configrepo;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
-import com.thoughtworks.go.plugin.access.configrepo.v3.messages.ParseDirectoryResponseMessage;
-import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ConfigRepoMigratorTest {
     private ConfigRepoMigrator migrator;

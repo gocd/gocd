@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.server.domain.ZippedArtifact;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -27,13 +27,13 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.File;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FileModelAndViewTest {
     private MockHttpServletResponse response;
     private File existFile;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         response = new MockHttpServletResponse();
         existFile = TestFileUtil.createTempFile("a.log");

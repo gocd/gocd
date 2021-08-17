@@ -26,7 +26,9 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.remoting.support.RemoteInvocation;
 import org.springframework.remoting.support.RemoteInvocationResult;
 
@@ -39,8 +41,8 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AgentRemoteInvokerServiceExporterTest {
     private static final String AGENT_UUID = "123-456-789";
 
@@ -56,7 +58,6 @@ public class AgentRemoteInvokerServiceExporterTest {
 
     @BeforeEach
     void setup() throws Exception {
-        openMocks(this).close();
         when(env.get(AGENT_EXTRA_PROPERTIES)).thenReturn("gocd.agent.remoting.legacy=true");
         req = new MockHttpServletRequest();
         req.addHeader("X-Agent-GUID", AGENT_UUID);

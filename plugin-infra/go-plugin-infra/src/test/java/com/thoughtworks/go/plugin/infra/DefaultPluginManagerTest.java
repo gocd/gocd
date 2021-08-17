@@ -29,11 +29,13 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 
@@ -48,9 +50,9 @@ import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.Mockito.*;;
 
+@ExtendWith(MockitoExtension.class)
 class DefaultPluginManagerTest {
     @Mock
     private DefaultPluginJarLocationMonitor monitor;
@@ -60,7 +62,7 @@ class DefaultPluginManagerTest {
     private GoPluginOSGiFramework goPluginOSGiFramework;
     @Mock
     private DefaultPluginJarChangeListener jarChangeListener;
-    @Mock
+    @Mock(lenient = true)
     private SystemEnvironment systemEnvironment;
     @Mock
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
@@ -70,7 +72,6 @@ class DefaultPluginManagerTest {
 
     @BeforeEach
     void setUp(@TempDir File rootDir) {
-        initMocks(this);
         FileHelper temporaryFolder = new FileHelper(rootDir);
 
         bundleDir = temporaryFolder.newFolder("bundleDir");
@@ -166,14 +167,11 @@ class DefaultPluginManagerTest {
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId, extensionType)).thenReturn(true);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) {
-                ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[2];
-                return action.execute(goPlugin, descriptor);
-            }
+        lenient().doAnswer(invocationOnMock -> {
+            ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[2];
+            return action.execute(goPlugin, descriptor);
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq(pluginId), eq(extensionType), any(ActionWithReturn.class));
-        when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier);
+        lenient().when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier);
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         assertThat(pluginManager.isPluginOfType(extensionType, pluginId)).isTrue();
@@ -276,7 +274,6 @@ class DefaultPluginManagerTest {
     }
 
     private static class GoPlugginOSGiFrameworkStub implements GoPluginOSGiFramework {
-        PluginChangeListener pluginChangeListener;
         private GoPluginOSGiFramework goPluginOSGiFramework = mock(GoPluginOSGiFramework.class);
         private Object serviceReferenceInstance;
 
@@ -319,7 +316,7 @@ class DefaultPluginManagerTest {
         }
 
         void addHasReferenceFor(Class<?> serviceRef, String pluginId, String extensionType, boolean hasReference) {
-            when(goPluginOSGiFramework.hasReferenceFor(serviceRef, pluginId, extensionType)).thenReturn(hasReference);
+            lenient().when(goPluginOSGiFramework.hasReferenceFor(serviceRef, pluginId, extensionType)).thenReturn(hasReference);
         }
     }
 

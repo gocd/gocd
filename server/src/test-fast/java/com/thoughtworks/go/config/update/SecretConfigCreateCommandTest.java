@@ -28,14 +28,12 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -44,10 +42,8 @@ import static org.mockito.Mockito.when;
 public class SecretConfigCreateCommandTest {
 
     private SecretsExtension extension;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(SecretsExtension.class);
     }
@@ -63,7 +59,7 @@ public class SecretConfigCreateCommandTest {
     }
 
     @Test
-    public void shouldInvokePluginValidationsBeforeSave() throws Exception {
+    public void shouldInvokePluginValidations() throws Exception {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
 
@@ -75,13 +71,8 @@ public class SecretConfigCreateCommandTest {
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
-        thrown.expect(RecordNotFoundException.class);
-        thrown.expectMessage(EntityType.SecretConfig.notFoundMessage(newSecretConfig.getId()));
-
-        command.isValid(cruiseConfig);
-        command.update(cruiseConfig);
-
-        assertThat(newSecretConfig.getConfiguration().first().errors().size(), is(1));
-        assertThat(newSecretConfig.getConfiguration().first().errors().asString(), is("error"));
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessageContaining(EntityType.SecretConfig.notFoundMessage(newSecretConfig.getId()));
     }
 }

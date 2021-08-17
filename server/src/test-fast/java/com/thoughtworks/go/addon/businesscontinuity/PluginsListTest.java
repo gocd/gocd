@@ -9,9 +9,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
@@ -20,8 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 @EnableRuleMigrationSupport
 public class PluginsListTest {
     @Rule
@@ -35,7 +37,6 @@ public class PluginsListTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        initMocks(this);
         bundledPluginsDir = new File(temporaryFolder.newFolder(), "bundled");
         externalPluginsDir = new File(temporaryFolder.newFolder(), "external");
 

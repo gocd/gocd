@@ -19,12 +19,12 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfigur
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PackageMaterialMetadataLoaderTest {
@@ -34,7 +34,7 @@ public class PackageMaterialMetadataLoaderTest {
     private PackageRepositoryExtension packageRepositoryExtension;
     private PluginManager pluginManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         pluginManager = mock(PluginManager.class);

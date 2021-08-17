@@ -20,9 +20,11 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,10 +32,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluginInfoProviderTest {
 
     private PluginInfoProvider pluginInfoProvider;
@@ -44,9 +46,8 @@ public class PluginInfoProviderTest {
     @Mock
     private PluginManager pluginManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         pluginInfoProvider = new PluginInfoProvider(pluginInfoFinder, pluginManager);
     }
 

@@ -20,14 +20,14 @@ import java.util.Date;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ServerHealthStateTest {
 
@@ -46,13 +46,13 @@ public class ServerHealthStateTest {
             HEALTH_STATE_TYPE_IDENTIFIER);
     private TestingClock testingClock;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         testingClock = new TestingClock();
         ServerHealthState.clock = testingClock;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         ServerHealthState.clock = new SystemTimeClock();
     }

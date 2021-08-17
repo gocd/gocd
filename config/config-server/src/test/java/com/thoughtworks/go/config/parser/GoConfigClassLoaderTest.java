@@ -23,19 +23,17 @@ import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import org.jdom2.Element;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class GoConfigClassLoaderTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     @Mock
     private ConfigCache configCache;
     @Mock
@@ -45,19 +43,14 @@ public class GoConfigClassLoaderTest {
     @Mock
     private ConfigReferenceElements referenceElements;
 
-    @Before
-    public void setUp() throws Exception {
-        initMocks(this);
-    }
-
     @Test
     public void shouldErrorOutIfElementDoesNotHaveConfigTagAnnotation() {
         final Element element = new Element("cruise");
         final GoConfigClassLoader<ConfigWithoutAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithoutAnnotation.class, configCache, goCipher, registry, referenceElements);
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Unable to parse element <cruise> for class ConfigWithoutAnnotation");
-        loader.parse();
+        assertThatThrownBy(loader::parse)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Unable to parse element <cruise> for class ConfigWithoutAnnotation");
     }
 
     @Test
@@ -89,54 +82,46 @@ public class GoConfigClassLoaderTest {
     public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeValueIsNotMatching() {
         final Element element = new Element("example");
         element.setAttribute("type", "foo-bar");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
         final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Unable to determine type to generate. Type: com.thoughtworks.go.config.parser.ConfigWithAttributeAwareConfigTagAnnotation Element: \n" +
-                "\t<example type=\"foo-bar\" />");
-
-        loader.parse();
+        assertThatThrownBy(loader::parse)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Unable to determine type to generate. Type: com.thoughtworks.go.config.parser.ConfigWithAttributeAwareConfigTagAnnotation Element: \n" +
+                        "\t<example type=\"foo-bar\" />");
     }
 
     @Test
     public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeIsNotPresent() {
         final Element element = new Element("example");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
         final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Expected attribute `type` to be present for \n\t<example />");
-
-        loader.parse();
+        assertThatThrownBy(loader::parse)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Expected attribute `type` to be present for \n\t<example />");
     }
 
     @Test
     public void shouldErrorOutWhenConfigClassHasAttributeAwareConfigTagAnnotationButAttributeIsMissingInConfig() {
         final Element element = new Element("example");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
         final GoConfigClassLoader<AttributeAwareConfigTagWithBlankAttributeValue> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagWithBlankAttributeValue.class, configCache, goCipher, registry, referenceElements);
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Type 'com.thoughtworks.go.config.parser.AttributeAwareConfigTagWithBlankAttributeValue' has invalid configuration for @AttributeAwareConfigTag. It must have `attribute` with non blank value.");
-
-        loader.parse();
+        assertThatThrownBy(loader::parse)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Type 'com.thoughtworks.go.config.parser.AttributeAwareConfigTagWithBlankAttributeValue' has invalid configuration for @AttributeAwareConfigTag. It must have `attribute` with non blank value.");
     }
 
     @Test
     public void shouldErrorOutWhenAttributeAwareConfigTagHasAttributeWithBlankValue() {
         final Element element = new Element("example");
-        when(configCache.getFieldCache()).thenReturn(new ClassAttributeCache.FieldCache());
 
         final GoConfigClassLoader<ConfigWithAttributeAwareConfigTagAnnotation> loader = GoConfigClassLoader.classParser(element, ConfigWithAttributeAwareConfigTagAnnotation.class, configCache, goCipher, registry, referenceElements);
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Expected attribute `type` to be present for \n\t<example />.");
-
-        loader.parse();
+        assertThatThrownBy(loader::parse)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Expected attribute `type` to be present for \n\t<example />.");
     }
 
     @Test
@@ -147,10 +132,9 @@ public class GoConfigClassLoaderTest {
 
         final GoConfigClassLoader<AttributeAwareConfigTagHasConfigAttributeWithSameName> loader = GoConfigClassLoader.classParser(element, AttributeAwareConfigTagHasConfigAttributeWithSameName.class, configCache, goCipher, registry, referenceElements);
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Attribute `type` is not allowed in com.thoughtworks.go.config.parser.AttributeAwareConfigTagHasConfigAttributeWithSameName. You cannot use @ConfigAttribute  annotation with attribute name `type` when @AttributeAwareConfigTag is configured with same name.");
-
-        loader.parse();
+        assertThatThrownBy(loader::parse)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Attribute `type` is not allowed in com.thoughtworks.go.config.parser.AttributeAwareConfigTagHasConfigAttributeWithSameName. You cannot use @ConfigAttribute  annotation with attribute name `type` when @AttributeAwareConfigTag is configured with same name.");
     }
 }
 

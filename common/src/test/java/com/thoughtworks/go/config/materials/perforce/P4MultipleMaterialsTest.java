@@ -23,10 +23,11 @@ import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -35,8 +36,10 @@ import java.io.IOException;
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+
+@EnableRuleMigrationSupport
 public class P4MultipleMaterialsTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -50,7 +53,7 @@ public class P4MultipleMaterialsTest {
     private static final String VIEW_LIB = "//depot/lib/... //something/...";
 
     P4TestRepo p4TestRepo;
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         p4Fixture = new P4Fixture();
 
@@ -64,7 +67,7 @@ public class P4MultipleMaterialsTest {
     }
 
 
-    @After
+    @AfterEach
     public void stopP4Server() throws IOException {
         try {
             FileUtils.deleteDirectory(clientFolder);

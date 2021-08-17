@@ -10,7 +10,9 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.File;
@@ -21,8 +23,8 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class PrimaryStatusProviderControllerTest {
     @Mock
     private GoFilesStatusProvider goFilesStatusProvider;
@@ -40,7 +42,6 @@ class PrimaryStatusProviderControllerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         httpServletResponse = new MockHttpServletResponse();
         configDirectory = getClass().getResource("/config_directory_1").getFile();
         pluginsDirectory = getClass().getResource("/plugins_directory_1").getFile();
@@ -54,7 +55,6 @@ class PrimaryStatusProviderControllerTest {
         latestStatus.put(ConfigFileType.AES_CIPHER, "AES-CIPHER");
         latestStatus.put(ConfigFileType.JETTY_XML, "c");
         when(goFilesStatusProvider.getLatestStatusMap()).thenReturn(latestStatus);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
 
         primaryStatusProviderController.latestStatus(httpServletResponse);
 

@@ -37,13 +37,13 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Iterator;
 import java.util.List;
@@ -51,16 +51,15 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-
 public class GoDashboardServiceIntegrationTest {
     static {
         new SystemEnvironment().setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, "false");
@@ -95,7 +94,7 @@ public class GoDashboardServiceIntegrationTest {
     private ScheduleTestUtil u;
     private Username user = new Username("user");
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
@@ -106,7 +105,7 @@ public class GoDashboardServiceIntegrationTest {
         currentStateLoader.reset();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         currentStateLoader.reset();
         configHelper.onTearDown();

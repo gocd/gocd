@@ -16,23 +16,18 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class JobConfigsTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
 
     @Test
     public void shouldAddJobsGivenInTheAttributesMapAfterClearingExistingJobs() throws Exception{

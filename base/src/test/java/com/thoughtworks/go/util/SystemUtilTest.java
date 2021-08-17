@@ -18,10 +18,10 @@ package com.thoughtworks.go.util;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class SystemUtilTest {
     @Test

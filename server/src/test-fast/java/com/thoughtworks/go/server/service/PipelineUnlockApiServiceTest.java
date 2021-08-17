@@ -22,12 +22,12 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PipelineUnlockApiServiceTest {
@@ -38,7 +38,8 @@ public class PipelineUnlockApiServiceTest {
     private SecurityService securityService;
     private PipelineLockService pipelineLockService;
 
-    @Before public void setup() throws Exception {
+    @BeforeEach
+    public void setup() throws Exception {
         pipelineDao = mock(PipelineSqlMapDao.class);
         goConfigService = mock(GoConfigService.class);
         stageService = Mockito.mock(StageService.class);
@@ -47,7 +48,8 @@ public class PipelineUnlockApiServiceTest {
         pipelineUnlockApiService = new PipelineUnlockApiService(goConfigService, pipelineLockService, stageService, securityService);
     }
 
-    @Test public void unlockShouldSetResultToOkWhenSuccessful() throws Exception {
+    @Test
+    public void unlockShouldSetResultToOkWhenSuccessful() throws Exception {
         when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
@@ -63,7 +65,8 @@ public class PipelineUnlockApiServiceTest {
         verify(pipelineLockService).unlock("pipeline-name");
     }
 
-    @Test public void unlockShouldSetResultToNotFoundWhenPipelineDoesNotExist() throws Exception {
+    @Test
+    public void unlockShouldSetResultToNotFoundWhenPipelineDoesNotExist() throws Exception {
         when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("does-not-exist"))).thenReturn(false);
         HttpOperationResult result = new HttpOperationResult();
@@ -76,7 +79,8 @@ public class PipelineUnlockApiServiceTest {
         Mockito.verify(pipelineLockService, never()).unlock("does-not-exist");
     }
 
-    @Test public void unlockShouldSetResultToNotAcceptableWhenPipelineIsNotLockable() throws Exception {
+    @Test
+    public void unlockShouldSetResultToNotAcceptableWhenPipelineIsNotLockable() throws Exception {
         when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(false);
@@ -89,7 +93,8 @@ public class PipelineUnlockApiServiceTest {
         Mockito.verify(pipelineLockService, never()).unlock(Mockito.any(String.class));
     }
 
-    @Test public void unlockShouldSetResultToNotAcceptableWhenNoPipelineInstanceIsCurrentlyLocked() throws Exception {
+    @Test
+    public void unlockShouldSetResultToNotAcceptableWhenNoPipelineInstanceIsCurrentlyLocked() throws Exception {
         Mockito.when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
         Mockito.when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
         Mockito.when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
@@ -102,7 +107,8 @@ public class PipelineUnlockApiServiceTest {
         assertThat(result.message(), is("Lock exists within the pipeline configuration but no pipeline instance is currently in progress"));
     }
 
-    @Test public void unlockShouldSetResultToNotAcceptableWhenAPipelineInstanceIsCurrentlyRunning() throws Exception {
+    @Test
+    public void unlockShouldSetResultToNotAcceptableWhenAPipelineInstanceIsCurrentlyRunning() throws Exception {
         when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), "pipeline-name")).thenReturn(true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("pipeline-name"))).thenReturn(true);
         when(goConfigService.isLockable("pipeline-name")).thenReturn(true);
@@ -117,7 +123,8 @@ public class PipelineUnlockApiServiceTest {
         assertThat(result.message(), is("Locked pipeline instance is currently running (one of the stages is in progress)"));
     }
 
-    @Test public void unlockShouldSetResultToNotAuthorizedWhenUserDoesNotHaveOperatePermissions() throws Exception {
+    @Test
+    public void unlockShouldSetResultToNotAuthorizedWhenUserDoesNotHaveOperatePermissions() throws Exception {
         String pipelineName = "pipeline-name";
         Mockito.when(securityService.hasOperatePermissionForPipeline(new CaseInsensitiveString("username"), pipelineName)).thenReturn(false);
         Mockito.when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);

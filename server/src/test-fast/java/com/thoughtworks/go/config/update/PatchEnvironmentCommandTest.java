@@ -24,17 +24,20 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 public class PatchEnvironmentCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -54,9 +57,8 @@ public class PatchEnvironmentCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         pipelinesToAdd = new ArrayList<>();
         pipelinesToRemove = new ArrayList<>();
         envVarsToAdd = new ArrayList<>();

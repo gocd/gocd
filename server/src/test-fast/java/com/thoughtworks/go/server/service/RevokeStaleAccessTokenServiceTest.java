@@ -22,14 +22,16 @@ import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class RevokeStaleAccessTokenServiceTest {
     @Mock
     private GoConfigService goConfigService;
@@ -48,7 +50,6 @@ class RevokeStaleAccessTokenServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         service = new RevokeStaleAccessTokenService(goConfigService, accessTokenService);
 
         authConfig1 = new SecurityAuthConfig("authConfig1", "ldap");

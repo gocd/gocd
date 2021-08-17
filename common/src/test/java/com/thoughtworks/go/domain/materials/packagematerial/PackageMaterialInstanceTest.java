@@ -22,11 +22,11 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PackageMaterialInstanceTest {
 

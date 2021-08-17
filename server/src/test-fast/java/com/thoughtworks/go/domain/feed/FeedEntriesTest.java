@@ -25,8 +25,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.lessThan;
 import org.joda.time.DateTime;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class FeedEntriesTest {
     private static final Date LATER_DATE = new DateTime().withDate(2000, 12, 24).toDate();

@@ -29,17 +29,16 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,10 +47,7 @@ public class PluginProfileCommandTest {
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
@@ -91,8 +87,8 @@ public class PluginProfileCommandTest {
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
 
         PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
-        thrown.expectMessage(EntityType.ElasticProfile.idCannotBeBlank());
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .hasMessageContaining(EntityType.ElasticProfile.idCannotBeBlank());
     }
 
     @Test

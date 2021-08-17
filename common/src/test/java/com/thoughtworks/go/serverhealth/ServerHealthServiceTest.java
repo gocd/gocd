@@ -29,9 +29,9 @@ import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Set;
@@ -39,12 +39,13 @@ import java.util.Set;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServerHealthServiceTest {
     private ServerHealthService serverHealthService;
@@ -55,7 +56,7 @@ public class ServerHealthServiceTest {
     private TestingClock testingClock;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         serverHealthService = new ServerHealthService();
         globalId = HealthStateType.general(GLOBAL);
@@ -65,7 +66,7 @@ public class ServerHealthServiceTest {
         ServerHealthState.clock = testingClock;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         ServerHealthState.clock = new SystemTimeClock();
     }

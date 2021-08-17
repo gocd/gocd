@@ -18,16 +18,18 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
 import java.util.List;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class NotificationPluginRegistrarTest {
     private static final String PLUGIN_ID_1 = "plugin-id-1";
     private static final String PLUGIN_ID_2 = "plugin-id-2";
@@ -40,15 +42,13 @@ public class NotificationPluginRegistrarTest {
 
     @Mock
     private PluginManager pluginManager;
-    @Mock
+    @Mock(lenient = true)
     private NotificationExtension notificationExtension;
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
-
         when(notificationExtension.canHandlePlugin(PLUGIN_ID_1)).thenReturn(true);
         when(notificationExtension.canHandlePlugin(PLUGIN_ID_2)).thenReturn(true);
         when(notificationExtension.canHandlePlugin(PLUGIN_ID_3)).thenReturn(true);

@@ -29,7 +29,7 @@ class ConsoleResultTest {
     @Test
     void shouldSmudgeExceptionMessagesForNestedExceptions() {
         List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
-        List<SecretString> secrets = Arrays.asList((SecretString) new PasswordArgument("quux"));
+        List<SecretString> secrets = Arrays.asList(new PasswordArgument("quux"));
         ConsoleResult result = new ConsoleResult(0, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
         Exception innerException = new Exception("baz quux baz");
         Exception topException = new RuntimeException("foo bar abc", innerException);
@@ -55,7 +55,7 @@ class ConsoleResultTest {
     @Test
     void shouldDescribeResult() {
         List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
-        List<SecretString> secrets = Arrays.asList((SecretString) new PasswordArgument("quux"));
+        List<SecretString> secrets = Arrays.asList(new PasswordArgument("quux"));
         ConsoleResult result = new ConsoleResult(42, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
         assertThat(result.describe()).contains("--- EXIT CODE (42) ---");
         assertThat(result.describe()).contains("--- STANDARD OUT ---");

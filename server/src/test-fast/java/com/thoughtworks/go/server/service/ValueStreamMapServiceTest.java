@@ -40,10 +40,12 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
 import com.thoughtworks.go.server.valuestreammap.RunStagesPopulator;
 import com.thoughtworks.go.server.valuestreammap.UnrunStagesPopulator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
@@ -52,19 +54,19 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.*;
-import static junit.framework.TestCase.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ValueStreamMapServiceTest {
     @Mock
     private PipelineService pipelineService;
     @Mock
     private MaterialRepository materialRepository;
-    @Mock
+    @Mock(lenient = true)
     private GoConfigService goConfigService;
     @Mock
     private RunStagesPopulator runStagesPopulator;
@@ -72,16 +74,15 @@ public class ValueStreamMapServiceTest {
     private UnrunStagesPopulator unrunStagesPopulator;
     @Mock
     private DownstreamInstancePopulator downstreaminstancepopulator;
-    @Mock
+    @Mock(lenient = true)
     private SecurityService securityService;
 
     private Username user;
     private ValueStreamMapService valueStreamMapService;
     private HttpLocalizedOperationResult result;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         user = new Username(new CaseInsensitiveString("poovan"));
 
         setupExistenceOfPipelines("p1", "p2", "p3", "MYPIPELINE");
@@ -209,9 +210,7 @@ public class ValueStreamMapServiceTest {
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs("default", new Authorization(), p1Config, downstreamConfig));
 
-        when(pipelineService.buildCauseFor(pipelineName, counter)).thenReturn(buildCause);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByNameAndCounter(pipelineName, 1)).thenReturn(new Pipeline(uppercasePipelineName, "p1-label", buildCause, new EnvironmentVariables()));
         MaterialConfig materialConfig = cruiseConfig.getAllUniqueMaterials().iterator().next();
         MaterialRevision materialRevision = buildCause.getMaterialRevisions().findRevisionFor(materialConfig);
         Material material = materialRevision.getMaterial();
@@ -338,15 +337,9 @@ public class ValueStreamMapServiceTest {
         GitMaterial gitMaterial = new GitMaterial("git");
         MaterialConfig gitConfig = gitMaterial.config();
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", null, "master", "submodule", "flyweight");
-        BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
         BuildCause p2buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
         Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
         String gitRevision = gitModification.getRevision();
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
-
-        when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
-        when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
-        when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
 
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
         PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
@@ -805,10 +798,6 @@ public class ValueStreamMapServiceTest {
         String pipelineName = "p1";
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git.config()))));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
-        when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
-        when(pipelineService.findPipelineByNameAndCounter(pipelineName, 1)).thenReturn(new Pipeline("p1", "label-1", p1buildCause, new EnvironmentVariables()));
 
         Username newUser = new Username(new CaseInsensitiveString("looser"));
         when(securityService.hasViewPermissionForPipeline(newUser, pipelineName)).thenReturn(false);

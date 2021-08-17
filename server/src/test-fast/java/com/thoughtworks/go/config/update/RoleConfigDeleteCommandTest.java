@@ -24,25 +24,23 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RoleConfigDeleteCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private AuthorizationExtension extension;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private GoConfigService goConfigService;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         extension = mock(AuthorizationExtension.class);
@@ -102,8 +100,7 @@ public class RoleConfigDeleteCommandTest {
         assertThat(cruiseConfig.server().security().getRoles(), is(empty()));
         RoleConfigCommand command = new RoleConfigDeleteCommand(null, role, extension, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(RecordNotFoundException.class);
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
 
         assertThat(cruiseConfig.server().security().getRoles(), is(empty()));
     }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.config.JobConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

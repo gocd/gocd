@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class PluginSettingsJsonMessageHandler1_0Test extends PluginSettingsJsonMessageHandlerTestBase {
     @Override

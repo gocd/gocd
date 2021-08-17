@@ -17,30 +17,27 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableRuleMigrationSupport
 public class AgentAutoRegistrationPropertiesImplTest {
 
-    @Rule
-    public final TemporaryFolder folder = new TemporaryFolder();
     private File configFile;
 
     @BeforeEach
-    void setUp() throws IOException {
-        configFile = folder.newFile();
+    void setUp(@TempDir Path folder) throws IOException {
+        configFile = Files.createFile(folder.resolve("config.properties")).toFile();
     }
 
     @Test

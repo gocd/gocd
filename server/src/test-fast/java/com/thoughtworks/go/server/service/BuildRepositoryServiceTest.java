@@ -21,17 +21,18 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.NullJobInstance;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.remote.work.InvalidAgentException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class BuildRepositoryServiceTest {
     private BuildRepositoryService buildRepositoryService;
     @Mock
@@ -39,23 +40,20 @@ public class BuildRepositoryServiceTest {
     private String agentUuid = "uuid";
     @Mock
     private ScheduleService scheduleService;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private JobInstance jobInstance;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         buildRepositoryService = new BuildRepositoryService(jobInstanceService, scheduleService);
         jobInstance = JobInstanceMother.assignAgent(JobInstanceMother.building("job"), agentUuid);
-        when(jobInstanceService.buildByIdWithTransitions(jobInstance.getIdentifier().getBuildId())).thenReturn(jobInstance);
+        lenient().when(jobInstanceService.buildByIdWithTransitions(jobInstance.getIdentifier().getBuildId())).thenReturn(jobInstance);
     }
 
     @Test
     public void shouldNotUpdateStatusFromWrongAgent() throws Exception {
-        thrown.expect(InvalidAgentException.class);
-        thrown.expectMessage("AgentUUID has changed in the middle of a job. AgentUUID:");
-        buildRepositoryService.updateStatusFromAgent(jobInstance.getIdentifier(), JobState.Assigned, "wrongId");
+        assertThatThrownBy(() -> buildRepositoryService.updateStatusFromAgent(jobInstance.getIdentifier(), JobState.Assigned, "wrongId"))
+                .isInstanceOf(InvalidAgentException.class)
+                .hasMessageContaining("AgentUUID has changed in the middle of a job. AgentUUID:");
         verify(scheduleService, never()).updateJobStatus(eq(jobInstance.getIdentifier()), any());
     }
 
@@ -76,9 +74,9 @@ public class BuildRepositoryServiceTest {
     @Test
     public void shouldNotUpdateResultFromWrongAgent() {
         final JobResult result = JobResult.Passed;
-        thrown.expect(InvalidAgentException.class);
-        thrown.expectMessage("AgentUUID has changed in the middle of a job. AgentUUID:");
-        buildRepositoryService.completing(jobInstance.getIdentifier(), result, "wrong-agent");
+        assertThatThrownBy(() ->  buildRepositoryService.completing(jobInstance.getIdentifier(), result, "wrong-agent"))
+                .isInstanceOf(InvalidAgentException.class)
+                .hasMessageContaining("AgentUUID has changed in the middle of a job. AgentUUID:");
         verify(scheduleService, never()).jobCompleting(eq(jobInstance.getIdentifier()), any(), any());
     }
 

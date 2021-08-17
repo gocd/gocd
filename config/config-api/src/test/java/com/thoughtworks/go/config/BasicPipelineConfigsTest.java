@@ -18,14 +18,13 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static junit.framework.TestCase.assertNull;
-import static junit.framework.TestCase.assertSame;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
 

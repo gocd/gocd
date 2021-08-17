@@ -18,7 +18,9 @@ package com.thoughtworks.go.plugin.access;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,18 +29,17 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ExtensionsRegistryTest {
-    @Mock
+    @Mock(lenient = true)
     private GoPluginExtension elasticExtension;
-    @Mock
+    @Mock(lenient = true)
     private GoPluginExtension authorizationExtension;
     private ExtensionsRegistry registry;
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         registry = new ExtensionsRegistry();
 
         when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);

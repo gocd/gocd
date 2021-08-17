@@ -26,11 +26,11 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,26 +38,20 @@ import java.io.IOException;
 import static com.thoughtworks.go.domain.materials.MaterialAgent.NO_OP;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(MockitoExtension.class)
 public class MaterialAgentFactoryTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File tempWorkingDirectory;
 
     @Mock
     private SCMExtension scmExtension;
 
-    @Before
-    public void setUp() {
-        initMocks(this);
-    }
-
     @Test
     public void shouldCreateMaterialAgent_withAgentsUuidAsSubprocessExecutionContextNamespace() throws IOException {
         String agentUuid = "uuid-01783738";
-        File workingDirectory = temporaryFolder.newFolder();
-        MaterialAgentFactory factory = new MaterialAgentFactory(new InMemoryStreamConsumer(), workingDirectory,
+        MaterialAgentFactory factory = new MaterialAgentFactory(new InMemoryStreamConsumer(), tempWorkingDirectory,
                 new AgentIdentifier("host", "1.1.1.1", agentUuid), scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");
 
@@ -66,7 +60,7 @@ public class MaterialAgentFactoryTest {
         assertThat(agent, is(instanceOf(AbstractMaterialAgent.class)));
 
         SubprocessExecutionContext execCtx = (SubprocessExecutionContext) ReflectionUtil.getField(agent, "execCtx");
-        assertThat(execCtx.getProcessNamespace("fingerprint"), is(CachedDigestUtils.sha256Hex(String.format("%s%s%s", "fingerprint", agentUuid, gitMaterial.workingdir(workingDirectory)))));
+        assertThat(execCtx.getProcessNamespace("fingerprint"), is(CachedDigestUtils.sha256Hex(String.format("%s%s%s", "fingerprint", agentUuid, gitMaterial.workingdir(tempWorkingDirectory)))));
     }
 
     @Test

@@ -30,15 +30,18 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.rules.TemporaryFolder;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.IOException;
 import java.util.Date;
@@ -47,12 +50,13 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+@ExtendWith(SystemStubsExtension.class)
 @EnableRuleMigrationSupport
 public class EnvironmentVariableContextTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    @SystemStub
+    private SystemProperties systemProperties;
 
     private String pipelineName = "pipeline-name";
     private String pipelineLabel = "pipeline-label";

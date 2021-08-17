@@ -19,21 +19,21 @@ import com.thoughtworks.go.server.messaging.*;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.jms.JMSException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -44,12 +44,12 @@ public class ActiveMqTest implements GoMessageListener {
     private GoMessage receivedMessage;
     public MessagingService messaging;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         messaging = new ActiveMqMessagingService(new DaemonThreadStatsCollector(), new SystemEnvironment(), new ServerHealthService());
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws JMSException {
         receivedMessage = null;
         messaging.stop();

@@ -29,8 +29,6 @@ import java.util.Map;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class PluginLoaderTest {
@@ -62,7 +60,7 @@ class PluginLoaderTest {
 
         pluginLoader.loadPlugin(goPluginBundleDescriptor);
 
-        verifyZeroInteractions(postLoadHook);
+        verifyNoMoreInteractions(postLoadHook);
         verify(changeListener, times(0)).pluginLoaded(pluginDescriptor);
         verify(changeListener, times(1)).pluginUnLoaded(pluginDescriptor);
     }
@@ -115,7 +113,7 @@ class PluginLoaderTest {
 
         pluginLoader.unloadPlugin(pluginDescriptor);
 
-        verifyZeroInteractions(pluginOSGiFramework);
+        verifyNoMoreInteractions(pluginOSGiFramework);
     }
 
     @Test
@@ -169,7 +167,7 @@ class PluginLoaderTest {
 
             pluginLoader.loadPlugin(pluginBundleDescriptor);
 
-            verifyZeroInteractions(listener);
+            verifyNoMoreInteractions(listener);
 
             assertThat(pluginDescriptor.isInvalid()).isTrue();
             assertThat(pluginDescriptor.getStatus().getMessages()).contains("Something went wrong");
@@ -196,7 +194,7 @@ class PluginLoaderTest {
 
             pluginLoader.loadPlugin(pluginBundleDescriptor);
 
-            verifyZeroInteractions(listener1);
+            verifyNoMoreInteractions(listener1);
 
             assertThat(pluginDescriptor.isInvalid()).isTrue();
             assertThat(pluginDescriptor.getStatus().getMessages()).contains("Something went wrong");

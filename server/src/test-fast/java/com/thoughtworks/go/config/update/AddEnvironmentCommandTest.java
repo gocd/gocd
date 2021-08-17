@@ -23,15 +23,18 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AddEnvironmentCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -43,9 +46,8 @@ public class AddEnvironmentCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         environmentName = new CaseInsensitiveString("Dev");
@@ -90,7 +92,6 @@ public class AddEnvironmentCommandTest {
     @Test
     public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() throws Exception {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.conflict(EntityType.Environment.alreadyExists(environmentName));

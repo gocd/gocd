@@ -17,28 +17,28 @@ package com.thoughtworks.go.config.serialization;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TrackingToolTest {
     private MagicalGoConfigXmlLoader loader;
     private MagicalGoConfigXmlWriter writer;
     private ConfigCache configCache = new ConfigCache();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         loader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         writer = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
     @Test
-    public void shouldLoadTrackingtool() throws Exception {
+    public void shouldLoadTrackingTool() throws Exception {
         CruiseConfig cruiseConfig = loader.loadConfigHolder(CONFIG_WITH_TRACKINGTOOL).config;
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         TrackingTool trackingTool = pipelineConfig.trackingTool();

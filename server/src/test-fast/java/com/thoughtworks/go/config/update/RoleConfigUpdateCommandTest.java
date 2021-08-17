@@ -25,14 +25,12 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,11 +38,9 @@ public class RoleConfigUpdateCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private EntityHashingService entityHashingService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);

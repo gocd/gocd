@@ -17,11 +17,11 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +30,7 @@ public class PipelinePauseCheckerTest {
     private PipelinePauseChecker checker;
     public PipelinePauseService pipelinePauseService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pipelinePauseService = mock(PipelinePauseService.class);
         pipelineName = "cruise";

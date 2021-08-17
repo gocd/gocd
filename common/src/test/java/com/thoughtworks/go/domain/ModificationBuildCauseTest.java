@@ -27,22 +27,22 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.server.domain.Username;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationList;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.hamcrest.Matchers.containsString;
 
 public class ModificationBuildCauseTest {
 
     private BuildCause buildCause;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MaterialRevisions materialRevisions = multipleModifications();
         buildCause = BuildCause.createWithModifications(materialRevisions, "");
@@ -124,7 +124,7 @@ public class ModificationBuildCauseTest {
     public void shouldNotAllowCreationWithANullUsername() {
         try {
             BuildCause.createManualForced(null, null);
-            Assert.fail("Expected NullPointerException to be thrown");
+            Assertions.fail("Expected NullPointerException to be thrown");
         } catch (IllegalArgumentException ignore) {
             assertThat(ignore.getMessage(), containsString("Username cannot be null"));
         }

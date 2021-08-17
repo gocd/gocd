@@ -49,10 +49,11 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.ENVIRONMENT;
@@ -64,8 +65,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class RulesServiceTest {
     @Mock
     private GoConfigService goConfigService;
@@ -73,8 +74,6 @@ class RulesServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
-
         rulesService = new RulesService(goConfigService);
     }
 
@@ -93,7 +92,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
             when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
@@ -118,7 +116,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
@@ -144,7 +141,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
@@ -170,7 +166,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
@@ -190,7 +185,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
             when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
@@ -210,7 +204,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
             when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
@@ -235,10 +228,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
@@ -260,11 +249,7 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .doesNotThrowAnyException();
@@ -283,11 +268,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
-
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
                     .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.");
@@ -303,11 +283,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
-
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .doesNotThrowAnyException();
         }
@@ -322,11 +297,6 @@ class RulesServiceTest {
             PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
             CruiseConfig cruiseConfig = defaultCruiseConfig();
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
-
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
@@ -348,11 +318,6 @@ class RulesServiceTest {
             CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
-            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
-
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
                     .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.\nPluggable SCM 'scm-name' is referring to none-existent secret config 'unknown_id'.");
@@ -371,7 +336,6 @@ class RulesServiceTest {
             Rules rules = new Rules(new Allow("refer", "environment", "scm-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
 
-            when(goConfigService.cruiseConfig()).thenReturn(configWithSecretConfig(secretConfig));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(scm))
@@ -389,7 +353,6 @@ class RulesServiceTest {
             Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
 
-            when(goConfigService.cruiseConfig()).thenReturn(configWithSecretConfig(secretConfig));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(scm))
@@ -417,8 +380,6 @@ class RulesServiceTest {
             SCM scm = new SCM("scm-id", "scm-name");
             scm.getConfiguration().addAll(asList(k1, k2));
 
-            when(goConfigService.cruiseConfig()).thenReturn(defaultCruiseConfig());
-
             assertThatCode(() -> rulesService.validateSecretConfigReferences(scm))
                     .doesNotThrowAnyException();
 
@@ -431,8 +392,6 @@ class RulesServiceTest {
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
             SCM scm = new SCM("scm-id", "scm-name");
             scm.getConfiguration().addAll(asList(k1, k2));
-
-            when(goConfigService.cruiseConfig()).thenReturn(defaultCruiseConfig());
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(scm))
                     .isInstanceOf(RulesViolationException.class)
@@ -450,7 +409,6 @@ class RulesServiceTest {
             Rules rules = new Rules(new Allow("refer", "environment", "scm-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
 
-            when(goConfigService.cruiseConfig()).thenReturn(configWithSecretConfig(secretConfig));
             when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(scm))

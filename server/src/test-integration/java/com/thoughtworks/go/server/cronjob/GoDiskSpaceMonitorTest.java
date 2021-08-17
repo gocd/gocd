@@ -22,24 +22,24 @@ import com.thoughtworks.go.fixture.DatabaseDiskIsLow;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
 import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -59,7 +59,7 @@ public class GoDiskSpaceMonitorTest {
     private StageService stageService;
     private ConfigDbStateRepository configDbStateRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         serverHealthService.removeAllLogs();
         emailSender = new TestingEmailSender();
@@ -73,7 +73,7 @@ public class GoDiskSpaceMonitorTest {
         systemEnvironment.setDiskSpaceCacheRefresherInterval(-1);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         serverHealthService.removeAllLogs();
         systemEnvironment.setDiskSpaceCacheRefresherInterval(diskSpaceCacheRefresherInterval);

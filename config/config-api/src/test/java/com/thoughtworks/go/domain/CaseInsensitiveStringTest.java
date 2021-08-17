@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CaseInsensitiveStringTest {
 

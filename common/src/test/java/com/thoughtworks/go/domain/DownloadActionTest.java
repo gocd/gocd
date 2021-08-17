@@ -19,9 +19,8 @@ import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,13 +28,10 @@ import java.net.SocketException;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class DownloadActionTest {
@@ -44,7 +40,7 @@ public class DownloadActionTest {
     private FetchHandler fetchHandler;
     private StubGoPublisher publisher;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         clock = new TestingClock();
         fetchHandler = mock(FetchHandler.class);
@@ -140,9 +136,7 @@ public class DownloadActionTest {
         synchronized (logging) {
             result = logging.getLog();
         }
-        Assert.assertTrue(
-                "Expected log to contain " + message + " but got:\n" + result,
-                logging.contains(level, message));
+        assertTrue(logging.contains(level, message), "Expected log to contain " + message + " but got:\n" + result);
     }
 
     private void assertBetween(Long actual, long min, long max) {
@@ -150,7 +144,7 @@ public class DownloadActionTest {
         assertThat(actual, lessThanOrEqualTo(max));
     }
 
-    private class FailSometimesHttpService extends HttpService {
+    private static class FailSometimesHttpService extends HttpService {
         private int count;
         private int timesCalled = 0;
 

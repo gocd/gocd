@@ -19,14 +19,16 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.CRBuiltInArtifact;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPluggableArtifact;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
 
+@ExtendWith(MockitoExtension.class)
 public class ArtifactTypeAdapterTest {
 
     private ArtifactTypeAdapter artifactTypeAdapter;
@@ -37,9 +39,8 @@ public class ArtifactTypeAdapterTest {
     @Mock
     private Type type;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         artifactTypeAdapter = new ArtifactTypeAdapter();
     }
 

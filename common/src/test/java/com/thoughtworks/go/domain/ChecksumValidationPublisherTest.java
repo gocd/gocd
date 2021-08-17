@@ -18,14 +18,14 @@ package com.thoughtworks.go.domain;
 import java.io.File;
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ChecksumValidationPublisherTest {
 
@@ -33,7 +33,7 @@ public class ChecksumValidationPublisherTest {
     private StubGoPublisher goPublisher;
     private File artifact;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         checksumValidationPublisher = new ChecksumValidationPublisher();
         goPublisher = new StubGoPublisher();

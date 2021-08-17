@@ -30,10 +30,11 @@ import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,23 +42,20 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class UserSearchServiceTest  {
     @Mock
     private AuthorizationExtension authorizationExtension;
     @Mock
     private GoConfigService goConfigService;
     private UserSearchService userSearchService;
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
-
         userSearchService = new UserSearchService(authorizationExtension, goConfigService);
     }
 
@@ -100,7 +98,7 @@ public class UserSearchServiceTest  {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search(smallSearchText, result);
 
-        verifyZeroInteractions(authorizationExtension);
+        verifyNoInteractions(authorizationExtension);
         assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
     }
 
@@ -110,7 +108,7 @@ public class UserSearchServiceTest  {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userSearchService.search(smallSearchText, result);
 
-        verifyZeroInteractions(authorizationExtension);
+        verifyNoInteractions(authorizationExtension);
         assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
     }
 

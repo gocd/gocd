@@ -20,9 +20,11 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,8 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ElasticAgentPluginRegistryTest {
     private static final String PLUGIN_ID = "cd.go.example.plugin";
     @Mock
@@ -43,9 +45,8 @@ public class ElasticAgentPluginRegistryTest {
 
     private ElasticAgentPluginRegistry elasticAgentPluginRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         elasticAgentPluginRegistry = new ElasticAgentPluginRegistry(pluginManager, elasticAgentExtension);
 
         when(elasticAgentExtension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);

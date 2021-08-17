@@ -121,7 +121,7 @@ class AbstractBasicAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
 
@@ -165,7 +165,7 @@ class AbstractBasicAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
 

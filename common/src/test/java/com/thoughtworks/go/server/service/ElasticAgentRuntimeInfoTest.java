@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;

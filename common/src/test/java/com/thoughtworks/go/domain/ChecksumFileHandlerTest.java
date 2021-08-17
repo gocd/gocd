@@ -16,9 +16,10 @@
 package com.thoughtworks.go.domain;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,8 +31,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class ChecksumFileHandlerTest {
 
     private File file;
@@ -40,7 +42,8 @@ public class ChecksumFileHandlerTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         file = temporaryFolder.newFile();
         checksumFileHandler = new ChecksumFileHandler(file);
     }

@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.plugin.access.notification;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NotificationPluginRegistryTest {
     public static final String PLUGIN_ID_1 = "plugin-id-1";
@@ -38,7 +38,7 @@ public class NotificationPluginRegistryTest {
 
     private NotificationPluginRegistry notificationPluginRegistry;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         notificationPluginRegistry = new NotificationPluginRegistry();
 
@@ -47,7 +47,7 @@ public class NotificationPluginRegistryTest {
         notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_3, asList(STAGE_STATUS));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         notificationPluginRegistry.clear();
     }

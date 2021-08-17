@@ -26,18 +26,17 @@ import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class ReplaceElasticAgentInformationCommandTest {
     @Mock
     private ClusterProfilesService clusterProfilesService;
@@ -59,7 +58,6 @@ class ReplaceElasticAgentInformationCommandTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         basicCruiseConfig = new BasicCruiseConfig();
 
         pluginId = "plugin-id";
@@ -76,7 +74,7 @@ class ReplaceElasticAgentInformationCommandTest {
         when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
         when(elasticProfileService.findElasticAgentProfilesByPluginId(pluginId)).thenReturn(elasticProfiles);
         when(elasticAgentExtension.migrateConfig(eq(pluginId), any())).thenReturn(new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
-        when(goConfigService.getElasticConfig()).thenReturn(new ElasticConfig());
+        lenient().when(goConfigService.getElasticConfig()).thenReturn(new ElasticConfig());
     }
 
     @Test
@@ -98,7 +96,6 @@ class ReplaceElasticAgentInformationCommandTest {
     @Test
     void shouldUpdateGoCDConfigWithPluginReturnedMigratedConfig() throws Exception {
         ElasticConfig elasticConfig = new ElasticConfig();
-        when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
 
         assertThat(elasticConfig.getProfiles()).hasSize(0);
         assertThat(elasticConfig.getClusterProfiles()).hasSize(0);

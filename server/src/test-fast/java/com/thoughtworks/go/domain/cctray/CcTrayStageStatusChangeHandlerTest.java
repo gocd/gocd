@@ -24,21 +24,23 @@ import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CcTrayStageStatusChangeHandlerTest {
     @Mock
     private CcTrayCache cache;
@@ -51,9 +53,8 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     private CcTrayStageStatusChangeHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         handler = new CcTrayStageStatusChangeHandler(cache, jobStatusChangeHandler, breakersCalculator);
     }
 
@@ -171,9 +172,9 @@ public class CcTrayStageStatusChangeHandlerTest {
     public void shouldNotUpdateCacheWhenStageWhichHasChangedIsANullStage() throws Exception {
         handler.call(new NullStage("some-name"));
 
-        verifyZeroInteractions(cache);
-        verifyZeroInteractions(breakersCalculator);
-        verifyZeroInteractions(jobStatusChangeHandler);
+        verifyNoInteractions(cache);
+        verifyNoInteractions(breakersCalculator);
+        verifyNoInteractions(jobStatusChangeHandler);
     }
 
     @Test

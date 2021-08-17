@@ -21,22 +21,23 @@ import java.util.Set;
 
 import org.hamcrest.Matcher;
 import static org.hamcrest.Matchers.is;
-import org.junit.After;
-import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StageStateTest {
     private Set<StageState> testedStates;
     private Set<StageResult> testedResults;
 
-    @Before
+    @BeforeEach
     public void shouldBeUpdatedWhenEnumerationsChange() {
         testedStates = new HashSet<>();
         testedResults = new HashSet<>();
     }
 
-    @After
+    @AfterEach
     public void checkAllStatesAreCovered() {
         shouldCoverAllStates();
     }

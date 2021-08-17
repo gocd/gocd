@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -35,7 +35,7 @@ public class JettyCustomErrorPageHandlerTest {
     PrintWriter writer;
     private ArgumentCaptor<String> captor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         request = mock(HttpServletRequest.class);
         writer = mock(PrintWriter.class);

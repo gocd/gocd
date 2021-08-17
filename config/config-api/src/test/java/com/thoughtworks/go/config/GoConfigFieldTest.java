@@ -22,16 +22,18 @@ import com.thoughtworks.go.util.FileUtil;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import org.jdom2.Element;
-import static org.junit.Assert.assertThat;
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GoConfigFieldTest {
     public SystemEnvironment systemEnvironment;
     private ConfigCache configCache = new ConfigCache();
 
-
-    @Test public void shouldConvertFromXmlToJavaObjectCorrectly() throws Exception {
+    @Test
+    public void shouldConvertFromXmlToJavaObjectCorrectly() throws Exception {
         final Foo object = new Foo();
         final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("number"), object, configCache, null);
         final Element element = new Element("foo");
@@ -40,7 +42,8 @@ public class GoConfigFieldTest {
         assertThat(object.number, is(100L));
     }
 
-    @Test public void shouldConvertFileCorrectly() throws Exception {
+    @Test
+    public void shouldConvertFileCorrectly() throws Exception {
         final Foo object = new Foo();
         final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("directory"), object, configCache, null);
         final Element element = new Element("foo");
@@ -49,7 +52,8 @@ public class GoConfigFieldTest {
         assertThat(object.directory.getPath(), is("foo" + FileUtil.fileseparator() + "dir"));
     }
 
-    @Test public void shouldSetFileToNullifValueIsNotSpecified() throws Exception {
+    @Test
+    public void shouldSetFileToNullifValueIsNotSpecified() throws Exception {
         final Foo object = new Foo();
         final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("directory"), object, configCache, null);
         final Element element = new Element("foo");
@@ -57,16 +61,17 @@ public class GoConfigFieldTest {
         assertThat(object.directory, is(nullValue()));
     }
 
-    @Test(expected = RuntimeException.class) public void shouldValidateAndConvertOnlyIfAppropriate()
-            throws NoSuchFieldException {
-        final Foo object = new Foo();
-        final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("number"), object, configCache, null);
-        final Element element = new Element("foo");
-        element.setAttribute("number", "anything");
-        field.setValueIfNotNull(element, object);
+    @Test public void shouldValidateAndConvertOnlyIfAppropriate() {
+        assertThrows(RuntimeException.class, () -> {
+            final Foo object = new Foo();
+            final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("number"), object, configCache, null);
+            final Element element = new Element("foo");
+            element.setAttribute("number", "anything");
+            field.setValueIfNotNull(element, object);
+        });
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         systemEnvironment = new SystemEnvironment();
     }

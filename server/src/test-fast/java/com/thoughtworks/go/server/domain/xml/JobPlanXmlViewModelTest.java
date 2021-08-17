@@ -20,13 +20,13 @@ import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JobPlanXmlViewModelTest {
 

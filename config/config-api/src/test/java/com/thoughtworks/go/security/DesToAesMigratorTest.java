@@ -17,10 +17,9 @@ package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,11 +27,8 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
-@EnableRuleMigrationSupport
+@ExtendWith(ResetCipher.class)
 public class DesToAesMigratorTest {
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
-
     private File desCipherFile;
     private SystemEnvironment systemEnvironment;
 
@@ -51,7 +47,7 @@ public class DesToAesMigratorTest {
     }
 
     @Test
-    void shouldCreateDesEncryptorIfCipherFileIsPresent() throws IOException {
+    void shouldCreateDesEncryptorIfCipherFileIsPresent(ResetCipher resetCipher) throws IOException {
         resetCipher.setupDESCipherFile();
         assertThat(desCipherFile).exists();
 
@@ -61,7 +57,7 @@ public class DesToAesMigratorTest {
     }
 
     @Test
-    void shouldConvertFromDESEncryptedTextToAES() throws IOException, CryptoException {
+    void shouldConvertFromDESEncryptedTextToAES(ResetCipher resetCipher) throws IOException, CryptoException {
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
 

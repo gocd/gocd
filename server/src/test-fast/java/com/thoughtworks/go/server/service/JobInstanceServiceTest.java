@@ -48,8 +48,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -62,11 +64,11 @@ import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class JobInstanceServiceTest {
     @Mock
     private JobInstanceDao jobInstanceDao;
@@ -90,7 +92,6 @@ public class JobInstanceServiceTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         job = JobInstanceMother.building("dev");
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
@@ -320,7 +321,6 @@ public class JobInstanceServiceTest {
     public void shouldPopulateErrorWhenPipelineNotFound_findJobHistoryPage() {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
             transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);

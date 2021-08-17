@@ -33,24 +33,19 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
 public class AgentHTTPClientControllerTest {
-    @Rule
-    public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
     private RemotingClient loopServer;
     @Mock
@@ -81,11 +76,6 @@ public class AgentHTTPClientControllerTest {
     private PluginJarLocationMonitor pluginJarLocationMonitor;
     private final String agentUuid = "uuid";
     private AgentHTTPClientController agentController;
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this);
-    }
 
     @AfterEach
     void tearDown() {
@@ -119,7 +109,7 @@ public class AgentHTTPClientControllerTest {
         agentController.init();
         agentController.ping();
         agentController.work();
-        verifyZeroInteractions(work);
+        verifyNoMoreInteractions(work);
     }
 
     @Test

@@ -24,12 +24,13 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.ServletContext;
 import java.io.File;
@@ -40,19 +41,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class AnalyticsPluginAssetsServiceTest {
     private static final String PLUGIN_ID = "plugin_id";
-
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
     private ServletContext servletContext;
@@ -64,20 +61,20 @@ public class AnalyticsPluginAssetsServiceTest {
     private SystemEnvironment systemEnvironment;
 
     private AnalyticsPluginAssetsService assetsService;
-    private File railsRoot;
+    @TempDir
+    File railsRoot;
     private AnalyticsMetadataStore metadataStore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         assetsService = new AnalyticsPluginAssetsService(extension, analyticsMetadataLoader, systemEnvironment);
         assetsService.setServletContext(servletContext);
         metadataStore = AnalyticsMetadataStore.instance();
 
-        when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn("some-nonexistent-directory");
+        lenient().when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn("some-nonexistent-directory");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (railsRoot != null && railsRoot.exists()) {
             FileUtils.deleteQuietly(railsRoot);
@@ -91,7 +88,6 @@ public class AnalyticsPluginAssetsServiceTest {
 
     @Test
     public void onPluginMetadataUnLoad_shouldClearExistingCacheAssets() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
 
         Path path = Paths.get(pluginDirPath.toString(), "foo.txt");
@@ -113,7 +109,6 @@ public class AnalyticsPluginAssetsServiceTest {
 
     @Test
     public void onPluginMetadataLoad_shouldClearExistingCacheAssets() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
 
         Path dirtyPath = Paths.get(pluginDirPath.toString(), "dirty.txt");
@@ -137,7 +132,6 @@ public class AnalyticsPluginAssetsServiceTest {
 
     @Test
     public void onPluginMetadataLoad_shouldCachePluginStaticAssets() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
 
         Path dirtyPath = Paths.get(pluginDirPath.toString(), "dirty.txt");
@@ -162,7 +156,6 @@ public class AnalyticsPluginAssetsServiceTest {
 
     @Test
     public void onPluginMetadataLoad_shouldCopyPluginEndpointJsWhenCachingPluginStaticAssets() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
 
         addAnalyticsPluginInfoToStore(PLUGIN_ID);
@@ -179,20 +172,17 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(actualPath.toFile().exists());
         byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/plugin-endpoint.js"));
-        assertArrayEquals("Content of plugin-endpoint.js should be preserved", expected, Files.readAllBytes(actualPath));
+        assertArrayEquals(expected, Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
     }
 
     @Test
-    public void onPluginMetadataLoad_shouldCopyExternalAnalyticsPluginAssetsWhenCachingPluginStaticAssets() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
-
+    public void onPluginMetadataLoad_shouldCopyExternalAnalyticsPluginAssetsWhenCachingPluginStaticAssets(@TempDir File externalAssetsDir) throws Exception {
         addAnalyticsPluginInfoToStore(PLUGIN_ID);
         when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
         when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
         when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
 
-        File externalAssetsDir = temporaryFolder.newFolder();
         when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn(externalAssetsDir.getAbsolutePath());
         Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "a.js"), "a".getBytes(StandardCharsets.UTF_8));
         Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "b.js"), "b".getBytes(StandardCharsets.UTF_8));
@@ -211,7 +201,6 @@ public class AnalyticsPluginAssetsServiceTest {
 
     @Test
     public void onPluginMetadataLoad_shouldUpdateThePluginInfoWithAssetsPath() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
         GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
         AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(goPluginDescriptor, null, null, null);
@@ -237,7 +226,6 @@ public class AnalyticsPluginAssetsServiceTest {
 
     @Test
     public void onPluginMetadataLoad_shouldKnowPluginStaticAssetsPath() throws Exception {
-        railsRoot = temporaryFolder.newFolder();
         Path pluginDirPath = Paths.get(railsRoot.getAbsolutePath(), "public", "assets", "plugins", PLUGIN_ID);
 
         Path dirtyPath = Paths.get(pluginDirPath.toString(), "dirty.txt");

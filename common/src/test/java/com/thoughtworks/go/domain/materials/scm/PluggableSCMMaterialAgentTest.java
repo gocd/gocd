@@ -32,8 +32,10 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.HashMap;
@@ -43,8 +45,8 @@ import static com.thoughtworks.go.util.command.TaggedStreamConsumer.PREP_ERR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class PluggableSCMMaterialAgentTest {
     @Mock
     private SCMExtension scmExtension;
@@ -57,8 +59,6 @@ class PluggableSCMMaterialAgentTest {
 
     @BeforeEach
     void setup() {
-        initMocks(this);
-
         scmConfiguration = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
         scmRevision = ArgumentCaptor.forClass(SCMRevision.class);
     }

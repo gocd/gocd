@@ -28,30 +28,31 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-
+@EnableRuleMigrationSupport
 public class UpdateAgentStatusTest {
     @Autowired
     private AgentService agentService;
@@ -74,7 +75,7 @@ public class UpdateAgentStatusTest {
     private String agentId = "uuid";
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -85,7 +86,7 @@ public class UpdateAgentStatusTest {
         agentService.saveOrUpdate(new Agent(agentId, "CCEDev01", "10.81.2.1", "cookie"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         preCondition.onTearDown();
     }

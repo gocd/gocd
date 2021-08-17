@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.service.plugins.processor.serverinfo.v2;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.ServerConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;

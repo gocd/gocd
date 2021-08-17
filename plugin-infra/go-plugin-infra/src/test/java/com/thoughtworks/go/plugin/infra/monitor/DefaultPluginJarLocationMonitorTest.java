@@ -22,9 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
@@ -32,16 +34,17 @@ import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
+
 
 @DisabledOnOs(OS.WINDOWS)
+@ExtendWith(MockitoExtension.class)
 class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
     private DefaultPluginJarLocationMonitor monitor;
     private File bundledPluginDir;
     private File pluginExternalDir;
 
-    @Mock
+    @Mock(lenient = true)
     private SystemEnvironment systemEnvironment;
     @Mock
     private PluginJarChangeListener changeListener;
@@ -50,7 +53,6 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     @BeforeEach
     void setUp(@TempDir File tempFolder) throws Exception {
         super.setUp(tempFolder);
-        initMocks(this);
 
         bundledPluginDir = this.tempFolder.newFolder("bundled-plugins");
         pluginExternalDir = this.tempFolder.newFolder("external-plugins");

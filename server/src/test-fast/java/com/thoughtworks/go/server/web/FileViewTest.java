@@ -17,10 +17,10 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -36,7 +36,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +53,7 @@ public class FileViewTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         temporaryFolder.create();
         mockRequest = new MockHttpServletRequest();
@@ -65,7 +65,7 @@ public class FileViewTest {
         FileUtils.writeStringToFile(file, "hello", UTF_8);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         temporaryFolder.delete();
     }

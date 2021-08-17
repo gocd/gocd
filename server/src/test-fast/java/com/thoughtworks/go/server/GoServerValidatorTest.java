@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 import com.thoughtworks.go.util.validators.Validation;
 import com.thoughtworks.go.util.validators.ServerPortValidator;
 

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRTabTest extends AbstractCRTest<CRTab> {
 
@@ -29,8 +29,7 @@ public class CRTabTest extends AbstractCRTest<CRTab> {
     private final CRTab invalidTabNoName;
     private final CRTab invalidTabNoPath;
 
-    public CRTabTest()
-    {
+    public CRTabTest() {
         tab = new CRTab("results","test.xml");
 
         invalidTabNoName = new CRTab(null,"test.xml");
@@ -48,10 +47,8 @@ public class CRTabTest extends AbstractCRTest<CRTab> {
         examples.put("invalidTabNoPath",invalidTabNoPath);
     }
 
-
     @Test
-    public void shouldDeserializeFromAPILikeObject()
-    {
+    public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
                 "      \"name\": \"cobertura\",\n" +
                 "      \"path\": \"target/site/cobertura/index.html\"\n" +
@@ -62,6 +59,6 @@ public class CRTabTest extends AbstractCRTest<CRTab> {
         assertThat(deserializedValue.getPath(),is("target/site/cobertura/index.html"));
 
         ErrorCollection errors = deserializedValue.getErrors();
-        TestCase.assertTrue(errors.isEmpty());
+        assertTrue(errors.isEmpty());
     }
 }

@@ -29,11 +29,10 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -46,11 +45,8 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
+@ExtendWith(ClearSingleton.class)
 public class AbstractReAuthenticationFilterTest {
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private FilterChain filterChain;
@@ -225,7 +221,7 @@ public class AbstractReAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
 
             verify(filter).onAuthenticationFailure(request, response, "Unable to re-authenticate user after timeout.");
         }
@@ -243,7 +239,7 @@ public class AbstractReAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
 
             verify(filter).onAuthenticationFailure(request, response, "Unable to re-authenticate user after timeout.");
         }

@@ -33,8 +33,6 @@ dependencies {
   compileOnly project.deps.jetBrainsAnnotations
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(':test:test-utils')
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Migration

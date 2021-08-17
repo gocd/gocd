@@ -16,13 +16,13 @@
 package com.thoughtworks.go.plugin.configrepo.contract;
 
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRBuildTask;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CRStageTest extends AbstractCRTest<CRStage> {
 

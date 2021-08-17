@@ -37,15 +37,15 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.ui.AuthPluginInfoViewModel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SecurityAuthConfigServiceTest {
@@ -56,7 +56,7 @@ public class SecurityAuthConfigServiceTest {
     private SecurityAuthConfigService securityAuthConfigService;
     private AuthorizationMetadataStore authorizationMetadataStore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
         hashingService = mock(EntityHashingService.class);

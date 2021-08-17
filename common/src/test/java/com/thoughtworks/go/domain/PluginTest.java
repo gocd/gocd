@@ -16,8 +16,8 @@
 package com.thoughtworks.go.domain;
 
 import com.google.gson.GsonBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,13 +25,13 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PluginTest {
     private Plugin plugin;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("k1", "v1");

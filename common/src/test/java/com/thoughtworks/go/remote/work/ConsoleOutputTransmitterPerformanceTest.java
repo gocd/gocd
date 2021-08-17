@@ -16,22 +16,22 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConsoleOutputTransmitterPerformanceTest {
     private static final int SECOND = 1000;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "1");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         new SystemEnvironment().clearProperty(SystemEnvironment.INTERVAL);
     }

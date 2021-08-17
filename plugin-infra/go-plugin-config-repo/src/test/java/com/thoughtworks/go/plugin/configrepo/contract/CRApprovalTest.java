@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRApprovalTest extends AbstractCRTest<CRApproval> {
 
@@ -32,8 +32,7 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
     private final CRApproval manualWithAuth;
     private final CRApproval badType;
 
-    public CRApprovalTest()
-    {
+    public CRApprovalTest() {
         manual = new CRApproval(CRApprovalCondition.manual);
         success = new CRApproval(CRApprovalCondition.success);
 
@@ -57,8 +56,7 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
 
 
     @Test
-    public void shouldDeserializeFromAPILikeObject()
-    {
+    public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
                 "    \"type\": \"manual\",\n" +
                 "      \"roles\": [\n" +
@@ -75,13 +73,12 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
         assertThat(deserializedValue.getRoles().isEmpty(),is(true));
 
         ErrorCollection errors = deserializedValue.getErrors();
-        TestCase.assertTrue(errors.isEmpty());
+        assertTrue(errors.isEmpty());
     }
 
 
     @Test
-    public void shouldAppendPrettyLocationInErrors()
-    {
+    public void shouldAppendPrettyLocationInErrors() {
         CRApproval a = new CRApproval();
 
         ErrorCollection errors = new ErrorCollection();

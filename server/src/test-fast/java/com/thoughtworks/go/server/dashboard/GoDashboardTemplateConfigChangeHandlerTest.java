@@ -20,14 +20,16 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.GoDashboardService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class GoDashboardTemplateConfigChangeHandlerTest {
     @Mock
     GoDashboardService cacheUpdateService;
@@ -36,9 +38,8 @@ public class GoDashboardTemplateConfigChangeHandlerTest {
 
     private GoDashboardTemplateConfigChangeHandler handler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         handler = new GoDashboardTemplateConfigChangeHandler(cacheUpdateService, goConfigService);
     }

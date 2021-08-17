@@ -22,19 +22,19 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import junit.framework.TestCase;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AdminsConfigUpdateCommandTest {
     @Mock
     private GoConfigService goConfigService;
@@ -47,9 +47,8 @@ public class AdminsConfigUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -128,8 +127,8 @@ public class AdminsConfigUpdateCommandTest {
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfigRequest, currentUser, result, entityHashingService, "digest");
 
         assertFalse(command.isValid(cruiseConfig));
-        TestCase.assertTrue(adminsConfigRequest.hasErrors());
-        Assert.assertThat(adminsConfigRequest.errors().on("users"), is("User cannot be blank."));
+        assertTrue(adminsConfigRequest.hasErrors());
+        assertThat(adminsConfigRequest.errors().on("users"), is("User cannot be blank."));
     }
 
 }

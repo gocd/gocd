@@ -23,13 +23,13 @@ import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.BuildAssignmentService;
 import com.thoughtworks.go.work.FakeWork;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class WorkFinderTest {
@@ -42,7 +42,7 @@ public class WorkFinderTest {
     private IdleAgentTopic idleAgentTopic;
     private WorkAssignmentPerformanceLogger workAssignmentPerformanceLogger;
 
-    @Before
+    @BeforeEach
     public void before() {
         workAssigner = mock(BuildAssignmentService.class);
         assignedWorkTopic = mock(WorkAssignedTopic.class, "assignedWork");
@@ -52,7 +52,7 @@ public class WorkFinderTest {
         finder = new WorkFinder(workAssigner, idleAgentTopic, assignedWorkTopic, workAssignmentPerformanceLogger);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         verify(idleAgentTopic).addListener(any(WorkFinder.class));
     }

@@ -17,9 +17,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.mockito.Mockito;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
@@ -30,7 +31,8 @@ public class StageLockCheckerTest {
     private StageLockChecker checker;
     private HttpOperationResult result;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         lockService = Mockito.mock(PipelineLockService.class);
         pipeline = new PipelineIdentifier("mingle", 10, "2.0.10");
         checker = new StageLockChecker(pipeline, lockService);

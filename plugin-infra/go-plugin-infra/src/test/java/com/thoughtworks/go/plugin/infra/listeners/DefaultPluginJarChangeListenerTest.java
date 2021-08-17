@@ -467,7 +467,7 @@ class DefaultPluginJarChangeListenerTest {
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(bundleDescriptor);
-        verifyZeroInteractions(pluginLoader);
+        verifyNoMoreInteractions(pluginLoader);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
         assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X].");
@@ -557,7 +557,7 @@ class DefaultPluginJarChangeListenerTest {
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(bundleDescriptor);
-        verifyZeroInteractions(pluginLoader);
+        verifyNoMoreInteractions(pluginLoader);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
         assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0.");
@@ -582,7 +582,7 @@ class DefaultPluginJarChangeListenerTest {
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
         verify(registry, times(1)).loadPlugin(bundleDescriptor);
-        verifyZeroInteractions(pluginLoader);
+        verifyNoMoreInteractions(pluginLoader);
 
         assertThat(pluginDescriptor1.getStatus().getMessages().size()).isEqualTo(1);
         assertThat(pluginDescriptor1.getStatus().getMessages().get(0)).isEqualTo("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified.");

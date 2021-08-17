@@ -26,20 +26,22 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class UpdatePipelineConfigsCommandTest {
     @Mock
     private EntityHashingService entityHashingService;
@@ -52,12 +54,8 @@ public class UpdatePipelineConfigsCommandTest {
     private Username user;
     private BasicCruiseConfig cruiseConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("user"))));
         pipelineConfigs = new BasicPipelineConfigs("group", authorization);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
@@ -110,9 +108,9 @@ public class UpdatePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Group name cannot be null.");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Group name cannot be null.");
 
         assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
         assertThat(result.message(), is("The group is invalid. Attribute 'name' cannot be null."));
@@ -126,9 +124,9 @@ public class UpdatePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Group name cannot be null.");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Group name cannot be null.");
     }
 
     @Test
@@ -140,8 +138,8 @@ public class UpdatePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
-        thrown.expect(RecordNotFoundException.class);
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(RecordNotFoundException.class);
     }
 
     @Test
@@ -160,7 +158,6 @@ public class UpdatePipelineConfigsCommandTest {
 
     @Test
     public void commandShouldNotContinue_whenRequestIsNotFresh() {
-        when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
         when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest-old");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));

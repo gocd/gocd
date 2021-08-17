@@ -22,14 +22,15 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class SCMDependencyNodeTest {
     @Test
@@ -58,23 +59,26 @@ public class SCMDependencyNodeTest {
         assertThat(node.getMaterialRevisions().size(), is(1));
     }
 
-    @Test(expected=Exception.class)
+    @Test
     public void addMaterialRevisionShouldNotAllowNull() {
-        new SCMDependencyNode("nodeID", "nodeName", "GIT").addMaterialRevision(null);
+        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").addMaterialRevision(null))
+                .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected=Exception.class)
+    @Test
     public void addRevisionShouldBeDisallowed() {
-        new SCMDependencyNode("nodeID", "nodeName", "GIT").
-                addRevision(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision")));
+        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").
+                addRevision(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision"))))
+                .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected=Exception.class)
+    @Test
     public void addRevisionsShouldBeDisallowed() {
         ArrayList<Revision> revisions = new ArrayList<>();
         revisions.add(new SCMRevision(ModificationsMother.oneModifiedFile("some_revision")));
 
-        new SCMDependencyNode("nodeID", "nodeName", "GIT").addRevisions(revisions);
+        assertThatThrownBy(() -> new SCMDependencyNode("nodeID", "nodeName", "GIT").addRevisions(revisions))
+        .isInstanceOf(RuntimeException.class);
     }
 
     @Test

@@ -17,10 +17,11 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.internal.verification.Times;
 
@@ -29,6 +30,7 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class TestArtifactPlanTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -36,7 +38,7 @@ public class TestArtifactPlanTest {
     private DefaultGoPublisher mockArtifactPublisher;
     private File rootPath;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         temporaryFolder.create();
         mockArtifactPublisher = mock(DefaultGoPublisher.class);
@@ -44,7 +46,7 @@ public class TestArtifactPlanTest {
         rootPath.mkdirs();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         temporaryFolder.delete();
         FileUtils.deleteQuietly(rootPath);

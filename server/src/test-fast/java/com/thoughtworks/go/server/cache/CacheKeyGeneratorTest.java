@@ -18,18 +18,13 @@ package com.thoughtworks.go.server.cache;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StageState;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@EnableRuleMigrationSupport
 class CacheKeyGeneratorTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private CacheKeyGenerator cacheKeyGenerator;
 
     @BeforeEach
@@ -70,10 +65,9 @@ class CacheKeyGeneratorTest {
 
     @Test
     void shouldErrorOutWhenObjectOfUnsupportedTypeIsGivenToGenerateCacheKey() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Type class java.lang.Object is not allowed here!");
-
-        cacheKeyGenerator.generate("foo", "bar", new Object(), 1L);
+        assertThatThrownBy(() -> cacheKeyGenerator.generate("foo", "bar", new Object(), 1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Type class java.lang.Object is not allowed here!");
     }
 
     @Test

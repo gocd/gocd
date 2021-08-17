@@ -106,7 +106,7 @@ public class AuthenticationFilterChainTest {
 
             authenticationFilterChain.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             MockHttpServletResponseAssert.assertThat(response).isForbidden();
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
         }

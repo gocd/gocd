@@ -19,29 +19,23 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.security.CryptoException;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -61,7 +55,7 @@ public class ServerConfigServiceIntegrationTest {
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
@@ -70,7 +64,7 @@ public class ServerConfigServiceIntegrationTest {
         goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configHelper.onTearDown();
     }
@@ -152,12 +146,13 @@ public class ServerConfigServiceIntegrationTest {
         assertThat(goConfigService.serverConfig().getPurgeUpto(), is(20.0));
     }
 
-    @Test(expected = GoConfigInvalidException.class)
+    @Test
     public void shouldNotUpdateArtifactConfigIfInvalid() {
         ArtifactConfig artifactConfig = new ArtifactConfig();
 
         assertThat(goConfigService.serverConfig().artifactsDir(), is("artifactsDir"));
 
-        serverConfigService.updateArtifactConfig(artifactConfig);
+        assertThatThrownBy(() -> serverConfigService.updateArtifactConfig(artifactConfig))
+                .isInstanceOf(GoConfigInvalidException.class);
     }
 }

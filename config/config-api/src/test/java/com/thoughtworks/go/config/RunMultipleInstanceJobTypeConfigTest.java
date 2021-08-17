@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.config;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RunMultipleInstanceJobTypeConfigTest {
 	private JobConfig jobConfig;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		jobConfig = new JobConfig(new CaseInsensitiveString("job"));
 		jobConfig.setRunInstanceCount(10);

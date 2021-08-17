@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,7 +42,7 @@ public class PipelineLockCheckerTest  {
         Mockito.verify(operationResult).success(healthStateType);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pipelineLockService = mock(PipelineLockService.class);
         operationResult = mock(OperationResult.class);

@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.StubBuilder;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import java.util.Collections;
 import static com.thoughtworks.go.config.RunIfConfig.ANY;
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BuildersTest {
 

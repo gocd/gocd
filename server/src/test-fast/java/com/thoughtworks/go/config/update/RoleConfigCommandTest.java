@@ -38,14 +38,13 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,11 +55,9 @@ public class RoleConfigCommandTest {
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private AuthorizationExtension extension;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);

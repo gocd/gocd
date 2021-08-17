@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.web;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TokenManagerTest {
@@ -34,14 +34,14 @@ public class TokenManagerTest {
     private HttpSession session;
     private HttpServletRequest request;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         manager = new TokenManager();
         session = mock(HttpSession.class);
         request = mock(HttpServletRequest.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(session);
         verifyNoMoreInteractions(request);

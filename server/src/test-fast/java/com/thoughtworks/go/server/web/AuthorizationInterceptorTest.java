@@ -18,16 +18,16 @@ package com.thoughtworks.go.server.web;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsAnonymous;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +38,7 @@ public class AuthorizationInterceptorTest {
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         securityService = mock(SecurityService.class);
         permissionInterceptor = new AuthorizationInterceptor(securityService);
@@ -47,7 +47,7 @@ public class AuthorizationInterceptorTest {
         loginAsAnonymous(request);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         ClearSingleton.clearSingletons();
     }

@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Date;
@@ -45,7 +45,7 @@ public class ConfigMaterialUpdateListenerTest {
     private final File folder = new File("checkoutDir");
     private Modification svnModification;
 
-    @Before
+    @BeforeEach
     public void SetUp() {
         repoConfigDataSource = mock(GoConfigRepoConfigDataSource.class);
         materialRepository = mock(MaterialRepository.class);

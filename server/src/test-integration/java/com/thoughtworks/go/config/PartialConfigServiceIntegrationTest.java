@@ -33,15 +33,15 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -49,9 +49,9 @@ import java.util.function.Predicate;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -76,7 +76,7 @@ public class PartialConfigServiceIntegrationTest {
     private ConfigRepoConfig repoConfig1;
     private ConfigRepoConfig repoConfig2;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -94,7 +94,7 @@ public class PartialConfigServiceIntegrationTest {
         return config;
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         for (PartialConfig partial : cachedGoPartials.lastValidPartials()) {
             assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));

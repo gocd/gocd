@@ -45,12 +45,15 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.utils.SvnRepoFixture;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,9 +64,10 @@ import java.util.List;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedEnvVariable;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(MockitoExtension.class)
+@EnableRuleMigrationSupport
 public class BuildWorkEnvironmentVariablesTest {
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
@@ -93,9 +97,9 @@ public class BuildWorkEnvironmentVariablesTest {
     private P4Client p4Client;
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
+        temporaryFolder.create();
         dir = temporaryFolder.newFolder("someFolder");
         environmentVariableContext = new EnvironmentVariableContext();
         svnRepoFixture = new SvnRepoFixture("../common/src/test/resources/data/svnrepo", temporaryFolder);
@@ -112,7 +116,7 @@ public class BuildWorkEnvironmentVariablesTest {
         p4Material = getP4Material();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         p4Fixture.stop(p4Client);
         TestRepo.internalTearDown();

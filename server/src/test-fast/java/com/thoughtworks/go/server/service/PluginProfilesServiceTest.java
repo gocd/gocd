@@ -22,16 +22,18 @@ import com.thoughtworks.go.config.update.AddClusterProfileCommand;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class PluginProfilesServiceTest {
 
     @Mock
@@ -47,7 +49,6 @@ class PluginProfilesServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         service = new PluginProfilesService(goConfigService, hashingService) {
             @Override
             protected PluginProfiles getPluginProfiles() {

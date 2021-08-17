@@ -27,8 +27,7 @@ dependencies {
   testImplementation project.deps.mockito
   testImplementation project.deps.hamcrestLibrary
   testImplementation project(':test:test-utils')
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Migration
   testRuntimeOnly project.deps.junit5Engine
 }

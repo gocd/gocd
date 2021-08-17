@@ -23,10 +23,11 @@ import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -36,8 +37,9 @@ import java.util.List;
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class SvnMultipleMaterialsTest {
     private SvnTestRepo repo;
     private File pipelineDir;
@@ -45,13 +47,13 @@ public class SvnMultipleMaterialsTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void createRepo() throws IOException {
         repo = new SvnTestRepo(temporaryFolder);
         pipelineDir = temporaryFolder.newFolder();
     }
 
-    @After
+    @AfterEach
     public void cleanupRepo() {
         repo.tearDown();
         FileUtils.deleteQuietly(pipelineDir);

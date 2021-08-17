@@ -30,7 +30,7 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -40,7 +40,7 @@ import java.util.Queue;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.filteredHgMaterialConfig;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PipelineConfigDependencyGraphTest {
 

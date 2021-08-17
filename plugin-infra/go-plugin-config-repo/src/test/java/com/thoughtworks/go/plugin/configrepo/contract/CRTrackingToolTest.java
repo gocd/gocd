@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
 
@@ -29,8 +29,7 @@ public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
     private final CRTrackingTool invalidNoLink;
     private final CRTrackingTool invalidNoRegex;
 
-    public CRTrackingToolTest()
-    {
+    public CRTrackingToolTest() {
         tracking  = new CRTrackingTool("http://your-trackingtool/yourproject/${ID}","evo-(\\d+)");
         invalidNoLink = new CRTrackingTool(null, "evo-(\\d+)");
         invalidNoRegex  = new CRTrackingTool("http://your-trackingtool/yourproject/${ID}",null);
@@ -48,8 +47,7 @@ public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
     }
 
     @Test
-    public void shouldDeserializeFromAPILikeObject()
-    {
+    public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
                 "    \"link\": \"https://github.com/gocd/api.go.cd/issues/${ID}\",\n" +
                 "    \"regex\": \"##(d+)\"\n" +
@@ -60,6 +58,6 @@ public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
         assertThat(deserializedValue.getRegex(),is("##(d+)"));
 
         ErrorCollection errors = deserializedValue.getErrors();
-        TestCase.assertTrue(errors.isEmpty());
+        assertTrue(errors.isEmpty());
     }
 }

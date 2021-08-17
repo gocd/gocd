@@ -39,21 +39,18 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.platform.commons.util.AnnotationUtils;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.FilterMother.filterFor;
@@ -61,34 +58,29 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(Theories.class)
 public class MagicalMaterialAndMaterialConfigConversionTest {
     private static PackageRepository packageRepo = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(create("k1", false, "v1")));
     private static PackageDefinition packageDefinition = PackageDefinitionMother.create("id", "name1", new Configuration(create("k2", false, "v2")), packageRepo);
-    public static SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
+    private static SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
 
     private static Map<Class, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<>();
     private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
-    @DataPoint
-    public static MaterialConfig svnMaterialConfig = svn(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
-    @DataPoint
-    public static MaterialConfig gitMaterialConfig = git(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
-    @DataPoint
-    public static MaterialConfig hgMaterialConfig = hg(new HgUrlArgument("hg-url"), null, "pass", null, true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
-    @DataPoint
-    public static MaterialConfig p4MaterialConfig = p4("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder");
-    @DataPoint
-    public static MaterialConfig tfsMaterialConfig = tfs(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("tfsMaterial"));
-    @DataPoint
-    public static MaterialConfig pkgMaterialConfig = new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition);
-    @DataPoint
-    public static MaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"), false);
-    @DataPoint
-    public static MaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1"));
+    @SuppressWarnings("unused")
+    private static Stream<MaterialConfig> testMaterials() {
+        return Stream.of(
+                svn(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1")),
+                git(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false),
+                hg(new HgUrlArgument("hg-url"), null, "pass", null, true, filterFor("*.png"), false, "folder", cis("hgMaterial")),
+                p4("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder"),
+                tfs(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("tfsMaterial")),
+                new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition),
+                new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"), false),
+                new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1")));
+    }
 
     static {
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(GitMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
@@ -101,14 +93,15 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("testMaterials")
     public void shouldBeSameObject_WhenConversionIsDoneFromMaterialConfigToMaterialAndBack(MaterialConfig materialConfig) {
         Material materialFromConfig = materialConfigConverter.toMaterial(materialConfig);
         MaterialConfig materialConfigConvertedBackFromMaterial = materialFromConfig.config();
 
         assertThat(materialConfigConvertedBackFromMaterial, is(materialConfig));
-        assertTrue(message("Material <-> MaterialConfig conversion failed.", materialConfigConvertedBackFromMaterial, materialConfig),
-                reflectionEquals(materialConfigConvertedBackFromMaterial, materialConfig, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())));
+        assertTrue(reflectionEquals(materialConfigConvertedBackFromMaterial, materialConfig, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())),
+                message("Material <-> MaterialConfig conversion failed.", materialConfigConvertedBackFromMaterial, materialConfig));
 
         assertThat(materialFromConfig.getFingerprint(), is(materialConfig.getFingerprint()));
         assertThat(materialFromConfig.isAutoUpdate(), is(materialConfig.isAutoUpdate()));
@@ -118,15 +111,16 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         assertPasswordIsCorrect(materialConfigConvertedBackFromMaterial);
     }
 
-    @Theory
+    @ParameterizedTest
+    @MethodSource("testMaterials")
     public void shouldBeSameObject_WhenConversionIsDoneFromMaterialToMaterialInstanceAndBack(MaterialConfig materialConfig) {
         Material material = materialConfigConverter.toMaterial(materialConfig);
 
         MaterialInstance materialInstance = material.createMaterialInstance();
         Material materialConvertedBackFromInstance = materialInstance.toOldMaterial(materialConfig.getName().toString(), materialConfig.getFolder(), "pass");
 
-        assertTrue(message("Material <-> MaterialInstance conversion failed.", material, materialConvertedBackFromInstance),
-                reflectionEquals(material, materialConvertedBackFromInstance, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())));
+        assertTrue(reflectionEquals(material, materialConvertedBackFromInstance, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())),
+                message("Material <-> MaterialInstance conversion failed.", material, materialConvertedBackFromInstance));
 
         assertThat(materialInstance.getFingerprint(), is(material.getFingerprint()));
         assertThat(materialConvertedBackFromInstance.getFingerprint(), is(materialInstance.getFingerprint()));
@@ -135,7 +129,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     }
 
     @Test
-    public void failIfNewTypeOfMaterialIsNotAddedInTheAboveTest() throws Exception {
+    public void failIfNewTypeOfMaterialIsNotAddedInTheAboveTest() {
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AssignableTypeFilter(MaterialConfig.class));
         Set<BeanDefinition> candidateComponents = provider.findCandidateComponents("com/thoughtworks");
@@ -149,7 +143,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
 
         reflectionsSubTypesOf.removeIf(this::isNotAConcrete_NonTest_MaterialConfigImplementation);
 
-        List<Class> allExpectedMaterialConfigImplementations = allMaterialConfigsWhichAreDataPointsInThisTest();
+        List<Class> allExpectedMaterialConfigImplementations = testMaterials().map(MaterialConfig::getClass).collect(Collectors.toList());
 
         assertThatAllMaterialConfigsInCodeAreTestedHere(reflectionsSubTypesOf, allExpectedMaterialConfigImplementations);
     }
@@ -157,20 +151,10 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private void assertThatAllMaterialConfigsInCodeAreTestedHere(List<Class> reflectionsSubTypesOf, List<Class> allExpectedMaterialConfigImplementations) {
         List<Class> missingImplementations = new ArrayList<>(reflectionsSubTypesOf);
         missingImplementations.removeAll(allExpectedMaterialConfigImplementations);
-        String message = "You need to add a DataPoint for these materials in this test: " + missingImplementations;
+        String message = "You need to add a `MaterialConfig` to `testMaterials()` in this test: " + missingImplementations;
 
         assertThat(message, reflectionsSubTypesOf.size(), is(allExpectedMaterialConfigImplementations.size()));
         assertThat(message, reflectionsSubTypesOf, hasItems(allExpectedMaterialConfigImplementations.toArray(new Class[allExpectedMaterialConfigImplementations.size()])));
-    }
-
-    private List<Class> allMaterialConfigsWhichAreDataPointsInThisTest() throws Exception {
-        List<Field> fields = AnnotationUtils.findAnnotatedFields(getClass(), DataPoint.class, field -> true);
-
-        ArrayList<Class> allDataPointMaterialConfigClasses = new ArrayList<>();
-        for (Field field : fields) {
-            allDataPointMaterialConfigClasses.add(field.get(this).getClass());
-        }
-        return allDataPointMaterialConfigClasses;
     }
 
     private boolean isNotAConcrete_NonTest_MaterialConfigImplementation(Class aClass) {
@@ -203,4 +187,5 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private static UrlArgument url(String url) {
         return new UrlArgument(url);
     }
+
 }

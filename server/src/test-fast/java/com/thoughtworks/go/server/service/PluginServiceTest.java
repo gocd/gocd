@@ -43,11 +43,13 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,12 +57,13 @@ import java.util.List;
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluginServiceTest {
     private PluginService pluginService;
     private Username currentUser;
@@ -88,19 +91,18 @@ public class PluginServiceTest {
     private final String authorizationPluginId = "cd.go.authorization.ldap";
     private final String elasticAgentPluginId = "cd.go.elastic-agent.docker";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         currentUser = new Username("bob");
 
-        when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
-        when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
+        lenient().when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
+        lenient().when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
         extensions = Arrays.asList(authorizationExtension, elasticAgentExtension);
 
         pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService, defaultPluginInfoFinder, pluginManager);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         PluginSettingsMetadataStore.getInstance().clear();
     }
@@ -156,7 +158,6 @@ public class PluginServiceTest {
         when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
         when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
-        when(result.isSuccessful()).thenReturn(true);
         when(pluginSettings.hasErrors()).thenReturn(false);
         when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
@@ -166,13 +167,11 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(1)).saveOrUpdate(any());
         verify(elasticAgentExtension).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        assertTrue(result.isSuccessful());
     }
 
     @Test
     public void validatePluginSettingsFor_shouldTalkToPluginToValidatePluginSettings() {
         setUpElasticPluginForTheTest(true);
-        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
 
         when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
@@ -186,7 +185,6 @@ public class PluginServiceTest {
     public void validatePluginSettingsFor_shouldCheckIfSecureValuesSetByUserAreValid() {
         String secureKey = "secure-key";
         setUpElasticPluginForTheTest(true);
-        when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(new NullPlugin());
 
         PluginSettings pluginSettings = new PluginSettings(elasticAgentPluginId);
         final PluginInfo pluginInfo = mock(PluginInfo.class);
@@ -294,10 +292,8 @@ public class PluginServiceTest {
         PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginId, PluginConstants.ELASTIC_AGENT_EXTENSION, new PluginSettingsConfiguration(), "template-1");
         when(defaultPluginInfoFinder.pluginInfoFor(pluginId)).thenReturn(combinedPluginInfo);
         when(combinedPluginInfo.extensionFor(ELASTIC_AGENT_EXTENSION)).thenReturn(elasticAgentPluginInfo);
-        when(combinedPluginInfo.extensionFor(AUTHORIZATION_EXTENSION)).thenReturn(authorizationPluginInfo);
         when(defaultPluginInfoFinder.pluginInfoFor(pluginId)).thenReturn(combinedPluginInfo);
         when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(authorizationExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
         PluginInfo pluginInfo = pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId);
 
@@ -314,9 +310,6 @@ public class PluginServiceTest {
         combinedPluginInfo.add(notificationPluginInfo);
         SCMPluginInfo scmPluginInfo = new SCMPluginInfo(pluginDescriptor, "display_name", new PluggableInstanceSettings(null), null);
         combinedPluginInfo.add(scmPluginInfo);
-
-        when(elasticAgentExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(authorizationExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
         assertNull(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginId));
     }
@@ -354,7 +347,6 @@ public class PluginServiceTest {
 
         final ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key-1", "error-message"));
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
         when(pluginSettings.hasErrors()).thenReturn(true);
 
         pluginService.createPluginSettings(pluginSettings, currentUser, result);
@@ -429,7 +421,6 @@ public class PluginServiceTest {
 
         final ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key-1", "error-message"));
-        when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
         when(pluginSettings.hasErrors()).thenReturn(true);
         when(entityHashingService.hashForEntity(any(PluginSettings.class))).thenReturn("foo");
         when(result.isSuccessful()).thenReturn(false);
@@ -468,18 +459,18 @@ public class PluginServiceTest {
         final CombinedPluginInfo combinedPluginInfo = mock(CombinedPluginInfo.class);
         final ElasticAgentPluginInfo elasticAgentPluginInfo = mockElasticAgentPluginInfo(getPluggableInstanceSettings());
 
-        when(defaultPluginInfoFinder.pluginInfoFor(elasticAgentPluginId)).thenReturn(combinedPluginInfo);
-        when(combinedPluginInfo.extensionFor(ELASTIC_AGENT_EXTENSION)).thenReturn(elasticAgentPluginInfo);
+        lenient().when(defaultPluginInfoFinder.pluginInfoFor(elasticAgentPluginId)).thenReturn(combinedPluginInfo);
+        lenient().when(combinedPluginInfo.extensionFor(ELASTIC_AGENT_EXTENSION)).thenReturn(elasticAgentPluginInfo);
 
         addPluginSettingsMetadataToStore(elasticAgentPluginId, ELASTIC_AGENT_EXTENSION, getPluginSettingsConfiguration());
-        when(securityService.isUserAdmin(currentUser)).thenReturn(isCurrentUserAdmin);
-        when(pluginSettings.getPluginId()).thenReturn(elasticAgentPluginId);
-        when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
+        lenient().when(securityService.isUserAdmin(currentUser)).thenReturn(isCurrentUserAdmin);
+        lenient().when(pluginSettings.getPluginId()).thenReturn(elasticAgentPluginId);
+        lenient().when(elasticAgentExtension.canHandlePlugin(elasticAgentPluginId)).thenReturn(true);
     }
 
     private ElasticAgentPluginInfo mockElasticAgentPluginInfo(PluggableInstanceSettings pluggableInstanceSettings) {
         final ElasticAgentPluginInfo elasticAgentPluginInfo = mock(ElasticAgentPluginInfo.class);
-        when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(pluggableInstanceSettings);
+        lenient().when(elasticAgentPluginInfo.getPluginSettings()).thenReturn(pluggableInstanceSettings);
         return elasticAgentPluginInfo;
     }
 

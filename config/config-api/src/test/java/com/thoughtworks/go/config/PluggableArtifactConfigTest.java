@@ -29,17 +29,18 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +48,7 @@ public class PluggableArtifactConfigTest {
 
     private ArtifactPluginInfo artifactPluginInfo;
 
-    @Before
+    @BeforeEach
     public void setup() {
         artifactPluginInfo = mock(ArtifactPluginInfo.class);
         PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
@@ -56,7 +57,7 @@ public class PluggableArtifactConfigTest {
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
     }
 
-    @After
+    @AfterEach
     public void clear() {
         ArtifactMetadataStore.instance().setPluginInfo(null);
     }

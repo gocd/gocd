@@ -27,35 +27,35 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.After;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@EnableRuleMigrationSupport
 public class ServerBinaryDownloaderTest {
 
     @Rule
     public FakeGoServer server = new FakeGoServer();
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @After
+    @AfterEach
     public void tearDown() {
         FileUtils.deleteQuietly(new File(Downloader.AGENT_BINARY));
         FileUtils.deleteQuietly(DownloadableFile.AGENT.getLocalFile());
@@ -79,17 +79,17 @@ public class ServerBinaryDownloaderTest {
     public void shouldGetExtraPropertiesFromHeader() {
         assertExtraProperties("", new HashMap<>());
 
-        assertExtraProperties("Key1=Value1 key2=value2", new HashMap<String, String>() {{
+        assertExtraProperties("Key1=Value1 key2=value2", new HashMap<>() {{
             put("Key1", "Value1");
             put("key2", "value2");
         }});
 
-        assertExtraProperties("Key1=Value1 key2=value2 key2=value3", new HashMap<String, String>() {{
+        assertExtraProperties("Key1=Value1 key2=value2 key2=value3", new HashMap<>() {{
             put("Key1", "Value1");
             put("key2", "value2");
         }});
 
-        assertExtraProperties("Key1%20WithSpace=Value1%20WithSpace key2=value2", new HashMap<String, String>() {{
+        assertExtraProperties("Key1%20WithSpace=Value1%20WithSpace key2=value2", new HashMap<>() {{
             put("Key1 WithSpace", "Value1 WithSpace");
             put("key2", "value2");
         }});
@@ -114,10 +114,11 @@ public class ServerBinaryDownloaderTest {
         assertThat(downloader.downloadIfNecessary(DownloadableFile.AGENT), is(true));
     }
 
-    @Test(expected = Exception.class)
-    public void shouldThrowExceptionIfTheServerIsDown() throws Exception {
+    @Test
+    public void shouldThrowExceptionIfTheServerIsDown() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("locahost", server.getPort()));
-        downloader.download(DownloadableFile.AGENT);
+        assertThatThrownBy(() -> downloader.download(DownloadableFile.AGENT))
+                .isExactlyInstanceOf(UnknownHostException.class);
     }
 
     @Test
@@ -128,40 +129,35 @@ public class ServerBinaryDownloaderTest {
     }
 
     @Test
-    public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() throws Exception {
-        exception.expect(Exception.class);
-        exception.expectMessage("Certificate for <localhost> doesn't match any of the subject alternative names: []");
-
+    public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.FULL, null, null, null), ServerUrlGeneratorMother.generatorFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
-        downloader.download(DownloadableFile.AGENT);
+        assertThatThrownBy(() -> downloader.download(DownloadableFile.AGENT))
+                .isInstanceOf(IOException.class)
+                .hasMessage("Certificate for <localhost> doesn't match any of the subject alternative names: []");
     }
 
     @Test
-    public void shouldFailIfMD5HeadersAreMissing() throws Exception {
-        exception.expect(Exception.class);
-        exception.expectMessage("Missing required headers 'Content-MD5' in response.");
-
+    public void shouldFailIfMD5HeadersAreMissing() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
-        downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT);
+        assertThatThrownBy(() -> downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("Missing required headers 'Content-MD5' in response.");
     }
 
     @Test
-    public void shouldFailIfServerIsNotAvailable() throws Exception {
-        exception.expect(UnknownHostException.class);
-        exception.expectMessage("invalidserver");
-
+    public void shouldFailIfServerIsNotAvailable() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go/hello"));
-        downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT);
+        assertThatThrownBy(() -> downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT))
+                .isExactlyInstanceOf(UnknownHostException.class)
+                .hasMessageContaining("invalidserver");
     }
 
     @Test
-    public void shouldThrowExceptionInCaseOf404() throws Exception {
-        exception.expect(Exception.class);
-        exception.expectMessage("This agent might be incompatible with your GoCD Server."
-                + " Please fix the version mismatch between GoCD Server and GoCD Agent.");
-
+    public void shouldThrowExceptionInCaseOf404() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/not-found"));
-        downloader.download(DownloadableFile.AGENT);
+        assertThatThrownBy(() -> downloader.download(DownloadableFile.AGENT))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("This agent might be incompatible with your GoCD Server. Please fix the version mismatch between GoCD Server and GoCD Agent.");
     }
 
     @Test

@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class DeleteBackupConfigCommandTest {
 

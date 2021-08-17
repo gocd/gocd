@@ -25,8 +25,8 @@ import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
 import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -50,7 +50,7 @@ public class BackupFilterTest {
     private PrintWriter writer;
     private InputStream inputStream;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ServletException, IOException {
         ServletHelper.init();
 

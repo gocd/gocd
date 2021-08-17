@@ -25,16 +25,16 @@ import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

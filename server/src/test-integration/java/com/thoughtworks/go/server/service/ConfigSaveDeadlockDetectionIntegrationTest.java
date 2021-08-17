@@ -32,19 +32,20 @@ import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,16 +57,17 @@ import java.util.function.Predicate;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -84,7 +86,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     private GoConfigFileHelper configHelper;
     private final int THREE_MINUTES = 3 * 60 * 1000;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_SINGLE_ENVIRONMENT);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
@@ -92,7 +94,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         goConfigService.forceNotifyListeners();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configHelper.onTearDown();
     }

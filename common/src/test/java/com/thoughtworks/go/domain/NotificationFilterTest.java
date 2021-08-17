@@ -19,26 +19,22 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.GoConstants;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class NotificationFilterTest {
     @Mock
     private ValidationContext validationContext;
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this);
-    }
 
     @Test
     void shouldMatchFixedStage() {

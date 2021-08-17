@@ -25,41 +25,41 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluginSettingsMetadataLoaderTest {
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;
-    @Mock
+    @Mock(lenient = true)
     private SCMExtension scmExtension;
-    @Mock
+    @Mock(lenient = true)
     private TaskExtension taskExtension;
-    @Mock
+    @Mock(lenient = true)
     private NotificationExtension notificationExtension;
-    @Mock
+    @Mock(lenient = true)
     private ConfigRepoExtension configRepoExtension;
     @Mock
     private PluginManager pluginManager;
 
     private PluginSettingsMetadataLoader metadataLoader;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        initMocks(this);
-
         when(packageRepositoryExtension.extensionName()).thenReturn(PluginConstants.PACKAGE_MATERIAL_EXTENSION);
         when(scmExtension.extensionName()).thenReturn(PluginConstants.SCM_EXTENSION);
         when(notificationExtension.extensionName()).thenReturn(PluginConstants.NOTIFICATION_EXTENSION);
@@ -72,7 +72,7 @@ public class PluginSettingsMetadataLoaderTest {
         PluginSettingsMetadataStore.getInstance().clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         PluginSettingsMetadataStore.getInstance().clear();
     }

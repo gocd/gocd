@@ -20,7 +20,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 class TransactionCacheAssertionUtil {
     private GoCache goCache;

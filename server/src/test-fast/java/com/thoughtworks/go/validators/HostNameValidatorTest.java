@@ -16,7 +16,7 @@
 package com.thoughtworks.go.validators;
 
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
@@ -60,7 +60,7 @@ public class HostNameValidatorTest {
     private void assertValid(String hostname) {
         LocalizedOperationResult result = mock(LocalizedOperationResult.class);
         new HostNameValidator().validate(hostname, result);
-        verifyZeroInteractions(result);
+        verifyNoInteractions(result);
     }
 
     private void assertInvalid(String hostname) {

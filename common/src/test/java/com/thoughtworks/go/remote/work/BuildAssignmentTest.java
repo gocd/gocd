@@ -47,8 +47,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +59,8 @@ import java.util.*;
 import static com.thoughtworks.go.config.materials.svn.SvnMaterial.createSvnMaterialWithMock;
 import static com.thoughtworks.go.helper.MaterialsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 @EnableRuleMigrationSupport
 public class BuildAssignmentTest {
     @Rule
@@ -79,7 +81,6 @@ public class BuildAssignmentTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        initMocks(this);
         temporaryFolder.create();
         dir = temporaryFolder.newFolder("someFolder");
         svnRepoFixture = new SvnRepoFixture("../common/src/test/resources/data/svnrepo", temporaryFolder);
@@ -96,7 +97,6 @@ public class BuildAssignmentTest {
     void teardown() {
         TestRepo.internalTearDown();
         hgTestRepo.tearDown();
-        temporaryFolder.delete();
     }
 
     @Test

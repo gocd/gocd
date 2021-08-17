@@ -18,17 +18,17 @@ package com.thoughtworks.go.plugin.access.common.settings;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class PluginSettingsJsonMessageHandlerTestBase {
     protected PluginSettingsJsonMessageHandlerBase messageHandler;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         messageHandler = messageHandler();
     }

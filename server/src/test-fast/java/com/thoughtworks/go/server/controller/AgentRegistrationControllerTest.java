@@ -29,10 +29,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -43,6 +42,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -51,15 +52,13 @@ import java.util.Base64;
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Base64.getEncoder;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
 public class AgentRegistrationControllerTest {
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private final MockHttpServletRequest request = new MockHttpServletRequest();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
@@ -71,13 +70,13 @@ public class AgentRegistrationControllerTest {
     private File pluginZipFile;
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(@TempDir Path temporaryFolder) throws Exception {
         agentService = mock(AgentService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
         ephemeralAutoRegisterKeyService = mock(EphemeralAutoRegisterKeyService.class);
-        pluginZipFile = temporaryFolder.newFile("plugins.zip");
+        pluginZipFile = Files.createFile(temporaryFolder.resolve("plugins.zip")).toFile();
         FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
@@ -350,7 +349,7 @@ public class AgentRegistrationControllerTest {
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.FORBIDDEN));
 
         verify(serverConfig, times(0)).shouldAutoRegisterAgentWith("someKey");
-        verifyZeroInteractions(agentService);
+        verifyNoMoreInteractions(agentService);
     }
 
     @Test

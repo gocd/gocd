@@ -25,8 +25,8 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.InMemoryEmailNotificationTopic;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,8 +35,8 @@ import java.util.Date;
 
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class StageNotificationServiceTest {
@@ -50,7 +50,7 @@ public class StageNotificationServiceTest {
     private ServerConfigService serverConfigService;
     private InstanceFactory instanceFactory;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         pipelineService = mock(PipelineService.class);
         userService = mock(UserService.class);
@@ -86,8 +86,8 @@ public class StageNotificationServiceTest {
         when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
-        verifyZeroInteractions(stageService);
-        verifyZeroInteractions(pipelineService);
+        verifyNoInteractions(stageService);
+        verifyNoInteractions(pipelineService);
     }
 
     private String textAfter(String body, String sectionName) {

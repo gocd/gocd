@@ -17,8 +17,8 @@ package com.thoughtworks.go.rackhack;
 
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +38,7 @@ public class DelegatingServletTest {
     private com.thoughtworks.go.server.util.ServletRequest servletRequestWrapper;
     private HttpServletRequest httpServletRequest;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         ServletHelper servletHelper = mock(ServletHelper.class);
         ReflectionUtil.setStaticField(ServletHelper.class, "instance", servletHelper);

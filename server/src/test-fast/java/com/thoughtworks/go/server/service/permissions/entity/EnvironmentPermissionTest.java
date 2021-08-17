@@ -26,7 +26,9 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.permissions.PermissionProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -37,10 +39,11 @@ import static com.thoughtworks.go.config.policy.SupportedAction.ADMINISTER;
 import static com.thoughtworks.go.config.policy.SupportedAction.VIEW;
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class EnvironmentPermissionTest {
     @Mock
     private GoConfigService goConfigService;
@@ -53,13 +56,12 @@ public class EnvironmentPermissionTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
 
         cruiseConfig = new BasicCruiseConfig();
         username = new Username("Bob" + UUID.randomUUID());
         permission = new EnvironmentPermission(goConfigService, securityService);
 
-        when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
+        lenient().when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
         SessionUtils.setCurrentUser(new GoUserPrinciple(username.getUsername().toString(), username.getUsername().toString(), GoAuthority.ROLE_ANONYMOUS.asAuthority()));
     }
 

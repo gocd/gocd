@@ -25,12 +25,14 @@ import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ClusterProfilesServiceTest {
     @Mock
     private GoConfigService goConfigService;
@@ -46,7 +48,6 @@ public class ClusterProfilesServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
 
         clusterProfile = new ClusterProfile("prod_cluster", "k8s.ea.plugin");
         clusterProfilesService = new ClusterProfilesService(goConfigService, hashingService, extension, secretParamResolver);

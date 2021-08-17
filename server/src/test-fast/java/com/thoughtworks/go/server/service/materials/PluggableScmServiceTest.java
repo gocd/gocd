@@ -32,27 +32,27 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class PluggableScmServiceTest {
     private static final String pluginId = "abc.def";
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Mock
     private SCMExtension scmExtension;
@@ -67,12 +67,9 @@ public class PluggableScmServiceTest {
 
     private PluggableScmService pluggableScmService;
     private SCMConfigurations scmConfigurations;
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         pluggableScmService = new PluggableScmService(scmExtension, goConfigService, entityHashingService, secretParamResolver);
 
@@ -80,7 +77,7 @@ public class PluggableScmServiceTest {
         scmConfig.add(new SCMProperty("KEY1").with(Property.REQUIRED, true));
         scmConfigurations = new SCMConfigurations(scmConfig);
 
-        when(preference.getScmConfigurations()).thenReturn(scmConfigurations);
+        lenient().when(preference.getScmConfigurations()).thenReturn(scmConfigurations);
         SCMMetadataStore.getInstance().setPreferenceFor(pluginId, preference);
     }
 
@@ -244,10 +241,10 @@ public class PluggableScmServiceTest {
 
         when(scmConfig.doesPluginExist()).thenReturn(false);
 
-        thrown.expect(RuntimeException.class);
-        pluggableScmService.isValid(scmConfig);
+        assertThatThrownBy(() -> pluggableScmService.isValid(scmConfig))
+                .isInstanceOf(RuntimeException.class);
 
-        verifyZeroInteractions(scmExtension);
+        verifyNoInteractions(scmExtension);
     }
 
     @Test

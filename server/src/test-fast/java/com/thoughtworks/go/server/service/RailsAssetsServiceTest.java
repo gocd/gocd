@@ -18,11 +18,9 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.servlet.ServletContext;
 import java.io.File;
@@ -35,8 +33,8 @@ import java.util.stream.Collectors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,26 +42,18 @@ import static org.mockito.Mockito.when;
 public class RailsAssetsServiceTest {
 
     RailsAssetsService railsAssetsService;
-    private File assetsDir;
+    @TempDir
+    File assetsDir;
     private ServletContext context;
     private SystemEnvironment systemEnvironment;
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
-
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         context = mock(ServletContext.class);
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         railsAssetsService = new RailsAssetsService(systemEnvironment);
         railsAssetsService.setServletContext(context);
-        assetsDir = tempFolder.newFolder("assets-" + UUID.randomUUID().toString());
-    }
-
-    @After
-    public void teardown() {
-        FileUtils.deleteQuietly(assetsDir);
     }
 
     @Test

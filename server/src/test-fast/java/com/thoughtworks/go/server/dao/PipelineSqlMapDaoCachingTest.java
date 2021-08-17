@@ -54,7 +54,6 @@ import java.util.*;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 class PipelineSqlMapDaoCachingTest {

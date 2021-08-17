@@ -45,10 +45,10 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.input.JDOMParseException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.xmlunit.assertj.XmlAssert;
 
 import javax.xml.transform.stream.StreamSource;
@@ -62,9 +62,10 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
+@ExtendWith(ResetCipher.class)
 public class MagicalGoConfigXmlWriterTest {
     private ByteArrayOutputStream output;
     private MagicalGoConfigXmlWriter xmlWriter;
@@ -72,13 +73,7 @@ public class MagicalGoConfigXmlWriterTest {
     private MagicalGoConfigXmlLoader xmlLoader;
     private CruiseConfig cruiseConfig;
 
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setup() {
         output = new ByteArrayOutputStream();
         ConfigCache configCache = new ConfigCache();
@@ -351,7 +346,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldEncryptPasswordBeforeWriting() throws Exception {
+    public void shouldEncryptPasswordBeforeWriting(ResetCipher resetCipher) throws Exception {
         resetCipher.setupDESCipherFile();
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server>"
@@ -1057,7 +1052,8 @@ public class MagicalGoConfigXmlWriterTest {
         assertThat(writtenConfigXml, not(containsString("<authorization>")));
     }
 
-    @Test(timeout = 1000)
+    @Test
+    @Timeout(1)
     public void shouldValidateLeadingAndTrailingSpacesOnExecCommandInReasonableTime() throws Exception {
         // See https://github.com/gocd/gocd/issues/3551
         // This is only reproducible on longish strings, so don't try shortening the exec task length...

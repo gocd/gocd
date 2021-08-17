@@ -27,8 +27,6 @@ dependencies {
 
   // not an implementation dependency, but some classloader hell
   implementation project.deps.xalan
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest

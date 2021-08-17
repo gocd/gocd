@@ -21,20 +21,23 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CreatePipelineConfigsCommandTest {
     @Mock
     private SecurityService securityService;
@@ -42,12 +45,8 @@ public class CreatePipelineConfigsCommandTest {
     private Username user;
     private BasicCruiseConfig cruiseConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.server().security().addRole(new RoleConfig("validRole"));
         user = new Username(new CaseInsensitiveString("user"));
@@ -114,9 +113,9 @@ public class CreatePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, result, securityService);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Group name cannot be null.");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Group name cannot be null.");
 
         assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
         assertThat(result.message(), is("The group is invalid. Attribute 'name' cannot be null."));
@@ -130,9 +129,9 @@ public class CreatePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, result, securityService);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Group name cannot be null.");
-        command.isValid(cruiseConfig);
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Group name cannot be null.");
     }
 
     @Test

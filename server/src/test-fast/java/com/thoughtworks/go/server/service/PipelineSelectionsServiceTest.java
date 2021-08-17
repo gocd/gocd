@@ -24,16 +24,16 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.*;
 
 public class PipelineSelectionsServiceTest {
@@ -48,7 +48,7 @@ public class PipelineSelectionsServiceTest {
     private static final String JOB = "Job1";
     private UserDao userDao;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         new SystemEnvironment().setProperty(SystemEnvironment.ENFORCE_SERVER_IMMUTABILITY, "N");
 

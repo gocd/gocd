@@ -24,7 +24,11 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.helper.TestRepo;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -33,8 +37,9 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@EnableRuleMigrationSupport
 public class SvnExternalTest {
     @ClassRule
     public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -42,13 +47,14 @@ public class SvnExternalTest {
     private static SvnTestRepoWithExternal svnRepo;
     public static File workingDir;
 
-    @BeforeClass
+    @BeforeAll
     public static void copyRepository() throws IOException {
+        temporaryFolder.create();
         svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
         workingDir = svnRepo.projectRepositoryUrlAsFile();
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteRepository() throws IOException {
         TestRepo.internalTearDown();
     }
@@ -60,9 +66,6 @@ public class SvnExternalTest {
         List<SvnExternal> urls = svn.getAllExternalURLs();
         assertThat(urls.size(), is(1));
     }
-
-
-
 
     @Test
     public void shouldGetLatestRevisionFromExpandedSvnExternalRepository() {

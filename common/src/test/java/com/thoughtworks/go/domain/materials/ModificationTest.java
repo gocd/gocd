@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Date;
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.domain.materials.Modification.ANONYMOUS;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ModificationTest {
 

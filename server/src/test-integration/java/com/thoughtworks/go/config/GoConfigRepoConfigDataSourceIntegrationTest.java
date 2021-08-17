@@ -25,16 +25,15 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +41,9 @@ import java.io.IOException;
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -53,8 +52,6 @@ import static org.junit.Assert.assertThat;
 })
 public class GoConfigRepoConfigDataSourceIntegrationTest {
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Autowired
     private ServerHealthService serverHealthService;
     @Autowired
@@ -73,8 +70,8 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     private PartialConfigHelper partials;
 
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp(@TempDir File templateConfigRepo) throws Exception {
         GoConfigFileHelper configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
@@ -83,7 +80,6 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
         repoConfigDataSource.registerListener(new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partials));
 
         configHelper.addTemplate("t1", "param1", "stage");
-        File templateConfigRepo = temporaryFolder.newFolder();
         String latestRevision = setupExternalConfigRepo(templateConfigRepo, "external_git_config_repo_referencing_template_with_params");
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git(templateConfigRepo.getAbsolutePath()), "gocd-xml", "config-id");
         configRepoConfig.getRules().add(new Allow("refer", "*", "*"));
@@ -96,7 +92,7 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         cachedGoPartials.clear();
     }

@@ -16,27 +16,27 @@
 package com.thoughtworks.go.agent.launcher;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class LockfileTest {
 
     private static final File LOCK_FILE = new File("LockFile.txt");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         System.setProperty(Lockfile.SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY,"0");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         FileUtils.deleteQuietly(LOCK_FILE);
     }

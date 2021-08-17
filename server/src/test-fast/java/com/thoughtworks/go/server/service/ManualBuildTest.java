@@ -24,28 +24,31 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.domain.Username;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ManualBuildTest {
     private MaterialRevisions materialRevisions;
     private ManualBuild manualBuild;
 
-    @Before public void setUp() {
+    @BeforeEach
+    public void setUp() {
         manualBuild = new ManualBuild(new Username(new CaseInsensitiveString("cruise-user")));
         SvnMaterial material = new SvnMaterial("http://foo.bar/baz", "user", "pass", false);
         materialRevisions = new MaterialRevisions(new MaterialRevision(material, new Modification(new Date(), "1234", "MOCK_LABEL-12", null)));
     }
 
-    @Test public void shouldPopulateProducedBuildCauseApproverForOnModificationBuildCause() throws Exception {
+    @Test
+    public void shouldPopulateProducedBuildCauseApproverForOnModificationBuildCause() throws Exception {
         BuildCause buildCause = manualBuild.onModifications(materialRevisions, false, null);
         assertThat(buildCause.getApprover(), is("cruise-user"));
     }
 
-    @Test public void shouldPopulateProducedBuildCauseApproverForEmptyModificationBuildCause() throws Exception {
+    @Test
+    public void shouldPopulateProducedBuildCauseApproverForEmptyModificationBuildCause() throws Exception {
         BuildCause buildCause = manualBuild.onEmptyModifications(null, materialRevisions);
         assertThat(buildCause.getApprover(), is("cruise-user"));
     }

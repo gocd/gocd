@@ -23,12 +23,12 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import org.apache.commons.io.FileUtils;
 import org.aspectj.util.FileUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
     @Override

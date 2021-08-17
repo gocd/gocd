@@ -55,9 +55,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
@@ -71,14 +73,14 @@ import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ElasticAgentPluginServiceTest {
     @Mock
     private PluginManager pluginManager;
-    @Mock
+    @Mock(lenient = true)
     private ElasticAgentPluginRegistry registry;
-    @Mock
+    @Mock(lenient = true)
     private AgentService agentService;
     @Mock
     private EnvironmentConfigService environmentConfigService;
@@ -86,7 +88,7 @@ class ElasticAgentPluginServiceTest {
     private ServerPingQueueHandler serverPingQueue;
     @Mock
     private ServerHealthService serverHealthService;
-    @Mock
+    @Mock(lenient = true)
     private GoConfigService goConfigService;
     @Mock
     private CreateAgentQueueHandler createAgentQueue;
@@ -98,7 +100,7 @@ class ElasticAgentPluginServiceTest {
     private ConsoleService consoleService;
     @Mock
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
-    @Mock
+    @Mock(lenient = true)
     private SecretParamResolver secretParamResolver;
     @Mock
     private JobStatusTopic jobStatusTopic;
@@ -111,7 +113,6 @@ class ElasticAgentPluginServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        initMocks(this);
         ArrayList<PluginDescriptor> plugins = new ArrayList<>();
         plugins.add(GoPluginDescriptor.builder().id("p1").isBundledPlugin(true).build());
         plugins.add(GoPluginDescriptor.builder().id("p2").isBundledPlugin(true).build());
@@ -190,7 +191,6 @@ class ElasticAgentPluginServiceTest {
         when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
         ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
-        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
 
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -211,9 +211,6 @@ class ElasticAgentPluginServiceTest {
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
-        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
-
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
@@ -230,8 +227,6 @@ class ElasticAgentPluginServiceTest {
 
         when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
-        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         service.createAgentsFor(new ArrayList<>(), asList(plan1));
@@ -253,7 +248,7 @@ class ElasticAgentPluginServiceTest {
         service.createAgentsFor(new ArrayList<>(), asList(plan1));
 
         verify(serverHealthService).update(captorForHealthState.capture());
-        verifyZeroInteractions(createAgentQueue);
+        verifyNoInteractions(createAgentQueue);
 
         ServerHealthState serverHealthState = captorForHealthState.getValue();
 
@@ -265,8 +260,6 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered() {
         JobPlan plan1 = plan(1, "docker");
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
-        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
 
@@ -285,7 +278,7 @@ class ElasticAgentPluginServiceTest {
         service.createAgentsFor(new ArrayList<>(), asList(plan1));
         service.createAgentsFor(asList(plan1), asList(plan1));//invoke create again
 
-        verifyZeroInteractions(createAgentQueue);
+        verifyNoInteractions(createAgentQueue);
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         verify(serverHealthService, times(2)).update(captorForHealthState.capture());
         List<ServerHealthState> allValues = captorForHealthState.getAllValues();
@@ -431,7 +424,7 @@ class ElasticAgentPluginServiceTest {
         final Exception exception = assertThrows(Exception.class, () -> service.getAgentStatusReport("cd.go.example.plugin", jobIdentifier, "some-id"));
 
         assertThat(exception.getMessage()).isEqualTo("Could not fetch agent status report for agent some-id as either the job running on the agent has been completed or the agent has been terminated.");
-        verifyZeroInteractions(registry);
+        verifyNoInteractions(registry);
     }
 
     @Test
@@ -510,7 +503,6 @@ class ElasticAgentPluginServiceTest {
             up42_job.setPlan(plan);
 
             when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
-            when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
             Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true);
             Map<String, String> clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true);
 
@@ -543,10 +535,9 @@ class ElasticAgentPluginServiceTest {
 
             when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
 
-            when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
             service.createAgentsFor(emptyList(), asList(jobPlan));
 
-            verifyZeroInteractions(createAgentQueue);
+            verifyNoInteractions(createAgentQueue);
             verify(scheduleService).cancelJob(jobPlan.getIdentifier());
             verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\n" +
                     "This job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster.  \n" +
@@ -624,8 +615,6 @@ class ElasticAgentPluginServiceTest {
 
             when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
             when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
-            ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
-            when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
 
             ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
             ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -654,14 +643,10 @@ class ElasticAgentPluginServiceTest {
             JobPlan plan1 = plan(1, "docker");
             JobPlan plan2 = plan(2, "docker");
             plan2.getElasticProfile().add(k1);
-            String ephemeralKey = randomUUID().toString();
             JobInstance jobInstance = mock(JobInstance.class);
 
             when(jobInstance.getState()).thenReturn(JobState.Scheduled);
-            when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
             when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
-            ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
-            when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
             when(jobInstanceSqlMapDao.buildById(anyLong())).thenReturn(jobInstance);
             when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
             doThrow(new RulesViolationException("some-rules-violation-message")).when(secretParamResolver).resolve(any(ElasticProfile.class));
@@ -818,7 +803,6 @@ class ElasticAgentPluginServiceTest {
             up42_job.setPlan(plan);
 
             when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
-            when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
             doAnswer(invocation -> {
                 k1.getSecretParams().get(0).setValue("some-resolve-value");
                 return null;
@@ -859,7 +843,6 @@ class ElasticAgentPluginServiceTest {
             up42_job.setPlan(plan);
 
             when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
-            when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
             doThrow(new RulesViolationException("some-rules-violation")).when(secretParamResolver).resolve(any(ElasticProfile.class));
 
             service.jobCompleted(up42_job);

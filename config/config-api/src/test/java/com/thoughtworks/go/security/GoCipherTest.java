@@ -17,10 +17,12 @@ package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,19 +30,18 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
+@ExtendWith(ResetCipher.class)
+@ExtendWith(SystemStubsExtension.class)
 public class GoCipherTest {
 
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
-
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
+    @SystemStub
+    private SystemProperties systemProperties;
 
     private File desCipherFile;
     private File aesCipherFile;
     private SystemEnvironment systemEnvironment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         systemEnvironment = spy(new SystemEnvironment());
         aesCipherFile = systemEnvironment.getAESCipherFile();
@@ -48,7 +49,7 @@ public class GoCipherTest {
     }
 
     @Test
-    public void shouldCreateAnAESCipherFileWithTheCipherIfNotFound() throws IOException, CryptoException {
+    public void shouldCreateAnAESCipherFileWithTheCipherIfNotFound() throws CryptoException {
         assertThat(desCipherFile.exists()).isFalse();
         assertThat(aesCipherFile.exists()).isFalse();
 
@@ -63,7 +64,7 @@ public class GoCipherTest {
     }
 
     @Test
-    public void shouldWorkEvenAfterCipherFileHasBeenDeleted() throws CryptoException, IOException {//serialization friendliness
+    public void shouldWorkEvenAfterCipherFileHasBeenDeleted(ResetCipher resetCipher) throws CryptoException, IOException {//serialization friendliness
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
 

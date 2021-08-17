@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import org.apache.commons.io.IOUtils;
 import org.jdom2.input.SAXBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +30,10 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.SvnLogXmlParser.convertDate;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SvnLogXmlParserTest {
 
@@ -267,14 +266,14 @@ public class SvnLogXmlParserTest {
                 + "</commit>\n"
                 + "</entry>\n"
                 + "</info>";
-        final HashMap<String,String> map = svnLogXmlParser.parseInfoToGetUUID(svnInfoOutput, "http://gears.googlecode.com/svn/trunk", new SAXBuilder());
+        final HashMap<String, String> map = svnLogXmlParser.parseInfoToGetUUID(svnInfoOutput, "http://gears.googlecode.com/svn/trunk", new SAXBuilder());
         assertThat(map.size(), is(1));
         assertThat(map.get("http://gears.googlecode.com/svn/trunk"), is("fe895e04-df30-0410-9975-d76d301b4276"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowUpWhenSvnInfoOutputIsInvalidToMapUrlToUUID() {
-        final SvnLogXmlParser svnLogXmlParser = new SvnLogXmlParser();
-        svnLogXmlParser.parseInfoToGetUUID("Svn threw up and it's drunk", "does not matter", new SAXBuilder());
+        assertThatThrownBy(() -> new SvnLogXmlParser().parseInfoToGetUUID("Svn threw up and it's drunk", "does not matter", new SAXBuilder()))
+                .isInstanceOf(RuntimeException.class);
     }
 }

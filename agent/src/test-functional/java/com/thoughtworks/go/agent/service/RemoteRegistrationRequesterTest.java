@@ -31,7 +31,6 @@ import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.mockito.ArgumentMatcher;
 import org.springframework.http.HttpStatus;
 
@@ -40,11 +39,10 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class RemoteRegistrationRequesterTest {
 
     private TokenService tokenService;

@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.scheduling;
 
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,7 +31,7 @@ public class ScheduleCheckListenerTest {
     private ScheduleCheckCompletedTopic checkCompletedTopic;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         producer = mock(BuildCauseProducerService.class);
         checkCompletedTopic = mock(ScheduleCheckCompletedTopic.class);

@@ -19,22 +19,22 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ArtifactPluginInfoBuilderTest {
 
     private ArtifactExtension extension;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(ArtifactExtension.class);
     }

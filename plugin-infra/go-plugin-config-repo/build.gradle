@@ -22,10 +22,10 @@ dependencies {
   implementation project(':domain')
   implementation project.deps.gson
   annotationProcessor project.deps.lombok
-  testCompileOnly project.deps.junit4
   testImplementation project.deps.hamcrest
   testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoJunit5
   testImplementation project(':test:test-utils')
 }
 

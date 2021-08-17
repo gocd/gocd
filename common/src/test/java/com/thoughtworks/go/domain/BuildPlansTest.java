@@ -16,13 +16,13 @@
 package com.thoughtworks.go.domain;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BuildPlansTest {
 

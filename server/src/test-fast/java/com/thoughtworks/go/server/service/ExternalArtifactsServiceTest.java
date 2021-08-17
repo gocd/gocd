@@ -26,15 +26,15 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 
@@ -47,7 +47,7 @@ public class ExternalArtifactsServiceTest {
     private BasicCruiseConfig cruiseConfig;
     private String pluginId = "abc.def";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         artifactExtension = mock(ArtifactExtension.class);
         externalArtifactsService = new ExternalArtifactsService(artifactExtension);
@@ -98,7 +98,7 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), true);
 
-        verifyZeroInteractions(artifactExtension);
+        verifyNoInteractions(artifactExtension);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, pipelineConfig, cruiseConfig);
 
-        verifyZeroInteractions(artifactExtension);
+        verifyNoInteractions(artifactExtension);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ExternalArtifactsServiceTest {
 
         externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), true);
 
-        verifyZeroInteractions(artifactExtension);
+        verifyNoInteractions(artifactExtension);
 
         assertTrue(pluggableArtifactConfig.hasErrors());
         assertThat(pluggableArtifactConfig.errors().getAllOn("pluginId"), is(Arrays.asList("Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.")));

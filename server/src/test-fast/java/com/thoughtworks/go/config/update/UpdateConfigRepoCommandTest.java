@@ -25,16 +25,19 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class UpdateConfigRepoCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -54,9 +57,8 @@ public class UpdateConfigRepoCommandTest {
     @Mock
     private ConfigRepoExtension configRepoExtension;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         oldConfigRepoId = "old-repo";
@@ -80,7 +82,6 @@ public class UpdateConfigRepoCommandTest {
     @Test
     public void shouldNotContinueIfDigestIsStale() throws Exception {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, digest, currentUser, result, configRepoExtension);
-        when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.hashForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.stale(EntityType.ConfigRepo.staleConfig(oldConfigRepoId));

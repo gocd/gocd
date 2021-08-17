@@ -21,13 +21,13 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AgentStatusReportingTest {
 
@@ -37,7 +37,7 @@ public class AgentStatusReportingTest {
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private AgentRuntimeInfo agentRuntimeInfo;
 
-    @Before
+    @BeforeEach
     public void before() {
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
@@ -46,7 +46,7 @@ public class AgentStatusReportingTest {
         this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         new SystemEnvironment().clearProperty("serviceUrl");
     }

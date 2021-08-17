@@ -36,13 +36,13 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.web.PipelineRevisionRange;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -51,10 +51,10 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -84,7 +84,7 @@ public class ChangesetServiceIntegrationTest {
     private GoConfigFileHelper configHelper;
     private static int counter = 0;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         configHelper = new GoConfigFileHelper(goConfigDao);
@@ -101,7 +101,7 @@ public class ChangesetServiceIntegrationTest {
         notifier.disableUpdates();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         notifier.enableUpdates();
         dbHelper.onTearDown();

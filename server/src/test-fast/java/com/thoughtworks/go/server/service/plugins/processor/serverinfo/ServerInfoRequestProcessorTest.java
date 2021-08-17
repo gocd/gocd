@@ -23,9 +23,11 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,10 +35,10 @@ import java.util.Collections;
 import static com.thoughtworks.go.server.service.plugins.processor.serverinfo.ServerInfoRequestProcessor.GET_SERVER_INFO;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.lenient;
 
+@ExtendWith(MockitoExtension.class)
 public class ServerInfoRequestProcessorTest {
     @Mock
     private GoConfigService goConfigService;
@@ -49,9 +51,8 @@ public class ServerInfoRequestProcessorTest {
     private ServerConfig serverConfig;
     private String pluginId = "plugin_id";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         serverConfig = new ServerConfig();
         serverConfig.ensureServerIdExists();
         serverConfig.setSecureSiteUrl("https://example.com:8154/go");
@@ -60,9 +61,9 @@ public class ServerInfoRequestProcessorTest {
         processorRegistry = new PluginRequestProcessorRegistry();
         processor = new ServerInfoRequestProcessor(processorRegistry, goConfigService);
 
-        when(goConfigService.serverConfig()).thenReturn(serverConfig);
-        when(pluginExtension.extensionName()).thenReturn("extension1");
-        when(pluginDescriptor.id()).thenReturn(pluginId);
+        lenient().when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        lenient().when(pluginExtension.extensionName()).thenReturn("extension1");
+        lenient().when(pluginDescriptor.id()).thenReturn(pluginId);
     }
 
     @Test

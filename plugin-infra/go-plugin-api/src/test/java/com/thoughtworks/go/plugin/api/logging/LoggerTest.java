@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.api.logging;
 
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;

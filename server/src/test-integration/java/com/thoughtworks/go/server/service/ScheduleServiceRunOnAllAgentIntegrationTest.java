@@ -37,12 +37,18 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -51,16 +57,17 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class ScheduleServiceRunOnAllAgentIntegrationTest {
     @ClassRule
     public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -92,17 +99,18 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     public Subversion repository;
     public static TestRepo testRepo;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupRepos() throws IOException {
+        temporaryFolder.create();
         testRepo = new SvnTestRepo(temporaryFolder);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownConfigFileLocation() {
         TestRepo.internalTearDown();
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         CONFIG_HELPER = new GoConfigFileHelper();
         dbHelper.onSetUp();
@@ -120,7 +128,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
         notifier.enableUpdates();

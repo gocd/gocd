@@ -16,12 +16,13 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.domain.exception.VersionFormatException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GoVersionTest {
     @Test
@@ -35,7 +36,7 @@ public class GoVersionTest {
     }
 
     @Test
-    public void shouldCreateAGOVersionFromServerVersionString(){
+    public void shouldCreateAGOVersionFromServerVersionString() {
         GoVersion goVersion = new GoVersion("14.3.0(2689-aefdfc53acf7aa93cb31bc79a843b9ec0042358e)");
 
         assertThat(goVersion.getMajor(), is(14));
@@ -45,7 +46,7 @@ public class GoVersionTest {
     }
 
     @Test
-    public void shouldCreateAGOVersionFromNewStyleServerVersionString(){
+    public void shouldCreateAGOVersionFromNewStyleServerVersionString() {
         GoVersion goVersion = new GoVersion("16.5.0 (2689-762ce7739db26e8dc7db45ae12c5acbe5c494a57)");
 
         assertThat(goVersion.getMajor(), is(16));
@@ -54,33 +55,34 @@ public class GoVersionTest {
         assertThat(goVersion.getModifications(), is(2689));
     }
 
-    @Test(expected = VersionFormatException.class)
-    public void shouldErrorOutIfStringVersionIsNotInCorrectFormat(){
-        new GoVersion("12.abc.1");
+    @Test
+    public void shouldErrorOutIfStringVersionIsNotInCorrectFormat() {
+        assertThatThrownBy(() -> new GoVersion("12.abc.1"))
+                .isInstanceOf(VersionFormatException.class);
     }
 
     @Test
-    public void shouldBeAbleToCompareVersions(){
+    public void shouldBeAbleToCompareVersions() {
         assertThat(new GoVersion("15.1.0-123").compareTo(new GoVersion("15.1.0-123")), is(0));
         assertThat(new GoVersion("15.1.0-123").compareTo(new GoVersion("15.2.0-100")), is(-1));
         assertThat(new GoVersion("15.2.0-1").compareTo(new GoVersion("15.1.0-123")), is(1));
     }
 
     @Test
-    public void shouldBeAbleToCheckForEquality(){
+    public void shouldBeAbleToCheckForEquality() {
         assertThat(new GoVersion("15.1.0-123").equals(new GoVersion("15.1.0-123")), is(true));
         assertThat(new GoVersion("15.4.1-123").equals(new GoVersion("15.1.0-123")), is(false));
     }
 
     @Test
-    public void shouldHaveAStringRepresentation(){
+    public void shouldHaveAStringRepresentation() {
         GoVersion goVersion = new GoVersion("15.1.0-2321");
 
         assertThat(goVersion.toString(), is("15.1.0-2321"));
     }
 
     @Test
-    public void shouldCheckIfGreaterThan(){
+    public void shouldCheckIfGreaterThan() {
         assertTrue(new GoVersion("15.2.0-2321").isGreaterThan(new GoVersion("15.1.0-2321")));
         assertFalse(new GoVersion("15.2.0-2321").isGreaterThan(new GoVersion("15.2.0-2321")));
         assertFalse(new GoVersion("15.1.0-2321").isGreaterThan(new GoVersion("15.2.0-2321")));

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config.update;
 
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ import java.util.List;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConfigUpdateAjaxResponseTest {
 

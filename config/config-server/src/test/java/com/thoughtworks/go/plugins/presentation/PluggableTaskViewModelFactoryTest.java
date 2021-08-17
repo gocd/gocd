@@ -24,24 +24,24 @@ import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PluggableTaskViewModelFactoryTest {
     private TaskPreference taskPreference;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cleanupTaskPreferences();
 
@@ -53,7 +53,7 @@ public class PluggableTaskViewModelFactoryTest {
         when(view.displayValue()).thenReturn("First plugin");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         cleanupTaskPreferences();
     }

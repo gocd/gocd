@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +25,8 @@ import static com.thoughtworks.go.helper.PipelineMaterialModificationMother.modi
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import static org.hamcrest.Matchers.is;
 import org.joda.time.DateTime;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class PipelineMaterialModificationTest {
 

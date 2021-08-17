@@ -24,10 +24,10 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.util.Base64;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class EncryptionHelperTest {
 

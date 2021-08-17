@@ -33,16 +33,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.xmlunit.assertj.XmlAssert;
 
 import java.io.File;
@@ -57,8 +55,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(ResetCipher.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -74,19 +72,12 @@ public class GoConfigMigrationIntegrationTest {
     private GoConfigService goConfigService;
     @Autowired
     private ServerHealthService serverHealthService;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    @Rule
-    public ResetCipher resetCipher = new ResetCipher();
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private MagicalGoConfigXmlLoader loader;
 
-    @Before
-    public void setUp() throws Exception {
-        File file = temporaryFolder.newFolder();
-        configFile = new File(file, "cruise-config.xml");
+    @BeforeEach
+    public void setUp(@TempDir File temporaryFolder, ResetCipher resetCipher) throws Exception {
+        configFile = new File(temporaryFolder, "cruise-config.xml");
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
         GoConfigFileHelper.clearConfigVersions();
         configRepository = new ConfigRepository(systemEnvironment);
@@ -97,7 +88,7 @@ public class GoConfigMigrationIntegrationTest {
         resetCipher.setupAESCipherFile();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         GoConfigFileHelper.clearConfigVersions();
         configFile.delete();

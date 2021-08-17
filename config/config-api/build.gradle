@@ -41,12 +41,10 @@ dependencies {
 
   testImplementation project(':test:test-utils')
   testImplementation project.deps.jaxen
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.junit5Params
-  testImplementation project.deps.junit5Migration
 }

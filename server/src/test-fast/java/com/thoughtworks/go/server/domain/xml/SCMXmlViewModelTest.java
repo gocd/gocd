@@ -24,14 +24,14 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.DateUtils;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

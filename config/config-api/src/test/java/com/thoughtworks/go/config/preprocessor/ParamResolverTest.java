@@ -25,8 +25,8 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,13 +34,13 @@ import java.util.Collections;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ParamResolverTest {
 
     private ClassAttributeCache.FieldCache fieldCache;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         fieldCache = new ClassAttributeCache.FieldCache();
     }

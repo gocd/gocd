@@ -18,21 +18,16 @@ package com.thoughtworks.go.config.upgrades;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConstants;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 // test for 14.xsl
 public class AuthorizationMigrationTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
 
     private static final String OLD_AUTH = "          <auth>\n"
             + "            <role>admin</role>\n"

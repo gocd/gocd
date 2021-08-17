@@ -15,20 +15,15 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 
 public class BaseCollectionTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void shouldReturnFirstOrLastItem() {
         Object item1 = new Object();
@@ -78,10 +73,9 @@ public class BaseCollectionTest {
 
         BaseCollection collection = new BaseCollection("foobar");
 
-        thrown.expect(IndexOutOfBoundsException.class);
-        thrown.expectMessage("There is no object at index '-1' in this collection of java.lang.String");
-
-        collection.replace(oldItem, newItem);
+        assertThatThrownBy(() -> collection.replace(oldItem, newItem))
+                .isExactlyInstanceOf(IndexOutOfBoundsException.class)
+                .hasMessage("There is no object at index '-1' in this collection of java.lang.String");
     }
 
     @Test
@@ -89,10 +83,9 @@ public class BaseCollectionTest {
         Object newItem = new Object();
         BaseCollection collection = new BaseCollection(new Object(), new Object());
 
-        thrown.expect(IndexOutOfBoundsException.class);
-        thrown.expectMessage("There is no object at index '-1' in this collection of java.lang.Object");
-
-        collection.replace(-1, newItem);
+        assertThatThrownBy(() -> collection.replace(-1, newItem))
+                .isExactlyInstanceOf(IndexOutOfBoundsException.class)
+                .hasMessage("There is no object at index '-1' in this collection of java.lang.Object");
     }
 
     @Test
@@ -100,10 +93,9 @@ public class BaseCollectionTest {
         Object newItem = new Object();
         BaseCollection collection = new BaseCollection(new Object(), new Object());
 
-        thrown.expect(IndexOutOfBoundsException.class);
-        thrown.expectMessage("There is no object at index '3' in this collection of java.lang.Object");
-
-        collection.replace(3, newItem);
+        assertThatThrownBy(() -> collection.replace(3, newItem))
+                .isExactlyInstanceOf(IndexOutOfBoundsException.class)
+                .hasMessage("There is no object at index '3' in this collection of java.lang.Object");
     }
 
 }

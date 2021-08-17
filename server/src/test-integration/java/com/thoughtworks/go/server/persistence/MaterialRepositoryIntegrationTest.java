@@ -68,18 +68,16 @@ import com.thoughtworks.go.utils.SerializationTester;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -94,12 +92,13 @@ import static com.thoughtworks.go.helper.ModificationsMother.EMAIL_ADDRESS;
 import static com.thoughtworks.go.helper.ModificationsMother.MOD_USER;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -134,14 +133,14 @@ public class MaterialRepositoryIntegrationTest {
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         originalTemplate = repo.getHibernateTemplate();
         dbHelper.onSetUp();
         goCache.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         goCache.clear();
         repo.setHibernateTemplate(originalTemplate);
@@ -1176,9 +1175,6 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(JsonHelper.fromJson(savedMaterialInstance.getConfiguration(), PluggableSCMMaterial.class).getScmConfig().getPluginConfiguration().getId(), is(material.getScmConfig().getPluginConfiguration().getId()));
     }
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void shouldRemoveDuplicatesBeforeInsertingModifications() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
@@ -1712,7 +1708,7 @@ public class MaterialRepositoryIntegrationTest {
         assertThat("shortRevision", matchedRevision.getShortRevision(), is(shortRevision));
         assertThat("longRevision", matchedRevision.getLongRevision(), is(longRevision));
         assertThat("user", matchedRevision.getUser(), is(user));
-        assertEquals("checkinTime", checkinTime, matchedRevision.getCheckinTime());
+        assertEquals(checkinTime, matchedRevision.getCheckinTime(), "checkinTime");
         assertThat("comment", matchedRevision.getComment(), is(comment));
     }
 

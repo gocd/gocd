@@ -20,21 +20,17 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@ExtendWith(ResetCipher.class)
 public class PasswordDeserializerTest {
-
-    @Rule
-    public final ResetCipher resetCipher = new ResetCipher();
-
-
     @Test
     public void shouldErrorOutWhenBothPasswordAndEncryptedPasswordAreGivenForDeserialization() throws CryptoException {
         SvnMaterialConfig svnMaterialConfig = svn();

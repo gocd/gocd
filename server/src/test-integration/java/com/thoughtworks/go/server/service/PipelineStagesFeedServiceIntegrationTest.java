@@ -21,17 +21,18 @@ import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -48,7 +49,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
@@ -60,7 +61,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
         goConfigService.forceNotifyListeners();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         configHelper.onTearDown();
     }

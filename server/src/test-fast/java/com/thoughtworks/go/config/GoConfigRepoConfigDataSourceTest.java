@@ -30,15 +30,15 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GoConfigRepoConfigDataSourceTest {
@@ -55,7 +55,7 @@ public class GoConfigRepoConfigDataSourceTest {
     File folder = new File("dir");
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         serverHealthService = new ServerHealthService();
         configPluginService = mock(GoConfigPluginService.class);
@@ -158,7 +158,7 @@ public class GoConfigRepoConfigDataSourceTest {
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
-        verify(plugin, times(1)).load(eq(folder), notNull(PartialConfigLoadContext.class));
+        verify(plugin, times(1)).load(eq(folder),  notNull());
     }
 
     @Test
@@ -186,8 +186,8 @@ public class GoConfigRepoConfigDataSourceTest {
 
         @Override
         public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
-            Assert.assertThat(context.configuration(), is(configuration));
-            Assert.assertThat(context.configuration().getProperty("key").getValue(), is("value"));
+           assertThat(context.configuration(), is(configuration));
+           assertThat(context.configuration().getProperty("key").getValue(), is("value"));
             return mock(PartialConfig.class);
         }
 

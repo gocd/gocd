@@ -23,24 +23,20 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ElasticAgentProfileUpdateCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
@@ -51,8 +47,7 @@ public class ElasticAgentProfileUpdateCommandTest {
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.getElasticConfig().getProfiles().clear();
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "prod-cluster"), null, null, new HttpLocalizedOperationResult(), null, null);
-        thrown.expect(RecordNotFoundException.class);
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig)).isInstanceOf(RecordNotFoundException.class);
     }
 
     @Test

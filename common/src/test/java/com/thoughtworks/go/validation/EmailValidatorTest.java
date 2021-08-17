@@ -18,11 +18,11 @@ package com.thoughtworks.go.validation;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EmailValidatorTest {
 

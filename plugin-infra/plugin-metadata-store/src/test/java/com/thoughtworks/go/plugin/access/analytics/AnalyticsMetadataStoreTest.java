@@ -17,11 +17,11 @@ package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +29,7 @@ public class AnalyticsMetadataStoreTest {
 
     private AnalyticsMetadataStore store = AnalyticsMetadataStore.instance();
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         store.clear();
     }

@@ -25,15 +25,17 @@ import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.StageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class JobStatusListenerTest {
     @Mock
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
@@ -53,9 +55,8 @@ class JobStatusListenerTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
-        when(jobInstanceService.buildByIdWithTransitions(anyLong())).thenReturn(JobInstanceMother.completed(jobIdentifier.getBuildName()));
+        lenient().when(jobInstanceService.buildByIdWithTransitions(anyLong())).thenReturn(JobInstanceMother.completed(jobIdentifier.getBuildName()));
         jobStatusListener = new JobStatusListener(jobStatusTopic, stageService, stageStatusTopic, elasticAgentPluginService, jobInstanceSqlMapDao, jobInstanceService);
     }
 
@@ -87,7 +88,6 @@ class JobStatusListenerTest {
         Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
-        when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
 
         jobStatusListener.onMessage(jobStatusMessage);
 
@@ -100,11 +100,10 @@ class JobStatusListenerTest {
         Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Building, "agent1");
-        when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
 
         jobStatusListener.onMessage(jobStatusMessage);
 
-        verifyZeroInteractions(jobInstanceSqlMapDao);
+        verifyNoInteractions(jobInstanceSqlMapDao);
     }
 
     @Test
@@ -126,11 +125,10 @@ class JobStatusListenerTest {
         Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Building, "agent1");
-        when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
 
         jobStatusListener.onMessage(jobStatusMessage);
 
-        verifyZeroInteractions(stageStatusTopic);
+        verifyNoInteractions(stageStatusTopic);
     }
 
     @Test
@@ -143,7 +141,7 @@ class JobStatusListenerTest {
 
         jobStatusListener.onMessage(jobStatusMessage);
 
-        verifyZeroInteractions(stageStatusTopic);
+        verifyNoInteractions(stageStatusTopic);
     }
 
     @Test
@@ -184,7 +182,6 @@ class JobStatusListenerTest {
         Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
         stage.setJobInstances(new JobInstances(jobInstance));
         JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Building, "agent1");
-        when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
 
         jobStatusListener.onMessage(jobStatusMessage);
 

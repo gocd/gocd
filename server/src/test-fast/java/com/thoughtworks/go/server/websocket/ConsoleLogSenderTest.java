@@ -24,8 +24,8 @@ import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ import java.util.zip.GZIPInputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ConsoleLogSenderTest {
@@ -51,7 +51,7 @@ public class ConsoleLogSenderTest {
     private SystemEnvironment systemEnvironment;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         consoleService = mock(ConsoleService.class);
         jobInstanceDao = mock(JobInstanceDao.class);

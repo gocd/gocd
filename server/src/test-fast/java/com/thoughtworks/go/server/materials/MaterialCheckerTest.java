@@ -33,8 +33,8 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -43,8 +43,8 @@ import java.util.Date;
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +53,8 @@ public class MaterialCheckerTest {
     private ScmMaterial mockMaterial;
     private MaterialChecker materialChecker;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         materialRepository = Mockito.mock(MaterialRepository.class);
         mockMaterial = Mockito.mock(ScmMaterial.class);
         materialChecker = new MaterialChecker(materialRepository);

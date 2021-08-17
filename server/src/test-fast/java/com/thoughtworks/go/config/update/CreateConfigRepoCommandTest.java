@@ -26,13 +26,15 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CreateConfigRepoCommandTest {
     private static final String REPO_1 = "repo-1";
 
@@ -49,7 +51,6 @@ public class CreateConfigRepoCommandTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 

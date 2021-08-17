@@ -15,34 +15,28 @@
  */
 package com.thoughtworks.go.util;
 
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class DynamicReadWriteLockTest {
     private DynamicReadWriteLock readWriteLock;
     private volatile int numberOfLocks;
 
-    @Before public void setUp() {
+    @BeforeEach
+    public void setUp() {
         readWriteLock = new DynamicReadWriteLock();
         numberOfLocks = 0;
     }
 
-    @After public void tearDown() {
-
-    }
-
-    @Test public void shouldEnforceMutualExclutionOfWriteLockForGivenName() throws InterruptedException {
+    @Test
+    public void shouldEnforceMutualExclusionOfWriteLockForGivenName() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                readWriteLock.acquireWriteLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireWriteLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -50,15 +44,13 @@ public class DynamicReadWriteLockTest {
         assertThat(numberOfLocks, is(0));
     }
 
-    @Test public void shouldNotEnforceMutualExclutionOfReadLockForGivenName() throws InterruptedException {
+    @Test
+    public void shouldNotEnforceMutualExclusionOfReadLockForGivenName() throws InterruptedException {
         readWriteLock.acquireReadLock("foo");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                readWriteLock.acquireReadLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireReadLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -66,15 +58,13 @@ public class DynamicReadWriteLockTest {
         assertThat(numberOfLocks, is(1));
     }
 
-    @Test public void shouldEnforceMutualExclutionOfReadAndWriteLockForGivenName() throws InterruptedException {
+    @Test
+    public void shouldEnforceMutualExclusionOfReadAndWriteLockForGivenName() throws InterruptedException {
         readWriteLock.acquireReadLock("foo");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                readWriteLock.acquireWriteLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireWriteLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -82,15 +72,13 @@ public class DynamicReadWriteLockTest {
         assertThat(numberOfLocks, is(0));
     }
 
-    @Test public void shouldEnforceMutualExclutionOfWriteAndReadLockForGivenName() throws InterruptedException {
+    @Test
+    public void shouldEnforceMutualExclusionOfWriteAndReadLockForGivenName() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                readWriteLock.acquireReadLock("foo");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireReadLock("foo");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);
@@ -99,15 +87,13 @@ public class DynamicReadWriteLockTest {
     }
 
 
-    @Test public void shouldNotEnforceMutualExclutionOfWriteLockForDifferentNames() throws InterruptedException {
+    @Test
+    public void shouldNotEnforceMutualExclusionOfWriteLockForDifferentNames() throws InterruptedException {
         readWriteLock.acquireWriteLock("foo");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                readWriteLock.acquireWriteLock("bar");
-                numberOfLocks++;
-            }
+        new Thread(() -> {
+            readWriteLock.acquireWriteLock("bar");
+            numberOfLocks++;
         }).start();
 
         Thread.sleep(1000);

@@ -26,10 +26,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
 public class CreatePipelineConfigCommandTest {
@@ -40,7 +40,7 @@ public class CreatePipelineConfigCommandTest {
     private PipelineConfig pipelineConfig;
     private ExternalArtifactsService externalArtifactsService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         externalArtifactsService = mock(ExternalArtifactsService.class);
         goConfigService = mock(GoConfigService.class);

@@ -29,38 +29,39 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class SchedulingCheckerServiceUnitTest {
 
     private SchedulingCheckerService schedulingChecker;
+    @Mock(lenient = true)
     private GoConfigService goConfigService;
+    @Mock
     private CompositeChecker compositeChecker;
+    @Mock(lenient = true)
     private OperationResult operationResult;
     @Captor
     private ArgumentCaptor<List<SchedulingChecker>> argumentCaptor;
 
     @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
-        goConfigService = mock(GoConfigService.class);
         schedulingChecker = spy(new SchedulingCheckerService(goConfigService, mock(StageService.class),
                 mock(SecurityService.class), mock(PipelineLockService.class), mock(TriggerMonitor.class), mock(PipelineScheduleQueue.class), mock(PipelinePauseService.class), mock(PipelineService.class), new OutOfDiskSpaceChecker(mock(GoDiskSpaceMonitor.class))));
 
-        compositeChecker = mock(CompositeChecker.class);
-        operationResult = mock(OperationResult.class);
-
-        doReturn(compositeChecker).when(schedulingChecker).buildScheduleCheckers(any());
+        lenient().doReturn(compositeChecker).when(schedulingChecker).buildScheduleCheckers(any());
         when(operationResult.getServerHealthState()).thenReturn(ServerHealthState.success(HealthStateType.general(HealthStateScope.GLOBAL)));
     }
 
@@ -176,24 +177,24 @@ public class SchedulingCheckerServiceUnitTest {
     @Nested
     class AllowSchedulingStage {
         private String stageName;
-        private Pipeline pipeline;
-        private CaseInsensitiveString previousStageName;
         private String pipelineName;
+        private CaseInsensitiveString previousStageName;
+        @Mock(lenient = true)
+        private Pipeline pipeline;
+        @Mock(lenient = true)
         private StageConfig previousStageConfig;
+        @Mock(lenient = true)
         private StageConfig nextStageConfig;
+        @Mock(lenient = true)
         private Approval approval;
+        @Mock(lenient = true)
         private Stage previousStage;
 
         @BeforeEach
         void setUp() {
             pipelineName = "pipeline";
             stageName = "current_stage";
-            pipeline = mock(Pipeline.class);
-            previousStageConfig = mock(StageConfig.class);
-            nextStageConfig = mock(StageConfig.class);
-            approval = mock(Approval.class);
             Stages stages = mock(Stages.class);
-            previousStage = mock(Stage.class);
             previousStageName = new CaseInsensitiveString("previous_stage");
 
             when(pipeline.getName()).thenReturn(pipelineName);
@@ -207,7 +208,7 @@ public class SchedulingCheckerServiceUnitTest {
             when(nextStageConfig.getApproval()).thenReturn(approval);
 
             when(pipeline.getStages()).thenReturn(stages);
-            when(stages.byName(previousStageName.toString())).thenReturn(previousStage);
+            lenient().when(stages.byName(previousStageName.toString())).thenReturn(previousStage);
         }
 
         @Test

@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -34,20 +33,22 @@ import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AutoBuildCauseTest {
     @Mock
     private GoConfigService goConfigService;
@@ -60,32 +61,24 @@ public class AutoBuildCauseTest {
 
     private CruiseConfig cruiseConfig;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         cruiseConfig = new BasicCruiseConfig();
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(materialChecker.hasPipelineEverRunWith(any(String.class), any(MaterialRevisions.class))).thenReturn(false);
+        lenient().when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
     }
 
     @Test
     public void shouldThrowExceptionIfNoChanges() {
         MaterialRevisions modifications = new MaterialRevisions();
-        try {
-            new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(modifications, false, null);
-            Assert.fail("Should throw Exception");
-        } catch (Exception e) {
-
-        }
+        assertThatThrownBy(() -> new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(modifications, false, null))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Cannot find modifications");
     }
 
     @Test
     public void shouldSetApproverToCruiseForTheProducedBuildCause() throws Exception {
         SvnMaterial material = new SvnMaterial("http://foo.bar/baz", "user", "pass", false);
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(material, new Modification(new Date(), "1234", "MOCK_LABEL-12", null)));
-
-        when(goConfigService.upstreamDependencyGraphOf("foo", cruiseConfig)).thenReturn(new PipelineConfigDependencyGraph(null));
-        when(pipelineService.getRevisionsBasedOnDependencies(materialRevisions, cruiseConfig, new CaseInsensitiveString("foo"))).thenReturn(materialRevisions);
 
         BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(materialRevisions, false,
                 null);
@@ -151,7 +144,6 @@ public class AutoBuildCauseTest {
         MaterialRevisions expectedRevisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("1"));
         expectedRevisions.addRevision(dependencyRevision);
 
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
         assertThat(new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker)
@@ -178,7 +170,6 @@ public class AutoBuildCauseTest {
         MaterialRevisions expectedRevisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("2"));
         expectedRevisions.addRevision(dependencyRevision);
 
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
         assertThat(new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker)
@@ -233,15 +224,13 @@ public class AutoBuildCauseTest {
         revisions.addRevision(secondRev);
         revisions.addRevision(firstRev);
 
-        when(goConfigService.upstreamDependencyGraphOf("third", cruiseConfig)).thenReturn(dependencyGraph);
-
         MaterialRevisions expectedRevisions = new MaterialRevisions();
 
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
         assertThat(new AutoBuild(goConfigService, pipelineService, "third", new SystemEnvironment(), materialChecker)
-                        .onModifications(revisions, false, null)
-                        .getMaterialRevisions())
+                .onModifications(revisions, false, null)
+                .getMaterialRevisions())
                 .isSameAs(expectedRevisions);
     }
 
@@ -258,8 +247,6 @@ public class AutoBuildCauseTest {
         MaterialRevisions expectedRevisions = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("1"));
         expectedRevisions.addRevision(dependencyRevision);
 
-
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
         BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker).onModifications(revisions, false, null);
@@ -289,7 +276,6 @@ public class AutoBuildCauseTest {
         expectedRevisions.addAll(expectedForMaterial2);
 
 
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenReturn(expectedRevisions);
 
         BuildCause buildCause = new AutoBuild(goConfigService, pipelineService, targetPipeline, new SystemEnvironment(), materialChecker).onModifications(revisions, false, null);
@@ -315,7 +301,6 @@ public class AutoBuildCauseTest {
         revisions.addRevision(dependencyRevision);
         NoCompatibleUpstreamRevisionsException expectedException = NoCompatibleUpstreamRevisionsException.failedToFindCompatibleRevision(new CaseInsensitiveString("downstream"), null);
 
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
 
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
@@ -338,7 +323,6 @@ public class AutoBuildCauseTest {
         revisions.addRevision(dependencyRevision);
         RuntimeException expectedException = new RuntimeException("failed");
 
-        when(goConfigService.upstreamDependencyGraphOf(targetPipeline, cruiseConfig)).thenReturn(dependencyGraph);
         when(pipelineService.getRevisionsBasedOnDependencies(eq(revisions), eq(cruiseConfig), eq(dependencyGraph.getCurrent().name()))).thenThrow(expectedException);
         when(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).thenReturn(true);
 

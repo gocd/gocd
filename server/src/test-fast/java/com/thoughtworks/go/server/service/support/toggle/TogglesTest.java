@@ -15,33 +15,33 @@
  */
 package com.thoughtworks.go.server.service.support.toggle;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class TogglesTest {
     @Mock
     private FeatureToggleService featureToggleService;
 
     public static final String FEATURE_TOGGLE_KEY = "key";
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         Toggles.initializeWith(featureToggleService);
-
-        when(featureToggleService.isToggleOn(FEATURE_TOGGLE_KEY)).thenReturn(true);
     }
 
     @Test
     public void shouldDelegateToService_isToggleOn() {
+        when(featureToggleService.isToggleOn(FEATURE_TOGGLE_KEY)).thenReturn(true);
         assertThat(Toggles.isToggleOn(FEATURE_TOGGLE_KEY), is(true));
         verify(featureToggleService).isToggleOn(FEATURE_TOGGLE_KEY);
     }

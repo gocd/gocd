@@ -33,8 +33,6 @@ dependencies {
   api project.deps.jodaTime
   api project.deps.slf4jJcl
   api project.deps.logback
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest

@@ -32,22 +32,21 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.http.HttpStatus;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 
 import static com.thoughtworks.go.server.service.materials.PackageMaterialTestHelper.assertPackageConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-@EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
+@ExtendWith(ClearSingleton.class)
 public class PackageDefinitionServiceTest {
     @Mock
     private GoConfigService goConfigService;
@@ -60,12 +59,8 @@ public class PackageDefinitionServiceTest {
     @Mock
     private SecretParamResolver secretParamResolver;
 
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
-
     @BeforeEach
     void setUp() {
-        initMocks(this);
         service = new PackageDefinitionService(packageRepositoryExtension, entityHashingService, goConfigService, secretParamResolver);
 
         PackageConfigurations configurations = new PackageConfigurations();

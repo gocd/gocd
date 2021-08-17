@@ -23,9 +23,10 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.Date;
@@ -33,18 +34,13 @@ import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CcTrayBreakersCalculatorTest {
     @Mock
     private MaterialRepository materialRepo;
-
-    @Before
-    public void setUp() throws Exception {
-        initMocks(this);
-    }
 
     @Test
     public void shouldCaptureUniqueModificationAuthorNamesAsBreakers_inCaseOfFailure() throws Exception {
@@ -131,10 +127,6 @@ public class CcTrayBreakersCalculatorTest {
         Modification user1Commit = ModificationsMother.checkinWithComment("123", "comment 1", "user1", "user1@domain1.com", new Date(), "foo.c");
         MaterialRevision revision = new MaterialRevision(MaterialsMother.gitMaterial("foo.com"), user1Commit);
         revision.markAsChanged();
-        MaterialRevisions revisions = new MaterialRevisions(revision);
-
-        when(materialRepo.findMaterialRevisionsForPipeline(12l)).thenReturn(revisions);
-
 
         CcTrayBreakersCalculator status = new CcTrayBreakersCalculator(materialRepo);
         Set<String> actualBreakers = status.calculateFor(StageMother.createPassedStage("pipeline1", 1, "stage1", 1, "job1", new Date()));

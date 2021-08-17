@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.serialization;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 

@@ -22,17 +22,17 @@ import java.util.Optional;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -45,12 +45,12 @@ public class ServerBackupRepositoryTest {
     @Autowired
     DatabaseAccessHelper dbHelper;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         dbHelper.onSetUp();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
     }

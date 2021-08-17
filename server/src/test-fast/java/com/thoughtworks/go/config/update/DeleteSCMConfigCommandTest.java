@@ -27,17 +27,19 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class DeleteSCMConfigCommandTest {
 
     @Mock
@@ -51,12 +53,8 @@ public class DeleteSCMConfigCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private SCM scmConfig;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         scmConfig = new SCM("id", "name");
@@ -74,23 +72,22 @@ public class DeleteSCMConfigCommandTest {
     }
 
     @Test
-    public  void shouldValidateWhetherSCMIsAssociatedWithPipelines() {
+    public void shouldValidateWhetherSCMIsAssociatedWithPipelines() {
         PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(cruiseConfig, "p1", "s1", "j1");
         pipelineConfig.addMaterialConfig(new PluggableSCMMaterialConfig(scmConfig.getSCMId()));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scmConfig, pluggableScmService, result, currentUser, goConfigService);
 
-        thrown.expectMessage("The scm 'name' is being referenced by pipeline(s): [p1]");
-        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThatThrownBy(() -> command.isValid(cruiseConfig))
+                .hasMessageContaining("The scm 'name' is being referenced by pipeline(s): [p1]");
     }
-
 
     @Test
     public void shouldThrowAnExceptionIfSCMIsNotFound() throws Exception {
-        SCM scm = new SCM("non-existent-id", new PluginConfiguration("non-existent-plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
+        SCM scm = new SCM("non-existent-id", new PluginConfiguration("non-existent-plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
-        thrown.expect(NullPointerException.class);
-        thrown.expectMessage("The pluggable scm material with id 'non-existent-id' is not found.");
-        command.update(cruiseConfig);
+        assertThatThrownBy(() -> command.update(cruiseConfig))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("The pluggable scm material with id 'non-existent-id' is not found.");
     }
 
     @Test
@@ -98,7 +95,7 @@ public class DeleteSCMConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
 
-        SCM scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
+        SCM scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
@@ -108,9 +105,9 @@ public class DeleteSCMConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+        lenient().when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
 
-        SCM scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
+        SCM scm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"))));
         DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));

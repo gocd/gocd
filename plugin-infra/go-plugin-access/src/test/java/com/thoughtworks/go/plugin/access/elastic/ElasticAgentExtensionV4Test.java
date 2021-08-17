@@ -32,39 +32,37 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ElasticAgentExtensionV4Test {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private static final String PLUGIN_ID = "cd.go.example.plugin";
-    @Mock
+    @Mock(lenient = true)
     private PluginManager pluginManager;
-    @Mock
+    @Mock(lenient = true)
     private GoPluginDescriptor descriptor;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     private ElasticAgentExtensionV4 extensionV4;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         final List<String> goSupportedVersions = Arrays.asList("4.0");
 
@@ -271,26 +269,23 @@ public class ElasticAgentExtensionV4Test {
 
     @Test
     public void shouldNotSupportGetClusterProfileConfigurationCall() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
-
-        extensionV4.getClusterProfileMetadata(PLUGIN_ID);
+        assertThatThrownBy(() -> extensionV4.getClusterProfileMetadata(PLUGIN_ID))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
     }
 
     @Test
     public void shouldNotSupportGetClusterProfileViewCall() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
-
-        extensionV4.getClusterProfileView(PLUGIN_ID);
+        assertThatThrownBy(() -> extensionV4.getClusterProfileView(PLUGIN_ID))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
     }
 
     @Test
     public void shouldNotSupportValidateClusterProfileCall() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
-
-        extensionV4.validateClusterProfile(PLUGIN_ID, new HashMap<>());
+        assertThatThrownBy(() -> extensionV4.validateClusterProfile(PLUGIN_ID, new HashMap<>()))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
     }
 
     @Test
@@ -304,18 +299,16 @@ public class ElasticAgentExtensionV4Test {
 
     @Test
     public void shouldNotSupportGetClusterProfileStatusReportCall() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
-
-        extensionV4.getClusterStatusReport(PLUGIN_ID, new HashMap<>());
+        assertThatThrownBy(() -> extensionV4.getClusterStatusReport(PLUGIN_ID, new HashMap<>()))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
     }
 
     @Test
     public void shouldNotSupportClusterProfileChangedCall() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
-
-        extensionV4.clusterProfilesChanged(PLUGIN_ID, null, null, null);
+        assertThatThrownBy(() -> extensionV4.clusterProfilesChanged(PLUGIN_ID, null, null, null))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
     }
 
     @Test
@@ -341,9 +334,9 @@ public class ElasticAgentExtensionV4Test {
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
-        Assert.assertThat(request.requestName(), Matchers.is(requestName));
-        Assert.assertThat(request.extensionVersion(), Matchers.is(extensionVersion));
-        Assert.assertThat(request.extension(), Matchers.is(PluginConstants.ELASTIC_AGENT_EXTENSION));
+        assertThat(request.requestName(), Matchers.is(requestName));
+        assertThat(request.extensionVersion(), Matchers.is(extensionVersion));
+        assertThat(request.extension(), Matchers.is(PluginConstants.ELASTIC_AGENT_EXTENSION));
         assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }

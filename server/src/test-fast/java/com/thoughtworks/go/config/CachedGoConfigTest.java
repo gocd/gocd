@@ -23,16 +23,17 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class CachedGoConfigTest {
     @Mock
     private CachedGoConfig cachedGoConfig;
@@ -46,12 +47,11 @@ public class CachedGoConfigTest {
     @Mock
     private MaintenanceModeService maintenanceModeService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
         cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, maintenanceModeService);
-        when(dataSource.load()).thenReturn(configHolder);
+        lenient().when(dataSource.load()).thenReturn(configHolder);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class CachedGoConfigTest {
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         cachedGoConfig.onTimer();
 
-        verifyZeroInteractions(dataSource);
+        verifyNoInteractions(dataSource);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class CachedGoConfigTest {
     @Test
     public void shouldLoadConfigHolderIfNotAvailable() throws Exception {
         cachedGoConfig.forceReload();
-        Assert.assertThat(cachedGoConfig.loadConfigHolder(), is(configHolder));
+        assertThat(cachedGoConfig.loadConfigHolder(), is(configHolder));
     }
 
     @Test
@@ -138,8 +138,6 @@ public class CachedGoConfigTest {
         cachedGoConfig.registerListener(cruiseConfigChangeListener);
 
         EntityConfigUpdateCommand configCommand = mock(EntityConfigUpdateCommand.class);
-        when(configCommand.isValid(any(CruiseConfig.class))).thenReturn(true);
-        when(configCommand.getPreprocessedEntityConfig()).thenReturn(mock(PipelineConfig.class));
         EntityConfigSaveResult entityConfigSaveResult = mock(EntityConfigSaveResult.class);
         when(entityConfigSaveResult.getConfigHolder()).thenReturn(configHolder);
         when(entityConfigSaveResult.getEntityConfig()).thenReturn(new PipelineConfig());

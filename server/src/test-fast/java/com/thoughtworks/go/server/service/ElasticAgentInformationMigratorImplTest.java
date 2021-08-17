@@ -28,7 +28,9 @@ import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,8 +38,8 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ElasticAgentInformationMigratorImplTest {
     @Mock
     private PluginSqlMapDao pluginSqlMapDao;
@@ -58,7 +60,6 @@ class ElasticAgentInformationMigratorImplTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         goPluginDescriptor = GoPluginDescriptor.builder().id(PLUGIN_ID).build();
         goPluginDescriptor.setBundleDescriptor(new GoPluginBundleDescriptor(goPluginDescriptor));
         elasticAgentInformationMigrator = new ElasticAgentInformationMigratorImpl(pluginSqlMapDao, clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginManager, goConfigService);
@@ -71,7 +72,7 @@ class ElasticAgentInformationMigratorImplTest {
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
         assertThat(result.isAFailure()).isFalse();
-        verifyZeroInteractions(goConfigService);
+        verifyNoInteractions(goConfigService);
     }
 
     @Test
@@ -141,7 +142,6 @@ class ElasticAgentInformationMigratorImplTest {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
         when(goConfigService.updateConfig(any())).thenThrow(new RuntimeException("Boom!"));
-        when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV5.VERSION);
 
         assertThat(goPluginDescriptor.isInvalid()).isFalse();
 

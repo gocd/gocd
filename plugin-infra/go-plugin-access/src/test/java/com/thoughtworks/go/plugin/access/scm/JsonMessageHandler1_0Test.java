@@ -24,18 +24,18 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler1_0Test {
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -44,7 +44,7 @@ public class JsonMessageHandler1_0Test {
     private SCMPropertyConfiguration scmPropertyConfiguration;
     private Map<String, String> materialData;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         messageHandler = new JsonMessageHandler1_0();
         scmPropertyConfiguration = new SCMPropertyConfiguration();

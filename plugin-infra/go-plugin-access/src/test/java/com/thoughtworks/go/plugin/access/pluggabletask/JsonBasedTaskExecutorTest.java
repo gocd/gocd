@@ -24,8 +24,8 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.*;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -36,8 +36,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
@@ -52,7 +52,7 @@ public class JsonBasedTaskExecutorTest {
     private PluginRequestHelper pluginRequestHelper;
     private HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setup() {
         context = mock(TaskExecutionContext.class);
         pluginManager = mock(PluginManager.class);

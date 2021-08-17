@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ import java.util.Map;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PackageMaterialConfigTest {

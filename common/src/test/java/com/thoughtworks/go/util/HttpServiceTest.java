@@ -24,10 +24,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -37,21 +36,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class HttpServiceTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File folderToSaveDownloadFiles;
 
-    private File folderToSaveDowloadFiles;
     private HttpService service;
     private HttpService.HttpClientFactory httpClientFactory;
     private GoAgentServerHttpClient httpClient;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        folderToSaveDowloadFiles = temporaryFolder.newFolder();
         httpClientFactory = mock(HttpService.HttpClientFactory.class);
         httpClient = mock(GoAgentServerHttpClient.class);
         when(httpClientFactory.httpClient()).thenReturn(httpClient);
@@ -113,7 +110,7 @@ public class HttpServiceTest {
     @Test
     public void shouldNotFailIfChecksumFileIsNotPresent() throws IOException {
         HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
-        File artifact = new File(folderToSaveDowloadFiles, "artifact");
+        File artifact = new File(folderToSaveDownloadFiles, "artifact");
         artifact.createNewFile();
         try {
             factory.createMultipartRequestEntity(artifact, null);
@@ -125,7 +122,7 @@ public class HttpServiceTest {
     @Test
     public void shouldCreateMultipleRequestWithChecksumValues() throws IOException {
         HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
-        File artifact = new File(folderToSaveDowloadFiles, "artifact");
+        File artifact = new File(folderToSaveDownloadFiles, "artifact");
         artifact.createNewFile();
         try {
             java.util.Properties artifactChecksums = new java.util.Properties();

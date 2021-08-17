@@ -23,8 +23,6 @@ dependencies {
   testImplementation project(':test:test-utils')
   testRuntimeOnly project.deps.bouncyCastle
   testRuntimeOnly project.deps.bouncyCastlePkix
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Migration

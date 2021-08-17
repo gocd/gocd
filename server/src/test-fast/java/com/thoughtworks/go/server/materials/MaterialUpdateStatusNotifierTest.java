@@ -20,31 +20,34 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.Material;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 public class MaterialUpdateStatusNotifierTest {
     private MaterialUpdateCompletedTopic mockTopic;
     private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
 
-    @Before public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
         mockTopic = Mockito.mock(MaterialUpdateCompletedTopic.class);
         materialUpdateStatusNotifier = new MaterialUpdateStatusNotifier(mockTopic);
     }
 
-    @Test public void shouldAddItselfToATheUpdateCompletedTopicOnConstruction() throws Exception {
+    @Test
+    public void shouldAddItselfToATheUpdateCompletedTopicOnConstruction() throws Exception {
 
         MaterialUpdateStatusNotifier updateStatusNotifier = new MaterialUpdateStatusNotifier(mockTopic);
 
         Mockito.verify(mockTopic).addListener(updateStatusNotifier);
     }
 
-    @Test public void shouldKnowAboutAListenerBasedOnAPipelineConfig() throws Exception {
+    @Test
+    public void shouldKnowAboutAListenerBasedOnAPipelineConfig() throws Exception {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
         materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, Mockito.mock(MaterialUpdateStatusListener.class));
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(true));
@@ -52,7 +55,8 @@ public class MaterialUpdateStatusNotifierTest {
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(false));
     }
 
-    @Test public void shouldNotifyListenerWhenItsMaterialIsUpdated() throws Exception {
+    @Test
+    public void shouldNotifyListenerWhenItsMaterialIsUpdated() throws Exception {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
@@ -64,7 +68,8 @@ public class MaterialUpdateStatusNotifierTest {
         Mockito.verify(mockStatusListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material, 123));
     }
 
-    @Test public void shouldNotNotifyListenerWhenUnknownMaterialIsUpdated() throws Exception {
+    @Test
+    public void shouldNotNotifyListenerWhenUnknownMaterialIsUpdated() throws Exception {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
         MaterialUpdateStatusListener mockStatusListener = Mockito.mock(MaterialUpdateStatusListener.class);
 
@@ -75,7 +80,8 @@ public class MaterialUpdateStatusNotifierTest {
         Mockito.verify(mockStatusListener, Mockito.never()).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material, 1234));
     }
 
-    @Test public void shouldBeAbleToUnregisterAListenerDuringACallback() throws Exception {
+    @Test
+    public void shouldBeAbleToUnregisterAListenerDuringACallback() throws Exception {
         final PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
@@ -97,7 +103,8 @@ public class MaterialUpdateStatusNotifierTest {
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(false));
     }
 
-    @Test public void shouldNotifyListenerWhenItsMaterialIsUpdatedEvenIfAnotherListenerThrowsAnException() throws Exception {
+    @Test
+    public void shouldNotifyListenerWhenItsMaterialIsUpdatedEvenIfAnotherListenerThrowsAnException() throws Exception {
         Material sharedMaterial = new HgMaterial("url", null);
 
         PipelineConfig pipelineConfig1 = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());

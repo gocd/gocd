@@ -16,8 +16,8 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,8 +26,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +36,7 @@ public class ParamsConfigTest {
     private ParamsConfig paramsConfig;
     private ValidationContext context = mock(ValidationContext.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(context.getPipeline()).thenReturn(PipelineConfigMother.createPipelineConfig("some-pipeline", "stage-name", "job-name"));
     }

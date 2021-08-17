@@ -43,7 +43,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -62,8 +64,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class BuildWorkTest {
 
     static final String PIPELINE_NAME = "pipeline1";
@@ -250,7 +252,6 @@ class BuildWorkTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        initMocks(this);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
@@ -402,7 +403,6 @@ class BuildWorkTest {
     void shouldSendAResultStatusToServerWhenAThrowableErrorIsThrown() {
         BuildAssignment buildAssignment = mock(BuildAssignment.class);
         when(buildAssignment.shouldFetchMaterials()).thenThrow(new AssertionError());
-        when(buildAssignment.initialEnvironmentVariableContext()).thenReturn(new EnvironmentVariableContext());
         when(buildAssignment.getWorkingDirectory()).thenReturn(new File("current"));
         when(buildAssignment.getJobIdentifier()).thenReturn(JOB_IDENTIFIER);
 
@@ -422,7 +422,6 @@ class BuildWorkTest {
     void shouldSendAResultStatusToServerWhenAnExceptionIsThrown() throws Exception {
         BuildAssignment buildAssignment = mock(BuildAssignment.class);
         when(buildAssignment.shouldFetchMaterials()).thenThrow(new RuntimeException());
-        when(buildAssignment.initialEnvironmentVariableContext()).thenReturn(new EnvironmentVariableContext());
         when(buildAssignment.getWorkingDirectory()).thenReturn(new File("current"));
         when(buildAssignment.getJobIdentifier()).thenReturn(JOB_IDENTIFIER);
 

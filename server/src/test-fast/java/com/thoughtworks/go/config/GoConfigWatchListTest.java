@@ -19,12 +19,13 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GoConfigWatchListTest {
@@ -35,7 +36,7 @@ public class GoConfigWatchListTest {
     private GoConfigService goConfigService;
     private ConfigReposConfig configRepos;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cachedGoConfig = mock(CachedGoConfig.class);
         cruiseConfig = mock(CruiseConfig.class);

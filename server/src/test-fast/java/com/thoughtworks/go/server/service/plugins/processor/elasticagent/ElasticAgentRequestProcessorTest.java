@@ -19,9 +19,11 @@ import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentRequestProcessorV1;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +31,8 @@ import java.util.Map;
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ElasticAgentRequestProcessorTest {
     @Mock
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
@@ -43,9 +45,8 @@ public class ElasticAgentRequestProcessorTest {
 
     private ElasticAgentRequestProcessor processor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
 
         final Map<String, VersionableElasticAgentProcessor> processorMap = new HashMap<>();
         processorMap.put("1.0", processorForV1);

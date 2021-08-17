@@ -17,15 +17,13 @@ package com.thoughtworks.go.domain.materials.mercurial;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -35,10 +33,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.not;
 
+@EnableRuleMigrationSupport
 public class HgCommandTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -55,7 +55,7 @@ public class HgCommandTest {
     private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
     private File secondBranchWorkingCopy;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         serverRepo = temporaryFolder.newFolder("testHgServerRepo");
         clientRepo = temporaryFolder.newFolder("testHgClientRepo");
@@ -134,7 +134,7 @@ public class HgCommandTest {
         assertThat(newFile.exists(), is(false));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionIfUpdateFails() throws Exception {
         InMemoryStreamConsumer output =
                 ProcessOutputStreamConsumer.inMemoryConsumer();
@@ -143,7 +143,8 @@ public class HgCommandTest {
         assertThat(FileUtils.deleteQuietly(serverRepo), is(true));
 
         // now hg pull will fail and throw an exception
-        hgCommand.updateTo(new StringRevision("tip"), output);
+        assertThatThrownBy(() -> hgCommand.updateTo(new StringRevision("tip"), output))
+                .isExactlyInstanceOf(RuntimeException.class);
     }
 
     @Test
@@ -153,12 +154,13 @@ public class HgCommandTest {
         assertThat(workingUrl, is(serverRepo.getAbsolutePath()));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionForBadConnection() throws Exception {
         String url = "http://not-exists";
         HgCommand hgCommand = new HgCommand(null, null, null, null, null);
 
-        hgCommand.checkConnection(new UrlArgument(url));
+        assertThatThrownBy(() -> hgCommand.checkConnection(new UrlArgument(url)))
+                .isExactlyInstanceOf(CommandLineException.class);
     }
 
     @Test

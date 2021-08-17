@@ -217,7 +217,7 @@ public class HgMaterialTest {
                 hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
                 fail("Should have thrown an exception when failed to clone from an invalid url");
             } catch (Exception e) {
-                assertThat(e.getMessage()).contains("abort: repository " + url + " not found!");
+                assertThat(e.getMessage()).contains("abort: repository " + url + " not found");
             }
         }
 

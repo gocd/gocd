@@ -18,11 +18,11 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 import com.thoughtworks.go.plugin.api.task.JobConsoleLogger;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class JobConsoleLoggerInternalTest {

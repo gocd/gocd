@@ -48,7 +48,6 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,8 +72,6 @@ public class GitMaterialTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Rule
-    public TestName name = new TestName();
     private static final String BRANCH = "foo";
     private static final String SUBMODULE = "submodule-1";
     private InMemoryStreamConsumer outputStreamConsumer;

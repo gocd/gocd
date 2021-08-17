@@ -36,25 +36,31 @@ import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.*;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class MultipleMaterialsWithFilterTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -71,12 +77,12 @@ public class MultipleMaterialsWithFilterTest {
     private PipelineWithMultipleMaterials fixture;
     private static GoConfigFileHelper configHelper;
 
-    @BeforeClass
+    @BeforeAll
     public static void fixtureSetUp() throws Exception {
         configHelper = new GoConfigFileHelper();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -86,7 +92,7 @@ public class MultipleMaterialsWithFilterTest {
         pipelineScheduleQueue.clear();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         configHelper.onTearDown();
         fixture.onTearDown();

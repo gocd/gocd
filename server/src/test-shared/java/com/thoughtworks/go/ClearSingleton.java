@@ -30,17 +30,19 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStor
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class ClearSingleton extends ExternalResource {
+public class ClearSingleton implements BeforeEachCallback, AfterEachCallback {
 
     @Override
-    protected void before() {
+    public void afterEach(ExtensionContext context) {
         clearSingletons();
     }
 
     @Override
-    protected void after() {
+    public void beforeEach(ExtensionContext context) {
         clearSingletons();
     }
 
@@ -65,4 +67,5 @@ public class ClearSingleton extends ExternalResource {
         RepositoryMetadataStore.getInstance().clear();
         SCMMetadataStore.getInstance().clear();
     }
+
 }

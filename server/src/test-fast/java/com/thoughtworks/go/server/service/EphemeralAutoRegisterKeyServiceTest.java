@@ -20,13 +20,15 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class EphemeralAutoRegisterKeyServiceTest {
     @Mock
     SystemEnvironment systemEnvironment;
@@ -34,7 +36,6 @@ public class EphemeralAutoRegisterKeyServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         service = new EphemeralAutoRegisterKeyService(systemEnvironment);
     }
 

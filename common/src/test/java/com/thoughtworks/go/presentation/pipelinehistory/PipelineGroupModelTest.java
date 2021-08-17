@@ -18,11 +18,11 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PipelineGroupModelTest {
 

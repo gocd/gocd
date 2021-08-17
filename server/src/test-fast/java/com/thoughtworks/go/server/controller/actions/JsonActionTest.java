@@ -17,13 +17,13 @@ package com.thoughtworks.go.server.controller.actions;
 
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.util.json.JsonAware;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class JsonActionTest {
@@ -31,7 +31,7 @@ public class JsonActionTest {
     private JsonAware jsonAware;
     private GoConfigValidity.InvalidGoConfig configValidity;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         jsonAware = mock(JsonAware.class);
         configValidity = mock(GoConfigValidity.InvalidGoConfig.class);

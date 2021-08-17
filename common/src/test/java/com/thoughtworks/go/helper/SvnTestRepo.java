@@ -17,23 +17,23 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SvnTestRepo extends TestRepo {
     protected File tempRepo;
@@ -51,7 +51,7 @@ public class SvnTestRepo extends TestRepo {
         try {
             copyDirectory(new File(REPO_TEST_DATA_FOLDER), tempRepo);
         } catch (IOException e) {
-            Assert.fail("Could not copy test repo [" + REPO_TEST_DATA_FOLDER + "] into [" + tempRepo + "] beacuse of " + e.getMessage());
+            fail("Could not copy test repo [" + REPO_TEST_DATA_FOLDER + "] into [" + tempRepo + "] beacuse of " + e.getMessage());
         }
         new File(tempRepo, "/project1/db/transactions").mkdir();
     }

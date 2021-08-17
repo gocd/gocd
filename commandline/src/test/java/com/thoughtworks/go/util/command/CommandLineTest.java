@@ -21,30 +21,28 @@ import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@EnableRuleMigrationSupport
 public class CommandLineTest {
 
     private static final String DBL_QUOTE = "\"";
@@ -54,22 +52,14 @@ public class CommandLineTest {
     private static final String ARG_SPACES_NOQUOTES = "arg1='spaced single quoted value'";
     private static final String ARG_NOSPACES = "arg2=value2";
     private static final String ARG_SPACES = "arg3=value for 3";
+
+    @TempDir
+    public Path temporaryFolder;
     private File subFolder;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    void setUp() throws Exception {
-        // Have to call this as it uses another Junit runner which overrides the rule
-        temporaryFolder.create();
-        subFolder = temporaryFolder.newFolder("subFolder");
-        File file = temporaryFolder.newFile("./originalCommand");
-        file.setExecutable(true);
-    }
-
-    @AfterEach
-    void tearDown() {
-        temporaryFolder.delete();
+    public void setUp() throws IOException {
+        subFolder = Files.createDirectory(temporaryFolder.resolve("subFolder")).toFile();
     }
 
     @Test
@@ -104,7 +94,7 @@ public class CommandLineTest {
 
         assertEquals(expectedWithQuotes.replaceAll(DBL_QUOTE, ""), cl.toStringForDisplay());
 
-        assertEquals("Did the impl of CommandLine.toString() change?", expectedWithQuotes, cl + "");
+        assertEquals(expectedWithQuotes, cl + "", "Did the impl of CommandLine.toString() change?");
     }
 
     @Test
@@ -112,9 +102,9 @@ public class CommandLineTest {
         final CommandLine cl2 = CommandLine.createCommandLine(EXEC_WITH_SPACES).withEncoding("utf-8");
         final String argWithMismatchedDblQuote = "argMisMatch='singlequoted\"WithMismatchedDblQuote'";
         cl2.withArg(argWithMismatchedDblQuote);
-        assertEquals("Should escape double quotes inside the string",
-                DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " " +
-                        DBL_QUOTE + argWithMismatchedDblQuote.replaceAll("\"", Matcher.quoteReplacement("\\\"")) + DBL_QUOTE, cl2.toString());
+        assertEquals(DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " " +
+                        DBL_QUOTE + argWithMismatchedDblQuote.replaceAll("\"", Matcher.quoteReplacement("\\\"")) + DBL_QUOTE, cl2.toString(),
+                "Should escape double quotes inside the string");
     }
 
     @Test
@@ -149,9 +139,8 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldNotLogPasswordsOnExceptionThrown() throws IOException {
-        File dir = temporaryFolder.newFolder();
-        File file = new File(dir, "test.sh");
+    void shouldNotLogPasswordsOnExceptionThrown(@TempDir File temporaryFolder) throws IOException {
+        File file = new File(temporaryFolder, "test.sh");
         FileOutputStream out = new FileOutputStream(file);
         out.write("echo $1 && exit 10".getBytes());
         out.close();
@@ -262,8 +251,7 @@ public class CommandLineTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldBeAbleToRunCommandsInSubdirectories() throws IOException {
-
-        File shellScript = createScript("hello-world.sh", "echo ${PWD}");
+        File shellScript = createScriptInSubFolder("hello-world.sh", "echo ${PWD}");
         assertThat(shellScript.setExecutable(true), is(true));
 
         CommandLine line = CommandLine.createCommandLine("./hello-world.sh").withWorkingDir(subFolder).withEncoding("utf-8");
@@ -276,12 +264,11 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir() throws IOException {
-
-        File shellScript = createScript("hello-world.sh", "echo 'Hello World!'");
+    void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir(@TempDir File temporaryFolder) throws IOException {
+        File shellScript = createScriptInSubFolder("hello-world.sh", "echo 'Hello World!'");
         assertThat(shellScript.setExecutable(true), is(true));
 
-        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder.getRoot()).withEncoding("utf-8");
+        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder).withEncoding("utf-8");
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -292,7 +279,7 @@ public class CommandLineTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldNotRunLocalCommandsThatAreNotExecutable() throws IOException {
-        createScript("echo", "echo 'this should not be here'");
+        createScriptInSubFolder("echo", "echo 'this should not be here'");
 
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("Using the REAL echo")
@@ -307,8 +294,9 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
-        File shellScript = temporaryFolder.newFile("hello-world.sh");
+    void shouldBeAbleToRunCommandsFromRelativeDirectories(@TempDir Path temporaryFolder) throws IOException {
+
+        File shellScript = Files.createFile(temporaryFolder.resolve("hello-world.sh")).toFile();
 
         FileUtils.writeStringToFile(shellScript, "echo ${PWD}", UTF_8);
         assertThat(shellScript.setExecutable(true), is(true));
@@ -321,7 +309,7 @@ public class CommandLineTest {
         assertThat(out.getAllOutput().trim(), endsWith("subFolder"));
     }
 
-    private File createScript(String name, String content) throws IOException {
+    private File createScriptInSubFolder(String name, String content) throws IOException {
         File shellScript = new File(subFolder, name);
 
         FileUtils.writeStringToFile(shellScript, content, UTF_8);
@@ -349,8 +337,10 @@ public class CommandLineTest {
     }
 
     @Test
-    void shouldGetTheCommandFromCommandlineAsIs() {
+    void shouldGetTheCommandFromCommandlineAsIs(@TempDir Path temporaryFolder) throws IOException {
         String file = "originalCommand";
+        Files.createFile(temporaryFolder.resolve(file)).toFile().setExecutable(true);
+
         CommandLine command = CommandLine.createCommandLine(file);
         command.setWorkingDir(new File("."));
         String[] commandLineArgs = command.getCommandLine();

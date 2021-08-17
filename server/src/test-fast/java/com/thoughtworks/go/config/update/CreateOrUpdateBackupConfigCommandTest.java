@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CreateOrUpdateBackupConfigCommandTest {
 

@@ -23,8 +23,8 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
@@ -45,7 +45,7 @@ public class ServerHealthRequestProcessorTest {
     private ServerHealthRequestProcessor processor;
     private GoPluginDescriptor descriptor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         serverHealthService = mock(ServerHealthService.class);
         requestProcessorRegistry = mock(PluginRequestProcessorRegistry.class);

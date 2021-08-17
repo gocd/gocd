@@ -21,26 +21,22 @@ import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SCMPluginInfoBuilderTest {
     private SCMExtension extension;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(SCMExtension.class);
 
@@ -90,15 +86,15 @@ public class SCMPluginInfoBuilderTest {
     public void shouldThrowAnExceptionIfScmConfigReturnedByPluginIsNull() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getSCMConfiguration("plugin1")).thenReturn(null);
-        thrown.expectMessage("Plugin[plugin1] returned null scm configuration");
-        new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+        assertThatThrownBy(() -> new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor))
+                .hasMessage("Plugin[plugin1] returned null scm configuration");
     }
 
     @Test
     public void shouldThrowAnExceptionIfScmViewReturnedByPluginIsNull() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getSCMView("plugin1")).thenReturn(null);
-        thrown.expectMessage("Plugin[plugin1] returned null scm view");
-        new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+        assertThatThrownBy(() -> new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor))
+                .hasMessage("Plugin[plugin1] returned null scm view");
     }
 }

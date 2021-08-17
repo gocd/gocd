@@ -38,8 +38,10 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.*;
@@ -49,10 +51,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class PluggableSCMMaterialPollerTest {
-    @Mock
+    @Mock(lenient = true)
     private MaterialRepository materialRepository;
     @Mock
     private SCMExtension scmExtension;
@@ -66,7 +68,6 @@ class PluggableSCMMaterialPollerTest {
 
     @BeforeEach
     void setup() {
-        initMocks(this);
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "v2");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));

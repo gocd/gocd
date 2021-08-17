@@ -26,8 +26,10 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -37,8 +39,8 @@ import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class TokenRequesterTest {
     @Mock
     private AgentRegistry agentRegistry;
@@ -47,9 +49,7 @@ class TokenRequesterTest {
     private TokenRequester tokenRequester;
 
     @BeforeEach
-    void setUp() throws Exception {
-        initMocks(this);
-
+    void setUp() {
         tokenRequester = new TokenRequester("toke-url", agentRegistry, httpClient);
     }
 

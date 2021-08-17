@@ -21,7 +21,5 @@ dependencies {
   testImplementation project(':test:test-utils')
   testImplementation project.deps.mockito
   testImplementation project.deps.junit5
-  testCompileOnly project.deps.junit4
-  testRuntimeOnly project.deps.junit5Vintage
   testRuntimeOnly project.deps.junit5Engine
 }

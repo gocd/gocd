@@ -16,14 +16,14 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +32,7 @@ public class DFSCycleDetectorTest {
     private DFSCycleDetector project;
     private PipelineDependencyState state;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         project = new DFSCycleDetector();
         state = mock(PipelineDependencyState.class);

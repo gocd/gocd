@@ -32,8 +32,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Date;
@@ -56,8 +58,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AgentInstancesTest {
     private AgentInstance idle;
     private AgentInstance building;
@@ -73,7 +75,6 @@ class AgentInstancesTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         idle = idle(new Date(), "CCeDev01", systemEnvironment);
 
         AgentInstanceMother.updateOS(idle, "linux");

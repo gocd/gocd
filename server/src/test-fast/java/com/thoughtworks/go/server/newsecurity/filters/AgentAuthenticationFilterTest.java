@@ -29,11 +29,11 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -42,8 +42,9 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(ClearSingleton.class)
+@ExtendWith(MockitoExtension.class)
 public class AgentAuthenticationFilterTest {
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private final FilterChain filterChain = mock(FilterChain.class);
@@ -54,17 +55,6 @@ public class AgentAuthenticationFilterTest {
 
     @Mock
     private AgentService agentService;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        openMocks(this).close();
-        ClearSingleton.clearSingletons();
-    }
-
-    @AfterEach
-    void tearDown() {
-        ClearSingleton.clearSingletons();
-    }
 
     @Nested
     class TokenBased {
@@ -114,7 +104,7 @@ public class AgentAuthenticationFilterTest {
 
             final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication).isNull();
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             assertThat(response.getStatus()).isEqualTo(403);
         }
 
@@ -136,7 +126,7 @@ public class AgentAuthenticationFilterTest {
             filter.doFilter(request, response, filterChain);
 
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             assertThat(response.getStatus()).isEqualTo(403);
         }
 

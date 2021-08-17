@@ -17,9 +17,9 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.CachedDigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,8 +29,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class FileHandlerTest {
@@ -40,7 +40,7 @@ public class FileHandlerTest {
     private FileHandler fileHandler;
     private StubGoPublisher goPublisher;
 
-    @Before
+    @BeforeEach
     public void setup() {
         artifact = new File("foo");
         checksums = mock(ArtifactMd5Checksums.class);
@@ -48,7 +48,7 @@ public class FileHandlerTest {
         goPublisher = new StubGoPublisher();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         FileUtils.deleteQuietly(artifact);
     }

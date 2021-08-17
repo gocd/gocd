@@ -17,14 +17,14 @@ package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class IgnoreTest {
     private MaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();

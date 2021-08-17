@@ -28,9 +28,9 @@ import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,17 +39,16 @@ import java.util.Map;
 import static java.util.Collections.*;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(ClearSingleton.class)
 public class ConfigInfoProviderTest {
     private AuthorizationMetadataStore authorizationMetadataStore;
-    @Rule
-    public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         authorizationMetadataStore = AuthorizationMetadataStore.instance();
     }

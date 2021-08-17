@@ -31,15 +31,15 @@ import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.util.DataStructureUtils;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.BundleContext;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 public class ConfigElementImplementationRegistryTest {
     private PluginExtensions pluginExtns;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         pluginExtns = mock(PluginExtensions.class);
         List<ConfigurationExtension> configTags = new ArrayList<>();

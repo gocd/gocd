@@ -27,16 +27,17 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Date;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class FetchTaskBuilderTest {
@@ -46,7 +47,7 @@ public class FetchTaskBuilderTest {
     private BuilderFactory builderFactory;
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         CruiseConfig config = GoConfigMother.configWithPipelines("random_pipeline", "uppest_lookalike", "uppest_stream", "upstreams_peer", "upstream", "downstream", "dummy", "cruise");
 
@@ -85,7 +86,7 @@ public class FetchTaskBuilderTest {
         when(goConfigService.getCurrentConfig()).thenReturn(config);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         verifyNoMoreInteractions(resolver);
     }

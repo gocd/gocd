@@ -30,12 +30,17 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.*;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 
@@ -43,14 +48,16 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class StageIntegrationTest {
     @Autowired private BuildRepositoryService buildRepositoryService;
     @Autowired private PipelineService pipelineService;
@@ -72,12 +79,12 @@ public class StageIntegrationTest {
     public Subversion svnRepo;
     private static final String HOSTNAME = "10.18.0.1";
 
-    @AfterClass
+    @AfterAll
     public static void tearDownConfigFileLocation() throws IOException {
         TestRepo.internalTearDown();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         dbHelper.onSetUp();
@@ -93,7 +100,7 @@ public class StageIntegrationTest {
         agentService.saveOrUpdate(new Agent(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie1"));
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
     }

@@ -25,7 +25,9 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -33,11 +35,11 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.server.service.BackupScheduler.BACKUP_SCHEDULER_TIMER_GROUP;
 import static com.thoughtworks.go.server.service.BackupScheduler.BACKUP_SCHEDULER_TIMER_NAME;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class BackupSchedulerTest {
     private Scheduler scheduler;
     @Mock
@@ -51,7 +53,6 @@ class BackupSchedulerTest {
 
     @BeforeEach
     void setup() throws SchedulerException {
-        initMocks(this);
         stdSchedulerFactory = new StdSchedulerFactory();
         scheduler = stdSchedulerFactory.getScheduler();
         backupScheduler = new BackupScheduler(scheduler, goConfigService, serverHealthService, backupService);

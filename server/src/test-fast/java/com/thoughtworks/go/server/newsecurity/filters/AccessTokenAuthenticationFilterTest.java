@@ -125,7 +125,7 @@ public class AccessTokenAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(401);
@@ -149,7 +149,7 @@ public class AccessTokenAuthenticationFilterTest {
             filter.doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(request, response);
-            verifyZeroInteractions(accessTokenService);
+            verifyNoInteractions(accessTokenService);
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(200);
@@ -167,7 +167,7 @@ public class AccessTokenAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            verifyZeroInteractions(filterChain);
+            verifyNoInteractions(filterChain);
             verify(accessTokenService, never()).updateLastUsedCacheWith(any());
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
@@ -230,7 +230,7 @@ public class AccessTokenAuthenticationFilterTest {
             assertThat(request.getSession(false)).isSameAs(originalSession);
 
             verify(authenticationProvider, never()).authenticate(any(), anyString());
-            verifyZeroInteractions(accessTokenService);
+            verifyNoInteractions(accessTokenService);
             assertThat(response.getStatus()).isEqualTo(200);
         }
     }

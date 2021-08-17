@@ -18,14 +18,16 @@ package com.thoughtworks.go.plugin.configrepo.codec;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.material.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
 
+@ExtendWith(MockitoExtension.class)
 public class MaterialTypeAdapterTest {
 
     private MaterialTypeAdapter materialTypeAdapter;
@@ -36,14 +38,13 @@ public class MaterialTypeAdapterTest {
     @Mock
     private Type type;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    public void setUp() {
         materialTypeAdapter = new MaterialTypeAdapter();
     }
 
     @Test
-    public void shouldDeserializeGitMaterialType() throws Exception {
+    public void shouldDeserializeGitMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "git");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -52,7 +53,7 @@ public class MaterialTypeAdapterTest {
     }
 
     @Test
-    public void shouldDeserializeHgMaterialType() throws Exception {
+    public void shouldDeserializeHgMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "hg");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -61,7 +62,7 @@ public class MaterialTypeAdapterTest {
     }
 
     @Test
-    public void shouldDeserializeP4tMaterialType() throws Exception {
+    public void shouldDeserializeP4tMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "p4");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -70,7 +71,7 @@ public class MaterialTypeAdapterTest {
     }
 
     @Test
-    public void shouldDeserializeTfsMaterialType() throws Exception {
+    public void shouldDeserializeTfsMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "tfs");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -79,7 +80,7 @@ public class MaterialTypeAdapterTest {
     }
 
     @Test
-    public void shouldDeserializeSvnMaterialType() throws Exception {
+    public void shouldDeserializeSvnMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "svn");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -88,7 +89,7 @@ public class MaterialTypeAdapterTest {
     }
 
     @Test
-    public void shouldDeserializePackageMaterialType() throws Exception {
+    public void shouldDeserializePackageMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "package");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
@@ -97,7 +98,7 @@ public class MaterialTypeAdapterTest {
     }
 
     @Test
-    public void shouldDeserializePluggableScmMaterialType() throws Exception {
+    public void shouldDeserializePluggableScmMaterialType() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "plugin");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);

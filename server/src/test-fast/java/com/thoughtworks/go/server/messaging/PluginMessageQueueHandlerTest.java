@@ -20,15 +20,15 @@ import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.jms.JMSException;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluginMessageQueueHandlerTest {
@@ -40,7 +40,7 @@ public class PluginMessageQueueHandlerTest {
     private MyQueueFactory queueFactory;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(GoPluginExtension.class);
         messaging = mock(MessagingService.class);

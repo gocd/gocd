@@ -22,12 +22,12 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.ui.ViewCacheKey;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -37,8 +37,9 @@ import java.util.TreeSet;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -54,7 +55,7 @@ public class FailedBuildHistoryCacheSweeperTest {
     private PipelineTimelineEntry entryAfterNew;
     private TreeSet<PipelineTimelineEntry> timeline;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         HashMap<String, List<PipelineTimelineEntry.Revision>> modificationTimes = new HashMap<>();
         modificationTimes.put("hg", a(new PipelineTimelineEntry.Revision(new Date(), "123", "hg", 10)));

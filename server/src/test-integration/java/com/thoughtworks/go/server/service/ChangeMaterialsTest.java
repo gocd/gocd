@@ -32,28 +32,38 @@ import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
 import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedTopic;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class ChangeMaterialsTest {
+    @ClassRule
+    public static final TemporaryFolder classTemporaryFolder = new TemporaryFolder();
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -82,11 +92,11 @@ public class ChangeMaterialsTest {
     private static final String PIPELINE_NAME = "mingle";
     private Username username;
     private StubScheduleCheckCompletedListener listener;
-    @ClassRule
-    public static final TemporaryFolder classTemporaryFolder = new TemporaryFolder();
 
-    @BeforeClass
-    public static void startP4Server() {
+
+    @BeforeAll
+    public static void startP4Server() throws IOException {
+        classTemporaryFolder.create();
         try {
             p4TestRepo = P4TestRepo.createP4TestRepo(classTemporaryFolder, classTemporaryFolder.newFolder());
             p4TestRepo.onSetup();
@@ -95,12 +105,12 @@ public class ChangeMaterialsTest {
         }
     }
 
-    @AfterClass
-    public static void tearDownConfigFileLocation() throws IOException {
+    @AfterAll
+    public static void tearDownConfigFileLocation() {
         p4TestRepo.onTearDown();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         username = new Username(new CaseInsensitiveString("gli"));
 
@@ -119,7 +129,7 @@ public class ChangeMaterialsTest {
         topic.addListener(listener);
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         cruiseConfig.initializeConfigFile();
         dbHelper.onTearDown();

@@ -20,19 +20,21 @@ import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class GoConfigMigratorTest {
 
     @Mock private GoConfigMigration goConfigMigration;
@@ -45,10 +47,8 @@ public class GoConfigMigratorTest {
 
     private GoConfigMigrator goConfigMigrator;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        initMocks(this);
-
         goConfigMigrator = new GoConfigMigrator(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow, loader,
                 reader, configRepository, serverHealthService, null);
     }

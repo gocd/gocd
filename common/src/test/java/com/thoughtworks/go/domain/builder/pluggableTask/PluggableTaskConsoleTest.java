@@ -17,9 +17,11 @@ package com.thoughtworks.go.domain.builder.pluggableTask;
 
 import com.thoughtworks.go.plugin.api.task.Console;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -29,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class PluggableTaskConsoleTest {
 
     @Mock
@@ -40,9 +42,8 @@ public class PluggableTaskConsoleTest {
     private List<String> keys = Arrays.asList("Social Net 1", "Social Net 2", "Social Net 3");
     private List<String> values = Arrays.asList("Twitter", "Facebook", "Mega Upload");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         console = new PluggableTaskConsole(safeOutputStreamConsumer, "utf-8");
     }
 

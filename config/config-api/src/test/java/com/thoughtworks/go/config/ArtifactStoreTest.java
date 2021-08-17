@@ -25,26 +25,27 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ArtifactStoreTest {
     private ArtifactMetadataStore store;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         store = ArtifactMetadataStore.instance();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         store.clear();
     }

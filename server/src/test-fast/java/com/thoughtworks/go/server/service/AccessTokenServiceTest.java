@@ -27,8 +27,10 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -37,8 +39,8 @@ import static com.thoughtworks.go.helper.AccessTokenMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class AccessTokenServiceTest {
     @Mock
     private AccessTokenDao accessTokenDao;
@@ -52,7 +54,6 @@ class AccessTokenServiceTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         accessTokenService = new AccessTokenService(accessTokenDao, clock, securityService);
         result = new HttpLocalizedOperationResult();
 
@@ -106,7 +107,6 @@ class AccessTokenServiceTest {
     @Test
     void shouldBailIfUserDoesNotOwnToken() {
         long tokenId = 42;
-        when(accessTokenDao.loadForAdminUser(anyLong())).thenReturn(null);
         when(securityService.isUserAdmin(new Username("hacker"))).thenReturn(false);
 
         assertThatCode(() -> accessTokenService.find(tokenId, "hacker"))
@@ -131,8 +131,7 @@ class AccessTokenServiceTest {
         @BeforeEach
         void setUp() {
             accessToken = mock(AccessToken.class);
-            when(accessToken.getId()).thenReturn(100L);
-
+            lenient().when(accessToken.getId()).thenReturn(100L);
         }
 
         @Test
@@ -141,7 +140,7 @@ class AccessTokenServiceTest {
 
             accessTokenService.onTimer();
 
-            verifyZeroInteractions(accessTokenDao);
+            verifyNoInteractions(accessTokenDao);
         }
 
         @Test
@@ -150,7 +149,7 @@ class AccessTokenServiceTest {
 
             accessTokenService.onTimer();
 
-            verifyZeroInteractions(accessTokenDao);
+            verifyNoInteractions(accessTokenDao);
         }
 
         @Test

@@ -25,8 +25,8 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +35,7 @@ import java.util.List;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
@@ -46,7 +46,7 @@ public class TemplateConfigServiceTest {
     private PluggableTaskService pluggableTaskService;
     private ExternalArtifactsService externalArtifactsService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);

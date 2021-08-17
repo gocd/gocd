@@ -25,7 +25,9 @@ import com.thoughtworks.go.server.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import spark.HaltException;
 
 import java.util.Arrays;
@@ -36,10 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ApiAuthenticationHelperTest {
-    @Mock
+    @Mock(lenient = true)
     private SecurityService securityService;
     @Mock
     private GoConfigService goConfigService;
@@ -51,8 +53,6 @@ class ApiAuthenticationHelperTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
-
         when(securityService.isUserAdmin(ADMIN)).thenReturn(true);
         when(securityService.isUserAdmin(BOB)).thenReturn(false);
     }

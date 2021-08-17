@@ -18,28 +18,24 @@ package com.thoughtworks.go.plugin.access.analytics;
 import com.google.gson.Gson;
 import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AnalyticsMessageConverterV1Test {
 
     private AnalyticsMessageConverterV1 converter;
     private static final Gson GSON = new Gson();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         converter = new AnalyticsMessageConverterV1();
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void shouldBeAbleToGetAnalyticsDataFromValidJSONResponse() {
@@ -54,19 +50,19 @@ public class AnalyticsMessageConverterV1Test {
     @Test
     public void shouldThrowExceptionIfDataKeyIsMissing() {
         String response = "{\"foo\": \"bar\"}";
-        thrown.expect(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class);
-        thrown.expectMessage("Missing \"data\" key in analytics payload");
 
-        converter.getAnalyticsFromResponseBody(response);
+        assertThatThrownBy(() -> converter.getAnalyticsFromResponseBody(response))
+                .isInstanceOf(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class)
+                .hasMessageContaining("Missing \"data\" key in analytics payload");
     }
 
     @Test
     public void shouldThrowExceptionIfViewPathKeyIsMissing() {
         String response = "{\"data\": \"hi\", \"foo\": \"bar\"}";
-        thrown.expect(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class);
-        thrown.expectMessage("Missing \"view_path\" key in analytics payload");
 
-        converter.getAnalyticsFromResponseBody(response);
+        assertThatThrownBy(() -> converter.getAnalyticsFromResponseBody(response))
+                .isInstanceOf(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class)
+                .hasMessageContaining("Missing \"view_path\" key in analytics payload");
     }
 
     @Test

@@ -19,25 +19,21 @@ import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class BackupStatusUpdaterTest {
 
     @Mock
     private ServerBackupRepository serverBackupRepository;
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this);
-    }
 
     @Test
     void shouldUpdateMessageOnStepUpdate() {

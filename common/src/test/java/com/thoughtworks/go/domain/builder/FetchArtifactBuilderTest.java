@@ -21,10 +21,11 @@ import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -37,9 +38,10 @@ import java.util.zip.Deflater;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class FetchArtifactBuilderTest {
     private File zip;
     private List<File> toClean = new ArrayList<>();
@@ -54,7 +56,7 @@ public class FetchArtifactBuilderTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         File folder = temporaryFolder.newFolder("log");
         File consolelog = new File(folder, "console.log");
@@ -78,7 +80,7 @@ public class FetchArtifactBuilderTest {
         downloadAction = mock(DownloadAction.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         for (File fileToClean : toClean) {
             FileUtils.deleteQuietly(fileToClean);

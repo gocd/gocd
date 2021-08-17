@@ -19,19 +19,19 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.GoVersion;
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.server.dao.VersionInfoDao;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ServerVersionInfoBuilderTest {
     private VersionInfoDao versionInfoDao;
     private ServerVersionInfoBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         versionInfoDao = mock(VersionInfoDao.class);
         builder = spy(new ServerVersionInfoBuilder(versionInfoDao));

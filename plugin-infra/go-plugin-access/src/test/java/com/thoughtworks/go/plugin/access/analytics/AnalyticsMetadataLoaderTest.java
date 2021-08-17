@@ -19,8 +19,8 @@ import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import static org.mockito.Mockito.*;
@@ -32,7 +32,7 @@ public class AnalyticsMetadataLoaderTest {
     private AnalyticsMetadataStore metadataStore;
     private PluginManager pluginManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(AnalyticsExtension.class);
         infoBuilder = mock(AnalyticsPluginInfoBuilder.class);
@@ -89,8 +89,8 @@ public class AnalyticsMetadataLoaderTest {
 
         metadataLoader.pluginLoaded(descriptor);
 
-        verifyZeroInteractions(infoBuilder);
-        verifyZeroInteractions(metadataStore);
+        verifyNoMoreInteractions(infoBuilder);
+        verifyNoMoreInteractions(metadataStore);
     }
 
     @Test

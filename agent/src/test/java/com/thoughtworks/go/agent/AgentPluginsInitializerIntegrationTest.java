@@ -25,9 +25,11 @@ import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,10 +38,10 @@ import static com.thoughtworks.go.agent.launcher.DownloadableFile.AGENT_PLUGINS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 /* Some parts are mocked, as in AgentPluginsInitializerTest, but the file system (through ZipUtil) is not. */
 @EnableRuleMigrationSupport
+@ExtendWith(MockitoExtension.class)
 public class AgentPluginsInitializerIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -55,7 +57,6 @@ public class AgentPluginsInitializerIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        initMocks(this);
         agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, new ZipUtil(), systemEnvironment);
 
         directoryForUnzippedPlugins = setupUnzippedPluginsDirectoryStructure();

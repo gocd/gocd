@@ -31,22 +31,22 @@ import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Theories.class)
 public class BuilderFactoryTest {
     private UpstreamPipelineResolver pipelineResolver;
     private BuilderFactory builderFactory;
@@ -59,24 +59,31 @@ public class BuilderFactoryTest {
     private static NullTaskBuilder nullTaskBuilder = mock(NullTaskBuilder.class);
     private static PluggableTaskBuilderCreator pluggableTaskBuilderCreator = mock(PluggableTaskBuilderCreator.class);
 
-    @DataPoint public static TaskDataPoint<AntTask> antDataPoint = new TaskDataPoint<>(new AntTask(), antTaskBuilder);
-    @DataPoint public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<>(new ExecTask(), execTaskBuilder);
-    @DataPoint public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<>(new NantTask(), nantTaskBuilder);
-    @DataPoint public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<>(new RakeTask(), rakeTaskBuilder);
-    @DataPoint public static TaskDataPoint<AbstractFetchTask> fetchDataPoint = new TaskDataPoint<>(new FetchTask(), fetchTaskBuilder);
-    @DataPoint public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<>(new NullTask(), nullTaskBuilder);
-    @DataPoint public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<>(new PluggableTask(), pluggableTaskBuilderCreator);
-    @DataPoint public static TaskDataPoint<KillAllChildProcessTask> killAllChildProcessTaskTaskDataPoint = new TaskDataPoint<>(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder);
+    private static class TaskArguments implements ArgumentsProvider {
+        @Override
+        public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+            return Stream.of(
+                    Arguments.of(new AntTask(), antTaskBuilder),
+                    Arguments.of(new ExecTask(), execTaskBuilder),
+                    Arguments.of(new NantTask(), nantTaskBuilder),
+                    Arguments.of(new RakeTask(), rakeTaskBuilder),
+                    Arguments.of(new FetchTask(), fetchTaskBuilder),
+                    Arguments.of(new NullTask(), nullTaskBuilder),
+                    Arguments.of(new PluggableTask(), pluggableTaskBuilderCreator),
+                    Arguments.of(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder));
+        }
+    }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         pipelineResolver = mock(UpstreamPipelineResolver.class);
         builderFactory = new BuilderFactory(antTaskBuilder, execTaskBuilder, nantTaskBuilder, rakeTaskBuilder, pluggableTaskBuilderCreator, killAllChildProcessTaskBuilder, fetchTaskBuilder, nullTaskBuilder);
     }
 
-    @Theory
-    public void shouldCreateABuilderUsingTheCorrectTaskBuilderForATask(TaskDataPoint taskDataPoint)  {
-        assertBuilderForTask(taskDataPoint.task, taskDataPoint.taskBuilder);
+    @ParameterizedTest
+    @ArgumentsSource(TaskArguments.class)
+    public void shouldCreateABuilderUsingTheCorrectTaskBuilderForATask(Task task, TaskBuilder<Task> taskBuilder)  {
+        assertBuilderForTask(task, taskBuilder);
     }
 
     @Test
@@ -109,7 +116,7 @@ public class BuilderFactoryTest {
         when(rakeTaskBuilder.createBuilder(builderFactory, rakeTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForRakeTask);
         when(pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, pipelineResolver)).thenReturn(expectedBuilderForPluggableTask);
 
-        List<Builder> builders = builderFactory.buildersForTasks(pipeline, listOf(antTask, nantTask, rakeTask,pluggableTask), pipelineResolver);
+        List<Builder> builders = builderFactory.buildersForTasks(pipeline, List.of(new Task[]{antTask, nantTask, rakeTask, pluggableTask}), pipelineResolver);
 
         assertThat(builders.size(), is(4));
         assertThat(builders.get(0), is(expectedBuilderForAntTask));
@@ -167,17 +174,5 @@ public class BuilderFactoryTest {
         };
     }
 
-    private List<Task> listOf(Task... tasks) {
-        return Arrays.asList(tasks);
-    }
 
-    private static class TaskDataPoint<T extends Task> {
-        private final T task;
-        private final TaskBuilder<T> taskBuilder;
-
-        public TaskDataPoint(T task, TaskBuilder<T> taskBuilder) {
-            this.task = task;
-            this.taskBuilder = taskBuilder;
-        }
-    }
 }

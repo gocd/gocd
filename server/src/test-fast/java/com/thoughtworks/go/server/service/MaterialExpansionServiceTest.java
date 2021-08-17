@@ -28,8 +28,15 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -38,10 +45,11 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
+@EnableRuleMigrationSupport
 public class MaterialExpansionServiceTest {
 
     @ClassRule
@@ -56,18 +64,18 @@ public class MaterialExpansionServiceTest {
     @Mock
     private SecretParamResolver secretParamResolver;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void copyRepository() throws IOException {
+        temporaryFolder.create();
         svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteRepository() {
         TestRepo.internalTearDown();
     }
@@ -106,7 +114,6 @@ public class MaterialExpansionServiceTest {
         String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());
         String cacheKeyForSvnExt = materialExpansionService.cacheKeyForSubversionMaterialCommand(svnExt.getFingerprint());
         when(goCache.get(cacheKeyForSvn)).thenReturn(null);
-        when(goCache.get(cacheKeyForSvnExt)).thenReturn(null);
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
@@ -125,7 +132,6 @@ public class MaterialExpansionServiceTest {
         String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());
         String cacheKeyForSvnExt = materialExpansionService.cacheKeyForSubversionMaterialCommand(svnExt.getFingerprint());
         when(goCache.get(cacheKeyForSvn)).thenReturn(null);
-        when(goCache.get(cacheKeyForSvnExt)).thenReturn(null);
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 
@@ -144,7 +150,6 @@ public class MaterialExpansionServiceTest {
         pipelineConfig.addMaterialConfig(svn);
 
         String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());
-        when(goCache.get(cacheKeyForSvn)).thenReturn(null);
 
         MaterialConfigs materialConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
 

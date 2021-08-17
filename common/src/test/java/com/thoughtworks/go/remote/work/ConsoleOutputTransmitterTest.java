@@ -16,43 +16,43 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class ConsoleOutputTransmitterTest {
     @Mock
     private ConsoleAppender consoleAppender;
-    private ArgumentCaptor<String> requestArgumentCaptor;
     private ConsoleOutputTransmitter transmitter;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
-
         new SystemEnvironment().setProperty(SystemEnvironment.INTERVAL, "60"); // so the thread does not wake up
-
-        requestArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        doNothing().when(consoleAppender).append(requestArgumentCaptor.capture());
         transmitter = new ConsoleOutputTransmitter(consoleAppender, 0, mock(ScheduledThreadPoolExecutor.class));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         transmitter.stop();
     }
 
     @Test
     public void shouldFlushContentsInBufferToServerInOneGo() throws Exception {
+
+        ArgumentCaptor<String> requestArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        doNothing().when(consoleAppender).append(requestArgumentCaptor.capture());
+
         transmitter.consumeLine("first line");
         transmitter.consumeLine("second line");
 

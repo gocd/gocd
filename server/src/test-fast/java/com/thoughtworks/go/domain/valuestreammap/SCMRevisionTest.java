@@ -15,30 +15,30 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
+import com.thoughtworks.go.domain.materials.Modification;
+import org.junit.jupiter.api.Test;
+
 import java.util.Date;
 
-import com.thoughtworks.go.domain.materials.Modification;
-import org.junit.Assert;
-import org.junit.Test;
-
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class SCMRevisionTest {
     @Test
     public void shouldGetModificationDetails() throws Exception {
         Date dateTime = new Date();
-        Modification modification=new Modification("user","comment","email", dateTime,"r1");
-        SCMRevision scmRevision=new SCMRevision(modification);
-        Assert.assertThat(scmRevision.getComment(),is("comment"));
-        Assert.assertThat(scmRevision.getUser(),is("user"));
-        Assert.assertThat(scmRevision.getRevisionString(),is("r1"));
-        Assert.assertThat(scmRevision.getModifiedTime(),is(dateTime));
+        Modification modification = new Modification("user", "comment", "email", dateTime, "r1");
+        SCMRevision scmRevision = new SCMRevision(modification);
+        assertThat(scmRevision.getComment(), is("comment"));
+        assertThat(scmRevision.getUser(), is("user"));
+        assertThat(scmRevision.getRevisionString(), is("r1"));
+        assertThat(scmRevision.getModifiedTime(), is(dateTime));
     }
 
     @Test
     public void shouldRenderUsernameForDisplay() throws Exception {
-        Modification modification=new Modification(null,"comment","email", new Date(), "r1");
-        SCMRevision scmRevision=new SCMRevision(modification);
-        Assert.assertThat(scmRevision.getUser(), is(modification.getUserDisplayName()));
+        Modification modification = new Modification(null, "comment", "email", new Date(), "r1");
+        SCMRevision scmRevision = new SCMRevision(modification);
+        assertThat(scmRevision.getUser(), is(modification.getUserDisplayName()));
     }
 }

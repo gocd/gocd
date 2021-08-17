@@ -17,14 +17,14 @@ package com.thoughtworks.go.service;
 
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +35,7 @@ public class ConfigRepositoryGCWarningServiceTest {
     private SystemEnvironment systemEnvironment;
     private ConfigRepositoryGCWarningService service;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configRepository = mock(ConfigRepository.class);
         serverHealthService = new ServerHealthService();

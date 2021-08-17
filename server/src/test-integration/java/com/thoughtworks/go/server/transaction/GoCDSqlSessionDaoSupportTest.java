@@ -21,17 +21,18 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -48,7 +49,7 @@ public class GoCDSqlSessionDaoSupportTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private TransactionCacheAssertionUtil assertionUtil;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         assertionUtil = new TransactionCacheAssertionUtil(goCache, transactionTemplate);
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -57,7 +58,7 @@ public class GoCDSqlSessionDaoSupportTest {
         goCache.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
         configHelper.onTearDown();

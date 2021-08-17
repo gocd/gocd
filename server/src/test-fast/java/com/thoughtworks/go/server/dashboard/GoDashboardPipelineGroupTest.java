@@ -20,13 +20,13 @@ import com.thoughtworks.go.config.security.permissions.NoOnePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.server.domain.Username;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GoDashboardPipelineGroupTest {
     @Test

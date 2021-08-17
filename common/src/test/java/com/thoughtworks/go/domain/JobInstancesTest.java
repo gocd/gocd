@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.JobInstanceMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -24,7 +24,7 @@ import java.util.Date;
 import static com.thoughtworks.go.domain.StageState.*;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JobInstancesTest {
     @Test

@@ -37,17 +37,14 @@ import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,10 +60,13 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -83,8 +83,6 @@ public class GoFileConfigDataSourceIntegrationTest {
     private PartialConfigService partialConfigService;
     @Autowired
     private GoConfigDao goConfigDao;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private GoConfigFileHelper configHelper;
     @Autowired
     private GoConfigService goConfigService;
@@ -104,9 +102,8 @@ public class GoFileConfigDataSourceIntegrationTest {
     private PipelineConfig upstreamPipeline;
     private ConfigRepoConfig repoConfig;
 
-    @Before
-    public void setUp() throws Exception {
-        File configDir = temporaryFolder.newFolder();
+    @BeforeEach
+    public void setUp(@TempDir File configDir) throws Exception {
         String absolutePath = new File(configDir, "cruise-config.xml").getAbsolutePath();
         systemEnvironment.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, absolutePath);
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
@@ -126,7 +123,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, true);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         cachedGoPartials.clear();
         dataSource.reloadIfModified();
@@ -159,9 +156,6 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(newMd5, is(result.getConfigHolder().config.getMd5()));
     }
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void shouldValidateMergedConfigForConfigChangesThroughFileSystem() throws Exception {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstream)), is(true));
@@ -173,9 +167,9 @@ public class GoFileConfigDataSourceIntegrationTest {
             }
         });
 
-        thrown.expect(org.hamcrest.Matchers.any(GoConfigInvalidException.class));
-        thrown.expectMessage("Stage with name 'upstream_stage_original' does not exist on pipeline 'upstream', it is being referred to from pipeline 'remote_downstream' (url at r1)");
-        dataSource.forceLoad(new File(systemEnvironment.getCruiseConfigFile()));
+        assertThatThrownBy(() -> dataSource.forceLoad(new File(systemEnvironment.getCruiseConfigFile())))
+                .isInstanceOf(GoConfigInvalidException.class)
+                .hasMessageContaining("Stage with name 'upstream_stage_original' does not exist on pipeline 'upstream', it is being referred to from pipeline 'remote_downstream' (url at r1)");
     }
 
     @Test
@@ -236,15 +230,16 @@ public class GoFileConfigDataSourceIntegrationTest {
         PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remotePipeline, upstream, repoConfigOrigin);
         cachedGoPartials.cacheAsLastKnown(this.repoConfig.getRepo().getFingerprint(), partialConfig);
         cachedGoPartials.markAllKnownAsValid();
-        thrown.expect(RuntimeException.class);
-        thrown.expectCause(Matchers.any(GoConfigInvalidException.class));
-        thrown.expectMessage(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
-        dataSource.writeWithLock(cruiseConfig -> {
+
+        assertThatThrownBy(() -> dataSource.writeWithLock(cruiseConfig -> {
             PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(upstream.name());
             pipelineConfig.clear();
             pipelineConfig.add(new StageConfig(new CaseInsensitiveString("new_stage"), new JobConfigs(new JobConfig("job"))));
             return cruiseConfig;
-        }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
+        }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig())))
+                .isInstanceOf(RuntimeException.class)
+                .hasCauseInstanceOf(GoConfigInvalidException.class)
+                .hasMessageContaining(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
     }
 
     @Test

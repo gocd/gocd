@@ -34,14 +34,13 @@ dependencies {
   implementation project.deps.jettyServlet
   api project.deps.jettyWebapp
   implementation project.deps.mail
-  api project.deps.systemRules
 
   api project.deps.assertJ
   compileOnly project.deps.junit4
-  runtimeOnly project.deps.junit5Vintage
   api project.deps.junit5
-  runtimeOnly project.deps.junit5Engine
   api project.deps.junit5Params
+  api project.deps.systemStubs
+  runtimeOnly project.deps.junit5Engine
 
   api project.deps.hamcrest
   api project.deps.hamcrestLibrary

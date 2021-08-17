@@ -21,27 +21,27 @@ import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableTaskPreferenceLoaderTest {
 
     private TaskExtension taskExtension;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         taskExtension = mock(TaskExtension.class);
         PluggableTaskConfigStore.store().clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         PluggableTaskConfigStore.store().clear();
     }

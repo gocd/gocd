@@ -31,7 +31,7 @@ import java.util.*;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class P4MaterialTestBase extends PerforceFixture {
     protected static final String VIEW = "//depot/... //something/...";

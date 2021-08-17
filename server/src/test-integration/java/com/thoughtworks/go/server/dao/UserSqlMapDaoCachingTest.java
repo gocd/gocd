@@ -22,13 +22,14 @@ import com.thoughtworks.go.server.cache.GoCache;
 import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.SecondLevelCacheStatistics;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StopWatch;
 
 import java.util.Arrays;
@@ -37,9 +38,9 @@ import java.util.HashSet;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -56,13 +57,13 @@ public class UserSqlMapDaoCachingTest {
     @Autowired
     private SessionFactory sessionFactory;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         sessionFactory.getStatistics().clear();
         dbHelper.onSetUp();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
         sessionFactory.getStatistics().clear();
@@ -166,7 +167,8 @@ public class UserSqlMapDaoCachingTest {
         assertThatEnabledUserCacheExists();
     }
 
-    @Test(timeout = 60000)
+    @Test
+    @Timeout(60)
     public void enabledUserCacheShouldBeThreadSafe() throws Exception {
         ThreadSafetyChecker threadSafetyChecker = new ThreadSafetyChecker(10000);
 

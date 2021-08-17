@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
-import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -39,8 +38,9 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_M
 import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 

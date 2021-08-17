@@ -16,15 +16,15 @@
 package com.thoughtworks.go.domain.materials.tfs;
 
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TfsSDKCommandBuilderTest {
     private TfsSDKCommandBuilder builder;
@@ -36,7 +36,7 @@ public class TfsSDKCommandBuilderTest {
     private boolean invoked;
     private String className;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException, URISyntaxException {
         // we intentionally don't use mockito to mock this
         // see https://bugs.openjdk.java.net/browse/JDK-8202758

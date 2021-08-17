@@ -22,13 +22,14 @@ import com.thoughtworks.go.server.dao.VersionInfoDao;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class ServerVersionInfoManagerTest {
@@ -39,7 +40,7 @@ public class ServerVersionInfoManagerTest {
     GoCache goCache;
     SystemEnvironment systemEnvironment;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         builder = mock(ServerVersionInfoBuilder.class);
         versionInfoDao = mock(VersionInfoDao.class);

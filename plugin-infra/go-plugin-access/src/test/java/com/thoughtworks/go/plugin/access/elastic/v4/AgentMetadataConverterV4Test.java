@@ -16,10 +16,10 @@
 package com.thoughtworks.go.plugin.access.elastic.v4;
 
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AgentMetadataConverterV4Test {
 

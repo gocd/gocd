@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.access.authorization.v1;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Collections.singletonList;

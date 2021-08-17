@@ -16,22 +16,23 @@
 package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.config.Property;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PluginSettingsMetadataStoreTest {
-    @Before
+    @BeforeEach
     public void setUp() {
         PluginSettingsMetadataStore.getInstance().clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         PluginSettingsMetadataStore.getInstance().clear();
     }

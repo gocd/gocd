@@ -20,13 +20,13 @@ import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.util.Clock;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessTokenForUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -55,12 +55,12 @@ public class AccessTokenSqlMapDaoIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         dbHelper.onSetUp();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
     }

@@ -23,15 +23,16 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.thoughtworks.go.domain.InsecureEnvironmentVariables.EMPTY_ENV_VARS;
 import static com.thoughtworks.go.domain.label.PipelineLabel.defaultLabel;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PipelineLabelTest {
     private final String testingTemplate = "testing." + PipelineLabel.COUNT_TEMPLATE + ".label";
@@ -308,7 +309,7 @@ public class PipelineLabelTest {
         expectations.forEach((exp) -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.get(0)), is(exp.get(1))));
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MATERIAL_REVISIONS.put(new CaseInsensitiveString("svnRepo.verynice"), SVN_REVISION);
         MATERIAL_REVISIONS.put(new CaseInsensitiveString("svn"), SVN_REVISION);

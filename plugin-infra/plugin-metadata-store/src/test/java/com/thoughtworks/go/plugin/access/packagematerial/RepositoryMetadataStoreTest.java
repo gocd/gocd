@@ -15,21 +15,21 @@
  */
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RepositoryMetadataStoreTest {
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         RepositoryMetadataStoreHelper.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         RepositoryMetadataStoreHelper.clear();
     }

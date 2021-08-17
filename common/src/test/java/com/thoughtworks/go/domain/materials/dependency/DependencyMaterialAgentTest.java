@@ -22,21 +22,17 @@ import com.thoughtworks.go.domain.materials.MaterialAgent;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Date;
 
 import static com.thoughtworks.go.domain.materials.MaterialAgent.NO_OP;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DependencyMaterialAgentTest {
 
-    @Before
-    public void setUp() {
-    }
     private MaterialRevision materialRevision(String pipelineName, Integer pipelineCounter, String pipelineLabel,
                                               String stageName, int stageCounter) {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));

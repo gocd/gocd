@@ -16,24 +16,24 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.crypto.spec.DESKeySpec;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DESCipherProviderTest {
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         new DESCipherProvider(new SystemEnvironment()).resetCipher();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         new DESCipherProvider(new SystemEnvironment()).resetCipher();
     }

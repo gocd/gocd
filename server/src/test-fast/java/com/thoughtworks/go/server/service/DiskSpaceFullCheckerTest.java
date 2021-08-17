@@ -26,29 +26,29 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class DiskSpaceFullCheckerTest {
     private EmailSender sender;
     private GoConfigService goConfigService;
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         new SystemEnvironment().clearProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT);
         verifyNoMoreInteractions(sender);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         sender = mock(EmailSender.class);
         goConfigService = ArtifactsDiskSpaceFullCheckerTest.mockGoConfigServiceToHaveSiteUrl();

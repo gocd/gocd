@@ -20,20 +20,16 @@ import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExecTaskTest {
-
-    @Before
-    public void setUp() throws Exception {
-    }
 
     @Test
     public void describeTest() {
@@ -212,28 +208,28 @@ public class ExecTaskTest {
     public void shouldBeSameIfCommandMatches() {
         ExecTask task = new ExecTask("ls", new Arguments());
 
-        assertTrue(task.equals(new ExecTask("ls", new Arguments())));
+        assertEquals(task, new ExecTask("ls", new Arguments()));
     }
 
     @Test
     public void shouldUnEqualIfCommandsDontMatch() {
         ExecTask task = new ExecTask("ls", new Arguments());
 
-        assertFalse(task.equals(new ExecTask("rm", new Arguments())));
+        assertNotEquals(task, new ExecTask("rm", new Arguments()));
     }
 
     @Test
     public void shouldUnEqualIfCommandIsNull() {
         ExecTask task = new ExecTask(null, new Arguments());
 
-        assertFalse(task.equals(new ExecTask("rm", new Arguments())));
+        assertNotEquals(task, new ExecTask("rm", new Arguments()));
     }
 
     @Test
     public void shouldUnEqualIfOtherTaskCommandIsNull() {
         ExecTask task = new ExecTask("ls", new Arguments());
 
-        assertFalse(task.equals(new ExecTask(null, new Arguments())));
+        assertNotEquals(task, new ExecTask(null, new Arguments()));
     }
 
     @Test

@@ -27,18 +27,18 @@ import com.thoughtworks.go.config.RoleUser;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.hamcrest.MatcherAssert.assertThat;
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -56,14 +56,14 @@ public class StageApprovalAuthorizationTest {
     @Autowired private SecurityService securityService;
     private static final String STAGE_NAME = "dev";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, STAGE_NAME);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         CONFIG_HELPER.onTearDown();
     }

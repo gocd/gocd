@@ -24,13 +24,13 @@ import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,31 +39,29 @@ import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstan
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 public class AnalyticsExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
 
-    @Mock
+    @Mock(lenient = true)
     private PluginManager pluginManager;
     @Mock
     ExtensionsRegistry extensionsRegistry;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     private AnalyticsExtension analyticsExtension;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private AnalyticsMetadataStore metadataStore;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("1.0", "2.0");
         when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
@@ -73,7 +71,7 @@ public class AnalyticsExtensionTest {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         metadataStore.clear();
     }
@@ -133,12 +131,11 @@ public class AnalyticsExtensionTest {
 
     @Test
     public void shouldErrorOutInAbsenceOfStaticAssets() {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("No assets defined!");
-
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, "{}"));
 
-        analyticsExtension.getStaticAssets(PLUGIN_ID);
+        assertThatThrownBy(() -> analyticsExtension.getStaticAssets(PLUGIN_ID))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("No assets defined!");
     }
 
     @Test

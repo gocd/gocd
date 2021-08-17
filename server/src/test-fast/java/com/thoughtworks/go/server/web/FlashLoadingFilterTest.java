@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.presentation.FlashMessageModel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -33,8 +33,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class FlashLoadingFilterTest {
@@ -43,7 +43,7 @@ public class FlashLoadingFilterTest {
     private FlashMessageService service;
     private String messageKey;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         service = new FlashMessageService();
         filter = new FlashLoadingFilter();

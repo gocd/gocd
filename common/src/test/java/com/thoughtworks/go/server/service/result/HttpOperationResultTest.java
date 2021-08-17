@@ -17,34 +17,38 @@ package com.thoughtworks.go.server.service.result;
 
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HttpOperationResultTest {
     private HttpOperationResult httpOperationResult;
 
-    @Before public void setUp() {
+    @BeforeEach
+    public void setUp() {
         httpOperationResult = new HttpOperationResult();
     }
 
-    @Test public void shouldReturn202IfEverythingWorks() throws Exception {
+    @Test
+    public void shouldReturn202IfEverythingWorks() throws Exception {
         httpOperationResult.accepted("Request to schedule pipeline 'baboon' accepted","blah blah", HealthStateType.general(HealthStateScope.forPipeline("baboon")));
         assertThat(httpOperationResult.httpCode(), is(202));
         assertThat(httpOperationResult.canContinue(), is(true));
         assertThat(httpOperationResult.message(), is("Request to schedule pipeline 'baboon' accepted"));
     }
 
-    @Test public void shouldReturn409IfPipelineCannotBeScheduled() throws Exception {
+    @Test
+    public void shouldReturn409IfPipelineCannotBeScheduled() throws Exception {
         httpOperationResult.conflict("Pipeline is already scheduled", "", null);
         assertThat(httpOperationResult.httpCode(), is(409));
         assertThat(httpOperationResult.canContinue(), is(false));
         assertThat(httpOperationResult.message(), is("Pipeline is already scheduled"));
     }
 
-    @Test public void shouldReturn404ForPipelineThatDoesntExist() throws Exception {
+    @Test
+    public void shouldReturn404ForPipelineThatDoesntExist() throws Exception {
         httpOperationResult.notFound("pipeline baboon doesn't exist", "", null);
         assertThat(httpOperationResult.httpCode(), is(404));
         assertThat(httpOperationResult.canContinue(), is(false));
@@ -116,7 +120,8 @@ public class HttpOperationResultTest {
         assertThat(httpOperationResult.detailedMessage(), is("message\n"));
     }
 
-    @Test public void shouldReturn500WhenInternalServerErrorOccurs() throws Exception {
+    @Test
+    public void shouldReturn500WhenInternalServerErrorOccurs() throws Exception {
         httpOperationResult.internalServerError("error occurred during deletion of agent. Could not delete.", null);
         assertThat(httpOperationResult.httpCode(), is(500));
         assertThat(httpOperationResult.canContinue(), is(false));

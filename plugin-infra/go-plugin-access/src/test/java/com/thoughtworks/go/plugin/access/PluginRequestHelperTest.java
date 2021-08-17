@@ -19,11 +19,8 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -34,7 +31,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class PluginRequestHelperTest {
     private PluginManager pluginManager;
     private PluginRequestHelper helper;
@@ -43,8 +39,6 @@ public class PluginRequestHelperTest {
     private GoPluginApiResponse response;
     private final String requestName = "req";
     private final String extensionName = "some-extension";
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeEach
     void setup() {
@@ -97,15 +91,13 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.VALIDATION_ERROR);
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
-        thrown.expect(RuntimeException.class);
-
-        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
+        assertThatThrownBy(() -> helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
             public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
                 return null;
             }
-        });
+        })).isInstanceOf(RuntimeException.class);
     }
 
     @Test

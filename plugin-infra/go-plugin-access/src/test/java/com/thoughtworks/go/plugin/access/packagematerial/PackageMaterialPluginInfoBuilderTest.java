@@ -23,26 +23,22 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PackageMaterialPluginInfoBuilderTest {
     private PackageRepositoryExtension extension;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extension = mock(PackageRepositoryExtension.class);
 
@@ -63,7 +59,7 @@ public class PackageMaterialPluginInfoBuilderTest {
     }
 
     @Test
-    public void shouldBuildPluginInfo() throws Exception {
+    public void shouldBuildPluginInfo() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         PackageMaterialPluginInfo pluginInfo = new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
@@ -93,10 +89,8 @@ public class PackageMaterialPluginInfoBuilderTest {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getRepositoryConfiguration("plugin1")).thenReturn(null);
-        thrown.expectMessage("Plugin[plugin1] returned null repository configuration");
-        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
-
-        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+        assertThatThrownBy(() -> new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor))
+                .hasMessageContaining("Plugin[plugin1] returned null repository configuration");
     }
 
     @Test
@@ -104,9 +98,7 @@ public class PackageMaterialPluginInfoBuilderTest {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
 
         when(extension.getPackageConfiguration("plugin1")).thenReturn(null);
-        thrown.expectMessage("Plugin[plugin1] returned null package configuration");
-        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
-
-        new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
+        assertThatThrownBy(() -> new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor))
+                .hasMessageContaining("Plugin[plugin1] returned null package configuration");
     }
 }

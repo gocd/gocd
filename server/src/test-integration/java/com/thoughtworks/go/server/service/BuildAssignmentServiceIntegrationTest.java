@@ -57,12 +57,18 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.Date;
@@ -75,18 +81,19 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-
+@EnableRuleMigrationSupport
 public class BuildAssignmentServiceIntegrationTest {
     @Autowired
     private BuildAssignmentService buildAssignmentService;
@@ -162,17 +169,18 @@ public class BuildAssignmentServiceIntegrationTest {
     public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setupRepos() throws IOException {
+        temporaryFolder.create();
         testRepo = new SvnTestRepo(temporaryFolder);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownConfigFileLocation() {
         TestRepo.internalTearDown();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         maintenanceModeService.update(new ServerMaintenanceMode(false, "admin", new Date()));
         configCache = new ConfigCache();
@@ -195,7 +203,7 @@ public class BuildAssignmentServiceIntegrationTest {
         notifier.disableUpdates();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         notifier.enableUpdates();
         goCache.clear();

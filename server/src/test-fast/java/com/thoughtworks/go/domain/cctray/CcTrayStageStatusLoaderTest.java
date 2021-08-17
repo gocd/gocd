@@ -24,9 +24,11 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageIdentity;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,12 +37,10 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class CcTrayStageStatusLoaderTest {
     @Mock
     private StageDao stageDao;
@@ -49,9 +49,8 @@ public class CcTrayStageStatusLoaderTest {
 
     private CcTrayStageStatusLoader loader;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        initMocks(this);
         loader = new CcTrayStageStatusLoader(stageDao, stageChangeHandler);
     }
 
@@ -92,7 +91,7 @@ public class CcTrayStageStatusLoaderTest {
         List<Stage> stages = new ArrayList<>();
         for (StageIdentity identity : stageIdentities) {
             Stage stage = StageMother.custom(identity.getPipelineName() + " - " + identity.getStageName());
-            when(stageDao.stageById(identity.getStageId())).thenReturn(stage);
+            lenient().when(stageDao.stageById(identity.getStageId())).thenReturn(stage);
             stages.add(stage);
         }
 

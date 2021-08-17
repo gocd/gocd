@@ -30,15 +30,17 @@ import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -204,14 +206,15 @@ public class GitCommandTest {
     }
 
     @Nested
+    @ExtendWith(SystemStubsExtension.class)
     @EnableRuleMigrationSupport
     class Integration {
         private static final String BRANCH = "foo";
         private static final String SUBMODULE = "submodule-1";
         @Rule
         public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-        @Rule
-        public final TestRule restoreSystemProperties = new RestoreSystemProperties();
+        @SystemStub
+        private SystemProperties systemProperties;
         private final Date THREE_DAYS_FROM_NOW = setMilliseconds(addDays(new Date(), 3), 0);
         private GitCommand git;
         private String repoUrl;

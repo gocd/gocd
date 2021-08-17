@@ -40,15 +40,16 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
@@ -57,16 +58,17 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
+@EnableRuleMigrationSupport
 public class PipelineScheduleServiceTest {
     @Autowired private ScheduleService scheduleService;
     @Autowired private GoConfigDao goConfigDao;
@@ -99,7 +101,7 @@ public class PipelineScheduleServiceTest {
     public static TestRepo testRepo;
     private PipelineConfig goConfig;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -125,7 +127,7 @@ public class PipelineScheduleServiceTest {
         goCache.clear();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         if (pipelineWithTwoStages != null) {
             pipelineWithTwoStages.onTearDown();

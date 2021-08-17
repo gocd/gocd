@@ -35,9 +35,11 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.Pair;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,12 +48,13 @@ import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
-
+@ExtendWith(MockitoExtension.class)
 public class DeletePackageConfigCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
@@ -63,9 +66,8 @@ public class DeletePackageConfigCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         packageUuid = "random-uuid";
@@ -125,7 +127,7 @@ public class DeletePackageConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+        lenient().when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
 
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
 

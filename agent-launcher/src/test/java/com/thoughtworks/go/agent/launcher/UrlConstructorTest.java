@@ -16,12 +16,12 @@
 package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.common.UrlConstructor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class UrlConstructorTest {
     @Test

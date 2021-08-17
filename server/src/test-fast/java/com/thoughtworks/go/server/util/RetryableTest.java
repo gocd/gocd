@@ -15,27 +15,23 @@
  */
 package com.thoughtworks.go.server.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RetryableTest {
     @Test
-    public void retryThrowsExceptionWhen() throws Exception {
+    public void retryThrowsExceptionWhen() {
         final List<Integer> attempts = new ArrayList<Integer>();
         boolean raised = false;
 
         try {
-            Retryable.retry(new Predicate<Integer>() {
-                @Override
-                public boolean test(Integer integer) {
-                    attempts.add(integer);
-                    return false;
-                }
+            Retryable.retry(integer -> {
+                attempts.add(integer);
+                return false;
             }, "testing retries", 3, 1L);
         } catch (Retryable.TooManyRetriesException e) {
             raised = true;
@@ -45,22 +41,19 @@ public class RetryableTest {
         Integer[] actual = new Integer[3];
 
         assertEquals(3, attempts.size());
-        assertArrayEquals("Should have logged all attempts", expected, attempts.toArray(actual));
-        assertTrue("Did not throw Retryable.TooManyRetriesException", raised);
+        assertArrayEquals(expected, attempts.toArray(actual), "Should have logged all attempts");
+        assertTrue(raised, "Did not throw Retryable.TooManyRetriesException");
     }
 
     @Test
-    public void retryStopsWhenSuccessful() throws Exception {
+    public void retryStopsWhenSuccessful() {
         final List<Integer> attempts = new ArrayList<Integer>();
         boolean raised = false;
 
         try {
-            Retryable.retry(new Predicate<Integer>() {
-                @Override
-                public boolean test(Integer integer) {
-                    attempts.add(integer);
-                    return 1 == integer;
-                }
+            Retryable.retry(integer -> {
+                attempts.add(integer);
+                return 1 == integer;
             }, "testing retries", 3, 1L);
         } catch (Retryable.TooManyRetriesException e) {
             raised = true;
@@ -71,7 +64,7 @@ public class RetryableTest {
         Integer[] actual = new Integer[2];
 
         assertEquals(2, attempts.size());
-        assertArrayEquals("Should have logged all attempts", expected, attempts.toArray(actual));
-        assertFalse("Should not have thrown Retryable.TooManyRetriesException", raised);
+        assertArrayEquals(expected, attempts.toArray(actual), "Should have logged all attempts");
+        assertFalse(raised, "Should not have thrown Retryable.TooManyRetriesException");
     }
 }

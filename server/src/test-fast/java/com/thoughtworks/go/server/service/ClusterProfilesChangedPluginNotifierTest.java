@@ -28,14 +28,16 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
+@ExtendWith(MockitoExtension.class)
 class ClusterProfilesChangedPluginNotifierTest {
     @Mock
     private GoConfigService goConfigService;
@@ -54,7 +56,6 @@ class ClusterProfilesChangedPluginNotifierTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this);
         pluginId = "plugin-id";
         when(goConfigService.getElasticConfig()).thenReturn(new ElasticConfig());
         properties = new ArrayList<>();

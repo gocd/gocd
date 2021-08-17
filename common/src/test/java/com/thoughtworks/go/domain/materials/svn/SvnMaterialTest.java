@@ -70,7 +70,7 @@ public class SvnMaterialTest {
         when(subversion.getUserName()).thenReturn("");
         when(subversion.isCheckExternals()).thenReturn(false);
 
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
+        svnMaterial = new SvnMaterial(subversion);
         svnMaterial.setUrl(URL);
     }
 

@@ -104,6 +104,14 @@ public class SvnTestRepo extends TestRepo {
         return material;
     }
 
+    public String latestRevision() throws IOException {
+        return getLatestRevision(material()).getRevision();
+    }
+
+    public String end2ndRepositoryLatestRevision() throws IOException {
+        return getLatestRevision(new SvnMaterial(end2endRepositoryUrl(), null, null, false)).getRevision();
+    }
+
     private Revision getLatestRevision(SvnMaterial svnMaterial) throws IOException {
         final File workingCopy = temporaryFolder.newFolder();
         tmpFolders.add(workingCopy);
@@ -150,7 +158,6 @@ public class SvnTestRepo extends TestRepo {
         final File workingCopy = temporaryFolder.newFolder();
         return material().latestModification(workingCopy, new TestSubprocessExecutionContext());
     }
-
 
     public void checkInOneFile(String fileName, SvnMaterial svnMaterial) throws Exception {
         final File baseDir = temporaryFolder.newFolder();

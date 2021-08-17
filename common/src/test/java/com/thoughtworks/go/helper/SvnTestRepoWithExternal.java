@@ -83,7 +83,7 @@ public class SvnTestRepoWithExternal extends SvnTestRepo {
         try {
             SvnCommand repository = getSvnExternalCommand(externalUrl, false);
             repository.checkoutTo(outputStreamConsumer, folder, SubversionRevision.HEAD);
-            repository.propset(folder, "newPropetyForExternal", "any value");
+            repository.propset(folder, "newPropertyForExternal", "any value");
             repository.commit(inMemoryConsumer(), folder, "make change");
         } finally {
             FileUtils.deleteQuietly(folder);

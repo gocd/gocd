@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.matchers.UploadEntry;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
@@ -40,7 +41,6 @@ import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.utils.SvnRepoFixture;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -61,10 +61,8 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @EnableRuleMigrationSupport
@@ -75,7 +73,7 @@ public class BuildWorkArtifactUploadingTest {
     private static final String AGENT_UUID = "uuid";
     private EnvironmentVariableContext environmentVariableContext;
     private SvnMaterial svnMaterial;
-    private SvnRepoFixture svnRepoFixture;
+    private SvnTestRepo repo;
 
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
@@ -95,12 +93,11 @@ public class BuildWorkArtifactUploadingTest {
     public void setUp() throws IOException {
         buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
         environmentVariableContext = new EnvironmentVariableContext();
-        svnRepoFixture = new SvnRepoFixture("../common/src/test/resources/data/svnrepo", temporaryFolder);
-        svnRepoFixture.createRepository();
-        SvnCommand command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
+        repo = new SvnTestRepo(temporaryFolder);
+        SvnCommand command = new SvnCommand(null, repo.end2endRepositoryUrl());
 
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(command);
+        svnMaterial = new SvnMaterial(command);
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
     }
 
@@ -352,8 +349,7 @@ public class BuildWorkArtifactUploadingTest {
 
     private MaterialRevisions materialRevisions() throws IOException {
         MaterialRevision svnRevision = new MaterialRevision(this.svnMaterial,
-                ModificationsMother.oneModifiedFile(
-                        svnRepoFixture.getHeadRevision(svnRepoFixture.getEnd2EndRepoUrl())));
+                ModificationsMother.oneModifiedFile(repo.end2ndRepositoryLatestRevision()));
         return new MaterialRevisions(svnRevision);
     }
 

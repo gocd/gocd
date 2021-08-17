@@ -37,26 +37,26 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.ModificationsMother;
+import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.utils.SvnRepoFixture;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
-import static com.thoughtworks.go.config.materials.svn.SvnMaterial.createSvnMaterialWithMock;
 import static com.thoughtworks.go.helper.MaterialsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,23 +70,21 @@ public class BuildAssignmentTest {
     private static final String STAGE_NAME = "first";
     private static final String PIPELINE_NAME = "cruise";
     private static final String TRIGGERED_BY_USER = "approver";
-    private File dir;
     private SvnCommand command;
     private HgTestRepo hgTestRepo;
     private HgMaterial hgMaterial;
     private SvnMaterial svnMaterial;
     private DependencyMaterial dependencyMaterial;
     private DependencyMaterial dependencyMaterialWithName;
-    private SvnRepoFixture svnRepoFixture;
+    private SvnTestRepo svnRepoFixture;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp(@TempDir Path tempDir) throws IOException {
         temporaryFolder.create();
-        dir = temporaryFolder.newFolder("someFolder");
-        svnRepoFixture = new SvnRepoFixture("../common/src/test/resources/data/svnrepo", temporaryFolder);
-        svnRepoFixture.createRepository();
-        command = new SvnCommand(null, svnRepoFixture.getEnd2EndRepoUrl());
-        svnMaterial = createSvnMaterialWithMock(command);
+        svnRepoFixture = new SvnTestRepo(temporaryFolder);
+
+        command = new SvnCommand(null, svnRepoFixture.end2endRepositoryUrl());
+        svnMaterial = new SvnMaterial(command);
         dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream1"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
@@ -309,7 +307,6 @@ public class BuildAssignmentTest {
 
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][token]}}");
             k1.getSecretParams().get(0).setValue("resolved-value");
-            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
             PackageMaterial packageMaterial = packageMaterial();
             MaterialRevision gitRevision = new MaterialRevision(packageMaterial, new Modification());
             BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
@@ -326,8 +323,8 @@ public class BuildAssignmentTest {
     private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext, BuildCause buildCause) {
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         List<Builder> builders = new ArrayList<>();
-        builders.add(new CommandBuilder("ls", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
-        return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
+        builders.add(new CommandBuilder("ls", "", null, new RunIfConfigs(), new NullBuilder(), ""));
+        return BuildAssignment.create(plan, buildCause, builders, null, environmentVariableContext, new ArtifactStores());
     }
 
     private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {
@@ -338,15 +335,13 @@ public class BuildAssignmentTest {
 
     private MaterialRevisions materialRevisions() throws IOException {
         MaterialRevision svnRevision = new MaterialRevision(this.svnMaterial,
-                ModificationsMother.oneModifiedFile(
-                        svnRepoFixture.getHeadRevision(svnRepoFixture.getEnd2EndRepoUrl())));
+                ModificationsMother.oneModifiedFile(svnRepoFixture.end2ndRepositoryLatestRevision()));
 
-        SvnMaterial svnMaterialForExternal = createSvnMaterialWithMock(new SvnCommand(null, svnRepoFixture.getExternalRepoUrl()));
+        SvnMaterial svnMaterialForExternal = new SvnMaterial(new SvnCommand(null, svnRepoFixture.projectRepositoryUrl()));
         String folder = this.svnMaterial.getFolder() == null ? "external" : this.svnMaterial.getFolder() + "/" + "external";
         svnMaterialForExternal.setFolder(folder);
         MaterialRevision svnExternalRevision = new MaterialRevision(svnMaterialForExternal,
-                ModificationsMother.oneModifiedFile(
-                        svnRepoFixture.getHeadRevision(svnRepoFixture.getExternalRepoUrl())));
+                ModificationsMother.oneModifiedFile(svnRepoFixture.latestRevision()));
 
         MaterialRevision hgRevision = new MaterialRevision(hgMaterial,
                 ModificationsMother.oneModifiedFile(hgTestRepo.latestModifications().get(0).getRevision()));

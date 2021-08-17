@@ -147,14 +147,14 @@ public class MultipleMaterialsWithFilterTest {
             configHelper.initializeConfigFile();
 
             svnTestRepo1 = new SvnTestRepo(temporaryFolder);
-            svnMaterial1 = SvnMaterial.createSvnMaterialWithMock(new SvnCommand(null, svnTestRepo1.projectRepositoryUrl()));
+            svnMaterial1 = new SvnMaterial(new SvnCommand(null, svnTestRepo1.projectRepositoryUrl()));
             svnMaterial1.setFolder(firstMaterialFolder);
             if (filterForFirstMaterial != null) {
                 svnMaterial1.setFilter(new Filter(new IgnoredFiles(filterForFirstMaterial)));
             }
 
             svnTestRepo2 = new SvnTestRepo(temporaryFolder);
-            svnMaterial2 = SvnMaterial.createSvnMaterialWithMock(new SvnCommand(null, svnTestRepo2.projectRepositoryUrl()));
+            svnMaterial2 = new SvnMaterial(new SvnCommand(null, svnTestRepo2.projectRepositoryUrl()));
             svnMaterial2.setFolder(secondMaterialFolder);
 
             configHelper.addPipeline(pipelineName, devStage, new MaterialConfigs(svnMaterial1.config(), svnMaterial2.config()), jobsOfDevStage);

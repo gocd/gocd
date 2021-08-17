@@ -225,7 +225,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     private BuildCause buildCause() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
-        SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svnMaterial = new SvnMaterial(repository);
         materialRevisions.addRevision(svnMaterial, svnMaterial.latestModification(null, subprocessExecutionContext));
         return BuildCause.createWithModifications(materialRevisions, "");
     }
@@ -249,7 +249,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private void preparePipelineWithMaterial() throws Exception {
-        SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svnMaterial = new SvnMaterial(repository);
         ReflectionUtil.setField(svnMaterial, ScmMaterialConfig.FOLDER, "asc");
         ReflectionUtil.invoke(svnMaterial, "resetCachedIdentityAttributes");
 

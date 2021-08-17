@@ -63,7 +63,7 @@ public class SvnMaterialMockitoTest {
 
         String url = "file://" + workingCopy.getPath();
         when(subversion.getUrl()).thenReturn(new UrlArgument(url));
-        SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
+        SvnMaterial svnMaterial = new SvnMaterial(subversion);
         svnMaterial.setUrl(url);
         svnMaterial.updateTo(outputStreamConsumer, workingCopy, new RevisionContext(revision), new TestSubprocessExecutionContext());
 

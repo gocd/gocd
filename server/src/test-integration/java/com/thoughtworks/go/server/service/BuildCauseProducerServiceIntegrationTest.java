@@ -174,11 +174,11 @@ public class BuildCauseProducerServiceIntegrationTest {
         goPipelineConfig = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
 
         svnMaterialRevs = new MaterialRevisions();
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        svnMaterial = new SvnMaterial(repository);
         svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
         final MaterialRevisions materialRevisions = new MaterialRevisions();
-        SvnMaterial anotherSvnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial anotherSvnMaterial = new SvnMaterial(repository);
         materialRevisions.addRevision(anotherSvnMaterial, anotherSvnMaterial.latestModification(null, subprocessExecutionContext));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -232,7 +232,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldSchedulePipeline() throws Exception {
-        checkinFile(SvnMaterial.createSvnMaterialWithMock(repository), "a.java", svnRepository);
+        checkinFile(new SvnMaterial(repository), "a.java", svnRepository);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(MINGLE_PIPELINE_NAME);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(new CaseInsensitiveString(MINGLE_PIPELINE_NAME)));
     }
@@ -312,7 +312,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     public void shouldUnderstandChangedMaterial_forCompatibleRevisionsBeingSelectedForChangedMaterials_whenTriggeringTheFirstTime() throws Exception {
         DependencyMaterialConfig mingleMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(MINGLE_PIPELINE_NAME), new CaseInsensitiveString(STAGE_NAME));
         String mingleDownstreamPipelineName = "down_of_mingle";
-        SvnMaterial svn = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svn = new SvnMaterial(repository);
 
         runAndPassWith(svn, "foo.c", svnRepository);
 
@@ -334,7 +334,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldUnderstandChangedMaterial_forBisectAfterBisect() throws Exception {
-        SvnMaterial svn = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svn = new SvnMaterial(repository);
 
         runAndPassWith(svn, "foo.c", svnRepository);
         MaterialRevisions revsAfterFoo = checkinFile(svn, "foo_other.c", svnRepository);
@@ -356,7 +356,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldUnderstandChangedMaterial_forManual_triggerWithOptions_DoneWithANewRevision() throws Exception {
-        SvnMaterial svn = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svn = new SvnMaterial(repository);
 
         MaterialRevisions revsAfterFoo = checkinFile(svn, "foo.c", svnRepository);
 
@@ -373,14 +373,14 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void should_NOT_markAsChangedWhenMaterialIsReIntroducedWithSameRevisionsToPipeline() throws Exception {
-        SvnMaterial svn1 = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svn1 = new SvnMaterial(repository);
         svn1.setFolder("another_repo");
         mingleConfig = configHelper.replaceMaterialForPipeline(MINGLE_PIPELINE_NAME, svn1.config());
         runAndPassWith(svn1, "foo.c", svnRepository);
 
         SvnTestRepo svn2Repository = new SvnTestRepo(temporaryFolder);
         Subversion repository2 = new SvnCommand(null, svn2Repository.projectRepositoryUrl());
-        SvnMaterial svn2 = SvnMaterial.createSvnMaterialWithMock(repository2);
+        SvnMaterial svn2 = new SvnMaterial(repository2);
         svn2.setFolder("boulder");
 
         checkinFile(svn2, "bar.c", svn2Repository);
@@ -418,7 +418,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void should_produceBuildCause_whenMaterialConfigurationChanges() throws Exception {
-        SvnMaterial svn1 = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial svn1 = new SvnMaterial(repository);
         mingleConfig = configHelper.replaceMaterialForPipeline(MINGLE_PIPELINE_NAME, svn1.config());
         runAndPassWith(svn1, "foo.c", svnRepository);
 

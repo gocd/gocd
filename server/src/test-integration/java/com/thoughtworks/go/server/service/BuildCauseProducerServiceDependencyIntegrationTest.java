@@ -206,11 +206,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 
         svnMaterialRevs = new MaterialRevisions();
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        svnMaterial = new SvnMaterial(repository);
         svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
         final MaterialRevisions materialRevisions = new MaterialRevisions();
-        SvnMaterial anotherSvnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial anotherSvnMaterial = new SvnMaterial(repository);
         materialRevisions.addRevision(anotherSvnMaterial, anotherSvnMaterial.latestModification(null, subprocessExecutionContext));
 
         gitTestRepo = new GitTestRepo(temporaryFolder);

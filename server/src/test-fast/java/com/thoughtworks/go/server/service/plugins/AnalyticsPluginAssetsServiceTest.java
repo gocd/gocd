@@ -51,6 +51,9 @@ import static org.mockito.Mockito.*;
 public class AnalyticsPluginAssetsServiceTest {
     private static final String PLUGIN_ID = "plugin_id";
 
+    @TempDir
+    File railsRoot;
+
     @Mock
     private ServletContext servletContext;
     @Mock
@@ -61,8 +64,6 @@ public class AnalyticsPluginAssetsServiceTest {
     private SystemEnvironment systemEnvironment;
 
     private AnalyticsPluginAssetsService assetsService;
-    @TempDir
-    File railsRoot;
     private AnalyticsMetadataStore metadataStore;
 
     @BeforeEach
@@ -72,13 +73,6 @@ public class AnalyticsPluginAssetsServiceTest {
         metadataStore = AnalyticsMetadataStore.instance();
 
         lenient().when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn("some-nonexistent-directory");
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        if (railsRoot != null && railsRoot.exists()) {
-            FileUtils.deleteQuietly(railsRoot);
-        }
     }
 
     @Test

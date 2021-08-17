@@ -24,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -48,7 +49,9 @@ public class AgentAutoRegistrationPropertiesImplTest {
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "foo, zoo");
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "foo, bar");
         properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
-        properties.store(new FileOutputStream(configFile), "");
+        try (OutputStream out = new FileOutputStream(configFile)) {
+            properties.store(out, "");
+        }
 
         AgentAutoRegistrationProperties reader = new AgentAutoRegistrationPropertiesImpl(configFile);
         assertThat(reader.agentAutoRegisterKey()).isEqualTo("foo");

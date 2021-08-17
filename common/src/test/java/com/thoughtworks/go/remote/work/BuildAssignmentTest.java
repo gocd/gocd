@@ -80,8 +80,7 @@ public class BuildAssignmentTest {
 
     @BeforeEach
     void setUp(@TempDir Path tempDir) throws IOException {
-        temporaryFolder.create();
-        svnRepoFixture = new SvnTestRepo(temporaryFolder);
+        svnRepoFixture = new SvnTestRepo(tempDir);
 
         command = new SvnCommand(null, svnRepoFixture.end2endRepositoryUrl());
         svnMaterial = new SvnMaterial(command);

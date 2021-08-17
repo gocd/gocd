@@ -20,14 +20,12 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.util.command.*;
 import org.jdom2.input.SAXBuilder;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -35,6 +33,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,18 +45,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class SvnCommandTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
-    public static SvnTestRepo testRepo;
+    private static SvnTestRepo testRepo;
     private static final DotSvnIgnoringFilter DOT_SVN_IGNORING_FILTER = new DotSvnIgnoringFilter();
 
     private String svnRepositoryUrl;
     private File checkoutFolder;
-    protected SvnCommand subversion;
-    protected ProcessOutputStreamConsumer outputStreamConsumer;
+    private SvnCommand subversion;
+    private ProcessOutputStreamConsumer outputStreamConsumer;
     private final String svnInfoOutput = "<?xml version=\"1.0\"?>\n"
             + "<info>\n"
             + "<entry\n"
@@ -78,11 +77,11 @@ public class SvnCommandTest {
 
     @BeforeEach
     void setup() throws IOException {
-        testRepo = new SvnTestRepo(temporaryFolder);
+        testRepo = new SvnTestRepo(tempDir);
         svnRepositoryUrl = testRepo.projectRepositoryUrl();
         subversion = new SvnCommand(null, svnRepositoryUrl, "user", "pass", false);
         outputStreamConsumer = inMemoryConsumer();
-        checkoutFolder = temporaryFolder.newFolder("workingcopy");
+        checkoutFolder = Files.createDirectory(tempDir.resolve("workingcopy")).toFile();
     }
 
     @AfterEach
@@ -93,8 +92,8 @@ public class SvnCommandTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldRecogniseSvnAsTheSameIfURLContainsSpaces() throws Exception {
-        File working = temporaryFolder.newFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
-        SvnTestRepo repo = new SvnTestRepo(temporaryFolder, "a directory with spaces");
+        File working = Files.createDirectory(tempDir.resolve("shouldRecogniseSvnAsTheSameIfURLContainsSpaces")).toFile();
+        SvnTestRepo repo = new SvnTestRepo(tempDir, "a directory with spaces");
         SvnMaterial material = repo.material();
         assertThat(material.getUrl()).contains("%20");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
@@ -110,8 +109,8 @@ public class SvnCommandTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldRecogniseSvnAsTheSameIfURLUsesFileProtocol() throws Exception {
-        SvnTestRepo repo = new SvnTestRepo(temporaryFolder);
-        File working = temporaryFolder.newFolder("someDir");
+        SvnTestRepo repo = new SvnTestRepo(tempDir);
+        File working = Files.createDirectory(tempDir.resolve("someDir")).toFile();
         SvnMaterial material = repo.material();
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         material.freshCheckout(output, new SubversionRevision("3"), working);
@@ -127,12 +126,11 @@ public class SvnCommandTest {
         material.updateTo(output2, working, new RevisionContext(revision), new TestSubprocessExecutionContext());
     }
 
-
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldRecogniseSvnAsTheSameIfURLContainsChineseCharacters() throws Exception {
-        File working = temporaryFolder.newFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
-        SvnTestRepo repo = new SvnTestRepo(temporaryFolder, "a directory with 司徒空在此");
+        File working = Files.createDirectory(tempDir.resolve("shouldRecogniseSvnAsTheSameIfURLContainsSpaces")).toFile();
+        SvnTestRepo repo = new SvnTestRepo(tempDir, "a directory with 司徒空在此");
         SvnMaterial material = repo.material();
         assertThat(material.getUrl()).contains("%20");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
@@ -144,7 +142,6 @@ public class SvnCommandTest {
         assertThat(output2.getAllOutput()).contains("Updated to revision 4");
 
     }
-
 
     @Test
     void shouldFilterModifiedFilesByRepositoryURL() {

@@ -22,18 +22,41 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 public abstract class TestRepo {
+    private static final String DIR_PREFIX = "testRepo";
 
     protected static List<File> tmpFolders = new ArrayList<>();
 
-    protected final TemporaryFolder temporaryFolder;
+    protected TemporaryFolder temporaryFolder;
+    private Path tempDir;
 
+    @Deprecated
     public TestRepo(TemporaryFolder temporaryFolder) {
         this.temporaryFolder = temporaryFolder;
+    }
+
+    public TestRepo(Path tempDir) {
+        this.tempDir = tempDir;
+    }
+
+    public Path createTempFolder() throws IOException {
+        return createTempFolder(null);
+    }
+
+    public Path createTempFolder(String folderName) throws IOException {
+        if (isBlank(folderName)) {
+            return Files.createTempDirectory(tempDir, DIR_PREFIX);
+        } else {
+            return Files.createDirectory(tempDir.resolve(folderName));
+        }
     }
 
     public static void internalTearDown() {

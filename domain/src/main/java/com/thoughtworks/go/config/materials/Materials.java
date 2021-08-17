@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -72,9 +73,7 @@ public class Materials extends BaseCollection<Material> {
         return intervalInSeconds;
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public MaterialRevisions latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
         MaterialRevisions revisions = new MaterialRevisions();
         for (Material material : this) {

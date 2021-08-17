@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import java.io.IOException;
-
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class MaterialDatabaseSvnUpdaterTest extends TestBaseForDatabaseUpdater {
     @Override
@@ -29,7 +30,7 @@ public class MaterialDatabaseSvnUpdaterTest extends TestBaseForDatabaseUpdater {
     }
 
     @Override
-    protected TestRepo repo() throws IOException {
-        return new SvnTestRepo(temporaryFolder);
+    protected TestRepo repo(Path tempDir) throws IOException {
+        return new SvnTestRepo(tempDir);
     }
 }

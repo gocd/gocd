@@ -23,34 +23,33 @@ import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@EnableRuleMigrationSupport
 public class SvnMultipleMaterialsTest {
     private SvnTestRepo repo;
     private File pipelineDir;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
     @BeforeEach
     public void createRepo() throws IOException {
-        repo = new SvnTestRepo(temporaryFolder);
-        pipelineDir = temporaryFolder.newFolder();
+        repo = new SvnTestRepo(tempDir);
+        pipelineDir = Files.createDirectory(tempDir.resolve("pipeline")).toFile();
     }
 
     @AfterEach

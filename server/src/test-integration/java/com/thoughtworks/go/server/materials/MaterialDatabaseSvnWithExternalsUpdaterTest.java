@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,7 +39,7 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
     }
 
     @Override
-    protected TestRepo repo() throws IOException {
+    protected TestRepo repo(Path tempDir) throws IOException {
         testRepoWithExternal = new SvnTestRepoWithExternal(temporaryFolder);
         return testRepoWithExternal;
     }

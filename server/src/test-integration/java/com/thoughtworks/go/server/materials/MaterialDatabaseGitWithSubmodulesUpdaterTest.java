@@ -20,9 +20,12 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDatabaseUpdater {
 
@@ -32,7 +35,7 @@ public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDat
     }
 
     @Override
-    protected TestRepo repo() throws Exception {
+    protected TestRepo repo(Path tempDir) throws Exception {
         GitRepoContainingSubmodule testRepoWithExternal = new GitRepoContainingSubmodule(temporaryFolder);
         testRepoWithExternal.addSubmodule("submodule-1", "sub1");
         return testRepoWithExternal;

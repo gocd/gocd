@@ -27,15 +27,18 @@ import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @EnableRuleMigrationSupport
 public class MixedMultipleMaterialsTest {
@@ -48,11 +51,11 @@ public class MixedMultipleMaterialsTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    public void createRepo() throws IOException {
-        svnRepo = new SvnTestRepo(temporaryFolder);
+    public void createRepo(@TempDir Path tempDir) throws IOException {
+        svnRepo = new SvnTestRepo(tempDir);
         hgRepo = new HgTestRepo(temporaryFolder);
         gitRepo = new GitTestRepo(temporaryFolder);
-        pipelineDir = temporaryFolder.newFolder();
+        pipelineDir = Files.createDirectory(tempDir.resolve("pipeline")).toFile();
     }
 
     @AfterEach
@@ -62,7 +65,7 @@ public class MixedMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldGetLatestModifications() throws Exception {
+    public void shouldGetLatestModifications() {
         HgMaterial hgMaterial = hgRepo.material();
         SvnMaterial svnMaterial = svnRepo.createMaterial("multiple-materials/trunk/part1", "part1");
 
@@ -78,7 +81,7 @@ public class MixedMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldGetLatestModificationswithThreeRepositories() throws Exception {
+    public void shouldGetLatestModificationsWithThreeRepositories() {
         HgMaterial hgMaterial = hgRepo.material();
         SvnMaterial svnMaterial = svnRepo.createMaterial("multiple-materials/trunk/part1", "part1");
         GitMaterial gitMaterial = gitRepo.createMaterial();

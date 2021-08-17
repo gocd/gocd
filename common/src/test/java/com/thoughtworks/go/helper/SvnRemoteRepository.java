@@ -22,11 +22,11 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -38,9 +38,8 @@ public class SvnRemoteRepository {
     public InMemoryStreamConsumer consumer;
     public int port;
 
-    public SvnRemoteRepository(TemporaryFolder temporaryFolder) throws IOException {
-        this.repo = new SvnTestRepo(temporaryFolder);
-
+    public SvnRemoteRepository(Path tempDir) throws IOException {
+        this.repo = new SvnTestRepo(tempDir);
     }
 
     public void start() throws Exception {
@@ -90,11 +89,6 @@ public class SvnRemoteRepository {
             processWrapper.waitForExit();
             processWrapper = null;
         }
-    }
-
-    public void tearDown() throws Exception {
-        stop();
-        repo.tearDown();
     }
 
     public String getUrl() {

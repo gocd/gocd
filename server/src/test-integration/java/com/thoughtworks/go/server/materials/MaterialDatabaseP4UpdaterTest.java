@@ -21,6 +21,7 @@ import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class MaterialDatabaseP4UpdaterTest extends TestBaseForDatabaseUpdater {
     @Override
@@ -29,7 +30,7 @@ public class MaterialDatabaseP4UpdaterTest extends TestBaseForDatabaseUpdater {
     }
 
     @Override
-    protected TestRepo repo() throws IOException {
+    protected TestRepo repo(Path tempDir) throws IOException {
         return P4TestRepo.createP4TestRepo(temporaryFolder, temporaryFolder.newFolder());
     }
 

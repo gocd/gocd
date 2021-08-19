@@ -31,24 +31,24 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
 import java.sql.SQLException;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -56,7 +56,6 @@ import static org.mockito.Mockito.when;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class StageNotificationServiceIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private UserDao userDao;
@@ -69,8 +68,6 @@ public class StageNotificationServiceIntegrationTest {
     @Autowired private StageResultTopic stageResultTopic;
     @Autowired private ServerConfigService serverConfigService;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages pipelineFixture;
 
@@ -82,7 +79,7 @@ public class StageNotificationServiceIntegrationTest {
     private StageService stageService;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
 
         stageService = mock(StageService.class);
         stageNotificationService = new StageNotificationService(pipelineService, userService,inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
@@ -93,7 +90,7 @@ public class StageNotificationServiceIntegrationTest {
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         configFileHelper.enableSecurity();
 

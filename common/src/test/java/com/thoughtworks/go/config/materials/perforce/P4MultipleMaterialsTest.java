@@ -22,45 +22,40 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
+import com.thoughtworks.go.util.TempDirUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-
-@EnableRuleMigrationSupport
 public class P4MultipleMaterialsTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public static final String DEFAULT_CLIENT_NAME = "p4test_2";
 
     protected P4Client p4;
     protected File clientFolder;
-    public static final String DEFAULT_CLIENT_NAME = "p4test_2";
     protected P4Fixture p4Fixture;
 
     private static final String VIEW_SRC = "//depot/src/... //something/...";
     private static final String VIEW_LIB = "//depot/lib/... //something/...";
 
     P4TestRepo p4TestRepo;
-    @BeforeEach
-    public void setUp() throws Exception {
-        p4Fixture = new P4Fixture();
 
-        clientFolder = temporaryFolder.newFolder();
-        p4TestRepo = createTestRepo();
+    @BeforeEach
+    public void setUp(@TempDir Path tempDir) throws Exception {
+        p4Fixture = new P4Fixture();
+        clientFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+        p4TestRepo = createTestRepo(tempDir);
         p4Fixture.setRepo(p4TestRepo);
-        clientFolder = temporaryFolder.newFolder("p4Client");
         p4 = P4Client.fromServerAndPort(null, p4Fixture.port(), "cceuser", null, DEFAULT_CLIENT_NAME, false, clientFolder, "", inMemoryConsumer(), true);
         p4TestRepo.onSetup();
         p4Fixture.start();
@@ -68,17 +63,17 @@ public class P4MultipleMaterialsTest {
 
 
     @AfterEach
-    public void stopP4Server() throws IOException {
+    public void stopP4Server() {
         try {
             FileUtils.deleteDirectory(clientFolder);
             p4Fixture.stop(p4);
-        } catch (IOException e) {
+        } catch (IOException ignore) {
 
         }
     }
 
-    protected P4TestRepo createTestRepo() throws Exception {
-        P4TestRepo repo = P4TestRepo.createP4TestRepo(temporaryFolder, clientFolder);
+    protected P4TestRepo createTestRepo(Path tempDir) throws Exception {
+        P4TestRepo repo = P4TestRepo.createP4TestRepo(tempDir, clientFolder);
         repo.onSetup();
         return repo;
     }
@@ -120,16 +115,5 @@ public class P4MultipleMaterialsTest {
         assertThat(materialRevisions.getRevisions().size(), is(2));
         assertThat(materialRevisions, containsModifiedFile("src/filename.txt"));
         assertThat(materialRevisions, containsModifiedFile("lib/filename2.txt"));
-    }
-
-   protected static String clientConfig(String clientName, File clientFolder) {
-        return "Client: " + clientName + "\n\n"
-                + "Owner: cruise\n\n"
-                + "Root: " + clientFolder.getAbsolutePath() + "\n\n"
-                + "Options: rmdir\n\n"
-                + "LineEnd: local\n\n"
-                + "View:\n"
-                + "\t//depot/... //" + clientName + "/...\n";
-
     }
 }

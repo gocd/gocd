@@ -36,22 +36,20 @@ import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
+import java.nio.file.Path;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -60,11 +58,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class MultipleMaterialsWithFilterTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
@@ -83,10 +77,10 @@ public class MultipleMaterialsWithFilterTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        fixture = new PipelineWithMultipleMaterials(materialRepository, transactionTemplate);
+        fixture = new PipelineWithMultipleMaterials(materialRepository, transactionTemplate, tempDir);
         fixture.usingFilterForFirstMaterial("**/*.doc").usingConfigHelper(configHelper).usingDbHelper(
                 dbHelper).onSetUp();
         pipelineScheduleQueue.clear();
@@ -138,22 +132,22 @@ public class MultipleMaterialsWithFilterTest {
         private String firstMaterialFolder = "svn1";
         private String secondMaterialFolder = "svn2";
 
-        public PipelineWithMultipleMaterials(MaterialRepository materialRepository, final TransactionTemplate transactionTemplate) {
-            super(materialRepository, transactionTemplate, temporaryFolder);
+        public PipelineWithMultipleMaterials(MaterialRepository materialRepository, final TransactionTemplate transactionTemplate, Path tempDir) {
+            super(materialRepository, transactionTemplate, tempDir);
         }
 
         @Override
         public void onSetUp() throws Exception {
             configHelper.initializeConfigFile();
 
-            svnTestRepo1 = new SvnTestRepo(temporaryFolder);
+            svnTestRepo1 = new SvnTestRepo(tempDir());
             svnMaterial1 = new SvnMaterial(new SvnCommand(null, svnTestRepo1.projectRepositoryUrl()));
             svnMaterial1.setFolder(firstMaterialFolder);
             if (filterForFirstMaterial != null) {
                 svnMaterial1.setFilter(new Filter(new IgnoredFiles(filterForFirstMaterial)));
             }
 
-            svnTestRepo2 = new SvnTestRepo(temporaryFolder);
+            svnTestRepo2 = new SvnTestRepo(tempDir());
             svnMaterial2 = new SvnMaterial(new SvnCommand(null, svnTestRepo2.projectRepositoryUrl()));
             svnMaterial2.setFolder(secondMaterialFolder);
 

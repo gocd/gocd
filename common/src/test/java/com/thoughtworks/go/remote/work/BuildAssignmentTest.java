@@ -38,19 +38,14 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -61,16 +56,11 @@ import static com.thoughtworks.go.helper.MaterialsMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-@EnableRuleMigrationSupport
 public class BuildAssignmentTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
     private static final String PIPELINE_NAME = "cruise";
     private static final String TRIGGERED_BY_USER = "approver";
-    private SvnCommand command;
     private HgTestRepo hgTestRepo;
     private HgMaterial hgMaterial;
     private SvnMaterial svnMaterial;
@@ -82,18 +72,11 @@ public class BuildAssignmentTest {
     void setUp(@TempDir Path tempDir) throws IOException {
         svnRepoFixture = new SvnTestRepo(tempDir);
 
-        command = new SvnCommand(null, svnRepoFixture.end2endRepositoryUrl());
-        svnMaterial = new SvnMaterial(command);
+        svnMaterial = new SvnMaterial(new SvnCommand(null, svnRepoFixture.end2endRepositoryUrl()));
         dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream1"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
-        setupHgRepo();
-    }
-
-    @AfterEach
-    void teardown() {
-        TestRepo.internalTearDown();
-        hgTestRepo.tearDown();
+        setupHgRepo(tempDir);
     }
 
     @Test
@@ -374,8 +357,8 @@ public class BuildAssignmentTest {
         return new DefaultJobPlan(new Resources(), new ArrayList<>(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
     }
 
-    private void setupHgRepo() throws IOException {
-        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
+    private void setupHgRepo(Path tempDir) throws IOException {
+        hgTestRepo = new HgTestRepo("hgTestRepo1", tempDir);
         hgMaterial = hgMaterial(hgTestRepo.projectRepositoryUrl(), "hg_Dir");
     }
 

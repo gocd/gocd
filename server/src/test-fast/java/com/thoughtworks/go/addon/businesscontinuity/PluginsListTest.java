@@ -4,18 +4,18 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,10 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@EnableRuleMigrationSupport
 public class PluginsListTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Mock
     private SystemEnvironment systemEnvironment;
@@ -36,9 +33,9 @@ public class PluginsListTest {
     private File externalPluginsDir;
 
     @BeforeEach
-    void setUp() throws Exception {
-        bundledPluginsDir = new File(temporaryFolder.newFolder(), "bundled");
-        externalPluginsDir = new File(temporaryFolder.newFolder(), "external");
+    void setUp(@TempDir Path tempDir) throws Exception {
+        bundledPluginsDir = TempDirUtils.createTempDirectoryIn(tempDir, "bundled").toFile();
+        externalPluginsDir = TempDirUtils.createTempDirectoryIn(tempDir, "external").toFile();
 
         File bundledYumPlugin = new File(bundledPluginsDir, "yum.jar");
         File externalPlugin1 = new File(externalPluginsDir, "external1.jar");

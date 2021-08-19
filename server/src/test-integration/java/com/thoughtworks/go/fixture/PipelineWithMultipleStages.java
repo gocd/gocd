@@ -24,7 +24,8 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.rules.TemporaryFolder;
+
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 
@@ -32,8 +33,8 @@ public class PipelineWithMultipleStages extends PipelineWithTwoStages implements
     private int stagesSize;
     private String[] stageNames;
 
-    public PipelineWithMultipleStages(int stagesSize, MaterialRepository materialRepository, final TransactionTemplate transactionTemplate, TemporaryFolder temporaryFolder) {
-        super(materialRepository, transactionTemplate, temporaryFolder);
+    public PipelineWithMultipleStages(int stagesSize, MaterialRepository materialRepository, final TransactionTemplate transactionTemplate, Path tempDir) {
+        super(materialRepository, transactionTemplate, tempDir);
         bombIf(stagesSize < 2, "Illegal stagesSize: " + stagesSize + ", at lease 2");
         this.stagesSize = stagesSize;
         this.stageNames = new String[stagesSize];

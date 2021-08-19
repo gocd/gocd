@@ -17,62 +17,31 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import org.apache.commons.io.FileUtils;
-import org.junit.rules.TemporaryFolder;
+import com.thoughtworks.go.util.TempDirUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 public abstract class TestRepo {
-    private static final String DIR_PREFIX = "testRepo";
-
-    protected static List<File> tmpFolders = new ArrayList<>();
-
-    protected TemporaryFolder temporaryFolder;
     private Path tempDir;
-
-    @Deprecated
-    public TestRepo(TemporaryFolder temporaryFolder) {
-        this.temporaryFolder = temporaryFolder;
-    }
 
     public TestRepo(Path tempDir) {
         this.tempDir = tempDir;
     }
 
-    public Path createTempFolder() throws IOException {
-        return createTempFolder(null);
+    public Path createRandomTempDirectory() throws IOException {
+        return TempDirUtils.createRandomDirectoryIn(tempDir);
     }
 
-    public Path createTempFolder(String folderName) throws IOException {
-        if (isBlank(folderName)) {
-            return Files.createTempDirectory(tempDir, DIR_PREFIX);
-        } else {
-            return Files.createDirectory(tempDir.resolve(folderName));
-        }
-    }
-
-    public static void internalTearDown() {
-        for (File tmpFolder : tmpFolders) {
-            FileUtils.deleteQuietly(tmpFolder);
-        }
+    public Path createTempDirectory(String folderName) throws IOException {
+        return TempDirUtils.createTempDirectoryIn(tempDir, folderName);
     }
 
     public abstract String projectRepositoryUrl();
 
     public void tearDown() {
-        TestRepo.internalTearDown();
-        onTearDown();
-    }
-
-    public void onTearDown() {
     }
 
     public abstract List<Modification> checkInOneFile(String fileName, String comment) throws Exception;

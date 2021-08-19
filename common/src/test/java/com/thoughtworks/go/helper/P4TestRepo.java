@@ -24,17 +24,19 @@ import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.util.ProcessWrapper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -53,14 +55,14 @@ public class P4TestRepo extends TestRepo {
     private File clientFolder;
 
     private P4TestRepo(int port, String repoPrototype, String user, String password, String clientName,
-                       boolean useTickets, TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
-        super(temporaryFolder);
+                       boolean useTickets, Path tempDir, File clientFolder) throws IOException {
+        super(tempDir);
         this.port = port;
         this.user = user;
         this.password = password;
         this.clientName = clientName;
         this.useTickets = useTickets;
-        tempRepo = temporaryFolder.newFolder();
+        tempRepo = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         this.clientFolder = clientFolder;
         try {
             copyDirectory(new File(repoPrototype), tempRepo);
@@ -86,9 +88,15 @@ public class P4TestRepo extends TestRepo {
     }
 
     @Override
-    public void onTearDown() {
+    public void tearDown() {
         Process process = (Process) ReflectionUtil.getField(p4dProcess, "process");
         process.destroy();
+        try {
+            process.waitFor(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
         FileUtils.deleteQuietly(tempRepo);
         FileUtils.deleteQuietly(clientFolder);
     }
@@ -112,7 +120,7 @@ public class P4TestRepo extends TestRepo {
 
     @Override
     public List<Modification> latestModification() throws IOException {
-        File workingDir = temporaryFolder.newFolder();
+        File workingDir = createTempDirectory("working-dir").toFile();
         return createMaterial().latestModification(workingDir, new TestSubprocessExecutionContext());
     }
 
@@ -122,7 +130,7 @@ public class P4TestRepo extends TestRepo {
         command.run(outputStreamConsumer, null);
     }
 
-    private ProcessWrapper startP4dInRepo(File tempRepo) throws IOException, CheckedCommandLineException {
+    private ProcessWrapper startP4dInRepo(File tempRepo) {
         CommandLine command = createCommandLine("p4d").withArgs("-C0", "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port)).withEncoding("utf-8");
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
         return command.execute(outputStreamConsumer, new EnvironmentVariableContext(), null);
@@ -132,20 +140,20 @@ public class P4TestRepo extends TestRepo {
         return "localhost:" + port;
     }
 
-    public static P4TestRepo createP4TestRepo(TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
+    public static P4TestRepo createP4TestRepo(Path tempDir, File clientFolder) throws IOException {
         String repo = "../common/src/test/resources/data/p4repo";
         if (SystemUtils.IS_OS_WINDOWS) {
             repo = "../common/src/test/resources/data/p4repoWindows";
         }
-        return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false, temporaryFolder, clientFolder);
+        return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false, tempDir, clientFolder);
     }
 
-    public static P4TestRepo createP4TestRepoWithTickets(TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
+    public static P4TestRepo createP4TestRepoWithTickets(Path tempDir, File clientFolder) throws IOException {
         String repo = "../common/src/test/resources/data/p4TicketedRepo";
         if (SystemUtils.IS_OS_WINDOWS) {
             repo = "../common/src/test/resources/data/p4TicketedRepoWindows";
         }
-        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), repo, "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true, temporaryFolder, clientFolder);
+        return new P4TestRepo(RandomPort.find("P4TestRepoWithTickets"), repo, "cceuser", "1234abcd", PerforceFixture.DEFAULT_CLIENT_NAME, true, tempDir, clientFolder);
     }
 
     public P4Material material(String p4view) {
@@ -180,7 +188,7 @@ public class P4TestRepo extends TestRepo {
     }
 
     private List<Modification> checkInOneFile(P4Material p4Material1, String fileName, String comment) throws Exception {
-        File workingDir = temporaryFolder.newFolder();
+        File workingDir = createRandomTempDirectory().toFile();
 
         P4Client client = createClient();
 

@@ -9,13 +9,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.methods.HttpGet;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,6 +23,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Map;
 
@@ -36,11 +35,11 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SystemStubsExtension.class)
-@EnableRuleMigrationSupport
 public class PrimaryServerCommunicationServiceTest {
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
+
     @SystemStub
     private SystemProperties systemProperties;
 
@@ -107,7 +106,7 @@ public class PrimaryServerCommunicationServiceTest {
         httpClientMock.onGet("https://localhost:1234/go/add-on/business-continuity/api/cruise_config")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturn(200, fileContent);
-        File fileOnStandby = temporaryFolder.newFile("cruise-config.xml");
+        File fileOnStandby = tempDir.resolve("cruise-config.xml").toFile();
 
         primaryServerCommunicationService.downloadConfigFile(ConfigFileType.CRUISE_CONFIG_XML, fileOnStandby);
 
@@ -119,8 +118,7 @@ public class PrimaryServerCommunicationServiceTest {
         httpClientMock.onGet("https://localhost:1234/go/add-on/business-continuity/api/cruise_config")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturnStatus(400);
-        File fileOnStandby = temporaryFolder.newFile("cruise-config.xml");
-        fileOnStandby.delete();
+        File fileOnStandby = tempDir.resolve("cruise-config.xml").toFile();
 
         assertThat(fileOnStandby).doesNotExist();
         assertThatCode(() -> primaryServerCommunicationService.downloadConfigFile(ConfigFileType.CRUISE_CONFIG_XML, fileOnStandby))
@@ -135,8 +133,7 @@ public class PrimaryServerCommunicationServiceTest {
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doThrowException(new IOException("Unable to resolve IP address."));
 
-        File fileOnStandby = temporaryFolder.newFile("cruise-config.xml");
-        fileOnStandby.delete();
+        File fileOnStandby = tempDir.resolve("cruise-config.xml").toFile();
 
         assertThat(fileOnStandby).doesNotExist();
         assertThatCode(() -> primaryServerCommunicationService.downloadConfigFile(ConfigFileType.CRUISE_CONFIG_XML, fileOnStandby))
@@ -170,7 +167,7 @@ public class PrimaryServerCommunicationServiceTest {
         httpClientMock.onGet("https://localhost:1234/go/add-on/business-continuity/api/plugin?folderName=foo&pluginName=plugin.jar")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturn(200, fileContent);
-        File fileOnStandby = temporaryFolder.newFile("plugin.jar");
+        File fileOnStandby = tempDir.resolve("plugin.jar").toFile();
 
         primaryServerCommunicationService.downloadPlugin("foo", "plugin.jar", fileOnStandby);
 
@@ -180,8 +177,6 @@ public class PrimaryServerCommunicationServiceTest {
 
     @Nested
     class AbleToConnect {
-        @Rule
-        public final TemporaryFolder temporaryFolder = new TemporaryFolder();
         @SystemStub
         private SystemProperties systemProperties;
 

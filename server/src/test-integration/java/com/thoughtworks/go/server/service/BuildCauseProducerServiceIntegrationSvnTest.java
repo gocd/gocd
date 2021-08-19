@@ -30,24 +30,24 @@ import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TempDirUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.sql.SQLException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -56,10 +56,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceIntegrationSvnTest {
 
     private static final String STAGE_NAME = "dev";
+
+    @TempDir
+    Path tempDir;
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
@@ -74,10 +76,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
     private static SvnTestRepo svnRepository;
     private Pipeline latestPipeline;
     private File workingFolder;
-    PipelineConfig mingleConfig;
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private PipelineConfig mingleConfig;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -85,7 +84,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
-        workingFolder = temporaryFolder.newFolder("workingFolder");
+        workingFolder = TempDirUtils.createTempDirectoryIn(tempDir, "workingFolder").toFile();
     }
 
     private void repositoryForMaterial(SvnTestRepo svnRepository) {
@@ -96,18 +95,16 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         FileUtils.deleteQuietly(workingFolder);
-        TestRepo.internalTearDown();
-        pipelineScheduleQueue.clear();
+                pipelineScheduleQueue.clear();
         configHelper.onTearDown();
     }
 
     @Test
     public void shouldCreateBuildCauseWithModifications() throws Exception {
-        repositoryForMaterial(new SvnTestRepo(temporaryFolder));
+        repositoryForMaterial(new SvnTestRepo(tempDir));
         prepareAPipelineWithHistory();
 
         checkInFiles("foo");
@@ -129,7 +126,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
     @Test
     public void shouldCreateBuildCauseWithModificationsForSvnRepoWithExternal() throws Exception {
-        SvnTestRepoWithExternal repo = new SvnTestRepoWithExternal(temporaryFolder);
+        SvnTestRepoWithExternal repo = new SvnTestRepoWithExternal(tempDir);
         repositoryForMaterial(repo);
         prepareAPipelineWithHistory();
 

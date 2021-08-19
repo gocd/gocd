@@ -26,18 +26,20 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.ModificationsMother;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -45,31 +47,23 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
-@EnableRuleMigrationSupport
 public class MaterialRevisionTest {
     private static final StringRevision REVISION_0 = new StringRevision("b61d12de515d82d3a377ae3aae6e8abe516a2651");
     private static final StringRevision REVISION_2 = new StringRevision("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
+    @TempDir
+    Path tempDir;
+
     private HgMaterial hgMaterial;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private File workingFolder;
 
     @BeforeEach
     public void setUp() throws Exception {
-        HgTestRepo hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
+        HgTestRepo hgTestRepo = new HgTestRepo("hgTestRepo1", tempDir);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
-        workingFolder = temporaryFolder.newFolder();
-    }
-
-    @AfterEach
-    public void teardown() {
-        temporaryFolder.delete();
-        TestRepo.internalTearDown();
+        workingFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
     }
 
     @Test
@@ -383,7 +377,7 @@ public class MaterialRevisionTest {
     }
 
     private void checkInFiles(HgMaterial hgMaterial, String... fileNames) throws Exception {
-        final File localDir = temporaryFolder.newFolder();
+        final File localDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         InMemoryStreamConsumer consumer = inMemoryConsumer();
         Revision revision = latestRevision(hgMaterial, workingFolder, new TestSubprocessExecutionContext());
         hgMaterial.updateTo(consumer, localDir, new RevisionContext(revision), new TestSubprocessExecutionContext());

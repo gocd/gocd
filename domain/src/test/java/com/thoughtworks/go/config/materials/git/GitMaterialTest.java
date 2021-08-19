@@ -31,28 +31,27 @@ import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
@@ -65,12 +64,12 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
 public class GitMaterialTest {
     public static final GitVersion GIT_VERSION_1_9 = GitVersion.parse("git version 1.9.0");
     public static final GitVersion GIT_VERSION_1_5 = GitVersion.parse("git version 1.5.4.3");
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @TempDir
+    Path tempDir;
 
     private static final String BRANCH = "foo";
     private static final String SUBMODULE = "submodule-1";
@@ -114,20 +113,13 @@ public class GitMaterialTest {
 
         @BeforeEach
         void setup() throws IOException {
-            temporaryFolder.create();
-            workingDir = temporaryFolder.newFolder("workingDir-" + System.currentTimeMillis());
+            workingDir = randomDirectory();
 
-            GitTestRepo gitRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo gitRepo = new GitTestRepo(tempDir);
 
             repositoryUrl = gitRepo.projectRepositoryUrl();
             git = new GitMaterial(repositoryUrl);
-            gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
-        }
-
-        @AfterEach
-        void teardown() {
-            temporaryFolder.delete();
-            TestRepo.internalTearDown();
+            gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, tempDir);
         }
 
         @Test
@@ -167,9 +159,9 @@ public class GitMaterialTest {
 
         @Test
         void shouldGetLatestModificationFromBranch() throws IOException {
-            GitTestRepo branchedTestRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
+            GitTestRepo branchedTestRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, tempDir);
             GitMaterial branchedGit = new GitMaterial(branchedTestRepo.projectRepositoryUrl(), BRANCH);
-            List<Modification> modifications = branchedGit.latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
+            List<Modification> modifications = branchedGit.latestModification(randomDirectory(), new TestSubprocessExecutionContext());
             assertThat(modifications.size()).isEqualTo(1);
             assertThat(modifications.get(0).getComment()).isEqualTo("Started foo branch");
         }
@@ -231,7 +223,7 @@ public class GitMaterialTest {
 
         @Test
         void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
@@ -254,7 +246,7 @@ public class GitMaterialTest {
             shouldBeRemoved.createNewFile();
             assertThat(shouldBeRemoved.exists()).isTrue();
 
-            git = new GitMaterial(new GitTestRepo(temporaryFolder).projectRepositoryUrl());
+            git = new GitMaterial(new GitTestRepo(tempDir).projectRepositoryUrl());
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
             assertThat(shouldBeRemoved.exists()).as("Should have deleted whole folder").isFalse();
         }
@@ -449,11 +441,11 @@ public class GitMaterialTest {
 
     @Test
     void shouldGetLatestModificationsFromRepoWithSubmodules() throws Exception {
-        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        File workingDirectory = temporaryFolder.newFolder();
+        File workingDirectory = randomDirectory();
         Materials materials = new Materials();
         materials.add(gitMaterial);
 
@@ -463,19 +455,24 @@ public class GitMaterialTest {
         assertThat(materialRevision.getRevision().getRevision()).isEqualTo(submoduleRepos.currentRevision(GitRepoContainingSubmodule.NAME));
     }
 
+    @NotNull
+    private File randomDirectory() throws IOException {
+        return TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
+    }
+
     @Test
     void shouldUpdateSubmodules() throws Exception {
-        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        File serverWorkingDir = temporaryFolder.newFolder();
+        File serverWorkingDir = randomDirectory();
         Materials materials = new Materials();
         materials.add(gitMaterial);
 
         MaterialRevisions materialRevisions = materials.latestModification(serverWorkingDir, new TestSubprocessExecutionContext());
 
-        File agentWorkingDir = temporaryFolder.newFolder();
+        File agentWorkingDir = randomDirectory();
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         materialRevision.updateTo(agentWorkingDir, inMemoryConsumer(), new TestSubprocessExecutionContext());
 
@@ -489,11 +486,11 @@ public class GitMaterialTest {
 
     @Test
     void shouldHaveModificationsWhenSubmoduleIsAdded() throws Exception {
-        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        File serverWorkingDir = temporaryFolder.newFolder();
+        File serverWorkingDir = randomDirectory();
 
         List<Modification> beforeAdd = gitMaterial.latestModification(serverWorkingDir, new TestSubprocessExecutionContext());
 
@@ -507,11 +504,11 @@ public class GitMaterialTest {
 
     @Test
     void shouldHaveModificationsWhenSubmoduleIsRemoved() throws Exception {
-        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
-        File serverWorkingDir = temporaryFolder.newFolder();
+        File serverWorkingDir = randomDirectory();
 
         List<Modification> beforeAdd = gitMaterial.latestModification(serverWorkingDir, new TestSubprocessExecutionContext());
 

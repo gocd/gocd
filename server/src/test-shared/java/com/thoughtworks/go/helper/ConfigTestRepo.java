@@ -31,12 +31,12 @@ import java.util.List;
 public class ConfigTestRepo {
     private final File baseDir;
     private final HgMaterial material;
-    private  PartialConfigHelper partialConfigHelper;
+    private PartialConfigHelper partialConfigHelper;
     private HgTestRepo repo;
 
     public ConfigTestRepo(HgTestRepo repo, MagicalGoConfigXmlWriter xmlWriter) throws IOException {
         this.repo = repo;
-        baseDir = repo.temporaryFolder.newFolder();
+        baseDir = repo.createRandomTempDirectory().toFile();
         material = repo.updateTo(baseDir);
 
         partialConfigHelper = new PartialConfigHelper(xmlWriter,baseDir);

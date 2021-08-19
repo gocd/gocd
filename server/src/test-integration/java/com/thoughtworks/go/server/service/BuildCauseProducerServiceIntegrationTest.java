@@ -59,19 +59,18 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -90,12 +89,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceIntegrationTest {
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private static final String STAGE_NAME = "dev";
 
     @Autowired
@@ -157,11 +151,11 @@ public class BuildCauseProducerServiceIntegrationTest {
     private Username username;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
-        new HgTestRepo("testHgRepo", temporaryFolder);
+        new HgTestRepo("testHgRepo", tempDir);
 
-        svnRepository = new SvnTestRepo(temporaryFolder);
+        svnRepository = new SvnTestRepo(tempDir);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -169,7 +163,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 
-        PipelineConfig goParentPipelineConfig = configHelper.addPipeline(GO_PIPELINE_UPSTREAM, STAGE_NAME, new MaterialConfigs(git("foo-bar")), "unit");
+        configHelper.addPipeline(GO_PIPELINE_UPSTREAM, STAGE_NAME, new MaterialConfigs(git("foo-bar")), "unit");
 
         goPipelineConfig = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
 
@@ -207,8 +201,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();
     }
@@ -372,13 +365,13 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     @Test
-    public void should_NOT_markAsChangedWhenMaterialIsReIntroducedWithSameRevisionsToPipeline() throws Exception {
+    public void should_NOT_markAsChangedWhenMaterialIsReIntroducedWithSameRevisionsToPipeline(@TempDir Path tempDir) throws Exception {
         SvnMaterial svn1 = new SvnMaterial(repository);
         svn1.setFolder("another_repo");
         mingleConfig = configHelper.replaceMaterialForPipeline(MINGLE_PIPELINE_NAME, svn1.config());
         runAndPassWith(svn1, "foo.c", svnRepository);
 
-        SvnTestRepo svn2Repository = new SvnTestRepo(temporaryFolder);
+        SvnTestRepo svn2Repository = new SvnTestRepo(tempDir);
         Subversion repository2 = new SvnCommand(null, svn2Repository.projectRepositoryUrl());
         SvnMaterial svn2 = new SvnMaterial(repository2);
         svn2.setFolder("boulder");

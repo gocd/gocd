@@ -56,7 +56,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -224,9 +223,9 @@ public class BackupServiceIntegrationTest {
         assertThat(backup.getMessage(), is("Backup was generated successfully."));
 
         File repoZip = backedUpFile("config-repo.zip");
-        File repoDir = Files.createDirectory(temporaryFolder.resolve("expanded-config-repo-backup")).toFile();
+        File repoDir = TempDirUtils.createTempDirectoryIn(temporaryFolder, "expanded-config-repo-backup").toFile();
         new ZipUtil().unzip(repoZip, repoDir);
-        File cloneDir = Files.createDirectory(temporaryFolder.resolve("cloned-config-repo-backup")).toFile();
+        File cloneDir = TempDirUtils.createTempDirectoryIn(temporaryFolder, "cloned-config-repo-backup").toFile();
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
 
         List<Modification> modifications = git.latestModification(cloneDir, subprocessExecutionContext);
@@ -236,6 +235,9 @@ public class BackupServiceIntegrationTest {
         StringRevision revision = new StringRevision(latestChangeRev + "~1");
         git.updateTo(new InMemoryStreamConsumer(), cloneDir, new RevisionContext(revision), subprocessExecutionContext);
         assertThat(FileUtils.readFileToString(new File(cloneDir, "cruise-config.xml"), UTF_8).indexOf("too-unique-to-be-present"), is(-1));
+
+        // Workaround issue with deletion of symlinks via JUnit TempDir by pre-deleting
+        FileUtils.deleteQuietly(cloneDir);
     }
 
     @Test

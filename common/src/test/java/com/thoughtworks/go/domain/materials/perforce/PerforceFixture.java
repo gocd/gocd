@@ -16,33 +16,36 @@
 package com.thoughtworks.go.domain.materials.perforce;
 
 import com.thoughtworks.go.helper.P4TestRepo;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public abstract class PerforceFixture {
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     protected P4Client p4;
     protected File clientFolder;
     public static final String DEFAULT_CLIENT_NAME = "p4test_1";
     protected P4Fixture p4Fixture;
     protected InMemoryStreamConsumer outputconsumer;
-    protected File tempDir;
+
+    @TempDir
+    protected Path tempDir;
+
+    protected File workingDir;
 
     @BeforeEach
     public void setUp() throws Exception {
         p4Fixture = new P4Fixture();
-        temporaryFolder.create();
-        clientFolder = temporaryFolder.newFolder("p4Client");
+        clientFolder = TempDirUtils.createTempDirectoryIn(tempDir, "p4Client").toFile();
         p4Fixture.setRepo(createTestRepo());
         outputconsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
         p4 = p4Fixture.createClient();
-        tempDir = temporaryFolder.newFolder();
+        workingDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
     }
 
     protected abstract P4TestRepo createTestRepo() throws Exception;
@@ -50,7 +53,6 @@ public abstract class PerforceFixture {
     @AfterEach
     public void stopP4Server() {
         p4Fixture.stop(p4);
-        temporaryFolder.delete();
     }
 
     protected static String clientConfig(String clientName, File clientFolder) {

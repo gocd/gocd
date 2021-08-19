@@ -25,19 +25,19 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.Matchers.is;
+import java.nio.file.Path;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -46,7 +46,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class DatabaseDiskSpaceFullTest {
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private DatabaseAccessHelper databaseAccessHelper;
@@ -58,14 +57,12 @@ public class DatabaseDiskSpaceFullTest {
     private DatabaseDiskIsFull diskIsFull = new DatabaseDiskIsFull();
     private PipelineWithTwoStages fixture;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         serverHealthService.removeAllLogs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(databaseAccessHelper).onSetUp();
         configHelper.setupMailHost();

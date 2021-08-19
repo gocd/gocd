@@ -21,16 +21,15 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.util.ArtifactLogUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -49,13 +48,7 @@ public class SvnMultipleMaterialsTest {
     @BeforeEach
     public void createRepo() throws IOException {
         repo = new SvnTestRepo(tempDir);
-        pipelineDir = Files.createDirectory(tempDir.resolve("pipeline")).toFile();
-    }
-
-    @AfterEach
-    public void cleanupRepo() {
-        repo.tearDown();
-        FileUtils.deleteQuietly(pipelineDir);
+        pipelineDir = TempDirUtils.createTempDirectoryIn(tempDir, "pipeline").toFile();
     }
 
     @Test

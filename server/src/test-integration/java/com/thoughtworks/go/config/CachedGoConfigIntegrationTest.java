@@ -54,13 +54,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ClonerFactory;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -76,7 +72,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -147,7 +142,7 @@ public class CachedGoConfigIntegrationTest {
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
-        externalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo")).toFile();
+        externalConfigRepo = TempDirUtils.createTempDirectoryIn(temporaryFolder, "config_repo").toFile();
         latestModification = setupExternalConfigRepo(externalConfigRepo);
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(externalConfigRepo.getAbsolutePath()), XmlPartialConfigProvider.providerName, "gocd-id"));
         goConfigService.forceNotifyListeners();
@@ -173,7 +168,7 @@ public class CachedGoConfigIntegrationTest {
     public void shouldRecoverFromDeepConfigRepoReferencesBug1901When2Repos() throws Exception {
         // pipeline references are like this: pipe1 -> downstream
         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
-        File downstreamExternalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo_downstream")).toFile();
+        File downstreamExternalConfigRepo = TempDirUtils.createTempDirectoryIn(temporaryFolder, "config_repo_downstream").toFile();
         Modification downstreamLatestModification = setupExternalConfigRepo(downstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(downstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id"));
         goConfigService.forceNotifyListeners();//TODO what if this is not called?
@@ -206,11 +201,11 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldRecoverFromDeepConfigRepoReferencesBug1901When3Repos() throws Exception {
         // pipeline references are like this: pipe1 -> downstream -> downstream2
-        File secondDownstreamExternalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo_downstream_2")).toFile();
+        File secondDownstreamExternalConfigRepo = TempDirUtils.createTempDirectoryIn(temporaryFolder, "config_repo_downstream_2").toFile();
         /*here is a pipeline 'downstream2' with material dependency on 'downstream' in other repository*/
         Modification secondDownstreamLatestModification = setupExternalConfigRepo(secondDownstreamExternalConfigRepo, "external_git_config_repo_referencing_second");
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(secondDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id1"));
-        File firstDownstreamExternalConfigRepo = Files.createDirectory(temporaryFolder.resolve("config_repo_downstream_1")).toFile();
+        File firstDownstreamExternalConfigRepo = TempDirUtils.createTempDirectoryIn(temporaryFolder, "config_repo_downstream_1").toFile();
         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
         Modification firstDownstreamLatestModification = setupExternalConfigRepo(firstDownstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
         configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(firstDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id2"));

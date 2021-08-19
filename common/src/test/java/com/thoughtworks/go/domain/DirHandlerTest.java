@@ -15,33 +15,27 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class DirHandlerTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    private File artifactDest;
+    private Path artifactDest;
     private File agentDest;
     private ArtifactMd5Checksums checksums;
     private StubGoPublisher goPublisher;
@@ -49,12 +43,12 @@ public class DirHandlerTest {
     private DirHandler dirHandler;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        artifactDest = temporaryFolder.newFolder("fetch_dest");
+    public void setUp(@TempDir Path tempDir) throws Exception {
+        artifactDest = TempDirUtils.createTempDirectoryIn(tempDir, "fetch_dest");
         checksums = mock(ArtifactMd5Checksums.class);
         goPublisher = new StubGoPublisher();
-        zip = temporaryFolder.newFile("zip_location");
-        agentDest = temporaryFolder.newFolder("agent_fetch_dest");
+        zip = tempDir.resolve("zip_location").toFile();
+        agentDest = tempDir.resolve("agent_fetch_dest").toFile();
         dirHandler = new DirHandler("fetch_dest",agentDest);
     }
 
@@ -179,11 +173,11 @@ public class DirHandlerTest {
     }
 
     private File createZip(String subDirectoryName) throws IOException {
-        File first = new File(artifactDest, "first");
+        File first = artifactDest.resolve("first").toFile();
         FileUtils.writeStringToFile(first, "First File", UTF_8);
-        File second = new File(artifactDest, subDirectoryName + "/second");
+        File second = artifactDest.resolve(subDirectoryName + "/second").toFile();
         FileUtils.writeStringToFile(second, "Second File", UTF_8);
-        new ZipUtil().zip(artifactDest, zip, 0);
+        new ZipUtil().zip(artifactDest.toFile(), zip, 0);
         return zip;
     }
 

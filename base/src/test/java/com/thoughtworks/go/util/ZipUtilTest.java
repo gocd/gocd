@@ -17,19 +17,18 @@ package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -39,8 +38,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-@EnableRuleMigrationSupport
 public class ZipUtilTest {
+    @TempDir
+    Path tempDir;
+    
     private File srcDir;
     private File destDir;
     private ZipUtil zipUtil;
@@ -49,8 +50,6 @@ public class ZipUtilTest {
     private File file2;
     private File zipFile;
     private File emptyDir;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static String fileContent(File file) throws IOException {
         return IOUtils.toString(new FileInputStream(file), UTF_8);
@@ -58,10 +57,8 @@ public class ZipUtilTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        temporaryFolder.create();
-
-        srcDir = temporaryFolder.newFolder("_test1");
-        destDir = temporaryFolder.newFolder("_test2");
+        srcDir = createDirectoryInTempDir("_test1");
+        destDir = createDirectoryInTempDir("_test2");
         emptyDir = new File(srcDir, "_emptyDir");
         emptyDir.mkdir();
         childDir1 = new File(srcDir, "_child1");
@@ -73,14 +70,9 @@ public class ZipUtilTest {
         zipUtil = new ZipUtil();
     }
 
-    @AfterEach
-    void tearDown() {
-        temporaryFolder.delete();
-    }
-
     @Test
     void shouldZipFileAndUnzipIt() throws IOException {
-        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
         assertThat(zipFile.isFile()).isTrue();
 
         zipUtil.unzip(zipFile, destDir);
@@ -98,9 +90,13 @@ public class ZipUtilTest {
         assertThat(fileContent(actual2)).isEqualTo(fileContent(file2));
     }
 
+    private File createFileInTempDir() throws IOException {
+        return Files.createFile(tempDir.resolve("file.txt")).toFile();
+    }
+
     @Test
     void shouldZipFileContentsAndUnzipIt() throws IOException {
-        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
         assertThat(zipFile.isFile()).isTrue();
 
         zipUtil.unzip(zipFile, destDir);
@@ -120,7 +116,7 @@ public class ZipUtilTest {
 
     @Test
     void shouldZipFileContentsOnly() throws IOException {
-        zipFile = zipUtil.zipFolderContents(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zipFolderContents(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
         assertThat(zipFile.isFile()).isTrue();
 
         zipUtil.unzip(zipFile, destDir);
@@ -143,7 +139,7 @@ public class ZipUtilTest {
         File specialFile = new File(srcDir, "$`#?@!()?-_{}^'~.+=[];,a.txt");
         FileUtils.writeStringToFile(specialFile, "specialFile", UTF_8);
 
-        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
         zipUtil.unzip(zipFile, destDir);
         File baseDir = new File(destDir, srcDir.getName());
 
@@ -155,7 +151,7 @@ public class ZipUtilTest {
     @Test
     void shouldReadContentsOfAFileWhichIsInsideAZip() throws Exception {
         FileUtils.writeStringToFile(new File(srcDir, "some-file.txt"), "some-text-here", UTF_8);
-        zipFile = zipUtil.zip(srcDir, temporaryFolder.newFile(), Deflater.NO_COMPRESSION);
+        zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
 
         String someStuff = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(zipFile)), "some-file.txt");
 
@@ -164,15 +160,15 @@ public class ZipUtilTest {
 
     @Test
     void shouldZipMultipleFolderContentsAndExcludeRootDirectory() throws IOException {
-        File folderOne = temporaryFolder.newFolder("a-folder1");
+        File folderOne = createDirectoryInTempDir("a-folder1");
         FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1", UTF_8);
         FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2", UTF_8);
 
-        File folderTwo = temporaryFolder.newFolder("a-folder2");
+        File folderTwo = createDirectoryInTempDir("a-folder2");
         FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1", UTF_8);
         FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
 
-        File targetZipFile = temporaryFolder.newFile("final1.zip");
+        File targetZipFile = tempDir.resolve("final1.zip").toFile();
 
         ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, true);
         zipBuilder.add("folder-one", folderOne);
@@ -185,18 +181,22 @@ public class ZipUtilTest {
         assertContent(targetZipFile, "folder-two/folder2-file2.txt", "folder2-file2");
     }
 
+    private File createDirectoryInTempDir(String folderName) throws IOException {
+        return Files.createDirectory(tempDir.resolve(folderName)).toFile();
+    }
+
     @Test
     void shouldZipMultipleFolderContentsWhenNotExcludingRootDirectory() throws IOException {
 
-        File folderOne = temporaryFolder.newFolder("folder1");
+        File folderOne = createDirectoryInTempDir("folder1");
         FileUtils.writeStringToFile(new File(folderOne, "folder1-file1.txt"), "folder1-file1", UTF_8);
         FileUtils.writeStringToFile(new File(folderOne, "folder1-file2.txt"), "folder1-file2", UTF_8);
 
-        File folderTwo = temporaryFolder.newFolder("folder2");
+        File folderTwo = createDirectoryInTempDir("folder2");
         FileUtils.writeStringToFile(new File(folderTwo, "folder2-file1.txt"), "folder2-file1", UTF_8);
         FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
 
-        File targetZipFile = temporaryFolder.newFile("final2.zip");
+        File targetZipFile = tempDir.resolve("final2.zip").toFile();
 
         ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, false);
         zipBuilder.add("folder-one", folderOne);
@@ -211,9 +211,9 @@ public class ZipUtilTest {
 
     @Test
     void shouldPreserveFileTimestampWhileGeneratingTheZipFile() throws Exception {
-        File file = temporaryFolder.newFile("foo.txt");
+        File file = createFileInTempDir();
         file.setLastModified(1297989100000L); // Set this to any date in the past which is greater than the epoch
-        File zip = zipUtil.zip(file, temporaryFolder.newFile("foo.zip"), Deflater.DEFAULT_COMPRESSION);
+        File zip = zipUtil.zip(file, tempDir.resolve("foo.zip").toFile(), Deflater.DEFAULT_COMPRESSION);
 
         ZipFile actualZip = new ZipFile(zip.getAbsolutePath());
         ZipEntry entry = actualZip.getEntry(file.getName());

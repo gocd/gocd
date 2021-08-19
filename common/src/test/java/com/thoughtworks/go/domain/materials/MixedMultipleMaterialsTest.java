@@ -23,45 +23,31 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
+import com.thoughtworks.go.util.TempDirUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@EnableRuleMigrationSupport
 public class MixedMultipleMaterialsTest {
     private SvnTestRepo svnRepo;
     private HgTestRepo hgRepo;
     private GitTestRepo gitRepo;
     private File pipelineDir;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @BeforeEach
     public void createRepo(@TempDir Path tempDir) throws IOException {
         svnRepo = new SvnTestRepo(tempDir);
-        hgRepo = new HgTestRepo(temporaryFolder);
-        gitRepo = new GitTestRepo(temporaryFolder);
-        pipelineDir = Files.createDirectory(tempDir.resolve("pipeline")).toFile();
-    }
-
-    @AfterEach
-    public void cleanupRepo() {
-        svnRepo.tearDown();
-        hgRepo.tearDown();
+        hgRepo = new HgTestRepo(tempDir);
+        gitRepo = new GitTestRepo(tempDir);
+        pipelineDir = TempDirUtils.createTempDirectoryIn(tempDir, "pipeline").toFile();
     }
 
     @Test

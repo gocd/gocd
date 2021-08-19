@@ -21,38 +21,28 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedBy;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@EnableRuleMigrationSupport
 public class HgMultipleMaterialsTest {
     private HgTestRepo repo;
     private File pipelineDir;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @BeforeEach
-    public void createRepo() throws IOException {
-        repo = new HgTestRepo(temporaryFolder);
-        pipelineDir = temporaryFolder.newFolder("working-dir");
-    }
-
-    @AfterEach
-    public void cleanupRepo() {
-        repo.tearDown();
+    public void createRepo(@TempDir Path tempDir) throws IOException {
+        repo = new HgTestRepo(tempDir);
+        pipelineDir = TempDirUtils.createTempDirectoryIn(tempDir, "working-dir").toFile();
     }
 
     @Test

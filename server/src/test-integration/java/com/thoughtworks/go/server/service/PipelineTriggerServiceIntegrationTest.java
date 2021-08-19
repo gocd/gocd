@@ -127,8 +127,7 @@ public class PipelineTriggerServiceIntegrationTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        TestRepo.internalTearDown();
-        pipelineScheduleQueue.clear();
+                pipelineScheduleQueue.clear();
     }
 
     @Test

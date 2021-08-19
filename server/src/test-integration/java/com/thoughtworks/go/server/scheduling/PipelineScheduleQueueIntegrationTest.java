@@ -40,32 +40,26 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -74,7 +68,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class PipelineScheduleQueueIntegrationTest {
     @Autowired
     private GoConfigService goConfigService;
@@ -94,8 +87,6 @@ public class PipelineScheduleQueueIntegrationTest {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private AgentService agentService;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GoConfigFileHelper configFileEditor;
 
@@ -103,12 +94,12 @@ public class PipelineScheduleQueueIntegrationTest {
     private BuildCause newCause;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         configFileEditor = new GoConfigFileHelper();
         configFileEditor.onSetUp();
         dbHelper.onSetUp();
         configFileEditor.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingDbHelper(dbHelper).usingConfigHelper(configFileEditor).onSetUp();
         newCause = BuildCause.createWithEmptyModifications();
     }

@@ -25,26 +25,25 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -53,7 +52,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class RescheduleJobTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -72,8 +70,6 @@ public class RescheduleJobTest {
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public static final String JOB_NAME = "unit";
     private static final String STAGE_NAME = "mingle";
@@ -81,10 +77,10 @@ public class RescheduleJobTest {
     private Stage stage;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME);
         stage = dbHelper.saveBuildingStage(PIPELINE_NAME, STAGE_NAME);

@@ -20,27 +20,25 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -49,10 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class MaterialExpansionServiceCachingTest {
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Autowired
     GoCache goCache;
@@ -69,14 +64,8 @@ public class MaterialExpansionServiceCachingTest {
     }
 
     @BeforeAll
-    public static void copyRepository() throws IOException {
-        temporaryFolder.create();
-        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
-    }
-
-    @AfterAll
-    public static void deleteRepository() throws IOException {
-        TestRepo.internalTearDown();
+    public static void copyRepository(@TempDir Path tempDir) throws IOException {
+        svnRepo = new SvnTestRepoWithExternal(tempDir);
     }
 
     @Test

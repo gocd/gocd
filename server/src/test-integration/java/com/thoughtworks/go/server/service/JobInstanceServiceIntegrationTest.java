@@ -36,19 +36,18 @@ import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,8 +61,8 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.listOf;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -73,7 +72,6 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class JobInstanceServiceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -99,17 +97,15 @@ public class JobInstanceServiceIntegrationTest {
     private StageDao stageDao;
     @Autowired
     private InstanceFactory instanceFactory;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithTwoStages pipelineFixture;
     private SchedulerFixture schedulerFixture;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();

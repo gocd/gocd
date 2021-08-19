@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.ConfigTestRepo;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -34,27 +33,24 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
@@ -64,10 +60,7 @@ import static org.mockito.Mockito.mock;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ConfigMaterialUpdateListenerIntegrationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Autowired
     private GoConfigDao goConfigDao;
@@ -103,9 +96,9 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     private ConfigTestRepo configTestRepo;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
-        hgRepo = new HgTestRepo("testHgRepo", temporaryFolder);
+        hgRepo = new HgTestRepo("testHgRepo", tempDir);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -134,8 +127,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         configHelper.onTearDown();
     }
 

@@ -36,7 +36,7 @@ public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDat
 
     @Override
     protected TestRepo repo(Path tempDir) throws Exception {
-        GitRepoContainingSubmodule testRepoWithExternal = new GitRepoContainingSubmodule(temporaryFolder);
+        GitRepoContainingSubmodule testRepoWithExternal = new GitRepoContainingSubmodule(tempDir);
         testRepoWithExternal.addSubmodule("submodule-1", "sub1");
         return testRepoWithExternal;
     }

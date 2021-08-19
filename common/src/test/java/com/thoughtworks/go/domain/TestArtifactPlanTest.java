@@ -15,41 +15,32 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.internal.verification.Times;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class TestArtifactPlanTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path temporaryFolder;
 
     private DefaultGoPublisher mockArtifactPublisher;
-    private File rootPath;
+    private Path rootPath;
 
     @BeforeEach
     public void setup() throws IOException {
-        temporaryFolder.create();
         mockArtifactPublisher = mock(DefaultGoPublisher.class);
-        rootPath = new File("target/test");
-        rootPath.mkdirs();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        temporaryFolder.delete();
-        FileUtils.deleteQuietly(rootPath);
+        rootPath = TempDirUtils.createTempDirectoryIn(temporaryFolder, "test");
     }
 
     @Test
@@ -57,35 +48,35 @@ public class TestArtifactPlanTest {
         final MergedTestArtifactPlan compositeTestArtifact = new MergedTestArtifactPlan(
                 new ArtifactPlan(ArtifactPlanType.unit, "some_random_path_that_does_not_exist", "testoutput")
         );
-        compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath);
+        compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath.toFile());
         verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR,
-                "The Directory target/test/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration");
+                String.format("The Directory %s/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration", rootPath.toString()));
     }
 
     @Test
     public void shouldNotThrowExceptionIfUserSpecifiesNonFolderFileThatExistsAsSrc() throws Exception {
-        temporaryFolder.newFolder("tempFolder");
-        File nonFolderFileThatExists = temporaryFolder.newFile("tempFolder/nonFolderFileThatExists");
+        Path testFile = temporaryFolder.resolve("tempFolder/nonFolderFileThatExists");
+        FileUtils.writeStringToFile(testFile.toFile(), "", StandardCharsets.UTF_8);
         final ArtifactPlan compositeTestArtifact = new ArtifactPlan(
-                new ArtifactPlan(ArtifactPlanType.unit, nonFolderFileThatExists.getPath(), "testoutput")
+                new ArtifactPlan(ArtifactPlanType.unit, testFile.toString(), "testoutput")
         );
 
-        compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath);
+        compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath.toFile());
         doNothing().when(mockArtifactPublisher).upload(any(File.class), any(String.class));
     }
 
     @Test
-    public void shouldSupportGlobPatternsInSourcePath() {
+    public void shouldSupportGlobPatternsInSourcePath() throws IOException {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.unit, "**/*/a.log", "logs");
         MergedTestArtifactPlan testArtifactPlan = new MergedTestArtifactPlan(artifactPlan);
 
-        File first = new File("target/test/report/a.log");
-        File second = new File("target/test/test/a/b/a.log");
+        File first = rootPath.resolve("report/a.log").toFile();
+        File second = rootPath.resolve("test/a/b/a.log").toFile();
 
         first.mkdirs();
         second.mkdirs();
 
-        testArtifactPlan.publishBuiltInArtifacts(mockArtifactPublisher, rootPath);
+        testArtifactPlan.publishBuiltInArtifacts(mockArtifactPublisher, rootPath.toFile());
 
         verify(mockArtifactPublisher).upload(first, "logs/report");
         verify(mockArtifactPublisher).upload(second, "logs/test/a/b");

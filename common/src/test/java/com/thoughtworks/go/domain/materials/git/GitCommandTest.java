@@ -21,23 +21,20 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.NamedProcessTag;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
@@ -45,6 +42,7 @@ import uk.org.webcompere.systemstubs.properties.SystemProperties;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -207,12 +205,13 @@ public class GitCommandTest {
 
     @Nested
     @ExtendWith(SystemStubsExtension.class)
-    @EnableRuleMigrationSupport
     class Integration {
         private static final String BRANCH = "foo";
         private static final String SUBMODULE = "submodule-1";
-        @Rule
-        public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+        @TempDir
+        Path tempDir;
+
         @SystemStub
         private SystemProperties systemProperties;
         private final Date THREE_DAYS_FROM_NOW = setMilliseconds(addDays(new Date(), 3), 0);
@@ -225,7 +224,7 @@ public class GitCommandTest {
 
         @BeforeEach
         void setup() throws IOException {
-            gitRepo = new GitTestRepo(temporaryFolder);
+            gitRepo = new GitTestRepo(tempDir);
             gitLocalRepoDir = createTempWorkingDirectory();
             git = new GitCommand(null, gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
             repoLocation = gitRepo.gitRepository();
@@ -235,14 +234,13 @@ public class GitCommandTest {
             if (returnCode > 0) {
                 fail(outputStreamConsumer.getAllOutput());
             }
-            gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
+            gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, tempDir);
         }
 
         @AfterEach
         void teardown() {
             unsetColoring();
             unsetLogDecoration();
-            TestRepo.internalTearDown();
         }
 
         @Test
@@ -354,7 +352,7 @@ public class GitCommandTest {
 
         @Test
         void shouldOutputSubmoduleRevisionsAfterUpdate() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
             gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().urlForCommandLine());
@@ -366,7 +364,7 @@ public class GitCommandTest {
 
         @Test
         void shouldBombForResetWorkingDirWhenSubmoduleUpdateFails() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             File submoduleFolder = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
             gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().urlForCommandLine());
@@ -442,7 +440,7 @@ public class GitCommandTest {
 
         @Test
         void shouldReturnNothingForModificationsSinceIfARebasedCommitSHAIsPassed() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
@@ -455,7 +453,7 @@ public class GitCommandTest {
 
         @Test
         void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebase() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
@@ -467,7 +465,7 @@ public class GitCommandTest {
 
         @Test
         void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebaseWithColoringIsSetToAlways() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
@@ -480,7 +478,7 @@ public class GitCommandTest {
 
         @Test
         void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebaseWithLogDecoration() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
@@ -493,7 +491,7 @@ public class GitCommandTest {
 
         @Test
         void shouldBombIfCheckedForModificationsSinceWithASHAThatNoLongerExists() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, null);
@@ -506,7 +504,7 @@ public class GitCommandTest {
 
         @Test
         void shouldBombIfCheckedForModificationsSinceWithANonExistentRef() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "non-existent-branch", false, null);
@@ -518,7 +516,7 @@ public class GitCommandTest {
 
         @Test
         void shouldBombWhileRetrievingLatestModificationFromANonExistentRef() throws IOException {
-            GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+            GitTestRepo remoteRepo = new GitTestRepo(tempDir);
             gitInRepo("remote", "rm", "origin");
             gitInRepo("remote", "add", "origin", remoteRepo.projectRepositoryUrl());
             GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "non-existent-branch", false, null);
@@ -539,7 +537,7 @@ public class GitCommandTest {
 
         @Test
         void shouldRetrieveFilenameForInitialRevision() throws IOException {
-            GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE, temporaryFolder);
+            GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE, tempDir);
             GitCommand gitCommand = new GitCommand(null, testRepo.gitRepository(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
             Modification modification = gitCommand.latestModification().get(0);
             assertEquals(1, modification.getModifiedFiles().size());
@@ -548,7 +546,7 @@ public class GitCommandTest {
 
         @Test
         void shouldRetrieveLatestModificationFromBranch() throws Exception {
-            GitTestRepo branchedRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
+            GitTestRepo branchedRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, tempDir);
             GitCommand branchedGit = new GitCommand(null, createTempWorkingDirectory(), BRANCH, false, null);
             branchedGit.clone(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
 
@@ -567,7 +565,7 @@ public class GitCommandTest {
 
         @Test
         void shouldRetrieveListOfSubmoduleFolders() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
@@ -581,7 +579,7 @@ public class GitCommandTest {
 
         @Test
         void shouldNotThrowErrorWhenConfigRemoveSectionFails() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, null) {
                 //hack to reproduce synchronization issue
@@ -599,7 +597,7 @@ public class GitCommandTest {
 
         @Test
         void shouldNotFailIfUnableToRemoveSubmoduleEntryFromConfig() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
@@ -613,7 +611,7 @@ public class GitCommandTest {
 
         @Test
         void shouldRetrieveSubmoduleUrls() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             File submodule = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
             GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, null);
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
@@ -722,7 +720,7 @@ public class GitCommandTest {
 
         @Test
         void shouldCleanUnversionedFilesInsideSubmodulesBeforeUpdating() throws Exception {
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             String submoduleDirectoryName = "local-submodule";
             submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
             File cloneDirectory = createTempWorkingDirectory();
@@ -741,7 +739,7 @@ public class GitCommandTest {
         @Test
         void shouldRemoveChangesToModifiedFilesInsideSubmodulesBeforeUpdating() throws Exception {
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             String submoduleDirectoryName = "local-submodule";
             File cloneDirectory = createTempWorkingDirectory();
 
@@ -770,7 +768,7 @@ public class GitCommandTest {
         @Test
         void shouldAllowSubmoduleUrlsToChange() throws Exception {
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
             String submoduleDirectoryName = "local-submodule";
             File cloneDirectory = createTempWorkingDirectory();
 
@@ -789,7 +787,7 @@ public class GitCommandTest {
         @EnabledOnGitVersions(from = "2.10.0")
         void shouldShallowCloneSubmodulesWhenSpecified() throws Exception {
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-            GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(tempDir);
             String submoduleDirectoryName = "submoduleDir";
             repoContainingSubmodule.addSubmodule(SUBMODULE, submoduleDirectoryName);
 
@@ -806,7 +804,7 @@ public class GitCommandTest {
         @EnabledOnGitVersions(from = "2.10.0", through = "2.25.4")
         void shouldUnshallowSubmodulesIfSubmoduleUpdateFails() throws Exception {
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-            GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(temporaryFolder);
+            GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(tempDir);
             String submoduleDirectoryName = "submoduleDir";
             repoContainingSubmodule.addSubmodule(SUBMODULE, submoduleDirectoryName);
             repoContainingSubmodule.goBackOneCommitInSubmoduleAndUpdateMainRepo(submoduleDirectoryName);
@@ -860,7 +858,7 @@ public class GitCommandTest {
         }
 
         private File createTempWorkingDirectory() throws IOException {
-            return temporaryFolder.newFolder("GitCommandTest" + System.currentTimeMillis(), "repo");
+            return TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         }
 
         private File checkInNewRemoteFile() throws IOException {

@@ -27,22 +27,20 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
+
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -51,26 +49,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ScheduleServiceSecurityTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private ScheduleService scheduleService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages fixture;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
 

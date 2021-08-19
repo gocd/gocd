@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.matchers.UploadEntry;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -36,28 +35,27 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
@@ -65,7 +63,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@EnableRuleMigrationSupport
+@ExtendWith(SystemStubsExtension.class)
 public class BuildWorkArtifactUploadingTest {
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
@@ -75,39 +73,31 @@ public class BuildWorkArtifactUploadingTest {
     private SvnMaterial svnMaterial;
     private SvnTestRepo repo;
 
-    private SystemEnvironment systemEnvironment = new SystemEnvironment();
+    @SystemStub
+    private SystemProperties systemProperties;
 
-    File buildWorkingDirectory;
+    private File buildWorkingDirectory;
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;
     @Mock
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Mock
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
     @BeforeEach
-    public void setUp() throws IOException {
-        buildWorkingDirectory = new File("tmp" + UUID.randomUUID());
+    public void setUp(@TempDir Path tempDir) throws IOException {
+        buildWorkingDirectory = TempDirUtils.createTempDirectoryIn(tempDir, "working-dir").toFile();
         environmentVariableContext = new EnvironmentVariableContext();
-        repo = new SvnTestRepo(temporaryFolder);
+        repo = new SvnTestRepo(tempDir);
         SvnCommand command = new SvnCommand(null, repo.end2endRepositoryUrl());
 
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         svnMaterial = new SvnMaterial(command);
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        systemProperties.set("serviceUrl", "some_random_place");
     }
-
-    @AfterEach
-    public void teardown() throws Exception {
-        TestRepo.internalTearDown();
-        FileUtils.deleteQuietly(buildWorkingDirectory);
-        new SystemEnvironment().clearProperty("serviceUrl");
-    }
-
+    
     @Test
     public void shouldUploadEachMatchedFile() throws Exception {
         List<ArtifactPlan> artifactPlans = new ArrayList<>();
@@ -115,7 +105,7 @@ public class BuildWorkArtifactUploadingTest {
 
         BuildAssignment buildAssigment = createAssignment(artifactPlans, new String[]{"logs/pic/fail.png", "logs/pic/pass.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -135,7 +125,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic/fail.png", "logs/pic/pass.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -158,7 +148,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic/fail.png", "logs/pic/pass.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -180,7 +170,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -205,7 +195,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -225,7 +215,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -245,7 +235,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
@@ -269,7 +259,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic-1/fail.png", "logs/pic-1/pass.png", "logs/pic-2/cancel.png", "logs/pic-2/complete.png", "README"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
@@ -292,7 +282,7 @@ public class BuildWorkArtifactUploadingTest {
 
         BuildAssignment buildAssigment = createAssignment(artifactPlans, new String[]{"target/pkg/"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         BuildRepositoryRemoteStub repository = new BuildRepositoryRemoteStub();
 
@@ -317,7 +307,7 @@ public class BuildWorkArtifactUploadingTest {
         BuildAssignment buildAssigment = createAssignment(artifactPlans,
                 new String[]{"logs/pic/pass.png", "logs/pic-1/pass.png"});
 
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub(
                 new ArrayList<>(), new HttpServiceStub(), new URLService(), new ZipUtilThatRunsOutOfMemory());
 
@@ -330,7 +320,7 @@ public class BuildWorkArtifactUploadingTest {
         assertThat(manipulator.consoleOut(), containsString("Failed to upload [**/*.png]"));
     }
 
-    private class ZipUtilThatRunsOutOfMemory extends ZipUtil {
+    private static class ZipUtilThatRunsOutOfMemory extends ZipUtil {
         @Override
         public File zip(File source, File destFile, int level) {
             throw new OutOfMemoryError("#2824");
@@ -364,7 +354,7 @@ public class BuildWorkArtifactUploadingTest {
 
         @Override
         public void build(DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
             try {
                 FileUtil.createFilesByPath(buildWorkingDirectory, files);
             } catch (IOException e) {

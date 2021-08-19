@@ -24,28 +24,23 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.SQLException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -55,26 +50,23 @@ import static org.mockito.Mockito.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class JobStatusCacheTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private JobStatusCache jobStatusCache;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages pipelineFixture;
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
@@ -86,7 +78,7 @@ public class JobStatusCacheTest {
     }
 
     @Test
-    public void shouldLoadMostRecentInstanceFromDBForTheFirstTime() throws SQLException {
+    public void shouldLoadMostRecentInstanceFromDBForTheFirstTime() {
         pipelineFixture.createdPipelineWithAllStagesPassed();
 
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
@@ -98,7 +90,7 @@ public class JobStatusCacheTest {
     }
 
     @Test
-    public void shouldLoadMostRecentInstanceFromDBOnlyOnce() throws SQLException {
+    public void shouldLoadMostRecentInstanceFromDBOnlyOnce() {
         final StageDao mock = mock(StageDao.class);
         final JobInstance instance = JobInstanceMother.passed("linux-firefox");
 
@@ -175,7 +167,7 @@ public class JobStatusCacheTest {
         return instance;
     }
 
-    @Test public void shouldReturnNullWhenNoCurrentJob() throws Exception {
+    @Test public void shouldReturnNullWhenNoCurrentJob() {
         pipelineFixture.createdPipelineWithAllStagesPassed();
 
         JobConfigIdentifier jobConfigIdentifier = new JobConfigIdentifier(pipelineFixture.pipelineName, pipelineFixture.devStage, "wrong-job");

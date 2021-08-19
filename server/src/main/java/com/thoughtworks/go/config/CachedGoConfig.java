@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,16 +231,12 @@ public class CachedGoConfig {
         LOGGER.info("Finished notifying all listeners");
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public synchronized void clearListeners() {
         listeners.clear();
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public void reloadListeners() {
         notifyListeners(currentConfig());
     }

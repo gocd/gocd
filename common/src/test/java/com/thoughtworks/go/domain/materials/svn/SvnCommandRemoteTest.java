@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.helper.SvnRemoteRepository;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -29,7 +30,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class SvnCommandRemoteTest {
         repository.addUser(HARRY, HARRYS_PASSWORD);
         repository.start();
         command = new SvnCommand(null, repository.getUrl(), HARRY, HARRYS_PASSWORD, true);
-        workingDir = Files.createDirectory(tempDir.resolve("working-dir")).toFile();
+        workingDir = TempDirUtils.createTempDirectoryIn(tempDir, "working-dir").toFile();
         outputStreamConsumer = inMemoryConsumer();
     }
 

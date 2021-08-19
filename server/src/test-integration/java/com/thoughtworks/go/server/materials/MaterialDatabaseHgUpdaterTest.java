@@ -31,7 +31,7 @@ public class MaterialDatabaseHgUpdaterTest extends TestBaseForDatabaseUpdater {
 
     @Override
     protected TestRepo repo(Path tempDir) throws IOException {
-        return new HgTestRepo(temporaryFolder);
+        return new HgTestRepo(tempDir);
     }
 
 }

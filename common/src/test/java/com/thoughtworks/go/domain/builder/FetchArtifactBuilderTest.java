@@ -16,32 +16,27 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class FetchArtifactBuilderTest {
     private File zip;
     private List<File> toClean = new ArrayList<>();
@@ -53,12 +48,9 @@ public class FetchArtifactBuilderTest {
     private URLService urlService;
     private DownloadAction downloadAction;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @BeforeEach
-    public void setUp() throws Exception {
-        File folder = temporaryFolder.newFolder("log");
+    public void setUp(@TempDir Path tempDir) throws Exception {
+        File folder = TempDirUtils.createTempDirectoryIn(tempDir, "log").toFile();
         File consolelog = new File(folder, "console.log");
         folder.mkdirs();
         consolelog.createNewFile();

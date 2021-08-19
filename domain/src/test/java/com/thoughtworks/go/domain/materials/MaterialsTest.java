@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,7 +103,7 @@ public class MaterialsTest {
     }
 
     @Test
-    void shouldGetPluggableSCMMaterial_byFolder() {
+    void shouldGetPluggableSCMMaterialByFolder() {
         Materials materials = new Materials();
         PluggableSCMMaterial material1 = new PluggableSCMMaterial("scm-id");
         material1.setFolder("folder");
@@ -133,7 +133,7 @@ public class MaterialsTest {
     }
 
     @Test
-    void shouldReturnMaterialBasedOnPiplineUniqueFingerPrint() {
+    void shouldReturnMaterialBasedOnPipelineUniqueFingerPrint() {
         Materials materials = new Materials();
         HgMaterial expectedMaterial = MaterialsMother.hgMaterial();
         materials.add(expectedMaterial);
@@ -245,7 +245,7 @@ public class MaterialsTest {
 
     @Test
     void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse(@TempDir Path temporaryFolder) throws Exception {
-        File junkFolder = Files.createDirectory(temporaryFolder.resolve("junk-folder")).toFile();
+        File junkFolder = TempDirUtils.createTempDirectoryIn(temporaryFolder, "junk-folder").toFile();
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
         materials.add(gitMaterial);
@@ -257,7 +257,7 @@ public class MaterialsTest {
 
     @Test
     void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue(@TempDir Path temporaryFolder) throws Exception {
-        File junkFolder =  Files.createDirectory(temporaryFolder.resolve("junk-folder")).toFile();
+        File junkFolder =  TempDirUtils.createTempDirectoryIn(temporaryFolder, "junk-folder").toFile();
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
         materials.add(gitMaterial);

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.util.TempDirUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ public class MaterialDatabaseP4UpdaterTest extends TestBaseForDatabaseUpdater {
 
     @Override
     protected TestRepo repo(Path tempDir) throws IOException {
-        return P4TestRepo.createP4TestRepo(temporaryFolder, temporaryFolder.newFolder());
+        return P4TestRepo.createP4TestRepo(tempDir, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
     }
 
 }

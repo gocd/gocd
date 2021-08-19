@@ -27,14 +27,13 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
@@ -42,6 +41,7 @@ import org.mockito.InOrder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -51,15 +51,12 @@ import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGA
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class FetchPluggableArtifactBuilderTest {
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private File metadataDest;
     private String sourceOnServer;
@@ -73,13 +70,13 @@ public class FetchPluggableArtifactBuilderTest {
     private static final String PLUGIN_ID = "cd.go.s3";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         publisher = mock(DefaultGoPublisher.class);
         artifactExtension = mock(ArtifactExtension.class);
         checksumFileHandler = mock(ChecksumFileHandler.class);
         registry = mock(PluginRequestProcessorRegistry.class);
 
-        metadataDest = new File(temporaryFolder.newFolder("dest"), "cd.go.s3.json");
+        metadataDest = TempDirUtils.createTempDirectoryIn(tempDir, "dest").resolve("cd.go.s3.json").toFile();
         FileUtils.writeStringToFile(metadataDest, "{\"artifactId\":{}}", StandardCharsets.UTF_8);
 
         jobIdentifier = new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L);

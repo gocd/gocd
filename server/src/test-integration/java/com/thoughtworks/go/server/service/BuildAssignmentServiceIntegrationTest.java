@@ -57,20 +57,15 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -93,7 +88,6 @@ import static org.mockito.Mockito.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildAssignmentServiceIntegrationTest {
     @Autowired
     private BuildAssignmentService buildAssignmentService;
@@ -165,23 +159,13 @@ public class BuildAssignmentServiceIntegrationTest {
     private ConfigCache configCache;
     private ConfigElementImplementationRegistry registry;
 
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-
     @BeforeAll
-    public static void setupRepos() throws IOException {
-        temporaryFolder.create();
-        testRepo = new SvnTestRepo(temporaryFolder);
-    }
-
-    @AfterAll
-    public static void tearDownConfigFileLocation() {
-        TestRepo.internalTearDown();
+    public static void setupRepos(@TempDir Path tempDir) throws IOException {
+        testRepo = new SvnTestRepo(tempDir);
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         maintenanceModeService.update(new ServerMaintenanceMode(false, "admin", new Date()));
         configCache = new ConfigCache();
         registry = ConfigElementImplementationRegistryMother.withNoPlugins();
@@ -189,7 +173,7 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.onSetUp();
 
         dbHelper.onSetUp();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
@@ -326,9 +310,9 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges() throws Exception {
+    public void shouldCancelBuildsForDeletedJobsWhenPipelineConfigChanges(@TempDir Path tempDir) throws Exception {
         buildAssignmentService.initialize();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir).usingTwoJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         fixture.createPipelineWithFirstStageScheduled();
 
@@ -357,9 +341,9 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelBuildsForAllJobsWhenPipelineIsDeleted() throws Exception {
+    public void shouldCancelBuildsForAllJobsWhenPipelineIsDeleted(@TempDir Path tempDir) throws Exception {
         buildAssignmentService.initialize();
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir).usingTwoJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         fixture.createPipelineWithFirstStageScheduled();
 

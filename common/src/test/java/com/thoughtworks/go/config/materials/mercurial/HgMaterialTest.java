@@ -29,23 +29,20 @@ import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
-import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
@@ -55,11 +52,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class HgMaterialTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private static final HgVersion LINUX_HG_094 = HgVersion.parse("Mercurial Distributed SCM (version 0.9.4)\n");
     private static final HgVersion WINDOWS_HG_OFFICIAL_102 = HgVersion.parse("Mercurial Distributed SCM (version 1.0.2+20080813)\n");
     private static final String WINDOWS_HG_TORTOISE = "Mercurial Distributed SCM (version 626cb86a6523+tortoisehg)";
@@ -99,27 +92,19 @@ public class HgMaterialTest {
         private InMemoryStreamConsumer outputStreamConsumer;
 
         @BeforeEach
-        void setUp() throws Exception {
-            temporaryFolder.create();
-            hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
+        void setUp(@TempDir Path tempDir) throws Exception {
+            hgTestRepo = new HgTestRepo("hgTestRepo1", tempDir);
             hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
-            workingFolder = temporaryFolder.newFolder("workingFolder");
+            workingFolder = TempDirUtils.createTempDirectoryIn(tempDir, "workingFolder").toFile();
             outputStreamConsumer = inMemoryConsumer();
         }
 
-        @AfterEach
-        void teardown() {
-            temporaryFolder.delete();
-            FileUtils.deleteQuietly(workingFolder);
-            TestRepo.internalTearDown();
-        }
-
         @Test
-        void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
+        void shouldRefreshWorkingFolderWhenRepositoryChanged(@TempDir Path tempDir) throws Exception {
             new HgCommand(null, workingFolder, "default", hgTestRepo.url().originalArgument(), null).clone(inMemoryConsumer(), hgTestRepo.url());
             File testFile = createNewFileInWorkingFolder();
 
-            HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2", temporaryFolder);
+            HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2", tempDir);
             hgMaterial = MaterialsMother.hgMaterial(hgTestRepo2.projectRepositoryUrl());
             hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 

@@ -50,27 +50,26 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ClearSingleton.class)
@@ -81,7 +80,6 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ScheduledPipelineLoaderIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -106,16 +104,14 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     GoConfigFileHelper configHelper;
     private SvnTestRepoWithExternal svnRepo;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper(goConfigDao);
         dbHelper.onSetUp();
         goCache.clear();
         configHelper.onSetUp();
-        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
+        svnRepo = new SvnTestRepoWithExternal(tempDir);
         cleanupTempFolders();
     }
 
@@ -129,8 +125,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     public void tearDown() throws Exception {
         configHelper.onTearDown();
         dbHelper.onTearDown();
-        TestRepo.internalTearDown();
-        cleanupTempFolders();
+                cleanupTempFolders();
     }
 
     @Test
@@ -329,8 +324,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldLoadShallowCloneFlagForGitMaterialsBaseOnTheirOwnPipelineConfig() throws IOException {
-        GitTestRepo testRepo = new GitTestRepo(temporaryFolder);
+    public void shouldLoadShallowCloneFlagForGitMaterialsBaseOnTheirOwnPipelineConfig(@TempDir Path tempDir) throws IOException {
+        GitTestRepo testRepo = new GitTestRepo(tempDir);
 
         JobConfig jobConfig = new JobConfig("job-one");
         jobConfig.addTask(new AntTask());

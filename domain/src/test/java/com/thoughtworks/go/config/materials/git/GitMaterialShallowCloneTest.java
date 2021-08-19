@@ -22,17 +22,15 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
+import com.thoughtworks.go.util.TempDirUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -43,26 +41,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
 class GitMaterialShallowCloneTest {
-    @Rule
-    final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GitTestRepo repo;
     private File workingDir;
 
     @BeforeEach
-    void setup() throws IOException {
-        temporaryFolder.create();
-        repo = new GitTestRepo(temporaryFolder);
-        workingDir = temporaryFolder.newFolder("working-dir");
-    }
-
-
-    @AfterEach
-    void teardown() {
-        TestRepo.internalTearDown();
-        temporaryFolder.delete();
+    void setup(@TempDir Path tempDir) throws IOException {
+        repo = new GitTestRepo(tempDir);
+        workingDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
     }
 
     @Test
@@ -73,7 +60,6 @@ class GitMaterialShallowCloneTest {
         assertThat(new GitMaterial(git(repo.projectRepositoryUrl())).isShallowClone()).isFalse();
         assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone()).isTrue();
         assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone()).isFalse();
-        TestRepo.internalTearDown();
     }
 
     @Test

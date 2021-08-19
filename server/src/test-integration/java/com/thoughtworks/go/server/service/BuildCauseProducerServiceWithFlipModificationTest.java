@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -47,28 +46,26 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -77,11 +74,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceWithFlipModificationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private static final String STAGE_NAME = "dev";
 
     @Autowired private GoConfigService goConfigService;
@@ -105,23 +98,22 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper();
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
-        svnRepository = new SvnTestRepo(temporaryFolder);
-        hgTestRepo = new HgTestRepo("testHgRepo", temporaryFolder);
+        svnRepository = new SvnTestRepo(tempDir);
+        hgTestRepo = new HgTestRepo("testHgRepo", tempDir);
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
         svnMaterialConfig = svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();

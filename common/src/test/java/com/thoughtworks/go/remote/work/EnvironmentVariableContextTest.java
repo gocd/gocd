@@ -27,23 +27,23 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.rules.TemporaryFolder;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.stream.Stream;
 
@@ -51,10 +51,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 @ExtendWith(SystemStubsExtension.class)
-@EnableRuleMigrationSupport
 public class EnvironmentVariableContextTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
+
     @SystemStub
     private SystemProperties systemProperties;
 
@@ -103,7 +103,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
-        materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
+        materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
 
         assertThat(context.getProperty("GO_REVISION_SVN")).isEqualTo("revision1");
         assertThat(context.getProperty("GO_MATERIAL_SVN_HAS_CHANGED")).isEqualTo("false");
@@ -122,7 +122,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
-        materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
+        materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
 
         assertThat(context.getProperty("GO_REVISION_SVN_DIR")).isEqualTo("revision1");
     }
@@ -138,7 +138,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
-        materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
+        materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
 
         assertThat(context.getProperty("GO_DEPENDENCY_LABEL_UPSTREAMPIPELINE")).isEqualTo("pipeline-label");
         assertThat(context.getProperty("GO_DEPENDENCY_LOCATOR_UPSTREAMPIPELINE")).isEqualTo("pipeline-name/1/stage-name/1");
@@ -155,7 +155,7 @@ public class EnvironmentVariableContextTest {
         context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
-        materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
+        materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
 
         assertThat(context.getProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME")).isEqualTo("pipeline-label");
         assertThat(context.getProperty("GO_DEPENDENCY_LOCATOR_PIPELINE_NAME")).isEqualTo("pipeline-name/1/stage-name/1");

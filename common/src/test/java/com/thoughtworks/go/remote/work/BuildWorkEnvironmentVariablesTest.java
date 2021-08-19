@@ -41,22 +41,22 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matcher;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,7 +67,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(MockitoExtension.class)
-@EnableRuleMigrationSupport
 public class BuildWorkEnvironmentVariablesTest {
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
@@ -90,17 +89,15 @@ public class BuildWorkEnvironmentVariablesTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private SystemEnvironment systemEnvironment = new SystemEnvironment();
+    @TempDir
+    Path tempDir;
 
     @BeforeEach
     public void setUp() throws Exception {
-        temporaryFolder.create();
-        dir = temporaryFolder.newFolder("someFolder");
+        dir = TempDirUtils.createTempDirectoryIn(tempDir, "someFolder").toFile();
         environmentVariableContext = new EnvironmentVariableContext();
-        repo = new SvnTestRepo(temporaryFolder);
+        repo = new SvnTestRepo(tempDir);
         command = new SvnCommand(null, repo.end2endRepositoryUrl());
 
         pipelineConfig = PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
@@ -108,15 +105,8 @@ public class BuildWorkEnvironmentVariablesTest {
         dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream1"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName = new DependencyMaterial(new CaseInsensitiveString("upstream2"), new CaseInsensitiveString(STAGE_NAME));
         dependencyMaterialWithName.setName(new CaseInsensitiveString("dependency_material_name"));
-        setupHgRepo();
+        setupHgRepo(tempDir);
 
-    }
-
-    @AfterEach
-    public void teardown() throws Exception {
-        TestRepo.internalTearDown();
-        hgTestRepo.tearDown();
-        FileUtils.deleteQuietly(dir);
     }
 
     @Test
@@ -141,9 +131,9 @@ public class BuildWorkEnvironmentVariablesTest {
         private P4Client p4Client;
 
         @BeforeEach
-        public void setUp() throws Exception {
+        public void setUp(@TempDir Path tempDir) throws Exception {
             p4Fixture = new P4Fixture();
-            p4Material = getP4Material();
+            p4Material = getP4Material(tempDir);
         }
 
         @AfterEach
@@ -177,12 +167,12 @@ public class BuildWorkEnvironmentVariablesTest {
             List<Builder> builders = new ArrayList<>();
             builders.add(new CommandBuilder("ant", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
             BuildAssignment assignment = BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
-            return new BuildWork(assignment, systemEnvironment.consoleLogCharset());
+            return new BuildWork(assignment, StandardCharsets.UTF_8.name());
         }
 
-        private P4Material getP4Material() throws Exception {
+        private P4Material getP4Material(Path tempDir) throws Exception {
             String view = "//depot/... //something/...";
-            P4TestRepo repo = P4TestRepo.createP4TestRepo(temporaryFolder, temporaryFolder.newFolder());
+            P4TestRepo repo = P4TestRepo.createP4TestRepo(tempDir, TempDirUtils.createTempDirectoryIn(tempDir, "p4client").toFile());
             repo.onSetup();
             p4Fixture.setRepo(repo);
             p4Client = p4Fixture.createClient();
@@ -195,7 +185,7 @@ public class BuildWorkEnvironmentVariablesTest {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs());
 
         BuildAssignment buildAssignment = createAssignment(new EnvironmentVariableContext("foo", "bar"));
-        BuildWork work = new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssignment, StandardCharsets.UTF_8.name());
         EnvironmentVariableContext environmentContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
@@ -234,7 +224,7 @@ public class BuildWorkEnvironmentVariablesTest {
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
 
         BuildAssignment buildAssigment = createAssignment(null);
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
@@ -259,7 +249,7 @@ public class BuildWorkEnvironmentVariablesTest {
     @Test
     public void shouldOutputEnvironmentVariablesIntoConsoleOut() throws IOException {
         BuildAssignment buildAssigment = createAssignment(null);
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
 
@@ -280,7 +270,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     @Test
     public void shouldSetEnvironmentVariableForSvnExternal() throws IOException {
-        SvnTestRepo repoExternals = new SvnTestRepoWithExternal(temporaryFolder);
+        SvnTestRepo repoExternals = new SvnTestRepoWithExternal(tempDir);
 
         command = new SvnCommand(null, repoExternals.projectRepositoryUrl(), null, null, true);
         svnMaterial = new SvnMaterial(command);
@@ -301,8 +291,8 @@ public class BuildWorkEnvironmentVariablesTest {
         return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
     }
 
-    private void setupHgRepo() throws IOException {
-        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
+    private void setupHgRepo(Path tempDir) throws IOException {
+        hgTestRepo = new HgTestRepo("hgTestRepo1", tempDir);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl(), "hg_Dir");
     }
 
@@ -334,7 +324,7 @@ public class BuildWorkEnvironmentVariablesTest {
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
 
         BuildAssignment buildAssigment = createAssignment(null);
-        BuildWork work = new BuildWork(buildAssigment, systemEnvironment.consoleLogCharset());
+        BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8.name());
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);

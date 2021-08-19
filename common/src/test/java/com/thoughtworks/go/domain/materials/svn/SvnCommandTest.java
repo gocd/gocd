@@ -18,9 +18,9 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.jdom2.input.SAXBuilder;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -81,18 +80,13 @@ public class SvnCommandTest {
         svnRepositoryUrl = testRepo.projectRepositoryUrl();
         subversion = new SvnCommand(null, svnRepositoryUrl, "user", "pass", false);
         outputStreamConsumer = inMemoryConsumer();
-        checkoutFolder = Files.createDirectory(tempDir.resolve("workingcopy")).toFile();
-    }
-
-    @AfterEach
-    void teardown() {
-        testRepo.tearDown();
+        checkoutFolder = TempDirUtils.createTempDirectoryIn(tempDir, "workingcopy").toFile();
     }
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldRecogniseSvnAsTheSameIfURLContainsSpaces() throws Exception {
-        File working = Files.createDirectory(tempDir.resolve("shouldRecogniseSvnAsTheSameIfURLContainsSpaces")).toFile();
+        File working = TempDirUtils.createTempDirectoryIn(tempDir, "shouldRecogniseSvnAsTheSameIfURLContainsSpaces").toFile();
         SvnTestRepo repo = new SvnTestRepo(tempDir, "a directory with spaces");
         SvnMaterial material = repo.material();
         assertThat(material.getUrl()).contains("%20");
@@ -110,7 +104,7 @@ public class SvnCommandTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldRecogniseSvnAsTheSameIfURLUsesFileProtocol() throws Exception {
         SvnTestRepo repo = new SvnTestRepo(tempDir);
-        File working = Files.createDirectory(tempDir.resolve("someDir")).toFile();
+        File working = TempDirUtils.createTempDirectoryIn(tempDir, "someDir").toFile();
         SvnMaterial material = repo.material();
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         material.freshCheckout(output, new SubversionRevision("3"), working);
@@ -129,7 +123,7 @@ public class SvnCommandTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldRecogniseSvnAsTheSameIfURLContainsChineseCharacters() throws Exception {
-        File working = Files.createDirectory(tempDir.resolve("shouldRecogniseSvnAsTheSameIfURLContainsSpaces")).toFile();
+        File working = TempDirUtils.createTempDirectoryIn(tempDir, "shouldRecogniseSvnAsTheSameIfURLContainsSpaces").toFile();
         SvnTestRepo repo = new SvnTestRepo(tempDir, "a directory with 司徒空在此");
         SvnMaterial material = repo.material();
         assertThat(material.getUrl()).contains("%20");

@@ -29,23 +29,22 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -54,7 +53,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialDatabaseUpdater updater;
@@ -72,17 +70,13 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired private SCMExtension scmExtension;
     @Autowired private SecretParamResolver secretParamResolver;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-
     private GitTestRepo testRepo;
     private MaterialDatabaseUpdaterIntegrationTest.TransactionTemplateWithInvocationCount transactionTemplateWithInvocationCount;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
-        testRepo = new GitTestRepo(temporaryFolder);
+        testRepo = new GitTestRepo(tempDir);
 
         MaterialService slowMaterialService = new MaterialServiceWhichSlowsDownFirstTimeModificationCheck(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension);
         LegacyMaterialChecker materialChecker = new LegacyMaterialChecker(slowMaterialService, subprocessExecutionContext);

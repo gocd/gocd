@@ -18,11 +18,9 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.DirHandler;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,10 +31,8 @@ import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class BuildWorkArtifactFetchingTest {
     private static final String PIPELINE_NAME = "pipeline1";
@@ -77,11 +73,6 @@ public class BuildWorkArtifactFetchingTest {
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", AGENT_UUID);
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
         environmentVariableContext = new EnvironmentVariableContext();
-    }
-
-    @AfterEach
-    public void teardown() throws Exception {
-        TestRepo.internalTearDown();
     }
 
     @Test

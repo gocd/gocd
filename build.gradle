@@ -245,8 +245,8 @@ allprojects {
 
 idea {
   project {
-    jdkName = '11'
-    languageLevel = '11'
+    jdkName = project.compilerOptions.targetCompatibility
+    languageLevel = project.compilerOptions.sourceCompatibility
   }
 }
 

@@ -52,6 +52,7 @@ class LicenseReport {
     CDDL_1_1_GPL_2_0,
     EDL_1_0,
     EPL_1_0,
+    EPL_2_0,
     GPL_2_0_CLASSPATH_EXCEPTION,
     LGPL_2_1,
     LGPL_3_0,

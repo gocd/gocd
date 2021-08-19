@@ -240,7 +240,6 @@ allprojects {
 
   repositories {
     mavenCentral()
-    maven { url "https://repo1.maven.org/maven2/" } // for things that disappeared from repo.maven.apache.org
   }
 }
 

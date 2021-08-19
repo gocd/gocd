@@ -19,12 +19,6 @@ apply plugin: "groovy"
 
 repositories {
   mavenCentral()
-  jcenter {
-    content {
-      // this repository contains everything BUT artifacts with group starting with "my.company"
-      includeModule "org.ysb33r.gradle", "grolifant"
-    }
-  }
 }
 
 dependencies {

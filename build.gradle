@@ -108,7 +108,7 @@ List<String> partitionFiles(Collection originalFiles) {
 
   def allPartitions = files.collate(testsPerBucket)
   def currentPartition = allPartitions[currentWorkerIndex - 1]
-  return currentPartition ?: []
+  return currentPartition ?: [] as List<String>
 }
 
 def GO_VERSION_PREVIOUS = '21.2.0'
@@ -415,7 +415,6 @@ subprojects {
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.17.0'
       ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
       ruleSets = []
       incrementalAnalysis = true

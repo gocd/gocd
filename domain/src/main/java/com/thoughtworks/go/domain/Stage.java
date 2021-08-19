@@ -19,6 +19,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.jetbrains.annotations.TestOnly;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
@@ -488,10 +489,7 @@ public class Stage extends PersistentObject {
         return this.configVersion;
     }
 
-    /**
-     * for tests only
-     */
-    @Deprecated
+    @TestOnly
     public void setConfigVersion(String configVersion) {
         this.configVersion = configVersion;
     }

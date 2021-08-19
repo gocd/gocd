@@ -40,6 +40,7 @@ import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -620,9 +621,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         }
     }
 
-    /**
-     * @deprecated Not used in production
-     */
+    @TestOnly
     public void save(MaterialRevisions materialRevisions) {
         for (MaterialRevision materialRevision : materialRevisions) {
             saveMaterialRevision(materialRevision);

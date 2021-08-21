@@ -36,7 +36,6 @@ dependencies {
   implementation project.deps.mail
 
   api project.deps.assertJ
-  compileOnly project.deps.junit4
   api project.deps.junit5
   api project.deps.junit5Params
   api project.deps.systemStubs

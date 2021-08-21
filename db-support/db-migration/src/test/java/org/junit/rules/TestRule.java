@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-description = 'GoCD Agent Common Utilities'
+package org.junit.rules;
 
-dependencies {
-  annotationProcessor project.deps.lombok
-
-  api project(':base')
-  api project.deps.jcommander
-
-  testRuntimeOnly project.deps.bouncyCastle
-  testRuntimeOnly project.deps.bouncyCastlePkix
-  testImplementation project.deps.mockito
-  testImplementation project.deps.hamcrestLibrary
-  testImplementation project(':test:test-utils')
-  testImplementation project.deps.junit5
-  testRuntimeOnly project.deps.junit5Engine
+/*
+  TestContainers has an (unused) compile dependency on JUnit4. Should be able to be removed with
+  TestContainers 2.x
+  See https://github.com/testcontainers/testcontainers-java/issues/970
+ */
+@SuppressWarnings("unused")
+public interface TestRule {
 }

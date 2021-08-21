@@ -646,13 +646,7 @@ subprojects {
     }
   }
 
-  if (project.path.startsWith(':api:') || project.path.startsWith(':spark:')) {
-    project.afterEvaluate {
-      project.configurations*.exclude(group: 'org.junit.vintage')
-      project.configurations*.exclude(group: 'junit')
-    }
-  }
-
+  project.configurations*.exclude(group: 'junit')
   project.configurations*.exclude(group: 'xalan')
   project.configurations*.exclude(group: 'xml-apis')
 }

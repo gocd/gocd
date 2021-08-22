@@ -18,6 +18,8 @@ package com.thoughtworks.go.agent.launcher;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
+import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
+import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.codec.binary.Hex;
@@ -27,10 +29,9 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -49,11 +50,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
+@ExtendWith(FakeGoServerExtension.class)
 public class ServerBinaryDownloaderTest {
 
-    @Rule
-    public FakeGoServer server = new FakeGoServer();
+    @GoTestResource
+    public FakeGoServer server;
 
     @AfterEach
     public void tearDown() {

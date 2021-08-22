@@ -25,7 +25,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
@@ -39,7 +39,7 @@ import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 
-public class FakeGoServer extends ExternalResource {
+public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
     public enum TestResource {
         TEST_AGENT(Resource.newClassPathResource("testdata/gen/test-agent.jar")),
         TEST_AGENT_LAUNCHER(Resource.newClassPathResource("testdata/gen/agent-launcher.jar")),
@@ -83,6 +83,9 @@ public class FakeGoServer extends ExternalResource {
     private int securePort;
     private String extraPropertiesHeaderValue;
 
+    FakeGoServer() {
+    }
+
     public int getPort() {
         return port;
     }
@@ -92,30 +95,23 @@ public class FakeGoServer extends ExternalResource {
     }
 
     @Override
-    protected void before() throws Throwable {
-        start();
-    }
-
-    @Override
-    protected void after() {
-        try {
-            stop();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void close() throws Throwable {
+        stop();
     }
 
     private void stop() throws Exception {
-        server.stop();
-        server.join();
+        if (server != null) {
+            server.stop();
+            server.join();
+        }
     }
 
-    private void start() throws Exception {
+    void start() throws Exception {
         server = new Server();
         ServerConnector connector = new ServerConnector(server);
         server.addConnector(connector);
 
-        SslContextFactory sslContextFactory = new SslContextFactory();
+        SslContextFactory sslContextFactory = new SslContextFactory.Server();
         sslContextFactory.setCertAlias("cruise");
         sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/fake-server-keystore"));
         sslContextFactory.setKeyStorePassword("serverKeystorepa55w0rd");

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import filesize from "filesize";
 import m from "mithril";
 import {ServerInfoWidget} from "views/pages/server_info/server_info_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -31,7 +30,7 @@ describe("Server Info Widget", () => {
     os_information: "Linux 4.14.104-95.84.amzn2.x86_64",
   };
 
-  it("should show Sever Information", () => {
+  it("should show Server Information", () => {
     mount();
 
     expect(helper.textByTestId("about-page")).toContain("Go Server Version:");
@@ -44,7 +43,7 @@ describe("Server Info Widget", () => {
     expect(helper.textByTestId("about-page")).toContain(metaInfo.os_information);
 
     expect(helper.textByTestId("about-page")).toContain("Usable space in artifacts repository:");
-    expect(helper.textByTestId("about-page")).toContain(filesize(metaInfo.usable_space_in_artifacts_repository));
+    expect(helper.textByTestId("about-page")).toContain("117.73 MB");
 
     expect(helper.textByTestId("about-page")).toContain("Pipelines Count:");
     expect(helper.textByTestId("about-page")).toContain(`${metaInfo.pipeline_count}`);

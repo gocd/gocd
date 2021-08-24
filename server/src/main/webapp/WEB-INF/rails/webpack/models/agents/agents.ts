@@ -150,7 +150,7 @@ export class Agent {
   readableFreeSpace() {
     try {
       if (_.isNumber(this.freeSpace)) {
-        return filesize(this.freeSpace);
+        return filesize(this.freeSpace, {base: 2, standard: "jedec"});
       } else {
         return "Unknown";
       }

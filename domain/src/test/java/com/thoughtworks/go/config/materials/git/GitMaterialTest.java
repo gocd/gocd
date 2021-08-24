@@ -294,16 +294,12 @@ public class GitMaterialTest {
         @EnabledOnOs({OS.WINDOWS})
         void shouldThrowExceptionWhenWorkingDirectoryIsNotGitRepoAndItsUnableToDeleteIt() throws IOException {
             File fileToBeLocked = new File(workingDir, "file");
-            RandomAccessFile lockedFile = new RandomAccessFile(fileToBeLocked, "rw");
-            FileLock lock = lockedFile.getChannel().lock();
-            try {
-                git.latestModification(workingDir, new TestSubprocessExecutionContext());
-                fail("Should have failed to check modifications since the file is locked and cannot be removed.");
-            } catch (Exception e) {
-                assertThat("Failed to delete directory: " + workingDir.getAbsolutePath().trim()).isEqualTo(e.getMessage().trim());
+            try (RandomAccessFile lockedFile = new RandomAccessFile(fileToBeLocked, "rw");
+                 FileLock ignored = lockedFile.getChannel().lock()) {
+                assertThatThrownBy(() -> git.latestModification(workingDir, new TestSubprocessExecutionContext()),
+                        "Should have failed to check modifications since the file is locked and cannot be removed.")
+                        .hasMessageContaining("Failed to delete directory: " + workingDir.getAbsolutePath());
                 assertThat(fileToBeLocked.exists()).isTrue();
-            } finally {
-                lock.release();
             }
         }
 

@@ -52,7 +52,7 @@ public class ZipUtilTest {
     private File emptyDir;
 
     private static String fileContent(File file) throws IOException {
-        return IOUtils.toString(new FileInputStream(file), UTF_8);
+        return Files.readString(file.toPath());
     }
 
     @BeforeEach

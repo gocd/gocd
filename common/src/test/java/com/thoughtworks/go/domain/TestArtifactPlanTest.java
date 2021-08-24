@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -50,7 +51,8 @@ public class TestArtifactPlanTest {
         );
         compositeTestArtifact.publishBuiltInArtifacts(mockArtifactPublisher, rootPath.toFile());
         verify(mockArtifactPublisher).taggedConsumeLineWithPrefix(DefaultGoPublisher.PUBLISH_ERR,
-                String.format("The Directory %s/some_random_path_that_does_not_exist specified as a test artifact was not found. Please check your configuration", rootPath.toString()));
+                String.format("The Directory %s specified as a test artifact was not found. Please check your configuration",
+                        FilenameUtils.separatorsToUnix(rootPath.resolve("some_random_path_that_does_not_exist").toString())));
     }
 
     @Test

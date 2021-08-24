@@ -50,18 +50,8 @@ public class FetchArtifactBuilderTest {
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        File folder = TempDirUtils.createTempDirectoryIn(tempDir, "log").toFile();
-        File consolelog = new File(folder, "console.log");
-        folder.mkdirs();
-        consolelog.createNewFile();
+        createZipArtifactIn(tempDir);
 
-
-        File uniqueTempFile = new File(folder, UUID.randomUUID().toString());
-        uniqueTempFile.createNewFile();
-
-        zip = new ZipUtil().zip(folder, uniqueTempFile, Deflater.NO_COMPRESSION);
-        toClean.add(folder);
-        toClean.add(zip);
         dest = new File("dest");
         dest.mkdirs();
         toClean.add(dest);
@@ -70,6 +60,16 @@ public class FetchArtifactBuilderTest {
         checksumFileHandler = mock(ChecksumFileHandler.class);
         urlService = mock(URLService.class);
         downloadAction = mock(DownloadAction.class);
+    }
+
+    private void createZipArtifactIn(Path tempDir) throws IOException {
+        File logFolder = TempDirUtils.createTempDirectoryIn(tempDir, "log").toFile();
+        File consolelog = new File(logFolder, "console.log");
+        logFolder.mkdirs();
+        consolelog.createNewFile();
+        File uniqueTempFile = new File(logFolder, UUID.randomUUID().toString());
+        uniqueTempFile.createNewFile();
+        zip = new ZipUtil().zip(logFolder, uniqueTempFile, Deflater.NO_COMPRESSION);
     }
 
     @AfterEach
@@ -220,7 +220,9 @@ public class FetchArtifactBuilderTest {
     private class StubFetchZipHttpService extends HttpService {
         @Override
         public int download(String url, FetchHandler handler) throws IOException {
-            handler.handle(new FileInputStream(zip));
+            try (FileInputStream stream = new FileInputStream(zip)) {
+                handler.handle(stream);
+            }
             return SC_OK;
         }
     }

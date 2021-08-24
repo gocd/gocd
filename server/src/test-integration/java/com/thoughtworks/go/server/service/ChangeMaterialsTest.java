@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
@@ -88,7 +87,9 @@ public class ChangeMaterialsTest {
     }
 
     @AfterAll
-    public static void tearDownConfigFileLocation() {
+    public static void tearDown() {
+        p4TestRepo.stop();
+        p4TestRepo.tearDown();
     }
 
     @BeforeEach
@@ -114,7 +115,7 @@ public class ChangeMaterialsTest {
     public void teardown() throws Exception {
         cruiseConfig.initializeConfigFile();
         dbHelper.onTearDown();
-                cruiseConfig.onTearDown();
+        cruiseConfig.onTearDown();
     }
 
     @Test

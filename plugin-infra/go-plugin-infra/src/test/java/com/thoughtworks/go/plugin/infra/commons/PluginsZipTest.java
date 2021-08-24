@@ -112,18 +112,17 @@ class PluginsZipTest {
         pluginsZip.create();
 
         assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
-        ZipFile zipFile = new ZipFile(expectedZipPath);
-        assertThat(zipFile.getEntry("bundled/bundled-task-1.jar")).isNotNull();
-        assertThat(zipFile.getEntry("bundled/bundled-scm-3.jar")).isNotNull();
-        assertThat(zipFile.getEntry("bundled/bundled-package-material-4.jar")).isNotNull();
-        assertThat(zipFile.getEntry("external/external-task-1.jar")).isNotNull();
-        assertThat(zipFile.getEntry("external/external-scm-3.jar")).isNotNull();
-        assertThat(zipFile.getEntry("external/external-package-material-4.jar")).isNotNull();
+        try (ZipFile zipFile = new ZipFile(expectedZipPath)) {
+            assertThat(zipFile.getEntry("bundled/bundled-task-1.jar")).isNotNull();
+            assertThat(zipFile.getEntry("bundled/bundled-scm-3.jar")).isNotNull();
+            assertThat(zipFile.getEntry("bundled/bundled-package-material-4.jar")).isNotNull();
+            assertThat(zipFile.getEntry("external/external-task-1.jar")).isNotNull();
+            assertThat(zipFile.getEntry("external/external-scm-3.jar")).isNotNull();
+            assertThat(zipFile.getEntry("external/external-package-material-4.jar")).isNotNull();
 
-        assertThat(zipFile.getEntry("bundled/bundled-auth-2.jar")).isNull();
-        assertThat(zipFile.getEntry("external/external-elastic-agent-2.jar")).isNull();
-
-        zipFile.close();
+            assertThat(zipFile.getEntry("bundled/bundled-auth-2.jar")).isNull();
+            assertThat(zipFile.getEntry("external/external-elastic-agent-2.jar")).isNull();
+        }
     }
 
     @Test
@@ -242,13 +241,12 @@ class PluginsZipTest {
         pluginsZip = spy(new PluginsZip(systemEnvironment, pluginManager));
         pluginsZip.create();
 
-
-        ZipFile zipFile = new ZipFile(expectedZipPath);
-        assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
-        assertThat(EnumerationUtils.toList(zipFile.entries()).size()).isEqualTo(2);
-        assertThat(zipFile.getEntry("bundled/bundled-multi-plugin-1.jar")).isNotNull();
-        assertThat(zipFile.getEntry("external/external-multi-plugin-1.jar")).isNotNull();
-        zipFile.close();
+        try (ZipFile zipFile = new ZipFile(expectedZipPath)) {
+            assertThat(new File(expectedZipPath).exists()).as(expectedZipPath + " should exist").isTrue();
+            assertThat(EnumerationUtils.toList(zipFile.entries()).size()).isEqualTo(2);
+            assertThat(zipFile.getEntry("bundled/bundled-multi-plugin-1.jar")).isNotNull();
+            assertThat(zipFile.getEntry("external/external-multi-plugin-1.jar")).isNotNull();
+        }
     }
 
     private GoPluginDescriptor getPluginDescriptor(String id, File jarFileLocation, boolean bundledPlugin) {

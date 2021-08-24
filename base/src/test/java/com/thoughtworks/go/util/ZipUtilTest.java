@@ -26,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +42,7 @@ import static org.assertj.core.api.Assertions.fail;
 public class ZipUtilTest {
     @TempDir
     Path tempDir;
-    
+
     private File srcDir;
     private File destDir;
     private ZipUtil zipUtil;
@@ -153,9 +154,10 @@ public class ZipUtilTest {
         FileUtils.writeStringToFile(new File(srcDir, "some-file.txt"), "some-text-here", UTF_8);
         zipFile = zipUtil.zip(srcDir, createFileInTempDir(), Deflater.NO_COMPRESSION);
 
-        String someStuff = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(zipFile)), "some-file.txt");
-
-        assertThat(someStuff).isEqualTo("some-text-here");
+        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(zipFile))) {
+            String someStuff = zipUtil.getFileContentInsideZip(zip, "some-file.txt");
+            assertThat(someStuff).isEqualTo("some-text-here");
+        }
     }
 
     @Test
@@ -215,10 +217,10 @@ public class ZipUtilTest {
         file.setLastModified(1297989100000L); // Set this to any date in the past which is greater than the epoch
         File zip = zipUtil.zip(file, tempDir.resolve("foo.zip").toFile(), Deflater.DEFAULT_COMPRESSION);
 
-        ZipFile actualZip = new ZipFile(zip.getAbsolutePath());
-        ZipEntry entry = actualZip.getEntry(file.getName());
-
-        assertThat(entry.getTime()).isEqualTo(file.lastModified());
+        try (ZipFile actualZip = new ZipFile(zip.getAbsolutePath())) {
+            ZipEntry entry = actualZip.getEntry(file.getName());
+            assertThat(entry.getTime()).isEqualTo(file.lastModified());
+        }
     }
 
     @Test
@@ -233,21 +235,28 @@ public class ZipUtilTest {
 
     @Test
     void shouldReadContentFromFileInsideZip() throws IOException, URISyntaxException {
-        String contents = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI()))), "version.txt");
-        assertThat(contents).isEqualTo("13.3.0(17222-4c7fabcb9c9e9c)");
+        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI())))) {
+            String contents = zipUtil.getFileContentInsideZip(zip, "version.txt");
+            assertThat(contents).isEqualTo("13.3.0(17222-4c7fabcb9c9e9c)");
+        }
     }
 
     @Test
     void shouldReturnNullIfTheFileByTheNameDoesNotExistInsideZip() throws IOException, URISyntaxException {
-        String contents = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI()))), "does_not_exist.txt");
-        assertThat(contents).isNull();
+        try (ZipInputStream zip = new ZipInputStream(new FileInputStream(new File(getClass().getResource("/dummy-plugins.zip").toURI())))) {
+            String contents = zipUtil.getFileContentInsideZip(zip, "does_not_exist.txt");
+            assertThat(contents).isNull();
+        }
     }
 
     private void assertContent(File targetZipFile, String file, String expectedContent) throws IOException {
-        ZipFile actualZip = new ZipFile(targetZipFile);
-        ZipEntry entry = actualZip.getEntry(file);
-        assertThat(entry).isNotNull();
-        assertThat(IOUtils.toString(actualZip.getInputStream(entry), UTF_8)).isEqualTo(expectedContent);
+        try (ZipFile actualZip = new ZipFile(targetZipFile)) {
+            ZipEntry entry = actualZip.getEntry(file);
+            assertThat(entry).isNotNull();
+            try (InputStream entryStream = actualZip.getInputStream(entry)) {
+                assertThat(IOUtils.toString(entryStream, UTF_8)).isEqualTo(expectedContent);
+            }
+        }
     }
 
     private void assertIsDirectory(File file) {

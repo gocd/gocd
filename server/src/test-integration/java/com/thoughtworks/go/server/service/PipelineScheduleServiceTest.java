@@ -26,7 +26,11 @@ import com.thoughtworks.go.domain.materials.TestingMaterial;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.PipelineScheduleQueueMatcher;
+import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.SvnTestRepo;
+import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -40,25 +44,24 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -68,7 +71,6 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class PipelineScheduleServiceTest {
     @Autowired private ScheduleService scheduleService;
     @Autowired private GoConfigDao goConfigDao;
@@ -87,8 +89,6 @@ public class PipelineScheduleServiceTest {
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private AgentService agentService;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages pipelineWithTwoStages;
     private PipelineConfig mingleConfig;
@@ -102,11 +102,11 @@ public class PipelineScheduleServiceTest {
     private PipelineConfig goConfig;
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        testRepo = new SvnTestRepo(temporaryFolder);
+        testRepo = new SvnTestRepo(tempDir);
         dbHelper.onSetUp();
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         mingleConfig = configHelper.addPipeline("mingle", STAGE_NAME, repository, "unit", "functional");
@@ -259,8 +259,8 @@ public class PipelineScheduleServiceTest {
     }
 
     @Test
-    public void shouldForceFirstStagePlan() throws Exception {
-        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+    public void shouldForceFirstStagePlan(@TempDir Path tempDir) throws Exception {
+        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
         pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);
@@ -268,8 +268,8 @@ public class PipelineScheduleServiceTest {
     }
 
     @Test
-    public void shouldForceFirstStagePlanWhenOtherStageIsRunning() throws Exception {
-        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+    public void shouldForceFirstStagePlanWhenOtherStageIsRunning(@TempDir Path tempDir) throws Exception {
+        pipelineWithTwoStages = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineWithTwoStages.usingDbHelper(dbHelper).usingConfigHelper(configHelper).onSetUp();
         pipelineWithTwoStages.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Pipeline pipeline = manualSchedule(pipelineWithTwoStages.pipelineName);

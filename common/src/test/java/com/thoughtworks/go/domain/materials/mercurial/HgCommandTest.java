@@ -17,18 +17,18 @@ package com.thoughtworks.go.domain.materials.mercurial;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +38,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-@EnableRuleMigrationSupport
 public class HgCommandTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private File serverRepo;
     private File clientRepo;
 
@@ -56,10 +52,10 @@ public class HgCommandTest {
     private File secondBranchWorkingCopy;
 
     @BeforeEach
-    public void setUp() throws IOException {
-        serverRepo = temporaryFolder.newFolder("testHgServerRepo");
-        clientRepo = temporaryFolder.newFolder("testHgClientRepo");
-        secondBranchWorkingCopy = temporaryFolder.newFolder("second");
+    public void setUp(@TempDir Path tempDir) throws IOException {
+        serverRepo = TempDirUtils.createTempDirectoryIn(tempDir, "testHgServerRepo").toFile();
+        clientRepo =  TempDirUtils.createTempDirectoryIn(tempDir, "testHgClientRepo").toFile();
+        secondBranchWorkingCopy =  TempDirUtils.createTempDirectoryIn(tempDir, "second").toFile();
 
         setUpServerRepoFromHgBundle(serverRepo, new File("../common/src/test/resources/data/hgrepo.hgbundle"));
         workingDirectory = new File(clientRepo.getPath());

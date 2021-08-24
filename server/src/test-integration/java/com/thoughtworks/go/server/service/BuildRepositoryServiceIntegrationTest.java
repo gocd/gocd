@@ -38,14 +38,12 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -54,16 +52,14 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -73,7 +69,6 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildRepositoryServiceIntegrationTest {
     @Autowired
     private BuildRepositoryService buildRepositoryService;
@@ -110,9 +105,6 @@ public class BuildRepositoryServiceIntegrationTest {
     @Autowired
     private AgentService agentService;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private static GoConfigFileHelper config = new GoConfigFileHelper();
     private PipelineConfig mingle;
     private static final String DEV_STAGE = "dev";
@@ -124,20 +116,16 @@ public class BuildRepositoryServiceIntegrationTest {
     private static final String HOSTNAME = "10.18.0.1";
     private final String md5 = "md5-test";
 
-    @AfterAll
-    public static void tearDownConfigFileLocation() throws IOException {
-        TestRepo.internalTearDown();
-    }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
 
         dbHelper.onSetUp();
         config.onSetUp();
         config.usingCruiseConfigDao(goConfigDao);
         goConfigService.forceNotifyListeners();
 
-        svnTestRepo = new SvnTestRepo(temporaryFolder);
+        svnTestRepo = new SvnTestRepo(tempDir);
 
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         config.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");

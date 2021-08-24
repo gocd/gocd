@@ -27,17 +27,17 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,13 +46,13 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterial.SQL_CRITERIA_TYPE;
 import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class TfsMaterialTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
     private TfsMaterial tfsMaterialFirstCollectionFirstProject;
     private TfsMaterial tfsMaterialFirstCollectionSecondProject;
@@ -72,7 +72,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldShowLatestModification() throws IOException {
-        File dir = temporaryFolder.newFolder("tfs-dir");
+        File dir = TempDirUtils.createTempDirectoryIn(tempDir, "tfs-dir").toFile();
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionSecondProject);
         TfsCommand tfsCommand = mock(TfsCommand.class);
@@ -87,7 +87,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldLoadAllModificationsSinceAGivenRevision() throws IOException {
-        File dir = temporaryFolder.newFolder("tfs-dir");
+        File dir = TempDirUtils.createTempDirectoryIn(tempDir, "tfs-dir").toFile();
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionFirstProject);
         TfsCommand tfsCommand = mock(TfsCommand.class);

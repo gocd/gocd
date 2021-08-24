@@ -28,22 +28,22 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
+
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -52,7 +52,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class UpdateAgentStatusTest {
     @Autowired
     private AgentService agentService;
@@ -68,19 +67,16 @@ public class UpdateAgentStatusTest {
     @Autowired
     private MaterialRepository materialRepository;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private PipelineWithTwoStages preCondition;
     private String agentId = "uuid";
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
-        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
         agentService.saveOrUpdate(new Agent(agentId, "CCEDev01", "10.81.2.1", "cookie"));

@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -124,7 +125,7 @@ public class FeatureToggleRepositoryTest {
 
     @Test
     public void shouldAllowChangingValueOfAToggleWhenTheUserTogglesFileDoesNotExist() throws Exception {
-        File togglesDir = Files.createDirectory(temporaryFolder.resolve("toggles.dir")).toFile();
+        File togglesDir = TempDirUtils.createTempDirectoryIn(temporaryFolder, "toggles.dir").toFile();
         File nonExistentUserToggleFile = new File(togglesDir, "a-non-existent-file");
         setupUserToggleFileAs(nonExistentUserToggleFile);
         setupAvailableToggles(new FeatureToggle("key1", "desc1", true));

@@ -16,32 +16,19 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.util.command.CommandLine;
-import org.junit.Rule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@EnableRuleMigrationSupport
 public class CommandBuilderTest {
 
-    private File tempWorkDir;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-
-    @BeforeEach
-    void setUp() throws IOException {
-        temporaryFolder.create();
-        tempWorkDir = temporaryFolder.newFolder();
-    }
+    @TempDir
+    File tempWorkDir;
 
     @Test
     @EnabledOnOs(OS.WINDOWS)

@@ -26,18 +26,17 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.JsonValue;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -45,13 +44,13 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class SvnMaterialTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
     private Subversion subversion;
 
@@ -62,7 +61,6 @@ public class SvnMaterialTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        temporaryFolder.create();
         subversion = mock(Subversion.class);
 
         when(subversion.getUrl()).thenReturn(new UrlArgument(URL));
@@ -70,17 +68,12 @@ public class SvnMaterialTest {
         when(subversion.getUserName()).thenReturn("");
         when(subversion.isCheckExternals()).thenReturn(false);
 
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
+        svnMaterial = new SvnMaterial(subversion);
         svnMaterial.setUrl(URL);
     }
 
-    @AfterEach
-    void tearDown() {
-        temporaryFolder.delete();
-    }
-
     private File createSvnWorkingCopy(boolean withDotSvnFolder) throws IOException {
-        File folder = temporaryFolder.newFolder("testSvnWorkingCopy");
+        File folder = TempDirUtils.createTempDirectoryIn(tempDir, "testSvnWorkingCopy").toFile();
         if (withDotSvnFolder) {
             File dotSvnFolder = new File(folder, ".svn");
             dotSvnFolder.mkdir();

@@ -29,32 +29,31 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -63,7 +62,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceIntegrationHgTest {
 
     private static final String STAGE_NAME = "dev";
@@ -82,30 +80,26 @@ public class BuildCauseProducerServiceIntegrationHgTest {
     private HgMaterial hgMaterial;
     private File workingFolder;
     PipelineConfig mingleConfig;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
-        hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
+        hgTestRepo = new HgTestRepo("hgTestRepo1", tempDir);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         hgMaterial.setFilter(new Filter(new IgnoredFiles("helper/**/*.*")));
-        workingFolder = temporaryFolder.newFolder("workingFolder");
+        workingFolder = TempDirUtils.createTempDirectoryIn(tempDir, "workingFolder").toFile();
         outputStreamConsumer = inMemoryConsumer();
         mingleConfig = configHelper.addPipeline("cruise", STAGE_NAME, this.hgMaterial.config(), "unit", "functional");
     }
 
     @AfterEach
     public void teardown() throws Exception {
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         FileUtils.deleteQuietly(workingFolder);
-        TestRepo.internalTearDown();
-        pipelineScheduleQueue.clear();
+                pipelineScheduleQueue.clear();
     }
 
 

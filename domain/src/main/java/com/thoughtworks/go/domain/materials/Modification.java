@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -359,9 +360,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
         return pipelineLabel;
     }
 
-    /**
-     * @deprecated for tests only
-     */
+    @TestOnly
     public void setPipelineLabel(String pipelineLabel) {
         this.pipelineLabel = pipelineLabel;
     }

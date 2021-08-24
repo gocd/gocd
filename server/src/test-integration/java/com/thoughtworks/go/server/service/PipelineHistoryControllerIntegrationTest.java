@@ -27,13 +27,11 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -43,6 +41,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +56,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class PipelineHistoryControllerIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
@@ -66,8 +64,6 @@ public class PipelineHistoryControllerIntegrationTest {
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithMultipleStages fixture;
     private HttpServletResponse response;
@@ -75,8 +71,8 @@ public class PipelineHistoryControllerIntegrationTest {
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
-    public void setUp() throws Exception {
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
+    public void setUp(@TempDir Path tempDir) throws Exception {
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 

@@ -28,6 +28,5 @@ dependencies {
   testImplementation project.deps.hamcrestLibrary
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5
-  testImplementation project.deps.junit5Migration
   testRuntimeOnly project.deps.junit5Engine
 }

@@ -25,5 +25,4 @@ dependencies {
   testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.junit5Migration
 }

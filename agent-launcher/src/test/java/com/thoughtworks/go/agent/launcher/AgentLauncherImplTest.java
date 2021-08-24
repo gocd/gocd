@@ -21,14 +21,15 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
+import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
+import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,15 +44,16 @@ import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@EnableRuleMigrationSupport
+@ExtendWith(FakeGoServerExtension.class)
 public class AgentLauncherImplTest {
 
-    @Rule
-    public FakeGoServer server = new FakeGoServer();
+    @GoTestResource
+    public FakeGoServer server;
 
     @BeforeEach
     public void setUp() {

@@ -89,7 +89,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
 
     @Test
     void shouldCleanOutRepoWhenMaterialChanges() throws Exception {
-        P4TestRepo secondTestRepo = P4TestRepo.createP4TestRepo(temporaryFolder, clientFolder);
+        P4TestRepo secondTestRepo = P4TestRepo.createP4TestRepo(tempDir, clientFolder);
         try {
             secondTestRepo.onSetup();
 
@@ -114,7 +114,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
             assertThat(outputconsumer.getStdOut()).contains("Working directory has changed. Deleting and re-creating it.");
         } finally {
             secondTestRepo.stop();
-            secondTestRepo.onTearDown();
+            secondTestRepo.tearDown();
         }
     }
 

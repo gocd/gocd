@@ -49,19 +49,18 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,12 +72,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceDependencyIntegrationTest {
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     private static final String STAGE_NAME = "dev";
 
     @Autowired
@@ -193,7 +187,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
@@ -202,18 +196,18 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         minglePipeline = new MinglePipeline();
         goPipeline = new GoPipeline();
 
-        svnRepository = new SvnTestRepo(temporaryFolder);
+        svnRepository = new SvnTestRepo(tempDir);
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 
         svnMaterialRevs = new MaterialRevisions();
-        svnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        svnMaterial = new SvnMaterial(repository);
         svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
         final MaterialRevisions materialRevisions = new MaterialRevisions();
-        SvnMaterial anotherSvnMaterial = SvnMaterial.createSvnMaterialWithMock(repository);
+        SvnMaterial anotherSvnMaterial = new SvnMaterial(repository);
         materialRevisions.addRevision(anotherSvnMaterial, anotherSvnMaterial.latestModification(null, subprocessExecutionContext));
 
-        gitTestRepo = new GitTestRepo(temporaryFolder);
+        gitTestRepo = new GitTestRepo(tempDir);
         MaterialRevisions gitMaterialRevs = new MaterialRevisions();
         gitMaterial = gitTestRepo.createMaterial();
         gitMaterialRevs.addRevision(gitMaterial, gitTestRepo.latestModifications());
@@ -235,8 +229,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();
         dependencyMaterialUpdateNotifier.enableUpdates();

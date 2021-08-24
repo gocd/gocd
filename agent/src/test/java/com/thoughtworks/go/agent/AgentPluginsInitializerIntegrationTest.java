@@ -18,21 +18,22 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.ZipBuilder;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.agent.launcher.DownloadableFile.AGENT_PLUGINS;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -40,11 +41,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /* Some parts are mocked, as in AgentPluginsInitializerTest, but the file system (through ZipUtil) is not. */
-@EnableRuleMigrationSupport
 @ExtendWith(MockitoExtension.class)
 public class AgentPluginsInitializerIntegrationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
     @Mock
     private PluginManager pluginManager;
     @Mock
@@ -133,7 +133,7 @@ public class AgentPluginsInitializerIntegrationTest {
     }
 
     private File setupUnzippedPluginsDirectoryStructure() throws IOException {
-        File dir = temporaryFolder.newFolder("unzipped-plugins");
+        File dir = TempDirUtils.createTempDirectoryIn(tempDir, "unzipped-plugins").toFile();
         FileUtils.forceMkdir(new File(dir, "bundled"));
         FileUtils.forceMkdir(new File(dir, "external"));
         return dir;
@@ -143,7 +143,7 @@ public class AgentPluginsInitializerIntegrationTest {
         return new SetupOfAgentPluginsFile(AGENT_PLUGINS.getLocalFile());
     }
 
-    private void cleanupAgentPluginsFile() throws IOException {
+    private void cleanupAgentPluginsFile() {
         FileUtils.deleteQuietly(AGENT_PLUGINS.getLocalFile());
     }
 
@@ -156,9 +156,9 @@ public class AgentPluginsInitializerIntegrationTest {
 
         SetupOfAgentPluginsFile(File pluginsZipFile) throws IOException {
             this.pluginsZipFile = pluginsZipFile;
-            this.bundledPluginsDir = temporaryFolder.newFolder("bundled");
-            this.externalPluginsDir = temporaryFolder.newFolder("external");
-            this.dummyFileSoZipFileIsNotEmpty = temporaryFolder.newFile("dummy.txt");
+            this.bundledPluginsDir = TempDirUtils.createTempDirectoryIn(tempDir, "bundled").toFile();
+            this.externalPluginsDir = TempDirUtils.createTempDirectoryIn(tempDir, "external").toFile();
+            this.dummyFileSoZipFileIsNotEmpty = Files.createFile(tempDir.resolve("dummy.txt")).toFile();
             this.zipUtil = new ZipUtil();
         }
 

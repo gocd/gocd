@@ -22,43 +22,41 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.copyDirectory;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SvnTestRepo extends TestRepo {
-    protected File tempRepo;
-
     private static final String REPO_TEST_DATA_FOLDER = "../common/src/test/resources/data/svnrepo";
 
-    public SvnTestRepo(TemporaryFolder temporaryFolder, String folderName) throws IOException {
-        super(temporaryFolder);
-        if (isBlank(folderName)) {
-            tempRepo = temporaryFolder.newFolder();
-        } else {
-            tempRepo = temporaryFolder.newFolder(folderName);
-        }
-        tmpFolders.add(tempRepo);
-        try {
-            copyDirectory(new File(REPO_TEST_DATA_FOLDER), tempRepo);
-        } catch (IOException e) {
-            fail("Could not copy test repo [" + REPO_TEST_DATA_FOLDER + "] into [" + tempRepo + "] beacuse of " + e.getMessage());
-        }
-        new File(tempRepo, "/project1/db/transactions").mkdir();
+    protected File tempRepo;
+
+    public SvnTestRepo(Path tempDir) throws IOException {
+        this(tempDir, null);
     }
 
-    public SvnTestRepo(TemporaryFolder temporaryFolder) throws IOException {
-        this(temporaryFolder, null);
+    public SvnTestRepo(Path tempDir, String folderName) throws IOException {
+        super(tempDir);
+        tempRepo = createTempDirectory(folderName).toFile();
+        createTempRepository(tempRepo);
     }
+
+    private void createTempRepository(File location) {
+        try {
+            copyDirectory(new File(REPO_TEST_DATA_FOLDER), location);
+        } catch (IOException e) {
+            fail("Could not copy test repo [" + REPO_TEST_DATA_FOLDER + "] into [" + location + "] beacuse of " + e.getMessage());
+        }
+    }
+
 
     public String urlFor(String project) {
         return repositoryUrl(project);
@@ -104,9 +102,16 @@ public class SvnTestRepo extends TestRepo {
         return material;
     }
 
+    public String latestRevision() throws IOException {
+        return getLatestRevision(material()).getRevision();
+    }
+
+    public String end2ndRepositoryLatestRevision() throws IOException {
+        return getLatestRevision(new SvnMaterial(end2endRepositoryUrl(), null, null, false)).getRevision();
+    }
+
     private Revision getLatestRevision(SvnMaterial svnMaterial) throws IOException {
-        final File workingCopy = temporaryFolder.newFolder();
-        tmpFolders.add(workingCopy);
+        final File workingCopy = createRandomTempDirectory().toFile();
         return latestRevision(svnMaterial, workingCopy, new TestSubprocessExecutionContext());
     }
 
@@ -123,8 +128,7 @@ public class SvnTestRepo extends TestRepo {
     }
 
     protected List<Modification> checkInOneFile(SvnMaterial svnMaterial, String filename, String message) throws IOException {
-        final File workingCopy = temporaryFolder.newFolder();
-        tmpFolders.add(workingCopy);
+        final File workingCopy = createRandomTempDirectory().toFile();
 
         InMemoryStreamConsumer consumer = inMemoryConsumer();
 
@@ -147,14 +151,12 @@ public class SvnTestRepo extends TestRepo {
 
     @Override
     public List<Modification> latestModification() throws IOException {
-        final File workingCopy = temporaryFolder.newFolder();
+        final File workingCopy = createRandomTempDirectory().toFile();
         return material().latestModification(workingCopy, new TestSubprocessExecutionContext());
     }
 
-
     public void checkInOneFile(String fileName, SvnMaterial svnMaterial) throws Exception {
-        final File baseDir = temporaryFolder.newFolder();
-        tmpFolders.add(baseDir);
+        final File baseDir = createRandomTempDirectory().toFile();
 
         ProcessOutputStreamConsumer consumer = inMemoryConsumer();
 

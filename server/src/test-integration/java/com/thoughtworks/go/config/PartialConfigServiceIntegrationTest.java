@@ -33,12 +33,10 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -104,10 +102,6 @@ public class PartialConfigServiceIntegrationTest {
         }
         configHelper.onTearDown();
     }
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
     @Test
     public void shouldSaveConfigWhenANewValidPartialGetsAdded() {

@@ -23,46 +23,35 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
+import com.thoughtworks.go.util.TempDirUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@EnableRuleMigrationSupport
 public class MixedMultipleMaterialsTest {
     private SvnTestRepo svnRepo;
     private HgTestRepo hgRepo;
     private GitTestRepo gitRepo;
     private File pipelineDir;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @BeforeEach
-    public void createRepo() throws IOException {
-        svnRepo = new SvnTestRepo(temporaryFolder);
-        hgRepo = new HgTestRepo(temporaryFolder);
-        gitRepo = new GitTestRepo(temporaryFolder);
-        pipelineDir = temporaryFolder.newFolder();
-    }
-
-    @AfterEach
-    public void cleanupRepo() {
-        svnRepo.tearDown();
-        hgRepo.tearDown();
+    public void createRepo(@TempDir Path tempDir) throws IOException {
+        svnRepo = new SvnTestRepo(tempDir);
+        hgRepo = new HgTestRepo(tempDir);
+        gitRepo = new GitTestRepo(tempDir);
+        pipelineDir = TempDirUtils.createTempDirectoryIn(tempDir, "pipeline").toFile();
     }
 
     @Test
-    public void shouldGetLatestModifications() throws Exception {
+    public void shouldGetLatestModifications() {
         HgMaterial hgMaterial = hgRepo.material();
         SvnMaterial svnMaterial = svnRepo.createMaterial("multiple-materials/trunk/part1", "part1");
 
@@ -78,7 +67,7 @@ public class MixedMultipleMaterialsTest {
     }
 
     @Test
-    public void shouldGetLatestModificationswithThreeRepositories() throws Exception {
+    public void shouldGetLatestModificationsWithThreeRepositories() {
         HgMaterial hgMaterial = hgRepo.material();
         SvnMaterial svnMaterial = svnRepo.createMaterial("multiple-materials/trunk/part1", "part1");
         GitMaterial gitMaterial = gitRepo.createMaterial();

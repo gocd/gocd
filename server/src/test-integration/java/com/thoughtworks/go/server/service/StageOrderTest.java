@@ -24,21 +24,19 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.SQLException;
+import java.nio.file.Path;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -47,7 +45,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class StageOrderTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineDao pipelineDao;
@@ -57,15 +54,13 @@ public class StageOrderTest {
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages preCondition;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
-    public void setUp() throws Exception {
-        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+    public void setUp(@TempDir Path tempDir) throws Exception {
+        preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
 
@@ -87,7 +82,7 @@ public class StageOrderTest {
     }
 
     @Test
-    public void shouldIncreaseOrderBy1ForUnScheduledNextStage() throws Exception {
+    public void shouldIncreaseOrderBy1ForUnScheduledNextStage() {
         schedulePipelineWithFirstStage();
 
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
@@ -100,7 +95,7 @@ public class StageOrderTest {
     }
 
     @Test
-    public void shouldKeepOrderForScheduledStage() throws Exception {
+    public void shouldKeepOrderForScheduledStage() {
         schedulePipelineWithFirstStage();
 
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName(preCondition.pipelineName);
@@ -113,7 +108,7 @@ public class StageOrderTest {
         assertThat(mostRecent.getFirstStage().getOrderId(), is(1000));
     }
 
-    private void schedulePipelineWithFirstStage() throws SQLException {
+    private void schedulePipelineWithFirstStage() {
         Pipeline pipeline = preCondition.schedulePipeline();
         pipelineDao.save(pipeline);
         pipeline.getFirstStage().setOrderId(1000);

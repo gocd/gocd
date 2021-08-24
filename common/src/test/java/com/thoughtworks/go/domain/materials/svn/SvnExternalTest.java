@@ -23,40 +23,28 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
-import com.thoughtworks.go.helper.TestRepo;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-@EnableRuleMigrationSupport
 public class SvnExternalTest {
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static SvnTestRepoWithExternal svnRepo;
     public static File workingDir;
 
     @BeforeAll
-    public static void copyRepository() throws IOException {
-        temporaryFolder.create();
-        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
+    public static void copyRepository(@TempDir Path tempDir) throws IOException {
+        svnRepo = new SvnTestRepoWithExternal(tempDir);
         workingDir = svnRepo.projectRepositoryUrlAsFile();
-    }
-
-    @AfterAll
-    public static void deleteRepository() throws IOException {
-        TestRepo.internalTearDown();
     }
 
     @Test

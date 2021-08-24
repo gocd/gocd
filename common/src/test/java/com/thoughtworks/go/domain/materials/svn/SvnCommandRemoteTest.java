@@ -18,28 +18,27 @@ package com.thoughtworks.go.domain.materials.svn;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.helper.SvnRemoteRepository;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.input.SAXBuilder;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@EnableRuleMigrationSupport
 public class SvnCommandRemoteTest {
     public SvnRemoteRepository repository;
     private static final String HARRY = "harry";
@@ -47,42 +46,44 @@ public class SvnCommandRemoteTest {
     public SvnCommand command;
     public File workingDir;
     private InMemoryStreamConsumer outputStreamConsumer;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    public void startRepo() throws Exception {
-        repository = new SvnRemoteRepository(temporaryFolder);
+    public void startRepo(@TempDir Path tempDir) throws Exception {
+        repository = new SvnRemoteRepository(tempDir);
         repository.addUser(HARRY, HARRYS_PASSWORD);
         repository.start();
         command = new SvnCommand(null, repository.getUrl(), HARRY, HARRYS_PASSWORD, true);
-        workingDir = temporaryFolder.newFolder();
+        workingDir = TempDirUtils.createTempDirectoryIn(tempDir, "working-dir").toFile();
         outputStreamConsumer = inMemoryConsumer();
     }
 
     @AfterEach
     public void stopRepo() throws Exception {
-        if (repository!=null) repository.stop();
+        if (repository != null) repository.stop();
     }
 
-    @Test public void shouldSupportSvnInfo() throws Exception {
+    @Test
+    public void shouldSupportSvnInfo() {
         SvnCommand.SvnInfo info = command.remoteInfo(new SAXBuilder());
         assertThat(info.getUrl(), is(repository.getUrl()));
     }
 
-    @Test public void shouldSupportSvnLog() throws Exception {
+    @Test
+    public void shouldSupportSvnLog() {
         List<Modification> info = command.latestModification();
         assertThat(info.get(0).getComment(), is("Added simple build shell to dump the environment to console."));
     }
 
-    @Test public void shouldSupportModificationsSince() throws Exception {
+    @Test
+    public void shouldSupportModificationsSince() {
         List<Modification> info = command.modificationsSince(new SubversionRevision(2));
         assertThat(info.size(), is(2));
         assertThat(info.get(0).getRevision(), is("4"));
         assertThat(info.get(1).getRevision(), is("3"));
     }
 
-    @Test public void shouldSupportLocalSvnInfoWithoutPassword() throws Exception {
+    @Test
+    public void shouldSupportLocalSvnInfoWithoutPassword() throws Exception {
         command.checkoutTo(ProcessOutputStreamConsumer.inMemoryConsumer(), workingDir,
                 new SubversionRevision(4));
 
@@ -327,7 +328,7 @@ public class SvnCommandRemoteTest {
     }
 
     @Test
-    public void shouldMaskPassword_propset() throws IOException {
+    public void shouldMaskPassword_propset() {
         try {
             badUserNameCommand().propset(workingDir, "svn:ignore", "*.foo");
             fail("should have failed");

@@ -20,35 +20,30 @@ import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class SvnMaterialMockitoTest {
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    File workingCopy;
 
     SubversionRevision revision = new SubversionRevision("1");
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
-    private File createSvnWorkingCopy(boolean withDotSvnFolder) throws IOException {
-        File folder = temporaryFolder.newFolder("testSvnWorkingCopy");
+    private void createSvnWorkingCopy(boolean withDotSvnFolder) {
         if (withDotSvnFolder) {
-            File dotSvnFolder = new File(folder, ".svn");
+            File dotSvnFolder = new File(workingCopy, ".svn");
             dotSvnFolder.mkdir();
         }
-        return folder;
     }
 
     @Test
@@ -58,12 +53,12 @@ public class SvnMaterialMockitoTest {
         when(subversion.getPassword()).thenReturn("");
         when(subversion.isCheckExternals()).thenReturn(false);
 
-        File workingCopy = createSvnWorkingCopy(true);
+        createSvnWorkingCopy(true);
         when(subversion.workingRepositoryUrl(workingCopy)).thenReturn(workingCopy.getPath());
 
         String url = "file://" + workingCopy.getPath();
         when(subversion.getUrl()).thenReturn(new UrlArgument(url));
-        SvnMaterial svnMaterial = SvnMaterial.createSvnMaterialWithMock(subversion);
+        SvnMaterial svnMaterial = new SvnMaterial(subversion);
         svnMaterial.setUrl(url);
         svnMaterial.updateTo(outputStreamConsumer, workingCopy, new RevisionContext(revision), new TestSubprocessExecutionContext());
 

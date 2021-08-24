@@ -32,7 +32,6 @@ dependencies {
   testImplementation project.deps.junit5
   testImplementation project.deps.mockito
   testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.junit5Migration
 }
 
 jar {

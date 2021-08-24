@@ -25,6 +25,7 @@ import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.util.ExceptionUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,16 +159,12 @@ public class GoConfigDao {
         cachedConfigService.registerListener(listener);
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public void reloadListeners() {
         cachedConfigService.reloadListeners();
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public void forceReload() {
         cachedConfigService.forceReload();
     }

@@ -313,12 +313,4 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
                 ", checkExternals=" + checkExternals +
                 '}';
     }
-
-    /**
-     * @deprecated used only in tests - we need to disentangle this
-     */
-    public static SvnMaterial createSvnMaterialWithMock(Subversion svn) {
-        return new SvnMaterial(svn);
-    }
-
 }

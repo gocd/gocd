@@ -24,44 +24,41 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class GoArtifactsManipulatorTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private HttpService httpService;
     private File tempFile;
     private GoArtifactsManipulatorStub goArtifactsManipulatorStub;
     private JobIdentifier jobIdentifier;
     private DefaultGoPublisher goPublisher;
-    private File artifactFolder;
+    private Path artifactFolder;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         httpService = mock(HttpService.class);
-        artifactFolder = temporaryFolder.newFolder("artifact_folder");
-        tempFile = temporaryFolder.newFile("artifact_folder/file.txt");
+        artifactFolder = TempDirUtils.createTempDirectoryIn(tempDir, "artifact_folder");
+        tempFile = artifactFolder.resolve("file.txt").toFile();
         FileUtils.writeStringToFile(tempFile, "some-random-data", UTF_8);
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
@@ -131,13 +128,13 @@ public class GoArtifactsManipulatorTest {
 
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
 
-        File anotherFile = new File(artifactFolder, "bond/james_bond/another_file");
+        File anotherFile = artifactFolder.resolve("bond/james_bond/another_file").toFile();
         FileUtils.writeStringToFile(anotherFile, secondData, UTF_8);
 
 
-        when(httpService.upload(any(String.class), eq(FileUtils.sizeOfDirectory(artifactFolder)), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpServletResponse.SC_OK);
+        when(httpService.upload(any(String.class), eq(FileUtils.sizeOfDirectory(artifactFolder.toFile())), any(File.class), eq(expectedProperties(data, secondData)))).thenReturn(HttpServletResponse.SC_OK);
 
-        goArtifactsManipulatorStub.publish(goPublisher, "dest", artifactFolder, jobIdentifier);
+        goArtifactsManipulatorStub.publish(goPublisher, "dest", artifactFolder.toFile(), jobIdentifier);
     }
 
     private Properties expectedProperties(String data, String secondData) {

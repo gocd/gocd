@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.util.command.*;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,9 +181,11 @@ public class P4Client extends SCMCommand {
     }
 
     /**
-     * @deprecated returns the output stream as is, without smudging password arguments, this is security problem, and should not be used in production code as is
+     * returns the output stream as is, without smudging password arguments, this is security problem, and
+     * should not be used in production code as is
      * This is left here only for tests
      */
+    @TestOnly
     public String admin(String command) {
         return execute(p4("admin", command)).outputAsString();
     }

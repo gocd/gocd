@@ -26,13 +26,12 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -70,6 +70,9 @@ public class PipelineConfigServicePerformanceTest {
         new SystemEnvironment().setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, "false");
     }
 
+    @TempDir
+    Path tempDir;
+
     @Autowired
     private PipelineConfigService pipelineConfigService;
     @Autowired
@@ -82,9 +85,6 @@ public class PipelineConfigServicePerformanceTest {
     private GoConfigMigration goConfigMigration;
     @Autowired
     private EntityHashingService entityHashingService;
-
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     private GoConfigFileHelper configHelper;
     private final int numberOfRequests = 100;
@@ -99,9 +99,6 @@ public class PipelineConfigServicePerformanceTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
-        File dumpDir = tempFolder.newFolder("perf-pipelineapi-test");
-        FileUtil.deleteDirectoryNoisily(dumpDir);
-        dumpDir.mkdirs();
         result = new HttpLocalizedOperationResult();
         user = new Username(new CaseInsensitiveString("admin"));
         consoleAppenderForPerformanceTest = "ConsoleAppenderForPerformanceTest";
@@ -200,7 +197,7 @@ public class PipelineConfigServicePerformanceTest {
         for (Thread t : threads) {
             int i = threads.indexOf(t);
             if (i == (numberOfRequests - 1)) {
-//                takeHeapDump(dumpDir, i);
+//                takeHeapDump(i);
             }
             t.join();
         }
@@ -210,14 +207,14 @@ public class PipelineConfigServicePerformanceTest {
         assertThat(finalResult, is(true));
     }
 
-    private void takeHeapDump(File dumpDir, int i) {
+    private void takeHeapDump(int i) {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        CommandLine commandLine = CommandLine.createCommandLine("jmap").withArgs("-J-d64", String.format("-dump:format=b,file=%s/%s.hprof", dumpDir.getAbsoluteFile(), i), ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+        CommandLine commandLine = CommandLine.createCommandLine("jmap").withArgs("-J-d64", String.format("-dump:format=b,file=%s/%s.hprof", tempDir.toFile().getAbsoluteFile(), i), ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
         LOGGER.info(commandLine.describe());
         int exitCode = commandLine.run(outputStreamConsumer, new NamedProcessTag("thread" + i));
         LOGGER.info(outputStreamConsumer.getAllOutput());
         assertThat(exitCode, is(0));
-        LOGGER.info("Heap dump available at " + dumpDir.getAbsolutePath());
+        LOGGER.info("Heap dump available at " + tempDir.toFile().getAbsolutePath());
     }
 
     private static abstract class ErrorCollectingHandler implements GoConfigGraphWalker.Handler {

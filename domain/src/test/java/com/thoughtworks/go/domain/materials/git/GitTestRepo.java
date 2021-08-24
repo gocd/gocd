@@ -24,12 +24,13 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.NamedProcessTag;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,21 +51,21 @@ public class GitTestRepo extends TestRepo {
     public static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
     public static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     public static final StringRevision NON_EXISTENT_REVISION = new StringRevision("4ffef3cb33d98b28858743a53b6ee77bfe9d21bb");
+
     private final File gitRepo;
 
-    public GitTestRepo(String path, TemporaryFolder temporaryFolder) throws IOException {
-        this(new File(path), temporaryFolder);
+    public GitTestRepo(String path, Path tempDir) throws IOException {
+        this(new File(path), tempDir);
     }
 
-    public static GitTestRepo testRepoAtBranch(String gitBundleFilePath, String branch, TemporaryFolder temporaryFolder) throws IOException {
-        GitTestRepo testRepo = new GitTestRepo(gitBundleFilePath, temporaryFolder);
+    public static GitTestRepo testRepoAtBranch(String gitBundleFilePath, String branch, Path tempDir) throws IOException {
+        GitTestRepo testRepo = new GitTestRepo(gitBundleFilePath, tempDir);
         testRepo.checkoutRemoteBranchToLocal(branch);
         return testRepo;
     }
 
-
-    public GitTestRepo(TemporaryFolder temporaryFolder) throws IOException {
-        this(GIT_3_REVISIONS_BUNDLE, temporaryFolder);
+    public GitTestRepo(Path tempDir) throws IOException {
+        this(GIT_3_REVISIONS_BUNDLE, tempDir);
     }
 
     public GitMaterial createMaterial(String dest) {
@@ -73,11 +74,10 @@ public class GitTestRepo extends TestRepo {
         return gitMaterial;
     }
 
-    public GitTestRepo(File gitBundleFile, TemporaryFolder temporaryFolder) throws IOException {
-        super(temporaryFolder);
-        gitRepo = temporaryFolder.newFolder("GitTestRepo" + UUID.randomUUID().toString(), "repo");
+    public GitTestRepo(File gitBundleFile, Path tempDir) throws IOException {
+        super(tempDir);
+        gitRepo = TempDirUtils.createTempDirectoryIn(tempDir, String.format("GitTestRepo/%s/repo", UUID.randomUUID())).toFile();
         cloneBundleToFolder(gitBundleFile, gitRepo);
-        tmpFolders.add(gitRepo);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class GitTestRepo extends TestRepo {
     public List<Modification> addFileAndPush(File newFile, String message) throws IOException {
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, null).add(newFile);
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, null).commit(message);
-        return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
+        return createMaterial().latestModification(createRandomTempDirectory().toFile(), new TestSubprocessExecutionContext());
     }
 
     public List<Modification> addFileAndAmend(String fileName, String message) throws IOException {
@@ -152,7 +152,7 @@ public class GitTestRepo extends TestRepo {
         newFile.createNewFile();
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, null).add(newFile);
         new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).commitWithAmend(message, gitRepo);
-        return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
+        return createMaterial().latestModification(createRandomTempDirectory().toFile(), new TestSubprocessExecutionContext());
     }
 
     private static class GitCommandWithAmend extends GitCommand {

@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.jupiter.api.Nested;
@@ -40,14 +41,14 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
     @Override
     protected P4TestRepo createTestRepo() throws Exception {
-        P4TestRepo repo = P4TestRepo.createP4TestRepo(temporaryFolder, clientFolder);
+        P4TestRepo repo = P4TestRepo.createP4TestRepo(tempDir, clientFolder);
         repo.onSetup();
         return repo;
     }
 
     @Test
     void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() throws IOException {
-        File p4_working_dir = temporaryFolder.newFolder();
+        File p4_working_dir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
         p4.setPassword("loser");
@@ -62,7 +63,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
     @Test
     void shouldAddClientNameEnvironmentVariable() throws IOException {
-        File p4_working_dir = temporaryFolder.newFolder();
+        File p4_working_dir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
         p4.setPassword("loser");
@@ -79,11 +80,11 @@ public class P4MaterialTest extends P4MaterialTestBase {
         P4Material p4Material = new P4Material("server:10", "out-of-the-window");
         ReflectionUtil.setField(p4Material, "folder", "crapy_dir");
 
-        P4Client p4Client = p4Material._p4(tempDir, new InMemoryStreamConsumer(), false);
+        P4Client p4Client = p4Material._p4(workingDir, new InMemoryStreamConsumer(), false);
 
         assertThat(p4Client).isNotNull();
         String client = (String) ReflectionUtil.getField(p4Client, "p4ClientName");
-        assertThat(client).isEqualTo(p4Material.clientName(tempDir));
+        assertThat(client).isEqualTo(p4Material.clientName(workingDir));
     }
 
     @Test

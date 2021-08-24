@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
@@ -32,26 +31,19 @@ import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
 import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedTopic;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.thoughtworks.go.util.TempDirUtils;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
+import java.nio.file.Path;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -60,12 +52,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ChangeMaterialsTest {
-    @ClassRule
-    public static final TemporaryFolder classTemporaryFolder = new TemporaryFolder();
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Autowired
     private ScheduleService scheduleService;
@@ -95,23 +82,17 @@ public class ChangeMaterialsTest {
 
 
     @BeforeAll
-    public static void startP4Server() throws IOException {
-        classTemporaryFolder.create();
-        try {
-            p4TestRepo = P4TestRepo.createP4TestRepo(classTemporaryFolder, classTemporaryFolder.newFolder());
-            p4TestRepo.onSetup();
-        } catch (Exception e) {
-            bomb(e);
-        }
+    public static void startP4Server(@TempDir Path tempDir) throws Exception {
+        p4TestRepo = P4TestRepo.createP4TestRepo(tempDir, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
+        p4TestRepo.onSetup();
     }
 
     @AfterAll
     public static void tearDownConfigFileLocation() {
-        p4TestRepo.onTearDown();
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         username = new Username(new CaseInsensitiveString("gli"));
 
         dbHelper.onSetUp();
@@ -119,9 +100,9 @@ public class ChangeMaterialsTest {
         cruiseConfig.onSetUp();
         cruiseConfig.initializeConfigFile();
 
-        hgTestRepo = new HgTestRepo(temporaryFolder);
+        hgTestRepo = new HgTestRepo(tempDir);
 
-        SvnTestRepo svnRepo = new SvnTestRepo(temporaryFolder);
+        SvnTestRepo svnRepo = new SvnTestRepo(tempDir);
         cruiseConfig.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo.materialConfig(), "foo");
         mingle = cruiseConfig.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
         pipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);
@@ -133,8 +114,7 @@ public class ChangeMaterialsTest {
     public void teardown() throws Exception {
         cruiseConfig.initializeConfigFile();
         dbHelper.onTearDown();
-        TestRepo.internalTearDown();
-        cruiseConfig.onTearDown();
+                cruiseConfig.onTearDown();
     }
 
     @Test
@@ -153,7 +133,7 @@ public class ChangeMaterialsTest {
 
     //TODO: CS&DY Revisit this test to use materials properly
     @Test
-    public void shouldManualScheduleWithLatestModificationFromNewMaterialAfterChangedMaterial() throws Exception, StageAlreadyBuildingException {
+    public void shouldManualScheduleWithLatestModificationFromNewMaterialAfterChangedMaterial() throws Exception {
         cruiseConfig.replaceMaterialWithHgRepoForPipeline(PIPELINE_NAME, hgTestRepo.projectRepositoryUrl());
 
         scheduleHelper.manuallySchedulePipelineWithRealMaterials(PIPELINE_NAME, username);

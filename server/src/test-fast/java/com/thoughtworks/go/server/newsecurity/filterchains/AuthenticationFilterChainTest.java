@@ -35,14 +35,10 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.rules.TemporaryFolder;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -56,10 +52,8 @@ import static com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthentic
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class AuthenticationFilterChainTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     private MockHttpServletResponse response;
     private MockHttpServletRequest request;
     private FilterChain filterChain;
@@ -80,13 +74,8 @@ public class AuthenticationFilterChainTest {
 
         final AnonymousAuthenticationProvider anonymousAuthenticationProvider = new AnonymousAuthenticationProvider(clock, new AuthorityGranter(securityService));
         assumeAnonymousUserFilter = new AssumeAnonymousUserFilter(securityService, anonymousAuthenticationProvider);
-        temporaryFolder.create();
     }
 
-    @AfterEach
-    void tearDown() {
-        temporaryFolder.delete();
-    }
 
     @Nested
     class SecurityEnabled {

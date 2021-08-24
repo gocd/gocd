@@ -24,36 +24,33 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.FilterMother;
+import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.assertj.core.api.Assertions;
-import org.junit.*;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
 import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@EnableRuleMigrationSupport
 public class MaterialExpansionServiceTest {
-
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private static SvnTestRepoWithExternal svnRepo;
     private MaterialExpansionService materialExpansionService;
@@ -64,20 +61,14 @@ public class MaterialExpansionServiceTest {
     @Mock
     private SecretParamResolver secretParamResolver;
 
+    @BeforeAll
+    public static void copyRepository(@TempDir Path tempDir) throws IOException {
+        svnRepo = new SvnTestRepoWithExternal(tempDir);
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
-    }
-
-    @BeforeAll
-    public static void copyRepository() throws IOException {
-        temporaryFolder.create();
-        svnRepo = new SvnTestRepoWithExternal(temporaryFolder);
-    }
-
-    @AfterAll
-    public static void deleteRepository() {
-        TestRepo.internalTearDown();
     }
 
     @Test
@@ -158,8 +149,8 @@ public class MaterialExpansionServiceTest {
     }
 
     @Test
-    public void shouldNotExpandGitSubmodulesIntoMultipleMaterialsWhenExpandingGitMaterialForScheduling() throws Exception {
-        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+    public void shouldNotExpandGitSubmodulesIntoMultipleMaterialsWhenExpandingGitMaterialForScheduling(@TempDir Path tempDir) throws Exception {
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
         submoduleRepos.addSubmodule("submodule-1", "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
         when(materialConfigConverter.toMaterials(new MaterialConfigs(gitMaterial.config()))).thenReturn(new Materials(gitMaterial));

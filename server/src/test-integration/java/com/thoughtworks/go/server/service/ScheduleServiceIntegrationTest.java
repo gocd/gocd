@@ -50,15 +50,9 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +63,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
@@ -87,7 +82,6 @@ import static org.mockito.Mockito.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ScheduleServiceIntegrationTest {
     @Autowired
     private GoConfigService goConfigService;
@@ -145,27 +139,19 @@ public class ScheduleServiceIntegrationTest {
     public static TestRepo testRepo;
     private PipelineWithTwoStages pipelineFixture;
     public static final String JOB_NAME = "unit";
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeAll
-    public static void setupRepos() throws IOException {
-        temporaryFolder.create();
-        testRepo = new SvnTestRepo(temporaryFolder);
-    }
-
-    @AfterAll
-    public static void tearDownConfigFileLocation() {
-        TestRepo.internalTearDown();
+    public static void setupRepos(@TempDir Path tempDir) throws IOException {
+        testRepo = new SvnTestRepo(tempDir);
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
@@ -186,7 +172,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotSchedulePausedPipeline() throws Exception {
+    public void shouldNotSchedulePausedPipeline() {
         Pipeline pipeline = PipelineMother.schedule(mingleConfig, modifySomeFiles(mingleConfig));
         pipeline = dbHelper.savePipelineWithStagesAndMaterials(pipeline);
         pipelinePauseService.pause(pipeline.getName(), "", null);
@@ -262,7 +248,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotBeAbleToRerunAStageWhichIsNotThereInTheConfigAnymore() throws Exception {
+    public void shouldNotBeAbleToRerunAStageWhichIsNotThereInTheConfigAnymore() {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         assertThat(scheduleService.canRun(new PipelineIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel()), pipelineFixture.ftStage, "", true), is(true));
         configHelper.removeStage(pipelineFixture.pipelineName, pipelineFixture.ftStage);
@@ -270,7 +256,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelAJob() throws Exception {
+    public void shouldCancelAJob() {
         String pipelineName = "cruise";
         String firstStageName = JOB_NAME;
 
@@ -288,7 +274,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailAJob() throws Exception {
+    public void shouldFailAJob() {
         String pipelineName = "cruise";
         String firstStageName = JOB_NAME;
 
@@ -339,7 +325,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelAJobByIdentifier() throws Exception {
+    public void shouldCancelAJobByIdentifier() {
         String pipelineName = "cruise";
         String firstStageName = JOB_NAME;
 
@@ -356,7 +342,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test //#6826
-    public void shouldUseEnvVariableFromNewConfigWhenAPipelineIsRetriggered() throws Exception {
+    public void shouldUseEnvVariableFromNewConfigWhenAPipelineIsRetriggered() {
         String pipelineName = "p1";
         String stage = "s1";
         String job = "j1";
@@ -392,7 +378,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test //#6815
-    public void shouldUseEnvVariableFromNewConfigWhenAJobIsRerunAfterChangingTheConfig() throws Exception {
+    public void shouldUseEnvVariableFromNewConfigWhenAJobIsRerunAfterChangingTheConfig() {
         String pipelineName = "p1";
         String stage = "s1";
         String job = "j1";
@@ -422,7 +408,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     @Test //#6815
-    public void shouldUseEnvVariableFromNewConfigWhenAStageIsRerunAfterChangingTheConfig() throws Exception {
+    public void shouldUseEnvVariableFromNewConfigWhenAStageIsRerunAfterChangingTheConfig() {
         String pipelineName = "p1";
         String stageName = "s1";
         String jobName = "j1";
@@ -487,7 +473,7 @@ public class ScheduleServiceIntegrationTest {
 
     @Test
     //This test is written to verify fix for github issue https://github.com/gocd/gocd/issues/6615
-    public void shouldSendCreateAgentRequestToPluginForTheJobRequiringElasticAgentWhichHasBeenRescheduled() throws Exception {
+    public void shouldSendCreateAgentRequestToPluginForTheJobRequiringElasticAgentWhichHasBeenRescheduled() {
         String pluginId = "ecs";
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile", pluginId);
         ElasticProfile elasticAgentProfile = new ElasticProfile("elastic_agent_profile", "cluster_profile");

@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.buildcause.BuildCauseOutOfDateException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,9 +117,7 @@ public class PipelineScheduleQueue {
         }
     }
 
-    /**
-     * @deprecated Only for test
-     */
+    @TestOnly
     public void clear() {
         mostRecentScheduled.clear();
         toBeScheduled.clear();

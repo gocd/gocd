@@ -19,11 +19,9 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
@@ -36,8 +34,6 @@ import static org.hamcrest.Matchers.not;
 
 public class AgentRuntimeInfoTest {
     private File pipelinesFolder;
-    @Rule
-    public final TemporaryFolder folder = new TemporaryFolder();
 
     @BeforeEach
     public void setup() throws Exception {

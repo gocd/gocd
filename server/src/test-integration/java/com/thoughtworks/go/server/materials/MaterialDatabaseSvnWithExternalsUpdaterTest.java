@@ -22,9 +22,11 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.helper.TestRepo;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,8 +40,8 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
     }
 
     @Override
-    protected TestRepo repo() throws IOException {
-        testRepoWithExternal = new SvnTestRepoWithExternal(temporaryFolder);
+    protected TestRepo repo(Path tempDir) throws IOException {
+        testRepoWithExternal = new SvnTestRepoWithExternal(tempDir);
         return testRepoWithExternal;
     }
 
@@ -61,10 +63,10 @@ public class MaterialDatabaseSvnWithExternalsUpdaterTest extends TestBaseForData
     }
 
     @Test
-    public void shouldNotTryToSaveModificationForAnExternalThathasAlreadyBeenSaved() throws Exception {
+    public void shouldNotTryToSaveModificationForAnExternalThatHasAlreadyBeenSaved(@TempDir Path tempDir) throws Exception {
         updater.updateMaterial(material);
 
-        SvnTestRepoWithExternal otherRepo = new SvnTestRepoWithExternal(testRepoWithExternal.externalRepositoryUrl(), temporaryFolder);
+        SvnTestRepoWithExternal otherRepo = new SvnTestRepoWithExternal(testRepoWithExternal.externalRepositoryUrl(), tempDir);
         SvnMaterial otherMaterial = new SvnMaterial(otherRepo.projectRepositoryUrl(), null, null, true);
         updater.updateMaterial(otherMaterial);
 

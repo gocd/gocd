@@ -18,23 +18,23 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -49,13 +49,13 @@ public class HgTestRepo extends TestRepo {
 
     private final HgCommand hgCommand;
 
-    public HgTestRepo(TemporaryFolder temporaryFolder) throws IOException {
-        this("working-copy", temporaryFolder);
+    public HgTestRepo(Path tempDir) throws IOException {
+        this("working-copy", tempDir);
     }
 
-    public HgTestRepo(String workingCopyName, TemporaryFolder temporaryFolder) throws IOException {
-        super(temporaryFolder);
-        File tempFolder = temporaryFolder.newFolder();
+    public HgTestRepo(String workingCopyName, Path tempDir) throws IOException {
+        super(tempDir);
+        File tempFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
 
         remoteRepo = new File(tempFolder, "remote-repo");
         remoteRepo.mkdirs();
@@ -136,7 +136,7 @@ public class HgTestRepo extends TestRepo {
     }
 
     public List<Modification> commitAndPushFileWithContent(String fileName, String comment, String content) throws Exception {
-        File baseDir = temporaryFolder.newFolder();
+        File baseDir = createRandomTempDirectory().toFile();
         HgMaterial material = updateTo(baseDir);
 
         File file = new File(baseDir, fileName);

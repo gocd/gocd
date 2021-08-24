@@ -36,15 +36,9 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.junit.ClassRule;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -52,12 +46,13 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -66,7 +61,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
     @Autowired private GoConfigService goConfigService;
@@ -87,18 +81,10 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     public Subversion repository;
     public static TestRepo testRepo;
-    @ClassRule
-    public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeAll
-    public static void setupRepos() throws IOException {
-        temporaryFolder.create();
-        testRepo = new SvnTestRepo(temporaryFolder);
-    }
-
-    @AfterAll
-    public static void tearDownConfigFileLocation() throws IOException {
-        TestRepo.internalTearDown();
+    public static void setupRepos(@TempDir Path tempDir) throws IOException {
+        testRepo = new SvnTestRepo(tempDir);
     }
 
     @BeforeEach

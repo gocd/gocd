@@ -23,16 +23,16 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
@@ -45,7 +45,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ArtifactsDirChangeTest {
 
     @Autowired private GoConfigService goConfigService;
@@ -55,17 +54,15 @@ public class ArtifactsDirChangeTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private ArtifactsDirHolder artifactsDirHolder;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GoConfigFileHelper configHelper ;
     private PipelineWithTwoStages fixture;
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(configDao);
-        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         serverHealthService.removeAllLogs();
     }

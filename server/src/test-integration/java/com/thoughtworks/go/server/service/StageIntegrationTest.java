@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepo;
@@ -30,25 +29,22 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -57,7 +53,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class StageIntegrationTest {
     @Autowired private BuildRepositoryService buildRepositoryService;
     @Autowired private PipelineService pipelineService;
@@ -67,9 +62,6 @@ public class StageIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private ScheduleHelper scheduleHelper;
     @Autowired private AgentService agentService;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private PipelineConfig mingle;
@@ -79,20 +71,14 @@ public class StageIntegrationTest {
     public Subversion svnRepo;
     private static final String HOSTNAME = "10.18.0.1";
 
-    @AfterAll
-    public static void tearDownConfigFileLocation() throws IOException {
-        TestRepo.internalTearDown();
-    }
-
     @BeforeEach
-    public void setUp() throws Exception {
-
+    public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         CONFIG_HELPER.onSetUp();
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
 
-        TestRepo svnTestRepo = new SvnTestRepo(temporaryFolder);
+        TestRepo svnTestRepo = new SvnTestRepo(tempDir);
 
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
@@ -133,7 +119,7 @@ public class StageIntegrationTest {
         return new JobIdentifier("", -2, "", "", "1", "", id);
     }
 
-    private Pipeline createPipelineWithFirstStageBuilding() throws StageAlreadyBuildingException {
+    private Pipeline createPipelineWithFirstStageBuilding() {
         Pipeline scheduledPipeline = schedulePipeline();
         dbHelper.saveBuildingStage(scheduledPipeline.getFirstStage());
 

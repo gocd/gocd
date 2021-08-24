@@ -27,26 +27,22 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(ClearSingleton.class)
 @ExtendWith(SpringExtension.class)
@@ -56,7 +52,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ScheduleStageTest {
     @Autowired
     private ScheduleService scheduleService;
@@ -70,16 +65,14 @@ public class ScheduleStageTest {
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithMultipleStages fixture;
     private GoConfigFileHelper configHelper;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(dao);
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
         fixture.usingThreeJobs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
     }
@@ -90,7 +83,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldRerunStageUsingPipelineCounter() throws Exception {
+    public void shouldRerunStageUsingPipelineCounter() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
@@ -101,7 +94,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldResolveEnvironmentVariablesForStateReRun() throws Exception {
+    public void shouldResolveEnvironmentVariablesForStateReRun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         EnvironmentVariablesConfig pipelineVariables = new EnvironmentVariablesConfig();
@@ -165,7 +158,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldRerunOnlyGivenJobsFromExistingStage() throws Exception {
+    public void shouldRerunOnlyGivenJobsFromExistingStage() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
@@ -210,7 +203,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldConsiderCopyOfRerunJobACopyAndNotRerun() throws Exception {
+    public void shouldConsiderCopyOfRerunJobACopyAndNotRerun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
@@ -262,7 +255,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldFailRerunWhenJobConfigDoesNotExist() throws Exception {
+    public void shouldFailRerunWhenJobConfigDoesNotExist() {
         Pipeline pipeline = fixture.createPipelineWithFirstStageScheduled();
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
         dbHelper.pass(pipeline);
@@ -279,7 +272,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldRerunJobsWithUserAsApprover() throws Exception {
+    public void shouldRerunJobsWithUserAsApprover() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
@@ -293,7 +286,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldFailWhenStageAlreadyActive() throws Exception {
+    public void shouldFailWhenStageAlreadyActive() {
         Pipeline pipeline = fixture.createPipelineWithFirstStageScheduled();
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
@@ -307,7 +300,7 @@ public class ScheduleStageTest {
     }
 
     @Test
-    public void shouldNotRunStageIfItsPreviousStageHasNotBeenRun() throws Exception {
+    public void shouldNotRunStageIfItsPreviousStageHasNotBeenRun() {
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         String theThirdStage = fixture.stageName(3);
         try {

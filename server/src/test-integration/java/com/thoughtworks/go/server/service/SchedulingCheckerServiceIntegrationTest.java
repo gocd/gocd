@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.ConfigFileFixture;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -36,23 +35,20 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
+import java.nio.file.Path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -62,7 +58,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class SchedulingCheckerServiceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -88,8 +83,6 @@ public class SchedulingCheckerServiceIntegrationTest {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private PipelinePauseService pipelinePauseService;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithMultipleStages pipelineFixture;
 
@@ -97,17 +90,12 @@ public class SchedulingCheckerServiceIntegrationTest {
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS);
     public DiskSpaceSimulator diskSpaceSimulator;
 
-    @AfterAll
-    public static void tearDownConfigFileLocation() throws IOException {
-        TestRepo.internalTearDown();
-    }
-
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         configFileHelper.onSetUp();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineFixture = new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, temporaryFolder);
+        pipelineFixture = new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         pipelineFixture.configStageAsManualApprovalWithApprovedUsers(pipelineFixture.ftStage, APPROVED_USER);
 

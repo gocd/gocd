@@ -26,10 +26,10 @@ import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,9 +44,9 @@ public class GitRepoContainingSubmodule extends TestRepo {
     private final File workingDir;
     private File remoteRepoDir;
 
-    public GitRepoContainingSubmodule(TemporaryFolder temporaryFolder) throws Exception {
-        super(temporaryFolder);
-        this.workingDir = temporaryFolder.newFolder();
+    public GitRepoContainingSubmodule(Path tempDir) throws Exception {
+        super(tempDir);
+        this.workingDir = createRandomTempDirectory().toFile();
         remoteRepoDir = createRepo(NAME);
     }
 

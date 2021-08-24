@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -30,11 +29,13 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+import static com.thoughtworks.go.util.TempDirUtils.newFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +43,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FileViewTest {
+    @TempDir
+    Path tempDir;
+
     private MockHttpServletResponse mockResponse;
 
     private MockHttpServletRequest mockRequest;
@@ -50,24 +54,16 @@ public class FileViewTest {
 
     private ServletContext mockServletContext;
     private File file;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
     public void setUp() throws Exception {
-        temporaryFolder.create();
         mockRequest = new MockHttpServletRequest();
         mockResponse = new MockHttpServletResponse();
         mockServletContext = mock(ServletContext.class);
         view = new FileView();
         view.setServletContext(mockServletContext);
-        file = temporaryFolder.newFile("file.txt");
+        file = newFile(tempDir.resolve("file.txt"));
         FileUtils.writeStringToFile(file, "hello", UTF_8);
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        temporaryFolder.delete();
     }
 
     @Test
@@ -102,7 +98,7 @@ public class FileViewTest {
         view.render(model, mockRequest, mockResponse);
 
         // Unzip from the response and verify that the we can read the file back
-        File unzipHere = temporaryFolder.newFolder();
+        File unzipHere = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         new ZipUtil().unzip(
                 new ZipInputStream(new ByteArrayInputStream(mockResponse.getContentAsByteArray())), unzipHere);
         assertEquals(FileUtils.readFileToString(new File(unzipHere, file.getName()), UTF_8), "hello");
@@ -128,7 +124,7 @@ public class FileViewTest {
 
     @Test
     public void testCharacterEncodingSetToUtf8ForConsoleLogfile() throws Exception {
-        file = temporaryFolder.newFile("console.log");
+        file = newFile(tempDir.resolve("console.log"));
         Map<String, Object> model = new HashMap<>();
         model.put("targetFile", file);
 

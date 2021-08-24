@@ -15,35 +15,31 @@
  */
 package com.thoughtworks.go.domain.materials;
 
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.jupiter.api.Assertions;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-@EnableRuleMigrationSupport
 public class DirectoryCleanerTest {
     private File baseFolder;
     private DirectoryCleaner cleaner;
     private InMemoryStreamConsumer consumer;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @BeforeEach
-    public void createBaseDirectory() throws IOException {
+    public void createBaseDirectory(@TempDir Path tempDir) throws IOException {
         consumer = ProcessOutputStreamConsumer.inMemoryConsumer();
-        baseFolder = temporaryFolder.newFolder("directoryCleaner");
+        baseFolder = TempDirUtils.createTempDirectoryIn(tempDir, "directoryCleaner").toFile();
         cleaner = new DirectoryCleaner(baseFolder, consumer);
     }
 

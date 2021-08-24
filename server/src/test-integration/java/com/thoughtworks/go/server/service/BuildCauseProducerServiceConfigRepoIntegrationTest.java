@@ -31,11 +31,10 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
+import com.thoughtworks.go.helper.ConfigTestRepo;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.helper.ConfigTestRepo;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -52,24 +51,23 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
@@ -80,11 +78,7 @@ import static org.mockito.Mockito.mock;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class BuildCauseProducerServiceConfigRepoIntegrationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Autowired
     private GoConfigDao goConfigDao;
     @Autowired
@@ -147,10 +141,10 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     String fileName = "pipe1.gocd.xml";
 
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup(@TempDir Path tempDir) throws Exception {
 
         diskSpaceSimulator = new DiskSpaceSimulator();
-        hgRepo = new HgTestRepo("testHgRepo", temporaryFolder);
+        hgRepo = new HgTestRepo("testHgRepo", tempDir);
 
         dbHelper.onSetUp();
         configHelper.onSetUp();
@@ -201,8 +195,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
-        TestRepo.internalTearDown();
-        dbHelper.onTearDown();
+                dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();
     }
@@ -414,8 +407,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
 
     @Test
-    public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered() throws Exception {
-        GitTestRepo otherGitRepo = new GitTestRepo(temporaryFolder);
+    public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered(@TempDir Path tempDir) throws Exception {
+        GitTestRepo otherGitRepo = new GitTestRepo(tempDir);
 
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();

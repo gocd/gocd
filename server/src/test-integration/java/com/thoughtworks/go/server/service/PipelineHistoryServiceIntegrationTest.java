@@ -44,20 +44,20 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -65,8 +65,8 @@ import java.util.stream.IntStream;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -75,11 +75,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class PipelineHistoryServiceIntegrationTest {
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineHistoryService pipelineHistoryService;
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -97,12 +93,12 @@ public class PipelineHistoryServiceIntegrationTest {
 
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         goCache.clear();
 
-        pipelineOne = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
+        pipelineOne = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
         pipelineOne.setGroupName("group1");
-        pipelineTwo = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        pipelineTwo = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineTwo.setGroupName("group2");
 
         diskIsFull = new ArtifactsDiskIsFull();
@@ -205,9 +201,9 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldMakePipelineInstanceCanRunFalseWhenDiskSpaceIsEmpty() throws Exception {
+    public void shouldMakePipelineInstanceCanRunFalseWhenDiskSpaceIsEmpty(@TempDir Path tempDir) throws Exception {
         diskIsFull.onSetUp();
-        configHelper.updateArtifactRoot(temporaryFolder.newFolder("serverlogs").getAbsolutePath());
+        configHelper.updateArtifactRoot(TempDirUtils.createTempDirectoryIn(tempDir, "serverlogs").toAbsolutePath().toString());
         pipelineOne.createdPipelineWithAllStagesPassed();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
                 Pagination.pageStartingAt(0, 1, 10),

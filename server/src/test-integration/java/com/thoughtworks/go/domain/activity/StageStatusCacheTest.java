@@ -24,23 +24,21 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.SQLException;
+import java.nio.file.Path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -50,27 +48,24 @@ import static org.mockito.Mockito.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class StageStatusCacheTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private StageStatusCache stageStatusCache;
 	@Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PipelineWithTwoStages pipelineFixture;
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
         configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
+        pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
     }
 
@@ -81,7 +76,7 @@ public class StageStatusCacheTest {
     }
 
     @Test
-    public void shouldLoadMostRecentInstanceFromDBForTheFirstTime() throws SQLException {
+    public void shouldLoadMostRecentInstanceFromDBForTheFirstTime() {
         pipelineFixture.createdPipelineWithAllStagesPassed();
 
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStageScheduled();
@@ -92,7 +87,7 @@ public class StageStatusCacheTest {
     }
 
     @Test
-    public void shouldLoadMostRecentInstanceFromDBOnlyOnce() throws SQLException {
+    public void shouldLoadMostRecentInstanceFromDBOnlyOnce() {
         final StageDao mock = mock(StageDao.class);
         final StageConfigIdentifier identifier = new StageConfigIdentifier("cruise", "dev");
         final Stage instance = StageMother.failingStage("dev");
@@ -107,7 +102,7 @@ public class StageStatusCacheTest {
     }
 
     @Test
-    public void shouldQueryTheDbOnlyOnceForStagesThatHaveNeverBeenBuilt() throws SQLException {
+    public void shouldQueryTheDbOnlyOnceForStagesThatHaveNeverBeenBuilt() {
         final StageDao stageDao = Mockito.mock(StageDao.class);
         final StageConfigIdentifier identifier = new StageConfigIdentifier("cruise", "dev");
 
@@ -121,7 +116,7 @@ public class StageStatusCacheTest {
     }
 
     @Test
-    public void shouldRemoveNeverBeenBuiltWhenTheStageIsBuiltForTheFirstTime() throws SQLException {
+    public void shouldRemoveNeverBeenBuiltWhenTheStageIsBuiltForTheFirstTime() {
         final StageDao stageDao = Mockito.mock(StageDao.class);
         final StageConfigIdentifier identifier = new StageConfigIdentifier("cruise", "dev");
         final Stage instance = StageMother.failingStage("dev");

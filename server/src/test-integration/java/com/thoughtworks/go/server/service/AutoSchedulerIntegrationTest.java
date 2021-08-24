@@ -27,20 +27,20 @@ import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.nio.file.Path;
+
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -49,7 +49,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class AutoSchedulerIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private PipelineScheduler pipelineScheduler;
@@ -58,14 +57,12 @@ public class AutoSchedulerIntegrationTest {
     @Autowired private ScheduleHelper scheduleHelper;
     @Autowired private GoConfigService configService;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private PreCondition configWithFreeEditionLicense;
     private TwoPipelineGroups twoPipelineGroups;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp(@TempDir Path tempDir) throws Exception {
         GoConfigFileHelper configFileHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
@@ -77,7 +74,7 @@ public class AutoSchedulerIntegrationTest {
         configWithFreeEditionLicense.onSetUp();
         configService.forceNotifyListeners();
 
-        twoPipelineGroups = new TwoPipelineGroups(configFileHelper, temporaryFolder);
+        twoPipelineGroups = new TwoPipelineGroups(configFileHelper, tempDir);
         twoPipelineGroups.onSetUp();
         serverHealthService.removeAllLogs();
     }

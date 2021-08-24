@@ -62,24 +62,22 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
@@ -91,7 +89,8 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -102,7 +101,6 @@ import static org.mockito.Mockito.*;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class StageServiceIntegrationTest {
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private StageService stageService;
@@ -123,9 +121,6 @@ public class StageServiceIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -175,21 +170,15 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldPostAllMessagesAfterTheDatabaseIsUpdatedWhenCancellingAStage() {
-        jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
-            @Override
-            public void onMessage(JobResultMessage message) {
-                JobIdentifier jobIdentifier = message.getJobIdentifier();
-                JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
-                receivedState = instance.getState();
-                receivedResult = instance.getResult();
-            }
+        jobResultTopic.addListener(message -> {
+            JobIdentifier jobIdentifier = message.getJobIdentifier();
+            JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
+            receivedState = instance.getState();
+            receivedResult = instance.getResult();
         });
-        stageService.addStageStatusListener(new StageStatusListener() {
-            @Override
-            public void stageStatusChanged(Stage stage) {
-                Stage retrievedStage = stageDao.stageById(stage.getId());
-                receivedStageResult = retrievedStage.getResult();
-            }
+        stageService.addStageStatusListener(stage -> {
+            Stage retrievedStage = stageDao.stageById(stage.getId());
+            receivedStageResult = retrievedStage.getResult();
         });
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -198,12 +187,7 @@ public class StageServiceIntegrationTest {
             }
         });
 
-        Assertions.waitUntil(Timeout.TEN_SECONDS, new BooleanSupplier() {
-            @Override
-            public boolean getAsBoolean() {
-                return receivedResult != null && receivedState != null && receivedStageResult!=null;
-            }
-        });
+        Assertions.waitUntil(Timeout.TEN_SECONDS, () -> receivedResult != null && receivedState != null && receivedStageResult != null);
         assertThat(receivedState, is(JobState.Completed));
         assertThat(receivedResult, is(JobResult.Cancelled));
         assertThat(receivedStageResult, is(StageResult.Cancelled));
@@ -211,16 +195,16 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenAllStagesAreCompletedInAGivenPipeline() throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
+    public void shouldReturnFalseWhenAllStagesAreCompletedInAGivenPipeline(@TempDir Path tempDir) throws Exception {
+        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), is(false));
     }
 
     @Test
-    public void shouldReturnTrueIfAnyStageIsBuildingInAGivenPipeline() throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
+    public void shouldReturnTrueIfAnyStageIsBuildingInAGivenPipeline(@TempDir Path tempDir) throws Exception {
+        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
 
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
@@ -228,8 +212,8 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void testShouldReturnTrueIfAStageOfAPipelineHasBeenScheduked() throws Exception {
-        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, temporaryFolder);
+    public void testShouldReturnTrueIfAStageOfAPipelineHasBeenScheduled(@TempDir Path tempDir) throws Exception {
+        fixture = new PipelineWithMultipleStages(3, materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createPipelineWithFirstStageScheduled();
         assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), is(true));
@@ -630,8 +614,8 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSaveTheStageStatusProperlyUponJobCancelAfterInvalidatingTheCache() throws Exception {
-        fixture = (PipelineWithMultipleStages) new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
+    public void shouldSaveTheStageStatusProperlyUponJobCancelAfterInvalidatingTheCache(@TempDir Path tempDir) throws Exception {
+        fixture = (PipelineWithMultipleStages) new PipelineWithMultipleStages(2, materialRepository, transactionTemplate, tempDir).usingTwoJobs();
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
 
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
@@ -706,8 +690,8 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void testShouldReturnTrueIfAStageIsActive_CaseInsensitive() throws Exception {
-        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
+    public void testShouldReturnTrueIfAStageIsActive_CaseInsensitive(@TempDir Path tempDir) throws Exception {
+        fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, tempDir);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         assertThat(stageService.isStageActive(pipeline.getName().toUpperCase(), "FT"), is(true));

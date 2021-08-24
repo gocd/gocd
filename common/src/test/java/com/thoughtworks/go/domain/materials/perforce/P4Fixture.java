@@ -32,7 +32,7 @@ public class P4Fixture {
 
     public void stop(P4Client p4) {
         stopP4d(p4);
-        repo.onTearDown();
+        repo.tearDown();
     }
 
     private void stopP4d(P4Client p4) {

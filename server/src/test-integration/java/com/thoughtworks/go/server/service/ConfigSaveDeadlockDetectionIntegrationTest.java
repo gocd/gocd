@@ -32,17 +32,13 @@ import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.rules.Timeout;
-import org.junit.runner.Description;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -51,13 +47,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -67,7 +64,6 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-@EnableRuleMigrationSupport
 public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -84,7 +80,6 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private CachedGoPartials cachedGoPartials;
     private GoConfigFileHelper configHelper;
-    private final int THREE_MINUTES = 3 * 60 * 1000;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -99,24 +94,21 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         configHelper.onTearDown();
     }
 
-    @Rule
-    public final TestRule timeout = RuleChain
-            .outerRule(new TestWatcher() {
-                @Override
-                protected void failed(Throwable e, Description description) {
-                    if (e.getMessage().contains("test timed out") || e instanceof TimeoutException) {
-                        try {
-                            fail("Test timed out, possible deadlock. Thread Dump:" + new Gson().toJson(serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult())));
-                        } catch (Exception e1) {
-                            throw new RuntimeException(e1);
-                        }
-                    }
+    @RegisterExtension
+    TestExecutionExceptionHandler timeoutExceptionHandler = (context, throwable) -> {
+        if (throwable instanceof TimeoutException && throwable.getSuppressed().length > 0
+                && throwable.getSuppressed()[0] instanceof InterruptedException) {
+            throw new RuntimeException(
+                    "Test timed out, possible deadlock. Thread Dump: " +
+                            new Gson().toJson(serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult())),
+                    throwable);
+        }
+        throw throwable;
+    };
 
-                }
-            })
-            .around(new Timeout(THREE_MINUTES));
 
     @Test
+    @Timeout(value = 3, unit = TimeUnit.MINUTES)
     public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws Exception {
         int EXISTING_ENV_COUNT = goConfigService.cruiseConfig().getEnvironments().size();
         final ArrayList<Thread> group1 = new ArrayList<>();

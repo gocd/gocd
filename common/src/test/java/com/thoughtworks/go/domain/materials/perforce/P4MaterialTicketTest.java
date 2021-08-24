@@ -23,7 +23,7 @@ public class P4MaterialTicketTest extends P4MaterialTestBase {
 
     @Override
     protected P4TestRepo createTestRepo() throws Exception {
-        P4TestRepo repo = P4TestRepo.createP4TestRepoWithTickets(temporaryFolder, clientFolder);
+        P4TestRepo repo = P4TestRepo.createP4TestRepoWithTickets(tempDir, clientFolder);
         repo.onSetup();
         return repo;
     }

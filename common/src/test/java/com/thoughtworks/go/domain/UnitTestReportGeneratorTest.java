@@ -17,38 +17,34 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@EnableRuleMigrationSupport
 public class UnitTestReportGeneratorTest {
 
     private File testFolder;
     private UnitTestReportGenerator generator;
     private DefaultGoPublisher publisher;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @BeforeEach
-    public void setUp() throws IOException {
-        temporaryFolder.create();
-        testFolder = temporaryFolder.newFolder();
+    public void setUp(@TempDir Path tempDir) throws IOException {
+        testFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         publisher = mock(DefaultGoPublisher.class);
         generator = new UnitTestReportGenerator(publisher, testFolder);
     }
@@ -67,7 +63,7 @@ public class UnitTestReportGeneratorTest {
     }
 
     @Test
-    public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws IOException, ArtifactPublishingException {
+    public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws ArtifactPublishingException {
         generator.generate(testFolder.listFiles(), "testoutput");
         expectZeroedProperties();
     }

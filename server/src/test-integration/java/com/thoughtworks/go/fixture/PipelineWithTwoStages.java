@@ -37,14 +37,12 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.io.FileUtils;
-import org.junit.rules.TemporaryFolder;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -72,12 +70,12 @@ public class PipelineWithTwoStages implements PreCondition {
     protected final TransactionTemplate transactionTemplate;
     public static final String DEV_STAGE_SECOND_JOB = "foo2";
     public static final String DEV_STAGE_THIRD_JOB = "foo3";
-    private final TemporaryFolder temporaryFolder;
+    private final Path tempDir;
 
-    public PipelineWithTwoStages(MaterialRepository materialRepository, TransactionTemplate transactionTemplate, TemporaryFolder temporaryFolder) {
+    public PipelineWithTwoStages(MaterialRepository materialRepository, TransactionTemplate transactionTemplate, Path tempDir) {
         this.materialRepository = materialRepository;
         this.transactionTemplate = transactionTemplate;
-        this.temporaryFolder = temporaryFolder;
+        this.tempDir = tempDir;
         this.pipelineName = "pipeline_" + UUID.randomUUID();
     }
 
@@ -110,7 +108,6 @@ public class PipelineWithTwoStages implements PreCondition {
         }
     }
 
-    @Override
     public void onSetUp() throws Exception {
         configHelper.initializeConfigFile();
 
@@ -118,9 +115,8 @@ public class PipelineWithTwoStages implements PreCondition {
     }
 
     public void addToSetup() throws Exception {
-        TestRepo svnTestRepo = new SvnTestRepo(temporaryFolder);
+        TestRepo svnTestRepo = new SvnTestRepo(tempDir);
         svnClient = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
-
 
         MaterialConfigs materialConfigs = MaterialConfigsMother.mockMaterialConfigs(svnTestRepo.projectRepositoryUrl());
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.first();
@@ -136,9 +132,10 @@ public class PipelineWithTwoStages implements PreCondition {
     public void onTearDown() throws Exception {
         configHelper.initializeConfigFile();
         dbHelper.onTearDown();
-        if (workingFolder != null) {
-            FileUtils.deleteQuietly(workingFolder);
-        }
+    }
+
+    protected Path tempDir() {
+        return tempDir;
     }
 
     public Pipeline schedulePipeline() {
@@ -146,12 +143,9 @@ public class PipelineWithTwoStages implements PreCondition {
     }
 
     public Pipeline schedulePipeline(final BuildCause buildCause) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                materialRepository.save(buildCause.getMaterialRevisions());
-                return PipelineMother.schedule(pipelineConfig(), buildCause);
-            }
+        return transactionTemplate.execute(status -> {
+            materialRepository.save(buildCause.getMaterialRevisions());
+            return PipelineMother.schedule(pipelineConfig(), buildCause);
         });
     }
 
@@ -264,7 +258,7 @@ public class PipelineWithTwoStages implements PreCondition {
 
     private void ensureWorkingCopyExist() throws IOException {
         if (workingFolder == null || !workingFolder.exists()) {
-            workingFolder = temporaryFolder.newFolder();
+            workingFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
             svnClient.checkoutTo(inMemoryConsumer(), workingFolder, SubversionRevision.HEAD);
         }
     }

@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
+import com.thoughtworks.go.util.TempDirUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +40,9 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableSCMMaterialConfigTest {
@@ -343,7 +344,7 @@ public class PluggableSCMMaterialConfigTest {
 
     @Test
     public void shouldNotValidateNestingOfMaterialDirectoriesBasedOnServerSideFileSystem() throws IOException {
-        final File workingDir = Files.createDirectory(temporaryFolder.resolve("go-working-dir")).toFile();
+        final File workingDir = TempDirUtils.createTempDirectoryIn(temporaryFolder, "go-working-dir").toFile();
         final File material1 = new File(workingDir, "material1");
         material1.mkdirs();
 

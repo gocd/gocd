@@ -20,19 +20,19 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.rules.TemporaryFolder;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
 public class TwoPipelineGroups implements PreCondition {
     private GoConfigFileHelper configHelper;
     private TestRepo svnTestRepo;
     private boolean isSetup = false;
-    private final TemporaryFolder temporaryFolder;
+    private final Path tempDir;
 
-    public TwoPipelineGroups(GoConfigFileHelper configHelper, TemporaryFolder temporaryFolder) {
+    public TwoPipelineGroups(GoConfigFileHelper configHelper, Path tempDir) {
         this.configHelper = configHelper;
-        this.temporaryFolder = temporaryFolder;
+        this.tempDir = tempDir;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TwoPipelineGroups implements PreCondition {
         this.isSetup = true;
         configHelper.initializeConfigFile();
 
-        svnTestRepo = new SvnTestRepo(temporaryFolder);
+        svnTestRepo = new SvnTestRepo(tempDir);
         SvnCommand svnCommand = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
 
         configHelper.addPipelineWithGroup("group1", "pipeline_" + UUID.randomUUID(), svnCommand, "defaultStage",

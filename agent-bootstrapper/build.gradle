@@ -31,7 +31,6 @@ dependencies {
   extractedAtTopLevel project(':jar-class-loader')
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.junit5Migration
 }
 
 jar {

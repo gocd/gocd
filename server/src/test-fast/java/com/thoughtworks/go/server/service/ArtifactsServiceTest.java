@@ -26,23 +26,23 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -55,8 +55,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@EnableRuleMigrationSupport
 public class ArtifactsServiceTest {
+    @TempDir
+    Path tempDir;
+
     private ArtifactsDirHolder artifactsDirHolder;
     private ZipUtil zipUtil;
     private List<File> resourcesToBeCleanedOnTeardown = new ArrayList<>();
@@ -64,23 +66,18 @@ public class ArtifactsServiceTest {
     private JobResolverService resolverService;
     private StageDao stageService;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @BeforeEach
     void setUp() throws IOException {
-        temporaryFolder.create();
         artifactsDirHolder = mock(ArtifactsDirHolder.class);
         zipUtil = mock(ZipUtil.class);
         resolverService = mock(JobResolverService.class);
         stageService = mock(StageDao.class);
 
-        fakeRoot = temporaryFolder.newFolder("ArtifactsServiceTest");
+        fakeRoot = TempDirUtils.createTempDirectoryIn(tempDir, "ArtifactsServiceTest").toFile();
     }
 
     @AfterEach
     void tearDown() {
-        temporaryFolder.delete();
         for (File resource : resourcesToBeCleanedOnTeardown) {
             FileUtils.deleteQuietly(resource);
         }
@@ -160,7 +157,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldConvertArtifactPathToFileSystemLocation() throws Exception {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         File location = artifactsService.getArtifactLocation("foo/bar/baz");
@@ -169,7 +166,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldConvertArtifactPathToUrl() throws Exception {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -182,7 +179,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldConvertArtifactPathWithLocationToUrl() throws Exception {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -195,7 +192,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldUsePipelineCounterAsFolderName() throws IllegalArtifactLocationException, IOException {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
 
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -241,7 +238,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldUsePipelineLabelAsFolderNameIfNoCounter() throws IllegalArtifactLocationException, IOException {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -252,7 +249,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldPurgeArtifactsExceptCruiseOutputForGivenStageAndMarkItCleaned() throws IOException {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
         File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
@@ -290,7 +287,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldPurgeArtifactsExceptPluggableArtifactMetadataFolderForGivenStageAndMarkItCleaned() throws IOException {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
         File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
@@ -324,7 +321,7 @@ public class ArtifactsServiceTest {
 
     @Test
     void shouldPurgeCachedArtifactsForGivenStageWhilePurgingArtifactsForAStage() throws IOException {
-        File artifactsRoot = temporaryFolder.newFolder();
+        File artifactsRoot = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
         assumeArtifactsRoot(artifactsRoot);
         willCleanUp(artifactsRoot);
 

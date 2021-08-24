@@ -16,20 +16,16 @@
 package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import org.apache.commons.io.FileUtils;
-import org.aspectj.util.FileUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
     @Override
@@ -44,22 +40,18 @@ public class MaterialDatabaseGitUpdaterTest extends TestBaseForDatabaseUpdater {
 
     @Test
     public void shouldRemoveFlyweightWhenConfiguredBranchDoesNotExist() throws Exception {
-        File flyweightDir = new File("pipelines", "flyweight");
-        FileUtils.deleteQuietly(flyweightDir);
-
         material = new GitMaterial(testRepo.projectRepositoryUrl(), "bad-bad-branch");
 
-        try {
-            updater.updateMaterial(material);
-            fail("material update should have failed as given branch does not exist in repository");
-        } catch (Exception e) {
-            //ignore
-        }
+        // Ensure we start clean
+        File flyweightDir = materialRepository.folderFor(new GitMaterial("dummy")).getParentFile();
+        FileUtils.deleteQuietly(flyweightDir);
 
-        MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
+        assertThatThrownBy(() -> updater.updateMaterial(material))
+                .hasMessageContaining("bad-bad-branch not found");
 
-        assertThat(materialInstance, is(nullValue()));
-        assertThat(FileUtil.listFiles(flyweightDir).length, is(0));//no flyweight dir left behind
+        assertThat(materialRepository.findMaterialInstance(material)).isNull();
+        // Check there are no flyweight folders created by looking at the parent directory of a new folder generation
+        assertThat(flyweightDir).isEmptyDirectory();
     }
 
 }

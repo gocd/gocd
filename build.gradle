@@ -108,7 +108,7 @@ List<String> partitionFiles(Collection originalFiles) {
 
   def allPartitions = files.collate(testsPerBucket)
   def currentPartition = allPartitions[currentWorkerIndex - 1]
-  return currentPartition ?: []
+  return currentPartition ?: [] as List<String>
 }
 
 def GO_VERSION_PREVIOUS = '21.2.0'
@@ -240,14 +240,13 @@ allprojects {
 
   repositories {
     mavenCentral()
-    maven { url "https://repo1.maven.org/maven2/" } // for things that disappeared from repo.maven.apache.org
   }
 }
 
 idea {
   project {
-    jdkName = '11'
-    languageLevel = '11'
+    jdkName = project.compilerOptions.targetCompatibility
+    languageLevel = project.compilerOptions.sourceCompatibility
   }
 }
 
@@ -416,7 +415,6 @@ subprojects {
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.17.0'
       ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
       ruleSets = []
       incrementalAnalysis = true

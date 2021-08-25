@@ -17,27 +17,33 @@
 package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import org.ysb33r.grolifant.api.AbstractDistributionInstaller
-import org.ysb33r.grolifant.api.OperatingSystem
+import org.ysb33r.grolifant.api.core.OperatingSystem
+import org.ysb33r.grolifant.api.core.ProjectOperations
+import org.ysb33r.grolifant.api.v4.downloader.AbstractDistributionInstaller
 
 class DownloaderTask extends DefaultTask {
+  @Input
   String executable
+  @Input
   String url
-  String packageName;
-  String packageVersion;
+  @Input
+  String packageName
+  @Input
+  String packageVersion
 
   @TaskAction
-  public void perform() {
+  void perform() {
     AbstractDistributionInstaller installer = createInstaller()
     // perform the download
-    File distributionRoot = installer.getDistributionRoot()
+    File distributionRoot = installer.getDistributionRoot(packageVersion).get()
     extensions.ext.outputDir = distributionRoot
-    extensions.ext.absoluteBinaryPath = project.file("${distributionRoot}/${OperatingSystem.current().getExecutableName(executable)}")
+    extensions.ext.absoluteBinaryPath = project.file("${distributionRoot}/${OperatingSystem.current().getExecutableNames(executable).first()}")
   }
 
   private AbstractDistributionInstaller createInstaller() {
-    new AbstractDistributionInstaller(packageName, packageVersion, "download/${packageName}/${packageVersion}", project) {
+    new AbstractDistributionInstaller(packageName, "download/${packageName}/${packageVersion}", ProjectOperations.find(project)) {
 
       @Override
       URI uriFromVersion(String version) {
@@ -45,7 +51,7 @@ class DownloaderTask extends DefaultTask {
       }
 
       @Override
-      protected File getAndVerifyDistributionRoot(File distDir, String distributionDescription) {
+      protected File verifyDistributionRoot(File distDir) {
         distDir
       }
     }

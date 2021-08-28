@@ -68,7 +68,7 @@ class TokenRequesterTest {
         verify(httpClient).execute(argumentCaptor.capture());
 
         final HttpRequestBase requestBase = argumentCaptor.getValue();
-        final List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(requestBase.getURI(), StandardCharsets.UTF_8.name());
+        final List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(requestBase.getURI(), StandardCharsets.UTF_8);
 
         assertThat(token).isEqualTo("token-from-server");
         assertThat(findParam(nameValuePairs, "uuid").getValue()).isEqualTo("agent-uuid");

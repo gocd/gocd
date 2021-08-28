@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class ConfigRepoMigrator {
@@ -41,7 +42,7 @@ public class ConfigRepoMigrator {
     private Chainr getTransformerFor(int targetVersion) {
         try {
             String targetVersionFile = String.format("/config-repo/migrations/%s.json", targetVersion);
-            String transformJSON = IOUtils.toString(this.getClass().getResourceAsStream(targetVersionFile), "UTF-8");
+            String transformJSON = IOUtils.toString(this.getClass().getResourceAsStream(targetVersionFile), StandardCharsets.UTF_8);
             return Chainr.fromSpec(JsonUtils.jsonToList(transformJSON));
         } catch (Exception e) {
             throw new RuntimeException("Failed to migrate to version " + targetVersion, e);
@@ -51,7 +52,7 @@ public class ConfigRepoMigrator {
     private Map<String, Object> getContextMap(int targetVersion) {
         try {
             String contextFile = String.format("/config-repo/contexts/%s.json", targetVersion);
-            String contextJSON = IOUtils.toString(this.getClass().getResourceAsStream(contextFile), "UTF-8");
+            String contextJSON = IOUtils.toString(this.getClass().getResourceAsStream(contextFile), StandardCharsets.UTF_8);
             return JsonUtils.jsonToMap(contextJSON);
         } catch (Exception e) {
             LOGGER.debug(String.format("No context file present for target version '%s'.", targetVersion));

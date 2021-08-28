@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.server.ui.controller;
 
-import java.util.Map;
-import java.net.URLEncoder;
+import org.springframework.web.servlet.View;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.servlet.View;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class ResponseRedirector implements View {
     private final String target;
@@ -46,7 +47,7 @@ public class ResponseRedirector implements View {
                     if (params.length() > 0) {
                         params += "&";
                     }
-                    params += key + "=" + URLEncoder.encode(value, "UTF-8");
+                    params += key + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8);
                 }
             }
         }

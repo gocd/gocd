@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,7 +57,7 @@ public class FileHandler implements FetchHandler {
         if (fileExist && artifact.isFile()) {
             String sha1 = FileUtil.sha1Digest(artifact);
             return format("%s/%s/%s/%s?sha1=%s", remoteHost, "remoting", "files", workingUrl,
-                    URLEncoder.encode(sha1, "UTF-8"));
+                    URLEncoder.encode(sha1, StandardCharsets.UTF_8));
         } else {
             return format("%s/%s/%s/%s", remoteHost, "remoting", "files", workingUrl);
         }

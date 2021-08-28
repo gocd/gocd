@@ -52,6 +52,7 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -521,10 +522,7 @@ public class StageService implements StageFinder {
         }
     }
 
-    /**
-     * @return Listeners
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     List<StageStatusListener> getStageStatusListeners() {
         return stageStatusListeners;
     }

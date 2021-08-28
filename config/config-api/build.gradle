@@ -38,6 +38,7 @@ dependencies {
   implementation project.deps.jodaTime
   providedAtPackageTime project.deps.bouncyCastle
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project(':test:test-utils')
   testImplementation project.deps.jaxen

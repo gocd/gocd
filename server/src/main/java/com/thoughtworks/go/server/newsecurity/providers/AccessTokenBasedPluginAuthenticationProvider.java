@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.util.Clock;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -93,8 +94,7 @@ public class AccessTokenBasedPluginAuthenticationProvider extends AbstractPlugin
         }
     }
 
-    //used only in tests
-    @Deprecated
+    @TestOnly
     public void setStore(AuthorizationMetadataStore store) {
         this.store = store;
     }

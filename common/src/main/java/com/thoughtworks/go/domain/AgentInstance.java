@@ -29,6 +29,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
 import java.util.List;
@@ -135,7 +136,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         agentRuntimeInfo.busy(agentBuildingInfo);
     }
 
-    //  Used only in tests
+    @TestOnly
     public void idle() {
         agentConfigStatus = Enabled;
         syncRuntimeStatus(Idle);

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.util.pool;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -92,9 +93,7 @@ public class DigestObjectPools {
         }
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     void clearThreadLocals() {
         sha256DigestLocal.set(null);
         sha512DigestLocal.set(null);

@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +65,7 @@ public class PipelineTimeline {
         maximumId = -1;
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
-    @Deprecated
+    @TestOnly
     public Collection<PipelineTimelineEntry> getEntriesFor(String pipelineName) {
         naturalOrderLock.readLock().lock();
         try {
@@ -265,9 +263,9 @@ public class PipelineTimeline {
     }
 
     /**
-     * @deprecated No reason why you should use this apart from test tear down
+     * No reason why you should use this apart from test tear down
      */
-    @Deprecated
+    @TestOnly
     public void clearWhichIsEvilAndShouldNotBeUsedInRealWorld() {
         acquireAllWriteLocks();
         try {

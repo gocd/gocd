@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.domain.ConfigErrors;
+import org.jetbrains.annotations.TestOnly;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.ConfigErrors;
 
 /**
  * @understands references to existing pipelines that are associated to an Environment
@@ -33,7 +34,7 @@ public class EnvironmentPipelinesConfig extends BaseCollection<EnvironmentPipeli
     public EnvironmentPipelinesConfig() {
     }
 
-    //used only in tests
+    @TestOnly
     public EnvironmentPipelinesConfig(CaseInsensitiveString... pipelineNames) {
         for (CaseInsensitiveString name : pipelineNames) {
             add(new EnvironmentPipelineConfig(name));

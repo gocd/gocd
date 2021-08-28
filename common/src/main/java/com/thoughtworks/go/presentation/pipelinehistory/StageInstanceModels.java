@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.StageContainer;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
 
@@ -91,9 +92,9 @@ public class StageInstanceModels extends BaseCollection<StageInstanceModel> impl
     }
 
     /**
-     *
-     * @deprecated use add method. This is a test helper
+     * Use {@link #add(StageInstanceModel)} instead
      */
+    @TestOnly
     public void addStage(String name, JobHistory history) {
         add(new StageInstanceModel(name, "1", history));
     }

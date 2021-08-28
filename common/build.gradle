@@ -29,6 +29,7 @@ dependencies {
   api project.deps.springTx
   implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project.deps.bouncyCastle
   testImplementation project.deps.bouncyCastlePkix

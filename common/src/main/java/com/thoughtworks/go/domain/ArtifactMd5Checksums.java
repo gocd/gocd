@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class ArtifactMd5Checksums implements Serializable {
         }
     }
 
-    //Used only in tests
+    @TestOnly
     public ArtifactMd5Checksums(Properties checksumProperties) {
         this.checksumProperties = checksumProperties;
     }

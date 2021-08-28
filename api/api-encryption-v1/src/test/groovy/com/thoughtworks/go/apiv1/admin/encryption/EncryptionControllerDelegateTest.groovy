@@ -70,7 +70,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+          .hasBodyWithJsonObject(EncryptedValueRepresenter.class, cipher.encrypt("foo"))
       }
 
       @Test
@@ -117,7 +117,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
               .hasContentType(controller.mimeType)
               .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", (REQUESTS_PER_MINUTE - i).toString())
-              .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+              .hasBodyWithJsonObject(EncryptedValueRepresenter.class, cipher.encrypt("foo"))
           }
 
           postWithApiHeader(controller.controllerBasePath(), [value: 'foo'])
@@ -143,7 +143,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
               .hasContentType(controller.mimeType)
               .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", (REQUESTS_PER_MINUTE - i).toString())
-              .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+              .hasBodyWithJsonObject(EncryptedValueRepresenter.class, cipher.encrypt("foo"))
           }
         }
 
@@ -158,7 +158,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
               .hasContentType(controller.mimeType)
               .hasHeader("X-RateLimit-Limit", REQUESTS_PER_MINUTE.toString())
               .hasHeader("X-RateLimit-Remaining", REQUESTS_PER_MINUTE.toString())
-              .hasBodyWithJsonObject(cipher.encrypt("foo"), EncryptedValueRepresenter.class)
+              .hasBodyWithJsonObject(EncryptedValueRepresenter.class, cipher.encrypt("foo"))
           }
         }
 

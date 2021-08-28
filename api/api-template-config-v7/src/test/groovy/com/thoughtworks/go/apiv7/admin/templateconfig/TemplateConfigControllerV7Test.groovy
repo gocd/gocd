@@ -97,7 +97,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject([templates], TemplatesConfigRepresenter)
+          .hasBodyWithJsonObject(TemplatesConfigRepresenter, [templates])
       }
     }
   }
@@ -139,7 +139,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(template, TemplateConfigRepresenter)
+          .hasBodyWithJsonObject(TemplateConfigRepresenter, template)
 
       }
 
@@ -281,7 +281,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
         .isOk()
-        .hasBodyWithJsonObject(template, TemplateConfigRepresenter)
+        .hasBodyWithJsonObject(TemplateConfigRepresenter, template)
       }
 
       @Test
@@ -350,7 +350,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(template, TemplateConfigRepresenter)
+          .hasBodyWithJsonObject(TemplateConfigRepresenter, template)
       }
 
       @Test

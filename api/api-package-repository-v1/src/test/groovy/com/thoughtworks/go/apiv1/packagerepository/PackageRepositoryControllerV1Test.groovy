@@ -163,7 +163,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         assertThatResponse()
           .isOk()
           .hasEtag('"etag"')
-          .hasBodyWithJsonObject(packageRepository, PackageRepositoryRepresenter)
+          .hasBodyWithJsonObject(PackageRepositoryRepresenter, packageRepository)
       }
     }
 

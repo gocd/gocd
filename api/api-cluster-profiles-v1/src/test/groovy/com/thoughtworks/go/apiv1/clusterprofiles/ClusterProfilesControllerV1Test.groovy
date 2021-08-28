@@ -95,7 +95,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new ClusterProfiles(clusterProfile), ClusterProfilesRepresenter.class)
+          .hasBodyWithJsonObject(ClusterProfilesRepresenter.class, new ClusterProfiles(clusterProfile))
       }
     }
   }
@@ -139,7 +139,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
           .isOk()
           .hasContentType(controller.mimeType)
           .hasEtag('"digest"')
-          .hasBodyWithJsonObject(clusterProfile, ClusterProfileRepresenter.class)
+          .hasBodyWithJsonObject(ClusterProfileRepresenter.class, clusterProfile)
       }
 
       @Test
@@ -204,7 +204,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(clusterProfile, ClusterProfileRepresenter)
+          .hasBodyWithJsonObject(ClusterProfileRepresenter, clusterProfile)
       }
 
       @Test
@@ -361,7 +361,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(updatedCluster, ClusterProfileRepresenter)
+          .hasBodyWithJsonObject(ClusterProfileRepresenter, updatedCluster)
       }
 
       @Test

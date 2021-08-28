@@ -103,7 +103,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           .isOk()
           .hasContentType(controller.mimeType)
           .hasEtag('"2ed2348f198e14381f2dd0e5a0e317f8a2287feb8807891a90ca9cd60248d45b"')
-          .hasBodyWithJsonObject(securityAuthConfigs, SecurityAuthConfigsRepresenter)
+          .hasBodyWithJsonObject(SecurityAuthConfigsRepresenter, securityAuthConfigs)
       }
     }
   }
@@ -145,7 +145,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(securityAuthConfig, SecurityAuthConfigRepresenter)
+          .hasBodyWithJsonObject(SecurityAuthConfigRepresenter, securityAuthConfig)
       }
 
       @Test
@@ -185,7 +185,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           .isOk()
           .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(securityAuthConfig, SecurityAuthConfigRepresenter)
+          .hasBodyWithJsonObject(SecurityAuthConfigRepresenter, securityAuthConfig)
       }
     }
   }
@@ -235,7 +235,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop")), SecurityAuthConfigRepresenter)
+          .hasBodyWithJsonObject(SecurityAuthConfigRepresenter, new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop")))
       }
 
       @Test
@@ -361,7 +361,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(updatedProfile, SecurityAuthConfigRepresenter)
+          .hasBodyWithJsonObject(SecurityAuthConfigRepresenter, updatedProfile)
       }
 
       @Test

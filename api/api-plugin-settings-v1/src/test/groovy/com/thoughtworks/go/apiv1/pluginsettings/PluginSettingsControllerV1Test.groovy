@@ -98,7 +98,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
+          .hasBodyWithJsonObject(PluginSettingsRepresenter, pluginSettings)
       }
 
       @Test
@@ -167,7 +167,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
+          .hasBodyWithJsonObject(PluginSettingsRepresenter, pluginSettings)
       }
 
       @Test
@@ -267,7 +267,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
+          .hasBodyWithJsonObject(PluginSettingsRepresenter, pluginSettings)
       }
 
       @Test

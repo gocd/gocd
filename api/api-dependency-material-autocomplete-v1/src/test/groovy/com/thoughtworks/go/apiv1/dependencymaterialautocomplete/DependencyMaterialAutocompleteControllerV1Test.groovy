@@ -69,7 +69,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJsonArray(suggestions, SuggestionsRepresenter.class)
+        .hasBodyWithJsonArray(SuggestionsRepresenter.class, suggestions)
     }
 
     private CaseInsensitiveString ident(String name) {

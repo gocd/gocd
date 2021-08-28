@@ -98,7 +98,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStores, ArtifactStoresRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoresRepresenter, artifactStores)
       }
     }
   }
@@ -148,7 +148,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, artifactStore)
       }
 
       @Test
@@ -190,7 +190,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, artifactStore)
       }
     }
   }
@@ -233,7 +233,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, artifactStore)
       }
 
       @Test
@@ -352,7 +352,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(newArtifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, newArtifactStore)
       }
 
       @Test

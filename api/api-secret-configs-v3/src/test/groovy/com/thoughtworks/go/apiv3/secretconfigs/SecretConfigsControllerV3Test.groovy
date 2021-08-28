@@ -108,7 +108,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"ffff"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+          .hasBodyWithJsonObject(SecretConfigsRepresenter, expectedConfigs)
       }
 
       @Test
@@ -139,7 +139,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+          .hasBodyWithJsonObject(SecretConfigsRepresenter, expectedConfigs)
       }
     }
   }
@@ -184,7 +184,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, expectedConfig)
       }
 
       @Test
@@ -232,7 +232,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, expectedConfig)
       }
     }
   }
@@ -309,7 +309,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(secretConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, secretConfig)
       }
 
 
@@ -469,7 +469,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(newSecretConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, newSecretConfig)
       }
 
       @Test

@@ -138,7 +138,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(backup, BackupRepresenter.class)
+          .hasBodyWithJsonObject(BackupRepresenter.class, backup)
           .hasContentType(controller.mimeType)
       }
 
@@ -151,7 +151,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(backup, BackupRepresenter.class)
+          .hasBodyWithJsonObject(BackupRepresenter.class, backup)
           .hasContentType(controller.mimeType)
       }
 

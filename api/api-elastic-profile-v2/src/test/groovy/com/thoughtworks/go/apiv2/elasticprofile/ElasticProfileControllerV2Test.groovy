@@ -106,7 +106,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(elasticProfiles, ElasticProfilesRepresenter)
+          .hasBodyWithJsonObject(ElasticProfilesRepresenter, elasticProfiles)
       }
     }
   }
@@ -152,7 +152,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(dockerElasticProfile, ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, dockerElasticProfile)
       }
 
       @Test
@@ -194,7 +194,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(dockerElasticProfile, ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, dockerElasticProfile)
       }
     }
   }
@@ -245,7 +245,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo")))
       }
 
       @Test
@@ -398,7 +398,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(updatedProfile, ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, updatedProfile)
       }
 
       @Test

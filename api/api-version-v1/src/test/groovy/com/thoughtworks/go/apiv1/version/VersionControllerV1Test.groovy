@@ -48,7 +48,7 @@ class VersionControllerV1Test implements SecurityServiceTrait, ControllerTrait<V
 
       assertThatResponse()
         .isOk()
-        .hasBodyWithJsonObject(currentGoCDVersion, VersionRepresenter)
+        .hasBodyWithJsonObject(VersionRepresenter, currentGoCDVersion)
 
     }
 

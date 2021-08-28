@@ -97,7 +97,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerBasePath())
 
         def sortedEnvConfigList = [devEnv, prodEnv, qaEnv]
-        assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(EnvironmentsRepresenter, sortedEnvConfigList)
       }
 
       @Test
@@ -123,7 +123,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         getWithApiHeader(controller.controllerBasePath())
 
-        assertThatResponse().hasBodyWithJsonObject([], EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(EnvironmentsRepresenter, [])
       }
 
       @Test
@@ -150,7 +150,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerBasePath())
 
         def sortedEnvConfigList = [prodEnv1, prodEnv2]
-        assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(EnvironmentsRepresenter, sortedEnvConfigList)
       }
 
       @Test
@@ -232,7 +232,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
 
       @Test
@@ -279,7 +279,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
     }
   }
@@ -378,7 +378,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
     }
   }
@@ -448,7 +448,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"ffff"')
-          .hasBodyWithJsonObject(newConfig, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, newConfig)
       }
 
       @Test
@@ -496,7 +496,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"ffff"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
 
       @Test
@@ -655,7 +655,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(updatedConfig, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, updatedConfig)
       }
 
       @Test

@@ -185,7 +185,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         assertThatResponse()
           .isOk()
           .hasEtag('"etag"')
-          .hasBodyWithJsonObject(packageDefinition, PackageDefinitionRepresenter)
+          .hasBodyWithJsonObject(PackageDefinitionRepresenter, packageDefinition)
       }
     }
   }

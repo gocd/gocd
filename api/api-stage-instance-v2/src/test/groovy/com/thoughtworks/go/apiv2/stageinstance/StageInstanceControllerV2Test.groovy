@@ -406,7 +406,7 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(getStageModel(), StageRepresenter)
+          .hasBodyWithJsonObject(StageRepresenter, getStageModel())
       }
 
       def getStageModel() {

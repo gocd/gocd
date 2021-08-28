@@ -85,7 +85,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
           .isOk()
           .hasEtag(etag)
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(user, UserRepresenter.class)
+          .hasBodyWithJsonObject(UserRepresenter.class, user)
       }
 
       @Test
@@ -152,7 +152,7 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
           .isOk()
           .hasEtag(etag)
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(newUser, UserRepresenter.class)
+          .hasBodyWithJsonObject(UserRepresenter.class, newUser)
       }
 
       @Test

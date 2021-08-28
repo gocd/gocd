@@ -338,7 +338,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new TriggerOptions(variables, model), TriggerWithOptionsViewRepresenter.class)
+          .hasBodyWithJsonObject(TriggerWithOptionsViewRepresenter.class, new TriggerOptions(variables, model))
       }
 
       @Test

@@ -101,7 +101,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, config)
       }
 
       @Test
@@ -127,7 +127,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, config)
       }
     }
   }
@@ -185,7 +185,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(configFromRequest, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, configFromRequest)
       }
 
       @Test
@@ -291,7 +291,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfig, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, expectedConfig)
       }
 
       @Test
@@ -317,7 +317,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(result, BulkUpdateFailureResultRepresenter.class)
+          .hasBodyWithJsonObject(BulkUpdateFailureResultRepresenter.class, result)
       }
     }
   }

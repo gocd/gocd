@@ -87,7 +87,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJsonArray(matchedRevisions, MatchedRevisionRepresenter.class)
+        .hasBodyWithJsonArray(MatchedRevisionRepresenter.class, matchedRevisions)
     }
   }
 

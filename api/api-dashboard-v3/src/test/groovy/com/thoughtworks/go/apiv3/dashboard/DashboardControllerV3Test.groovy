@@ -90,7 +90,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(new DashboardFor([group], [env], currentUsername(), PipelineSelections.ALL.etag()), DashboardRepresenter)
+          .hasBodyWithJsonObject(DashboardRepresenter, new DashboardFor([group], [env], currentUsername(), PipelineSelections.ALL.etag()))
       }
 
       @Test
@@ -128,7 +128,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new DashboardFor([], [], currentUsername(), pipelineSelections.etag()), DashboardRepresenter)
+          .hasBodyWithJsonObject(DashboardRepresenter, new DashboardFor([], [], currentUsername(), pipelineSelections.etag()))
       }
 
       @Test

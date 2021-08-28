@@ -21,16 +21,13 @@ import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter
 import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.deprecatedConfirmHeaderMissing
-import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 
@@ -71,7 +68,7 @@ class BackupsControllerTest implements ControllerTrait<BackupsController>, Secur
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(backup, BackupRepresenter.class)
+          .hasBodyWithJsonObject(BackupRepresenter.class, backup)
       }
     }
 

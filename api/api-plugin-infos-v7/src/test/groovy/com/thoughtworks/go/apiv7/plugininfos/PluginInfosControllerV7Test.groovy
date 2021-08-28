@@ -105,7 +105,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfo, PluginInfoRepresenter)
+          .hasBodyWithJsonObject(PluginInfoRepresenter, pluginInfo)
       }
 
       @Test
@@ -139,7 +139,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfo, PluginInfoRepresenter)
+          .hasBodyWithJsonObject(PluginInfoRepresenter, pluginInfo)
       }
 
       @Test
@@ -231,7 +231,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
+          .hasBodyWithJsonObject(PluginInfosRepresenter, pluginInfos)
       }
 
       @Test
@@ -267,7 +267,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
+          .hasBodyWithJsonObject(PluginInfosRepresenter, pluginInfos)
       }
 
 
@@ -322,7 +322,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(expectedPluginInfo, PluginInfosRepresenter)
+          .hasBodyWithJsonObject(PluginInfosRepresenter, expectedPluginInfo)
       }
 
       @Test

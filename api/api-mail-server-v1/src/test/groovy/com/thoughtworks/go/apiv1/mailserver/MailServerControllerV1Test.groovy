@@ -87,7 +87,7 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(mailHost, MailServerRepresenter)
+          .hasBodyWithJsonObject(MailServerRepresenter, mailHost)
       }
 
       @Test
@@ -148,7 +148,7 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(mailHost, MailServerRepresenter)
+          .hasBodyWithJsonObject(MailServerRepresenter, mailHost)
       }
     }
   }
@@ -198,7 +198,7 @@ class MailServerControllerV1Test implements SecurityServiceTrait, ControllerTrai
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(mailHost, MailServerRepresenter)
+          .hasBodyWithJsonObject(MailServerRepresenter, mailHost)
       }
     }
   }

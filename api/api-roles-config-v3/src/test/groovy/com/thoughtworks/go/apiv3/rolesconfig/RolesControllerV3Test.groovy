@@ -94,7 +94,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isOk()
           .hasEtag('"some-etag"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedRoles, RolesRepresenter)
+          .hasBodyWithJsonObject(RolesRepresenter, expectedRoles)
       }
 
       @Test
@@ -110,7 +110,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new RolesConfig([pluginRoleConfig]), RolesRepresenter)
+          .hasBodyWithJsonObject(RolesRepresenter, new RolesConfig([pluginRoleConfig]))
       }
 
       @Test
@@ -185,7 +185,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(role, RoleRepresenter)
+          .hasBodyWithJsonObject(RoleRepresenter, role)
       }
 
       @Test
@@ -223,7 +223,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(role, RoleRepresenter)
+          .hasBodyWithJsonObject(RoleRepresenter, role)
       }
     }
   }
@@ -266,7 +266,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(role, RoleRepresenter)
+          .hasBodyWithJsonObject(RoleRepresenter, role)
       }
 
       @Test
@@ -401,7 +401,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(newRole, RoleRepresenter)
+          .hasBodyWithJsonObject(RoleRepresenter, newRole)
       }
     }
   }
@@ -468,7 +468,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new RolesConfig(role), RolesRepresenter.class)
+          .hasBodyWithJsonObject(RolesRepresenter.class, new RolesConfig(role))
       }
     }
   }

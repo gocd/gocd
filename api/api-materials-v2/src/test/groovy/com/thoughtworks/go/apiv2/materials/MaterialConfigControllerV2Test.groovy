@@ -96,7 +96,7 @@ class MaterialConfigControllerV2Test implements SecurityServiceTrait, Controller
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(materialConfigs, MaterialConfigsRepresenter)
+          .hasBodyWithJsonObject(MaterialConfigsRepresenter, materialConfigs)
       }
     }
   }

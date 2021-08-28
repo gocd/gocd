@@ -91,7 +91,7 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
 
       assertThatResponse()
         .isOk()
-        .hasBodyWithJsonObject(pipelineInstanceModel.buildCause, BuildCauseRepresenter)
+        .hasBodyWithJsonObject(BuildCauseRepresenter, pipelineInstanceModel.buildCause)
     }
 
     @Test

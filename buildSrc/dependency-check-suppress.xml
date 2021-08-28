@@ -39,6 +39,8 @@
         <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
         <cpe>cpe:/a:jruby:jruby</cpe>
         <cpe>cpe:/a:openssl:openssl</cpe>
+        <cpe>cpe:/a:openssl_project:openssl</cpe>
+        <cpe>cpe:/a:rubygems:rubygems</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -81,6 +83,37 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
         <cve>CVE-2020-13697</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: hibernate-commons-annotations-3.2.0.Final.jar
+   Hibernate Commons Annotations is a different project, versioned separately to the core "Hibernate ORM", so CVEs against this are misleading
+   and false positives. We will still seem them reported against other Hibernate dependencies, however.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-commons\-annotations@.*$</packageUrl>
+        <cpe>cpe:/a:hibernate:hibernate_orm</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: velocity-1.7.jar
+   It is not possible to upload/modify Velocity Templates within GoCD, so GoCD does not appear to be vulnerable to this
+   vulnerability. See https://nvd.nist.gov/vuln/detail/CVE-2020-13936
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.velocity/velocity@.*$</packageUrl>
+        <cve>CVE-2020-13936</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: velocity-tools-view-1.4.jar
+   The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is confusing to have Engine CVEs
+   reported against the tools jar.
+   ]]></notes>
+        <!-- sha1 of jar as vendored in server/vendor at time of suppression -->
+        <sha1>3c44030292cff7cf495ee155a5eefa7a05de6447</sha1>
+        <cpe>cpe:/a:apache:velocity_engine</cpe>
     </suppress>
 
 </suppressions>

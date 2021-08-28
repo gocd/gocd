@@ -25,13 +25,15 @@ import com.thoughtworks.go.spark.spa.RolesController
 import freemarker.template.utility.StringUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import org.springframework.core.io.DefaultResourceLoader
 import spark.ModelAndView
 
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class FreemarkerTemplateEngineFactoryTest {
 
   InitialContextProvider initialContextProvider
@@ -39,7 +41,6 @@ class FreemarkerTemplateEngineFactoryTest {
 
   @BeforeEach
   void setUp() {
-    initMocks(this)
     Toggles.initializeWith(mock(FeatureToggleService.class))
     initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder), mock(MaintenanceModeService), mock(ServerConfigService))
     engine = new FreemarkerTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")

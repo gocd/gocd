@@ -33,13 +33,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class NotificationFilterControllerV2Test implements SecurityServiceTrait, ControllerTrait<NotificationFilterControllerV2> {
   @Mock
   private UserService userService
@@ -47,10 +49,6 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
   @Mock
   private EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   NotificationFilterControllerV2 createControllerInstance() {

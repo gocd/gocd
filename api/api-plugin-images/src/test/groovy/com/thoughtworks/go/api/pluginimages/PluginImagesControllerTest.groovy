@@ -22,24 +22,21 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SparkController
 import com.thoughtworks.go.spark.util.SecureRandom
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static java.nio.charset.StandardCharsets.UTF_8
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PluginImagesControllerTest implements ControllerTrait<SparkController> {
 
   @Mock
   DefaultPluginInfoFinder defaultPluginInfoFinder
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PluginImagesController createControllerInstance() {

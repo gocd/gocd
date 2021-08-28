@@ -36,24 +36,22 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.*
+import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
+import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ClusterProfilesControllerV1Test implements SecurityServiceTrait, ControllerTrait<ClusterProfilesControllerV1> {
   @Mock
   ClusterProfilesService clusterProfilesService
 
   @Mock
   EntityHashingService entityHashingService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   ClusterProfilesControllerV1 createControllerInstance() {

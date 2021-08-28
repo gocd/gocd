@@ -32,17 +32,17 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.doAnswer
-import static org.mockito.Mockito.doNothing
-import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
+import static org.mockito.Mockito.*
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, ControllerTrait<TemplateAuthorizationControllerV1> {
   @Mock
   EntityHashingService entityHashingService;
@@ -50,10 +50,6 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
   @Mock
   TemplateConfigService templateConfigService;
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   TemplateAuthorizationControllerV1 createControllerInstance() {

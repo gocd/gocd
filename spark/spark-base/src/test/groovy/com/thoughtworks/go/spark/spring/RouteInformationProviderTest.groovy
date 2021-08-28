@@ -24,6 +24,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.ExceptionHandler
 import spark.Filter
 import spark.Route
@@ -34,9 +36,9 @@ import javax.servlet.FilterConfig
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 import static spark.Spark.*
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class RouteInformationProviderTest {
   @Mock
   Filter apiv11BeforeFilter1
@@ -85,7 +87,6 @@ class RouteInformationProviderTest {
 
   @BeforeEach
   void setUp() {
-    initMocks(this)
     routeInformationProvider = new RouteInformationProvider()
 
     controller1 = new SparkController() {

@@ -57,12 +57,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PipelineOperationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelineOperationsControllerV1> {
   @Mock
   PipelineHistoryService pipelineHistoryService
@@ -72,11 +74,6 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
   PipelineUnlockApiService pipelineUnlockApiService
   @Mock
   PipelineTriggerService pipelineTriggerService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PipelineOperationsControllerV1 createControllerInstance() {

@@ -31,6 +31,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.ModelAndView
 import spark.Request
 import spark.Response
@@ -38,8 +40,8 @@ import spark.Response
 import static java.lang.String.format
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, SecurityServiceTrait {
   private static final Gson GSON = new Gson()
 
@@ -277,8 +279,4 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
     }
   }
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 }

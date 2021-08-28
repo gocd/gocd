@@ -20,13 +20,13 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.mocks.StubTemplateEngine
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.ModelAndView
 
-import static org.mockito.MockitoAnnotations.initMocks
-
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresController>, SecurityServiceTrait {
 
   @Nested
@@ -59,10 +59,6 @@ class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresCont
     }
   }
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   ArtifactStoresController createControllerInstance() {

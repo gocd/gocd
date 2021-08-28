@@ -39,14 +39,16 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.util.Collections.emptyList
 import static java.util.Collections.emptyMap
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<PackagesControllerV2> {
   @Mock
   private EntityHashingService entityHashingService
@@ -54,10 +56,6 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
   @Mock
   private PackageDefinitionService packageDefinitionService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PackagesControllerV2 createControllerInstance() {

@@ -26,20 +26,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTrait<PermissionsControllerV1> {
 
   @Mock
   PermissionsService permissionsService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PermissionsControllerV1 createControllerInstance() {

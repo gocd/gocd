@@ -18,33 +18,26 @@ package com.thoughtworks.go.apiv1.internaldependencypipelines
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.JobConfigs
-import com.thoughtworks.go.config.PipelineTemplateConfig
-import com.thoughtworks.go.config.StageConfig
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.SystemEnvironment
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalDependencyPipelinesControllerV1> {
   @Mock
   GoConfigService goConfigService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalDependencyPipelinesControllerV1 createControllerInstance() {

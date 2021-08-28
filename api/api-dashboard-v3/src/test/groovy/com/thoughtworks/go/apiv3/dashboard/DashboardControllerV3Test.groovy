@@ -32,15 +32,16 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.apache.commons.codec.digest.DigestUtils
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait<DashboardControllerV3> {
 
   @Mock
@@ -48,12 +49,6 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
 
   @Mock
   private PipelineSelectionsService pipelineSelectionsService
-
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-
-  }
 
   @Override
   DashboardControllerV3 createControllerInstance() {

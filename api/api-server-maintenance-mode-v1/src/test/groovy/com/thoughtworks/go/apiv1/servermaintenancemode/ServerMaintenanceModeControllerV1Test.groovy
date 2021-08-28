@@ -42,6 +42,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.sql.Timestamp
 
@@ -49,8 +51,8 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, ControllerTrait<ServerMaintenanceModeControllerV1> {
   @Mock
   AgentService agentService
@@ -66,10 +68,6 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
   TestingClock testingClock = new TestingClock()
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   ServerMaintenanceModeControllerV1 createControllerInstance() {

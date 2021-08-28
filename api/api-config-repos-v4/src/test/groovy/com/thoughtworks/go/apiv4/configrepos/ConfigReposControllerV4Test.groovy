@@ -43,6 +43,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.util.stream.Collectors
 
@@ -50,9 +52,9 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 import static org.mockito.internal.verification.VerificationModeFactory.times
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV4> {
   private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
   private static final String TEST_REPO_URL = "https://fakeurl.com"
@@ -73,11 +75,6 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
   @Mock
   private MaterialConfigConverter converter
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   ConfigReposControllerV4 createControllerInstance() {

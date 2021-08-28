@@ -38,6 +38,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.util.stream.Stream
 
@@ -45,8 +47,8 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalCompareControllerV2Test implements SecurityServiceTrait, ControllerTrait<InternalCompareControllerV2> {
   @Mock
   private PipelineHistoryService pipelineHistoryService
@@ -54,11 +56,6 @@ class InternalCompareControllerV2Test implements SecurityServiceTrait, Controlle
   @Override
   InternalCompareControllerV2 createControllerInstance() {
     return new InternalCompareControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), pipelineHistoryService)
-  }
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
   }
 
   @Nested

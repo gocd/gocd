@@ -31,23 +31,20 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CurrentUserControllerTest implements ControllerTrait<CurrentUserController>, SecurityServiceTrait {
 
   @Mock
   UserService userService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Nested
   class Show {

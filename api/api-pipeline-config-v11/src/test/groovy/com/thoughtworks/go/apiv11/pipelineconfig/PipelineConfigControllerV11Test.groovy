@@ -49,6 +49,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -57,15 +59,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PipelineConfigControllerV11Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV11> {
   @Mock
   private FeatureToggleService featureToggleService;
 
   @BeforeEach
   void setUp() {
-    initMocks(this)
     Toggles.initializeWith(featureToggleService);
     when(featureToggleService.isToggleOn(Toggles.TEST_DRIVE)).thenReturn(false)
   }

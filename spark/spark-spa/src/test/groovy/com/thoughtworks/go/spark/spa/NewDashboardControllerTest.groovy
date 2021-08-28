@@ -17,7 +17,6 @@ package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.config.Authorization
 import com.thoughtworks.go.config.BasicPipelineConfigs
-import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
@@ -29,11 +28,13 @@ import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class NewDashboardControllerTest implements ControllerTrait<NewDashboardController>, SecurityServiceTrait {
   PipelineConfigService pipelineConfigService = mock(PipelineConfigService.class)
 
@@ -106,9 +107,5 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
     }
   }
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
 }

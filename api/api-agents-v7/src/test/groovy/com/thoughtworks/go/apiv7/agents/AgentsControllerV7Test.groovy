@@ -36,11 +36,12 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.TriState
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.util.stream.Stream
 
@@ -54,19 +55,14 @@ import static java.util.Collections.*
 import static java.util.stream.Collectors.toSet
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<AgentsControllerV7> {
   @Mock
   private AgentService agentService
 
   @Mock
   private EnvironmentConfigService environmentConfigService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   AgentsControllerV7 createControllerInstance() {

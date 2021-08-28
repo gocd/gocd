@@ -19,11 +19,11 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
-import static org.mockito.MockitoAnnotations.initMocks
-
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ElasticAgentConfigurationsControllerTest implements ControllerTrait<ElasticAgentConfigurationsController>, SecurityServiceTrait {
 
   @Override
@@ -48,10 +48,6 @@ class ElasticAgentConfigurationsControllerTest implements ControllerTrait<Elasti
     }
   }
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
 }
 

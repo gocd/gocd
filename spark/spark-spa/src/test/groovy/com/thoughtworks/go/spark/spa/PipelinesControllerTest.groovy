@@ -19,12 +19,13 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PipelinesControllerTest implements ControllerTrait<PipelinesController>, SecurityServiceTrait {
 
   @Nested
@@ -44,10 +45,6 @@ class PipelinesControllerTest implements ControllerTrait<PipelinesController>, S
     }
   }
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PipelinesController createControllerInstance() {

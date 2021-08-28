@@ -27,11 +27,7 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList
-import com.thoughtworks.go.server.service.ConfigRepoService
-import com.thoughtworks.go.server.service.EntityHashingService
-import com.thoughtworks.go.server.service.MaterialConfigConverter
-import com.thoughtworks.go.server.service.MaterialService
-import com.thoughtworks.go.server.service.PipelineConfigService
+import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -42,13 +38,15 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import org.mockito.stubbing.Answer
 
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelinesAsCodeInternalControllerV1> {
 
   private static final String PLUGIN_ID = "test.config.plugin"
@@ -92,10 +90,6 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   @Mock
   EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PipelinesAsCodeInternalControllerV1 createControllerInstance() {

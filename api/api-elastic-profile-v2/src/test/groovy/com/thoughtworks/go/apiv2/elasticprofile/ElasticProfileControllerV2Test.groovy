@@ -40,6 +40,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
@@ -48,8 +50,8 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ElasticProfileControllerV2Test implements SecurityServiceTrait, ControllerTrait<ElasticProfileControllerV2> {
   @Mock
   private ElasticProfileService elasticProfileService
@@ -59,11 +61,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
   @Mock
   private ClusterProfilesService clusterProfileService
-
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-  }
 
   @Override
   ElasticProfileControllerV2 createControllerInstance() {

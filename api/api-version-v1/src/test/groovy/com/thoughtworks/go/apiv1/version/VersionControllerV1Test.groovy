@@ -21,9 +21,10 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
-import static org.mockito.MockitoAnnotations.initMocks
-
+@MockitoSettings(strictness = Strictness.LENIENT)
 class VersionControllerV1Test implements SecurityServiceTrait, ControllerTrait<VersionControllerV1> {
 
   private CurrentGoCDVersion currentGoCDVersion
@@ -35,7 +36,6 @@ class VersionControllerV1Test implements SecurityServiceTrait, ControllerTrait<V
 
   @BeforeEach
   void setUp() {
-    initMocks(this)
     currentGoCDVersion = new CurrentGoCDVersion()
   }
 

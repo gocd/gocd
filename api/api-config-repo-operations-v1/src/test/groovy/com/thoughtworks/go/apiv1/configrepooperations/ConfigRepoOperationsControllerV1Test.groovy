@@ -33,12 +33,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.PREFLIGHT_PATH
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigRepoOperationsControllerV1> {
     private static final String PLUGIN_ID = "test.plugin"
     private static final String REPO_ID = "test-repo"
@@ -54,11 +56,6 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
     @Mock
     PartialConfigService partialConfigService
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this)
-    }
 
     @Override
     ConfigRepoOperationsControllerV1 createControllerInstance() {

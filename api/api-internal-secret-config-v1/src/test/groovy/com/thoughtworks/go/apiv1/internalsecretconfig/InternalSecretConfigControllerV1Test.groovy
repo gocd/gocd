@@ -43,13 +43,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalSecretConfigControllerV1> {
   @Mock
   private SecretConfigService secretConfigService
@@ -64,10 +66,6 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Mock
   private ClusterProfilesService clusterProfilesService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalSecretConfigControllerV1 createControllerInstance() {

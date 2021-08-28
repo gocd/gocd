@@ -28,23 +28,20 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.ArgumentMatchers.isA
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class BackupConfigControllerV1Test implements SecurityServiceTrait, ControllerTrait<BackupConfigControllerV1> {
   @Override
   BackupConfigControllerV1 createControllerInstance() {
     new BackupConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService)
-  }
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
   }
 
   @Nested

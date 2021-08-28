@@ -28,10 +28,11 @@ import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.ModelAndView
 import spark.Request
 import spark.Response
@@ -39,8 +40,8 @@ import spark.Response
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AccessTokensControllerTest implements ControllerTrait<AccessTokensController>, SecurityServiceTrait {
   @Mock
   private AuthorizationExtensionCacheService authorizationExtensionCacheService
@@ -49,10 +50,6 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
   @Mock
   private Response response
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   AccessTokensController createControllerInstance() {

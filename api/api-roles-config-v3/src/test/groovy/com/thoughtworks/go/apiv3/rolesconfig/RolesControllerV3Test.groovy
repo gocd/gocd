@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
@@ -40,14 +42,10 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<RolesControllerV3> {
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Mock
   private RoleConfigService roleConfigService

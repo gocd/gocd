@@ -30,14 +30,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ArgumentsSource
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.apiv1.webhook.controller.BaseWebhookController.PING_RESPONSE
 import static com.thoughtworks.go.apiv1.webhook.helpers.PostHelper.SECRET
 import static com.thoughtworks.go.util.Iters.first
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<PushWebhookControllerV1> {
     @Mock
     private MaterialUpdateService materialUpdateService
@@ -46,7 +48,6 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setUp() {
-        initMocks(this)
         when(serverConfigService.webhookSecret).thenReturn(SECRET)
     }
 

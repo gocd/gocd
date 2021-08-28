@@ -39,11 +39,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait<DashboardControllerV4> {
   @Mock
   private FeatureToggleService featureToggleService;
@@ -56,7 +58,6 @@ class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait
 
   @BeforeEach
   void setup() {
-    initMocks(this)
     Toggles.initializeWith(featureToggleService);
     when(featureToggleService.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD)).thenReturn(false)
   }

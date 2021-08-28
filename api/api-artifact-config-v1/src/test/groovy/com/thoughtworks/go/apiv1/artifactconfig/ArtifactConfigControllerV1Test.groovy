@@ -30,12 +30,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.artifactconfig.represernter.ArtifactConfigRepresenter.toJSON
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ArtifactConfigControllerV1Test implements SecurityServiceTrait, ControllerTrait<ArtifactConfigControllerV1> {
 
     @Mock
@@ -43,11 +45,6 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
     @Mock
     EntityHashingService entityHashingService
-
-    @BeforeEach
-    void setUp() {
-        initMocks(this)
-    }
 
     @Override
     ArtifactConfigControllerV1 createControllerInstance() {

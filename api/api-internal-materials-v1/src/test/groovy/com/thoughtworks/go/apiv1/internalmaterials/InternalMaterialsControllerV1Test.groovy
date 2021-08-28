@@ -41,12 +41,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static java.util.Collections.emptyMap
-import static org.mockito.ArgumentMatchers.*
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalMaterialsControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialsControllerV1> {
   @Mock
   private MaterialConfigService materialConfigService
@@ -61,10 +64,6 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
   @Mock
   private ServerHealthService serverHealthService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalMaterialsControllerV1 createControllerInstance() {

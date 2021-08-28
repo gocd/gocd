@@ -30,10 +30,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, ControllerTrait<ElasticProfileOperationControllerV1> {
 
   @Mock
@@ -41,7 +43,6 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
 
   @BeforeEach
   void setup() {
-    initMocks(this)
     when(elasticProfileService.findProfile("docker")).thenReturn(new ElasticProfile("docker", "cluster"))
   }
 

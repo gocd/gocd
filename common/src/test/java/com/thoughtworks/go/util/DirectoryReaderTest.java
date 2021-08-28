@@ -15,21 +15,21 @@
  */
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.List;
-
 import com.thoughtworks.go.domain.DirectoryEntry;
 import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
-import static org.hamcrest.Matchers.is;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 public class DirectoryReaderTest {
@@ -45,7 +45,7 @@ public class DirectoryReaderTest {
     }
 
     @Test
-    public void shouldNotDieIfGivenBogusPath() throws Exception {
+    public void shouldNotDieIfGivenBogusPath() {
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
         List<DirectoryEntry> entries = reader.listEntries(new File("totally bogus path!!!"), "");
         assertThat(entries.size(), is(0));
@@ -68,7 +68,7 @@ public class DirectoryReaderTest {
         assertThat(entries.get(0).getFileName(), is(filename));
         assertThat(entries.get(0).getUrl(),
                 is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/"
-                        + URLEncoder.encode(filename)));
+                        + URLEncoder.encode(filename, StandardCharsets.UTF_8)));
     }
 
     @Test

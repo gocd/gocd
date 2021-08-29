@@ -1,4 +1,4 @@
-import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
+import com.thoughtworks.go.build.AdoptiumUrlHelper
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
@@ -24,7 +24,7 @@ private File destFile(String url) {
 }
 
 task downloadOsxJreChecksum(type: DownloadFile) {
-  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(
+  def srcUrl = AdoptiumUrlHelper.sha256sumURL(
     com.thoughtworks.go.build.OperatingSystem.mac,
     project.packaging.adoptOpenjdk.featureVersion,
     project.packaging.adoptOpenjdk.interimVersion,
@@ -37,7 +37,7 @@ task downloadOsxJreChecksum(type: DownloadFile) {
 
 task downloadOsxJre(type: DownloadFile) {
   dependsOn downloadOsxJreChecksum
-  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
+  def srcUrl = AdoptiumUrlHelper.downloadURL(
     com.thoughtworks.go.build.OperatingSystem.mac,
     project.packaging.adoptOpenjdk.featureVersion,
     project.packaging.adoptOpenjdk.interimVersion,

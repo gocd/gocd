@@ -15,7 +15,7 @@
  */
 
 
-import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
+import com.thoughtworks.go.build.AdoptiumUrlHelper
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
@@ -26,7 +26,7 @@ private File destFile(String url) {
 }
 
 task downloadWindowsJreChecksum(type: DownloadFile) {
-  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(
+  def srcUrl = AdoptiumUrlHelper.sha256sumURL(
     com.thoughtworks.go.build.OperatingSystem.windows,
     project.packaging.adoptOpenjdk.featureVersion,
     project.packaging.adoptOpenjdk.interimVersion,
@@ -39,7 +39,7 @@ task downloadWindowsJreChecksum(type: DownloadFile) {
 
 task downloadWindowsJre(type: DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
+  def srcUrl = AdoptiumUrlHelper.downloadURL(
     com.thoughtworks.go.build.OperatingSystem.windows,
     project.packaging.adoptOpenjdk.featureVersion,
     project.packaging.adoptOpenjdk.interimVersion,

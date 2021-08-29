@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.build.docker
 
-import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
+import com.thoughtworks.go.build.AdoptiumUrlHelper
 import org.gradle.api.Project
 
 trait DistroBehavior {
@@ -53,7 +53,7 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = AdoptOpenJDKUrlHelper.downloadURL(
+    def downloadUrl = AdoptiumUrlHelper.downloadURL(
       com.thoughtworks.go.build.OperatingSystem.linux,
       project.packaging.adoptOpenjdk.featureVersion,
       project.packaging.adoptOpenjdk.interimVersion,

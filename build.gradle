@@ -166,10 +166,10 @@ project.ext.compilerOptions = [
 
 project.ext.packaging = [
   adoptOpenjdk: [
-    featureVersion: 15,
+    featureVersion: 17,
     interimVersion: 0, // set to `null` for the first release
-    updateVersion : 2, // set to `null` for the first release
-    buildVersion  : 7
+    updateVersion : 1, // set to `null` for the first release
+    buildVersion  : 12
   ]
 ]
 

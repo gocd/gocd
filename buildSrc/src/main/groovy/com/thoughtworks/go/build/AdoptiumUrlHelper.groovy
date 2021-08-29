@@ -26,11 +26,12 @@ enum OperatingSystem {
   }
 }
 
-class AdoptOpenJDKUrlHelper {
+class AdoptiumUrlHelper {
   static String downloadURL(OperatingSystem operatingSystem, Integer featureVersion, Integer interimVersion, Integer updateVersion, Integer buildVersion) {
     String versionComponent = [featureVersion, interimVersion, updateVersion].findAll({ it != null }).join('.')
+    String featureSuffix = updateVersion == null ? '' : 'U'
 
-    "https://github.com/AdoptOpenJDK/openjdk${featureVersion}-binaries/releases/download/jdk-${versionComponent}%2B${buildVersion}/OpenJDK${featureVersion}U-jre_x64_${operatingSystem.name()}_hotspot_${versionComponent}_${buildVersion}.${operatingSystem.extension}"
+    "https://github.com/adoptium/temurin${featureVersion}-binaries/releases/download/jdk-${versionComponent}%2B${buildVersion}/OpenJDK${featureVersion}${featureSuffix}-jre_x64_${operatingSystem.name()}_hotspot_${versionComponent}_${buildVersion}.${operatingSystem.extension}"
   }
 
   static String sha256sumURL(OperatingSystem operatingSystem, Integer featureVersion, Integer interimVersion, Integer updateVersion, Integer buildVersion) {

@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
 
@@ -73,7 +74,7 @@ public class PluginRoleUsersStore {
         return new HashSet<>(roleToUsersMappings.keySet());
     }
 
-//    Used only in tests
+    @TestOnly
     public void clearAll() {
         roleToUsersMappings.clear();
     }

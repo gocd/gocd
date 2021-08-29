@@ -47,6 +47,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.servlet.SparkFilter
 
 import javax.servlet.FilterConfig
@@ -56,8 +58,8 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenterTest.randomAccessToken
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentUserAccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
   SecurityAuthConfigService authConfigService
@@ -65,11 +67,6 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
   AccessTokenService accessTokenService
   @Mock
   AuthorizationExtension extension
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   CurrentUserAccessTokenControllerV1 createControllerInstance() {

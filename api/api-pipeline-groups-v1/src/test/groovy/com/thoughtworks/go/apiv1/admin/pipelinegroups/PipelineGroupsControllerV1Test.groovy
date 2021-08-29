@@ -36,19 +36,17 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PipelineGroupsControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelineGroupsControllerV1> {
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Mock
   private PipelineConfigsService pipelineConfigsService
@@ -102,7 +100,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-etag"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedPipelineGroups, PipelineGroupsRepresenter)
+          .hasBodyWithJsonObject(PipelineGroupsRepresenter, expectedPipelineGroups)
       }
 
       @Test
@@ -160,7 +158,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         verify(pipelineConfigsService).createGroup(any(), any(), any())
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(pipelineGroup, PipelineGroupRepresenter)
+          .hasBodyWithJsonObject(PipelineGroupRepresenter, pipelineGroup)
       }
 
       @Test
@@ -253,7 +251,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(group, PipelineGroupRepresenter)
+          .hasBodyWithJsonObject(PipelineGroupRepresenter, group)
           .hasEtag('"digest_for_group"')
       }
 
@@ -302,7 +300,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest_for_group"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(group, PipelineGroupRepresenter)
+          .hasBodyWithJsonObject(PipelineGroupRepresenter, group)
       }
     }
   }
@@ -357,7 +355,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(group, PipelineGroupRepresenter)
+          .hasBodyWithJsonObject(PipelineGroupRepresenter, group)
       }
 
       @Test

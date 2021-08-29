@@ -27,6 +27,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.util.stream.Stream
 
@@ -39,16 +41,11 @@ import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AgentRepresenterTest {
   @Mock
   private SecurityService securityService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Test
   void 'renders an agent with hal representation'() {

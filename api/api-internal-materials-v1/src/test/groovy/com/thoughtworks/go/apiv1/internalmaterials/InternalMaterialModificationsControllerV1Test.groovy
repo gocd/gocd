@@ -40,23 +40,21 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.util.stream.Stream
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalMaterialModificationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialModificationsControllerV1> {
   @Mock
   private MaterialConfigService materialConfigService
   @Mock
   private MaterialService materialService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalMaterialModificationsControllerV1 createControllerInstance() {

@@ -40,6 +40,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
@@ -48,8 +50,8 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ElasticProfileControllerV2Test implements SecurityServiceTrait, ControllerTrait<ElasticProfileControllerV2> {
   @Mock
   private ElasticProfileService elasticProfileService
@@ -59,11 +61,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
   @Mock
   private ClusterProfilesService clusterProfileService
-
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-  }
 
   @Override
   ElasticProfileControllerV2 createControllerInstance() {
@@ -109,7 +106,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(elasticProfiles, ElasticProfilesRepresenter)
+          .hasBodyWithJsonObject(ElasticProfilesRepresenter, elasticProfiles)
       }
     }
   }
@@ -155,7 +152,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(dockerElasticProfile, ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, dockerElasticProfile)
       }
 
       @Test
@@ -197,7 +194,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(dockerElasticProfile, ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, dockerElasticProfile)
       }
     }
   }
@@ -248,7 +245,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo")))
       }
 
       @Test
@@ -401,7 +398,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(updatedProfile, ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(ElasticProfileRepresenter, updatedProfile)
       }
 
       @Test

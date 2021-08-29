@@ -100,7 +100,7 @@ public class ServerHealthService implements ApplicationContextAware {
         removeExpiredMessages();
     }
 
-    @Deprecated // Remove once we get rid of SpringJUnitTestRunner
+    @Deprecated(forRemoval = true) // Remove once we get rid of SpringJUnitTestRunner
     public void removeAllLogs() {
         serverHealth.clear();
     }

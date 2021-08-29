@@ -38,13 +38,15 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.spark.Routes.SecurityAuthConfigAPI.VERIFY_CONNECTION
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PackagesInternalControllerV2Test implements SecurityServiceTrait, ControllerTrait<PackagesInternalControllerV2> {
   @Mock
   private PackageDefinitionService packageDefinitionService
@@ -59,7 +61,6 @@ class PackagesInternalControllerV2Test implements SecurityServiceTrait, Controll
 
   @BeforeEach
   void setUp() {
-    initMocks(this)
     when(packageRepositoryService.getPackageRepository(any())).thenReturn(repo)
   }
 

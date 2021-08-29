@@ -36,24 +36,21 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, SecurityServiceTrait {
   @Mock
   private AdminsConfigService adminsConfigService
   @Mock
   private EntityHashingService entityHashingService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   AdminControllerV2 createControllerInstance() {
@@ -104,7 +101,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, config)
       }
 
       @Test
@@ -130,7 +127,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, config)
       }
     }
   }
@@ -188,7 +185,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(configFromRequest, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, configFromRequest)
       }
 
       @Test
@@ -294,7 +291,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfig, AdminsConfigRepresenter)
+          .hasBodyWithJsonObject(AdminsConfigRepresenter, expectedConfig)
       }
 
       @Test
@@ -320,7 +317,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(result, BulkUpdateFailureResultRepresenter.class)
+          .hasBodyWithJsonObject(BulkUpdateFailureResultRepresenter.class, result)
       }
     }
   }

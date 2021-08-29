@@ -24,8 +24,6 @@ import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.domain.scm.SCMMother
-import com.thoughtworks.go.plugin.api.response.Result
-import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
@@ -35,20 +33,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
-import static org.mockito.ArgumentMatchers.any
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalSCMsControllerV1> {
   @Mock
   PluggableScmService pluggableScmService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalSCMsControllerV1 createControllerInstance() {

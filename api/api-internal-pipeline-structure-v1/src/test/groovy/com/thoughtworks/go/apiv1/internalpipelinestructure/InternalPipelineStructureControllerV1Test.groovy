@@ -35,13 +35,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.util.Arrays.asList
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalPipelineStructureControllerV1> {
 
   @Mock
@@ -53,10 +55,6 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
   @Mock
   private UserService userService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalPipelineStructureControllerV1 createControllerInstance() {

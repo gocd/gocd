@@ -67,7 +67,7 @@ class ServerHealthMessagesControllerTest implements SecurityServiceTrait, Contro
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonArray([state], ServerHealthMessagesRepresenter)
+          .hasBodyWithJsonArray(ServerHealthMessagesRepresenter, [state])
       }
 
       @Test

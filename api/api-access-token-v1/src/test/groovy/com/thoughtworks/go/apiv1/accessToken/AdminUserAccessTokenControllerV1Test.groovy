@@ -43,6 +43,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.servlet.SparkFilter
 
 import javax.servlet.FilterConfig
@@ -53,17 +55,12 @@ import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepr
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserAccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
   AccessTokenService accessTokenService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
-
+  
   @Override
   AdminUserAccessTokenControllerV1 createControllerInstance() {
     return new AdminUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)

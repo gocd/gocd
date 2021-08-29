@@ -24,6 +24,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -52,9 +53,7 @@ public class GoCache {
     static class KeyList extends HashSet<String> {
     }
 
-    /**
-     * @deprecated only for tests
-     */
+    @TestOnly
     public GoCache(GoCache goCache) {
         this(goCache.ehCache, goCache.transactionSynchronizationManager);
     }

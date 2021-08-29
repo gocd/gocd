@@ -18,16 +18,16 @@ package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
-import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.ModelAndView
 import spark.Request
 import spark.Response
@@ -35,8 +35,8 @@ import spark.Response
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipelineConfigController>, SecurityServiceTrait {
   @Mock
   private AuthorizationExtensionCacheService authorizationExtensionCacheService
@@ -45,10 +45,6 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
   @Mock
   private Response response
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   ClickyPipelineConfigController createControllerInstance() {

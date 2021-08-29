@@ -35,12 +35,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialTestControllerV1> {
 
   @Mock
@@ -57,10 +59,6 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
   @Mock
   SecretParamResolver secretParamResolver
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalMaterialTestControllerV1 createControllerInstance() {

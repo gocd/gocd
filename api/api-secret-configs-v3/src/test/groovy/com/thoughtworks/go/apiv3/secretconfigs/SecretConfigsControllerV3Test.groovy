@@ -20,7 +20,8 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter
 import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigsRepresenter
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.SecretConfig
+import com.thoughtworks.go.config.SecretConfigs
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.config.rules.Deny
@@ -42,6 +43,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter.fromJSON
@@ -49,8 +52,8 @@ import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigR
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerTrait<SecretConfigsControllerV3> {
 
   @Mock
@@ -59,10 +62,6 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
   @Mock
   EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-  }
 
   @Override
   SecretConfigsControllerV3 createControllerInstance() {
@@ -109,7 +108,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"ffff"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+          .hasBodyWithJsonObject(SecretConfigsRepresenter, expectedConfigs)
       }
 
       @Test
@@ -140,7 +139,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+          .hasBodyWithJsonObject(SecretConfigsRepresenter, expectedConfigs)
       }
     }
   }
@@ -185,7 +184,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, expectedConfig)
       }
 
       @Test
@@ -233,7 +232,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, expectedConfig)
       }
     }
   }
@@ -310,7 +309,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(secretConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, secretConfig)
       }
 
 
@@ -470,7 +469,7 @@ class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerT
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(newSecretConfig, SecretConfigRepresenter)
+          .hasBodyWithJsonObject(SecretConfigRepresenter, newSecretConfig)
       }
 
       @Test

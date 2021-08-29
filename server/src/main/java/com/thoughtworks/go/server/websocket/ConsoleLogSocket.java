@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -132,7 +133,7 @@ public class ConsoleLogSocket implements SocketEndpoint {
     }
 
     private long parseStartLine(UpgradeRequest request) {
-        Optional<NameValuePair> startLine = URLEncodedUtils.parse(request.getRequestURI(), "UTF-8").
+        Optional<NameValuePair> startLine = URLEncodedUtils.parse(request.getRequestURI(), StandardCharsets.UTF_8).
                 stream().
                 filter(pair -> "startLine".equals(pair.getName())).findFirst();
 

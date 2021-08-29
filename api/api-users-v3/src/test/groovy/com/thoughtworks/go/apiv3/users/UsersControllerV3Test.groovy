@@ -37,13 +37,15 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<UsersControllerV3> {
   @Mock
   UserService userService
@@ -51,10 +53,6 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
   @Mock
   RoleConfigService roleConfigService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   UsersControllerV3 createControllerInstance() {
@@ -95,7 +93,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         def expectedUser = UserToRepresent.from(bobUser, securityService.isUserAdmin(bobUser.getUsername()), new RolesConfig())
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject([expectedUser], UsersRepresenter)
+          .hasBodyWithJsonObject(UsersRepresenter, [expectedUser])
       }
     }
   }
@@ -134,7 +132,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(UserToRepresent.from(bobUser, false, new RolesConfig()), UserRepresenter)
+          .hasBodyWithJsonObject(UserRepresenter, UserToRepresent.from(bobUser, false, new RolesConfig()))
       }
     }
   }
@@ -179,7 +177,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(UserToRepresent.from(expectedUser, false, new RolesConfig()), UserRepresenter)
+          .hasBodyWithJsonObject(UserRepresenter, UserToRepresent.from(expectedUser, false, new RolesConfig()))
       }
     }
 
@@ -236,7 +234,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(UserToRepresent.from(new User(username), false, new RolesConfig()), UserRepresenter)
+          .hasBodyWithJsonObject(UserRepresenter, UserToRepresent.from(new User(username), false, new RolesConfig()))
       }
     }
 

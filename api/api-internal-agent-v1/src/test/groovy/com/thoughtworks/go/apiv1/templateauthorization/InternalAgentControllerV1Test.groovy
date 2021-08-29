@@ -29,24 +29,21 @@ import com.thoughtworks.go.remote.work.NoWork
 import com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer
 import com.thoughtworks.go.server.service.AgentRuntimeInfo
 import com.thoughtworks.go.spark.ControllerTrait
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory
 import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentControllerV1> {
   @Mock
   BuildRepositoryMessageProducer buildRepositoryMessageProducer;
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalAgentControllerV1 createControllerInstance() {

@@ -46,6 +46,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
@@ -56,8 +58,8 @@ import static java.util.Collections.emptyMap
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV4> {
   @Mock
   PluggableScmService scmService
@@ -65,10 +67,6 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   @Mock
   EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   SCMControllerV4 createControllerInstance() {
@@ -117,7 +115,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isOk()
           .hasEtag('"some-etag"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(scms, SCMsRepresenter)
+          .hasBodyWithJsonObject(SCMsRepresenter, scms)
       }
 
       @Test
@@ -181,7 +179,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(scm, SCMRepresenter)
+          .hasBodyWithJsonObject(SCMRepresenter, scm)
       }
 
       @Test
@@ -227,7 +225,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isOk()
           .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(scm, SCMRepresenter)
+          .hasBodyWithJsonObject(SCMRepresenter, scm)
       }
     }
   }
@@ -292,7 +290,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(scm, SCMRepresenter)
+          .hasBodyWithJsonObject(SCMRepresenter, scm)
       }
 
 
@@ -527,7 +525,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(updatedSCM, SCMRepresenter)
+          .hasBodyWithJsonObject(SCMRepresenter, updatedSCM)
       }
 
       @Test

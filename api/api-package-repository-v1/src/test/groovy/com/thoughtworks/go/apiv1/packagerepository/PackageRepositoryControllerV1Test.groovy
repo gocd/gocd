@@ -34,13 +34,15 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PackageRepositoryControllerV1Test implements SecurityServiceTrait, ControllerTrait<PackageRepositoryControllerV1> {
 
   @Mock
@@ -49,10 +51,6 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
   @Mock
   private EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PackageRepositoryControllerV1 createControllerInstance() {
@@ -165,7 +163,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         assertThatResponse()
           .isOk()
           .hasEtag('"etag"')
-          .hasBodyWithJsonObject(packageRepository, PackageRepositoryRepresenter)
+          .hasBodyWithJsonObject(PackageRepositoryRepresenter, packageRepository)
       }
     }
 

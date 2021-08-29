@@ -98,7 +98,7 @@ public class GoConfigFileHelper {
         this.configFile = configFile.getAbsoluteFile();
         try {
             saveFullConfig(FileUtils.readFileToString(this.configFile, UTF_8), true);
-            this.originalXml = FileUtils.readFileToString(this.configFile, "UTF-8");
+            this.originalXml = FileUtils.readFileToString(this.configFile, UTF_8);
         } catch (Exception e) {
             throw bomb("Error reading config file", e);
         }

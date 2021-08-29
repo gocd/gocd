@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -57,7 +58,7 @@ public class VersionInfoSqlMapDao extends HibernateDaoSupport implements Version
                 .setCacheable(true).uniqueResult());
     }
 
-    // used only in tests
+    @TestOnly
     void deleteAll() {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override

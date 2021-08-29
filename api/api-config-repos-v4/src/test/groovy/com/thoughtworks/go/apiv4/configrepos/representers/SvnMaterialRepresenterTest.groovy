@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.security.GoCipher
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -28,15 +27,11 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svn
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
-import static org.mockito.MockitoAnnotations.initMocks
 
 class SvnMaterialRepresenterTest {
   private static final String REPO_URL = "svn+ssh://username:password@10.106.191.164/home/svn/shproject"
   private static final String USER = "user"
   private static final String PASSWORD = "it's secret!"
-
-  @BeforeEach
-  void setup() { initMocks(this) }
 
   @Test
   void toJSON() {

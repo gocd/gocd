@@ -15,15 +15,16 @@
  */
 package com.thoughtworks.go.domain.materials.dependency;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
 
 public class DependencyMaterialRevision implements Revision {
     private String pipelineName;
@@ -129,9 +130,7 @@ public class DependencyMaterialRevision implements Revision {
         return stageCounter;
     }
 
-    /**
-     * @deprecated used only in tests
-     */
+    @TestOnly
     public MaterialRevision convert(Material material, Date modifiedTime) {
         ArrayList<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(modifiedTime, getRevision(), getPipelineLabel(), null

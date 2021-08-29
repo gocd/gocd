@@ -31,11 +31,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
-import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
-import com.thoughtworks.go.spark.PipelineAccessSecurity
-import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
-import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -44,14 +40,16 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerTrait<StageInstanceControllerV2>, DeprecatedApiTrait {
 
   @Mock
@@ -60,10 +58,6 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
   @Mock
   private ScheduleService scheduleService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   StageInstanceControllerV2 createControllerInstance() {
@@ -412,7 +406,7 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(getStageModel(), StageRepresenter)
+          .hasBodyWithJsonObject(StageRepresenter, getStageModel())
       }
 
       def getStageModel() {

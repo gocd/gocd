@@ -26,6 +26,7 @@ dependencies {
   }
   implementation project.deps.slf4j
   implementation project.deps.cglib
+  compileOnly project.deps.jetBrainsAnnotations
   providedAtPackageTime(project.deps.bouncyCastle)
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(':test:test-utils')

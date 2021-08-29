@@ -27,18 +27,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.verify
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class MaterialNotifyControllerV2Test implements SecurityServiceTrait, ControllerTrait<MaterialNotifyControllerV2> {
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Mock
   private MaterialUpdateService materialUpdateService

@@ -26,20 +26,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CompareControllerTest implements ControllerTrait<CompareController>, SecurityServiceTrait {
   @Mock
   private PipelineService pipelineService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   CompareController createControllerInstance() {

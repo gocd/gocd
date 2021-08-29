@@ -15,21 +15,18 @@
  */
 package com.thoughtworks.go.domain.activity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullJobInstance;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @understands jobs that are currently in progress
@@ -106,9 +103,7 @@ public class JobStatusCache implements JobStatusListener {
         return found;
     }
 
-    /**
-     * @Deprecated Only for tests
-     */
+    @TestOnly
     public void clear() {
         jobs.clear();
     }

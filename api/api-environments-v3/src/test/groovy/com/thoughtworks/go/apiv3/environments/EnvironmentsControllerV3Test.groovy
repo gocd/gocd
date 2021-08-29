@@ -36,12 +36,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTrait<EnvironmentsControllerV3> {
 
   @Mock
@@ -54,11 +56,6 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
   EnvironmentsControllerV3 createControllerInstance() {
     new EnvironmentsControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), environmentConfigService, entityHashingService)
 
-  }
-
-  @BeforeEach
-  void setup() {
-    initMocks(this)
   }
 
   @Nested
@@ -100,7 +97,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerBasePath())
 
         def sortedEnvConfigList = [devEnv, prodEnv, qaEnv]
-        assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(EnvironmentsRepresenter, sortedEnvConfigList)
       }
 
       @Test
@@ -126,7 +123,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         getWithApiHeader(controller.controllerBasePath())
 
-        assertThatResponse().hasBodyWithJsonObject([], EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(EnvironmentsRepresenter, [])
       }
 
       @Test
@@ -153,7 +150,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerBasePath())
 
         def sortedEnvConfigList = [prodEnv1, prodEnv2]
-        assertThatResponse().hasBodyWithJsonObject(sortedEnvConfigList, EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(EnvironmentsRepresenter, sortedEnvConfigList)
       }
 
       @Test
@@ -235,7 +232,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
 
       @Test
@@ -282,7 +279,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
     }
   }
@@ -381,7 +378,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
     }
   }
@@ -451,7 +448,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"ffff"')
-          .hasBodyWithJsonObject(newConfig, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, newConfig)
       }
 
       @Test
@@ -499,7 +496,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"ffff"')
-          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, env1)
       }
 
       @Test
@@ -658,7 +655,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isOk()
           .hasEtag('"digest-hash"')
-          .hasBodyWithJsonObject(updatedConfig, EnvironmentRepresenter)
+          .hasBodyWithJsonObject(EnvironmentRepresenter, updatedConfig)
       }
 
       @Test

@@ -121,44 +121,26 @@ public class Modification extends PersistentObject implements Comparable, Serial
         this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, HashMap.class);
     }
 
-    /**
-     * @deprecated used only by material parsers and in test
-     */
     public void setUserName(String name) {
         this.userName = name;
     }
 
-    /**
-     * @deprecated used only by material parsers and in tests
-     */
     public void setEmailAddress(String email) {
         this.emailAddress = email;
     }
 
-    /**
-     * @deprecated used only by material parsers and in tests
-     */
     public void setComment(String comment) {
         this.comment = comment;
     }
 
-    /**
-     * @deprecated used only by material parsers and in tests
-     */
     public void setRevision(String revision) {
         this.revision = revision;
     }
 
-    /**
-     * @deprecated used only by material parsers and in tests
-     */
     public void setModifiedTime(Date modifiedTime) {
         this.modifiedTime = modifiedTime;
     }
 
-    /**
-     * @deprecated used only in tests
-     */
     public void setModifiedFiles(List<ModifiedFile> files) {
         this.files = files == null ? new LinkedHashSet<>() : new LinkedHashSet<>(files);
     }

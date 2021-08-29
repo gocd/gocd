@@ -20,19 +20,13 @@ import com.thoughtworks.go.spark.AllowAllUsersSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
-import static org.mockito.MockitoAnnotations.initMocks
-
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ServerHealthControllerTest implements ControllerTrait<ServerHealthController>, SecurityServiceTrait {
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
-
   @Override
   ServerHealthController createControllerInstance() {
     return new ServerHealthController()

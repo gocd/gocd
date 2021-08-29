@@ -43,6 +43,8 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.sql.Timestamp
 import java.util.stream.Stream
@@ -50,8 +52,8 @@ import java.util.stream.Stream
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerTrait<StageInstanceControllerV3> {
 
   @Mock
@@ -60,10 +62,6 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   @Mock
   private ScheduleService scheduleService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   StageInstanceControllerV3 createControllerInstance() {
@@ -412,7 +410,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(getStageModel(), StageRepresenter)
+          .hasBodyWithJsonObject(StageRepresenter, getStageModel())
       }
 
       def getStageModel() {

@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
@@ -341,9 +342,7 @@ public class ServerConfig implements Validatable {
         return jobTimeout;
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public void setJobTimeout(String jobTimeout) {
         this.jobTimeout = jobTimeout;
     }

@@ -32,12 +32,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static com.thoughtworks.go.spark.Routes.Export
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<ExportControllerV1> {
 
   @Mock
@@ -54,10 +56,6 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
     new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
   }
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Nested
   class ExportPipeline {

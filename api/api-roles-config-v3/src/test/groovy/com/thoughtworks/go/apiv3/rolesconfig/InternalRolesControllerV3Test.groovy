@@ -36,13 +36,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static java.util.Arrays.asList
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<InternalRolesControllerV3> {
   @Mock
   private RoleConfigService roleConfigService
@@ -55,10 +57,6 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
   @Mock
   private ClusterProfilesService clusterProfilesService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalRolesControllerV3 createControllerInstance() {

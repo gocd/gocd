@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.valuestreammap.Node;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class ValueStreamMapPresentationModel {
         return nodeLevels;
     }
 
-    @Deprecated //Used only in tests
+    @TestOnly
     public Node findNode(CaseInsensitiveString nodeId) {
         for (List<Node> nodeLevel : nodeLevels) {
             for (Node node : nodeLevel) {

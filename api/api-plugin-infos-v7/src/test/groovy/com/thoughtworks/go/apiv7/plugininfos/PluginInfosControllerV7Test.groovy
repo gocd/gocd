@@ -36,13 +36,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static com.thoughtworks.go.helpers.PluginInfoMother.createAuthorizationPluginInfo
 import static com.thoughtworks.go.helpers.PluginInfoMother.createSCMPluginInfo
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTrait<PluginInfosControllerV7> {
   @Mock
   private DefaultPluginInfoFinder pluginInfoFinder
@@ -58,7 +60,6 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
   @BeforeEach
   void setup() {
-    initMocks(this)
     Set extensions = ["authorization", "scm", "configrepo", "elastic-agent", "task", "package-repository", "notification", "analytics", "artifact"]
     when(extensionRegistry.allRegisteredExtensions()).thenReturn(extensions)
   }
@@ -104,7 +105,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfo, PluginInfoRepresenter)
+          .hasBodyWithJsonObject(PluginInfoRepresenter, pluginInfo)
       }
 
       @Test
@@ -138,7 +139,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfo, PluginInfoRepresenter)
+          .hasBodyWithJsonObject(PluginInfoRepresenter, pluginInfo)
       }
 
       @Test
@@ -230,7 +231,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
+          .hasBodyWithJsonObject(PluginInfosRepresenter, pluginInfos)
       }
 
       @Test
@@ -266,7 +267,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
+          .hasBodyWithJsonObject(PluginInfosRepresenter, pluginInfos)
       }
 
 
@@ -321,7 +322,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(expectedPluginInfo, PluginInfosRepresenter)
+          .hasBodyWithJsonObject(PluginInfosRepresenter, expectedPluginInfo)
       }
 
       @Test

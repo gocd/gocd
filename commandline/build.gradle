@@ -21,6 +21,7 @@ dependencies {
   implementation project(':util')
   implementation project(':config:config-api')
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5

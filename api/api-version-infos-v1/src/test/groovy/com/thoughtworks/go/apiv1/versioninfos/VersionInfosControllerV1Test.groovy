@@ -30,10 +30,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class VersionInfosControllerV1Test implements SecurityServiceTrait, ControllerTrait<VersionInfosControllerV1> {
   @Mock
   private VersionInfoService versionInfoService
@@ -42,7 +44,6 @@ class VersionInfosControllerV1Test implements SecurityServiceTrait, ControllerTr
 
   @BeforeEach
   void setUp() {
-    initMocks(this)
     when(systemEnvironment.getUpdateServerUrl()).thenReturn("https://update.example.com/some/path")
   }
 

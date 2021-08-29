@@ -43,6 +43,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static com.thoughtworks.go.server.util.DigestMixin.digestMany
@@ -50,8 +52,8 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, ControllerTrait<ConfigReposInternalControllerV4> {
     private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
     private static final String TEST_REPO_URL = "https://fakeurl.com"
@@ -93,7 +95,6 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
 
     @BeforeEach
     void setUp() {
-        initMocks(this)
         Policy directives = new Policy()
         directives.add(new Allow("administer", "config_repo", "repo-*"))
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)

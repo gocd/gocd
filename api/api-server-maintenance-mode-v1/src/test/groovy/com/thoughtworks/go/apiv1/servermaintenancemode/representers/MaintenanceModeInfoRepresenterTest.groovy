@@ -21,9 +21,10 @@ import com.thoughtworks.go.server.domain.ServerMaintenanceMode
 import com.thoughtworks.go.server.service.MaintenanceModeService
 import com.thoughtworks.go.util.SystemEnvironment
 import com.thoughtworks.go.util.TimeProvider
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import java.sql.Timestamp
 
@@ -32,13 +33,9 @@ import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class MaintenanceModeInfoRepresenterTest {
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Mock
   TimeProvider timeProvider

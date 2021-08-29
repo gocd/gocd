@@ -36,22 +36,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InternalPipelineGroupsControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalPipelineGroupsControllerV1> {
 
   @Mock
   PipelineConfigService pipelineConfigService
   @Mock
   EnvironmentConfigService environmentConfigService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   InternalPipelineGroupsControllerV1 createControllerInstance() {

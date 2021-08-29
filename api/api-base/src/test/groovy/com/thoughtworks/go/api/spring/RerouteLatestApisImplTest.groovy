@@ -30,6 +30,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import org.springframework.context.ApplicationContext
 import spark.*
 import spark.servlet.SparkFilter
@@ -40,9 +42,9 @@ import java.util.stream.Collectors
 import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 import static spark.Spark.*
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class RerouteLatestApisImplTest {
     @Mock
     Filter apiv11BeforeFilter1
@@ -97,7 +99,6 @@ class RerouteLatestApisImplTest {
 
     @BeforeEach
     void setUp() {
-        initMocks(this)
         routeInformationProvider = new RouteInformationProvider()
 
         controller1 = new SparkController() {

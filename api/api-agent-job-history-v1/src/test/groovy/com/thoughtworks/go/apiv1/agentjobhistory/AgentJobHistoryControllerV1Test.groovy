@@ -35,22 +35,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AgentJobHistoryControllerV1Test implements SecurityServiceTrait, ControllerTrait<AgentJobHistoryControllerV1> {
 
   @Mock
   JobInstanceService jobInstanceService
   @Mock
   AgentService agentService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   AgentJobHistoryControllerV1 createControllerInstance() {

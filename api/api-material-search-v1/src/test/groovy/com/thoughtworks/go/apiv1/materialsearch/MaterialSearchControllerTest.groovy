@@ -28,27 +28,24 @@ import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchController>, SecurityServiceTrait {
 
   @Mock
   MaterialService materialService
 
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-  }
 
   @Override
   MaterialSearchController createControllerInstance() {
@@ -90,7 +87,7 @@ class MaterialSearchControllerTest implements ControllerTrait<MaterialSearchCont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJsonArray(matchedRevisions, MatchedRevisionRepresenter.class)
+        .hasBodyWithJsonArray(MatchedRevisionRepresenter.class, matchedRevisions)
     }
   }
 

@@ -20,24 +20,20 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.helper.MaterialConfigsMother
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class EnvironmentAgentRepresenterTest {
   @Mock
   MergeEnvironmentConfig environmentConfig
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Test
   void 'should represent agent with config xml origin'() {

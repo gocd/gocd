@@ -29,18 +29,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 import spark.route.HttpMethod
 
-import static org.mockito.MockitoAnnotations.initMocks
-
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ApiInfoControllerV1Test implements SecurityServiceTrait, ControllerTrait<ApiInfoControllerV1> {
   @Mock
   private RouteInformationProvider provider
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   ApiInfoControllerV1 createControllerInstance() {

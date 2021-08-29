@@ -37,6 +37,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
@@ -44,8 +46,8 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.*
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStoreConfigController>, SecurityServiceTrait {
 
   @Mock
@@ -53,11 +55,6 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
   @Mock
   EntityHashingService entityHashingService
-
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-  }
 
   @Override
   ArtifactStoreConfigController createControllerInstance() {
@@ -101,7 +98,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStores, ArtifactStoresRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoresRepresenter, artifactStores)
       }
     }
   }
@@ -151,7 +148,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, artifactStore)
       }
 
       @Test
@@ -193,7 +190,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, artifactStore)
       }
     }
   }
@@ -236,7 +233,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, artifactStore)
       }
 
       @Test
@@ -355,7 +352,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isOk()
           .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(newArtifactStore, ArtifactStoreRepresenter)
+          .hasBodyWithJsonObject(ArtifactStoreRepresenter, newArtifactStore)
       }
 
       @Test

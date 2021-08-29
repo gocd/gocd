@@ -29,11 +29,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, ControllerTrait<DefaultJobTimeoutControllerV1> {
 
   @Mock
@@ -41,11 +43,6 @@ class DefaultJobTimeoutControllerV1Test implements SecurityServiceTrait, Control
 
   @Mock
   ServerConfigService serverConfigService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   DefaultJobTimeoutControllerV1 createControllerInstance() {

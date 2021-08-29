@@ -41,12 +41,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PluginSettingsControllerV1Test implements SecurityServiceTrait, ControllerTrait<PluginSettingsControllerV1> {
   @Mock
   PluginService pluginService
@@ -54,10 +56,6 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
   @Mock
   EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   PluginSettingsControllerV1 createControllerInstance() {
@@ -100,7 +98,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
+          .hasBodyWithJsonObject(PluginSettingsRepresenter, pluginSettings)
       }
 
       @Test
@@ -169,7 +167,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
+          .hasBodyWithJsonObject(PluginSettingsRepresenter, pluginSettings)
       }
 
       @Test
@@ -269,7 +267,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
+          .hasBodyWithJsonObject(PluginSettingsRepresenter, pluginSettings)
       }
 
       @Test

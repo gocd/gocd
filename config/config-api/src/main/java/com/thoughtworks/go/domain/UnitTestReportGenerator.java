@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
 public class UnitTestReportGenerator implements TestReportGenerator {
@@ -85,7 +86,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
     }
 
     public void merge(File[] testFiles, OutputStream outputStream) throws IOException {
-        try (PrintStream out = new PrintStream(outputStream, true, "UTF-8")) {
+        try (PrintStream out = new PrintStream(outputStream, true, StandardCharsets.UTF_8)) {
             out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
             out.println("<all-results>");
 

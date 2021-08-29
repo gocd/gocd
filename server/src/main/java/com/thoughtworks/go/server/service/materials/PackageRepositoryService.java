@@ -47,6 +47,7 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,7 +188,7 @@ public class PackageRepositoryService {
         }
     }
 
-    //Used only in tests
+    @TestOnly
     public void setPluginManager(PluginManager pluginManager) {
         this.pluginManager = pluginManager;
     }

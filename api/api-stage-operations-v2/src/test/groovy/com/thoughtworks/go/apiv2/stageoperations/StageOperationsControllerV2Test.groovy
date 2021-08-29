@@ -33,12 +33,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StageOperationsControllerV2Test implements SecurityServiceTrait, ControllerTrait<StageOperationsControllerV2> {
   @Mock
   ScheduleService scheduleService
@@ -52,10 +54,6 @@ class StageOperationsControllerV2Test implements SecurityServiceTrait, Controlle
   @Mock
   PipelineService pipelineService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
 
   @Override
   StageOperationsControllerV2 createControllerInstance() {

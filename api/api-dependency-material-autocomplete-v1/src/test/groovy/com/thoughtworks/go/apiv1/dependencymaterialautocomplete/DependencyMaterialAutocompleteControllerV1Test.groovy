@@ -24,19 +24,15 @@ import com.thoughtworks.go.config.StageConfig
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
 
 import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceTrait, ControllerTrait<DependencyMaterialAutocompleteControllerV1> {
-
-  @BeforeEach
-  void setup() {
-    initMocks(this)
-  }
 
   @Override
   DependencyMaterialAutocompleteControllerV1 createControllerInstance() {
@@ -73,7 +69,7 @@ class DependencyMaterialAutocompleteControllerV1Test implements SecurityServiceT
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJsonArray(suggestions, SuggestionsRepresenter.class)
+        .hasBodyWithJsonArray(SuggestionsRepresenter.class, suggestions)
     }
 
     private CaseInsensitiveString ident(String name) {

@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.util.UuidGenerator;
 import lombok.*;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -310,9 +311,7 @@ public class AgentDao extends HibernateDaoSupport {
         });
     }
 
-    /**
-     * @deprecated Used only in tests
-     */
+    @TestOnly
     public void clearListeners() {
         this.agentEntityChangeListenerSet.clear();
     }

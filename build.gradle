@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
+import com.thoughtworks.go.build.InstallerType
 import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -156,8 +156,6 @@ rootProject.ext.distVersion = DIST_VERSION
 rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
 rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
-
-project.ext.defaultJvmArgs = []
 
 project.ext.compilerOptions = [
   // source and target compatibility
@@ -535,7 +533,7 @@ subprojects {
     // fixup a tempdir that is predictable and we can clean it up later
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
-    jvmArgs += project.defaultJvmArgs
+    jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
 
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40

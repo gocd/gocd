@@ -75,8 +75,8 @@ def browser = { ->
   return 'firefox'
 }
 
-def browserExecutable = { String path->
-  def separator = "=".multiply(72)
+def browserExecutable = { String path ->
+  def separator = "=" * 72
   println "Browser versions"
   println(separator)
   switch(browser()) {
@@ -177,8 +177,12 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
   ]
 
   args = ['-S', 'rails', 'jasmine:ci']
-  // setup max heap, this is typically required on windows.
-  jvmArgs('-Xmx2g')
+
+  jvmArgs += [
+          // Address JRuby: WARN FilenoUtil : Native subprocess control requires open access to the JDK IO subsystem
+          '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+          '--add-opens=java.base/java.io=ALL-UNNAMED'
+  ]
 
   doFirst {
     def additionalPaths = [

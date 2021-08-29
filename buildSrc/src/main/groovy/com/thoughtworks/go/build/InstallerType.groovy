@@ -30,8 +30,8 @@ interface InstallerType {
   Map<String, String> getAdditionalEnvVars()
   Map<String, String> getAdditionalLinuxEnvVars()
 
+  List<String> getJvmModuleOpensArgs()
   List<String> getJvmArgs()
-
   List<String> getLinuxJvmArgs()
 
   boolean getAllowPassthrough()

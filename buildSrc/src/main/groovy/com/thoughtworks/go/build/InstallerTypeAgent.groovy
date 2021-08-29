@@ -47,11 +47,19 @@ class InstallerTypeAgent implements InstallerType {
     ]
   }
 
+  // Note that these apply to the launcher, but not necessarily the agent itself
+  @Override
+  List<String> getJvmModuleOpensArgs() {
+    []
+  }
+
+  // Note that these apply to the launcher, but not necessarily the agent itself
   @Override
   List<String> getJvmArgs() {
     []
   }
 
+  // Note that these apply to the launcher, but not the agent itself
   @Override
   List<String> getLinuxJvmArgs() {
     [

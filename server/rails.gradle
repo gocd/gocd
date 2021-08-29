@@ -15,6 +15,7 @@
  */
 
 import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.InstallerType
 import com.thoughtworks.go.build.YarnInstallTask
 import com.thoughtworks.go.build.YarnRunTask
 import groovy.text.SimpleTemplateEngine
@@ -293,8 +294,8 @@ task rspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
 
-  maxHeapSize = '6g'
-  jvmArgs += ['-XX:+UseCompressedOops', '-XX:-UseCompressedClassPointers', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
+  maxHeapSize = '2g'
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
 
   args = ['-S', 'rspec', '--backtrace']
 
@@ -322,8 +323,8 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
 
-  maxHeapSize = '6g'
-  jvmArgs += ['-XX:+UseCompressedOops', '-XX:-UseCompressedClassPointers', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
+  maxHeapSize = '2g'
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
 
   args = ['-S', 'rspec', '--backtrace']
 

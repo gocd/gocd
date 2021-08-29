@@ -67,8 +67,6 @@ class ExecuteUnderRailsTask extends JavaExec {
         environment += [CLASSPATH: project.jrubyJar().toString()]
       }
 
-      jvmArgs += project.defaultJvmArgs
-
       // flags to optimize jruby startup performance
       if (!disableJRubyOptimization) {
         jvmArgs += project.jrubyOptimizationJvmArgs

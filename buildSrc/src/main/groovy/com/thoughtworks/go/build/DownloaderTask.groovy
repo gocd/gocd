@@ -18,6 +18,7 @@ package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.ysb33r.grolifant.api.core.OperatingSystem
 import org.ysb33r.grolifant.api.core.ProjectOperations
@@ -33,6 +34,13 @@ class DownloaderTask extends DefaultTask {
   @Input
   String packageVersion
 
+  @Internal
+  protected final ProjectOperations projectOperations
+
+  DownloaderTask() {
+    projectOperations = ProjectOperations.create(project)
+  }
+
   @TaskAction
   void perform() {
     AbstractDistributionInstaller installer = createInstaller()
@@ -43,7 +51,7 @@ class DownloaderTask extends DefaultTask {
   }
 
   private AbstractDistributionInstaller createInstaller() {
-    new AbstractDistributionInstaller(packageName, "download/${packageName}/${packageVersion}", ProjectOperations.find(project)) {
+    new AbstractDistributionInstaller(packageName, "download/${packageName}/${packageVersion}", projectOperations) {
 
       @Override
       URI uriFromVersion(String version) {

@@ -19,12 +19,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.internal.verification.Times;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ConfigMaterialUpdateListenerFactoryTest {
@@ -45,6 +43,6 @@ public class ConfigMaterialUpdateListenerFactoryTest {
                 null, null, null, null, null);
         factory.init();
 
-        verify(configMaterialPostUpdateQueue, new Times(numberOfConfigMaterialPostUpdateListeners)).addListener(any(ConfigMaterialUpdateListener.class));
+        verify(configMaterialPostUpdateQueue, times(numberOfConfigMaterialPostUpdateListeners)).addListener(any(ConfigMaterialUpdateListener.class));
     }
 }

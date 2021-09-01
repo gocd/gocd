@@ -39,14 +39,13 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.verification.NoMoreInteractions;
 
 import java.util.*;
 
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class PipelineSchedulerTest {
@@ -122,7 +121,7 @@ public class PipelineSchedulerTest {
         final HashMap<String, String> revisions = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Collections.singletonMap("blahVariable", "blahValue"), new HashMap<>()), operationResult);
         //noinspection unchecked
-        verify(buildCauseProducerService, new NoMoreInteractions()).manualSchedulePipeline(any(Username.class), any(CaseInsensitiveString.class), any(ScheduleOptions.class), any(OperationResult.class));
+        verifyNoMoreInteractions(buildCauseProducerService);
         verify(operationResult).notFound("Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'", "Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'",
                 HealthStateType.general(HealthStateScope.forPipeline("blahPipeline")));
     }

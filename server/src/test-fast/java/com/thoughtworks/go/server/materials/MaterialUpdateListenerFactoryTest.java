@@ -28,12 +28,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.internal.verification.Times;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MaterialUpdateListenerFactoryTest {
@@ -71,7 +69,7 @@ public class MaterialUpdateListenerFactoryTest {
                 dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
-        verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
+        verify(queue, times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
     }
 
     @Test
@@ -85,7 +83,7 @@ public class MaterialUpdateListenerFactoryTest {
                 dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
-        verify(configQueue, new Times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
+        verify(configQueue, times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
     }
 
     @Test
@@ -101,6 +99,6 @@ public class MaterialUpdateListenerFactoryTest {
                 dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
-        verify(dependencyMaterialQueue, new Times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));
+        verify(dependencyMaterialQueue, times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));
     }
 }

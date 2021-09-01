@@ -52,7 +52,6 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
-import static org.mockito.internal.verification.VerificationModeFactory.times
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV4> {

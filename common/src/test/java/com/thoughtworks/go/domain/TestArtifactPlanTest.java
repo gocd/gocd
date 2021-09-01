@@ -22,7 +22,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.internal.verification.Times;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +81,7 @@ public class TestArtifactPlanTest {
 
         verify(mockArtifactPublisher).upload(first, "logs/report");
         verify(mockArtifactPublisher).upload(second, "logs/test/a/b");
-        verify(mockArtifactPublisher, new Times(2)).upload(any(File.class), eq("testoutput"));
+        verify(mockArtifactPublisher, times(2)).upload(any(File.class), eq("testoutput"));
     }
 
 }

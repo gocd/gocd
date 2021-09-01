@@ -23,13 +23,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.error.ShouldContainCharSequence;
 import org.assertj.core.internal.Failures;
-import org.assertj.core.util.Objects;
 import org.hamcrest.text.MatchesPattern;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
 
 import javax.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
@@ -74,7 +74,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     public SELF hasHeader(String headerName, String expectedHeader) {
         String actualHeader = actual.getHeader(headerName);
 
-        if (!Objects.areEqual(actualHeader, expectedHeader)) {
+        if (!Objects.deepEquals(actualHeader, expectedHeader)) {
             failWithMessage("Expected header '%s: %s', but was '%s: %s'", headerName, expectedHeader, headerName, actualHeader);
         }
         return myself;
@@ -112,7 +112,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     }
 
     public SELF hasBody(byte[] expected) {
-        if (!Objects.areEqual(actual.getContentAsByteArray(), expected)) {
+        if (!Objects.deepEquals(actual.getContentAsByteArray(), expected)) {
             this.as("body");
             throw Failures.instance().failure(info, shouldBeEqual(actual.getContentAsByteArray(), expected, info.representation()));
         }
@@ -120,7 +120,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     }
 
     public SELF hasBody(String expected) throws UnsupportedEncodingException {
-        if (!Objects.areEqual(actual.getContentAsString(), expected)) {
+        if (!Objects.deepEquals(actual.getContentAsString(), expected)) {
             this.as("body");
             throw Failures.instance().failure(info, shouldBeEqual(actual.getContentAsString(), expected, info.representation()));
         }

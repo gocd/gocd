@@ -17,9 +17,9 @@
 package com.thoughtworks.go.http.mocks;
 
 import org.assertj.core.api.AbstractObjectAssert;
-import org.assertj.core.util.Objects;
 
 import javax.servlet.http.HttpSession;
+import java.util.Objects;
 
 public class MockHttpServletRequestAssert<SELF extends MockHttpServletRequestAssert<SELF>> extends AbstractObjectAssert<SELF, MockHttpServletRequest> {
 
@@ -40,7 +40,7 @@ public class MockHttpServletRequestAssert<SELF extends MockHttpServletRequestAss
 
     public SELF hasSessionAttribute(String name, Object expectedAttributeValue) {
         final Object actualAttributeValue = getSession().getAttribute(name);
-        if (!Objects.areEqual(expectedAttributeValue, actualAttributeValue)) {
+        if (!Objects.deepEquals(expectedAttributeValue, actualAttributeValue)) {
             failWithMessage("Expected session to contain attribute <%s>: <%s>, but found <%s>: <%s>", name, expectedAttributeValue, name, actualAttributeValue);
         }
         return myself;

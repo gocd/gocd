@@ -467,28 +467,6 @@ table#build-peroperties-table th {
   width: 11em;
 }
 
-.collapsible_content,
-.title_message_expanded,
-.title_message_collapsed {
-  padding-left: 16px;
-}
-
-.collapsible_content p {
-  padding: 0.2em 1em 0 0.2em;
-}
-
-.title_message_expanded {
-  background: image_url('arrow_open.jpg') no-repeat left;
-}
-
-.title_message_collapsed {
-  background: image_url('arrow_closed.jpg') no-repeat left;
-}
-
-.collapsible_title {
-  cursor: pointer;
-}
-
 div.sub_tab_container_content {
   /*padding: 1em;*/
   /*padding-top: 0.5em;*/
@@ -780,12 +758,7 @@ a.collapse-all {
   margin-left: 17px;
 }
 
-#tab-content-of-failures .auto-scroll {
-  display: none;
-}
-
 #tab-content-of-tests,
-#tab-content-of-failures,
 #tab-content-of-artifacts,
 #tab-content-of-materials,
 #tab-content-of-properties,

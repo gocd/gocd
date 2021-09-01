@@ -72,10 +72,6 @@
                       <a class="tab_button_body_match_text">tests</a>
                       <a>Tests</a>
                     </li>
-                    <li id="failures_console">
-                      <a class="tab_button_body_match_text">failures</a>
-                      <a>Failures</a>
-                    </li>
                     <li>
                       <a class="tab_button_body_match_text">artifacts</a>
                       <a>Artifacts</a>
@@ -119,9 +115,6 @@
 
                       #set($tests_extra_attrs="style='display:none'")
                       #parse("build_detail/_tests.vm")
-
-                      #set($errors_extra_attrs="style='display:none'")
-                      #parse("build_detail/_failures.vm")
 
                       #set($artifacts_extra_attrs="style='display:none'")
                       #parse("build_detail/_artifacts.vm")

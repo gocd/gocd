@@ -40,7 +40,6 @@ describe("build_detail", function(){
             "</div>\n" +
             "<div id=\"tab-content-of-modifications\" style=\"display:none\">\n" +
             "</div>\n" +
-            "<div id=\"collapsible\" class=\"title_message_collapsed\"></div>\n" +
             "<div class=\"widget\" id=\"build-output-console-warnning\" style=\"display: none;\">No build output.</div>");
 
         window.tabsManager = new TabsManager();

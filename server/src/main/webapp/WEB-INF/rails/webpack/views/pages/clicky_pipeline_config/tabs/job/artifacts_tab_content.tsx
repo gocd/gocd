@@ -89,7 +89,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
     return <div class={styles.builtInArtifactHeader} data-test-id="tabs-header">
       <span data-test-id="type-header">
         Type: <Tooltip.Info size={TooltipSize.small}
-                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
+                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
       </span>
       <span data-test-id="source-header">
         Source: <Tooltip.Info size={TooltipSize.small}
@@ -136,7 +136,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
     return <div class={styles.builtInArtifactHeader} data-test-id="tabs-header">
       <span data-test-id="type-header">
         Type: <Tooltip.Info size={TooltipSize.small}
-                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
+                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
       </span>
       <span class={styles.idHeader} data-test-id="id-header">
         Id: <Tooltip.Info size={TooltipSize.small}

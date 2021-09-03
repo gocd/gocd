@@ -49,7 +49,6 @@ describe StagesController do
     allow(controller).to receive(:system_environment).and_return(@system_environment)
     allow(controller).to receive(:populate_config_validity)
 
-    allow(@system_environment).to receive(:isShineEnabled).and_return(true)
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(nil)
     allow(@go_config_service).to receive(:isPipelineEditable)
 

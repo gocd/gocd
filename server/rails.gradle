@@ -156,7 +156,6 @@ task cleanRails(type: Delete) {
   delete "${project.railsRoot}/config/cipher.aes"
   delete "${project.railsRoot}/db/config.git"
   delete "${project.railsRoot}/db/h2db"
-  delete "${project.railsRoot}/db/shine"
   delete "${project.railsRoot}/logs"
   delete "${project.railsRoot}/node_modules"
   delete "${project.railsRoot}/public/assets"

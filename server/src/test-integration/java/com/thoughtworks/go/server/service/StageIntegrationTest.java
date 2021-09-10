@@ -74,9 +74,8 @@ public class StageIntegrationTest {
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
-        CONFIG_HELPER.onSetUp();
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.initializeConfigFile();
+        CONFIG_HELPER.onSetUp();
 
         TestRepo svnTestRepo = new SvnTestRepo(tempDir);
 
@@ -89,6 +88,7 @@ public class StageIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
+        CONFIG_HELPER.onTearDown();
     }
 
     @Test

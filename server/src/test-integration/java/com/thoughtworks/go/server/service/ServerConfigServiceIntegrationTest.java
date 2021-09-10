@@ -57,7 +57,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();

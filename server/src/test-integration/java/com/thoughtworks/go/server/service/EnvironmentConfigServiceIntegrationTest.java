@@ -21,8 +21,8 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
-import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.AgentMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -38,11 +38,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -75,7 +79,7 @@ public class EnvironmentConfigServiceIntegrationTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();

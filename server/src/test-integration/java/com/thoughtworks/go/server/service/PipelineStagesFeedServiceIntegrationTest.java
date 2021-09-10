@@ -29,8 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -51,7 +51,7 @@ public class PipelineStagesFeedServiceIntegrationTest {
 
     @BeforeEach
     public void setup() throws Exception {
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         configHelper.addPipeline("cruise", "stage", "unit", "functional");
         configHelper.enableSecurity();

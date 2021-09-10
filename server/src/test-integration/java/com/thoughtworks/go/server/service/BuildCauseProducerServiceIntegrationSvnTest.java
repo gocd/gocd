@@ -24,7 +24,10 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.SvnTestRepo;
+import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
@@ -95,10 +98,10 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
 
     @AfterEach
     public void teardown() throws Exception {
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         FileUtils.deleteQuietly(workingFolder);
-                pipelineScheduleQueue.clear();
+        pipelineScheduleQueue.clear();
         configHelper.onTearDown();
     }
 

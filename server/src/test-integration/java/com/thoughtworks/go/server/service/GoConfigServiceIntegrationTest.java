@@ -48,8 +48,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -76,7 +76,7 @@ public class GoConfigServiceIntegrationTest {
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         setupMetadataForPlugin();

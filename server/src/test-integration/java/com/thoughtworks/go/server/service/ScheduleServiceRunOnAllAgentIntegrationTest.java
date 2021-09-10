@@ -37,7 +37,10 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +102,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     public void setup() throws Exception {
         CONFIG_HELPER = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
 
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());

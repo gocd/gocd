@@ -147,8 +147,8 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         hgRepo = new HgTestRepo("testHgRepo", tempDir);
 
         dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         materialConfig = hgRepo.materialConfig();
         ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "gocd-xml", "gocd-id");
@@ -195,7 +195,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();
     }

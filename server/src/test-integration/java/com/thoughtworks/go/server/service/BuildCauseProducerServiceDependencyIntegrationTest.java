@@ -36,7 +36,6 @@ import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -189,8 +188,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     @BeforeEach
     public void setup(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         dependencyMaterialUpdateNotifier.disableUpdates();
 
         minglePipeline = new MinglePipeline();
@@ -229,7 +228,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
     @AfterEach
     public void teardown() throws Exception {
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();
         dependencyMaterialUpdateNotifier.enableUpdates();

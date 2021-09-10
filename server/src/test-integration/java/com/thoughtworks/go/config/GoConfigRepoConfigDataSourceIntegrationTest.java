@@ -40,8 +40,8 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -73,7 +73,7 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     @BeforeEach
     public void setUp(@TempDir File templateConfigRepo) throws Exception {
         GoConfigFileHelper configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         GoConfigRepoConfigDataSource repoConfigDataSource = new GoConfigRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);

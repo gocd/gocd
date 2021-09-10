@@ -84,7 +84,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @BeforeEach
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_SINGLE_ENVIRONMENT);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
     }

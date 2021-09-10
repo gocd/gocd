@@ -59,10 +59,10 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -116,7 +116,7 @@ public class PipelineConfigServiceIntegrationTest {
         cachedGoPartials.clear();
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         user = new Username(new CaseInsensitiveString("current"));

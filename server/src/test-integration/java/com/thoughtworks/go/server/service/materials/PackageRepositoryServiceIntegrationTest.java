@@ -41,9 +41,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
@@ -83,7 +83,7 @@ public class PackageRepositoryServiceIntegrationTest {
                 "</security>");
 
         configHelper = new GoConfigFileHelper(content);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         service.setPluginManager(pluginManager);

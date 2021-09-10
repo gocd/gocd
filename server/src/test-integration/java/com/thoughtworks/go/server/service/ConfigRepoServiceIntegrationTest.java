@@ -41,9 +41,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +91,7 @@ public class ConfigRepoServiceIntegrationTest {
         MaterialConfig repoMaterial = git("https://foo.git", "master");
         this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, pluginId, repoId);
 
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();

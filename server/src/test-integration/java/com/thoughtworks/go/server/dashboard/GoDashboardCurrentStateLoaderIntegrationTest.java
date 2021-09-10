@@ -41,8 +41,8 @@ import java.io.File;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -76,7 +76,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         String absolutePath = new File(configDir, "cruise-config.xml").getAbsolutePath();
         systemEnvironment.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, absolutePath);
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();

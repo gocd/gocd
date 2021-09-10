@@ -259,7 +259,6 @@ public class GoConfigFileHelper {
 
     public void onSetUp() throws IOException {
         initializeConfigFile();
-        goConfigDao.forceReload();
         writeConfigFile(load());
         originalConfigDir = sysEnv.getConfigDir();
         File configDir = configFile.getParentFile();
@@ -272,7 +271,9 @@ public class GoConfigFileHelper {
     }
 
     public void onTearDown() {
-        sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, originalConfigDir);
+        if (originalConfigDir != null) {
+            sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, originalConfigDir);
+        }
         FileUtils.deleteQuietly(configFile);
         try {
             saveFullConfig(originalXml, true);

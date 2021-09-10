@@ -52,7 +52,7 @@ public class TwoPipelineGroups implements PreCondition {
     @Override
     public void onTearDown() throws Exception {
         if (isSetup) {
-            configHelper.initializeConfigFile();
+            configHelper.onTearDown();
             svnTestRepo.tearDown();
         }
     }

@@ -109,7 +109,7 @@ public class PipelineWithTwoStages implements PreCondition {
     }
 
     public void onSetUp() throws Exception {
-        configHelper.initializeConfigFile();
+        configHelper.onSetUp();
 
         addToSetup();
     }
@@ -130,8 +130,8 @@ public class PipelineWithTwoStages implements PreCondition {
 
     @Override
     public void onTearDown() throws Exception {
-        configHelper.initializeConfigFile();
         dbHelper.onTearDown();
+        configHelper.onTearDown();
     }
 
     protected Path tempDir() {

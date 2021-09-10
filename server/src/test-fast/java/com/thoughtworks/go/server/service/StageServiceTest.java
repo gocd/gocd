@@ -117,7 +117,7 @@ public class StageServiceTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        configFileHelper.initializeConfigFile();
+        configFileHelper.onTearDown();
         SessionUtils.unsetCurrentUser();
     }
 

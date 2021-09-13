@@ -40,7 +40,10 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +106,7 @@ public class PipelineSchedulerIntegrationTest {
 
         dbHelper.onSetUp();
 
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         configHelper.addPipeline(PIPELINE_MINGLE, DEV_STAGE, repository, "unit", "functional");
@@ -120,6 +123,7 @@ public class PipelineSchedulerIntegrationTest {
     public void tearDown() throws Exception {
         serverHealthService.removeAllLogs();
         pipelineScheduleQueue.clear();
+        dbHelper.onTearDown();
         configHelper.onTearDown();
     }
 

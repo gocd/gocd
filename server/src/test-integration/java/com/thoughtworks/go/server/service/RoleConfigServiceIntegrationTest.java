@@ -51,8 +51,8 @@ public class RoleConfigServiceIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         configFileHelper = new GoConfigFileHelper(ConfigFileFixture.CONFIG_WITH_ADMIN_AND_SECURITY_AUTH_CONFIG);
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
         configFileHelper.onSetUp();
-        configFileHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         goConfigService.forceNotifyListeners();
     }
 

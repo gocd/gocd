@@ -38,7 +38,10 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
@@ -158,8 +161,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         svnRepository = new SvnTestRepo(tempDir);
 
         dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 
@@ -201,7 +204,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();
     }

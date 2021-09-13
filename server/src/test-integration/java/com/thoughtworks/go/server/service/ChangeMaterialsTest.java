@@ -99,7 +99,6 @@ public class ChangeMaterialsTest {
         dbHelper.onSetUp();
         cruiseConfig = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
         cruiseConfig.onSetUp();
-        cruiseConfig.initializeConfigFile();
 
         hgTestRepo = new HgTestRepo(tempDir);
 
@@ -113,7 +112,6 @@ public class ChangeMaterialsTest {
 
     @AfterEach
     public void teardown() throws Exception {
-        cruiseConfig.initializeConfigFile();
         dbHelper.onTearDown();
         cruiseConfig.onTearDown();
     }

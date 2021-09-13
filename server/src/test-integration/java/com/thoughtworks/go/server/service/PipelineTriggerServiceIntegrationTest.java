@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -53,7 +52,8 @@ import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -127,7 +127,9 @@ public class PipelineTriggerServiceIntegrationTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-                pipelineScheduleQueue.clear();
+        pipelineScheduleQueue.clear();
+        dbHelper.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

@@ -78,9 +78,9 @@ public class ValueStreamMapPerformanceTest {
     @BeforeEach
     public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
-        dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
+        dbHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
         graphGenerator = new GraphGenerator(configHelper, u);
@@ -88,8 +88,8 @@ public class ValueStreamMapPerformanceTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        configHelper.onTearDown();
         dbHelper.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

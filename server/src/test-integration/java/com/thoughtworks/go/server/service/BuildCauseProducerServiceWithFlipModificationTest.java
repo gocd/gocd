@@ -34,7 +34,6 @@ import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.Username;
@@ -102,8 +101,8 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         configHelper = new GoConfigFileHelper();
 
         dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         svnRepository = new SvnTestRepo(tempDir);
         hgTestRepo = new HgTestRepo("testHgRepo", tempDir);
@@ -113,7 +112,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     @AfterEach
     public void teardown() throws Exception {
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         configHelper.onTearDown();

@@ -84,8 +84,8 @@ public class BuildCauseProducerServiceIntegrationHgTest {
     @BeforeEach
     public void setup(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         hgTestRepo = new HgTestRepo("hgTestRepo1", tempDir);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         hgMaterial.setFilter(new Filter(new IgnoredFiles("helper/**/*.*")));
@@ -96,10 +96,10 @@ public class BuildCauseProducerServiceIntegrationHgTest {
 
     @AfterEach
     public void teardown() throws Exception {
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         FileUtils.deleteQuietly(workingFolder);
-                pipelineScheduleQueue.clear();
+        pipelineScheduleQueue.clear();
     }
 
 

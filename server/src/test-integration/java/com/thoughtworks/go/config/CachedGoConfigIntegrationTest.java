@@ -140,7 +140,7 @@ public class CachedGoConfigIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         externalConfigRepo = TempDirUtils.createTempDirectoryIn(temporaryFolder, "config_repo").toFile();
         latestModification = setupExternalConfigRepo(externalConfigRepo);

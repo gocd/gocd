@@ -36,9 +36,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -68,7 +68,7 @@ public class PackageDefinitionServiceIntegrationTest {
         cachedGoPartials.clear();
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         user = new Username(new CaseInsensitiveString("current"));
@@ -97,8 +97,8 @@ public class PackageDefinitionServiceIntegrationTest {
     @AfterEach
     public void tearDown() throws Exception {
         cachedGoPartials.clear();
-        configHelper.onTearDown();
         dbHelper.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

@@ -101,8 +101,8 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         hgRepo = new HgTestRepo("testHgRepo", tempDir);
 
         dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         materialConfig = hg(hgRepo.projectRepositoryUrl(), null);
         ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "gocd-xml", "gocd-id");
@@ -127,7 +127,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @AfterEach
     public void teardown() throws Exception {
         diskSpaceSimulator.onTearDown();
-                dbHelper.onTearDown();
+        dbHelper.onTearDown();
         configHelper.onTearDown();
     }
 

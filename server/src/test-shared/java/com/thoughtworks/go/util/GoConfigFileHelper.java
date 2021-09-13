@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.util;
 
+import com.google.common.base.Throwables;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -259,7 +260,6 @@ public class GoConfigFileHelper {
 
     public void onSetUp() throws IOException {
         initializeConfigFile();
-        goConfigDao.forceReload();
         writeConfigFile(load());
         originalConfigDir = sysEnv.getConfigDir();
         File configDir = configFile.getParentFile();
@@ -272,11 +272,14 @@ public class GoConfigFileHelper {
     }
 
     public void onTearDown() {
-        sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, originalConfigDir);
+        if (originalConfigDir != null) {
+            sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, originalConfigDir);
+        }
         FileUtils.deleteQuietly(configFile);
         try {
             saveFullConfig(originalXml, true);
         } catch (Exception e) {
+            Throwables.throwIfUnchecked(e);
             throw new RuntimeException(e);
         }
     }

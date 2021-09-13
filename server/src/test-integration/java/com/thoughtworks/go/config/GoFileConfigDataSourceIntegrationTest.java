@@ -107,7 +107,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         String absolutePath = new File(configDir, "cruise-config.xml").getAbsolutePath();
         systemEnvironment.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, absolutePath);
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id");
         config.getRules().add(new Allow("refer", "*", "*"));

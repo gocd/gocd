@@ -96,9 +96,9 @@ public class PipelineScheduleQueueIntegrationTest {
     @BeforeEach
     public void setup(@TempDir Path tempDir) throws Exception {
         configFileEditor = new GoConfigFileHelper();
+        configFileEditor.usingCruiseConfigDao(goConfigDao);
         configFileEditor.onSetUp();
         dbHelper.onSetUp();
-        configFileEditor.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         fixture.usingDbHelper(dbHelper).usingConfigHelper(configFileEditor).onSetUp();
         newCause = BuildCause.createWithEmptyModifications();

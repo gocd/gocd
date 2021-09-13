@@ -76,7 +76,7 @@ public class AccessTokenServiceIntegrationTest {
                 "</security>");
 
         configHelper = new GoConfigFileHelper(content);
-        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
     }
@@ -84,6 +84,7 @@ public class AccessTokenServiceIntegrationTest {
     @AfterEach
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
+        configHelper.onTearDown();
     }
 
     @Test

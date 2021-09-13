@@ -311,7 +311,9 @@ dependencies {
     transitive = false
   }
   annotationProcessor project.deps.lombok
-  providedAtPackageTime project.deps.logback
+  providedAtPackageTime(project.deps.logback) {
+    exclude(module: 'slf4j-api') // Excluded to avoid transitive overriding the `implementation` dependency above
+  }
   providedAtPackageTime project.deps.bouncyCastle
   providedAtPackageTime project.deps.bouncyCastlePkix
   providedAtPackageTime project.deps.jettyWebsocket

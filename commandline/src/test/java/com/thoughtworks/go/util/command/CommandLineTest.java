@@ -29,7 +29,6 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +38,7 @@ import java.util.regex.Matcher;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -139,23 +139,23 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldNotLogPasswordsOnExceptionThrown(@TempDir File temporaryFolder) throws IOException {
-        File file = new File(temporaryFolder, "test.sh");
-        FileOutputStream out = new FileOutputStream(file);
-        out.write("echo $1 && exit 10".getBytes());
-        out.close();
+    void shouldNotLogPasswordsOnExceptionThrown() throws IOException {
+        File file = Files.writeString(temporaryFolder.resolve("test.sh"), "echo $1 && exit 10", UTF_8).toFile();
 
-        CommandLine line = CommandLine.createCommandLine("/bin/sh").withArg(file.getAbsolutePath()).withArg(new PasswordArgument("secret")).withEncoding("utf-8");
-        try {
-            line.runOrBomb(null);
-        } catch (CommandLineException e) {
-            assertThat(e.getMessage(), not(containsString("secret")));
-        }
+        CommandLine line = CommandLine.createCommandLine("/bin/sh")
+                .withArg(file.getAbsolutePath())
+                .withArg(new PasswordArgument("secret"))
+                .withEncoding("utf-8");
+
+        assertThatThrownBy(() -> line.runOrBomb(null))
+                .isExactlyInstanceOf(CommandLineException.class)
+                .hasMessageContaining("EXIT CODE (10)")
+                .hasMessageNotContaining("secret");
     }
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldLogPasswordsOnOutputAsStarsUnderLinux() throws IOException {
+    void shouldLogPasswordsOnOutputAsStarsUnderLinux() {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
                 .withArg(new PasswordArgument("secret"))
@@ -215,7 +215,7 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldLogPasswordsOnEnvironemntAsStarsUnderLinux() {
+    void shouldLogPasswordsOnEnvironmentAsStarsUnderLinux() {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
                 .withArg("secret")
@@ -264,11 +264,11 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir(@TempDir File temporaryFolder) throws IOException {
+    void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir() throws IOException {
         File shellScript = createScriptInSubFolder("hello-world.sh", "echo 'Hello World!'");
         assertThat(shellScript.setExecutable(true), is(true));
 
-        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder).withEncoding("utf-8");
+        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder.toFile()).withEncoding("utf-8");
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -294,7 +294,7 @@ public class CommandLineTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldBeAbleToRunCommandsFromRelativeDirectories(@TempDir Path temporaryFolder) throws IOException {
+    void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
 
         File shellScript = Files.createFile(temporaryFolder.resolve("hello-world.sh")).toFile();
 
@@ -337,7 +337,7 @@ public class CommandLineTest {
     }
 
     @Test
-    void shouldGetTheCommandFromCommandlineAsIs(@TempDir Path temporaryFolder) throws IOException {
+    void shouldGetTheCommandFromCommandlineAsIs() throws IOException {
         String file = "originalCommand";
         Files.createFile(temporaryFolder.resolve(file)).toFile().setExecutable(true);
 

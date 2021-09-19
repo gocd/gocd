@@ -27,12 +27,10 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +45,7 @@ import static java.lang.String.format;
 
 @Service
 public class ConfigRepoService {
-    public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoService.class);
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
     private final EntityHashingService entityHashingService;
@@ -139,7 +137,7 @@ public class ConfigRepoService {
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(saveFailedWithReason("An error occurred while saving the package config. Please check the logs for more information."));
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the config repo. Please check the logs for more information."));
                 }
             }
         }

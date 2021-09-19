@@ -16,13 +16,18 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -51,7 +56,6 @@ class ConfigRepoServiceTest {
 
     @BeforeEach
     void setUp() {
-
         MaterialConfig repoMaterial = git("https://foo.git", "master");
         this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, "json-config-repo-plugin", "repo-1");
     }
@@ -82,4 +86,56 @@ class ConfigRepoServiceTest {
 
         verify(materialUpdateService, times(1)).updateMaterial((Material) any());
     }
+
+    @Nested
+    public class ExceptionHandling {
+
+        ConfigRepoService service;
+
+        @BeforeEach
+        void setUp() {
+            service = new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, converter);
+        }
+
+        @Test
+        void configExceptionsShouldBeConsideredUnprocessable() {
+
+            Username testUser = Username.valueOf("test");
+            doThrow(new GoConfigInvalidException(null, "invalid config")).when(goConfigService)
+                    .updateConfig(any(EntityConfigUpdateCommand.class), eq(testUser));
+
+            HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
+            service.updateConfigRepo("repo", configRepo, "digest", testUser, result);
+
+            verify(result).unprocessableEntity(contains("Validations failed for config-repo 'repo-1'. Error(s): [invalid config]."));
+        }
+
+        @Test
+        void unexpectedExceptionsShouldBeServerErrors() {
+
+            Username testUser = Username.valueOf("test");
+            doThrow(new RuntimeException("unexpected exception")).when(goConfigService)
+                    .updateConfig(any(EntityConfigUpdateCommand.class), eq(testUser));
+
+            HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
+            service.updateConfigRepo("repo", configRepo, "digest", testUser, result);
+
+            verify(result).internalServerError(contains("An error occurred while saving the config repo."));
+        }
+
+        @Test
+        void shouldIgnoreIfResultAlreadyHasMessage() {
+
+            Username testUser = Username.valueOf("test");
+            doThrow(new RuntimeException()).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), eq(testUser));
+
+            HttpLocalizedOperationResult result = mock(HttpLocalizedOperationResult.class);
+            when(result.hasMessage()).thenReturn(true);
+
+            service.updateConfigRepo("repo", configRepo, "digest", testUser, result);
+
+            verify(result).isSuccessful();
+        }
+    }
+
 }

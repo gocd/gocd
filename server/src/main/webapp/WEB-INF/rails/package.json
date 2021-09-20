@@ -64,7 +64,6 @@
     "@babel/preset-env": "^7",
     "@babel/preset-react": "^7",
     "@types/awesomplete": "^1.1.10",
-    "@types/chart.js": "^2.9.32",
     "@types/fs-extra": "^9.0.11",
     "@types/html-webpack-plugin": "^3.2.5",
     "@types/jasmine": "^3.9.1",

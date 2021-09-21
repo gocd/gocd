@@ -190,7 +190,7 @@ class StagesController < ApplicationController
   end
 
   def date_range(stage_summary_models)
-    [DateUtils::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate()), DateUtils::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate())]
+    [DateUtils::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate()), DateUtils::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate())]
   end
 
   def feed_api_url

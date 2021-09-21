@@ -17,10 +17,25 @@
 // This is included from the stage details page to show the stage duration graph in a specified tree
 // Invoked when when a template that is associated with a pipeline see `_stage_details_chart.html.erb`
 
-import Chart from 'chart.js';
-import 'chartjs-plugin-zoom';
+import {
+    CategoryScale,
+    Chart,
+    ChartConfiguration,
+    ChartEvent,
+    Legend,
+    LinearScale,
+    LineController,
+    LineElement,
+    PointElement,
+    Title,
+    Tooltip,
+    TooltipItem
+} from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import _ from 'lodash';
 import {timeFormatter} from "../helpers/time_formatter";
+
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Title, Tooltip, zoomPlugin);
 
 enum DurationScale {
     Second = 1000,
@@ -42,7 +57,7 @@ function chartDataForCounter(chartData: Data[], pipelineCounter: number, status:
     return chartData.find((datum) => datum.pipeline_counter === pipelineCounter && datum.status === status)!;
 }
 
-function statusFromSelectedItem(chartTooltipItem: Chart.ChartTooltipItem, chart: Chart) {
+function statusFromSelectedItem(chartTooltipItem: TooltipItem<"line"> | { datasetIndex: number }, chart: Chart) {
     const datasetIndex = chartTooltipItem.datasetIndex!;
     const chartDataSet = chart.data.datasets![datasetIndex];
     return chartDataSet.label as Status;
@@ -58,8 +73,8 @@ window.showStageDurationGraph = (title: string,
     const scale = maxDuration >= DurationScale.Minute ? DurationScale.Minute : DurationScale.Second;
 
     // create 2 arrays with durations for passed and failed stages
-    const passedData = new Array<number | undefined>();
-    const failedData = new Array<number | undefined>();
+    const passedData = new Array<number | null>();
+    const failedData = new Array<number | null>();
 
     chartData.forEach((datum) => {
         if (datum.status === 'Passed') {
@@ -73,7 +88,7 @@ window.showStageDurationGraph = (title: string,
     passedData.splice(0, chartData[0].pipeline_counter);
     failedData.splice(0, chartData[0].pipeline_counter);
 
-    const config: Chart.ChartConfiguration = {
+    const config: ChartConfiguration = {
         type: "line",
         data: {
             labels: _.range(chartData[0].pipeline_counter, chartData[chartData.length - 1].pipeline_counter + 1).map((eachCounter) => eachCounter.toString()),
@@ -97,78 +112,68 @@ window.showStageDurationGraph = (title: string,
             ]
         },
         options: {
-            title: {
-                display: true,
-                text: title,
-                position: "top"
-            },
-            tooltips: {
-                enabled: true,
-                intersect: false,
-                backgroundColor: 'white',
-                borderColor: 'black',
-
-                titleFontColor: 'black',
-                footerFontColor: 'black',
-                bodyFontColor: 'black',
-
-                bodyFontStyle: 'bold',
-                titleFontStyle: 'bold',
-                footerFontStyle: 'bold',
-
-                displayColors: false,
-
-                borderWidth: 1,
-                callbacks: {
-                    title(item: Chart.ChartTooltipItem[], data: Chart.ChartData): string | string[] {
-                        const status = statusFromSelectedItem(item[0], chart);
-                        const selectedPipelineCounter = parseInt(item[0].xLabel! as string, 10);
-                        const selectedPipelineData = chartDataForCounter(chartData, selectedPipelineCounter, status);
-                        return `Pipeline Label: ${selectedPipelineData.pipeline_label}`;
-                    },
-                    label(tooltipItem: Chart.ChartTooltipItem, data: Chart.ChartData): string | string[] {
-                        const status = statusFromSelectedItem(tooltipItem, chart);
-                        const pipelineCounter = parseInt(tooltipItem.xLabel! as string, 10);
-                        const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
-                        const duration = timeFormatter.formattedDuration(selectedPipelineData.duration);
-                        return `${selectedPipelineData.status} in ${(duration)}`;
-                    },
-                    footer(item: Chart.ChartTooltipItem[], data: Chart.ChartData): string | string[] {
-                        const status = statusFromSelectedItem(item[0], chart);
-                        const pipelineCounter = parseInt(item[0].xLabel! as string, 10);
-                        const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
-                        return `Started at ${timeFormatter.format(selectedPipelineData.schedule_date)}`;
-                    }
-                }
-            },
-            scales: {
-                xAxes: [
-                    {
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Pipeline Counter'
-                        },
-                        gridLines: {
-                            display: false
-                        }
-                    }
-                ],
-                yAxes: [
-                    {
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: `Stage Duration (${scale === DurationScale.Minute ? 'mins' : 'secs'})`
-                        }
-                    }
-                ]
-            },
             plugins: {
+                title: {
+                    display: true,
+                    text: title,
+                    position: "top"
+                },
+                legend: {
+                    labels: {
+                        usePointStyle: true,
+                        pointStyle: 'line',
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    intersect: false,
+                    backgroundColor: 'white',
+                    borderColor: 'black',
+
+                    titleColor: 'black',
+                    footerColor: 'black',
+                    bodyColor: 'black',
+
+                    bodyFont: { weight: 'bold' },
+                    titleFont: { weight: 'bold' },
+                    footerFont: { weight: 'bold' },
+
+                    displayColors: false,
+
+                    borderWidth: 1,
+                    callbacks: {
+                        title(item: Array<TooltipItem<"line">>): string | string[] {
+                            const status = statusFromSelectedItem(item[0], chart);
+                            const selectedPipelineCounter = parseInt(item[0].label! as string, 10);
+                            const selectedPipelineData = chartDataForCounter(chartData, selectedPipelineCounter, status);
+                            return `Pipeline Label: ${selectedPipelineData.pipeline_label}`;
+                        },
+                        label(tooltipItem: TooltipItem<"line">): string | string[] {
+                            const status = statusFromSelectedItem(tooltipItem, chart);
+                            const pipelineCounter = parseInt(tooltipItem.label! as string, 10);
+                            const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
+                            const duration = timeFormatter.formattedDuration(selectedPipelineData.duration);
+                            return `${selectedPipelineData.status} in ${(duration)}`;
+                        },
+                        footer(item: Array<TooltipItem<"line">>): string | string[] {
+                            const status = statusFromSelectedItem(item[0], chart);
+                            const pipelineCounter = parseInt(item[0].label! as string, 10);
+                            const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
+                            return `Started at ${timeFormatter.format(selectedPipelineData.schedule_date)}`;
+                        }
+                    }
+                },
                 zoom: {
                     zoom: {
-                        enabled: true,
-                        drag: true,
+                        wheel: {
+                            enabled: true
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        drag: {
+                            enabled: true
+                        },
                         mode: 'xy',
                         onZoomComplete() {
                             zoomButton.style.display = '';
@@ -176,18 +181,38 @@ window.showStageDurationGraph = (title: string,
                     }
                 }
             },
-            onClick(event?: MouseEvent, activeElements?: Array<{}>): any {
-                const elementAtEvent: any = (chart.getElementAtEvent(event))[0];
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Pipeline Counter'
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: `Stage Duration (${scale === DurationScale.Minute ? 'mins' : 'secs'})`
+                    },
+                    min: 0
+                }
+            },
+            onClick(event: ChartEvent, activeElements: Array<{}>, chart: Chart): any {
+                const elementAtEvent = chart.getElementsAtEventForMode(event.native!, 'nearest', { intersect: true }, false)[0];
 
                 if (elementAtEvent) {
-                    const status = statusFromSelectedItem({datasetIndex: elementAtEvent._datasetIndex}, chart);
-                    const pipelineCounter = parseInt(chart.data.labels![elementAtEvent._index] as string, 10);
+                    const status = statusFromSelectedItem({datasetIndex: elementAtEvent.datasetIndex}, chart);
+                    const pipelineCounter = parseInt(chart.data.labels![elementAtEvent.index] as string, 10);
                     const selectedPipelineData = chartDataForCounter(chartData, pipelineCounter, status);
                     parent.postMessage(JSON.stringify({openLink: selectedPipelineData.stage_link}), "*");
                 }
             },
-            onHover(event: MouseEvent, activeElements: Array<{}>): any {
-                const elementAtEvent: any = chart.getElementAtEvent(event)[0];
+            onHover(event: ChartEvent, activeElements: Array<{}>, chart: Chart): any {
+                const elementAtEvent: any = chart.getElementsAtEventForMode(event.native!, 'nearest', { intersect: true }, false)[0];
                 if (elementAtEvent) {
                     canvasElement.style.cursor = 'pointer';
                 } else {
@@ -198,7 +223,7 @@ window.showStageDurationGraph = (title: string,
 
     };
 
-    const chart = new Chart.Chart(canvasElement, config);
+    const chart = new Chart(canvasElement, config);
     zoomButton.style.display = 'none';
     zoomButton.addEventListener('click', (e) => {
         zoomButton.style.display = 'none';

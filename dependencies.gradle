@@ -56,7 +56,7 @@ final Map<String, String> libraries = [
   gradleDownload      : 'de.undercouch:gradle-download-task:4.1.2',
   grolifant           : 'org.ysb33r.gradle:grolifant60:1.2.1',
   gson                : 'com.google.code.gson:gson:2.8.8',
-  guava               : 'com.google.guava:guava:31.0-jre',
+  guava               : 'com.google.guava:guava:31.0.1-jre',
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest-core:2.2',
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',

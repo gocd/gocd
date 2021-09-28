@@ -50,23 +50,6 @@ var BuildDetail = {
             spanElem.addClassName("opened_directory");
             subDirElement.show();
         }
-    },
-    toggleDetailContent: function(event){
-        var link = event.target;
-        var content = link.nextSiblings().first();
-        if(link.match('h2.collapsible_title')){
-            if(link.hasClassName('title_message_expanded')){
-                link.removeClassName('title_message_expanded').addClassName('title_message_collapsed');
-                if(content && content.hasClassName('collapsible_content')){
-                    content.hide();
-                }
-            } else {
-                link.removeClassName('title_message_collapsed').addClassName('title_message_expanded');
-                if(content && content.hasClassName('collapsible_content')){
-                    content.show();
-                }
-            }
-        }
     }
 };
 

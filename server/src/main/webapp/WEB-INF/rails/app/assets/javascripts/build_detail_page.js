@@ -57,8 +57,7 @@
 
     var uid         = [jobDetails.data("pipeline"), jobDetails.data("stage"), jobDetails.data("job"), jobDetails.data("build")].join("-");
     var tabsManager = new TabsManager(null, "build", uid, "console", {
-      "console":  new SubTabs($(".sub_tabs_container #build_console")[0], triggerLogDequeue),
-      "failures": new SubTabs($(".sub_tabs_container #failures_console")[0], triggerLogDequeue)
+      "console":  new SubTabs($(".sub_tabs_container #build_console")[0], triggerLogDequeue)
     });
 
     if (build.length) {
@@ -81,8 +80,6 @@
         if (container.is("#tab-content-of-console *")) {
           new ConsoleScroller(container, $("#build_console"), $('.auto-scroll')).startScroll();
           name = "console"; // needs match tab name for dequeue() to work
-        } else {
-          name = "failures";
         }
 
         var tfm  = new LogOutputTransformer(container, FoldableSection, tabsManager.getCurrentTab() !== name);

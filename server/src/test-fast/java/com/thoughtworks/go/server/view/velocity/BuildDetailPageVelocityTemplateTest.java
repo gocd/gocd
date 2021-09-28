@@ -39,8 +39,8 @@ import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineMother.schedule;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,30 +82,6 @@ public class BuildDetailPageVelocityTemplateTest {
         assertThat(actualDoc.select("#tab-content-of-tests").last().html(), containsString("<iframe src="));
     }
 
-    @Test
-    public void shouldRenderIframeSandboxByDefaultForFailuresTab() throws IOException {
-        HashMap<String, Object> data = new HashMap<>();
-        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
-        data.put("presenter", jobDetailPresentationModel);
-        data.put("useIframeSandbox", true);
-        when(jobDetailPresentationModel.hasFailedTests()).thenReturn(true);
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
-
-        assertThat(actualDoc.select("#tab-content-of-failures").last().html(), containsString("<iframe sandbox=\"allow-scripts\""));
-    }
-
-    @Test
-    public void shouldRenderANormalIframeForFailuresTabIfUserHasDisabledSandbox() throws IOException {
-        HashMap<String, Object> data = new HashMap<>();
-        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
-        data.put("presenter", jobDetailPresentationModel);
-        data.put("useIframeSandbox", false);
-        when(jobDetailPresentationModel.hasFailedTests()).thenReturn(true);
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
-
-        assertThat(actualDoc.select("#tab-content-of-failures").last().html(), containsString("<iframe src="));
-    }
-
     private HashMap<String, Object> createJobDetailModel() {
         GitMaterialConfig gitMaterialConfig = gitMaterialConfig();
 
@@ -139,7 +115,6 @@ public class BuildDetailPageVelocityTemplateTest {
         view.setupAdditionalRealTemplate("build_detail/_build_output_raw.vm");
         view.setupAdditionalRealTemplate("build_detail/_tests.vm");
         view.setupAdditionalRealTemplate("build_detail/_test_output_config.vm");
-        view.setupAdditionalRealTemplate("build_detail/_failures.vm");
         view.setupAdditionalRealTemplate("build_detail/_artifacts.vm");
         view.setupAdditionalRealTemplate("build_detail/_materials.vm");
         view.setupAdditionalRealTemplate("build_detail/_properties.vm");

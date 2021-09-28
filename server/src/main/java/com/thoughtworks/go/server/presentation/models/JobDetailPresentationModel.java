@@ -154,11 +154,6 @@ public class JobDetailPresentationModel {
         return recent25StatusJson;
     }
 
-    // TODO: ketanpkr, check this definition
-    public boolean hasFailedTests() {
-        return hasTests() && false;
-    }
-
     public boolean hasTests() {
         return StringUtils.isNotEmpty(getIndexPageURL());
     }
@@ -166,7 +161,6 @@ public class JobDetailPresentationModel {
     public String getRestfulUrl(String path) {
         return BASE_FILE_URL + jobIdentifier.buildLocator() + "/" + FilenameUtils.separatorsToUnix(path);
     }
-
 
     public String getIndexPageURL()  {
         try {

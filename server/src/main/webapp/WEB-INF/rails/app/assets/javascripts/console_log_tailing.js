@@ -24,7 +24,6 @@
 
     var globalBackToTopButton = $('#back_to_top'),
         consoleTab            = $('#tab-content-of-console'),
-        failuresTab           = $('#tab-content-of-failures'),
         $window               = $(window)
       ;
 
@@ -37,11 +36,6 @@
       if (consoleTab.is(':visible')) {
         hideGlobalBackToTopButton = true;
         activeTab                 = consoleTab;
-      }
-
-      if (failuresTab.is(':visible')) {
-        hideGlobalBackToTopButton = true;
-        activeTab                 = failuresTab;
       }
 
       globalBackToTopButton.toggleClass('back_to_top', !hideGlobalBackToTopButton);

@@ -16,22 +16,13 @@
 
 package com.thoughtworks.go.build
 
-enum OperatingSystem {
-  windows("zip"), linux("tar.gz"), mac("tar.gz")
-
-  final String extension
-
-  OperatingSystem(String extension) {
-    this.extension = extension
-  }
-}
 
 class AdoptiumUrlHelper {
   static String downloadURL(OperatingSystem operatingSystem, Integer featureVersion, Integer interimVersion, Integer updateVersion, Integer buildVersion) {
     String versionComponent = [featureVersion, interimVersion, updateVersion].findAll({ it != null }).join('.')
     String featureSuffix = updateVersion == null ? '' : 'U'
 
-    "https://github.com/adoptium/temurin${featureVersion}-binaries/releases/download/jdk-${versionComponent}%2B${buildVersion}/OpenJDK${featureVersion}${featureSuffix}-jre_x64_${operatingSystem.name()}_hotspot_${versionComponent}_${buildVersion}.${operatingSystem.extension}"
+    "https://github.com/adoptium/temurin${featureVersion}-binaries/releases/download/jdk-${versionComponent}%2B${buildVersion}/OpenJDK${featureVersion}${featureSuffix}-jre_x64_${operatingSystem.adoptiumAlias()}_hotspot_${versionComponent}_${buildVersion}.${operatingSystem.extension}"
   }
 
   static String sha256sumURL(OperatingSystem operatingSystem, Integer featureVersion, Integer interimVersion, Integer updateVersion, Integer buildVersion) {

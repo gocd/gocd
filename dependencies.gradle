@@ -71,7 +71,7 @@ final Map<String, String> libraries = [
   jetBrainsAnnotations: 'org.jetbrains:annotations:22.0.0',
   jetty               : 'org.eclipse.jetty:jetty-server:9.4.35.v20201120',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r',
-  jodaTime            : 'joda-time:joda-time:2.10.11', // joda-time version has to be compatible with the jruby version
+  jodaTime            : 'joda-time:joda-time:2.10.12', // joda-time version has to be compatible with the jruby version
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.5',
   jruby               : 'org.jruby:jruby-complete:9.2.0.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.28.0',

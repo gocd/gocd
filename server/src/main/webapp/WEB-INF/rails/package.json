@@ -32,7 +32,7 @@
     "jquery": "^2.2.4",
     "lodash": "^4.17.21",
     "lodash-inflection": "^1.5.0",
-    "lorem-ipsum": "^2.0.3",
+    "lorem-ipsum": "^2.0.4",
     "lru-cache": "^6.0.0",
     "mithril": "^2",
     "moment": "^2.29.1",

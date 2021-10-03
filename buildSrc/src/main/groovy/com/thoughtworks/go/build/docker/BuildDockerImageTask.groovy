@@ -38,7 +38,9 @@ class BuildDockerImageTask extends DefaultTask {
   @Input String tiniVersion
   @InputFile File artifactZip
   @Input ImageType imageType
-  @Input File outputDir // Not really a classic output dir from Gradle perspective, as multiple tasks share dir from parent with unique tarballs per distribution
+  // Not really a classic output dir from Gradle perspective, as multiple tasks share dir from parent with unique tarballs per distribution.
+  // We use a string for Gradle 7 compatibility, and because we don't want Gradle to consider the actual contents.
+  @Input String outputDir
   @Internal Closure templateHelper
   @Internal Closure verifyHelper
 

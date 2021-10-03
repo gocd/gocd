@@ -84,6 +84,10 @@ task generateResources {
   }
 }
 
+processResources {
+  dependsOn generateResources
+}
+
 task prepare {
   dependsOn generateResources
 }

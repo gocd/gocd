@@ -116,4 +116,14 @@
         <cpe>cpe:/a:apache:velocity_engine</cpe>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   From review of https://tanzu.vmware.com/security/cve-2021-22112 and the code of GoCD, GoCD does not appear to be
+   subject to this defect, since it does not alter the security context in the manner required to elevate privileges
+   in a small portion of the application and potentially be subject to this defect.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
+        <cve>CVE-2021-22112</cve>
+    </suppress>
+
 </suppressions>

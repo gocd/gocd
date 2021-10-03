@@ -58,6 +58,10 @@ task generateResources(type: Copy) {
   }
 }
 
+processResources {
+  dependsOn generateResources
+}
+
 task prepare {
   dependsOn generateResources
 }

@@ -160,8 +160,13 @@ rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 project.ext.defaultJvmArgs = []
 
 project.ext.compilerOptions = [
-  sourceCompatibility: 13,
-  targetCompatibility: 13,
+  // source and target compatibility
+  release: 13,
+]
+
+project.ext.toolchains = [
+  compilerVersion: 17,
+  testLauncherVersion: 17,
 ]
 
 project.ext.packaging = [
@@ -251,9 +256,9 @@ allprojects {
 
 idea {
   project {
-    jdkName = project.compilerOptions.targetCompatibility
-    targetBytecodeVersion = JavaVersion.toVersion(project.compilerOptions.targetCompatibility)
-    languageLevel = new IdeaLanguageLevel(project.compilerOptions.sourceCompatibility)
+    jdkName = project.toolchains.compilerVersion
+    targetBytecodeVersion = JavaVersion.toVersion(project.compilerOptions.release)
+    languageLevel = new IdeaLanguageLevel(project.compilerOptions.release)
   }
 }
 
@@ -400,8 +405,6 @@ subprojects {
       }
     }
 
-    sourceCompatibility = project.compilerOptions.sourceCompatibility
-    targetCompatibility = project.compilerOptions.targetCompatibility
     buildDir = "${projectDir}/target"
 
     configurations {
@@ -447,8 +450,8 @@ subprojects {
         'Go-Revision': project.gitRevision,
         'Implementation-Title': project.name,
         'Implementation-Version': project.version,
-        'Source-Compatibility': project.compilerOptions.sourceCompatibility,
-        'Target-Compatibility': project.compilerOptions.targetCompatibility
+        'Source-Compatibility': project.compilerOptions.release,
+        'Target-Compatibility': project.compilerOptions.release
       )
     }
 
@@ -488,6 +491,11 @@ subprojects {
     options.warnings = false
     options.encoding = "UTF-8"
     options.compilerArgs += '-Xlint:-deprecation'
+    options.release = project.compilerOptions.release
+
+    javaCompiler = javaToolchains.compilerFor {
+      languageVersion = JavaLanguageVersion.of(project.toolchains.compilerVersion)
+    }
   }
 
   project.afterEvaluate {
@@ -516,6 +524,10 @@ subprojects {
 //    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
+    javaLauncher = javaToolchains.launcherFor {
+      languageVersion = JavaLanguageVersion.of(project.toolchains.testLauncherVersion)
+    }
+
     def allTestClasses
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1

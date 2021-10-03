@@ -20,6 +20,7 @@ dependencies {
 
     annotationProcessor project.deps.lombok
 
+    testImplementation project(path: ':db-support:db-migration')
     testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
     testImplementation project.deps.testcontainersJunit

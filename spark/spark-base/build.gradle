@@ -29,6 +29,7 @@ dependencies {
   }
 
   testImplementation localGroovy()
+  testImplementation project(path: ':jetty9')
   testImplementation project(path: ':jetty9', configuration: 'testOutput')
 
   testImplementation project.deps.bouncyCastle

@@ -93,7 +93,7 @@ GEM
     minitest (5.14.4)
     multi_json (1.14.1)
     nio4r (2.5.7-java)
-    nokogiri (1.11.5-java)
+    nokogiri (1.12.5-java)
       racc (~> 1.4)
     phantomjs (2.1.1.0)
     pry (0.11.3-java)

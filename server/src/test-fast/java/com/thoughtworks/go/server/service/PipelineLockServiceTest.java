@@ -42,8 +42,8 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -308,7 +308,7 @@ public class PipelineLockServiceTest {
     public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() throws Exception {
         PipelineLockStatusChangeListener listener1 = mock(PipelineLockStatusChangeListener.class);
         PipelineLockStatusChangeListener listener2 = mock(PipelineLockStatusChangeListener.class, "ListenerWhichFails");
-        doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.ArgumentMatchers.<Event>anyObject());
+        doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.ArgumentMatchers.any());
         PipelineLockStatusChangeListener listener3 = mock(PipelineLockStatusChangeListener.class);
         doAnswer(invocation -> {
             AfterCompletionCallback callback = (AfterCompletionCallback) invocation.getArguments()[1];

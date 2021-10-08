@@ -37,9 +37,9 @@ import java.util.function.Consumer;
 import java.util.zip.GZIPInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ConsoleLogSenderTest {
@@ -145,7 +145,7 @@ public class ConsoleLogSenderTest {
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
         verify(jobInstanceDao, times(3)).isJobCompleted(jobIdentifier);
-        verify(socket, times(1)).send(anyObject());
+        verify(socket, times(1)).send(any());
     }
 
     @Test

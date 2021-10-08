@@ -43,7 +43,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;;
+import static org.mockito.Mockito.*;
+
+;
 
 @ExtendWith(MockitoExtension.class)
 class FelixGoPluginOSGiFrameworkTest {
@@ -87,8 +89,8 @@ class FelixGoPluginOSGiFrameworkTest {
     void shouldRegisterAnInstanceOfEachOfTheRequiredPluginServicesAfterOSGiFrameworkIsInitialized() {
         spy.start();
 
-        verify(bundleContext).registerService(eq(PluginRegistryService.class), any(DefaultPluginRegistryService.class), isNull(Dictionary.class));
-        verify(bundleContext).registerService(eq(LoggingService.class), any(DefaultPluginLoggingService.class), isNull(Dictionary.class));
+        verify(bundleContext).registerService(eq(PluginRegistryService.class), any(DefaultPluginRegistryService.class), isNull());
+        verify(bundleContext).registerService(eq(LoggingService.class), any(DefaultPluginLoggingService.class), isNull());
     }
 
     @Test

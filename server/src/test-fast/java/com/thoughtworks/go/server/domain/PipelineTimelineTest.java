@@ -37,7 +37,8 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
@@ -273,7 +274,7 @@ public class PipelineTimelineTest {
                     ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(Arrays.asList(repositoryEntries));
                     return Arrays.asList(repositoryEntries);
                 }
-            }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyListOf(PipelineTimelineEntry.class));
+            }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());
         }
     }
 

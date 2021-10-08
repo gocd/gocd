@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class MaterialRepositoryTest {
@@ -76,7 +76,7 @@ public class MaterialRepositoryTest {
                 Object[] arguments = invocation.getArguments();
                 return ourCustomCache.put((String) arguments[0], arguments[1]);
             }
-        }).when(goCache).put(anyString(), anyObject());
+        }).when(goCache).put(anyString(), any());
         when(goCache.remove(anyString())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {

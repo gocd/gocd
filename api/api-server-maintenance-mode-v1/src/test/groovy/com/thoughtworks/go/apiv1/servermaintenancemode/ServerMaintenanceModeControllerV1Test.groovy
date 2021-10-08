@@ -320,8 +320,8 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
           MaintenanceModeInfoRepresenter.toJSON(it, maintenanceModeService.get(), false, null, null, null)
         }))
 
-        verifyZeroInteractions(goDashboardCache)
-        verifyZeroInteractions(agentService)
+        verifyNoMoreInteractions(goDashboardCache)
+        verifyNoMoreInteractions(agentService)
         verify(maintenanceModeService, never()).getRunningMDUs()
       }
 

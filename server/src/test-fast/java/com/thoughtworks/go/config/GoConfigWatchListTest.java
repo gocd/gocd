@@ -25,7 +25,8 @@ import org.junit.jupiter.api.Test;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class GoConfigWatchListTest {
@@ -62,7 +63,7 @@ public class GoConfigWatchListTest {
         watchList.registerListener(listener);
         watchList.onConfigChange(cruiseConfig);
 
-        verify(listener, times(2)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
+        verify(listener, times(2)).onChangedRepoConfigWatchList(notNull());
     }
 
     @Test
@@ -71,7 +72,7 @@ public class GoConfigWatchListTest {
         watchList.registerListener(listener);
         watchList.onEntityConfigChange(ConfigRepoConfig.createConfigRepoConfig(git("http://git1"), "myplugin", "id"));
 
-        verify(listener, times(2)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
+        verify(listener, times(2)).onChangedRepoConfigWatchList(notNull());
     }
 
     @Test

@@ -177,7 +177,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       void 'should throw if the after cursor is specified as a invalid integer'() {
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?after=abc")
 
-        verifyZeroInteractions(jobInstanceService)
+        verifyNoMoreInteractions(jobInstanceService)
 
         assertThatResponse()
           .isBadRequest()
@@ -188,7 +188,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       void 'should throw if the before cursor is specified as a invalid integer'() {
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?before=abc")
 
-        verifyZeroInteractions(jobInstanceService)
+        verifyNoMoreInteractions(jobInstanceService)
 
         assertThatResponse()
           .isBadRequest()

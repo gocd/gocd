@@ -130,7 +130,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
 
       @Test
@@ -144,7 +144,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
     }
   }
@@ -224,7 +224,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Job(s) [integration, functional] does not exist in stage 'up42/1/stage1/1'.")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
 
       @Test
@@ -236,7 +236,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Could not read property 'jobs' in request body")
 
-        verifyZeroInteractions(scheduleService, stageService)
+        verifyNoMoreInteractions(scheduleService, stageService)
       }
 
       @Test
@@ -248,7 +248,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Could not read property 'jobs' as a JsonArray containing string in `{\\\"jobs\\\":\\\"not-an-array\\\"}`")
 
-        verifyZeroInteractions(scheduleService, stageService)
+        verifyNoMoreInteractions(scheduleService, stageService)
       }
 
       @Test
@@ -262,7 +262,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
 
       @Test
@@ -276,7 +276,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
     }
   }
@@ -345,7 +345,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
 
       @Test
@@ -359,7 +359,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
-        verifyZeroInteractions(scheduleService)
+        verifyNoMoreInteractions(scheduleService)
       }
     }
   }
@@ -571,7 +571,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       void 'should throw if the after cursor is specified as a invalid integer'() {
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?after=abc")
 
-        verifyZeroInteractions(stageService)
+        verifyNoMoreInteractions(stageService)
 
         assertThatResponse()
           .isBadRequest()
@@ -582,7 +582,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       void 'should throw if the before cursor is specified as a invalid integer'() {
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?before=abc")
 
-        verifyZeroInteractions(stageService)
+        verifyNoMoreInteractions(stageService)
 
         assertThatResponse()
           .isBadRequest()
@@ -594,7 +594,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       void 'should throw error if page_size is not between 10 and 100'(String input) {
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=" + input)
 
-        verifyZeroInteractions(stageService)
+        verifyNoMoreInteractions(stageService)
 
         assertThatResponse()
           .isBadRequest()

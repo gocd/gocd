@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -252,7 +252,7 @@ public class PipelinePauseServiceTest {
 
         PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
         PipelinePauseChangeListener listener2 = mock(PipelinePauseChangeListener.class, "ListenerWhichFails");
-        doThrow(new RuntimeException("Ouch.")).when(listener2).pauseStatusChanged(org.mockito.ArgumentMatchers.<Event>anyObject());
+        doThrow(new RuntimeException("Ouch.")).when(listener2).pauseStatusChanged(org.mockito.ArgumentMatchers.any());
         PipelinePauseChangeListener listener3 = mock(PipelinePauseChangeListener.class);
 
         try (LogFixture logFixture = logFixtureFor(PipelinePauseService.class, Level.WARN)) {

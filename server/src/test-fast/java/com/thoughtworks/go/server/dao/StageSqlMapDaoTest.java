@@ -46,9 +46,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -74,7 +74,7 @@ class StageSqlMapDaoTest {
             public Object answer(InvocationOnMock invocationOnMock) {
                 return invocationOnMock.getArguments()[0];
             }
-        }).when(cloner).deepClone(anyObject());
+        }).when(cloner).deepClone(any());
     }
 
     @Test

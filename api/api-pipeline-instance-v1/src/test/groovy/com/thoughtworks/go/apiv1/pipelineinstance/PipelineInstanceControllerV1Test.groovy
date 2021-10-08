@@ -298,7 +298,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should throw if the after cursor is specified as a invalid integer'() {
         getWithApiHeader(controller.controllerPath(pipelineName, 'history') + "?after=abc")
 
-        verifyZeroInteractions(pipelineHistoryService)
+        verifyNoMoreInteractions(pipelineHistoryService)
 
         assertThatResponse()
           .isBadRequest()
@@ -309,7 +309,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
       void 'should throw if the before cursor is specified as a invalid integer'() {
         getWithApiHeader(controller.controllerPath(pipelineName, 'history') + "?before=abc")
 
-        verifyZeroInteractions(pipelineHistoryService)
+        verifyNoMoreInteractions(pipelineHistoryService)
 
         assertThatResponse()
           .isBadRequest()
@@ -389,7 +389,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
         .isUnprocessableEntity()
         .hasJsonMessage("Json `{\\\"bar\\\":\\\"foo\\\"}` does not contain property 'comment'")
 
-      verifyZeroInteractions(pipelineHistoryService)
+      verifyNoMoreInteractions(pipelineHistoryService)
     }
 
     @Test
@@ -400,7 +400,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
         .isUnprocessableEntity()
         .hasJsonMessage("Your request could not be processed. The pipeline counter should be an integer.")
 
-      verifyZeroInteractions(pipelineHistoryService)
+      verifyNoMoreInteractions(pipelineHistoryService)
     }
   }
 }

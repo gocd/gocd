@@ -6,7 +6,7 @@ exemptLabels:
   - no stalebot
   - security
   - release blocker
-  - Waiting on dependency
+  - dependencies
 
 # Label to use when marking as stale
 staleLabel: "stale"

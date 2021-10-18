@@ -44,7 +44,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Controller
 @SuppressWarnings("WeakerAccess")
-@RequestMapping(value = "/add-on/business-continuity/api")
 public class PrimaryStatusProviderController {
 
     private GoFilesStatusProvider goFilesStatusProvider;

@@ -75,13 +75,11 @@ public class DashBoardController {
         this.dashboardJSON = this::showStatusJSON;
     }
 
-    @RequestMapping(value = "/add-on/business-continuity/admin/dashboard", method = RequestMethod.GET)
     @ResponseBody
     public String dashboard(HttpServletRequest request, HttpServletResponse response) {
         return renderAfterAuthentication(request, response, dashboardHTML);
     }
 
-    @RequestMapping(value = "/add-on/business-continuity/admin/dashboard.json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public String dashboardData(HttpServletRequest request, HttpServletResponse response) {
         return renderAfterAuthentication(request, response, dashboardJSON);

@@ -26,6 +26,7 @@ dependencies {
   api project.deps.dom4j
   api project.deps.apacheHttpMime
   api project.deps.commonsCollections4
+  api project.deps.commonsText
   api project.deps.springTx
   implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok

@@ -817,6 +817,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang-${project.versions.commonsLang}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
+        "commons-text-${project.versions.commonsText}.jar",
         "commons-pool2-${project.versions.commonsPool}.jar",
         "config-api-${project.version}.jar",
         "config-server-${project.version}.jar",

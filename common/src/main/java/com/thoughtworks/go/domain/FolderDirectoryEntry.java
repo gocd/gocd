@@ -41,7 +41,7 @@ public class FolderDirectoryEntry extends DirectoryEntry {
                 HtmlElement.div(cssClass("dir-container")).content(
                     HtmlElement.span(cssClass("directory")).content(
                         HtmlElement.a(onclick("BuildDetail.tree_navigator(this)"))
-                                .content(getFileName())
+                                .safecontent(getFileName())
                     )
                 ),
                 HtmlElement.div(cssClass("subdir-container"), style("display:none"))

@@ -30,7 +30,7 @@ public class FileDirectoryEntry extends DirectoryEntry {
         return HtmlElement.li().content(
             HtmlElement.span(HtmlAttribute.cssClass("artifact")).content(
                 HtmlElement.a(HtmlAttribute.href(getUrl()))
-                        .content(getFileName())
+                        .safecontent(getFileName())
             )
         );
 

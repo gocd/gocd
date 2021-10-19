@@ -15,10 +15,11 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class FolderDirectoryEntryTest {
     @Test
@@ -27,5 +28,17 @@ public class FolderDirectoryEntryTest {
         FolderDirectoryEntry entry = new FolderDirectoryEntry("file", "url", subDirectory);
         entry.addFile("file", "path");
         assertThat(subDirectory, hasItem(new FileDirectoryEntry("file", "path")));
+    }
+
+    @Test
+    public void shouldEscapeFolderName() throws Exception {
+        DirectoryEntries subDirectory = new DirectoryEntries();
+        FolderDirectoryEntry entry = new FolderDirectoryEntry("<div>Hello</div>", "url", subDirectory);
+
+        HtmlRenderer renderer = new HtmlRenderer("");
+        entry.htmlBody().render(renderer);
+
+        assertThat(renderer.asString(), containsString("&lt;div&gt;Hello&lt;/div&gt;"));
+        assertThat(renderer.asString(), not(containsString("<div>Hello</div>")));
     }
 }

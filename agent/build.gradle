@@ -141,7 +141,7 @@ task verifyJar(type: VerifyJarTask) {
       "commons-configuration2-${project.versions.commonsConfiguration}.jar",
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
-      "commons-text-1.8.jar",
+      "commons-text-${project.versions.commonsText}.jar",
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
       "dom4j-${project.versions.dom4j}.jar",

@@ -20,6 +20,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 
 public class StageIdentifier implements Serializable, LocatableEntity {
+    public static final String LATEST = "latest";
     private String pipelineName;
     private Integer pipelineCounter;
     private String pipelineLabel;
@@ -45,7 +46,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     }
 
     public StageIdentifier(String pipelineName, Integer pipelineCounter, String pipelineLabel, String stageName, String stageCounter) {
-        String label = StringUtils.isBlank(pipelineLabel) ? "latest" : pipelineLabel;
+        String label = StringUtils.isBlank(pipelineLabel) ? LATEST : pipelineLabel;
         setLocatorAttributes(pipelineName, pipelineCounter, label, stageName, stageCounter);
     }
 
@@ -68,7 +69,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         this.pipelineCounter = pipelineCounter;
         this.pipelineLabel = label;
         this.stageName = stageName;
-        this.stageCounter = StringUtils.isBlank(stageCounter) ? "latest" : stageCounter;
+        this.stageCounter = StringUtils.isBlank(stageCounter) ? LATEST : stageCounter;
     }
 
     public String stageLocator() throws RuntimeException {

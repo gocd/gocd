@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -351,7 +352,7 @@ public class ArtifactsController {
     }
 
     private boolean isValidStageCounter(String stageCounter) {
-        if (StringUtils.isEmpty(stageCounter)) {
+        if (StringUtils.isEmpty(stageCounter) || StageIdentifier.LATEST.equalsIgnoreCase(stageCounter)) {
             return true;
         }
 

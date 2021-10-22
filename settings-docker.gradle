@@ -32,4 +32,4 @@ Distro.values().each { distro ->
 }
 
 include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('8'))}"
-include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.11'))}"
+include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.13'))}"

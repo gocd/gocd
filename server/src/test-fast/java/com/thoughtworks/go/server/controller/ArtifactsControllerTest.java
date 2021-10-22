@@ -39,6 +39,7 @@ import java.io.InputStream;
 
 import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
@@ -118,6 +119,21 @@ public class ArtifactsControllerTest {
         ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
         assertThat(view.getStatusCode(), is(SC_INTERNAL_SERVER_ERROR));
         assertThat(view.getContent(), is("Error saving checksum file for the artifact at path 'some-path'"));
+    }
+
+    @Test
+    void shouldFailToPostAndPutWhenStageCounterIsNotAPositiveInteger() throws Exception {
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", 1, null);
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+
+        modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", 1, null);
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+
+        modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "NOT_AN_INTEGER", "job-1", 122L, "some-path", "1", null);
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+
+        modelAndView = artifactsController.putArtifact("pipeline-1", "1", "stage-1", "-123", "job-1", 122L, "some-path", "1", null);
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
     }
 
     @Test

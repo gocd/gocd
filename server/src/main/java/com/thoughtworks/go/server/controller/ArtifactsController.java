@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.web.FileModelAndView;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,6 +150,9 @@ public class ArtifactsController {
         if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
+        if (!isValidStageCounter(stageCounter)) {
+            return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
+        }
         try {
             jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter,
                     buildName, buildId);
@@ -222,6 +226,10 @@ public class ArtifactsController {
     ) throws Exception {
         if (filePath.contains("..")) {
             return FileModelAndView.forbiddenUrl(filePath);
+        }
+
+        if (!isValidStageCounter(stageCounter)) {
+            return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         }
 
         JobIdentifier jobIdentifier;
@@ -340,5 +348,18 @@ public class ArtifactsController {
     private ModelAndView logsNotFound(JobIdentifier identifier) {
         String notFound = String.format("Console log for %s is unavailable as it may have been purged by Go or deleted externally.", identifier.toFullString());
         return ResponseCodeView.create(SC_NOT_FOUND, notFound);
+    }
+
+    private boolean isValidStageCounter(String stageCounter) {
+        if (StringUtils.isEmpty(stageCounter)) {
+            return true;
+        }
+
+        try {
+            int value = Integer.parseInt(stageCounter);
+            return value > 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

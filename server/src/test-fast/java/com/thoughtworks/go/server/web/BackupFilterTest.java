@@ -200,7 +200,7 @@ public class BackupFilterTest {
     }
 
     private Request request(HttpMethod method, String contentType, String uri) {
-        Request request = new Request(mock(HttpChannel.class), mock(HttpInput.class));
+        Request request = new Request(mock(HttpChannel.class, RETURNS_DEEP_STUBS), mock(HttpInput.class));
         HttpURI httpURI = new HttpURI("http", "url", 8153, uri);
         MetaData.Request metadata = new MetaData.Request(method.asString(), httpURI, HttpVersion.HTTP_2, new HttpFields());
         request.setMetaData(metadata);

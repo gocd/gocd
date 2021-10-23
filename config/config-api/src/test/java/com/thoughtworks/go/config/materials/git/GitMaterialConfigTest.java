@@ -268,6 +268,15 @@ class GitMaterialConfigTest {
             assertFalse(validating(gitMaterialConfig).errors().containsKey(GitMaterialConfig.URL));
         }
 
+        @Test
+        void rejectsObviouslyWrongURL() {
+            assertTrue(validating(git("-url-not-starting-with-an-alphanumeric-character")).errors().containsKey(GitMaterialConfig.URL));
+            assertTrue(validating(git("_url-not-starting-with-an-alphanumeric-character")).errors().containsKey(GitMaterialConfig.URL));
+            assertTrue(validating(git("@url-not-starting-with-an-alphanumeric-character")).errors().containsKey(GitMaterialConfig.URL));
+
+            assertFalse(validating(git("url-starting-with-an-alphanumeric-character")).errors().containsKey(GitMaterialConfig.URL));
+        }
+
         private GitMaterialConfig validating(GitMaterialConfig git) {
             git.validate(new ConfigSaveValidationContext(null));
             return git;

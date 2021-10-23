@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -33,6 +32,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class P4MaterialConfigTest {
@@ -111,8 +112,8 @@ class P4MaterialConfigTest {
         assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
         //Dont change
-        map.put(SvnMaterialConfig.PASSWORD, "Hehehe");
-        map.put(SvnMaterialConfig.PASSWORD_CHANGED, "0");
+        map.put(P4MaterialConfig.PASSWORD, "Hehehe");
+        map.put(P4MaterialConfig.PASSWORD_CHANGED, "0");
         materialConfig.setConfigAttributes(map);
 
         assertThat(ReflectionUtil.getField(materialConfig, "password")).isNull();
@@ -120,8 +121,8 @@ class P4MaterialConfigTest {
         assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
         //Dont change
-        map.put(SvnMaterialConfig.PASSWORD, "");
-        map.put(SvnMaterialConfig.PASSWORD_CHANGED, "1");
+        map.put(P4MaterialConfig.PASSWORD, "");
+        map.put(P4MaterialConfig.PASSWORD_CHANGED, "1");
         materialConfig.setConfigAttributes(map);
 
         assertThat(materialConfig.getPassword()).isNull();
@@ -141,6 +142,23 @@ class P4MaterialConfigTest {
         assertThat(p4MaterialConfig.getUseTickets()).isFalse();
     }
 
+    @Nested
+    class Validate {
+        @Test
+        void rejectsObviouslyWrongURL() {
+            assertTrue(validating(p4("-url-not-starting-with-an-alphanumeric-character", "view")).errors().containsKey(P4MaterialConfig.SERVER_AND_PORT));
+            assertTrue(validating(p4("_url-not-starting-with-an-alphanumeric-character", "view")).errors().containsKey(P4MaterialConfig.SERVER_AND_PORT));
+            assertTrue(validating(p4("@url-not-starting-with-an-alphanumeric-character", "view")).errors().containsKey(P4MaterialConfig.SERVER_AND_PORT));
+
+            assertFalse(validating(p4("url-starting-with-an-alphanumeric-character", "view")).errors().containsKey(P4MaterialConfig.SERVER_AND_PORT));
+        }
+
+        private P4MaterialConfig validating(P4MaterialConfig p4) {
+            p4.validate(new ConfigSaveValidationContext(null));
+            return p4;
+        }
+
+    }
     @Nested
     class ValidateTree {
         @Test

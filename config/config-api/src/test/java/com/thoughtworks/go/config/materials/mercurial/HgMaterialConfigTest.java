@@ -31,8 +31,11 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class HgMaterialConfigTest {
@@ -288,6 +291,20 @@ class HgMaterialConfigTest {
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous branch, must be provided either in URL or as an attribute.");
+        }
+
+        @Test
+        void rejectsObviouslyWrongURL() {
+            assertTrue(validating(hg("-url-not-starting-with-an-alphanumeric-character", "folder")).errors().containsKey(HgMaterialConfig.URL));
+            assertTrue(validating(hg("_url-not-starting-with-an-alphanumeric-character", "folder")).errors().containsKey(HgMaterialConfig.URL));
+            assertTrue(validating(hg("@url-not-starting-with-an-alphanumeric-character", "folder")).errors().containsKey(HgMaterialConfig.URL));
+
+            assertFalse(validating(hg("url-starting-with-an-alphanumeric-character", "folder")).errors().containsKey(HgMaterialConfig.URL));
+        }
+
+        private HgMaterialConfig validating(HgMaterialConfig hg) {
+            hg.validate(new ConfigSaveValidationContext(null));
+            return hg;
         }
     }
 

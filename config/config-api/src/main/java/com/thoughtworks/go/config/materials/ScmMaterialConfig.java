@@ -36,7 +36,6 @@ import static org.apache.commons.lang3.StringUtils.*;
  * @understands a source control repository and its configuration
  */
 public abstract class ScmMaterialConfig extends AbstractMaterialConfig implements ParamsAttributeAware {
-
     public static final String URL = "url";
     public static final String USERNAME = "username";
     protected GoCipher goCipher;
@@ -391,6 +390,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (url == null || isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
             return;
+        }
+
+        if (System.getProperty("gocd.verify.url.correctness", "y").equalsIgnoreCase("y") && !url.isValidURLOrLocalPath()) {
+            errors().add(URL, "URL does not seem to be valid.");
         }
     }
 

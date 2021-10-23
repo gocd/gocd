@@ -168,6 +168,10 @@ public class MaterialConfigsMother {
         return tfs(goCipher, new UrlArgument(url), userName, domain, null, projectPath);
     }
 
+    public static TfsMaterialConfig tfs(String url) {
+        return tfs(new GoCipher(), new UrlArgument(url), null, null, "password");
+    }
+
     public static TfsMaterialConfig tfs(UrlArgument urlArgument, String password, String encryptedPassword, GoCipher goCipher) {
         TfsMaterialConfig tfsMaterialConfig = tfs(goCipher, urlArgument, null, null, password);
         tfsMaterialConfig.setEncryptedPassword(encryptedPassword);

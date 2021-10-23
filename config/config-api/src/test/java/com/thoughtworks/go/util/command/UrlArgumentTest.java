@@ -279,4 +279,31 @@ class UrlArgumentTest {
             assertThat(result).doesNotContain("cce:password");
         }
     }
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    class isValidURL {
+        Stream<Arguments> urls() {
+            return Stream.of(
+                    Arguments.of("http://my-site.com/abc", true),
+                    Arguments.of("svn+ssh://my-site.com/def", true),
+                    Arguments.of("file://my-site.com/def", true),
+                    Arguments.of("/path/in/file/system", true),
+                    Arguments.of("git@github.com:org/repo.git", true),
+                    Arguments.of("user@my-site.com:org/repo.git", true),
+                    Arguments.of("1a2b3c://abc", true),
+                    Arguments.of("-xyz", false),
+                    Arguments.of("_xyz", false),
+                    Arguments.of("@xyz", false)
+            );
+        }
+
+        @ParameterizedTest
+        @MethodSource("urls")
+        void shouldValidateURLs(String input, boolean expectedValidity) {
+            final UrlArgument url = new UrlArgument(input);
+
+            assertThat(url.isValidURLOrLocalPath()).as("Verify validity of '%s' as a URL", url.originalArgument()).isEqualTo(expectedValidity);
+        }
+    }
 }

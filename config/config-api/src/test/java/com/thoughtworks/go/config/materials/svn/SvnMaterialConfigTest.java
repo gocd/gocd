@@ -34,6 +34,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class SvnMaterialConfigTest {
@@ -157,6 +159,20 @@ class SvnMaterialConfigTest {
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+        }
+
+        @Test
+        void rejectsObviouslyWrongURL() {
+            assertTrue(validating(svn("-url-not-starting-with-an-alphanumeric-character", false)).errors().containsKey(SvnMaterialConfig.URL));
+            assertTrue(validating(svn("_url-not-starting-with-an-alphanumeric-character", false)).errors().containsKey(SvnMaterialConfig.URL));
+            assertTrue(validating(svn("@url-not-starting-with-an-alphanumeric-character", false)).errors().containsKey(SvnMaterialConfig.URL));
+
+            assertFalse(validating(svn("url-starting-with-an-alphanumeric-character", false)).errors().containsKey(SvnMaterialConfig.URL));
+        }
+
+        private SvnMaterialConfig validating(SvnMaterialConfig svn) {
+            svn.validate(new ConfigSaveValidationContext(null));
+            return svn;
         }
     }
 

@@ -149,7 +149,12 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (StringUtils.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
         }
-        validateEncryptedPassword();
+
+        if (!new UrlArgument(getUrl()).isValidURLOrLocalPath()) {
+            errors.add(SERVER_AND_PORT, "P4 port seems to be invalid.");
+        }
+
+        view.validate(validationContext);
     }
 
     @Override

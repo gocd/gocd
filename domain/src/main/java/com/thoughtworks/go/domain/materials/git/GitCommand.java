@@ -215,7 +215,7 @@ public class GitCommand extends SCMCommand {
 
     public void checkConnection(UrlArgument repoUrl) {
         final String ref = fullUpstreamRef();
-        final CommandLine commandLine = git().withArgs("ls-remote").withArg(repoUrl).withArg(ref);
+        final CommandLine commandLine = git().withArgs("ls-remote", "--").withArg(repoUrl).withArg(ref);
         final ConsoleResult result = commandLine.runOrBomb(new NamedProcessTag(repoUrl.forDisplay()));
 
         if (!hasExactlyOneMatchingBranch(result)) {
@@ -232,7 +232,7 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     public void add(File fileToAdd) {
-        String[] args = new String[]{"add", fileToAdd.getName()};
+        String[] args = new String[]{"add", "--", fileToAdd.getName()};
         CommandLine gitAdd = gitWd().withArgs(args);
         runOrBomb(gitAdd);
     }
@@ -299,7 +299,7 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     public void submoduleAdd(String repoUrl, String submoduleNameToPutInGitSubmodules, String folder) {
-        String[] addSubmoduleWithSameNameArgs = new String[]{"submodule", "add", repoUrl, folder};
+        String[] addSubmoduleWithSameNameArgs = new String[]{"submodule", "add", "--", repoUrl, folder};
         String[] changeSubmoduleNameInGitModules = new String[]{"config", "--file", ".gitmodules", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
         String[] addGitModules = new String[]{"add", ".gitmodules"};
 

@@ -38,6 +38,8 @@ import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class TfsMaterialConfigTest {
@@ -165,6 +167,20 @@ class TfsMaterialConfigTest {
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
+        }
+
+        @Test
+        void rejectsObviouslyWrongURL() {
+            assertTrue(validating(tfs("-url-not-starting-with-an-alphanumeric-character")).errors().containsKey(TfsMaterialConfig.URL));
+            assertTrue(validating(tfs("_url-not-starting-with-an-alphanumeric-character")).errors().containsKey(TfsMaterialConfig.URL));
+            assertTrue(validating(tfs("@url-not-starting-with-an-alphanumeric-character")).errors().containsKey(TfsMaterialConfig.URL));
+
+            assertFalse(validating(tfs("url-starting-with-an-alphanumeric-character")).errors().containsKey(TfsMaterialConfig.URL));
+        }
+
+        private TfsMaterialConfig validating(TfsMaterialConfig tfs) {
+            tfs.validate(new ConfigSaveValidationContext(null));
+            return tfs;
         }
     }
 

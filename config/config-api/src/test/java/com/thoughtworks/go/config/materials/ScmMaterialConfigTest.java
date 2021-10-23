@@ -29,8 +29,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 
-import static com.thoughtworks.go.config.materials.ScmMaterialConfig.AUTO_UPDATE;
-import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
+import static com.thoughtworks.go.config.materials.ScmMaterialConfig.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ScmMaterialConfigTest {

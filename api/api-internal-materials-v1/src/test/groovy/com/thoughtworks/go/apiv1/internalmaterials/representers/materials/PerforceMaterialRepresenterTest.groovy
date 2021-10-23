@@ -16,16 +16,8 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
-import com.thoughtworks.go.security.GoCipher
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.p4
 
 class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait<P4MaterialConfig> {
 

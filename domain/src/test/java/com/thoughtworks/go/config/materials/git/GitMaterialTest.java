@@ -327,7 +327,7 @@ public class GitMaterialTest {
             validationBean = git.checkConnection(new TestSubprocessExecutionContext());
             assertThat(validationBean.isValid()).as("Connection should not be valid").isFalse();
             assertThat(validationBean.getError()).contains("Error performing command");
-            assertThat(validationBean.getError()).contains("git ls-remote http://nonExistantHost/git refs/heads/master");
+            assertThat(validationBean.getError()).contains("git ls-remote -- http://nonExistantHost/git refs/heads/master");
         }
 
         @Test

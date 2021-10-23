@@ -176,6 +176,7 @@ class TfsMaterialConfigTest {
             assertTrue(validating(tfs("@url-not-starting-with-an-alphanumeric-character")).errors().containsKey(TfsMaterialConfig.URL));
 
             assertFalse(validating(tfs("url-starting-with-an-alphanumeric-character")).errors().containsKey(TfsMaterialConfig.URL));
+            assertFalse(validating(tfs("#{url}")).errors().containsKey(TfsMaterialConfig.URL));
         }
 
         private TfsMaterialConfig validating(TfsMaterialConfig tfs) {

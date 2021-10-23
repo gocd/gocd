@@ -28,7 +28,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigAttributeValue(fieldName = "url")
 public class UrlArgument extends CommandArgument {
-    private static final String URL_DUMB_VALIDATION_REGEX = "^[a-zA-Z0-9/].*";
+    private static final String URL_DUMB_VALIDATION_REGEX = "^[a-zA-Z0-9/#].*";
     private static final Pattern pattern = Pattern.compile(URL_DUMB_VALIDATION_REGEX);
 
     protected String url;

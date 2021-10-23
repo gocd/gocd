@@ -300,6 +300,7 @@ class HgMaterialConfigTest {
             assertTrue(validating(hg("@url-not-starting-with-an-alphanumeric-character", "folder")).errors().containsKey(HgMaterialConfig.URL));
 
             assertFalse(validating(hg("url-starting-with-an-alphanumeric-character", "folder")).errors().containsKey(HgMaterialConfig.URL));
+            assertFalse(validating(hg("#{url}", "folder")).errors().containsKey(HgMaterialConfig.URL));
         }
 
         private HgMaterialConfig validating(HgMaterialConfig hg) {

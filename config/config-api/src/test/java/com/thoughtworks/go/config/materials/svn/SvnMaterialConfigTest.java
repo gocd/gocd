@@ -168,6 +168,7 @@ class SvnMaterialConfigTest {
             assertTrue(validating(svn("@url-not-starting-with-an-alphanumeric-character", false)).errors().containsKey(SvnMaterialConfig.URL));
 
             assertFalse(validating(svn("url-starting-with-an-alphanumeric-character", false)).errors().containsKey(SvnMaterialConfig.URL));
+            assertFalse(validating(svn("#{url}", false)).errors().containsKey(SvnMaterialConfig.URL));
         }
 
         private SvnMaterialConfig validating(SvnMaterialConfig svn) {

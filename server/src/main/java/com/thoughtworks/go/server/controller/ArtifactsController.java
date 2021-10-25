@@ -259,6 +259,10 @@ public class ArtifactsController {
     ) {
         start = start == null ? 0L : start;
 
+        if (!isValidStageCounter(stageCounter)) {
+            return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
+        }
+
         try {
             JobIdentifier identifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
             if (jobInstanceDao.isJobCompleted(identifier) && !consoleService.doesLogExist(identifier)) {
@@ -281,6 +285,11 @@ public class ArtifactsController {
 
     ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha, String serverAlias) throws Exception {
         LOGGER.info("[Artifact Download] Trying to resolve '{}' for '{}/{}/{}/{}/{}'", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+
+        if (!isValidStageCounter(stageCounter)) {
+            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+        }
+
         long before = System.currentTimeMillis();
         ArtifactsView view;
         //Work out the job that we are trying to retrieve

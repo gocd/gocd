@@ -137,6 +137,18 @@ public class ArtifactsControllerTest {
     }
 
     @Test
+    void shouldFailToGetConsoleOutWhenStageCounterIsNotAPositiveInteger() throws Exception {
+        ModelAndView modelAndView = artifactsController.consoleout("pipeline-1", "1", "stage-1", "job-1", "NOT_AN_INTEGER", 122L);
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+    }
+
+    @Test
+    void shouldFailToGetArtifactWhenStageCounterIsNotAPositiveInteger() throws Exception {
+        ModelAndView modelAndView = artifactsController.getArtifactAsHtml("pipeline-1", "1", "stage-1",  "NOT_AN_INTEGER", "job-1", "some-path", "sha1", "alias");
+        assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
+    }
+
+    @Test
     public void shouldFunnelAll_GET_calls() throws Exception {
         final ModelAndView returnVal = new ModelAndView();
         ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), jobInstanceDao, consoleActivityMonitor, consoleService, systemEnvironment) {

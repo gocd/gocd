@@ -409,7 +409,7 @@ task fastUnitTest(type: Test) { thisTask ->
 
   forkEvery 256
   minHeapSize '1g'
-  maxHeapSize '4g'
+  maxHeapSize '2g'
 
   reports {
     html.enabled = true
@@ -441,8 +441,8 @@ task integrationTest(type: Test) { thisTask ->
   mustRunAfter test
 
   forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
-  minHeapSize '1024m'
-  maxHeapSize '2048m'
+  minHeapSize '1g'
+  maxHeapSize '2g'
 
   reports {
     html.enabled = true

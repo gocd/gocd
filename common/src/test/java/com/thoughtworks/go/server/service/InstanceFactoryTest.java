@@ -27,13 +27,16 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
@@ -58,7 +61,7 @@ class InstanceFactoryTest {
     @BeforeEach
     void setUp() throws Exception {
         instanceFactory = new InstanceFactory();
-        this.clock = mock(Clock.class);
+        this.clock = new TestingClock();
     }
 
     @Test

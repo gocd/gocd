@@ -50,7 +50,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
@@ -128,14 +127,12 @@ public class GoFileConfigDataSourceIntegrationTest {
         cachedGoPartials.clear();
         dataSource.reloadIfModified();
         configHelper.onTearDown();
-        ReflectionUtil.setStaticField(Charset.class, DEFAULT_CHARSET, null);
         systemEnvironment.clearProperty(SystemEnvironment.CONFIG_FILE_PROPERTY);
         systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, true);
     }
 
     @Test
     public void shouldConvertToUTF8BeforeSavingConfigToFileSystem() throws IOException {
-        ReflectionUtil.setStaticField(Charset.class, DEFAULT_CHARSET, Charset.forName("windows-1252"));
         GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {

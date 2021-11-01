@@ -15,29 +15,14 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public final class StringUtil {
-    private static final String DELIMITER = "_";
-    private static final String DELIMITER_MATCHER = DELIMITER;
-    private static final String DELIMITER_ESCAPE_SEQ = DELIMITER + DELIMITER;
-
     private StringUtil() {
-    }
-
-    public static String quoteJavascriptString(String s) {
-        return "\"" + StringEscapeUtils.escapeJava(s) + "\"";
-    }
-
-    public static String joinSentences(String... strings) {
-        return Arrays.stream(strings).map(String::trim).map(s -> s.endsWith(".") ? s : s + ".").collect(Collectors.joining(" "));
     }
 
     public static String matchPattern(String regEx, String s) {
@@ -72,20 +57,6 @@ public final class StringUtil {
             strings[i] = string.toLowerCase();
         }
         return StringUtils.join(strings, " ");
-    }
-
-    public static String escapeAndJoinStrings(Object... items) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < items.length; i++) {
-            Object item = items[i];
-            if (item != null) {
-                builder.append(item.toString().replaceAll(DELIMITER_MATCHER, DELIMITER_ESCAPE_SEQ));
-            }
-            if (i + 1 < items.length) {
-                builder.append(DELIMITER);
-            }
-        }
-        return builder.toString();
     }
 
     public static String joinForDisplay(final Collection<?> objects) {

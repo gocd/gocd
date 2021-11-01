@@ -43,7 +43,7 @@ import org.springframework.transaction.TransactionStatus;
 import java.io.File;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 /**
  * @understands how to update materials on the database from the real SCMs

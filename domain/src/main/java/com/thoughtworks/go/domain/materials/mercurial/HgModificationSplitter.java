@@ -15,24 +15,25 @@
  */
 package com.thoughtworks.go.domain.materials.mercurial;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Date;
-import java.io.StringReader;
-import java.io.File;
-import java.text.ParseException;
-
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.ExceptionUtils;
-import org.jdom2.input.SAXBuilder;
+import com.thoughtworks.go.util.command.ConsoleResult;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
+
+import java.io.File;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 public class HgModificationSplitter {
 
@@ -70,8 +71,8 @@ public class HgModificationSplitter {
 
     private Modification parseChangeset(Element changeset) {
         Date modifiedTime = DateUtils.parseRFC822(changeset.getChildText("date"));
-        String author = org.apache.commons.lang3.StringEscapeUtils.unescapeXml(changeset.getChildText("author"));
-        String comment = org.apache.commons.lang3.StringEscapeUtils.unescapeXml(changeset.getChildText("desc"));
+        String author = StringEscapeUtils.unescapeXml(changeset.getChildText("author"));
+        String comment = StringEscapeUtils.unescapeXml(changeset.getChildText("desc"));
         String revision = changeset.getChildText("node");
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
 

@@ -37,9 +37,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
-import static org.hamcrest.Matchers.is;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class MaterialRevisionsJsonBuilderTest {
     private MaterialRevisions materialRevisions;

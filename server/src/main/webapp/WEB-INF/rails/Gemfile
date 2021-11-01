@@ -36,6 +36,11 @@ group :test do
   gem 'rspec-instafail', require: false
   gem 'rspec_junit_formatter'
   gem 'rails-controller-testing'
+
+  # Lock i18n version during tests to workaround issue with use of refinements within i18n under JRuby.
+  # Should be fixed in JRuby 9.2.15.0+ - try removing then.
+  # See https://github.com/jruby/jruby/issues/6547 and https://github.com/ruby-i18n/i18n/issues/555
+  gem 'i18n', '1.8.7', platform: :jruby
 end
 
 group :development do

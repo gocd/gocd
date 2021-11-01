@@ -25,6 +25,7 @@ dependencies {
   implementation project(':plugin-infra:plugin-metadata-store')
   implementation project.deps.javaxAnnotation
   implementation project.deps.commonsCollections4
+  implementation project.deps.commonsText
   implementation project.deps.cloning
   implementation project.deps.jdom
   implementation project.deps.jodaTime

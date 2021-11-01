@@ -20,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import java.util.Objects;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringEscapeUtils.escapeXml11;
+import static org.apache.commons.text.StringEscapeUtils.escapeXml11;
 
 public abstract class HttpException extends RuntimeException {
     private final HttpStatus status;

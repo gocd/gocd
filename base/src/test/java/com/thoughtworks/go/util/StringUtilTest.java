@@ -18,14 +18,11 @@ package com.thoughtworks.go.util;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.util.StringUtil.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StringUtilTest {
-    @Test public void shouldQuoteJavascriptString() throws Exception {
-        assertThat(StringUtil.quoteJavascriptString("a b \\c \"d"), is("\"a b \\\\c \\\"d\""));
-    }
 
     @Test public void shouldFindSimpleRegExMatch() throws Exception {
         String url = "http://java.sun.com:80/docs/books/tutorial/essential/regex/test_harness.html";
@@ -38,21 +35,6 @@ public class StringUtilTest {
         assertThat(humanize("camelCase"), is("camel case"));
         assertThat(humanize("camel"), is("camel"));
         assertThat(humanize("camelCaseForALongString"), is("camel case for a long string"));
-    }
-
-    @Test
-    public void shouldJoinWithCharEscaped() {
-        assertThat(escapeAndJoinStrings("foo", "bar", "baz", "hi_bye"), is("foo_bar_baz_hi__bye"));
-    }
-
-    @Test
-    public void shouldJoinWithNullsRepresentedAsBlankStrings() {
-        assertThat(escapeAndJoinStrings("foo", null, "hi_bye", null, null), is("foo__hi__bye__"));
-    }
-
-    @Test
-    public void shouldJoinSentences() {
-        assertThat(joinSentences("foo.", "bar", "baz. "), is("foo. bar. baz."));
     }
 
     @Test

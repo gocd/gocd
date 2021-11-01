@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 public class ServerHealthState {
     private final HealthStateLevel healthStateLevel;

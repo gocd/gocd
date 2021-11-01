@@ -16,6 +16,7 @@
 package com.thoughtworks.go.spark;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ public abstract class HtmlErrorPage {
 
     public static String errorPage(int code, String message) {
         return Holder.INSTANCE.replaceAll(buildRegex("status_code"), valueOf(code))
-                .replaceAll(buildRegex("error_message"), message);
+                .replaceAll(buildRegex("error_message"), StringEscapeUtils.escapeHtml4(message));
     }
 
     private static String buildRegex(final String value) {

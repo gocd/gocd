@@ -22,9 +22,12 @@ import java.util.regex.Pattern
 
 OperatingSystem currentOS = OperatingSystem.current()
 
+// Chrome:        See https://chromedriver.chromium.org/downloads  Must match version of Chrome on build host
+// Firefox/gecko: See https://github.com/mozilla/geckodriver/releases and review compatibility at
+//                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
-  chromedriver: '87.0.4280.88',
-  geckodriver : '0.27.0',
+  chromedriver: '95.0.4638.54',
+  geckodriver: '0.30.0',
 ]
 
 def execute = { String path, String... argv ->

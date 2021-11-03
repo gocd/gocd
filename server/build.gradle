@@ -25,7 +25,7 @@ import org.gradle.util.TextUtil
 
 import java.nio.file.FileSystems
 
-import static org.jruby.runtime.Constants.RUBY_VERSION
+import static org.jruby.runtime.Constants.RUBY_MAJOR_VERSION
 
 description = 'GoCD Server'
 
@@ -116,7 +116,8 @@ configurations {
 
 project.ext.webAppDir = file("src/main/webapp")
 project.ext.railsRoot = file("${project.webAppDir}/WEB-INF/rails")
-project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${RUBY_VERSION}")
+project.ext.bundledGemRubyVersion = "${RUBY_MAJOR_VERSION}.0"
+project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${project.bundledGemRubyVersion}")
 
 project.ext.railsClasspath = project.sourceSets.test.runtimeClasspath +
   project.sourceSets.main.runtimeClasspath +
@@ -711,9 +712,9 @@ task configureWar {
       exclude("**/rails/app/assets/")
       exclude("**/rails/webpack/")
     new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
-        theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/gems/${gem}")
-        theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/specifications/${gem}.gemspec")
-        theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/build_info/${gem}.info")
+        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/gems/${gem}")
+        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/build_info/${gem}.info")
       }
     }
   }

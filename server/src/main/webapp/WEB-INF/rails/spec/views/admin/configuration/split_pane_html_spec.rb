@@ -50,15 +50,15 @@ describe "admin/configuration/split_pane.html.erb" do
 
     Capybara.string(response.body).find('div#admin-holder-for-admin-config-source-xml').tap do |div|
       div.find("div.conflicted_content").tap do |conflicted_content|
-        expect(div).to have_selector("h3", :text => "Your Changes")
-        expect(div).to have_selector("pre.wrap_pre", :text => "conflicted-content")
+        expect(conflicted_content).to have_selector("h3", :text => "Your Changes")
+        expect(conflicted_content).to have_selector("pre.wrap_pre", :text => "conflicted-content")
 
-        expect(div).not_to have_selector("input.hidden[name='configMd5'][value='conflict-md5']")
-        expect(div).not_to have_selector("input.hidden[name='config_md5'][value='conflict-md5']")
+        expect(conflicted_content).not_to have_selector("input.hidden[name='configMd5'][value='conflict-md5']")
+        expect(conflicted_content).not_to have_selector("input.hidden[name='config_md5'][value='conflict-md5']")
       end
       div.find("div.current_content").tap do |current_content|
-        current_content.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |conflicted_content|
-          expect(current_content).to have_selector("input[name='_method'][value='put']", visible: :hidden)
+        current_content.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |config_editor|
+          expect(config_editor).to have_selector("input[name='_method'][value='put']", visible: :hidden)
           current_content.find("div.form_heading").tap do |form_heading|
             expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: #{difference} by Ali")
             expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: #{difference} by Ali']")
@@ -68,7 +68,7 @@ describe "admin/configuration/split_pane.html.erb" do
             end
           end
           expect(current_content).to have_selector("input[type='hidden'][name='go_config[md5]'][value='current-md5']", visible: :hidden)
-          expect(current_content).to have_selector("textarea#content[name='go_config[content]'][data-config-url='/go/api/admin/config/current-md5.xml']", visible: :hudden)
+          expect(current_content).to have_selector("textarea#content[name='go_config[content]'][data-config-url='/go/api/admin/config/current-md5.xml']")
         end
       end
     end

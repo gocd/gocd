@@ -5,12 +5,8 @@ ruby '2.5.7'
 
 gem 'rails', '5.2.6'
 gem 'sass-rails', '5.1.0'
-gem 'uglifier'
 
 gem 'dynamic_form'
-
-gem 'roar', '1.0.1'
-gem 'representable', '2.1.7'
 
 gem 'js-routes'
 gem 'ts_routes'

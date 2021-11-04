@@ -22,19 +22,19 @@ describe "/shared/_flash_message.html.erb" do
     it "should read flash message from the session" do
       session[:notice] = FlashMessageModel.new("foo", "success")
       render :partial => "shared/flash_message.html.erb"
-      expect(response.body).to have_selector("div#message_pane p.success", "foo")
+      expect(response.body).to have_selector("div#message_pane p.success", :text => "foo")
       expect(session[:notice]).to be(nil)
     end
 
    it "should not show flash message when its not defined in session" do
       render :partial => "shared/flash_message.html.erb"
-      expect(response.body).to_not have_selector("div#message_pane p", "foo")
+      expect(response.body).to_not have_selector("div#message_pane p", :text => "foo")
     end
 
     it "should escape flash message" do
       session[:notice] = FlashMessageModel.new("<h2>", "success")
       render :partial => "shared/flash_message.html.erb"
-      expect(response.body).to have_selector("div#message_pane p", "&lt;h2&gt;")
+      expect(response.body).to have_selector("div#message_pane p", :text => "<h2>")
     end
 
     it "should render help links next to flash message" do

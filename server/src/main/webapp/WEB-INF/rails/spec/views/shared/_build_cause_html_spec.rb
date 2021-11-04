@@ -57,7 +57,7 @@ describe "/shared/_build_cause.html.erb" do
           expect(revision).to have_selector("dd", :text => "username on #{@date.iso8601}")
         end
         change.find(".comment").tap do |revision|
-          expect(revision).to have_selector("dt", "Comment:")
+          expect(revision).to have_selector("dt", :text => "Comment:")
           expect(revision).to have_selector("dd", :text => "#42 I changed something")
           revision.find("dd").tap do |comment|
             expect(comment).to have_selector("a[href='http://pavan/42'][target='story_tracker']", :text => "#42")
@@ -82,7 +82,7 @@ describe "/shared/_build_cause.html.erb" do
           expect(revision).to have_selector("dd", :text => "user2 on #{ModificationsMother::TODAY_CHECKIN.iso8601}")
         end
         change1.find(".comment").tap do |revision|
-          expect(revision).to have_selector("dt", "Comment:")
+          expect(revision).to have_selector("dt", :text => "Comment:")
           expect(revision).to have_selector("dd", :text => "comment2")
         end
         expect(change1).to_not have_selector(".modified_files")
@@ -96,7 +96,7 @@ describe "/shared/_build_cause.html.erb" do
           expect(revision).to have_selector("dd", :text => "user1 on #{ModificationsMother::TWO_DAYS_AGO_CHECKIN.iso8601}")
         end
         change2.find(".comment").tap do |revision|
-          expect(revision).to have_selector("dt", "Comment:")
+          expect(revision).to have_selector("dt", :text => "Comment:")
           expect(revision).to have_selector("dd", :text => "comment1")
         end
         expect(change2).to_not have_selector(".modified_files")
@@ -118,7 +118,7 @@ describe "/shared/_build_cause.html.erb" do
           expect(label).to have_selector("dd a[href='/go/pipelines/value_stream_map/up_pipeline/10']", :text => "label-10")
         end
         change.find(".completed_at").tap do |completed_at|
-          expect(completed_at).to have_selector("dt", "Completed at:")
+          expect(completed_at).to have_selector("dt", :text => "Completed at:")
           expect(completed_at).to have_selector("dd", :text => "#{@dependency_revisions.getModification(0).getModifiedTime().iso8601}")
         end
       end
@@ -138,7 +138,7 @@ describe "/shared/_build_cause.html.erb" do
 
     Capybara.string(response.body).find(".build_cause #material_#{@svn_revisions.materials().get(0).getPipelineUniqueFingerprint()}.changed").tap do |material|
 
-      expect(material).to have_selector(".material_name", "Subversion - SvnName")
+      expect(material).to have_selector(".material_name", :text => "Subversion - SvnName")
       material.find(".change").tap do |change|
         change.find(".modified_by").tap do |revision|
           expect(revision.find("dd").native.to_s).to include "&lt;script&gt;alert('Check-in user')&lt;/script&gt; on #{@date.iso8601}"
@@ -204,8 +204,8 @@ describe "/shared/_build_cause.html.erb" do
 
     render :partial => "shared/build_cause", :locals => {:scope => {:material_revisions => revisions, :show_files => false, :pipeline_name => "foo"}}
     Capybara.string(response.body).find(".build_cause #material_#{material.getPipelineUniqueFingerprint()}").tap do |material|
-      expect(material).to have_selector(".material_name", "Subversion - url")
-      expect(material).to have_selector(".modified_by dd", "anonymous on #{@date.iso8601}")
+      expect(material).to have_selector(".material_name", :text => "Subversion - url")
+      expect(material).to have_selector(".modified_by dd", :text => "anonymous on #{@date.iso8601}")
     end
   end
 

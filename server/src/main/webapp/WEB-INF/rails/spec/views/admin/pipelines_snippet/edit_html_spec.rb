@@ -32,20 +32,20 @@ describe "admin/pipelines_snippet/edit.html.erb" do
     Capybara.string(response.body).find('div#edit_group').tap do |div|
       div.find("form[action='#{pipelines_snippet_update_path(:group_name => group_name)}']").tap do |form|
         expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='md5']", {visible: :hidden})
-        expect(form).to have_selector("a.cancel[href='#{pipelines_snippet_show_path(:group_name => group_name)}']", 'Cancel')
+        expect(form).to have_selector("a.cancel[href='#{pipelines_snippet_show_path(:group_name => group_name)}']", :text => 'Cancel')
         form.find("button.submit[id='save_config'][disabled='disabled']").tap do |button|
           expect(button).to have_selector("span", :text => "SAVE")
         end
-        expect(form).to have_selector("textarea#content_container_for_edit", "&lt;foo&gt;&lt;/foo&gt;")
+        expect(form).to have_selector("textarea#content_container_for_edit", :text => group_xml)
       end
     end
     Capybara.string(response.body).find('div#modifiable_groups').tap do |div|
-      expect(div).to have_selector("li.selected a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'foo')}']", 'foo')
-      expect(div).to have_selector("a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'bar')}']", 'bar')
+      expect(div).to have_selector("li.selected a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'foo')}']", :text => 'foo')
+      expect(div).to have_selector("a.modifiable_group_link[href='#{pipelines_snippet_show_path(:group_name => 'bar')}']", :text => 'bar')
     end
   end
 
-  it "should render global errrors" do
+  it "should render global errors" do
     group_xml = "<grp></grp>"
     group_name = "foo"
     assign(:group_as_xml, group_xml)

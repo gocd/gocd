@@ -63,7 +63,7 @@ describe MaterialsHelper do
     unupdated_material = Object.new
 
     mock_material_service = double("material_service")
-    should_receive(:material_service).at_least(1).times.and_return(mock_material_service)
+    expect(self).to receive(:material_service).at_least(1).times.and_return(mock_material_service)
 
     expect(mock_material_service).to receive(:hasModificationFor).with(updated_material).and_return(true)
     expect(has_modification?(updated_material)).to eq(true)
@@ -73,7 +73,7 @@ describe MaterialsHelper do
   end
 
   it "should replace tracking tool text with a link" do
-    should_receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
+    expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
     expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "\\d+"))
 
     modification = ModificationsMother.oneModifiedFile("1")
@@ -98,7 +98,7 @@ describe MaterialsHelper do
     end
 
     it "should render a nil comment as empty" do
-      should_receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
+      expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
       expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://somehost/${ID}", "\\d+"))
 
       comment_str = nil

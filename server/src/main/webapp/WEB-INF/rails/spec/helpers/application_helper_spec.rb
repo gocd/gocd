@@ -93,14 +93,14 @@ describe ApplicationHelper do
 
     describe 'with link enabled' do
       before do
-        should_receive(:url_for_path).with("baz").and_return(baz_url = "http://foo.bar:8153/go/baz")
-        should_receive(:link_to).with("BAZ", baz_url, { :target => nil, :class => "" }).and_return("link_to_baz")
+        expect(self).to receive(:url_for_path).with("baz").and_return(baz_url = "http://foo.bar:8153/go/baz")
+        expect(self).to receive(:link_to).with("BAZ", baz_url, { :target => nil, :class => "" }).and_return("link_to_baz")
       end
 
       describe "with current" do
         before do
-          should_receive(:url_for_path).with("quux").and_return(quux_url = "http://foo.bar:8153/go/quux")
-          should_receive(:link_to).with("QUUX", quux_url, { :target => nil, :class => "" }).and_return("link_to_quux")
+          expect(self).to receive(:url_for_path).with("quux").and_return(quux_url = "http://foo.bar:8153/go/quux")
+          expect(self).to receive(:link_to).with("QUUX", quux_url, { :target => nil, :class => "" }).and_return("link_to_quux")
         end
 
         it "should understand current tab" do
@@ -126,7 +126,7 @@ describe ApplicationHelper do
 
     it "should respect option :target" do
       allow(controller).to receive(:root_path).and_return("/go/quux")
-      should_receive(:link_to).with("QUUX", "/go/quux/quux", { :target => 'foo', :class => "" }).and_return("link_to_quux")
+      expect(self).to receive(:link_to).with("QUUX", "/go/quux/quux", { :target => 'foo', :class => "" }).and_return("link_to_quux")
       expect(tab_for("quux", :target => 'foo')).to eq("<li id='cruise-header-tab-quux' class=' '>\nlink_to_quux\n</li>")
     end
 
@@ -135,27 +135,27 @@ describe ApplicationHelper do
     end
 
     it "should honor url if provided with one" do
-      should_receive(:url_for_path).with("foo/bar/baz").and_return(quux_url = "http://foo.bar:8153/go/foo/bar/baz")
+      expect(self).to receive(:url_for_path).with("foo/bar/baz").and_return(quux_url = "http://foo.bar:8153/go/foo/bar/baz")
       expect(tab_for("foo bar", :url => 'foo/bar/baz')).to eq("<li id='cruise-header-tab-foo-bar' class=' '>\n<a class=\"\" href=\"/go/quux\">FOO BAR</a>\n</li>")
     end
   end
 
   it "should understand if mycruise link tab is supposed to be enabled" do
-    should_receive(:go_config_service).and_return(go_config_service = double("go_config_service"))
+    expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
     expect(go_config_service).to receive(:isSecurityEnabled).and_return(true)
     expect(mycruise_available?).to eq(true)
   end
 
   it "should ask security service whether user is an admin" do
-    should_receive(:security_service).and_return(security_service = double("security_service"))
-    should_receive(:current_user).and_return(:user)
+    expect(self).to receive(:security_service).and_return(security_service = double("security_service"))
+    expect(self).to receive(:current_user).and_return(:user)
     expect(security_service).to receive(:canViewAdminPage).with(:user).and_return(:is_admin?)
     expect(can_view_admin_page?).to eq(:is_admin?)
   end
 
   it "should ask security service whether user has agent operate permission" do
-    should_receive(:security_service).and_return(security_service = double("security_service"))
-    should_receive(:current_user).and_return(:user)
+    expect(self).to receive(:security_service).and_return(security_service = double("security_service"))
+    expect(self).to receive(:current_user).and_return(:user)
     expect(security_service).to receive(:hasOperatePermissionForAgents).with(:user).and_return(:is_admin?)
     expect(has_operate_permission_for_agents?).to eq(:is_admin?)
   end
@@ -202,13 +202,13 @@ describe ApplicationHelper do
         <p>This should be 'arbitrary' "html"</p>
       </div>
       end
-      should_receive(:render).and_return random_html
+      expect(self).to receive(:render).and_return random_html
       json = JSON.parse("{\"result\":" + render_json() + "}")
       expect(json["result"]).to eq(random_html)
     end
 
     it "should include locals by default" do
-      should_receive(:render).with(:locals => {:scope => {}}).and_return "foo"
+      expect(self).to receive(:render).with(:locals => {:scope => {}}).and_return "foo"
       json = JSON.parse("{\"result\":" + render_json() + "}")
       expect(json["result"]).to eq("foo")
     end
@@ -274,7 +274,7 @@ describe ApplicationHelper do
 
   describe 'submit button' do
     before :each do
-      should_receive(:system_environment).and_return(env = double('sys_env'))
+      expect(self).to receive(:system_environment).and_return(env = double('sys_env'))
       expect(env).to receive(:isServerActive).at_most(:twice).and_return(true)
     end
 
@@ -349,7 +349,7 @@ describe ApplicationHelper do
 
   describe 'disable submit button' do
     before :each do
-      should_receive(:system_environment).and_return(env = double('sys_env'))
+      expect(self).to receive(:system_environment).and_return(env = double('sys_env'))
       expect(env).to receive(:isServerActive).and_return(false)
     end
 
@@ -505,7 +505,7 @@ describe ApplicationHelper do
     end
 
     it 'should check with security service if user is a template admin' do
-      should_receive(:security_service).and_return(@security_service)
+      expect(self).to receive(:security_service).and_return(@security_service)
       allow(self).to receive(:current_user).and_return(:template_admin_user)
       expect(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(:template_admin_user).and_return(true)
       expect(is_user_a_template_admin?).to eq(true)

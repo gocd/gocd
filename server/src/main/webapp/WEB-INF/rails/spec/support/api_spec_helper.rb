@@ -121,22 +121,5 @@ module ApiSpecHelper
     allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
     allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(false)
   end
-
-  def actual_response
-    JSON.parse(response.body).deep_symbolize_keys
-  end
-
-  def expected_response(thing, representer)
-    JSON.parse(representer.new(thing).to_hash(url_builder: controller).to_json).deep_symbolize_keys
-  end
-
-  def expected_response_with_args(thing, representer, *args)
-    JSON.parse(representer.new(thing, *args).to_hash(url_builder: controller).to_json).deep_symbolize_keys
-  end
-
-
-  def expected_response_with_options(thing, opts=[], representer)
-    JSON.parse(representer.new(thing, opts).to_hash(url_builder: controller).to_json).deep_symbolize_keys
-  end
 end
 

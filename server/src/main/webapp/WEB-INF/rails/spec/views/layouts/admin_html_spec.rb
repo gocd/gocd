@@ -39,7 +39,7 @@ describe "/layouts/admin" do
   it "should display warning message when config not valid" do
     assign(:config_valid, false)
     render :inline => '<div>content</div>', :layout => @layout_name
-    expect(response.body).to have_selector(".flash p.warning", "Invalid config on disk. Displaying the last known valid config (Editing config through Go will overwrite the invalid copy. Edit it on disk to fix this problem).")
+    expect(response.body).to have_selector(".flash p.warning", :text => "Invalid config on disk. Displaying the last known valid config (Editing config through Go will overwrite the invalid copy. Edit it on disk to fix this problem).")
   end
 
   describe "user-summary" do
@@ -49,7 +49,7 @@ describe "/layouts/admin" do
 
     it "should show content" do
       render :inline => '<div>content</div>', :layout => @layout_name
-      expect(response.body).to have_selector('#tab-content-of-user-listing', 'content')
+      expect(response.body).to have_selector('#tab-content-of-user-listing', :text => 'content')
     end
   end
 

@@ -319,15 +319,15 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-option/-/helper-validator-option-7.14.5.tgz#6e72a1fff18d5dfcb878e1e62f1a021c4b72d5a3"
   integrity sha512-OX8D5eeX4XwcroVW45NMvoYaIuFI+GQpA2a8Gi+X/U/cDUIRsV37qQfF905F0htTRCREQIB4KqPeaveRJUl3Ow==
 
-"@babel/helper-wrap-function@^7.14.5", "@babel/helper-wrap-function@^7.15.4":
-  version "7.15.4"
-  resolved "https://registry.yarnpkg.com/@babel/helper-wrap-function/-/helper-wrap-function-7.15.4.tgz#6f754b2446cfaf3d612523e6ab8d79c27c3a3de7"
-  integrity sha512-Y2o+H/hRV5W8QhIfTpRIBwl57y8PrZt6JM3V8FOo5qarjshHItyH5lXlpMfBfmBefOqSCpKZs/6Dxqp0E/U+uw==
+"@babel/helper-wrap-function@^7.15.4", "@babel/helper-wrap-function@^7.16.0":
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/@babel/helper-wrap-function/-/helper-wrap-function-7.16.0.tgz#b3cf318afce774dfe75b86767cd6d68f3482e57c"
+  integrity sha512-VVMGzYY3vkWgCJML+qVLvGIam902mJW0FvT7Avj1zEe0Gn7D93aWdLblYARTxEw+6DhZmtzhBM2zv0ekE5zg1g==
   dependencies:
-    "@babel/helper-function-name" "^7.15.4"
-    "@babel/template" "^7.15.4"
-    "@babel/traverse" "^7.15.4"
-    "@babel/types" "^7.15.4"
+    "@babel/helper-function-name" "^7.16.0"
+    "@babel/template" "^7.16.0"
+    "@babel/traverse" "^7.16.0"
+    "@babel/types" "^7.16.0"
 
 "@babel/helpers@^7.16.0":
   version "7.16.0"
@@ -422,13 +422,13 @@
     "@babel/plugin-syntax-export-namespace-from" "^7.8.3"
 
 "@babel/plugin-proposal-function-sent@^7":
-  version "7.14.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-function-sent/-/plugin-proposal-function-sent-7.14.5.tgz#7394b307b13ce2c608fe5ab24b3867aa59069b6a"
-  integrity sha512-3Hvb9m1dvFK1cor9kObPCPK8q0xlcakm+haBwHQy7V5BN1As6iys9oOKyWpHVbop+tW8JYs0v9Ahcp1BOxC3Ng==
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-function-sent/-/plugin-proposal-function-sent-7.16.0.tgz#6a873e125e4081e48d9b37518e8e2c63c9a8cddb"
+  integrity sha512-CkUaPsTiRB72BlsB1Istdb6LSJDi4SU4gH+hW9EKo2/o6naq0HEkuY2OV5anl5Tsnwtdn3FmpteguRc9kXd3Ig==
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
-    "@babel/helper-wrap-function" "^7.14.5"
-    "@babel/plugin-syntax-function-sent" "^7.14.5"
+    "@babel/helper-wrap-function" "^7.16.0"
+    "@babel/plugin-syntax-function-sent" "^7.16.0"
 
 "@babel/plugin-proposal-json-strings@^7", "@babel/plugin-proposal-json-strings@^7.14.5":
   version "7.16.0"
@@ -566,10 +566,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.3"
 
-"@babel/plugin-syntax-function-sent@^7.14.5":
-  version "7.14.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-function-sent/-/plugin-syntax-function-sent-7.14.5.tgz#17bb55e9e53857af93a57000644c020962f07b32"
-  integrity sha512-FNN0Ve2/6yxCa0xMG7wUlM81t+HOPu8HNWk683Xav1B+vjHKQQujX82NEKYdDYNUX7/ky8pUCHfRUYVmigs69Q==
+"@babel/plugin-syntax-function-sent@^7.16.0":
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-function-sent/-/plugin-syntax-function-sent-7.16.0.tgz#c6e0eb280a101cd7bdaf6d3f750eb27b59978c48"
+  integrity sha512-CrwPwHy+ks1xokbZ5x2ZbRwZ5qptN0PE/N5M+o8eQ2LHXGFxlSuDVx515crT7DxUnT+uKctKDuk0NAwG7c1Ebw==
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 

@@ -509,12 +509,12 @@
     "@babel/plugin-syntax-private-property-in-object" "^7.14.5"
 
 "@babel/plugin-proposal-throw-expressions@^7":
-  version "7.14.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-throw-expressions/-/plugin-proposal-throw-expressions-7.14.5.tgz#9ba7f4e5baa4ce010d6e30c379791e81b10985e5"
-  integrity sha512-Db2JCIPhe409U3qy0sWpDun6Xa1k77TfNsKTzUY0PDRTpiho7e2uIhYMJVwGrHOkHRH03D6yQLZRosNahnpi1Q==
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-throw-expressions/-/plugin-proposal-throw-expressions-7.16.0.tgz#f9450e11d90159eff29a36e5bcacc9b49eefc4d7"
+  integrity sha512-8u4KrMqdzRLkfHMN6WOK4taEwV6Dv69O/TuJ2TCGapRXtbjRKDW2UyTxEzlZpA1Eu+MxquSW9+y8qy89TIJfOA==
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
-    "@babel/plugin-syntax-throw-expressions" "^7.14.5"
+    "@babel/plugin-syntax-throw-expressions" "^7.16.0"
 
 "@babel/plugin-proposal-unicode-property-regex@^7.14.5", "@babel/plugin-proposal-unicode-property-regex@^7.4.4":
   version "7.14.5"
@@ -643,10 +643,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 
-"@babel/plugin-syntax-throw-expressions@^7.14.5":
-  version "7.14.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-throw-expressions/-/plugin-syntax-throw-expressions-7.14.5.tgz#db96785d9131fa7e7868968e8a777ac6d3eda801"
-  integrity sha512-4aFC2goA9+JceXayipcSY017nGspvcAkzR+sdsT6hN4DUuHWvM88wdjf/Nxja5sTE7oYPmfuN84ViREdgjingw==
+"@babel/plugin-syntax-throw-expressions@^7.16.0":
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-throw-expressions/-/plugin-syntax-throw-expressions-7.16.0.tgz#9d5fc5c185617bc5f727fbecc360601a52cf6879"
+  integrity sha512-tr5wm8EYRpFW47uVJ2B660pJQXgmeCShz82tE6LkIVkcLzXMz5xhj0drYyehuAl1utNGFqPnMmjpzs5zavAbNQ==
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 

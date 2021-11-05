@@ -5017,10 +5017,10 @@ karma-sourcemap-loader@^0.3.8:
   dependencies:
     graceful-fs "^4.1.2"
 
-karma@^6.3.6:
-  version "6.3.6"
-  resolved "https://registry.yarnpkg.com/karma/-/karma-6.3.6.tgz#6f64cdd558c7d0c9da6fcdece156089582694611"
-  integrity sha512-xsiu3D6AjCv6Uq0YKXJgC6TvXX2WloQ5+XtHXmC1lwiLVG617DDV3W2DdM4BxCMKHlmz6l3qESZHFQGHAKvrew==
+karma@^6.3.7:
+  version "6.3.7"
+  resolved "https://registry.yarnpkg.com/karma/-/karma-6.3.7.tgz#35d7c7ff46d7cc21633075a9fdafcb495546bf9a"
+  integrity sha512-EEkswZhOx3EFt1ELlVECeOXHONbHSGw6fkbeMxvCSkLD77X38Kb1d/Oup2Re9ep/tSoa1He3YIBf3Hp+9EsKtg==
   dependencies:
     body-parser "^1.19.0"
     braces "^3.0.2"

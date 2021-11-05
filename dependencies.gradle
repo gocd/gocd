@@ -79,7 +79,7 @@ final Map<String, String> libraries = [
   jsontools           : 'com.sdicons.jsontools:jsontools-core:1.7',
   jsoup               : 'org.jsoup:jsoup:1.14.3',
   junit5              : 'org.junit.jupiter:junit-jupiter-api:5.8.1',
-  liquibase           : 'org.liquibase:liquibase-core:4.4.3',
+  liquibase           : 'org.liquibase:liquibase-core:4.5.0',
   logback             : 'ch.qos.logback:logback-classic:1.2.6',
   lombok              : 'org.projectlombok:lombok:1.18.22',
   mail                : 'com.sun.mail:mailapi:1.6.1',

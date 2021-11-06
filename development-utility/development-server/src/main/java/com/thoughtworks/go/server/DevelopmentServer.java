@@ -56,7 +56,6 @@ public class DevelopmentServer {
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
         systemEnvironment.set(SystemEnvironment.FAIL_STARTUP_ON_DATA_ERROR, true);
-        systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         systemEnvironment.set(SystemEnvironment.GO_SERVER_MODE, "development");
         setupPeriodicGC(systemEnvironment);
         assertPluginsZipExists();

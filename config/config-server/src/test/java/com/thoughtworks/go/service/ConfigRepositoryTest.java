@@ -36,12 +36,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -344,6 +340,22 @@ public class ConfigRepositoryTest {
 
         assertThat(configRepo.git().getRepository().getBranch(), is("master"));
         assertThat(configRepo.git().branchList().call().size(), is(1));
+    }
+
+    @Test
+    void shouldCleanButIgnoreMasterResetIfRepoExistsButNoMasterBranch() throws Exception {
+        // Start with an empty repo
+        assertThat(configRepo.git().getRepository().getDirectory().exists(), is(true));
+
+        ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
+        configRepository.initialize();
+
+        assertThat(configRepo.git().getRepository().getBranch(), is("master"));
+        assertThat(configRepo.git().branchList().call(), hasSize(0));
+
+        // Ensure we can still use the config repo
+        configRepository.checkin(goConfigRevision("v1", "md5-1"));
+        assertThat(configRepo.git().branchList().call(), hasSize(1));
     }
 
     @Test

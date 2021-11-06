@@ -168,11 +168,18 @@ public class Serialization {
         }
     }
 
-    private static class FileAdapter implements JsonDeserializer<File> {
+    private static class FileAdapter implements JsonSerializer<File>, JsonDeserializer<File> {
         @Override
         public File deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             String path = json.getAsJsonObject().get("path").getAsString();
             return new File(separatorsToSystem(path));
+        }
+
+        @Override
+        public JsonElement serialize(File src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject serialized = new JsonObject();
+            serialized.add("path", new JsonPrimitive(src.getPath()));
+            return serialized;
         }
     }
 

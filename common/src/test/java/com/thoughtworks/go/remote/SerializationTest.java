@@ -26,6 +26,8 @@ import com.thoughtworks.go.helper.ReversingEncrypter;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
+import static org.apache.commons.text.StringEscapeUtils.escapeJson;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -117,6 +122,21 @@ class SerializationTest {
         final IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () ->
                 Serialization.instance().fromJson("{ \"whatever\": \"actual payload doesn't matter\" }", DESCipherProvider.class));
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", DESCipherProvider.class.getName()), e.getMessage());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "/linux/style", "windows\\style"})
+    void deserializesFilesNormalizingPathToPlatform(String rawPath) {
+        String json = format("{ \"path\": \"%s\" }", escapeJson(rawPath));
+        assertThat(Serialization.instance().fromJson(json, File.class))
+                .isEqualTo(new File(separatorsToSystem(rawPath)));
+    }
+
+    @Test
+    void serializesFiles() {
+        File file = new File("/hello/world");
+        assertThatJson(Serialization.instance().toJson(file))
+                .isEqualTo(format("{\"path\":\"%s\"}", escapeJson(separatorsToSystem(file.getPath()))));
     }
 
     @SuppressWarnings("unchecked")

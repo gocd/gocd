@@ -15,23 +15,19 @@
  */
 package com.thoughtworks.go.config.parser;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.thoughtworks.go.config.ConfigAttributeValue;
-import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.ConfigReferenceElement;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ConfigValue;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.config.parser.GoConfigAttributeLoader.attributeParser;
@@ -63,24 +59,28 @@ public class GoConfigFieldLoader<T> {
         this.field = field;
         this.configCache = configCache;
         this.configReferenceElements = configReferenceElements;
-        field.setAccessible(true);
         this.registry = registry;
     }
 
     public void parse() {
         if (isImplicitCollection()) {
+            field.setAccessible(true);
             Object val = GoConfigClassLoader.classParser(e, field.getType(), configCache, new GoCipher(), registry, configReferenceElements).parseImplicitCollection();
             setValue(val);
         } else if (isSubtag(field)) {
+            field.setAccessible(true);
             Object val = subtagParser(e, field, configCache, registry, configReferenceElements).parse();
             setValue(val);
         } else if (isAttribute(field)) {
+            field.setAccessible(true);
             Object val = attributeParser(e, field).parse(defaultValue());
             setValue(val);
         } else if (isConfigValue()) {
+            field.setAccessible(true);
             Object val = e.getText();
             setValue(val);
         } else if (isAnnotationPresent(field, ConfigReferenceElement.class)) {
+            field.setAccessible(true);
             ConfigReferenceElement referenceField = field.getAnnotation(ConfigReferenceElement.class);
             Attribute attribute = e.getAttribute(referenceField.referenceAttribute());
             if (attribute == null) {

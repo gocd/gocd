@@ -16,9 +16,6 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.BasicCruiseConfig.AllPipelineConfigs;
-import com.thoughtworks.go.config.BasicCruiseConfig.AllTemplatesWithAssociatedPipelines;
-import com.thoughtworks.go.config.BasicCruiseConfig.PipelineNameToConfigMap;
 import com.thoughtworks.go.util.ClonerFactory;
 
 // Cloner to handle nullification of specific classes in config objects.
@@ -32,11 +29,7 @@ import com.thoughtworks.go.util.ClonerFactory;
 // This is one place to mark all the classes to be ignored during clone.
 public class GoConfigCloner extends Cloner {
     public GoConfigCloner() {
-        nullInsteadOfClone(AllPipelineConfigs.class,
-                AllTemplatesWithAssociatedPipelines.class,
-                PipelineNameToConfigMap.class,
-                CachedPluggableArtifactConfigs.class,
-                CachedFetchPluggableArtifactTasks.class);
+        nullInsteadOfClone(BasicCruiseConfig.DO_NOT_CLONE_CLASSES);
         ClonerFactory.applyFixes(this);
     }
 }

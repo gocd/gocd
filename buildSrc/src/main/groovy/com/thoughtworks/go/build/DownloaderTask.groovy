@@ -18,7 +18,6 @@ package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.ysb33r.grolifant.api.core.OperatingSystem
 import org.ysb33r.grolifant.api.core.ProjectOperations
@@ -34,8 +33,7 @@ class DownloaderTask extends DefaultTask {
   @Input
   String packageVersion
 
-  @Internal
-  protected final ProjectOperations projectOperations
+  private final ProjectOperations projectOperations
 
   DownloaderTask() {
     projectOperations = ProjectOperations.create(project)

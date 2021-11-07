@@ -72,6 +72,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
         from(genericZipTree) {
           exclude "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-*"
           exclude "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-*"
+          exclude "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
           exclude "${installerType.baseName}-${project.goVersion}/bin/*"
         }
 

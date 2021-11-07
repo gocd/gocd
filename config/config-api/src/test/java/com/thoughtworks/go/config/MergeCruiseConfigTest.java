@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
@@ -25,7 +24,6 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.util.ClonerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -358,8 +356,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
         partialConfig.setOrigin(new RepoConfigOrigin());
         CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
-        Cloner CLONER = ClonerFactory.instance();
-        CruiseConfig cloned = CLONER.deepClone(config);
+        CruiseConfig cloned = GO_CONFIG_CLONER.deepClone(config);
 
         List<ConfigErrors> allErrors = cloned.validateAfterPreprocess();
         assertThat(allErrors.size(), is(2));

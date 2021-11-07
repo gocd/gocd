@@ -25,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @ConfigTag(value = "ignore")
@@ -33,9 +34,8 @@ public class IgnoredFiles implements Serializable, Validatable {
     private String pattern;
     private String processedPattern;
     private ConfigErrors configErrors = new ConfigErrors();
-    private final Pattern punctuationRegex = Pattern.compile("\\p{Punct}");
+    private static final Pattern PUNCTUATION_REGEX = Pattern.compile("\\p{Punct}");
 
-    public static final String PATTERN = "pattern";
     public IgnoredFiles() {
     }
 
@@ -52,7 +52,7 @@ public class IgnoredFiles implements Serializable, Validatable {
             return false;
         }
         IgnoredFiles ignore = (IgnoredFiles) o;
-        return !(pattern != null ? !pattern.equals(ignore.pattern) : ignore.pattern != null);
+        return Objects.equals(pattern, ignore.pattern);
     }
 
     @Override
@@ -88,11 +88,11 @@ public class IgnoredFiles implements Serializable, Validatable {
 
     private String escape(String pattern) {
         StringBuilder result = new StringBuilder();
-        for(char c : pattern.toCharArray()){
-            if( c != '*' && punctuationRegex.matcher(String.valueOf(c)).matches()){
+        for (char c : pattern.toCharArray()) {
+            if (c != '*' && PUNCTUATION_REGEX.matcher(String.valueOf(c)).matches()) {
                 result.append("\\").append(c);
-            }else{
-                result.append(String.valueOf(c));
+            } else {
+                result.append(c);
             }
         }
         return result.toString();

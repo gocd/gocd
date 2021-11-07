@@ -32,6 +32,7 @@ import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static com.thoughtworks.go.util.FileUtilTest.FilePathMatcher.assertPath;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 public class FileUtilTest {
@@ -52,13 +53,13 @@ public class FileUtilTest {
     }
 
     @Test
-    void shouldUseSpeficiedFolderIfAbsolute() {
+    void shouldUseSpecifiedFolderIfAbsolute() {
         final File absolutePath = new File("zx").getAbsoluteFile();
         assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), absolutePath)).isEqualTo(absolutePath);
     }
 
     @Test
-    void shouldUseSpeficiedFolderIfBaseDirIsEmpty() throws Exception {
+    void shouldUseSpecifiedFolderIfBaseDirIsEmpty() throws Exception {
         assertThat(FileUtil.applyBaseDirIfRelative(new File(""), new File("zx"))).isEqualTo(new File("zx"));
     }
 
@@ -144,12 +145,10 @@ public class FileUtilTest {
         assertThat(FileUtil.getCanonicalPath(folder)).isEqualTo(folder.getCanonicalPath());
         File spyFile = spy(new File("/xyz/non-existent-file"));
         IOException canonicalPathException = new IOException("Failed to build the canonical path");
-        when(spyFile.getCanonicalPath()).thenThrow(canonicalPathException);
-        try {
-            FileUtil.getCanonicalPath(spyFile);
-        } catch (RuntimeException e) {
-            assertThat(e.getCause()).isEqualTo(canonicalPathException);
-        }
+        doThrow(canonicalPathException).when(spyFile).getCanonicalPath();
+        assertThatThrownBy(() -> FileUtil.getCanonicalPath(spyFile))
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasCause(canonicalPathException);
     }
 
     @Test

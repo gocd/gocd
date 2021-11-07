@@ -20,6 +20,7 @@ import com.rits.cloning.Cloner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -123,6 +124,14 @@ class ClonerFactoryTest {
         assertThat(dupe)
                 .isExactlyInstanceOf(Timestamp.class)
                 .isEqualTo(date);
+    }
+
+    @Test
+    void cloneFile() {
+        File file = new File("hello/world");
+        assertThat(cloner.deepClone(file))
+                .isExactlyInstanceOf(File.class)
+                .isEqualTo(file);
     }
 
 }

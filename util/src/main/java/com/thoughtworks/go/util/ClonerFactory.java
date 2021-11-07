@@ -19,6 +19,7 @@ package com.thoughtworks.go.util;
 import com.rits.cloning.Cloner;
 import com.rits.cloning.IDeepCloner;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,7 @@ public class ClonerFactory {
             cloner.registerFastCloner(Date.class, (t, _1, _2) -> new Date(((Date)t).getTime()));
             cloner.registerFastCloner(java.sql.Date.class, (t, _1, _2) -> new java.sql.Date(((java.sql.Date)t).getTime()));
             cloner.registerFastCloner(Timestamp.class, ClonerFactory::cloneTimestamp);
+            cloner.registerFastCloner(File.class, (t, _1, _2) -> new File(((File)t).getPath()));
             return cloner;
         }
     }

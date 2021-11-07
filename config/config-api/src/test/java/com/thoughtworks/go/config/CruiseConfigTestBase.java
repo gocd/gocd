@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -39,6 +40,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.FunctionalUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -51,7 +53,8 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -63,6 +66,14 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
     protected abstract CruiseConfig createCruiseConfig(BasicPipelineConfigs pipelineConfigs);
 
     protected abstract BasicCruiseConfig createCruiseConfig();
+
+    protected static final Cloner GO_CONFIG_CLONER = cloner();
+
+    private static Cloner cloner() {
+        Cloner instance = ClonerFactory.instance();
+        instance.nullInsteadOfClone(BasicCruiseConfig.DO_NOT_CLONE_CLASSES);
+        return instance;
+    }
 
     protected PartialConfig createPartial() {
         return PartialConfigMother.withPipelineInGroup("remote-pipe-1", "remote_group");

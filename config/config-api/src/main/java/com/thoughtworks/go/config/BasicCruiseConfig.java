@@ -59,6 +59,18 @@ import static java.util.stream.Collectors.toMap;
  */
 @ConfigTag("cruise")
 public class BasicCruiseConfig implements CruiseConfig {
+
+    /**
+     * Enumeration of classes somewhere within the config hierarchy that should not be cloned
+     */
+    static final Class<?>[] DO_NOT_CLONE_CLASSES = List.of(
+            AllPipelineConfigs.class,
+            AllTemplatesWithAssociatedPipelines.class,
+            PipelineNameToConfigMap.class,
+            CachedPluggableArtifactConfigs.class,
+            CachedFetchPluggableArtifactTasks.class
+    ).toArray(Class[]::new);
+
     @ConfigSubtag
     @SkipParameterResolution
     private ServerConfig serverConfig = new ServerConfig();

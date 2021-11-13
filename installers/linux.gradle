@@ -140,7 +140,6 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
     doFirst {
       project.delete(buildRoot)
       project.mkdir(destDir)
-      project.mkdir(project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}"))
 
       project.copy {
         from(configuration.singleFile) {
@@ -375,7 +374,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
         commandLine = cmd
 
-        workingDir "${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}"
+        workingDir "${project.buildDir}/distributions/${osType}"
 
         standardOutput = System.out
         errorOutput = System.err
@@ -398,7 +397,7 @@ task agentPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def osType = OsType.rpm
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
+  def destDir = project.file("${project.buildDir}/distributions/${osType}")
 
   copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
@@ -410,7 +409,7 @@ task agentPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def osType = OsType.deb
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
+  def destDir = project.file("${project.buildDir}/distributions/${osType}")
 
   copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
@@ -420,7 +419,7 @@ task serverPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def osType = OsType.rpm
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
+  def destDir = project.file("${project.buildDir}/distributions/${osType}")
 
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.serverJar, destDir)
 }
@@ -429,7 +428,7 @@ task serverPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def osType = OsType.deb
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
+  def destDir = project.file("${project.buildDir}/distributions/${osType}")
 
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.serverJar, destDir)
 }

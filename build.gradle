@@ -713,7 +713,7 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
   description = "Run all api tests"
 
   forAllTask { Test eachTestTask ->
-    thisTask.reportOn eachTestTask.binResultsDir
+    thisTask.reportOn eachTestTask.binaryResultsDirectory
     eachTestTask.finalizedBy(thisTask)
   }
   destinationDir = file("${project.buildDir}/reports/tests/allTests")

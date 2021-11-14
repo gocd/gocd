@@ -21,6 +21,7 @@ import com.github.jk1.license.render.JsonReportRenderer
 import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 import java.security.SecureRandom
 import java.util.stream.Collectors
@@ -246,7 +247,8 @@ allprojects {
 idea {
   project {
     jdkName = project.compilerOptions.targetCompatibility
-    languageLevel = project.compilerOptions.sourceCompatibility
+    targetBytecodeVersion = JavaVersion.toVersion(project.compilerOptions.targetCompatibility)
+    languageLevel = new IdeaLanguageLevel(project.compilerOptions.sourceCompatibility)
   }
 }
 

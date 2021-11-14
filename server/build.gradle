@@ -584,7 +584,7 @@ task copyTestDataJarsToServerDir(type: Copy) {
 
 task copyAgentJarsToServerDir(type: Copy) {
   from(project.configurations.copyOnly)
-  into '.'
+  into 'defaultFiles'
   rename "(.*)-${project.version}.jar", '$1.jar'
 }
 

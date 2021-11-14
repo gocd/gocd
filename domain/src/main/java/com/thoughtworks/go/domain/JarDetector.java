@@ -19,37 +19,45 @@ import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public abstract class JarDetector {
 
-    public static InputStreamSrc create(SystemEnvironment env, String file) throws IOException {
+    private static final String JAR_STORAGE_PREFIX = "defaultFiles";
+
+    public static InputStreamSrc createFromRelativeDefaultFile(SystemEnvironment env, String file) throws IOException {
         if (!env.useCompressedJs()) {
-            return createFromFile(file);
+            return new DefaultFilesFileInputStreamSource(file);
         } else {
-            return new DefaultFilesInputStreamSource(file);
+            return new DefaultFilesClasspathInputStreamSource(file);
         }
     }
 
-    public static InputStreamSrc createFromFile(String file) throws IOException {
+    public static InputStreamSrc createRaw(String file) throws IOException {
         return new FileInputStreamSource(file);
     }
 
     public static InputStreamSrc tfsJar(SystemEnvironment env) throws IOException {
         if (runningOnAgent()) {
-            return createFromFile("tfs-impl.jar");
+            return createRaw("tfs-impl.jar");
         }
 
-        return create(env, "tfs-impl-14.jar");
+        return createFromRelativeDefaultFile(env, "tfs-impl-14.jar");
     }
-
 
     private static boolean runningOnAgent() {
         return "agent".equals(System.getProperty("go.process.type"));
     }
 
-    private static class DefaultFilesInputStreamSource extends InputStreamSrc {
-        DefaultFilesInputStreamSource(String file) {
-            super(JarDetector.class.getClassLoader().getResource("defaultFiles/" + file));
+    private static class DefaultFilesClasspathInputStreamSource extends InputStreamSrc {
+        DefaultFilesClasspathInputStreamSource(String file) {
+            super(JarDetector.class.getClassLoader().getResource(JAR_STORAGE_PREFIX + '/' + file));
+        }
+    }
+
+    private static class DefaultFilesFileInputStreamSource extends InputStreamSrc {
+        DefaultFilesFileInputStreamSource(String file) throws IOException {
+            super(Paths.get(JAR_STORAGE_PREFIX, file).toFile().toURI().toURL());
         }
     }
 
@@ -57,6 +65,5 @@ public abstract class JarDetector {
         FileInputStreamSource(String file) throws IOException {
             super(new File(file).toURI().toURL());
         }
-
     }
 }

@@ -262,6 +262,7 @@ server-launcher/out/
 server-launcher/target/
 server/agent-launcher.jar
 server/agent.jar
+server/defaultFiles/
 server/artifacts/
 server/artifactsDir/
 server/config/agentkeystore

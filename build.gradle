@@ -400,7 +400,7 @@ subprojects {
     buildDir = "${projectDir}/target"
 
     configurations {
-      packagingOnly { transitive = false }
+      packagingOnly
       extractedAtTopLevel { transitive = false }
       fatJarConfig
 

@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.util.ClonerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -378,7 +377,7 @@ class PipelineConfigValidationTest {
         p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("stage")));
 
         PipelineConfig p1 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        p1 = ClonerFactory.instance().deepClone(p1); // Do not remove cloning else it changes the underlying cache object defeating the purpose of the test.
+        p1 = GoConfigMother.deepClone(p1); // Do not remove cloning else it changes the underlying cache object defeating the purpose of the test.
         p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("stage")));
         p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, cruiseConfig.getGroups().first().getGroup(), cruiseConfig, p1));
         assertThat(p1.materialConfigs().errors().isEmpty()).isFalse();

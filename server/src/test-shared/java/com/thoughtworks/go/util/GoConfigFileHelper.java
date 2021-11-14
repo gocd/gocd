@@ -60,10 +60,11 @@ import static org.mockito.Mockito.mock;
  */
 public class GoConfigFileHelper {
 
+    private static final GoConfigCloner CLONER = new GoConfigCloner();
     private final File configFile;
     private final String originalXml;
 
-    public GoConfigMother goConfigMother = new GoConfigMother();
+    private GoConfigMother goConfigMother = new GoConfigMother();
     private File passwordFile = null;
     private GoConfigDao goConfigDao;
     private CachedGoConfig cachedGoConfig;
@@ -108,6 +109,10 @@ public class GoConfigFileHelper {
 
     public GoConfigFileHelper(String xml) {
         this(xml, createTestingDao());
+    }
+
+    public <T> T deepClone(T config) {
+        return CLONER.deepClone(config);
     }
 
     /**
@@ -531,7 +536,7 @@ public class GoConfigFileHelper {
     public CruiseConfig load() {
         try {
             goConfigDao.forceReload();
-            return new GoConfigCloner().deepClone(goConfigDao.loadForEditing());
+            return deepClone(goConfigDao.loadForEditing());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -540,7 +545,7 @@ public class GoConfigFileHelper {
     public CruiseConfig loadForEdit() {
         try {
             goConfigDao.forceReload();
-            CruiseConfig cruiseConfig = new GoConfigCloner().deepClone(goConfigDao.loadForEditing());
+            CruiseConfig cruiseConfig = deepClone(goConfigDao.loadForEditing());
             cruiseConfig.initializeServer();
             return cruiseConfig;
         } catch (Exception e) {

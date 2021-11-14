@@ -23,12 +23,12 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +113,7 @@ class EnvironmentConfigServiceTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.getEnvironmentConfig(uat).getLocal();
         cruiseConfig.addEnvironment(env);
-        BasicEnvironmentConfig expectedToEdit = ClonerFactory.instance().deepClone(env);
+        BasicEnvironmentConfig expectedToEdit = GoConfigMother.deepClone(env);
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
@@ -140,7 +140,7 @@ class EnvironmentConfigServiceTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.getEnvironmentConfig(uat).getLocal();
         cruiseConfig.addEnvironment(env);
-        List<BasicEnvironmentConfig> expectedToEdit = singletonList(ClonerFactory.instance().deepClone(env));
+        List<BasicEnvironmentConfig> expectedToEdit = singletonList(GoConfigMother.deepClone(env));
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 

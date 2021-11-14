@@ -323,7 +323,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
         jobConfig.artifactTypeConfigs().add(artifactConfig);
 
-        BasicCruiseConfig preprocessed = GO_CONFIG_CLONER.deepClone(cruiseConfig);
+        BasicCruiseConfig preprocessed = GoConfigMother.deepClone(cruiseConfig);
         new ConfigParamPreprocessor().process(preprocessed);
         cruiseConfig.encryptSecureProperties(preprocessed);
 
@@ -355,7 +355,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
         cruiseConfig.server().security().getRoles().add(pluginRole);
 
-        BasicCruiseConfig preprocessed = GO_CONFIG_CLONER.deepClone(cruiseConfig);
+        BasicCruiseConfig preprocessed = GoConfigMother.deepClone(cruiseConfig);
         new ConfigParamPreprocessor().process(preprocessed);
         cruiseConfig.encryptSecureProperties(preprocessed);
 
@@ -387,7 +387,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
         cruiseConfig.getElasticConfig().getProfiles().add(elasticProfile);
 
-        BasicCruiseConfig preprocessed = GO_CONFIG_CLONER.deepClone(cruiseConfig);
+        BasicCruiseConfig preprocessed = GoConfigMother.deepClone(cruiseConfig);
         new ConfigParamPreprocessor().process(preprocessed);
         cruiseConfig.encryptSecureProperties(preprocessed);
 
@@ -411,7 +411,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
         resetCipher.setupAESCipherFile();
         BasicCruiseConfig config = setupPipelines();
-        BasicCruiseConfig preprocessed = GO_CONFIG_CLONER.deepClone(config);
+        BasicCruiseConfig preprocessed = GoConfigMother.deepClone(config);
         new ConfigParamPreprocessor().process(preprocessed);
         config.encryptSecureProperties(preprocessed);
         PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));

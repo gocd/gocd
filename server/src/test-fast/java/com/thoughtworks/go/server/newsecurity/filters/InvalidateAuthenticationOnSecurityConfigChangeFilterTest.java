@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
-import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +85,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         filter = new InvalidateAuthenticationOnSecurityConfigChangeFilter(goConfigService, clock, cacheService, pluginRoleService);
         filter.initialize();
         filter.onPluginRoleChange();
-        filter.onConfigChange(ClonerFactory.instance().deepClone(cruiseConfig));
+        filter.onConfigChange(GoConfigMother.deepClone(cruiseConfig));
         reset(cacheService);
     }
 
@@ -119,7 +118,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
 
         clock.addSeconds(1);
         cruiseConfig.addEnvironment("Foo");
-        filter.onConfigChange(ClonerFactory.instance().deepClone(cruiseConfig));
+        filter.onConfigChange(GoConfigMother.deepClone(cruiseConfig));
 
         response.reset();
         filter.doFilter(request, response, filterChain);
@@ -145,7 +144,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
 
         clock.addSeconds(1);
         GoConfigMother.addUserAsSuperAdmin(cruiseConfig, "bob");
-        filter.onConfigChange(ClonerFactory.instance().deepClone(cruiseConfig));
+        filter.onConfigChange(GoConfigMother.deepClone(cruiseConfig));
 
         response.reset();
         filter.doFilter(request, response, filterChain);

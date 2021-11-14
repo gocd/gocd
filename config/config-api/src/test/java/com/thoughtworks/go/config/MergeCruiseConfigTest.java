@@ -356,7 +356,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
         partialConfig.setOrigin(new RepoConfigOrigin());
         CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
-        CruiseConfig cloned = GO_CONFIG_CLONER.deepClone(config);
+        CruiseConfig cloned = GoConfigMother.deepClone(config);
 
         List<ConfigErrors> allErrors = cloned.validateAfterPreprocess();
         assertThat(allErrors.size(), is(2));

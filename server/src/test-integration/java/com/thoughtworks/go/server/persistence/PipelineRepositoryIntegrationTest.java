@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.persistence;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -38,7 +37,6 @@ import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
@@ -92,7 +90,6 @@ public class PipelineRepositoryIntegrationTest {
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "pipeline";
-    public static final Cloner CLONER = ClonerFactory.instance();
 
     @BeforeEach
     public void setup() throws Exception {
@@ -141,7 +138,7 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(flyweightsRevs.get(0).revision, is("g2"));
         assertThat(flyweightsRevs.get(1).revision, is("g1"));
 
-        MaterialConfigs materials = CLONER.deepClone(p.config.materialConfigs());
+        MaterialConfigs materials = configHelper.deepClone(p.config.materialConfigs());
         Collections.reverse(materials);
         configHelper.setMaterialConfigForPipeline("P", materials.toArray(new MaterialConfig[0]));
 

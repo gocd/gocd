@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.helper;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -34,6 +35,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.ClonerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -44,6 +46,19 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.util.Arrays.asList;
 
 public class GoConfigMother {
+    public static final Cloner CLONER = cloner();
+
+    private static Cloner cloner() {
+        // Recreated here, because we deliberately not have access to the `GoConfigCloner` from the API
+        Cloner instance = ClonerFactory.instance();
+        instance.nullInsteadOfClone(BasicCruiseConfig.DO_NOT_CLONE_CLASSES);
+        return instance;
+    }
+
+    public static <T> T deepClone(T config) {
+        return CLONER.deepClone(config);
+    }
+
     public Role createRole(String roleName, String... users) {
         return new RoleConfig(new CaseInsensitiveString(roleName), toRoleUsers(users));
     }

@@ -57,7 +57,10 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.SerializationTester;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -292,7 +295,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
-        PipelineConfig pipelineConfig = ClonerFactory.instance().deepClone(originalPipelineConfig);
+        PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
@@ -319,7 +322,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
-        PipelineConfig pipelineConfig = ClonerFactory.instance().deepClone(originalPipelineConfig);
+        PipelineConfig pipelineConfig = configHelper.deepClone(originalPipelineConfig);
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
@@ -349,7 +352,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig pipelineConfig = ClonerFactory.instance().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        PipelineConfig pipelineConfig = configHelper.deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
 
         pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 

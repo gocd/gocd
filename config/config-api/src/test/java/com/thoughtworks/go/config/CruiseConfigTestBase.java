@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -40,7 +39,6 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.FunctionalUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -66,14 +64,6 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
     protected abstract CruiseConfig createCruiseConfig(BasicPipelineConfigs pipelineConfigs);
 
     protected abstract BasicCruiseConfig createCruiseConfig();
-
-    protected static final Cloner GO_CONFIG_CLONER = cloner();
-
-    private static Cloner cloner() {
-        Cloner instance = ClonerFactory.instance();
-        instance.nullInsteadOfClone(BasicCruiseConfig.DO_NOT_CLONE_CLASSES);
-        return instance;
-    }
 
     protected PartialConfig createPartial() {
         return PartialConfigMother.withPipelineInGroup("remote-pipe-1", "remote_group");

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -41,7 +40,6 @@ import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.MaxBackTrackLimitReachedException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
@@ -72,7 +70,6 @@ import static org.mockito.Mockito.when;
 })
 public class AutoTriggerDependencyResolutionTest {
     public static final String STAGE_NAME = "s";
-    public static final Cloner CLONER = ClonerFactory.instance();
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
@@ -224,7 +221,7 @@ public class AutoTriggerDependencyResolutionTest {
                 if (nth-- > 0) {
                     continue;
                 }
-                return CLONER.deepClone(mat);
+                return configHelper.deepClone(mat);
             }
         }
         throw new RuntimeException("You don't have this material configured");

@@ -30,23 +30,19 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.joda.time.DateTime;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
@@ -76,7 +72,7 @@ public class ScheduleTestUtil {
     }
 
     private Material mw(Material material) {
-        material = AutoTriggerDependencyResolutionTest.CLONER.deepClone(material);
+        material = GoConfigMother.deepClone(material);
         return material;
     }
 
@@ -259,17 +255,14 @@ public class ScheduleTestUtil {
 
 
     private List<Modification> modForRev(final RevisionsForMaterial revision) {
-        return (List<Modification>) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
-                q.setParameterList("in", revision.revs);
-                List list = q.list();
-                if (list.isEmpty()) {
-                    throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
-                }
-                return list;
+        return materialRepository.getHibernateTemplate().execute(session -> {
+            Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
+            q.setParameterList("in", revision.revs);
+            List<Modification> list = q.list();
+            if (list.isEmpty()) {
+                throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }
+            return list;
         });
     }
 
@@ -286,17 +279,14 @@ public class ScheduleTestUtil {
     }
 
     private Modification modForRev(final String revision) {
-        return (Modification) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from Modification where revision = ?");
-                q.setParameter(0, revision);
-                List list = q.list();
-                if (list.isEmpty()) {
-                    throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
-                }
-                return list.get(0);
+        return (Modification) materialRepository.getHibernateTemplate().execute(session -> {
+            Query q = session.createQuery("from Modification where revision = ?");
+            q.setParameter(0, revision);
+            List list = q.list();
+            if (list.isEmpty()) {
+                throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }
+            return list.get(0);
         });
     }
 
@@ -352,7 +342,7 @@ public class ScheduleTestUtil {
         String stageName = AutoTriggerDependencyResolutionTest.STAGE_NAME;
         MaterialConfigs materialConfigs = new MaterialConfigs();
         for (MaterialDeclaration mDecl : materialDeclaration) {
-            MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(mDecl.material.config());
+            MaterialConfig materialConfig = GoConfigMother.deepClone(mDecl.material.config());
             materialConfigs.add(materialConfig);
         }
         PipelineConfig cfg = configHelper.addPipelineWithGroupAndTimer(DEFAULT_GROUP, pipelineName, materialConfigs, stageName, timer, "job1");
@@ -373,7 +363,7 @@ public class ScheduleTestUtil {
 
     public AddedPipeline saveConfigWith(String pipelineName, String stageName, MaterialDeclaration materialDeclaration, String[] builds) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
-        MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(materialDeclaration.material.config());
+        MaterialConfig materialConfig = GoConfigMother.deepClone(materialDeclaration.material.config());
         materialConfigs.add(materialConfig);
         PipelineConfig cfg = configHelper.addPipelineWithGroup(DEFAULT_GROUP, pipelineName, materialConfigs, stageName, builds);
         return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(stageName)));
@@ -394,7 +384,7 @@ public class ScheduleTestUtil {
     private AddedPipeline saveConfigWith(String groupName, String pipelineName, String stageName, MaterialDeclaration... materialDecls) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         for (MaterialDeclaration mDecl : materialDecls) {
-            MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(mDecl.material.config());
+            MaterialConfig materialConfig = GoConfigMother.deepClone(mDecl.material.config());
             materialConfigs.add(materialConfig);
         }
         PipelineConfig cfg = configHelper.addPipelineWithGroup(groupName, pipelineName, materialConfigs, stageName, "job1");
@@ -413,13 +403,13 @@ public class ScheduleTestUtil {
 
 
     public AddedPipeline addMaterialToPipeline(AddedPipeline pipeline, MaterialDeclaration mDecl) {
-        MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(mDecl.materialConfig());
+        MaterialConfig materialConfig = GoConfigMother.deepClone(mDecl.materialConfig());
         PipelineConfig cfg = configHelper.addMaterialToPipeline(pipeline.config.name().toString(), materialConfig);
         return new AddedPipeline(cfg, pipeline.material);
     }
 
     public AddedPipeline removeMaterialFromPipeline(AddedPipeline pipeline, MaterialDeclaration mDecl) {
-        MaterialConfig materialConfig = AutoTriggerDependencyResolutionTest.CLONER.deepClone(mDecl.materialConfig());
+        MaterialConfig materialConfig = GoConfigMother.deepClone(mDecl.materialConfig());
         PipelineConfig cfg = configHelper.removeMaterialFromPipeline(pipeline.config.name().toString(), materialConfig);
         return new AddedPipeline(cfg, pipeline.material);
     }
@@ -429,16 +419,13 @@ public class ScheduleTestUtil {
     }
 
     public void checkinInOrder(final Material material, final Date dateOfCheckin, final String... revisions) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                for (int i = 0; i < revisions.length; i++) {
-                    String revision = revisions[i];
-                    materialRepository.saveMaterialRevision(new MaterialRevision(material,
-                            new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision)));
-                }
-                return null;
+        transactionTemplate.execute(status -> {
+            for (int i = 0; i < revisions.length; i++) {
+                String revision = revisions[i];
+                materialRepository.saveMaterialRevision(new MaterialRevision(material,
+                        new Modification("loser number " + i, "commit " + i, "e" + i + "@mail", new DateTime(dateOfCheckin.getTime()).plusHours(i).toDate(), revision)));
             }
+            return null;
         });
     }
 
@@ -447,30 +434,24 @@ public class ScheduleTestUtil {
     }
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
-                for (File file : files) {
-                    modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
-                }
-                materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
-                return null;
+        transactionTemplate.execute(status -> {
+            Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
+            for (File file : files) {
+                modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
             }
+            materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
+            return null;
         });
     }
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction,final Date date) {
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
-                for (File file : files) {
-                    modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
-                }
-                materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
-                return null;
+        transactionTemplate.execute(status -> {
+            Modification modification = new Modification("user", "comment", "a@b.com", date, revision);
+            for (File file : files) {
+                modification.createModifiedFile(file.getName(), file.getParent(), modifiedAction);
             }
+            materialRepository.saveMaterialRevision(new MaterialRevision(material, modification));
+            return null;
         });
     }
 }

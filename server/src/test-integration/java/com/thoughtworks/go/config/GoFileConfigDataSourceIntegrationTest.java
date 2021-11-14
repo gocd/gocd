@@ -605,7 +605,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     private void updateConfigOnFileSystem(UpdateConfig updateConfig) throws Exception {
         String cruiseConfigFile = systemEnvironment.getCruiseConfigFile();
-        CruiseConfig updatedConfig = ClonerFactory.instance().deepClone(goConfigService.getConfigForEditing());
+        CruiseConfig updatedConfig = GoConfigMother.deepClone(goConfigService.getConfigForEditing());
         updateConfig.update(updatedConfig);
         File configFile = new File(cruiseConfigFile);
         FileOutputStream outputStream = new FileOutputStream(configFile);

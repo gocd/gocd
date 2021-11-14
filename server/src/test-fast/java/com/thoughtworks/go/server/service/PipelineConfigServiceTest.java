@@ -20,12 +20,12 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
-import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +37,8 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class PipelineConfigServiceTest {
@@ -143,7 +143,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void pipelineCountShouldIncludeConfigRepoPipelinesAsWell() {
-        CruiseConfig mergedCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
+        CruiseConfig mergedCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
         mergedCruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         when(goConfigService.cruiseConfig()).thenReturn(mergedCruiseConfig);
@@ -155,7 +155,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void shouldGetAllViewableMergePipelineConfigs() throws Exception {
-        CruiseConfig mergedCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
+        CruiseConfig mergedCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
         mergedCruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         mergedCruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
@@ -180,7 +180,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void shouldGetAllViewableGroups() throws Exception {
-        CruiseConfig cruiseConfig = ClonerFactory.instance().deepClone(this.cruiseConfig);
+        CruiseConfig cruiseConfig = GoConfigMother.deepClone(this.cruiseConfig);
         ReflectionUtil.setField(cruiseConfig, "allPipelineConfigs", null);
         cruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         cruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));

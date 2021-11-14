@@ -21,21 +21,20 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.util.ClonerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class GoConfigParallelGraphWalkerTest {
 
     @Test
     public void shouldWalkCruiseConfigObjectsParallelly() {
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("bad pipeline name");
-        CruiseConfig rawCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
+        CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
         cruiseConfig.copyErrorsTo(rawCruiseConfig);
         assertThat(rawCruiseConfig.pipelineConfigByName(new CaseInsensitiveString("bad pipeline name")).errors(),
@@ -52,7 +51,7 @@ public class GoConfigParallelGraphWalkerTest {
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString("template-1"));
         cruiseConfig.getGroups().get(0).add(pipelineWithTemplate);
 
-        CruiseConfig rawCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
+        CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
         cruiseConfig.copyErrorsTo(rawCruiseConfig);
         assertThat(rawCruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline-with-template")).errors().isEmpty(), is(true));
@@ -71,7 +70,7 @@ public class GoConfigParallelGraphWalkerTest {
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString("invalid template name"));
         cruiseConfig.getGroups().get(0).add(pipelineWithTemplate);
 
-        CruiseConfig rawCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
+        CruiseConfig rawCruiseConfig = GoConfigMother.deepClone(cruiseConfig);
         MagicalGoConfigXmlLoader.validate(cruiseConfig);
         cruiseConfig.copyErrorsTo(rawCruiseConfig);
 
@@ -119,7 +118,7 @@ public class GoConfigParallelGraphWalkerTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", MaterialConfigsMother.defaultMaterialConfigs(), new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("name", "value"))));
 
-        PipelineConfig pipelineWithErrors = ClonerFactory.instance().deepClone(pipelineConfig);
+        PipelineConfig pipelineWithErrors = GoConfigMother.deepClone(pipelineConfig);
         pipelineWithErrors.getVariables().get(0).addError("name", "error on environment variable");
         pipelineWithErrors.first().addError("name", "error on stage");
         pipelineWithErrors.first().getJobs().first().addError("name", "error on job");

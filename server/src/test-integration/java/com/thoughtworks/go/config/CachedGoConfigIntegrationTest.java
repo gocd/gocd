@@ -880,7 +880,7 @@ public class CachedGoConfigIntegrationTest {
         String remoteDownstream = "remote-downstream";
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
 
-        PartialConfig partialWithStageRenamed = ClonerFactory.instance().deepClone(cachedGoPartials.lastValidPartials().get(0));
+        PartialConfig partialWithStageRenamed = GoConfigMother.deepClone(cachedGoPartials.lastValidPartials().get(0));
         PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().get(0).getPipelines().get(0);
         pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(new CaseInsensitiveString("new_name"));
         partialWithStageRenamed.setOrigin(new RepoConfigOrigin(configRepo, "r2"));
@@ -932,7 +932,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoPartials.clear();
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
         partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
-        CruiseConfig updatedConfig = ClonerFactory.instance().deepClone(goConfigService.getConfigForEditing());
+        CruiseConfig updatedConfig = GoConfigMother.deepClone(goConfigService.getConfigForEditing());
         updatedConfig.server().setJobTimeout("10");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
         FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml, UTF_8);
@@ -1059,7 +1059,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().contains(validPartial)).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(validPartial)).isTrue();
 
-        CruiseConfig config = ClonerFactory.instance().deepClone(cachedGoConfig.loadForEditing());
+        CruiseConfig config = GoConfigMother.deepClone(cachedGoConfig.loadForEditing());
 
         config.addEnvironment(UUID.randomUUID().toString());
 
@@ -1087,7 +1087,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
 
-        CruiseConfig config = ClonerFactory.instance().deepClone(cachedGoConfig.loadForEditing());
+        CruiseConfig config = GoConfigMother.deepClone(cachedGoConfig.loadForEditing());
 
         config.addEnvironment(UUID.randomUUID().toString());
 
@@ -1117,7 +1117,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().contains(validPartial)).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
 
-        CruiseConfig config = ClonerFactory.instance().deepClone(cachedGoConfig.loadForEditing());
+        CruiseConfig config = GoConfigMother.deepClone(cachedGoConfig.loadForEditing());
 
         config.addEnvironment(UUID.randomUUID().toString());
 
@@ -1141,7 +1141,7 @@ public class CachedGoConfigIntegrationTest {
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml("upstream", "downstream");
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         CruiseConfig originalConfig = cachedGoConfig.loadForEditing();
-        CruiseConfig editedConfig = ClonerFactory.instance().deepClone(originalConfig);
+        CruiseConfig editedConfig = GoConfigMother.deepClone(originalConfig);
 
         editedConfig.getGroups().remove(editedConfig.findGroup("default"));
 
@@ -1172,7 +1172,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
 
         CruiseConfig originalConfig = cachedGoConfig.loadForEditing();
-        CruiseConfig editedConfig = ClonerFactory.instance().deepClone(originalConfig);
+        CruiseConfig editedConfig = GoConfigMother.deepClone(originalConfig);
 
         editedConfig.addPipeline("default", upstream);
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));

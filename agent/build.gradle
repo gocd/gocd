@@ -212,8 +212,8 @@ task functionalTest(type: Test) {
   mustRunAfter test
 
   reports {
-    html.enabled = true
-    junitXml.enabled = true
+    html.required = true
+    junitXml.required = true
   }
 }
 

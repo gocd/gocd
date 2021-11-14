@@ -377,8 +377,8 @@ task sharedTest(type: Test) { thisTask ->
   mustRunAfter test
 
   reports {
-    html.enabled = true
-    junitXml.enabled = true
+    html.required = true
+    junitXml.required = true
   }
 
   doFirst {
@@ -412,8 +412,8 @@ task fastUnitTest(type: Test) { thisTask ->
   maxHeapSize '2g'
 
   reports {
-    html.enabled = true
-    junitXml.enabled = true
+    html.required = true
+    junitXml.required = true
   }
 
   doFirst {
@@ -445,8 +445,8 @@ task integrationTest(type: Test) { thisTask ->
   maxHeapSize '2g'
 
   reports {
-    html.enabled = true
-    junitXml.enabled = true
+    html.required = true
+    junitXml.required = true
   }
 
   doFirst {
@@ -584,7 +584,7 @@ task copyTestDataJarsToServerDir(type: Copy) {
 
 task copyAgentJarsToServerDir(type: Copy) {
   from(project.configurations.copyOnly)
-  into '.'
+  into 'defaultFiles'
   rename "(.*)-${project.version}.jar", '$1.jar'
 }
 

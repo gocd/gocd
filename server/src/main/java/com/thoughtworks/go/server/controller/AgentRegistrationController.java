@@ -81,10 +81,10 @@ public class AgentRegistrationController {
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZip = pluginsZip;
-        this.agentJarSrc = JarDetector.create(systemEnvironment, "agent.jar");
-        this.agentLauncherSrc = JarDetector.create(systemEnvironment, "agent-launcher.jar");
-        this.agentPluginsZipSrc = JarDetector.createFromFile(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
-        this.tfsImplSrc = JarDetector.create(systemEnvironment, "tfs-impl-14.jar");
+        this.agentJarSrc = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar");
+        this.agentLauncherSrc = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar");
+        this.agentPluginsZipSrc = JarDetector.createRaw(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
+        this.tfsImplSrc = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "tfs-impl-14.jar");
         this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
     }
 

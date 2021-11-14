@@ -61,7 +61,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
 
     doFirst {
       project.delete(buildRoot)
-      project.mkdir(project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/win"))
+      project.mkdir(project.file("${project.buildDir}/distributions/win"))
 
       def genericZipTree = zipTree(genericZipTask.archiveFile)
 
@@ -172,7 +172,7 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
 task agentWindows64bitExe { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/win")
+  def destDir = project.file("${project.buildDir}/distributions/win")
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
 
@@ -188,7 +188,7 @@ task agentWindows64bitExe { DefaultTask thisTask ->
 task serverWindows64bitExe { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/win")
+  def destDir = project.file("${project.buildDir}/distributions/win")
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
 

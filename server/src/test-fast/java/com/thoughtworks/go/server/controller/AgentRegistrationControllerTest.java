@@ -155,11 +155,11 @@ public class AgentRegistrationControllerTest {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER));
         }
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
+        try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
         }
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
+        try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
         }
 
@@ -183,7 +183,7 @@ public class AgentRegistrationControllerTest {
     public void headShouldIncludeMd5ChecksumAndServerUrl_forAgent() throws Exception {
         controller.checkAgentVersion(response);
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
+        try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
     }
@@ -192,7 +192,7 @@ public class AgentRegistrationControllerTest {
     public void headShouldIncludeMd5ChecksumAndServerUrl_forAgentLauncher() throws Exception {
         controller.checkAgentLauncherVersion(response);
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
+        try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
     }
@@ -202,10 +202,10 @@ public class AgentRegistrationControllerTest {
         controller.downloadAgent(response);
         assertEquals("application/octet-stream", response.getContentType());
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
+        try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
-        try (InputStream is = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
+        try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent.jar").invoke()) {
             assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
         }
     }
@@ -240,10 +240,10 @@ public class AgentRegistrationControllerTest {
         controller.downloadAgentLauncher(response);
         assertEquals("application/octet-stream", response.getContentType());
 
-        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
+        try (InputStream stream = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
         }
-        try (InputStream is = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
+        try (InputStream is = JarDetector.createFromRelativeDefaultFile(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
         }
     }

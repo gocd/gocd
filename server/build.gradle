@@ -239,7 +239,9 @@ dependencies {
   implementation project(':db-support:db-support-postgresql')
   implementation project(':db-support:db-support-mysql')
 
-  packagingOnly project(':base')
+  packagingOnly(project(':base')) {
+    transitive = false
+  }
   packagingOnly project.deps.servletApi
 
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')

@@ -1258,10 +1258,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
-"@types/mithril@2.0.6":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.6.tgz#1e2a482b0d8bcfe83f4d61e4c370ec8534903984"
-  integrity sha512-oOyFr99rKH+94uKHjIVKTL9uaUaxtXJgtZOZkjhWIAY8twr9YzxfEmYARMJkWC3aVg52We8d4wtLhqQ99+fXpw==
+"@types/mithril@2.0.8":
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.8.tgz#b7b6f58bdc7b244802f5ff919805e947d8e45b4e"
+  integrity sha512-QzVV70DqUhWfLFpMFDBI9rRxtzeUUpbhiFDpUJYSV92AePgl+Qfficgv2MOb1Ceb+lBOQU8+L+Hjf2UielQjEw==
 
 "@types/node@*", "@types/node@>=10.0.0", "@types/node@^16.11.10":
   version "16.11.10"

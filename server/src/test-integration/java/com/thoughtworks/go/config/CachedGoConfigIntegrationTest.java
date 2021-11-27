@@ -54,7 +54,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempDirUtils;
@@ -87,6 +87,7 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
@@ -468,7 +469,7 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldInterpolateParamsInTemplate() throws Exception {
-        String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server>"
                 + "<artifacts>\n"
                 + "<artifactsDir>artifacts</artifactsDir>\n"
@@ -530,7 +531,7 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldHandleParamQuotingCorrectly() throws Exception {
-        String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server>"
                 + "<artifacts>\n"
                 + "<artifactsDir>artifacts</artifactsDir>\n"
@@ -569,7 +570,7 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldAllowParamsInLabelTemplates() throws Exception {
-        String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server>"
                 + "<artifacts>\n"
                 + "<artifactsDir>artifacts</artifactsDir>\n"
@@ -606,7 +607,7 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldThrowErrorWhenEnvironmentVariablesAreDuplicate() throws Exception {
-        String content = "<cruise schemaVersion='" + GoConstants.CONFIG_SCHEMA_VERSION + "'>\n"
+        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server>"
                 + "<artifacts>\n"
                 + "<artifactsDir>artifacts</artifactsDir>\n"
@@ -763,7 +764,7 @@ public class CachedGoConfigIntegrationTest {
 
     private String configXmlWithPipeline(String pipelineName) {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n" +
+                "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
                 "  <server serverId=\"dd8d0f5a-7e8d-4948-a1c7-ddcedbac15d0\">\n" +
                 "    <artifacts>\n" +
                 "       <artifactsDir>artifacts</artifactsDir>\n" +

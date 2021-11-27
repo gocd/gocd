@@ -55,14 +55,15 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(ResetCipher.class)
@@ -321,7 +322,9 @@ public class MagicalGoConfigXmlWriterTest {
     @Test
     public void shouldBeAValidXSD() throws Exception {
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-        factory.newSchema(new StreamSource(getClass().getResourceAsStream("/cruise-config.xsd")));
+        try (InputStream xsdStream = getClass().getResourceAsStream("/cruise-config.xsd")) {
+            factory.newSchema(new StreamSource(xsdStream));
+        }
     }
 
     @Test

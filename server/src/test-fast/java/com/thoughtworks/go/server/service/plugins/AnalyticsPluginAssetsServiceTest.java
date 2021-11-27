@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -165,7 +164,7 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(actualPath.toFile().exists());
-        byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/plugin-endpoint.js"));
+        byte[] expected = IOUtils.toByteArray(getClass().getResource("/plugin-endpoint.js"));
         assertArrayEquals(expected, Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
     }
 
@@ -241,7 +240,7 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     private String testDataZipArchive() throws IOException {
-        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResourceAsStream("/plugin_cache_test.zip"))));
+        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResource("/plugin_cache_test.zip"))));
     }
 
     private void addAnalyticsPluginInfoToStore(String pluginId) {

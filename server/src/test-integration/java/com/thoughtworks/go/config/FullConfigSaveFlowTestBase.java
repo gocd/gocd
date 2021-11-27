@@ -41,8 +41,8 @@ import java.util.ArrayList;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -70,7 +70,7 @@ public abstract class FullConfigSaveFlowTestBase {
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
-        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
+        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/pluggable_artifacts_with_params.xml"), UTF_8));
         loader = new MagicalGoConfigXmlLoader(configCache, registry);
         setupMetadataForPlugin();
     }

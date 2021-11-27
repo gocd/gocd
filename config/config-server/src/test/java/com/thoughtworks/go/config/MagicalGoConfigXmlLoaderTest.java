@@ -35,7 +35,10 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.Deny;
 import com.thoughtworks.go.config.rules.Rules;
-import com.thoughtworks.go.config.validation.*;
+import com.thoughtworks.go.config.validation.ArtifactDirValidator;
+import com.thoughtworks.go.config.validation.GoConfigValidator;
+import com.thoughtworks.go.config.validation.ServerIdImmutabilityValidator;
+import com.thoughtworks.go.config.validation.TokenGenerationKeyImmutabilityValidator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
@@ -1688,15 +1691,6 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      </stage>\n"
                         + "    </pipeline>");
         ConfigMigrator.loadWithMigration(content); // should not fail with a validation exception
-    }
-
-    @Test
-    void shouldLoadLargeConfigFileInReasonableTime() throws Exception {
-        String content = IOUtils.toString(getClass().getResourceAsStream("/data/big-cruise-config.xml"), UTF_8);
-//        long start = System.currentTimeMillis();
-        GoConfigHolder configHolder = ConfigMigrator.loadWithMigration(content);
-//        assertThat(System.currentTimeMillis() - start, lessThan(new Long(2000)));
-        assertThat(configHolder.config.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
     }
 
     @Test
@@ -3884,7 +3878,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
         final ArtifactTypeConfigs artifactTypeConfigs = cruiseConfig.pipelineConfigByName(
-                new CaseInsensitiveString("up42")).getStage("up42_stage")
+                        new CaseInsensitiveString("up42")).getStage("up42_stage")
                 .getJobs().getJob(new CaseInsensitiveString("up42_job")).artifactTypeConfigs();
 
         assertThat(artifactTypeConfigs).hasSize(1);
@@ -4224,7 +4218,7 @@ public class MagicalGoConfigXmlLoaderTest {
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
 
-        String content = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
+        String content = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/pluggable_artifacts_with_params.xml"), UTF_8));
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).configForEdit;
         PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
@@ -4484,7 +4478,7 @@ public class MagicalGoConfigXmlLoaderTest {
         MaterialConfig materialConfig = config
                 .getPipelineConfigByName(new CaseInsensitiveString("pipeline"))
                 .materialConfigs().get(0);
-        
+
         assertThat(materialConfig).isInstanceOf(PluggableSCMMaterialConfig.class);
         assertThat(materialConfig.isInvertFilter()).isTrue();
     }

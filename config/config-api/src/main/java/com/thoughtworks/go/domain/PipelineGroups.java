@@ -21,8 +21,6 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -33,8 +31,8 @@ import java.util.*;
 @ConfigCollection(value = BasicPipelineConfigs.class)
 public class PipelineGroups extends BaseCollection<PipelineConfigs> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
-    private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap;
-    private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialToPipelineMap;
+    private volatile Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap;
+    private volatile Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialToPipelineMap;
 
     public PipelineGroups() {
     }
@@ -235,10 +233,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
 
     public boolean canDeletePluggableSCMMaterial(SCM scmConfig) {
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines = getPluggableSCMMaterialUsageInPipelines();
-        if (packageUsageInPipelines.containsKey(scmConfig.getId())) {
-            return false;
-        }
-        return true;
+        return !packageUsageInPipelines.containsKey(scmConfig.getId());
     }
 
     public PipelineGroups getLocal() {

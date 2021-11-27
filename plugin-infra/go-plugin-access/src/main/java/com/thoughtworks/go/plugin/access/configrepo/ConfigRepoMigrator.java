@@ -40,9 +40,9 @@ public class ConfigRepoMigrator {
     }
 
     private Chainr getTransformerFor(int targetVersion) {
+        String targetVersionFile = String.format("/config-repo/migrations/%s.json", targetVersion);
         try {
-            String targetVersionFile = String.format("/config-repo/migrations/%s.json", targetVersion);
-            String transformJSON = IOUtils.toString(this.getClass().getResourceAsStream(targetVersionFile), StandardCharsets.UTF_8);
+            String transformJSON = IOUtils.toString(this.getClass().getResource(targetVersionFile), StandardCharsets.UTF_8);
             return Chainr.fromSpec(JsonUtils.jsonToList(transformJSON));
         } catch (Exception e) {
             throw new RuntimeException("Failed to migrate to version " + targetVersion, e);
@@ -50,9 +50,9 @@ public class ConfigRepoMigrator {
     }
 
     private Map<String, Object> getContextMap(int targetVersion) {
+        String contextFile = String.format("/config-repo/contexts/%s.json", targetVersion);
         try {
-            String contextFile = String.format("/config-repo/contexts/%s.json", targetVersion);
-            String contextJSON = IOUtils.toString(this.getClass().getResourceAsStream(contextFile), StandardCharsets.UTF_8);
+            String contextJSON = IOUtils.toString(this.getClass().getResource(contextFile), StandardCharsets.UTF_8);
             return JsonUtils.jsonToMap(contextJSON);
         } catch (Exception e) {
             LOGGER.debug(String.format("No context file present for target version '%s'.", targetVersion));

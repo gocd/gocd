@@ -71,7 +71,7 @@ public class PipelineConfigsServiceIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper();
-        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/config_with_pluggable_artifacts_store.xml"), UTF_8));
+        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/config_with_pluggable_artifacts_store.xml"), UTF_8));
         setupMetadataForPlugin();
 
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -201,7 +201,7 @@ public class PipelineConfigsServiceIntegrationTest {
     }
 
     private String groupSnippetWithSecurePropertiesBeforeEncryption() throws IOException {
-        return IOUtils.toString(getClass().getResourceAsStream("/data/pipeline_group_snippet_with_pluggable_artifacts.xml"), UTF_8);
+        return IOUtils.toString(getClass().getResource("/data/pipeline_group_snippet_with_pluggable_artifacts.xml"), UTF_8);
     }
 
 }

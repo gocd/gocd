@@ -27,7 +27,9 @@ import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
@@ -112,7 +114,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision22() throws Exception {
-        final String content = IOUtils.toString(getClass().getResourceAsStream("cruise-config-escaping-migration-test-fixture.xml"), UTF_8);
+        final String content = IOUtils.toString(getClass().getResource("cruise-config-escaping-migration-test-fixture.xml"), UTF_8);
 
         String migratedContent = ConfigMigrator.migrate(content, 21, 22);
 
@@ -122,7 +124,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision28() throws Exception {
-        final String content = IOUtils.toString(getClass().getResourceAsStream("no-tracking-tool-group-holder-config.xml"), UTF_8);
+        final String content = IOUtils.toString(getClass().getResource("no-tracking-tool-group-holder-config.xml"), UTF_8);
 
         String migratedContent = migrateXmlString(content, 27);
 
@@ -132,7 +134,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision34() throws Exception {
-        final String content = IOUtils.toString(getClass().getResourceAsStream("svn-p4-with-parameterized-passwords.xml"), UTF_8);
+        final String content = IOUtils.toString(getClass().getResource("svn-p4-with-parameterized-passwords.xml"), UTF_8);
 
         String migratedContent = ConfigMigrator.migrate(content, 22, 34);
 
@@ -144,7 +146,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision35_escapeHash() throws Exception {
-        final String content = IOUtils.toString(getClass().getResourceAsStream("escape_param_for_nant_p4.xml"), UTF_8).trim();
+        final String content = IOUtils.toString(getClass().getResource("escape_param_for_nant_p4.xml"), UTF_8).trim();
 
         String migratedContent = ConfigMigrator.migrate(content, 22, 35);
 

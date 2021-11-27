@@ -3,6 +3,7 @@ package com.thoughtworks.go.addon.businesscontinuity;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,7 +21,7 @@ class ViewResolverTest {
         modelMap.put("key2", "value2");
 
         ViewResolver viewResolverSpy = spy(new ViewResolver());
-        doReturn(IOUtils.toInputStream(template)).when(viewResolverSpy).getResourceAsStream("sample");
+        doReturn(IOUtils.toInputStream(template, StandardCharsets.UTF_8)).when(viewResolverSpy).getResourceAsStream("sample");
         String resolvedView = viewResolverSpy.resolveView("sample", modelMap);
 
         assertThat(resolvedView, is("<html><head><link href=\"value1\\value2\"/></head></html>"));

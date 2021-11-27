@@ -118,7 +118,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
 
         try {
             byte[] payload = Base64.getDecoder().decode(data.getBytes());
-            byte[] pluginEndpointJsContent = IOUtils.toByteArray(getClass().getResourceAsStream("/" + PLUGIN_ENDPOINT_JS));
+            byte[] pluginEndpointJsContent = IOUtils.toByteArray(getClass().getResource("/" + PLUGIN_ENDPOINT_JS));
 
             try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(payload))) {
                 String assetsHash = calculateHash(payload, pluginEndpointJsContent);
@@ -139,7 +139,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
 
     private void safeCopyExternalAssetsToPluginAssetRoot(final String pluginAssetsRoot) {
         Path externalAssetsPath = Paths.get(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS));
-        if (externalAssetsPath == null || !Files.exists(externalAssetsPath) || !Files.isDirectory(externalAssetsPath)) {
+        if (!Files.exists(externalAssetsPath) || !Files.isDirectory(externalAssetsPath)) {
             LOGGER.debug("Analytics plugin external assets path ({}) does not exist or is not a directory. Not loading any assets.", externalAssetsPath);
             return;
         }
@@ -184,9 +184,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
         LOGGER.info("Deleting cached static assets for plugin: {}", pluginId);
         try {
             FileUtils.deleteDirectory(new File(pluginStaticAssetsRootDir(pluginId)));
-            if (pluginAssetPaths.containsKey(pluginId)) {
-                pluginAssetPaths.remove(pluginId);
-            }
+            pluginAssetPaths.remove(pluginId);
         } catch (Exception e) {
             LOGGER.error("Failed to delete cached static assets for plugin: {}", pluginId, e);
             ExceptionUtils.bomb(e);

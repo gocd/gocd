@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +34,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,7 +74,7 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     @Test
-    public void shouldBeAPluginMetadataChangeListener() throws Exception {
+    public void shouldBeAPluginMetadataChangeListener() {
         verify(analyticsMetadataLoader).registerListeners(assetsService);
     }
 
@@ -165,7 +163,7 @@ public class AnalyticsPluginAssetsServiceTest {
 
         assertTrue(pluginDirPath.toFile().exists());
         assertTrue(actualPath.toFile().exists());
-        byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/plugin-endpoint.js"));
+        byte[] expected = IOUtils.toByteArray(getClass().getResource("/plugin-endpoint.js"));
         assertArrayEquals(expected, Files.readAllBytes(actualPath), "Content of plugin-endpoint.js should be preserved");
     }
 
@@ -178,8 +176,8 @@ public class AnalyticsPluginAssetsServiceTest {
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
 
         when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn(externalAssetsDir.getAbsolutePath());
-        Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "a.js"), "a".getBytes(StandardCharsets.UTF_8));
-        Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "b.js"), "b".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(Paths.get(externalAssetsDir.getAbsolutePath(), "a.js"), "a");
+        Files.writeString(Paths.get(externalAssetsDir.getAbsolutePath(), "b.js"), "b");
 
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);
@@ -241,7 +239,7 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     private String testDataZipArchive() throws IOException {
-        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResourceAsStream("/plugin_cache_test.zip"))));
+        return new String(Base64.getEncoder().encode(IOUtils.toByteArray(getClass().getResource("/plugin_cache_test.zip"))));
     }
 
     private void addAnalyticsPluginInfoToStore(String pluginId) {

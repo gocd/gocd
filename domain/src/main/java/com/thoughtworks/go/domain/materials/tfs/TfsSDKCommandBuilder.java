@@ -22,6 +22,7 @@ import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.jar.JarEntry;
@@ -44,16 +44,13 @@ class TfsSDKCommandBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(TfsSDKCommandBuilder.class);
     private final File tempFolder = new File("data/tfs-sdk");
     private final ClassLoader sdkLoader;
-    private static TfsSDKCommandBuilder ME;
+    private static volatile TfsSDKCommandBuilder ME;
 
-    private TfsSDKCommandBuilder() throws IOException, URISyntaxException {
+    private TfsSDKCommandBuilder() throws IOException {
         this.sdkLoader = initSdkLoader();
     }
 
-    /*
-     * Used in tests
-     */
-    @Deprecated
+    @VisibleForTesting
     TfsSDKCommandBuilder(ClassLoader sdkLoader) {
         this.sdkLoader = sdkLoader;
     }
@@ -61,7 +58,7 @@ class TfsSDKCommandBuilder {
     TfsCommand buildTFSSDKCommand(String materialFingerPrint, UrlArgument url, String domain, String userName,
                                   String password, final String computedWorkspaceName, String projectPath) {
         try {
-            return instantitateAdapter(materialFingerPrint, url, domain, userName, password, computedWorkspaceName, projectPath);
+            return instantiateAdapter(materialFingerPrint, url, domain, userName, password, computedWorkspaceName, projectPath);
         } catch (Exception e) {
             String message = "[TFS SDK] Could not create TFS SDK Command ";
             LOGGER.error(message, e);
@@ -69,7 +66,7 @@ class TfsSDKCommandBuilder {
         }
     }
 
-    private TfsCommand instantitateAdapter(String materialFingerPrint, UrlArgument url, String domain, String userName, String password, String computedWorkspaceName, String projectPath) throws ReflectiveOperationException {
+    private TfsCommand instantiateAdapter(String materialFingerPrint, UrlArgument url, String domain, String userName, String password, String computedWorkspaceName, String projectPath) throws ReflectiveOperationException {
         Class<?> adapterClass = Class.forName(tfsSdkCommandTCLAdapterClassName(), true, sdkLoader);
         Constructor<?> constructor = adapterClass.getConstructor(String.class, CommandArgument.class, String.class, String.class, String.class, String.class, String.class);
         return (TfsCommand) constructor.newInstance(materialFingerPrint, url, domain, userName, password, computedWorkspaceName, projectPath);
@@ -79,7 +76,7 @@ class TfsSDKCommandBuilder {
         return "com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter";
     }
 
-    static TfsSDKCommandBuilder getBuilder() throws IOException, URISyntaxException {
+    static TfsSDKCommandBuilder getBuilder() throws IOException {
         if (ME == null) {
             synchronized (TfsSDKCommandBuilder.class) {
                 if (ME == null) {

@@ -34,7 +34,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,7 +74,7 @@ public class AnalyticsPluginAssetsServiceTest {
     }
 
     @Test
-    public void shouldBeAPluginMetadataChangeListener() throws Exception {
+    public void shouldBeAPluginMetadataChangeListener() {
         verify(analyticsMetadataLoader).registerListeners(assetsService);
     }
 
@@ -177,8 +176,8 @@ public class AnalyticsPluginAssetsServiceTest {
         when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
 
         when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn(externalAssetsDir.getAbsolutePath());
-        Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "a.js"), "a".getBytes(StandardCharsets.UTF_8));
-        Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "b.js"), "b".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(Paths.get(externalAssetsDir.getAbsolutePath(), "a.js"), "a");
+        Files.writeString(Paths.get(externalAssetsDir.getAbsolutePath(), "b.js"), "b");
 
 
         assetsService.onPluginMetadataCreate(PLUGIN_ID);

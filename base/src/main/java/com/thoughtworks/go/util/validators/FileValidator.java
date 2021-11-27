@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Objects;
 
 import static java.text.MessageFormat.format;
 
@@ -68,33 +69,20 @@ public class FileValidator implements Validator {
                 String message = format("File {0} is not readable or writeable.", file.getAbsolutePath());
                 return validation.addError(new RuntimeException(message));
             }
-        } else {
-            // Pull out the file from the class path
-            InputStream input = this.getClass().getResourceAsStream(srcDir + "/" + fileName);
+        }
+        // Pull out the file from the class path
+        try (InputStream input = this.getClass().getResourceAsStream(srcDir + "/" + fileName)) {
             if (input == null) {
                 String message = format("Resource {0}/{1} does not exist in the classpath", srcDir, fileName);
                 return validation.addError(new RuntimeException(message));
-            } else {
-                FileOutputStream output = null;
-                try {
-                    // Make sure the dir exists
-                    file.getParentFile().mkdirs();
-                    output = new FileOutputStream(file);
-                    IOUtils.copy(input, output);
-                } catch (Exception e) {
-                    return handleExceptionDuringFileHandling(validation, e);
-                } finally {
-                    try {
-                        input.close();
-                        if (output != null) {
-                            output.flush();
-                            output.close();
-                        }
-                    } catch (Exception e) {
-                        return handleExceptionDuringFileHandling(validation, e);
-                    }
-                }
             }
+            // Make sure the dir exists
+            file.getParentFile().mkdirs();
+            try (FileOutputStream output = new FileOutputStream(file)) {
+                IOUtils.copy(input, output);
+            }
+        } catch (Exception e) {
+            return handleExceptionDuringFileHandling(validation, e);
         }
         return Validation.SUCCESS;
     }
@@ -112,9 +100,9 @@ public class FileValidator implements Validator {
         FileValidator that = (FileValidator) o;
 
         if (shouldReplace != that.shouldReplace) return false;
-        if (fileName != null ? !fileName.equals(that.fileName) : that.fileName != null) return false;
-        if (srcDir != null ? !srcDir.equals(that.srcDir) : that.srcDir != null) return false;
-        return destDir != null ? destDir.equals(that.destDir) : that.destDir == null;
+        if (!Objects.equals(fileName, that.fileName)) return false;
+        if (!Objects.equals(srcDir, that.srcDir)) return false;
+        return Objects.equals(destDir, that.destDir);
     }
 
     @Override

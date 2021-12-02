@@ -16,7 +16,7 @@
 
 import classNames from "classnames/bind";
 import {SparkRoutes} from "helpers/spark_routes";
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -65,8 +65,8 @@ interface HeaderAttrs {
   image: m.Children;
 }
 
-class ClusterProfileHeaderWidget extends MithrilComponent<HeaderAttrs> {
-  view(vnode: m.Vnode<HeaderAttrs, State>) {
+class ClusterProfileHeaderWidget extends MithrilViewComponent<HeaderAttrs> {
+  view(vnode: m.Vnode<HeaderAttrs>) {
     const title = <div data-test-id="cluster-profile-name" class={styles.clusterProfileName}><span>{vnode.attrs.clusterProfileId}</span></div>;
     return (<KeyValueTitle title={title} image={vnode.attrs.image}/>);
   }

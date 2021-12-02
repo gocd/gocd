@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import m from "mithril";
+import m, { _NoLifecycle } from "mithril";
 
 export abstract class MithrilComponent<Attrs = {}, State = {}> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
@@ -22,7 +22,7 @@ export abstract class MithrilComponent<Attrs = {}, State = {}> implements m.Comp
   private __tsx_attrs: Attrs & m.Lifecycle<Attrs, State> & { key?: string | number };
 
   // Copy of m.Component<A>.view required by TS
-  abstract view(vnode: m.Vnode<Attrs, State>): m.Children | null | void;
+  abstract view(vnode: m.Vnode<Attrs, State | _NoLifecycle<this & State>>): m.Children | null | void;
 }
 
 export abstract class MithrilViewComponent<Attrs = {}> implements m.ClassComponent<Attrs> {

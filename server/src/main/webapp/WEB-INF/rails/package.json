@@ -72,7 +72,7 @@
     "@types/license-checker": "^25.0.1",
     "@types/lodash": "^4.14.177",
     "@types/lru-cache": "^5.1.0",
-    "@types/mini-css-extract-plugin": "^1.4.3",
+    "@types/mini-css-extract-plugin": "^2.4.0",
     "@types/mithril": "2.0.8",
     "@types/node": "^16.11.10",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.3",

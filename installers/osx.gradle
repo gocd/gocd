@@ -65,14 +65,14 @@ def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
     // dont include the wrapper.conf, and tanuki wrappers for OSes other than osx
     from(genericZipTree) {
       exclude "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
-      exclude "${installerType.baseName}-${project.goVersion}/tanuki/wrapper-*"
-      exclude "${installerType.baseName}-${project.goVersion}/tanuki/libwrapper-*"
+      exclude "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-*"
+      exclude "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-*"
       exclude "${installerType.baseName}-${project.goVersion}/bin/*.bat"
     }
 
     from(genericZipTree) {
-      include "${installerType.baseName}-${project.goVersion}/tanuki/wrapper-macosx-*"
-      include "${installerType.baseName}-${project.goVersion}/tanuki/libwrapper-macosx-*"
+      include "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-macosx-*"
+      include "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-macosx-*"
     }
 
     // include the wrapper.conf, but replace the java command

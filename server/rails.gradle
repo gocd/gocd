@@ -136,7 +136,7 @@ task initializeRailsGems {
 
     project.jrubyexec {
       workingDir = project.railsRoot
-      args = ['-S', 'bundle', 'install', '--path', 'gems', '--clean', '--jobs', '4']
+      args = ['-S', 'bundle', 'install']
       maxHeapSize = '1g'
     }
   }

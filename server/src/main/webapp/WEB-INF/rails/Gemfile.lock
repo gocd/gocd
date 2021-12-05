@@ -87,7 +87,7 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
-    marcel (1.0.1)
+    marcel (1.0.2)
     method_source (0.9.2)
     mini_mime (1.1.2)
     minitest (5.14.4)
@@ -241,4 +241,4 @@ RUBY VERSION
    ruby 2.5.7p0 (jruby 9.2.9.0)
 
 BUNDLED WITH
-   2.1.1
+   2.2.32

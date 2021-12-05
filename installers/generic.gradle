@@ -50,7 +50,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
     from("${rootProject.projectDir}/LICENSE")
 
-    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/App.sh.in") {
       filter({ String eachLine ->
         eachLine = eachLine
           .replaceAll('@app.name@', installerType.baseName)
@@ -77,7 +77,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       })
 
       filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.UNIX)
-      rename 'sh.script.in', installerType.baseName
+      rename 'App.sh.in', installerType.baseName
       into "bin"
       fileMode = 0755
     }

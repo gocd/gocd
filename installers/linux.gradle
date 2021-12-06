@@ -161,7 +161,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
         fileMode = 0755
 
-        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/App.sh.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -190,7 +190,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
             return eachLine
           })
-          rename 'sh.script.in', installerType.baseName
+          rename 'App.sh.in', installerType.baseName
         }
       }
 

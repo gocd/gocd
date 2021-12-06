@@ -284,7 +284,6 @@ server/target/
 server/test-repo/
 server/testdata/test-agent.jar
 server/tfs-impl-14.jar
-server/src/main/webapp/WEB-INF/rails/.bundle/
 server/src/main/webapp/WEB-INF/rails/db/config.git/
 server/src/main/webapp/WEB-INF/rails/logs/
 server/src/main/webapp/WEB-INF/rails/node_modules/

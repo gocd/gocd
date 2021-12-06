@@ -32,6 +32,6 @@ exec "${javaExecutable}" \\
 <% print systemProperties.collect { entry -> "  '-D${entry}'" }.join(" \\\n") %> \\
   "\${jvm_args[@]}" \\
   -cp \\
-  \${combined_classpath}:${classpath.join(':')} \\
+  "\${combined_classpath}:${classpath.join(':')}" \\
   ${mainClassName} \\
   "\${argv[@]}"

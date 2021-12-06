@@ -1,0 +1,4 @@
+---
+BUNDLE_PATH: "gems"
+BUNDLE_JOBS: "4"
+BUNDLE_CLEAN: "true"

@@ -81,7 +81,7 @@
     "@types/underscore.string": "^0.0.38",
     "@types/url-parse": "^1.4.5",
     "@types/uuid": "^8.3.3",
-    "@types/webpack": "^4.41.29",
+    "@types/webpack": "^4.41.32",
     "add-matchers": "^0.6.2",
     "babel-loader": "^8.2.3",
     "cache-loader": "^4.1.0",

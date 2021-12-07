@@ -166,7 +166,8 @@ enum Distro implements DistroBehavior {
       return [
         new DistroVersion(version: '9', releaseName: 'stretch', eolDate: parseDate('2022-06-30')),
         // No EOL-LTS specified for buster release. Checkout https://wiki.debian.org/DebianReleases for more info
-        new DistroVersion(version: '10', releaseName: 'buster', eolDate: parseDate('2024-06-30'))
+        new DistroVersion(version: '10', releaseName: 'buster', eolDate: parseDate('2024-06-01')),
+        new DistroVersion(version: '11', releaseName: 'bullseye', eolDate: parseDate('2026-08-15')),
       ]
     }
   },

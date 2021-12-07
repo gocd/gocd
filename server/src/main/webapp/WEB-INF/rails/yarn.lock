@@ -2418,10 +2418,10 @@ chalk@^4.0.0, chalk@^4.1.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chart.js@^3.6.1:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.6.1.tgz#edcb6584b8d810306f655f89538c00a4f440c58e"
-  integrity sha512-AycnixR0I325Fp3bqQ7wRJbkIJPwz/9IZtUBvdBWMjK5+nKCy6FZ3VejkDTtB9udePEXNt1UYoGTsNL49JoIbg==
+chart.js@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.6.2.tgz#47342c551f688ffdda2cd53b534cb7e461ecec33"
+  integrity sha512-Xz7f/fgtVltfQYWq0zL1Xbv7N2inpG+B54p3D5FSvpCdy3sM+oZhbqa42eNuYXltaVvajgX5UpKCU2GeeJIgxg==
 
 chartjs-plugin-zoom@^1.2.0:
   version "1.2.0"

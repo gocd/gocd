@@ -68,7 +68,7 @@ final Map<String, String> libraries = [
   jaxb                : 'javax.xml.bind:jaxb-api:2.3.1',
   jaxen               : 'jaxen:jaxen:1.2.0',
   jcommander          : 'com.beust:jcommander:1.81',
-  jdom                : 'org.jdom:jdom2:2.0.6',
+  jdom                : 'org.jdom:jdom2:2.0.6.1',
   jetBrainsAnnotations: 'org.jetbrains:annotations:23.0.0',
   jetty               : 'org.eclipse.jetty:jetty-server:9.4.44.v20210927',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r',

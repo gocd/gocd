@@ -297,11 +297,6 @@ dependencies {
   implementation project.deps.mailSmtp
   implementation project.deps.objenesis
 
-  // needed by jdom2 for some XPATH stuff
-  implementation(project.deps.jaxen) {
-    exclude(module: 'xom')
-    exclude(module: 'jdom')
-  }
   implementation project.deps.slf4j
   implementation(project.deps.jgitServer) {
     exclude(module: 'jsch')
@@ -966,19 +961,6 @@ task licenseReportAggregate {
           // License is automatically detected as 0BSD by gradle-license-report, but appears to actually be BSD-3-Clause in nature
           moduleLicense   : 'BSD-3-Clause',
           moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'dom4j:dom4j',
-      moduleVersion : '1.6.1',
-      moduleUrls    : [
-        "https://dom4j.github.io/"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'dom4j BSD license',
-          moduleLicenseUrl: "https://github.com/dom4j/dom4j/blob/dom4j_1_6_1/LICENSE.txt"
         ]
       ]
     ],

@@ -50,6 +50,11 @@ public abstract class AbstractBuilder<T, SELF> {
         return mySelf;
     }
 
+    public SELF cdataNode(String prefix, String name, String CDATA) {
+        current().add(withNamespace(prefix,  name).addCDATA(CDATA));
+        return mySelf;
+    }
+
     public SELF link(String href, String rel) {
         current().add(getLink(href, rel));
         return mySelf;
@@ -57,13 +62,20 @@ public abstract class AbstractBuilder<T, SELF> {
 
     public SELF link(String href, String rel, String title, String type) {
         current().add(getLink(href, rel)
-            .addAttribute("title", title)
-            .addAttribute("type", type));
+                .addAttribute("title", title)
+                .addAttribute("type", type));
         return mySelf;
     }
 
     public SELF node(String name, Consumer<ElementBuilder> consumer) {
         DOMElement element = withNamespace(name);
+        current().add(element);
+        consumer.accept(new ElementBuilder(element));
+        return mySelf;
+    }
+
+    public SELF node(String prefix, String name, Consumer<ElementBuilder> consumer) {
+        DOMElement element = withNamespace(prefix, name);
         current().add(element);
         consumer.accept(new ElementBuilder(element));
         return mySelf;
@@ -95,14 +107,18 @@ public abstract class AbstractBuilder<T, SELF> {
 
     private Element getLink(String href, String rel) {
         return withNamespace("link")
-            .addAttribute("rel", rel)
-            .addAttribute("href", href);
+                .addAttribute("rel", rel)
+                .addAttribute("href", href);
     }
 
     private DOMElement withNamespace(String name) {
         DOMElement element = new DOMElement(name);
         getDefaultNameSpace().ifPresent(element::setNamespace);
         return element;
+    }
+
+    private DOMElement withNamespace(String prefix, String name) {
+        return new DOMElement(name, current().getNamespaceForPrefix(prefix));
     }
 
     private Optional<Namespace> getDefaultNameSpace() {

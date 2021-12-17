@@ -23,7 +23,10 @@ dependencies {
   api project(':util')
   api project(':domain')
   api project(':plugin-infra:go-plugin-access')
-  api project.deps.dom4j
+  api(project.deps.dom4j) {
+    // workaround for dom4j Gradle metadata optional dependency issues (https://github.com/dom4j/dom4j/issues/99)
+    transitive = false
+  }
   api project.deps.apacheHttpMime
   api project.deps.commonsCollections4
   api project.deps.commonsText

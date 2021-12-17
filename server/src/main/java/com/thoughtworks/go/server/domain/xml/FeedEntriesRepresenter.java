@@ -69,7 +69,7 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
             .textNode("id", entryUrl);
 
         if (feed.isManuallyTriggered()) {
-            builder.node("go:author", childBuilder -> childBuilder.cdataNode("go:name", feed.getApprovedBy()));
+            builder.node("go", "author", childBuilder -> childBuilder.cdataNode("go", "name", feed.getApprovedBy()));
         }
 
         feed.getAuthors().forEach(author -> {
@@ -82,7 +82,7 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
         });
 
         if (isNotBlank(feed.getCancelledBy())) {
-            builder.node("cancelledBy", child -> child.cdataNode("go:name", feed.getCancelledBy()));
+            builder.node("cancelledBy", child -> child.cdataNode("go", "name", feed.getCancelledBy()));
         }
 
         String stageTitle = identifier.getStageName() + " Stage Detail";

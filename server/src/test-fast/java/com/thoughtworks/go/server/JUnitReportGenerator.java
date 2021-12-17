@@ -24,6 +24,7 @@ import org.dom4j.io.SAXReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -31,14 +32,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class JUnitReportGenerator {
 
     public static void main(String[] args) throws Exception {
-        Document doc = new SAXReader().read(new FileInputStream(new File("/home/cruise/sample_junit.xml")));
+        Document doc = new SAXReader().read(new FileInputStream("/home/cruise/sample_junit.xml"));
         Element suite = (Element) doc.selectSingleNode("//testsuite");
         Element rootElement = doc.getRootElement();
         for (int i = 0; i < 50000; i++) {
             Element copy = suite.createCopy();
             setAttr(i, copy, "name");
             setAttr(i, copy, "hostname");
-            List<Element> elements = copy.selectNodes(".//testcase");
+            List<Element> elements = copy.selectNodes(".//testcase")
+                    .stream()
+                    .filter(Element.class::isInstance)
+                    .map(Element.class::cast)
+                    .collect(Collectors.toList());
             for (Element element : elements) {
                 setAttr(i, element, "classname");
                 setAttr(i, element, "name");

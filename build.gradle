@@ -15,9 +15,9 @@
  */
 
 
-import com.github.jk1.license.task.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
+import com.github.jk1.license.task.ReportTask
 import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -647,6 +647,7 @@ subprojects {
   }
 
   project.configurations*.exclude(group: 'junit')
+  project.configurations*.exclude(group: 'dom4j')
   project.configurations*.exclude(group: 'xalan')
   project.configurations*.exclude(group: 'xml-apis')
 }

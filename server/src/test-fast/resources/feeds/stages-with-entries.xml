@@ -12,6 +12,9 @@
         <title><![CDATA[up42(2) stage integration-tests(100) Cancelled]]></title>
         <updated>2019-12-31T01:58:30Z</updated>
         <id>https://go-server/go/pipelines/up42/2/integration-tests/100</id>
+        <go:author xmlns:go="http://www.thoughtworks-studios.com/ns/go">
+            <go:name><![CDATA[Bob]]></go:name>
+        </go:author>
         <author>
             <name><![CDATA[bob]]></name>
             <email>bob@gocd.org</email>

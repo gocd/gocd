@@ -167,7 +167,6 @@ task cleanRails(type: Delete) {
   doFirst {
     // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
     project.delete project.jrubyScriptsDir
-    project.delete "${project.railsRoot}/.bundle"
     project.delete project.bundledGemDir
   }
 }

@@ -25,6 +25,17 @@ trait DistroBehavior {
     return []
   }
 
+  abstract String name()
+
+  String getBaseImageRegistry(DistroVersion distroVersion) {
+    return "docker.io"
+  }
+
+
+  String getBaseImageLocation(DistroVersion distroVersion) {
+    "${getBaseImageRegistry(distroVersion)}/${name()}:${distroVersion.releaseName}"
+  }
+
   DistroVersion getVersion(String version) {
     return (supportedVersions.find { supportedVersion ->
       supportedVersion.version == version

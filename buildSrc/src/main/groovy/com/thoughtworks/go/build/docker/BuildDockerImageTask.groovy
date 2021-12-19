@@ -113,7 +113,7 @@ class BuildDockerImageTask extends DefaultTask {
           // delete the parent image, to save space
           project.exec {
             workingDir = project.rootProject.projectDir
-            commandLine = ["docker", "rmi", "${distro.name()}:${distroVersion.releaseName}"]
+            commandLine = ["docker", "rmi", "${distro.getBaseImageLocation(distroVersion)}"]
           }
         }
       }

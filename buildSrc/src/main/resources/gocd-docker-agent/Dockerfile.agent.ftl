@@ -33,10 +33,10 @@ RUN \
 RUN unzip /tmp/go-agent-${fullVersion}.zip -d /
 RUN mv /go-agent-${goVersion} /go-agent && chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 
-FROM ${distro.name()}:${distroVersion.releaseName}
+FROM ${distro.getBaseImageLocation(distroVersion)}
 
 LABEL gocd.version="${goVersion}" \
-  description="GoCD agent based on ${distro.name()} version ${distroVersion.version}" \
+  description="GoCD agent based on ${distro.getBaseImageLocation(distroVersion)}" \
   maintainer="ThoughtWorks, Inc. <support@thoughtworks.com>" \
   url="https://www.gocd.org" \
   gocd.full.version="${fullVersion}" \

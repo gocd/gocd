@@ -248,16 +248,6 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-option/-/helper-validator-option-7.14.5.tgz#6e72a1fff18d5dfcb878e1e62f1a021c4b72d5a3"
   integrity sha512-OX8D5eeX4XwcroVW45NMvoYaIuFI+GQpA2a8Gi+X/U/cDUIRsV37qQfF905F0htTRCREQIB4KqPeaveRJUl3Ow==
 
-"@babel/helper-wrap-function@^7.16.0", "@babel/helper-wrap-function@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/helper-wrap-function/-/helper-wrap-function-7.16.5.tgz#0158fca6f6d0889c3fee8a6ed6e5e07b9b54e41f"
-  integrity sha512-2J2pmLBqUqVdJw78U0KPNdeE2qeuIyKoG4mKV7wAq3mc4jJG282UgjZw4ZYDnqiWQuS3Y3IYdF/AQ6CpyBV3VA==
-  dependencies:
-    "@babel/helper-function-name" "^7.16.0"
-    "@babel/template" "^7.16.0"
-    "@babel/traverse" "^7.16.5"
-    "@babel/types" "^7.16.0"
-
 "@babel/helper-wrap-function@^7.16.5":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/helper-wrap-function/-/helper-wrap-function-7.16.5.tgz#0158fca6f6d0889c3fee8a6ed6e5e07b9b54e41f"
@@ -995,7 +985,7 @@
     "@babel/parser" "^7.16.0"
     "@babel/types" "^7.16.0"
 
-"@babel/traverse@^7.13.0", "@babel/traverse@^7.16.0", "@babel/traverse@^7.16.5":
+"@babel/traverse@^7.13.0", "@babel/traverse@^7.16.5":
   version "7.16.5"
   resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.16.5.tgz#d7d400a8229c714a59b87624fc67b0f1fbd4b2b3"
   integrity sha512-FOCODAzqUMROikDYLYxl4nmwiLlu85rNqBML/A5hKRVXG2LV8d0iMqgPzdYTcIpjZEBB7D6UDU9vxRZiriASdQ==

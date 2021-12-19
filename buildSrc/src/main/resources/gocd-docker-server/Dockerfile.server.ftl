@@ -17,15 +17,13 @@
 # Please file any issues or PRs at https://github.com/gocd/gocd
 ###############################################################################################
 
-FROM alpine:latest as gocd-server-unzip
+FROM curlimages/curl:latest as gocd-server-unzip
+USER root
 ARG UID=1000
 <#if useFromArtifact >
 COPY go-server-${fullVersion}.zip /tmp/go-server-${fullVersion}.zip
 <#else>
-RUN \
-  apk --no-cache upgrade && \
-  apk add --no-cache curl && \
-  curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip
+RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip
 </#if>
 RUN unzip /tmp/go-server-${fullVersion}.zip -d /
 RUN mkdir -p /go-server/wrapper /go-server/bin && \

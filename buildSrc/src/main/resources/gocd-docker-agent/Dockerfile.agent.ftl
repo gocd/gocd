@@ -17,19 +17,14 @@
 # Please file any issues or PRs at https://github.com/gocd/gocd
 ###############################################################################################
 
-FROM alpine:latest as gocd-agent-unzip
-
+FROM curlimages/curl:latest as gocd-agent-unzip
+USER root
 ARG UID=1000
-
 <#if useFromArtifact >
 COPY go-agent-${fullVersion}.zip /tmp/go-agent-${fullVersion}.zip
 <#else>
-RUN \
-  apk --no-cache upgrade && \
-  apk add --no-cache curl && \
-  curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-agent-${fullVersion}.zip" > /tmp/go-agent-${fullVersion}.zip
+RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-agent-${fullVersion}.zip" > /tmp/go-agent-${fullVersion}.zip
 </#if>
-
 RUN unzip /tmp/go-agent-${fullVersion}.zip -d /
 RUN mv /go-agent-${goVersion} /go-agent && chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 
@@ -83,7 +78,7 @@ RUN \
 ADD docker-entrypoint.sh /
 
 
-COPY --from=gocd-agent-unzip /go-agent /go-agent
+COPY --from=gocd-agent-unzip /tmp/go-agent /go-agent
 # ensure that logs are printed to console output
 COPY --chown=go:root agent-bootstrapper-logback-include.xml agent-launcher-logback-include.xml agent-logback-include.xml /go-agent/config/
 <#if distro.name() == "docker">

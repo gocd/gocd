@@ -18,10 +18,9 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
-   Suppressing false positive as GoCD internal mysql support JAR is not the same thing as MySQL and MySQL server.
+   Suppressing false positive as GoCD internal mysql support JAR is not the same thing as MySQL.
    ]]></notes>
         <cpe>cpe:/a:mysql:mysql</cpe>
-        <cpe>cpe:/a:mysql:mysql_server</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -39,7 +38,6 @@
         <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
         <cpe>cpe:/a:jruby:jruby</cpe>
         <cpe>cpe:/a:openssl:openssl</cpe>
-        <cpe>cpe:/a:openssl_project:openssl</cpe>
         <cpe>cpe:/a:rubygems:rubygems</cpe>
     </suppress>
     <suppress>
@@ -55,8 +53,8 @@
     <suppress>
         <notes><![CDATA[
    This one only affects Spring Framework 5.0.5 when combined with Spring Security so is a false positive.
-   https://nvd.nist.gov/vuln/detail/CVE-2018-1258 OWASP Dependency Check codes not currently understanding "A and B"
-   CPE constraints. See https://github.com/jeremylong/DependencyCheck/issues/1827
+   https://nvd.nist.gov/vuln/detail/CVE-2018-1258 OWASP Dependency Check code does not currently understand "A and B"
+   CPE constraints and how to apply them. See https://github.com/jeremylong/DependencyCheck/issues/1827
    ]]></notes>
         <gav regex="true">^org\.springframework\.security:spring-security-.*:4\..*$</gav>
         <cve>CVE-2018-1258</cve>
@@ -73,7 +71,6 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: hibernate-commons-annotations-3.2.0.Final.jar
    Hibernate Commons Annotations is a different project, versioned separately to the core "Hibernate ORM", so CVEs against this are misleading
    and false positives. We will still seem them reported against other Hibernate dependencies, however.
    ]]></notes>
@@ -83,7 +80,6 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: velocity-1.7.jar
    It is not possible to upload/modify Velocity Templates within GoCD, so GoCD does not appear to be vulnerable to this
    vulnerability. See https://nvd.nist.gov/vuln/detail/CVE-2020-13936
    ]]></notes>
@@ -93,11 +89,10 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: velocity-tools-view-1.4.jar
-   The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is confusing to have Engine CVEs
+   The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is not correct to have Engine CVEs
    reported against the tools jar.
    ]]></notes>
-        <!-- sha1 of jar as vendored in server/vendor at time of suppression -->
+        <!-- sha1 of velocity-tools-view-1.4.jar as vendored in server/vendor at time of suppression -->
         <sha1>3c44030292cff7cf495ee155a5eefa7a05de6447</sha1>
         <cpe>cpe:/a:apache:velocity_engine</cpe>
     </suppress>

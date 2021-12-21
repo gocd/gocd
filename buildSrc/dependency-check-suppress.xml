@@ -64,20 +64,6 @@
 
     <suppress>
         <notes><![CDATA[
-   file name: jruby-complete-9.2.0.0.jar/META-INF/jruby.home/lib/ruby/stdlib/rdoc/generator/template/darkfish/js/jquery.js
-   this is a file used by rdoc used in the final generated rdoc, which we do not use in dev or prod
-   ]]></notes>
-        <!-- this is the sha1 of the jquery.js file, not of jruby jar -->
-        <sha1>71cce71820cc47b3bd1098618d248325fcf24ddb</sha1>
-        <cve>CVE-2015-9251</cve>
-        <cve>CVE-2012-6708</cve>
-        <cve>CVE-2019-11358</cve>
-        <cve>CVE-2020-11022</cve>
-        <cve>CVE-2020-11023</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
    https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
    separately and which is not used within GoCD.
    ]]></notes>

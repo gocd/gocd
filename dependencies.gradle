@@ -33,7 +33,7 @@ final Map<String, String> libraries = [
   assertJ             : 'org.assertj:assertj-core:3.21.0',
   assertJ_DB          : 'org.assertj:assertj-db:2.0.2',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.70', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
-  bundler             : 'rubygems:bundler:2.2.32',
+  bundler             : 'rubygems:bundler:2.2.33',
   cglib               : 'cglib:cglib:3.3.0',
   cloning             : 'io.github.kostaskougios:cloning:1.10.3',
   commonsBeanUtils    : 'commons-beanutils:commons-beanutils:1.9.4',
@@ -74,7 +74,7 @@ final Map<String, String> libraries = [
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r',
   jodaTime            : 'joda-time:joda-time:2.10.13', // joda-time version has to be compatible with the jruby version
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.5',
-  jruby               : 'org.jruby:jruby-complete:9.2.9.0',
+  jruby               : 'org.jruby:jruby-complete:9.2.20.1',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.28.0',
   jsontools           : 'com.sdicons.jsontools:jsontools-core:1.7',
   jsoup               : 'org.jsoup:jsoup:1.14.3',

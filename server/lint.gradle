@@ -27,7 +27,7 @@ task scssLint {
     project.jrubyexec {
       workingDir = project.railsRoot
 
-      args = ['-S', 'bundle', 'exec', 'scss-lint', "--config", 'scss-lint.yml', inputDir]
+      args = ['-S', 'scss-lint', "--config", 'scss-lint.yml', inputDir]
       maxHeapSize = '1g'
     }
 

@@ -1,4 +1,4 @@
 # Configuration for https://github.com/asdf-vm/asdf as an alternative to jabba, rvm, nvm etc
 java adoptopenjdk-15.0.2+7
-ruby jruby-9.2.20.1
+ruby jruby-9.3.3.0
 nodejs 16.13.1

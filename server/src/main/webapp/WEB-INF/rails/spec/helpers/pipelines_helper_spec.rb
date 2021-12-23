@@ -180,7 +180,7 @@ describe PipelinesHelper do
       def is_user_an_admin?; true; end
       def show_analytics_only_for_admins?; false; end
 
-      allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+      allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants::ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
       ids = []
       with_pipeline_analytics_support do |plugin_id|
@@ -195,7 +195,7 @@ describe PipelinesHelper do
       def is_user_an_admin?; false; end
       def show_analytics_only_for_admins?; true; end
 
-      allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+      allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants::ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
       ids = []
       with_pipeline_analytics_support do |plugin_id|

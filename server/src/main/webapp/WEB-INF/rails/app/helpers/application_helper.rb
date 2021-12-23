@@ -526,16 +526,16 @@ module ApplicationHelper
   end
 
   def supports_analytics_dashboard?
-    !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |combined_plugin_info|
-      combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION).getCapabilities().supportsDashboardAnalytics()
+    !default_plugin_info_finder.allPluginInfos(PluginConstants::ANALYTICS_EXTENSION).detect do |combined_plugin_info|
+      combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION).getCapabilities().supportsDashboardAnalytics()
     end.nil?
   end
 
   def supports_vsm_analytics?
     return false if show_analytics_only_for_admins? && !is_user_an_admin?
 
-    !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |combined_plugin_info|
-      combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION).getCapabilities().supportsVSMAnalytics()
+    !default_plugin_info_finder.allPluginInfos(PluginConstants::ANALYTICS_EXTENSION).detect do |combined_plugin_info|
+      combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION).getCapabilities().supportsVSMAnalytics()
     end.nil?
   end
 
@@ -575,12 +575,12 @@ module ApplicationHelper
   end
 
   def first_plugin_which_supports_vsm_analytics
-    first_analytics_combined_plugin_info = default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).find do |combined_plugin_info|
-      extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
+    first_analytics_combined_plugin_info = default_plugin_info_finder.allPluginInfos(PluginConstants::ANALYTICS_EXTENSION).find do |combined_plugin_info|
+      extension_info = combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION)
       extension_info.getCapabilities().supportsVSMAnalytics()
     end
 
-    first_analytics_combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION) if first_analytics_combined_plugin_info
+    first_analytics_combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION) if first_analytics_combined_plugin_info
   end
 
   def form_remote_tag(options = {})

@@ -90,9 +90,9 @@ describe "layouts/pipelines.html.eb" do
     end
   end
 
-  describe "pipline bar" do
+  describe "pipeline bar" do
     before do
-      @first_stage = StageSummaryModel.new(StageMother.scheduledStage("pipeline-name", 1, "stage-0", 1, "job"), Stages.new, JobDurationStrategy.ALWAYS_ZERO, nil)
+      @first_stage = StageSummaryModel.new(StageMother.scheduledStage("pipeline-name", 1, "stage-0", 1, "job"), Stages.new, JobDurationStrategy::ALWAYS_ZERO, nil)
       assign(:stage, @first_stage)
       stage = double('stage')
       allow(stage).to receive(:getConfigVersion).and_return('current_version')

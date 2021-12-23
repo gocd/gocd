@@ -603,7 +603,7 @@ describe ApplicationHelper do
         def default_plugin_info_finder; @default_plugin_info_finder; end
         def is_user_an_admin?; true; end
 
-        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants::ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
         expected = {
           "id"        => "id1",
@@ -621,7 +621,7 @@ describe ApplicationHelper do
         def default_plugin_info_finder; @default_plugin_info_finder; end
         def is_user_an_admin?; true; end
 
-        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants::ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
         expect(supports_vsm_analytics?).to eq(true)
       end
@@ -630,7 +630,7 @@ describe ApplicationHelper do
         def default_plugin_info_finder; @default_plugin_info_finder; end
         def is_user_an_admin?; false; end
 
-        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants::ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
         expect(supports_vsm_analytics?).to eq(true)
       end
@@ -647,7 +647,7 @@ describe ApplicationHelper do
         def default_plugin_info_finder; @default_plugin_info_finder; end
         def is_user_an_admin?; true; end
 
-        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info3, @plugin_info4])
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants::ANALYTICS_EXTENSION).and_return([@plugin_info3, @plugin_info4])
 
         expect(supports_vsm_analytics?).to eq(false)
       end

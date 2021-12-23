@@ -19,12 +19,6 @@ module StageModelMother
     StageMother.createPassedStage("cruise", 1, "dev", counter, "rspec", org.joda.time.DateTime.new().plus_minutes(10).toDate())
   end
 
-  def failing_stage(name)
-    stage = stage(1)
-    stage.fail()
-    stage_model_for(stage)
-  end
-
   def stage_model_for(stage)
     StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
   end
@@ -33,7 +27,7 @@ module StageModelMother
     stage1 = stage(1)
     stage2 = stage(2)
     stage3 = stage(3)
-    stage3.fail();
+    stage3.fail
 
     StageSummaryModel.new(stage2, Stages.new([stage1, stage2, stage3]), JobDurationStrategy::ALWAYS_ZERO, nil)
   end
@@ -46,23 +40,6 @@ module StageModelMother
       history << StageHistoryEntry.new(stage, i, nil)
     end
     history.reverse
-  end
-
-  def stage_with_all_jobs_passed
-    stage1 = stage(1)
-
-    StageSummaryModel.new(stage1, Stages.new([stage1]), JobDurationStrategy::ALWAYS_ZERO, nil)
-  end
-
-  def stage_with_5_jobs
-    first = JobInstanceMother.completed("first", JobResult::Failed)
-    second = JobInstanceMother.completed("second", JobResult::Passed)
-    third = JobInstanceMother.completed("third", JobResult::Passed)
-    fourth = JobInstanceMother.building("fourth" )
-    fifth = JobInstanceMother.completed("fifth", JobResult::Cancelled)
-    stage3=StageMother.custom("pipeline", "stage", JobInstances.new([first,second,third,fourth,fifth]))
-
-    StageSummaryModel.new(stage3, Stages.new([stage3]), JobDurationStrategy::ALWAYS_ZERO, nil)
   end
 
   def stage_history_page(offset)
@@ -90,7 +67,7 @@ module StageModelMother
     NullStageHistoryItem.new(name, false)
   end
 
-  def stage_history_for *stage_names
+  def stage_history_for(*stage_names)
     from_sims = StageInstanceModels.new
     stage_names.each do |name|
       from_sims.add(stage_model(name, 35))

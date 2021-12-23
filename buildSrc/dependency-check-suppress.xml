@@ -38,7 +38,6 @@
         <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
         <cpe>cpe:/a:jruby:jruby</cpe>
         <cpe>cpe:/a:openssl:openssl</cpe>
-        <cpe>cpe:/a:rubygems:rubygems</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[

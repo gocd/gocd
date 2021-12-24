@@ -67,7 +67,7 @@
     "@types/html-webpack-plugin": "^3.2.5",
     "@types/jasmine": "^3.10.2",
     "@types/jasmine-ajax": "^3.3.2",
-    "@types/jquery": "^3.5.10",
+    "@types/jquery": "^3.5.11",
     "@types/license-checker": "^25.0.1",
     "@types/lodash": "^4.14.178",
     "@types/lru-cache": "^5.1.0",

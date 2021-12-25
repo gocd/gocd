@@ -18,7 +18,6 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
 
@@ -31,7 +30,4 @@ public class SparkOrRailsToggle {
         }
     }
 
-    public void preferenceSPA(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SHOW_OLD_PREFERENCE_SPA, request);
-    }
 }

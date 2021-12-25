@@ -39,8 +39,7 @@
   <rule>
     <name>Preference SPA</name>
     <from>^/preferences/notifications(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="preferenceSPA"/>
-    <to last="true">/%{attribute:sparkOrRails}/preferences/notifications</to>
+    <to last="true">/spark/preferences/notifications</to>
   </rule>
 
   <rule>

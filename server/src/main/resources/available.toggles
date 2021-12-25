@@ -15,11 +15,6 @@
       "key": "allow_empty_pipeline_groups_dashboard",
       "description": "Coupled with queryParam allowEmpty=true will show empty pipeline groups on the dashboard.",
       "value": false
-    },
-    {
-      "key": "use_rails_template_authorization_page",
-      "description": "Use rails based templates authorization page in the UI. Default is false.",
-      "value": false
     }
   ]
 }

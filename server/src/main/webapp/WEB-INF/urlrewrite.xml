@@ -1031,12 +1031,6 @@
   </rule>
 
   <rule>
-    <name>Render Template Authorization</name>
-    <from>/admin/templates/([^/]+)/permissions(/?)$</from>
-    <to last="true">/rails/admin/templates/${escape:$1}/permissions</to>
-  </rule>
-
-  <rule>
     <name>Rails Pipeline Snippet</name>
     <from>^/(admin/pipelines/snippet/.*)$</from>
     <to last="true">/rails/$1</to>

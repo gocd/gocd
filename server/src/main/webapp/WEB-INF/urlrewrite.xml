@@ -1177,38 +1177,6 @@
   </rule>
 
   <rule>
-    <name>RESTful Properties Search for one job</name>
-    <condition type="parameter" name="pipelineCounter"/>
-    <from>^/properties/search(\?.*)?$</from>
-    <to type="forward">/repository/restful/properties/job/search</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Properties Search for all jobs</name>
-    <from>^/properties/search(\?.*)?$</from>
-    <to type="forward">/repository/restful/properties/jobs/search</to>
-  </rule>
-
-  <rule>
-    <name>Post RESTful Property for a job</name>
-    <condition type="parameter" name="value"/>
-    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Property for a job</name>
-    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Properties for a job</name>
-    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
-  </rule>
-
-  <rule>
     <name>Cruise Configuration Administration RESTful url - File</name>
     <from>^/api/admin/config.xml$</from>
     <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>

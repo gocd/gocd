@@ -114,7 +114,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/api/admin/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
 
                 .addAuthorityFilterChain("/api/config-repository.git/**", apiAccessDeniedHandler, ROLE_SUPERVISOR)
-                .addAuthorityFilterChain("/api/jobs/scheduled.xml", apiAccessDeniedHandler, ROLE_SUPERVISOR)
                 .addAuthorityFilterChain("/api/support", apiAccessDeniedHandler, ROLE_SUPERVISOR)
 
                 // any other APIs require `ROLE_USER`

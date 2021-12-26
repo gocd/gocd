@@ -38,10 +38,10 @@ RUN mkdir -p /go-server/wrapper /go-server/bin && \
     mv /go-server-${goVersion}/wrapper/wrapper.jar /go-server/wrapper/ && \
     chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
 
-FROM ${distro.name()}:${distroVersion.releaseName}
+FROM ${distro.getBaseImageLocation(distroVersion)}
 
 LABEL gocd.version="${goVersion}" \
-  description="GoCD server based on ${distro.name()} version ${distroVersion.version}" \
+  description="GoCD server based on ${distro.getBaseImageLocation(distroVersion)}" \
   maintainer="ThoughtWorks, Inc. <support@thoughtworks.com>" \
   url="https://www.gocd.org" \
   gocd.full.version="${fullVersion}" \

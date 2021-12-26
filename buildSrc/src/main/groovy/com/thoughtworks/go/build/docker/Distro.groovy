@@ -93,6 +93,11 @@ enum Distro implements DistroBehavior {
 
   centos{
     @Override
+    String getBaseImageRegistry(DistroVersion distroVersion) {
+      distroVersion.version >= "8" ? "quay.io/centos" : super.baseImageRegistry
+    }
+
+    @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
       String git = gitPackage(distroVersion)
 
@@ -145,7 +150,7 @@ enum Distro implements DistroBehavior {
     List<DistroVersion> getSupportedVersions() {
       return [
         new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01')),
-        new DistroVersion(version: '8', releaseName: '8', eolDate: parseDate('2029-05-01'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en'])
+        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en'])
       ]
     }
   },

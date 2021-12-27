@@ -42,7 +42,6 @@
                 <div class="time_ago" data="${listPresenter.scheduledTime}"></div>
 
                 </a>
-                <!-- should be ${listPresenter.tabToShow} -->
             </li>
             #end
         </ul>

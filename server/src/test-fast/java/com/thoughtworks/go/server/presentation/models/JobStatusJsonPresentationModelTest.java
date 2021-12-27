@@ -32,18 +32,19 @@ import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 public class JobStatusJsonPresentationModelTest {
 
-    @Test public void shouldShowBuildStatus() {
+    @Test
+    public void shouldShowBuildStatus() {
         JobInstance instance = assigned("test");
         instance.setId(12);
         instance.setAgentUuid("1234");
 
-        final Agent agent = new Agent("1234","localhost", "1234", "cookie");
+        final Agent agent = new Agent("1234", "localhost", "1234", "cookie");
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
                 agent, mock(DurationBean.class));
@@ -57,7 +58,8 @@ public class JobStatusJsonPresentationModelTest {
                 "}");
     }
 
-    @Test public void shouldShowBuildStatusForCompleted() {
+    @Test
+    public void shouldShowBuildStatusForCompleted() {
         JobInstance instance = completed("test", Passed);
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
@@ -69,7 +71,8 @@ public class JobStatusJsonPresentationModelTest {
                 "}");
     }
 
-    @Test public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() throws Exception {
+    @Test
+    public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() {
         JobInstance instance = building("test", new DateTime().minusSeconds(5).toDate());
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
@@ -85,7 +88,7 @@ public class JobStatusJsonPresentationModelTest {
     }
 
     @Test
-    public void shouldReturnNotYetAssignedIfAgentUuidIsNull() throws Exception {
+    public void shouldReturnNotYetAssignedIfAgentUuidIsNull() {
         JobInstance instance = building("Plan1");
         instance.setAgentUuid(null);
 
@@ -97,37 +100,20 @@ public class JobStatusJsonPresentationModelTest {
     }
 
     @Test
-    public void shouldReturnAgentHostname() throws Exception {
+    public void shouldReturnAgentHostname() {
         JobInstance instance = building("Plan1");
         instance.setAgentUuid("1234");
 
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
-                        new Agent("1234","localhost", "address", "cookie"), mock(DurationBean.class));
+                        new Agent("1234", "localhost", "address", "cookie"), mock(DurationBean.class));
         assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"agent\": \"localhost\"\n" +
                 "}");
     }
 
-    @Test public void shouldShowArtifactTabwhenBuildPassed() throws Exception {
-        JobInstance instance = JobInstanceMother.passed("plan1");
-        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance);
-        assertThat(buildStatusJson.getTabToShow(), is("#tab-artifacts"));
-    }
-
-    @Test public void shouldShowFailuresTabwhenBuildFailed() throws Exception {
-        JobInstance instance = JobInstanceMother.failed("plan1");
-        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance);
-        assertThat(buildStatusJson.getTabToShow(), is("#tab-failures"));
-    }
-
-    @Test public void shouldShowDefaultTabwhenBuildIsNeitherFailedNorPassed() throws Exception {
-        JobInstance instance = JobInstanceMother.cancelled("plan1");
-        JobStatusJsonPresentationModel buildStatusJson = new JobStatusJsonPresentationModel(instance);
-        assertThat(buildStatusJson.getTabToShow(), is(""));
-    }
-
-    @Test public void shouldEncodeBuildLocator() throws Exception {
+    @Test
+    public void shouldEncodeBuildLocator() {
         JobInstance instance = JobInstanceMother.completed("job-%", JobResult.Passed);
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
@@ -137,7 +123,8 @@ public class JobStatusJsonPresentationModelTest {
         assertThat(JsonUtils.from(json).getString("buildLocator"), is("cruise-%25/1/dev-%25/1/job-%25"));
     }
 
-    @Test public void shouldIncludeBuildLocatorForDisplay() throws Exception {
+    @Test
+    public void shouldIncludeBuildLocatorForDisplay() {
         JobInstance instance = JobInstanceMother.completed("job-%", JobResult.Passed);
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 

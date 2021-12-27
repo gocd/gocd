@@ -37,7 +37,7 @@
     {/if}
   #end
 </li>
-  <li><span class="header">Completed on: </span><span id="build_completed_date">${% build.build_completed_date %}</span><a  href="#tab-properties" class ="more" target="_blank" onclick="new TabsManager('properties')">more...</a></li>
+  <li><span class="header">Completed on: </span><span id="build_completed_date">${% build.build_completed_date %}</span></li>
 <li><span class="header">Build cause: </span><span id="stage-${% build.id %}-buildCause">$esc.html($esc.html($presenter.buildCauseMessage))</span></li>
   {if build.current_status.toLowerCase() == 'passed' ||  build.current_status.toLowerCase() == 'failed'}
 <li><span class="header">Duration: </span><span>${% moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() %}</span></li>

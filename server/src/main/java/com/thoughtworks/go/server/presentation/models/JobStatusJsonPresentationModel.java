@@ -124,16 +124,6 @@ public class JobStatusJsonPresentationModel {
         return instance.getId() == buildInstanceId;
     }
 
-    public String getTabToShow() {
-        String result = "";
-        if (instance.isPassed()) {
-            result = "#tab-artifacts";
-        } else if (instance.isFailed()) {
-            result = "#tab-failures";
-        }
-        return result;
-    }
-
     public String getBuildLocator() {
         return instance.buildLocator();
     }

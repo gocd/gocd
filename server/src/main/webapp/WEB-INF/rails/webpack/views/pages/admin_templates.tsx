@@ -142,19 +142,15 @@ export class AdminTemplatesPage extends Page<null, State> {
     };
 
     vnode.state.editPermissions = (template) => {
-      if (this.getMeta().showRailsTemplateAuthorization) {
-        window.location.href = SparkRoutes.editTemplatePermissions(template.name);
-      } else {
-        this.pageState = PageState.LOADING;
-        TemplatesCRUD.getAuthorization(template.name).then((result) => {
-          this.pageState = PageState.OK;
-          result.do(
-            (successResponse) => {
-              new EditTemplatePermissionsModal(template.name, successResponse.body.object, successResponse.body.etag, vnode.state.usersAutoCompleteHelper(), vnode.state.rolesAutoCompleteHelper(), vnode.state.onSuccessfulSave)
-                .render();
-            }, this.setErrorState);
-        });
-      }
+      this.pageState = PageState.LOADING;
+      TemplatesCRUD.getAuthorization(template.name).then((result) => {
+        this.pageState = PageState.OK;
+        result.do(
+          (successResponse) => {
+            new EditTemplatePermissionsModal(template.name, successResponse.body.object, successResponse.body.etag, vnode.state.usersAutoCompleteHelper(), vnode.state.rolesAutoCompleteHelper(), vnode.state.onSuccessfulSave)
+              .render();
+          }, this.setErrorState);
+      });
     };
 
     vnode.state.doShowTemplate = (templateName) => {

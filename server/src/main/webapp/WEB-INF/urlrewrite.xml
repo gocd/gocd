@@ -39,8 +39,7 @@
   <rule>
     <name>Preference SPA</name>
     <from>^/preferences/notifications(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="preferenceSPA"/>
-    <to last="true">/%{attribute:sparkOrRails}/preferences/notifications</to>
+    <to last="true">/spark/preferences/notifications</to>
   </rule>
 
   <rule>
@@ -1032,12 +1031,6 @@
   </rule>
 
   <rule>
-    <name>Render Template Authorization</name>
-    <from>/admin/templates/([^/]+)/permissions(/?)$</from>
-    <to last="true">/rails/admin/templates/${escape:$1}/permissions</to>
-  </rule>
-
-  <rule>
     <name>Rails Pipeline Snippet</name>
     <from>^/(admin/pipelines/snippet/.*)$</from>
     <to last="true">/rails/$1</to>
@@ -1181,38 +1174,6 @@
     <name>RESTful Artifacts</name>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
     <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Properties Search for one job</name>
-    <condition type="parameter" name="pipelineCounter"/>
-    <from>^/properties/search(\?.*)?$</from>
-    <to type="forward">/repository/restful/properties/job/search</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Properties Search for all jobs</name>
-    <from>^/properties/search(\?.*)?$</from>
-    <to type="forward">/repository/restful/properties/jobs/search</to>
-  </rule>
-
-  <rule>
-    <name>Post RESTful Property for a job</name>
-    <condition type="parameter" name="value"/>
-    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Property for a job</name>
-    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-  </rule>
-
-  <rule>
-    <name>RESTful Properties for a job</name>
-    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
   </rule>
 
   <rule>

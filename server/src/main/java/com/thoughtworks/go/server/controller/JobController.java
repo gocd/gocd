@@ -74,7 +74,6 @@ public class JobController {
     private SecurityService securityService;
 
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
-    private Boolean disallowPropertiesAccess;
 
     public JobController() {
     }
@@ -96,7 +95,6 @@ public class JobController {
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.systemEnvironment = systemEnvironment;
         this.securityService = securityService;
-        this.disallowPropertiesAccess = Boolean.valueOf(System.getenv().getOrDefault("GO_DISALLOW_PROPERTIES_ACCESS", "true"));
     }
 
     @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
@@ -186,7 +184,6 @@ public class JobController {
         data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", agentService.isRegistered(jobDetail.getAgentUuid()));
-        data.put("disallowPropertiesAccess", disallowPropertiesAccess);
         addElasticAgentInfo(jobDetail, data);
         return new ModelAndView("build_detail/build_detail_page", data);
     }

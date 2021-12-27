@@ -23,62 +23,12 @@ describe MaterialsHelper do
     @material = SvnMaterial.new("http://foo:bar@sf.net", "user", "pass", false)
   end
 
-  it "should return scrubbed value for url and literal values for others" do
-    expect(attributes_for_material(@material)).to eq(' type="SvnMaterial" url="http://foo:******@sf.net" username="user" checkExternals="false"')
-  end
-
-  it "should return xml safe values" do
-    @material = SvnMaterial.new("file:///junk<foo/dir", "us\"er", "pass", false)
-    expect(attributes_for_material(@material)).to eq(' type="SvnMaterial" url="file:///junk&lt;foo/dir" username="us&quot;er" checkExternals="false"')
-  end
-
-  it "should understand current modification" do
-    @deployed_revision = com.thoughtworks.go.domain.materials.svn.SubversionRevision.new("123")
-    modification = com.thoughtworks.go.domain.materials.Modification.new(java.util.Date.new(), "123", "label-10", nil)
-    another_modification = com.thoughtworks.go.domain.materials.Modification.new(java.util.Date.new(), "456", "label-10", nil)
-    expect(current_modification?(modification)).to be_truthy
-    expect(current_modification?(another_modification)).to be_falsey
-  end
-
-  it "should not consider current modification when deployed revision is unknown" do
-    @deployed_revision = com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel::UNKNOWN_REVISION
-    modification = com.thoughtworks.go.domain.materials.Modification.new(java.util.Date.new(), "No historical data", "label-20", nil)
-    expect(current_modification?(modification)).to be_falsey
-  end
-
-  it "should understand latest modification" do
-    date = java.util.Date.new()
-
-    modification = com.thoughtworks.go.domain.materials.Modification.new(date, "abc", "label-10", nil)
-    another_modification = com.thoughtworks.go.domain.materials.Modification.new(date, "def", "label-10", nil)
-
-    @modifications = com.thoughtworks.go.domain.materials.Modifications.new([modification, another_modification])
-
-    expect(latest_modification?(modification)).to be_truthy
-    expect(latest_modification?(another_modification)).to be_falsey
-  end
-
-  it "should understand if material has any modifications" do
-    updated_material = Object.new
-    unupdated_material = Object.new
-
-    mock_material_service = double("material_service")
-    expect(self).to receive(:material_service).at_least(1).times.and_return(mock_material_service)
-
-    expect(mock_material_service).to receive(:hasModificationFor).with(updated_material).and_return(true)
-    expect(has_modification?(updated_material)).to eq(true)
-
-    expect(mock_material_service).to receive(:hasModificationFor).with(unupdated_material).and_return(false)
-    expect(has_modification?(unupdated_material)).to eq(false)
-  end
-
   it "should replace tracking tool text with a link" do
     expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
     expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "\\d+"))
 
-    modification = ModificationsMother.oneModifiedFile("1")
-    modification.setComment("#42 What is the question sir?")
-    expect(render_tracking_tool_link(modification, 'pipeline')).to eq("<p>#<a href=\"http://pavan/42\" target=\"story_tracker\">42</a> What is the question sir?</p>")
+    comment_str = "#42 What is the question sir?"
+    expect(render_tracking_tool_link_for_comment(comment_str, 'pipeline')).to eq("<p>#<a href=\"http://pavan/42\" target=\"story_tracker\">42</a> What is the question sir?</p>")
   end
 
   describe "render_comment_markup_for" do
@@ -92,7 +42,7 @@ describe MaterialsHelper do
       expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Trackback: <a href=\"google.com\">google.com</a>")
     end
 
-    it "should display trackback url as not provided when trachback_url and comment are not there" do
+    it "should display trackback url as not provided when trackback_url and comment are not there" do
       comment_str = '{"TYPE":"PACKAGE_MATERIAL"}'
       expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("Trackback: Not Provided")
     end
@@ -103,33 +53,6 @@ describe MaterialsHelper do
 
       comment_str = nil
       expect(render_comment_markup_for(comment_str, 'pipeline')).to eq("<p></p>")
-    end
-  end
-
-  describe "render_simple_comment" do
-    it "should display only comment when both comment and trackback url are provided" do
-      comment_str = '{"TYPE":"PACKAGE_MATERIAL","COMMENT":"Built on blrstdgobgr03.","TRACKBACK_URL":"google.com"}'
-      expect(render_simple_comment(comment_str)).to eq("Built on blrstdgobgr03.")
-    end
-
-    it "should display only trackback url when comment is not provided" do
-      comment_str = '{"TYPE":"PACKAGE_MATERIAL", "TRACKBACK_URL":"google.com"}'
-      expect(render_simple_comment(comment_str)).to eq("Trackback: google.com")
-    end
-
-    it "should display only trackback url as not provided when comment and trackback url are not provided" do
-      comment_str = '{"TYPE":"PACKAGE_MATERIAL"}'
-      expect(render_simple_comment(comment_str)).to eq("Trackback: Not Provided")
-    end
-
-    it "should render a nil comment as empty" do
-      comment_str = nil
-      expect(render_simple_comment(comment_str)).to eq("")
-    end
-
-    it "should render an empty comment as empty" do
-      comment_str = ''
-      expect(render_simple_comment(comment_str)).to eq("")
     end
   end
 end

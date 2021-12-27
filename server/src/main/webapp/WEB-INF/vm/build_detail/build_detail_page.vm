@@ -80,12 +80,6 @@
                       <a class="tab_button_body_match_text">materials</a>
                       <a>Materials</a>
                     </li>
-                    #if (!$disallowPropertiesAccess)
-                      <li>
-                        <a class="tab_button_body_match_text">properties</a>
-                        <a>Properties</a>
-                      </li>
-                    #end
                       #foreach( $tab in $presenter.customizedTabs )
                         <li>
                           <a class="tab_button_body_match_text">$tab.name.toLowerCase()</a>
@@ -121,9 +115,6 @@
 
                       #set($modification_extra_attrs="style='display:none'")
                       #parse("build_detail/_materials.vm")
-
-                      #set($properties_extra_attrs="style='display:none'")
-                      #parse("build_detail/_properties.vm")
 
                       #foreach( $tab in $presenter.customizedTabs )
                           #set($customized_name=$tab.name)

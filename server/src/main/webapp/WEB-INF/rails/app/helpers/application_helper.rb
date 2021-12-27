@@ -272,18 +272,6 @@ module ApplicationHelper
     return @page_name
   end
 
-  def server_timezone
-    java.util.TimeZone.getDefault().getRawOffset()
-  end
-
-  def spa_timeout
-    SystemEnvironment.goSpaTimeout()
-  end
-
-  def spa_refresh_interval
-    SystemEnvironment.goSpaRefreshInterval()
-  end
-
   def version
     @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
   end

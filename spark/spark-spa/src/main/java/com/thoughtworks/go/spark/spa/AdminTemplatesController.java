@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa;
 
-import com.google.common.collect.ImmutableMap;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -33,12 +30,10 @@ import static spark.Spark.*;
 public class AdminTemplatesController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
-    private final FeatureToggleService featureToggleService;
 
-    public AdminTemplatesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, FeatureToggleService featureToggleService) {
+    public AdminTemplatesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.featureToggleService = featureToggleService;
     }
 
     @Override
@@ -55,13 +50,7 @@ public class AdminTemplatesController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<String, Object> meta = ImmutableMap.<String, Object>builder()
-                .put("showRailsTemplateAuthorization", featureToggleService.isToggleOn(Toggles.USE_RAILS_TEMPLATE_AUTHORIZATION_PAGE))
-                .build();
-        Map<String, Object> object = ImmutableMap.<String, Object>builder()
-                .put("viewTitle", "AdminTemplates")
-                .put("meta", meta)
-                .build();
+        Map<String, Object> object = Map.of("viewTitle", "AdminTemplates");
         return new ModelAndView(object, null);
     }
 }

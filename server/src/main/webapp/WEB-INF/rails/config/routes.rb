@@ -65,8 +65,6 @@ Rails.application.routes.draw do
     get 'pipelines/:pipeline_name/:pipeline_counter' => 'stages#redirect_to_first_stage', as: :internal_stage_detail_tab, constraints: PIPELINE_LOCATOR_CONSTRAINTS
   end
 
-  get 'preferences/notifications', controller: 'preferences', action: 'notifications'
-
   # bring back routes, these are referenced from rails pages...
   get "agents/:uuid" => 'agent_details#show', as: :agent_detail, constraints: {uuid: ALLOW_DOTS}
   get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent, constraints: {uuid: ALLOW_DOTS}

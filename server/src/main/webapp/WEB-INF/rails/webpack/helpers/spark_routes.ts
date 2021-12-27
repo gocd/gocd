@@ -462,10 +462,6 @@ export class SparkRoutes {
     return "/go/api/admin/config/server/default_job_timeout";
   }
 
-  static editTemplatePermissions(templateName: string) {
-    return `/go/admin/templates/${templateName}/permissions`;
-  }
-
   static getEnvironmentPathOnSPA(environmentName: string) {
     return `/go/admin/environments/#!${environmentName}`;
   }

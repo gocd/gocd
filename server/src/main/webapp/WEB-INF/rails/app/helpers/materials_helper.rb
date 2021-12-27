@@ -17,38 +17,8 @@
 module MaterialsHelper
   include Services
 
-  def attributes_for_material(material)
-    material.getSqlCriteria().inject("") do |s, entry|
-      key, value = entry.first, entry.last
-      value = material.getUriForDisplay() if key == "url"
-      "#{s} #{key}=\"#{ERB::Util.h(value)}\""
-    end
-  end
-
-  def current_modification? modification
-    @deployed_revision.isRealRevision() && (modification.getRevision() == @deployed_revision.getRevision())
-  end
-
-  def latest_modification? modification
-    modification.equals(@modifications.first())
-  end
-
-  def has_modification? material
-    material_service.hasModificationFor(material)
-  end
-
   def dependency_material? material
     material.getMaterialType() == "DependencyMaterial"
-  end
-
-  def render_simple_comment(comment)
-    if /\"TYPE\":\"PACKAGE_MATERIAL\"/.match(comment)
-      package_comment_map = package_material_display_comment(comment)
-      trackback_url = package_comment_map['TRACKBACK_URL'].blank? ? 'Not Provided' : package_comment_map['TRACKBACK_URL']
-      result = package_comment_map['COMMENT'] || "#{'Trackback: '}#{trackback_url}"
-      return result
-    end
-    comment || ""
   end
 
   def render_comment_markup_for(comment, pipeline_name)
@@ -68,15 +38,10 @@ module MaterialsHelper
     "#{get_comment(package_comment_map)}#{'Trackback: '}#{get_trackback_url(package_comment_map)}".html_safe
   end
 
-  def render_tracking_tool_link(modification, pipeline_name)
-    render_tracking_tool_link_for_comment(modification.getComment(), pipeline_name)
-  end
-
   def render_tracking_tool_link_for_comment(comment, pipeline_name)
     comment_renderer = go_config_service.getCommentRendererFor(pipeline_name)
     old_simple_format comment_renderer.render(comment)
   end
-
 
   def package_material_display_comment(comment)
     ActiveSupport::JSON.decode(comment)
@@ -89,15 +54,6 @@ module MaterialsHelper
   def get_trackback_url(comment_map)
     comment_map['TRACKBACK_URL'].blank? ? 'Not Provided' : link_to(comment_map['TRACKBACK_URL'], comment_map['TRACKBACK_URL'])
   end
-
-  def material_type_from_class(material)
-    material.getClass().getSimpleName().gsub(/MaterialConfig$/, '').downcase
-  end
-
-  def admin_material_edit_path(material)
-    send("admin_#{material_type_from_class(material)}_edit_path", :finger_print => material.getPipelineUniqueFingerprint())
-  end
-
 
   private
   # They changed the implementation of this method between Rails 2.3 and Rails 4. Using the older one here.

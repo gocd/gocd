@@ -426,47 +426,6 @@ div.build_detail_container_content {
   margin-bottom: 0.5em;
 }
 
-/* build detail property widget */
-#tab-content-of-properties {
-}
-
-table#build-peroperties-table {
-  margin-top: 15px;
-  -moz-box-shadow: 0 0 5px #ddd;
-  border: 1px solid #CCCCCC;
-  width: 100%;
-}
-
-table#build-peroperties-table th,
-table#build-peroperties-table td {
-  font-size: 11px;
-  padding: 8px 10px;
-  border-bottom: 1px dotted #ccc;
-  background-color: #fff;
-}
-
-table#build-peroperties-table .table-top {
-  border: 0;
-}
-
-table#build-peroperties-table th {
-  border-bottom: 1px solid #ddd;
-  background: #eee image_url('g9/backgrounds/overlay_gradient_th.png') repeat-x;
-  white-space: nowrap;
-}
-
-.build-properties-key-column {
-  width: auto;
-}
-
-.build-properties-value-column {
-  width: auto;
-}
-
-.build-properties-operations-column {
-  width: 11em;
-}
-
 div.sub_tab_container_content {
   /*padding: 1em;*/
   /*padding-top: 0.5em;*/
@@ -760,16 +719,9 @@ a.collapse-all {
 
 #tab-content-of-tests,
 #tab-content-of-artifacts,
-#tab-content-of-materials,
-#tab-content-of-properties,
-#tab-content-of-junit-time {
+#tab-content-of-materials {
   margin: 1em;
   margin: 0;
-}
-
-#tab-content-of-properties .export-to-excel {
-  margin-bottom: 1em;
-  display: block;
 }
 
 #tab-content-of-materials tbody {

@@ -4,6 +4,6 @@
   "description": "misc utils",
   "license": "Apache-2.0",
   "dependencies": {
-    "semver": "^7.3.2"
+    "semver": "^7.3.5"
   }
 }

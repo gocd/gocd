@@ -68,14 +68,15 @@ GEM
     ffi (1.15.4-java)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    i18n (1.8.7)
+    i18n (1.8.11)
       concurrent-ruby (~> 1.0)
-    jasmine (3.7.0)
-      jasmine-core (~> 3.7.0)
+    jasmine (3.10.0)
+      jasmine-core (~> 3.10.0)
       phantomjs
-      rack (>= 1.2.1)
+      rack (>= 2.1.4)
       rake
-    jasmine-core (3.7.1)
+      webrick
+    jasmine-core (3.10.1)
     jasmine-jquery-rails (2.0.3)
     jasmine_selenium_runner (3.0.0)
       jasmine (~> 3.0)
@@ -203,6 +204,7 @@ GEM
       thread_safe (~> 0.1)
     tzinfo-data (1.2021.5)
       tzinfo (>= 1.0.0)
+    webrick (1.7.0)
     websocket-driver (0.7.3-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)

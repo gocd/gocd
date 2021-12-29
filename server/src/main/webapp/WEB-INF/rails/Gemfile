@@ -1,6 +1,4 @@
 source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
-
 ruby '2.5.8'
 
 gem 'rails', '5.2.6'
@@ -17,12 +15,12 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 group :development, :test do
   # we use `jasmine` gem + `selenium-webdriver` for the `jasmine:ci` task
   # this task will run jasmine in a browser, driven by selenium
-  gem 'jasmine', '3.7.0' # 3.8 has issues on JRuby due to webrick being added
+  gem 'jasmine'
   gem 'jasmine-jquery-rails'
   gem 'jasmine_selenium_runner'
 
   # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
-  gem 'pry-debugger-jruby'
+  gem 'pry-debugger-jruby', platforms: :jruby
 end
 
 group :test do
@@ -31,11 +29,6 @@ group :test do
   gem 'rspec-instafail', require: false
   gem 'rspec_junit_formatter'
   gem 'rails-controller-testing'
-
-  # Lock i18n version during tests to workaround issue with use of refinements within i18n under JRuby.
-  # Should be fixed in JRuby 9.2.15.0+ - try removing then.
-  # See https://github.com/jruby/jruby/issues/6547 and https://github.com/ruby-i18n/i18n/issues/555
-  gem 'i18n', '1.8.7', platform: :jruby
 end
 
 group :development do

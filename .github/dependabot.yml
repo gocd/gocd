@@ -15,7 +15,7 @@ updates:
 - package-ecosystem: bundler
   directory: "/server/src/main/webapp/WEB-INF/rails"
   commit-message:
-    preifx: ui
+    prefix: ui
     prefix-development: ui-dev
   schedule:
     interval: weekly

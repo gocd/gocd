@@ -220,8 +220,7 @@ DEPENDENCIES
   bundler-audit
   capybara
   dynamic_form
-  i18n (= 1.8.7)
-  jasmine (= 3.7.0)
+  jasmine
   jasmine-jquery-rails
   jasmine_selenium_runner
   js-routes

@@ -10,11 +10,13 @@ updates:
     interval: weekly
     day: friday
   commit-message:
-    prefix-development: dev
+    prefix: ui
+    prefix-development: ui-dev
 - package-ecosystem: bundler
   directory: "/server/src/main/webapp/WEB-INF/rails"
   commit-message:
-    prefix-development: dev
+    preifx: ui
+    prefix-development: ui-dev
   schedule:
     interval: weekly
     day: friday

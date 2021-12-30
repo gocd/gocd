@@ -1020,12 +1020,12 @@ task licenseReportAggregate {
       moduleName    : 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api',
       moduleVersion : '1.0.1.Final',
       moduleUrls    : [
-        "http://hibernate.org"
+        "https://hibernate.org"
       ],
       moduleLicenses: [
         [
           moduleLicense   : 'Eclipse Distribution License - v1.0',
-          moduleLicenseUrl: "http://www.eclipse.org/org/documents/edl-v10.php"
+          moduleLicenseUrl: "https://www.eclipse.org/org/documents/edl-v10.php"
         ]
       ]
     ],
@@ -1071,7 +1071,7 @@ task licenseReportAggregate {
 
     // remove items that we know to have missing license data
     allDependenciesInReport.removeIf { eachDependency ->
-      !!missingLicenseData.find { dependencyWithMissingLicenseData ->
+      missingLicenseData.any { dependencyWithMissingLicenseData ->
         eachDependency.moduleName == dependencyWithMissingLicenseData.moduleName && eachDependency.moduleVersion == dependencyWithMissingLicenseData.moduleVersion
       }
     }

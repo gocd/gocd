@@ -4,14 +4,16 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  open-pull-requests-limit: 99
 - package-ecosystem: npm
   directory: "/server/src/main/webapp/WEB-INF/rails"
-  schedule:
-    interval: weekly
-    day: friday
   commit-message:
     prefix: ui
     prefix-development: ui-dev
+  schedule:
+    interval: weekly
+    day: friday
+  open-pull-requests-limit: 99
 - package-ecosystem: bundler
   directory: "/server/src/main/webapp/WEB-INF/rails"
   commit-message:
@@ -20,6 +22,7 @@ updates:
   schedule:
     interval: weekly
     day: friday
+  open-pull-requests-limit: 99
 - package-ecosystem: npm
   directory: "/scripts"
   commit-message:

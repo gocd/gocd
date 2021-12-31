@@ -506,12 +506,12 @@
     "@babel/plugin-syntax-private-property-in-object" "^7.14.5"
 
 "@babel/plugin-proposal-throw-expressions@^7":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-throw-expressions/-/plugin-proposal-throw-expressions-7.16.5.tgz#f71c21a8552eac16c48b30e172898bbc884d1f8d"
-  integrity sha512-HI5iqaF7095lPHu/yMHukKm3/sI3UCq5mqz/rdocQJiBCASMS/i6rlU+FJ7J2sB+/adV5v/3pIoACK3n0jlFhg==
+  version "7.16.7"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-throw-expressions/-/plugin-proposal-throw-expressions-7.16.7.tgz#d3512286f634a06f7271abecce752e1655b9ab03"
+  integrity sha512-BbjL/uDt7c+OKA7k2YbZIPtOb6qmrzXPybjqrGreP8wMMzTPKjjiK+moqgpElsIXv1XHmlk9PQWdOHD5sL93KA==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.16.5"
-    "@babel/plugin-syntax-throw-expressions" "^7.16.5"
+    "@babel/helper-plugin-utils" "^7.16.7"
+    "@babel/plugin-syntax-throw-expressions" "^7.16.7"
 
 "@babel/plugin-proposal-unicode-property-regex@^7.16.5", "@babel/plugin-proposal-unicode-property-regex@^7.4.4":
   version "7.16.5"
@@ -640,12 +640,12 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.14.5"
 
-"@babel/plugin-syntax-throw-expressions@^7.16.5":
-  version "7.16.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-throw-expressions/-/plugin-syntax-throw-expressions-7.16.5.tgz#00dc802416970779a34e3e604c2551d4ac0ad209"
-  integrity sha512-9zNpa+ssL/9fXfyNgR3BkorVXmlEZ8G8ym8gXB4UFmS/JsPgzTDFO0ASXHrvI98TQA5av5gTX05pQs8lpcMWAA==
+"@babel/plugin-syntax-throw-expressions@^7.16.7":
+  version "7.16.7"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-throw-expressions/-/plugin-syntax-throw-expressions-7.16.7.tgz#5fd64f4d58d653499cc1077bb58594e18da5a514"
+  integrity sha512-6Kw78ssLHIADvVsqLOLLxuxH4SG55A2tqn0Og2tQQq6X/06HBWLClg6quL+oTfyeVEsPnFYTSECkajseotTnbA==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.16.5"
+    "@babel/helper-plugin-utils" "^7.16.7"
 
 "@babel/plugin-syntax-top-level-await@^7.14.5":
   version "7.14.5"

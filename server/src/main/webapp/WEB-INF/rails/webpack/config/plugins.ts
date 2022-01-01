@@ -17,6 +17,7 @@
 import {CleanWebpackPlugin} from "clean-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import fs from "fs";
+import ESLintPlugin from "eslint-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import _ from "lodash";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
@@ -33,6 +34,11 @@ const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
 export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
+    new ESLintPlugin({
+      extensions: ["js", "msx"],
+      failOnWarning: true,
+      threads: true
+    }),
     new CleanWebpackPlugin(),
     new UnusedWebpackPlugin({
                               directories: [

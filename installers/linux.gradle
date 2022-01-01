@@ -161,7 +161,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
         fileMode = 0755
 
-        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/App.sh.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/bin/App.sh.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -196,7 +196,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
       project.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper-config"
-        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}/src/conf/wrapper.conf.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -297,11 +297,11 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
       project.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper"
-        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}/bin") {
           include 'wrapper-linux-x86-*'
         }
 
-        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}/lib") {
           include 'wrapper.jar'
           include 'libwrapper-linux-x86-*'
         }

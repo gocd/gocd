@@ -22,10 +22,10 @@ private File destFile(String url) {
 }
 
 task downloadTanukiDeltaPack(type: DownloadFile) {
-  def srcUrl = System.getenv("TANUKI_WRAPPER_URL") ?: "https://nexus.gocd.io/repository/s3-mirrors/local/tanuki/wrapper-delta-pack-${project.versions.tanuki}-st.tar.gz"
+  def srcUrl = System.getenv("TANUKI_WRAPPER_URL") ?: "https://nexus.gocd.io/repository/s3-mirrors/local/tanuki/wrapper-delta-pack-${project.versions.tanuki}.tar.gz"
   src srcUrl
   dest destFile(srcUrl)
-  checksum '27b1d3da6982bcdf1cc51f3bb99abb8763635ae4691e3fe36e310c818b3bbb42'
+  checksum project.versions.tanukiSha256sum
 }
 
 task extractDeltaPack(type: Copy) {

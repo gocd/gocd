@@ -36,6 +36,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
   const plugins = [
     new ESLintPlugin({
       extensions: ["js", "msx"],
+      exclude: ["node_modules", "webpack/gen"],
       failOnWarning: true,
       threads: true
     }),

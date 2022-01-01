@@ -74,7 +74,7 @@
     "cache-loader": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^5.2.7",
-    "eslint": "^7.32.0",
+    "eslint": "^8.6.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-es5": "^1.5.0",
     "eslint-plugin-react": "^7.28.0",
@@ -121,7 +121,6 @@
     "webpack-cli": "^4.9.1"
   },
   "resolutions": {
-    "eslint/**/glob-parent": ">=6.0.2",
     "**/chokidar/**/glob-parent": ">=6.0.2",
     "html-webpack-plugin/**/ansi-regex": "^5.0.1",
     "sass-lint/**/ansi-regex": "^5.0.1",

@@ -182,7 +182,8 @@ final Map<String, String> v = [
   ztExec              : versionOf(libraries.ztExec),
 
   // misc
-  tanuki              : '3.5.46',
+  tanuki              : '3.5.48-st',
+  tanukiSha256sum     : '7619e1d4320efcb7c2f5bafc36347993c3ff6417e2b8289e90c047033139c514',
   tini                : '0.19.0',
   velocityToolsView   : '1.4',
 ]

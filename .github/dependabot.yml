@@ -23,6 +23,8 @@ updates:
     interval: weekly
     day: friday
   open-pull-requests-limit: 99
+  allow:
+    - dependency-type: all
 - package-ecosystem: npm
   directory: "/scripts"
   commit-message:
@@ -37,3 +39,5 @@ updates:
     day: friday
   commit-message:
     prefix: dev-scripts
+  allow:
+    - dependency-type: all

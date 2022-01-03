@@ -16,7 +16,7 @@
 package com.thoughtworks.go.spark;
 
 import com.google.common.net.UrlEscapers;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
@@ -154,7 +154,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#materials");
 
         public static String vsm(String materialFingerprint, String revision) {
-            return StrSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", of(
+            return StringSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", of(
                     "material_fingerprint", materialFingerprint,
                     "revision", revision));
         }
@@ -283,7 +283,7 @@ public class Routes {
 
     public static class PipelineInstance {
         public static String vsm(String pipelineName, int pipelineCounter) {
-            return StrSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
+            return StringSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
                     of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
         }
 
@@ -324,7 +324,7 @@ public class Routes {
         public static final String STAGE_HISTORY_OFFSET = "/:pipeline_name/:stage_name/history/:offset";
 
         public static String self(String pipelineName, String pipelineCounter, String stageName, String stageCounter) {
-            return StrSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
+            return StringSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
                     "pipeline_name", pipelineName,
                     "pipeline_counter", pipelineCounter,
                     "stage_name", stageName,
@@ -335,7 +335,7 @@ public class Routes {
                                             int pipelineCounter,
                                             String stageName,
                                             int stageCounter) {
-            return StrSubstitutor.replace("/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
+            return StringSubstitutor.replace("/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
                     "pipeline_name", pipelineName,
                     "pipeline_counter", pipelineCounter,
                     "stage_name", stageName,
@@ -380,7 +380,7 @@ public class Routes {
         public static final String BASE = "/api/users/";
 
         public static String self(String loginName) {
-            return StrSubstitutor.replace(BASE + "${loginName}", of("loginName", loginName));
+            return StringSubstitutor.replace(BASE + "${loginName}", of("loginName", loginName));
         }
 
         public static String find() {
@@ -393,7 +393,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#user-search");
 
         public static String self(String searchTerm) {
-            return StrSubstitutor.replace(BASE + "?q=${searchTerm}", of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
+            return StringSubstitutor.replace(BASE + "?q=${searchTerm}", of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
         }
 
         public static String find() {
@@ -886,7 +886,7 @@ public class Routes {
         public static final String COMPARE = "/:pipeline_name/:from_counter/with/:to_counter";
 
         public static String compare(String pipelineName, String fromCounter, String toCounter) {
-            return StrSubstitutor.replace("/go/compare/${pipeline_name}/${from_counter}/with/${to_counter}", of(
+            return StringSubstitutor.replace("/go/compare/${pipeline_name}/${from_counter}/with/${to_counter}", of(
                     "pipeline_name", pipelineName,
                     "from_counter", fromCounter,
                     "to_counter", toCounter

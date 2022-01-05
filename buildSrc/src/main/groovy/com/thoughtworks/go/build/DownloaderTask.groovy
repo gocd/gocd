@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.build
 
+import jdk.internal.module.Modules
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.ysb33r.grolifant.api.core.OperatingSystem
@@ -54,6 +56,19 @@ class DownloaderTask extends DefaultTask {
       @Override
       URI uriFromVersion(String version) {
         return url.toURI()
+      }
+
+      @Override
+      Provider<File> getDistributionRoot(String version) {
+        // Workaround for issues with Java 17 and Groovy-generated dynamic proxies used by Grolifant on Groovy 3.0.9
+        // Raised at https://gitlab.com/ysb33rOrg/grolifant/-/issues/82
+        // On Groovy side, https://issues.apache.org/jira/browse/GROOVY-10145 has a linked fix for Groovy 4, but
+        // currently seems not to be back-ported to 3.x
+
+        // Relies on gradle.properties setting to be able to do this opening dynamically
+        Modules.addOpensToAllUnnamed(artifactRootVerification.class.module, artifactRootVerification.class.packageName)
+
+        return super.getDistributionRoot(version)
       }
 
       @Override

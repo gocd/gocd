@@ -111,20 +111,14 @@ task initializeRailsGems {
   inputs.files(project.configurations.jrubyGems)
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
+  inputs.file("${project.railsRoot}/.bundle/config")
   inputs.properties([
     jrubyVersion: project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
     railsRoot: project.railsRoot
   ])
 
-  def outputDirs = [
-    project.bundledGemDir,
-    "${project.railsRoot}/.bundle"
-  ]
-
-  outputDirs.each {
-    outputs.dir(it)
-  }
+  outputs.dir(project.bundledGemDir)
 
   doFirst {
     project.jrubyexec {

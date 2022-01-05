@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
 
 require "faraday"
+require 'faraday/net_http'
 require "json"
 require "optparse"
 
+Faraday.default_adapter = :net_http
 $verbose = false
 
 def main(args)
@@ -81,9 +83,9 @@ def trace(msg)
 end
 
 def token()
-  ENV.fetch "GH_TOKEN"
+  ENV.fetch "GITHUB_TOKEN"
 rescue => e
-  die "You must set the environment variable GH_TOKEN to your GitHub personal access token"
+  die "You must set the environment variable GITHUB_TOKEN to your GitHub personal access token"
 end
 
 def headers

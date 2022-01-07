@@ -20,7 +20,8 @@ updates:
     prefix: ui
     prefix-development: ui-dev
   schedule:
-    interval: daily
+    interval: weekly
+    day: friday
   open-pull-requests-limit: 99
   allow:
     - dependency-type: all
@@ -34,7 +35,8 @@ updates:
 - package-ecosystem: bundler
   directory: "/scripts"
   schedule:
-    interval: daily
+    interval: weekly
+    day: friday
   commit-message:
     prefix: dev-scripts
   allow:

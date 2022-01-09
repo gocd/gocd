@@ -36,18 +36,13 @@ public class RouteEntryRepresenter {
                         .add("version", entry.getAcceptedType())
                         .addChildList("path_params", getParams(entry));
 
-                String canonical = ((RouteImpl) entry.getTarget()).delegate().getClass().getCanonicalName();
-                if (canonical == null) {
-                    addNonDeprecatedApiInfo(entryWriter);
-                    return;
-                }
+                Class<?> routeHandlerClass = ((RouteImpl) entry.getTarget()).delegate().getClass();
 
-                try {
-                    DeprecatedAPI deprecatedAPI = Class.forName(canonical.substring(0, canonical.indexOf("$$Lambda$"))).getAnnotation(DeprecatedAPI.class);
-                    addDeprecatedApiInfo(entryWriter, deprecatedAPI);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
+                // Generally routes are lambdas nested within a controller class, so we can find the controller
+                // by looking for the nest host of the route
+                Class<?> controllerClass = routeHandlerClass.getNestHost();
+                DeprecatedAPI deprecatedAPI = controllerClass.getAnnotation(DeprecatedAPI.class);
+                addDeprecatedApiInfo(entryWriter, deprecatedAPI);
             });
         });
     }

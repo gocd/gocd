@@ -624,6 +624,7 @@ subprojects {
       "com.fasterxml.jackson.core:jackson-databind"   : project.versions.jackson,
       "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils,
       "org.apache.commons:commons-pool2"              : project.versions.commonsPool,
+      "org.objenesis:objenesis"                       : project.versions.objenesis,
     ]
 
 

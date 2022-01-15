@@ -70,7 +70,6 @@ dependencies {
   implementation project(':agent-common')
   implementation project(':common')
   implementation project.deps.javaxAnnotation
-  implementation project.deps.objenesis
   implementation project.deps.commonsConfiguration
   implementation project.deps.nanohttpd
 

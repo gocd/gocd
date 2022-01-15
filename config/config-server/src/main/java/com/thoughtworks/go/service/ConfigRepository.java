@@ -78,10 +78,14 @@ public class ConfigRepository {
         workingDir = this.systemEnvironment.getConfigRepoDir();
         File configRepoDir = new File(workingDir, ".git");
         gitRepo = new FileRepositoryBuilder().setGitDir(configRepoDir).build();
-        gitRepo.getConfig().setInt("gc", null, "auto", 0);
+        updateWithDefaults(gitRepo.getConfig());
         git = new Git(gitRepo);
     }
 
+    private void updateWithDefaults(StoredConfig config) {
+        config.setInt(ConfigConstants.CONFIG_GC_SECTION, null, ConfigConstants.CONFIG_KEY_AUTO, 0);
+        config.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, ConfigConstants.CONFIG_KEY_GPGSIGN, false);
+    }
 
     public Repository getGitRepo() {
         return gitRepo;

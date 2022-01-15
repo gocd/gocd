@@ -24,8 +24,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.util.SystemReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -68,6 +72,33 @@ public class ConfigRepositoryTest {
         configRepo.checkin(new GoConfigRevision("v1 v2", "md5-v2", "user-name", "100.9.8", new TimeProvider()));
         assertThat(configRepo.getRevision("md5-v1").getContent(), is("v1"));
         assertThat(configRepo.getRevision("md5-v2").getContent(), is("v1 v2"));
+    }
+
+    @Test
+    public void shouldBeAbleToCheckInWithGlobalGpgSigningEnabled() throws Exception {
+        try (UndoableUserGitConfig ignored = new UndoableUserGitConfig(c -> c.setBoolean(ConfigConstants.CONFIG_COMMIT_SECTION, null, ConfigConstants.CONFIG_KEY_GPGSIGN, true))) {
+            configRepo = new ConfigRepository(systemEnvironment);
+            configRepo.initialize();
+            configRepo.checkin(new GoConfigRevision("v1", "md5-v1", "user-name", "100.3.9", new TimeProvider()));
+            assertThat(configRepo.getRevision("md5-v1").getContent(), is("v1"));
+            assertThat(configRepo.getCurrentRevCommit().getRawGpgSignature(), nullValue());
+        }
+    }
+
+    private static class UndoableUserGitConfig implements AutoCloseable {
+        private final String originalConfig;
+
+        public UndoableUserGitConfig(Consumer<StoredConfig> configConsumer) throws Exception {
+            StoredConfig config = SystemReader.getInstance().getUserConfig();
+            originalConfig = config.toText();
+            configConsumer.accept(config);
+        }
+
+        @Override
+        public void close() throws Exception {
+            StoredConfig config = SystemReader.getInstance().getUserConfig();
+            config.fromText(originalConfig);
+        }
     }
 
     @Test
@@ -110,7 +141,7 @@ public class ConfigRepositoryTest {
     }
 
     @Test
-    public void shouldReturnNullWhenThereAreNoCheckIns() throws GitAPIException, IOException {
+    public void shouldReturnNullWhenThereAreNoCheckIns() throws Exception {
         assertThat(configRepo.getRevision("current"), is(nullValue()));
     }
 
@@ -317,7 +348,7 @@ public class ConfigRepositoryTest {
     }
 
     @Test
-    public void shouldSwitchToMasterAndDeleteTempBranches() throws Exception, GitAPIException {
+    public void shouldSwitchToMasterAndDeleteTempBranches() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         configRepo.createBranch(ConfigRepository.BRANCH_AT_HEAD, configRepo.getCurrentRevCommit());
         configRepo.createBranch(ConfigRepository.BRANCH_AT_REVISION, configRepo.getCurrentRevCommit());
@@ -376,10 +407,10 @@ public class ConfigRepositoryTest {
     public void shouldPerformGC() throws Exception {
         configRepo.checkin(goConfigRevision("v1", "md5-1"));
         Long numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
-        assertThat(numberOfLooseObjects > 0l, is(true));
+        assertThat(numberOfLooseObjects > 0L, is(true));
         configRepo.garbageCollect();
         numberOfLooseObjects = (Long) configRepo.git().gc().getStatistics().get("sizeOfLooseObjects");
-        assertThat(numberOfLooseObjects, is(0l));
+        assertThat(numberOfLooseObjects, is(0L));
     }
 
     @Test
@@ -411,7 +442,7 @@ public class ConfigRepositoryTest {
         return new GoConfigRevision(fileContent, md5, "user-1", "13.2", new TimeProvider());
     }
 
-    private String getLatestConfigAt(String branchName) throws GitAPIException, IOException {
+    private String getLatestConfigAt(String branchName) throws GitAPIException {
         configRepo.git().checkout().setName(branchName).call();
 
         String content = configRepo.getCurrentRevision().getContent();

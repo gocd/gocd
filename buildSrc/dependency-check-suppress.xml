@@ -91,9 +91,17 @@
    The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is not correct to have Engine CVEs
    reported against the tools jar.
    ]]></notes>
-        <!-- sha1 of velocity-tools-view-1.4.jar as vendored in server/vendor at time of suppression -->
-        <sha1>3c44030292cff7cf495ee155a5eefa7a05de6447</sha1>
+        <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
         <cpe>cpe:/a:apache:velocity_engine</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   The vulnerability in Velocity Tools View is in the VelocityViewServlet per https://nvd.nist.gov/vuln/detail/CVE-2020-13959
+   which we do not use - we use Spring's WebMVC VelocityView implementation, so we are not vulnerable to this issue.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
+        <cve>CVE-2020-13959</cve>
     </suppress>
 
     <suppress>

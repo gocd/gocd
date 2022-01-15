@@ -99,17 +99,12 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      String git = gitPackage(distroVersion)
-
       def commands = ['yum update -y']
 
-      if (version6Or7(distroVersion)) {
-        commands.add('yum install --assumeyes centos-release-scl')
-      }
+      String git = gitPackageFor(distroVersion)
+      commands.add("yum install --assumeyes ${git} mercurial subversion openssh-clients bash unzip curl procps ${versionBelow8(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
 
-      commands.add("yum install --assumeyes ${git} mercurial subversion openssh-clients bash unzip curl procps ${version6Or7(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
-
-      if (version6Or7(distroVersion)) {
+      if (versionBelow8(distroVersion)) {
         commands.add("cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh")
       }
 
@@ -118,25 +113,20 @@ enum Distro implements DistroBehavior {
       return commands
     }
 
-    private boolean version6Or7(DistroVersion distroVersion) {
-      distroVersion.version == "6" || distroVersion.version == "7"
+    private boolean versionBelow8(DistroVersion distroVersion) {
+      distroVersion.version < "8"
     }
 
-    String gitPackage(DistroVersion distroVersion) {
-      if (version6Or7(distroVersion)) {
-        return "sclo-git212"
-      } else if (distroVersion.version == "8") {
-        return "git"
-      }
-      throw new IllegalArgumentException("Unknown centos version: " + distroVersion.version)
+    String gitPackageFor(DistroVersion distroVersion) {
+      return versionBelow8(distroVersion) ? "rh-git218" : "git"
     }
 
     @Override
     Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
       def vars = super.getEnvironmentVariables(distroVersion)
 
-      if (version6Or7(distroVersion)) {
-        String git = gitPackage(distroVersion)
+      if (versionBelow8(distroVersion)) {
+        String git = gitPackageFor(distroVersion)
         return vars + [
           BASH_ENV: "/opt/rh/${git}/enable",
           ENV     : "/opt/rh/${git}/enable"
@@ -149,7 +139,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01')),
+        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
         new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en'])
       ]
     }

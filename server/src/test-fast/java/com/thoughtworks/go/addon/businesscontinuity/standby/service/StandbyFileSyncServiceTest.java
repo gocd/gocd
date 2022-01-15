@@ -125,7 +125,7 @@ public class StandbyFileSyncServiceTest {
 
         File external3 = new File(systemEnvironment.getExternalPluginAbsolutePath(), "external-3.jar");
         FileUtils.writeStringToFile(external3, "external-3.jar", UTF_8);
-        syncService.currentExternalPluginsStatus.put("external-3.jar", "md5-3");
+        syncService.getCurrentExternalPluginsStatus().put("external-3.jar", "md5-3");
 
         syncService.syncPlugins();
 

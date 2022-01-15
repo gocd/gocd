@@ -29,7 +29,6 @@ import java.util.List;
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentsUpdateValidator {
@@ -70,7 +69,7 @@ public class AgentsUpdateValidator {
     private void bombWhenAgentsDoesNotExist() {
         List<String> notFoundUUIDs = agentInstances.filterBy(uuids, Null);
 
-        if (!isEmpty(notFoundUUIDs)) {
+        if (!notFoundUUIDs.isEmpty()) {
             throw new RecordNotFoundException(EntityType.Agent, notFoundUUIDs);
         }
     }
@@ -78,7 +77,7 @@ public class AgentsUpdateValidator {
     private void bombWhenAnyOperationOnPendingAgents() {
         List<String> pendingUUIDs = agentInstances.filterBy(uuids, Pending);
 
-        if (isEmpty(pendingUUIDs)) {
+        if (pendingUUIDs.isEmpty()) {
             return;
         }
 
@@ -95,7 +94,7 @@ public class AgentsUpdateValidator {
         }
 
         List<String> elasticAgentUUIDs = agentInstances.filterBy(uuids, Elastic);
-        if (isEmpty(elasticAgentUUIDs)) {
+        if (elasticAgentUUIDs.isEmpty()) {
             return;
         }
 

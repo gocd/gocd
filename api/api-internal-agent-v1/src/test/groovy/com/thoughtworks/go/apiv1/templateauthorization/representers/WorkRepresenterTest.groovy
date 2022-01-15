@@ -30,7 +30,7 @@ import com.thoughtworks.go.helper.MaterialsMother
 import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.remote.work.*
 import com.thoughtworks.go.util.command.EnvironmentVariableContext
-import org.apache.commons.lang.builder.EqualsBuilder
+import org.apache.commons.lang3.builder.EqualsBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 

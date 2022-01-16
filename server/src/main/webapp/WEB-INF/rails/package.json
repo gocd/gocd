@@ -126,6 +126,7 @@
     "sass-lint/**/ansi-regex": "^5.0.1",
     "sass-lint/**/jsonpointer": ">=5.0.0",
     "sass-lint/**/merge": ">=2.1.1",
-    "sass-lint/**/minimist": ">=1.2.5"
+    "sass-lint/**/minimist": ">=1.2.5",
+    "sass-lint/**/shelljs": ">=0.8.5"
   }
 }

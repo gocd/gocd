@@ -901,7 +901,6 @@ task verifyWar(type: VerifyJarTask) {
         "oscache-${project.versions.oscache}.jar",
         "plugin-metadata-store-${project.version}.jar",
         "postgresql-${project.versions.postgresql}.jar",
-        "protobuf-java-3.11.4.jar",
         "quartz-${project.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
         "semantic-version-${project.versions.semanticVersion}.jar",

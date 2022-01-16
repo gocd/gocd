@@ -106,6 +106,7 @@ final Map<String, String> libraries = [
   tokenBucket         : 'org.isomorphism:token-bucket:1.7',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
   velocity            : 'org.apache.velocity:velocity:1.7',
+  velocityToolsView   : 'velocity-tools:velocity-tools-view:1.4',
   xalan               : 'xalan:xalan:2.7.2',
   xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.8.4',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',
@@ -178,6 +179,7 @@ final Map<String, String> v = [
   tokenBucket         : versionOf(libraries.tokenBucket),
   urlrewrite          : versionOf(libraries.urlrewrite),
   velocity            : versionOf(libraries.velocity),
+  velocityToolsView   : versionOf(libraries.velocityToolsView),
   xmlUnit             : versionOf(libraries.xmlUnit),
   ztExec              : versionOf(libraries.ztExec),
 
@@ -185,7 +187,6 @@ final Map<String, String> v = [
   tanuki              : '3.5.48-st',
   tanukiSha256sum     : '7619e1d4320efcb7c2f5bafc36347993c3ff6417e2b8289e90c047033139c514',
   tini                : '0.19.0',
-  velocityToolsView   : '1.4',
 ]
 
 // While Dependabot won't be able to parse these deps, these will get upgraded for free anyway since they share versions

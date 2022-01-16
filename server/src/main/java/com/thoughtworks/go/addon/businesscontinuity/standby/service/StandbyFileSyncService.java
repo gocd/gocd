@@ -20,7 +20,7 @@ import com.thoughtworks.go.addon.businesscontinuity.AddOnConfiguration;
 import com.thoughtworks.go.addon.businesscontinuity.ConfigFileType;
 import com.thoughtworks.go.addon.businesscontinuity.FileDetails;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,11 +43,12 @@ public class StandbyFileSyncService {
     private final int INTERVAL = Integer.parseInt(System.getProperty("bc.primary.status.check.interval", Integer.toString(60 * 1000)));
     private final SystemEnvironment systemEnvironment;
     private final PrimaryServerCommunicationService primaryServerCommunicationService;
-    private AddOnConfiguration addOnConfiguration;
-    private Map<ConfigFileType, String> currentFileStatus = new ConcurrentHashMap<>();
-    private CircularFifoBuffer errorQueue = new CircularFifoBuffer(5);
+    private final AddOnConfiguration addOnConfiguration;
+    private final Map<ConfigFileType, String> currentFileStatus = new ConcurrentHashMap<>();
+    private final Queue<String> errorQueue = new CircularFifoQueue<>(5);
+    private final Map<String, String> currentExternalPluginsStatus = new ConcurrentHashMap<>();
+
     private long lastUpdateTime;
-    Map<String, String> currentExternalPluginsStatus = new ConcurrentHashMap<>();
 
     @Autowired
     public StandbyFileSyncService(SystemEnvironment systemEnvironment, PrimaryServerCommunicationService primaryServerCommunicationService, ScheduledExecutorService scheduledExecutorService, AddOnConfiguration addOnConfiguration) {
@@ -96,7 +97,7 @@ public class StandbyFileSyncService {
     }
 
     public List<String> syncErrors() {
-        return asList((String[]) errorQueue.toArray(new String[0]));
+        return asList(errorQueue.toArray(new String[0]));
     }
 
     public Map<ConfigFileType, String> getCurrentFileStatus() {

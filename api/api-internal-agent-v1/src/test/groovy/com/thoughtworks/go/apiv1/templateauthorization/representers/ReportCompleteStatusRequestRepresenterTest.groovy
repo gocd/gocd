@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.templateauthorization.representers
 
-import com.thoughtworks.go.apiv1.internalagent.representers.GetCookieRequestRepresenter
 import com.thoughtworks.go.apiv1.internalagent.representers.ReportCompleteStatusRequestRepresenter
 import com.thoughtworks.go.config.Agent
 import com.thoughtworks.go.domain.AgentRuntimeStatus
@@ -25,7 +24,7 @@ import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.remote.request.ReportCompleteStatusRequest
 import com.thoughtworks.go.server.service.AgentRuntimeInfo
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo
-import org.apache.commons.lang.builder.EqualsBuilder
+import org.apache.commons.lang3.builder.EqualsBuilder
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory

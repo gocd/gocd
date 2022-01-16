@@ -44,7 +44,8 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +54,7 @@ public class GoVelocityViewTest {
     private GoVelocityView view;
     private HttpServletRequest request;
     private Context velocityContext;
-    @Mock(lenient = true)
+    @Mock
     private RailsAssetsService railsAssetsService;
     @Mock
     private FeatureToggleService featureToggleService;
@@ -182,13 +183,9 @@ public class GoVelocityViewTest {
     }
 
     @Test
-    public void shouldSetAssetsPathVariableWhenRailsNewWithCompressedJavascriptsIsUsed() throws Exception {
+    public void shouldSetAssetsPathVariables() throws Exception {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
-        when(railsAssetsService.getAssetPath("application.js")).thenReturn("assets/application-digest.js");
-        when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application-digest.css");
-        when(railsAssetsService.getAssetPath("vm/application.css")).thenReturn("assets/vm/application-digest.css");
-        when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application-digest.css");
         when(railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png")).thenReturn("assets/g9/stage_bar_cancelled_icon.png");
         when(railsAssetsService.getAssetPath("spinner.gif")).thenReturn("assets/spinner.gif");
         when(railsAssetsService.getAssetPath("cruise.ico")).thenReturn("assets/cruise.ico");
@@ -207,27 +204,6 @@ public class GoVelocityViewTest {
         assertThat(velocityContext.get(GoVelocityView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
         assertThat(velocityContext.get(GoVelocityView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
         assertThat(velocityContext.get(GoVelocityView.PATH_RESOLVER), is(railsAssetsService));
-    }
-
-    @Test
-    public void shouldSetAssetsPathVariableWhenRailsNewIsUsedInDevelopmentEnvironment() throws Exception {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.useCompressedJs()).thenReturn(false);
-        when(railsAssetsService.getAssetPath("application.js")).thenReturn("assets/application.js");
-        when(railsAssetsService.getAssetPath("application.css")).thenReturn("assets/application.css");
-        when(railsAssetsService.getAssetPath("vm/application.css")).thenReturn("assets/vm/application.css");
-        when(railsAssetsService.getAssetPath("css/application.css")).thenReturn("assets/css/application.css");
-        GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
-        doReturn(railsAssetsService).when(view).getRailsAssetsService();
-        doReturn(versionInfoService).when(view).getVersionInfoService();
-        doReturn(webpackAssetsService).when(view).webpackAssetsService();
-        doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
-        doReturn(securityService).when(view).getSecurityService();
-        Request servletRequest = mock(Request.class);
-        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
-
-        view.exposeHelpers(velocityContext, servletRequest);
-
     }
 
     @Test

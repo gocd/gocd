@@ -15,17 +15,14 @@
  */
 package com.thoughtworks.go.server.util;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
-public class WebUtils {
-    public String limit(String code, int limit) {
-        if (code == null) {
-            return "";
-        }
-        String lefted = StringUtils.left(code, limit);
-        if (code.length() > limit) {
-            lefted = lefted + "...";
-        }
-        return lefted;
+public class EscapeUtils {
+    public String javascript(Object string) {
+        return string == null ? null : StringEscapeUtils.escapeEcmaScript(String.valueOf(string));
+    }
+
+    public String html(Object string) {
+        return string == null ? null : StringEscapeUtils.escapeHtml4(String.valueOf(string));
     }
 }

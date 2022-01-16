@@ -19,11 +19,6 @@
     <tool>
         <key>esc</key>
         <scope>application</scope>
-        <class>org.apache.velocity.tools.generic.EscapeTool</class>
-    </tool>
-    <tool>
-        <key>util</key>
-        <scope>application</scope>
-        <class>com.thoughtworks.go.server.util.WebUtils</class>
+        <class>com.thoughtworks.go.server.util.EscapeUtils</class>
     </tool>
 </toolbox>

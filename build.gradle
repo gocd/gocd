@@ -241,6 +241,11 @@ allprojects {
 
   repositories {
     mavenCentral()
+    maven {
+      // Only for velocity-tools-view 1.4
+      url 'https://repo1.maven.org/maven2'
+      metadataSources { artifact() }
+    }
   }
 }
 
@@ -365,7 +370,7 @@ subprojects {
       excludeGroups = ["com.thoughtworks.go"]
       filters = [new LicenseBundleNormalizer()]
       outputDir = file("${project.buildDir}/reports/dependency-license")
-      configurations = ['compileClasspath', 'packagingInLibDir']
+      configurations = ['runtimeClasspath', 'packagingInLibDir']
     }
 
     tasks.withType(ReportTask) { ReportTask reportTask ->
@@ -624,6 +629,7 @@ subprojects {
       "com.fasterxml.jackson.core:jackson-databind"   : project.versions.jackson,
       "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils,
       "org.apache.commons:commons-pool2"              : project.versions.commonsPool,
+      "org.objenesis:objenesis"                       : project.versions.objenesis,
     ]
 
 

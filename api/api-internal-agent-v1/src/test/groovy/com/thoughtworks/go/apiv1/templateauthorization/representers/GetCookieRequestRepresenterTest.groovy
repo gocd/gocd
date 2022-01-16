@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus
 import com.thoughtworks.go.remote.request.GetCookieRequest
 import com.thoughtworks.go.server.service.AgentRuntimeInfo
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo
-import org.apache.commons.lang.builder.EqualsBuilder
+import org.apache.commons.lang3.builder.EqualsBuilder
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory

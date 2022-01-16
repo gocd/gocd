@@ -15,7 +15,10 @@
  */
 
 dependencies {
-    implementation project.deps.mysql
+    implementation(project.deps.mysql) {
+        // Only needed for X DevAPI: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-installing-maven.html
+        exclude group: 'com.google.protobuf'
+    }
     api project(':db-support:db-support-base')
 
     annotationProcessor project.deps.lombok

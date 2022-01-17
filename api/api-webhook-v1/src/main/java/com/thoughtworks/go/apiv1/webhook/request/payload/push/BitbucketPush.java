@@ -21,6 +21,10 @@ import com.thoughtworks.go.apiv1.webhook.request.json.BitbucketRepository;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import static java.util.stream.Collectors.toCollection;
 
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection", "unused", "RedundantSuppression"})
 public class BitbucketPush implements PushPayload {
@@ -29,13 +33,12 @@ public class BitbucketPush implements PushPayload {
     private BitbucketRepository repository;
 
     @Override
-    public String branch() {
+    public Set<String> branches() {
         return this.push.changes.stream()
                 .filter(change -> change.newCommit != null)
                 .filter(change -> StringUtils.equalsIgnoreCase(change.newCommit.type, "branch"))
                 .map(change -> change.newCommit.name)
-                .findFirst()
-                .orElse(""); // if pushing a tag, this might be blank
+                .collect(toCollection(TreeSet::new)); // if pushing a tag, this might be empty
     }
 
     @Override

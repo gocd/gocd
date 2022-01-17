@@ -174,5 +174,47 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
                     .isAccepted()
                     .hasJsonMessage("Ignoring push to non-branch.")
         }
+
+        @ParameterizedTest(name = "{0}")
+        @ArgumentsSource(Fixtures.NotifyWebhook.PushMultipleChanges)
+        void 'accepts multiple changes and notifies all materials'(String path, Closure<PostHelper> helper, String fixture, String event) {
+            final PostHelper req = helper(fixture)
+            final def branches = ["release/1.0", "release/2.0", "release/3.0"]
+
+            branches.each {branch ->
+                when(materialUpdateService.updateGitMaterial(eq(branch), anyCollection(), anyList())).thenReturn(true)
+            }
+
+            postWithApiHeader(controller.controllerPath(path), req.header(event), req.payload())
+
+            branches.each {branch ->
+                verify(materialUpdateService, times(1)).updateGitMaterial(eq(branch), anyCollection(), anyList())
+            }
+
+            assertThatResponse()
+                    .isAccepted()
+                    .hasJsonMessage("release/1.0: OK!, release/2.0: OK!, release/3.0: OK!")
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @ArgumentsSource(Fixtures.NotifyWebhook.PushMultipleChanges)
+        void 'accepts multiple changes and notifies some materials'(String path, Closure<PostHelper> helper, String fixture, String event) {
+            final PostHelper req = helper(fixture)
+            final def branches = ["release/1.0", "release/2.0", "release/3.0"]
+
+            when(materialUpdateService.updateGitMaterial(eq("release/1.0"), anyCollection(), anyList())).thenReturn(true)
+            when(materialUpdateService.updateGitMaterial(eq("release/2.0"), anyCollection(), anyList())).thenReturn(false)
+            when(materialUpdateService.updateGitMaterial(eq("release/3.0"), anyCollection(), anyList())).thenReturn(false)
+
+            postWithApiHeader(controller.controllerPath(path), req.header(event), req.payload())
+
+            branches.each {branch ->
+                verify(materialUpdateService, times(1)).updateGitMaterial(eq(branch), anyCollection(), anyList())
+            }
+
+            assertThatResponse()
+                    .isAccepted()
+                    .hasJsonMessage("release/1.0: OK!, release/2.0: No matching materials!, release/3.0: No matching materials!")
+        }
     }
 }

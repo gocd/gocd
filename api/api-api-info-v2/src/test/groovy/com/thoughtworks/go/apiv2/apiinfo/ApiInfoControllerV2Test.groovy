@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.apiinfo
+package com.thoughtworks.go.apiv2.apiinfo
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv1.apiinfo.representers.RouteEntryRepresenter
+import com.thoughtworks.go.apiv2.apiinfo.representers.RouteEntryRepresenter
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -31,16 +31,17 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
+import spark.RouteImpl
 import spark.route.HttpMethod
 
 @MockitoSettings(strictness = Strictness.LENIENT)
-class ApiInfoControllerV1Test implements SecurityServiceTrait, ControllerTrait<ApiInfoControllerV1> {
+class ApiInfoControllerV2Test implements SecurityServiceTrait, ControllerTrait<ApiInfoControllerV2> {
   @Mock
   private RouteInformationProvider provider
 
   @Override
-  ApiInfoControllerV1 createControllerInstance() {
-    new ApiInfoControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), provider)
+  ApiInfoControllerV2 createControllerInstance() {
+    new ApiInfoControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), provider)
   }
 
   @Nested
@@ -53,7 +54,8 @@ class ApiInfoControllerV1Test implements SecurityServiceTrait, ControllerTrait<A
 
     @Test
     void 'should return list of api routes'() {
-      def entries = List.of(new RouteEntry(HttpMethod.get, "/api/:foo/:bar", "application/vnd.go.cd+v1.json", new Object()))
+      def entries = List.of(new RouteEntry(HttpMethod.get, "/api/:foo/:bar", "application/vnd.go.cd+v2.json",
+              RouteImpl.create("", () -> null)))
       Mockito.when(provider.getRoutes()).thenReturn(entries)
 
       getWithApiHeader(controller.controllerBasePath())

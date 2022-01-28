@@ -24,9 +24,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import javax.mail.Address;
-import javax.mail.Transport;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Address;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -146,13 +146,14 @@
 
     <suppress>
         <notes><![CDATA[
-   The CVE as documented at https://github.com/h2database/h2database/security/advisories/GHSA-h376-j262-vhq6 and
-   https://jfrog.com/blog/the-jndi-strikes-back-unauthenticated-rce-in-h2-database-console/ only affects the H2 console
-   (not enabled on GoCD) and context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
-   so GoCD does not appear to be vulnerable to this problem.
+   The CVEs as documented at https://github.com/h2database/h2database/security/advisories/GHSA-h376-j262-vhq6 and
+   https://github.com/advisories/GHSA-45hx-wfhj-473x only affect the H2 console (not enabled on GoCD),
+   context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
+   so GoCD does not appear to be vulnerable to these problems even when running with H2 DB.
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
         <cve>CVE-2021-42392</cve>
+        <cve>CVE-2022-23221</cve>
     </suppress>
 
 </suppressions>

@@ -69,7 +69,7 @@ GEM
     ffi (1.15.5-java)
     globalid (1.0.0)
       activesupport (>= 5.0)
-    i18n (1.8.11)
+    i18n (1.9.1)
       concurrent-ruby (~> 1.0)
     jasmine (3.99.0)
       jasmine-core (= 3.99.0)

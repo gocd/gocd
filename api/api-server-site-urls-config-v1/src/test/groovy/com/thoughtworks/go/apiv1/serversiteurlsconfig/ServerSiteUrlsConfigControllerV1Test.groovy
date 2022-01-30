@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.SiteUrls
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.domain.SecureSiteUrl
 import com.thoughtworks.go.domain.SiteUrl
-import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.ServerConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
@@ -45,12 +44,9 @@ class ServerSiteUrlsConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Mock
   ServerConfigService serverConfigService
 
-  @Mock
-  EntityHashingService entityHashingService
-
   @Override
   ServerSiteUrlsConfigControllerV1 createControllerInstance() {
-    new ServerSiteUrlsConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, serverConfigService)
+    new ServerSiteUrlsConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), serverConfigService)
   }
 
   @Nested

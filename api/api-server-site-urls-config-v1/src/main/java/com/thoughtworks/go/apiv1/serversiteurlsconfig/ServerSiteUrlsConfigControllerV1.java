@@ -17,17 +17,13 @@ package com.thoughtworks.go.apiv1.serversiteurlsconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.serversiteurlsconfig.representers.ServerSiteUrlsConfigRepresenter;
-import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.SiteUrls;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.server.controller.Message;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -38,7 +34,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 import static spark.Spark.*;
 
@@ -46,14 +41,12 @@ import static spark.Spark.*;
 public class ServerSiteUrlsConfigControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final EntityHashingService entityHashingService;
     private ServerConfigService serverConfigService;
 
     @Autowired
-    public ServerSiteUrlsConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, ServerConfigService serverConfigService) {
+    public ServerSiteUrlsConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.entityHashingService = entityHashingService;
         this.serverConfigService = serverConfigService;
     }
 

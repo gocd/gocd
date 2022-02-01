@@ -49,10 +49,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
@@ -585,14 +590,30 @@ class BuildWorkTest {
 
     @Test
     void shouldCleanAgentWorkingDirectoryIfExistsWhenCleanWorkingDirIsTrue() throws Exception {
+        doCleanWorkingDirTest(workingDir -> {
+            createDummyFilesAndDirectories(workingDir);
+            assertThat(workingDir.toFile().listFiles()).hasSize(2);
+        });
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldCleanAgentWorkingDirectoryWithSymlinksIfExistsWhenCleanWorkingDirIsTrue() throws Exception {
+        doCleanWorkingDirTest(workingDir -> {
+            createDummyFilesAndDirectories(workingDir);
+            createSymlinkedDirs(workingDir);
+            assertThat(workingDir.toFile().listFiles()).hasSize(4);
+        });
+    }
+
+    private void doCleanWorkingDirTest(Consumer<Path> workingDirContentCreator) throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
         File workingdir = new File("pipelines/" + pipelineName);
         if (workingdir.exists()) {
             FileUtils.deleteDirectory(workingdir);
         }
         workingdir.mkdirs();
-        createDummyFilesAndDirectories(workingdir);
-        assertThat(workingdir.listFiles().length).isEqualTo(2);
+        workingDirContentCreator.accept(workingdir.toPath());
 
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, true);
 
@@ -604,6 +625,30 @@ class BuildWorkTest {
         assertThat(workingdir.listFiles().length).isEqualTo(0);
     }
 
+    private void createSymlinkedDirs(Path workingDir) {
+        // |-- link-to-secondlevel -> firstlevel/link-to-secondlevel
+        // `-- firstlevel
+        //     |-- secondlevel
+        //     |   `-- foo.txt
+        //     `-- link-to-secondlevel -> secondlevel
+
+        Path firstLevel = workingDir.resolve("firstlevel");
+        Path secondLevel = firstLevel.resolve("secondlevel");
+        Path targetFile = secondLevel.resolve("foo.txt");
+
+        Path nestedLinkToSecond = firstLevel.resolve("link-to-secondlevel");
+        Path linkToSecond = workingDir.resolve("link-to-secondlevel");
+        try {
+            Files.createDirectories(secondLevel);
+            Files.createFile(targetFile);
+            Files.createSymbolicLink(nestedLinkToSecond, Paths.get("secondLevel"));
+            Files.createSymbolicLink(linkToSecond, Paths.get("firstlevel", "link-to-secondLevel"));
+            assertThat(firstLevel.toFile().listFiles()).hasSize(2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     void shouldReportCurrentWorkingDirectory() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
@@ -613,9 +658,9 @@ class BuildWorkTest {
         assertThat(artifactManipulator.consoleOut()).contains("[" + SystemUtil.currentWorkingDirectory() + "]");
     }
 
-    private void createDummyFilesAndDirectories(File workingdir) {
+    private void createDummyFilesAndDirectories(Path workingDir) {
         for (int i = 0; i < 2; i++) {
-            File directory = new File(workingdir.getPath() + "/dir" + i);
+            File directory = new File(workingDir.toString() + "/dir" + i);
             directory.mkdir();
             for (int j = 0; j < 10; j++) {
                 new File(directory.getPath() + "/file" + i);

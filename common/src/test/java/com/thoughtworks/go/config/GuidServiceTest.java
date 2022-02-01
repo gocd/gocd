@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class GuidServiceTest extends IdFileServiceTestBase {
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         idFileService = new GuidService();
 
         idFileService.store(DATA);

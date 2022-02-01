@@ -156,4 +156,21 @@
         <cve>CVE-2022-23221</cve>
     </suppress>
 
+    <suppress until="2022-05-01Z">
+        <notes><![CDATA[
+   Time-limited suppression for https://nvd.nist.gov/vuln/detail/CVE-2021-29425. GoCD is not vulnerable as the use of
+   FilenameUtils.normalize does not "use the result to construct a path value" as required by the defect. Neither does
+   any of GoCD's libraries use this functionality.
+
+   This was fixed in Commons IO 2.7 and GoCD originally upgraded to 2.11.0, however unfortunately all later versions
+   have some regressions as noted in https://github.com/gocd/gocd/issues/9397 https://github.com/gocd/gocd/pull/9517
+   and https://github.com/gocd/gocd/issues/9927
+
+   While the last issue appears to be fixed by Commons IO 2.12 (not yet released) there are other regressions in 2.12
+   master due to ongoing work and it feels the path to stability might take some time.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+        <cve>CVE-2021-29425</cve>
+    </suppress>
+
 </suppressions>

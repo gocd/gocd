@@ -16,30 +16,35 @@
 package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
-import com.rits.cloning.Cloner;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(SystemStubsExtension.class)
 class SystemEnvironmentTest {
-    private static final Cloner CLONER = ClonerFactory.instance();
-    private Properties original;
+
+    @SystemStub
+    SystemProperties systemProperties;
+
     private SystemEnvironment systemEnvironment;
 
     @BeforeEach
     void before() {
-        original = CLONER.deepClone(System.getProperties());
         systemEnvironment = new SystemEnvironment();
+        systemEnvironment.clearProperty("any");
     }
 
     @AfterEach
     void after() {
-        System.setProperties(original);
         new SystemEnvironment().reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
     }
 

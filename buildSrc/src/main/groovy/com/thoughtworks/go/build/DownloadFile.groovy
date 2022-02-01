@@ -20,6 +20,7 @@ import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.VerifyAction
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -30,23 +31,39 @@ class DownloadFile extends Download {
   @Optional
   Object checksum
 
+  @Internal
+  String expectedChecksum
+
+  @Internal
+  boolean shouldDownload
+
+  DownloadFile() {
+    doLast {
+      if (shouldDownload && expectedChecksum != null) {
+        project.logger.info("Verifying checksum of ${dest}")
+        def action = new VerifyAction(project)
+        action.checksum(expectedChecksum)
+        action.algorithm('SHA-256')
+        action.src(dest)
+        action.execute()
+      }
+    }
+  }
+
   @TaskAction
   @Override
   void download() {
-
-    String expectedChecksum
-
     if (checksum instanceof Callable) {
       expectedChecksum = checksum.call()
     } else if (checksum instanceof String) {
       expectedChecksum = checksum.trim()
     }
 
-    def shouldDownload = true
+    shouldDownload = true
 
     if (dest.exists()) {
-      def actualChecksum = dest.withInputStream { is -> DigestUtils.sha256Hex(is) }
       if (expectedChecksum != null) {
+        def actualChecksum = dest.withInputStream { is -> DigestUtils.sha256Hex(is) }
         project.logger.info("Verifying checksum. Actual: ${actualChecksum}, expected: ${expectedChecksum}.")
         shouldDownload = actualChecksum != expectedChecksum
       } else {
@@ -56,18 +73,7 @@ class DownloadFile extends Download {
 
     if (shouldDownload) {
       project.logger.info("Attempting download of ${src} into ${dest}")
-
       super.download()
-
-      project.logger.info("Verifying checksum of ${dest}")
-
-      if (expectedChecksum != null) {
-        def action = new VerifyAction(project)
-        action.checksum(expectedChecksum)
-        action.algorithm('SHA-256')
-        action.src(dest)
-        action.execute()
-      }
     } else {
       project.logger.info("Skipping download of ${src}")
     }

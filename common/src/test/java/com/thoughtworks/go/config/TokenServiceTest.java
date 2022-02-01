@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 public class TokenServiceTest extends IdFileServiceTestBase {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         idFileService = new TokenService();
 
         idFileService.store(DATA);

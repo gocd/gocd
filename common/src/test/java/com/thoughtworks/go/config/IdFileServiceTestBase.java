@@ -15,32 +15,50 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(SystemStubsExtension.class)
 public abstract class IdFileServiceTestBase {
     protected IdFileService idFileService;
     protected String DATA = "data";
 
+    @SystemStub
+    private SystemProperties restoreSystemProperties;
+
+    @BeforeEach
+    public abstract void setUp();
+
     @AfterEach
     public void tearDown() {
         idFileService.delete();
+        new SystemEnvironment().clearProperty(SystemEnvironment.CONFIG_DIR_PROPERTY);
     }
 
     @Test
     public void shouldLoadDataFromFile() throws Exception {
-        assertThat(idFileService.load(), is(DATA));
+        assertThat(idFileService.load()).isEqualTo(DATA);
     }
 
     @Test
     public void shouldStoreDataToFile() throws Exception {
         idFileService.store("some-id");
 
-        assertThat(idFileService.load(), is("some-id"));
+        assertThat(idFileService.load()).isEqualTo("some-id");
     }
 
     @Test
@@ -62,5 +80,20 @@ public abstract class IdFileServiceTestBase {
         idFileService.delete();
 
         assertFalse(idFileService.file.exists());
+    }
+
+    @Test
+    public void shouldStoreFileInsideSymlinkedConfigDirs(@TempDir Path tempDir) throws Exception {
+        Path targetConfig = tempDir.resolve("target-config");
+        Path symlinkedConfig = tempDir.resolve("symlink-config-dir");
+        Files.createDirectory(targetConfig);
+        Files.createSymbolicLink(symlinkedConfig, targetConfig);
+
+        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, symlinkedConfig.toString());
+        this.setUp();
+
+        assertThat(idFileService.file).exists().isFile().hasContent(DATA);
+        assertThat(idFileService.file.toPath().toRealPath().toString()).contains("target-config");
+        assertThat(idFileService.load()).isEqualTo(DATA);
     }
 }

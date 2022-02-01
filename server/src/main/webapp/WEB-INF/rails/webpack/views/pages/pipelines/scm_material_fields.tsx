@@ -28,7 +28,14 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
-import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
+import {
+  CheckboxField,
+  FormField,
+  PasswordField,
+  Size,
+  TextAreaField,
+  TextField
+} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
@@ -219,7 +226,7 @@ export class P4Fields extends ScmFields {
     const mat = attrs as P4MaterialAttributes;
     return [
       <TextField label="P4 [Protocol:][Host:]Port" property={mat.port} errorText={this.errs(attrs, "port")} required={true}/>,
-      <TextField label="P4 View" property={mat.view} errorText={this.errs(attrs, "view")} required={true}/>,
+      <TextAreaField label="P4 View" property={mat.view} errorText={this.errs(attrs, "view")} required={true} rows={5} size={Size.MATCH_PARENT} resizable={true}/>,
     ];
   }
 

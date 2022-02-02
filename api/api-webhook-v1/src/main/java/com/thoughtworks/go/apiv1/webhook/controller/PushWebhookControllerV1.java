@@ -39,6 +39,7 @@ import spark.Response;
 import java.util.List;
 
 import static com.thoughtworks.go.util.Iters.cat;
+import static java.util.stream.Collectors.joining;
 import static spark.Spark.path;
 import static spark.Spark.post;
 
@@ -108,16 +109,28 @@ public class PushWebhookControllerV1 extends BaseWebhookController {
     }
 
     private String notify(Response response, PushPayload payload, List<String> scmNames) {
-        LOGGER.info("[WebHook] Noticed a git push to {} on branch {} with scm names {}.", payload.fullName(), payload.branch(), scmNames);
+        LOGGER.info("[WebHook] Noticed a git push to {} on branches {} with scm names {}.", payload.fullName(), payload.branches(), scmNames);
 
-        if ("".equals(payload.branch())) { // probably a tag
+        if (payload.branches().isEmpty()) { // probably a tag
             return accepted(response, "Ignoring push to non-branch.");
         }
 
-        if (materialUpdateService.updateGitMaterial(payload.branch(), payload.repoUrls(), scmNames)) {
-            return success(response);
-        }
+        boolean inclBranchInResponse = payload.branches().size() > 1;
+        String responseMessage = payload.branches().stream()
+                .map(branch -> {
+                    boolean updateResult = materialUpdateService.updateGitMaterial(branch, payload.repoUrls(), scmNames);
+                    return branchResponse(branch, updateResult, inclBranchInResponse);
+                })
+                .collect(joining(", "));
 
-        return accepted(response, "No matching materials!");
+        return accepted(response, responseMessage);
+    }
+
+    private static String branchResponse(String branch, boolean updateResult, boolean inclBranchInResponse) {
+        String response = updateResult ? SUCCESS_RESPONSE : NO_MATCHING_MATERIALS_RESPONSE;
+        if (inclBranchInResponse) {
+            return String.format("%s: %s", branch, response);
+        }
+        return response;
     }
 }

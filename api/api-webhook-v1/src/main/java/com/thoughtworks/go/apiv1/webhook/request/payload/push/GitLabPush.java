@@ -22,6 +22,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableSet;
+import static org.apache.commons.collections4.SetUtils.emptySet;
 import static org.apache.commons.collections4.SetUtils.union;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
@@ -32,8 +33,8 @@ public class GitLabPush implements PushPayload {
     private GitLabProject project;
 
     @Override
-    public String branch() {
-        return ref.startsWith("refs/heads/") ? removeStart(ref, "refs/heads/") : "";
+    public Set<String> branches() {
+        return ref.startsWith("refs/heads/") ? Set.of(removeStart(ref, "refs/heads/")) : emptySet();
     }
 
     @Override

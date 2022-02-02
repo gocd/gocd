@@ -30,7 +30,7 @@ class BitbucketPushTest {
     void deserializes(String json) {
         final BitbucketPush payload = GsonTransformer.getInstance().fromJson(json, BitbucketPush.class);
 
-        assertEquals("release", payload.branch());
+        assertEquals(Set.of("release"), payload.branches());
         assertEquals("gocd/spaceship", payload.fullName());
         assertEquals("bitbucket.org", payload.hostname());
         assertEquals("git", payload.scmType());

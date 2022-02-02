@@ -47,7 +47,7 @@ class GitHubRequestTest implements WithMockRequests {
     }
 
     private void assertPayload(GitHubPush payload) {
-        assertEquals("release", payload.branch());
+        assertEquals(Set.of("release"), payload.branches());
         assertEquals("gocd/spaceship", payload.fullName());
         assertEquals("github.com", payload.hostname());
     }

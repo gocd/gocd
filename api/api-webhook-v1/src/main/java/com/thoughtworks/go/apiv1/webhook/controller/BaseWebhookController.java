@@ -27,6 +27,10 @@ import spark.Response;
 public abstract class BaseWebhookController extends ApiController implements SparkSpringController, WebhookValidation {
     public static final String PING_RESPONSE = "pong";
 
+    public static final String SUCCESS_RESPONSE = "OK!";
+
+    public static final String NO_MATCHING_MATERIALS_RESPONSE = "No matching materials!";
+
     protected BaseWebhookController(ApiVersion apiVersion) {
         super(apiVersion);
     }
@@ -37,7 +41,7 @@ public abstract class BaseWebhookController extends ApiController implements Spa
     }
 
     protected String success(final Response response) {
-        return accepted(response, "OK!");
+        return accepted(response, SUCCESS_RESPONSE);
     }
 
     protected String acknowledge(final Response response) {

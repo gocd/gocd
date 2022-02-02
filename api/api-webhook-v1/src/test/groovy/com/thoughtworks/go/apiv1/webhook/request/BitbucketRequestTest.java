@@ -22,6 +22,8 @@ import com.thoughtworks.go.junit5.FileSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BitbucketRequestTest implements WithMockRequests {
@@ -30,7 +32,14 @@ class BitbucketRequestTest implements WithMockRequests {
     void parsePayload(String body) {
         final BitbucketRequest req = bitbucket().body(body).build();
 
-        assertPayload(req.parsePayload(BitbucketPush.class));
+        assertPayload(Set.of("release"), req.parsePayload(BitbucketPush.class));
+    }
+
+    @ParameterizedTest
+    @FileSource(files = "/bitbucket-push-multiple-changes.json")
+    void parsePayloadWithMultipleChanges(String body) {
+        assertPayload(Set.of("release/1.0", "release/2.0", "release/3.0"),
+                bitbucket().body(body).build().parsePayload(BitbucketPush.class));
     }
 
     @Test
@@ -40,8 +49,8 @@ class BitbucketRequestTest implements WithMockRequests {
                 auth("webhook-secret:and ignore everything after the first colon:pls:kthx").build().authToken());
     }
 
-    private void assertPayload(final BitbucketPush payload) {
-        assertEquals("release", payload.branch());
+    private void assertPayload(Set<String> expectedBranches, final BitbucketPush payload) {
+        assertEquals(expectedBranches, payload.branches());
         assertEquals("gocd/spaceship", payload.fullName());
         assertEquals("bitbucket.org", payload.hostname());
         assertEquals("git", payload.scmType());

@@ -1,0 +1,51 @@
+{
+  "changes": [
+    {
+      "ref": {
+        "displayId": "release/1.0",
+        "id": "refs/heads/release/1.0",
+        "type": "BRANCH"
+      }
+    },
+    {
+      "ref": {
+        "displayId": "release/2.0",
+        "id": "refs/heads/release/2.0",
+        "type": "BRANCH"
+      }
+    },
+    {
+      "ref": {
+        "displayId": "release/3.0",
+        "id": "refs/heads/release/3.0",
+        "type": "BRANCH"
+      }
+    }
+  ],
+  "eventKey": "repo:refs_changed",
+  "repository": {
+    "slug": "spaceship",
+    "project": {
+      "key": "GOCD"
+    },
+    "links": {
+      "clone": [
+        {
+          "href": "ssh://git@bitbucket-server/gocd/spaceship.git",
+          "name": "ssh"
+        },
+        {
+          "href": "http://user:pass@bitbucket-server/scm/gocd/spaceship.git",
+          "name": "http"
+        }
+      ],
+      "self": [
+        {
+          "href": "http://bitbucket-server/projects/GOCD/repos/spaceship/browse"
+        }
+      ]
+    },
+    "scmId": "git",
+    "name": "Foo"
+  }
+}

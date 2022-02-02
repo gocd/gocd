@@ -112,6 +112,16 @@ class Fixtures {
             }
         }
 
+        static class PushMultipleChanges implements ArgumentsProvider, PostHelper.Mixin {
+            @Override
+            Stream<? extends Arguments> provideArguments(ExtensionContext context) {
+                return Stream.of(
+                        Arguments.of(Notify.BITBUCKET, { String s -> withBitbucket(s) }, "/bitbucket-push-multiple-changes.json", first(Bitbucket.PUSH)),
+                        Arguments.of(Notify.HOSTED_BITBUCKET, { String s -> withHostedBitbucket(s) }, "/hosted-bitbucket-push-multiple-changes.json", first(HostedBitbucket.PUSH))
+                )
+            }
+        }
+
         static class Ping implements ArgumentsProvider, PostHelper.Mixin {
             @Override
             Stream<? extends Arguments> provideArguments(ExtensionContext context) {

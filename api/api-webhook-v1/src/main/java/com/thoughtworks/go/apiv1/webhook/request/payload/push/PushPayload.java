@@ -23,7 +23,7 @@ import java.util.Set;
 import static java.lang.String.format;
 
 public interface PushPayload extends Payload {
-    String branch();
+    Set<String> branches();
 
     default Set<String> repoUrls() {
         return possibleUrls(hostname(), fullName());
@@ -62,7 +62,7 @@ public interface PushPayload extends Payload {
         return format("%s[%s][%s]",
                 getClass().getSimpleName(),
                 fullName(),
-                branch()
+                String.join(", ", branches())
         );
     }
 }

@@ -30,7 +30,7 @@ class GitHubPushTest {
     void deserializes(String json) {
         final GitHubPush payload = GsonTransformer.getInstance().fromJson(json, GitHubPush.class);
 
-        assertEquals("release", payload.branch());
+        assertEquals(Set.of("release"), payload.branches());
         assertEquals("gocd/spaceship", payload.fullName());
         assertEquals("github.com", payload.hostname());
     }

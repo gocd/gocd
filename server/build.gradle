@@ -803,7 +803,6 @@ task verifyWar(type: VerifyJarTask) {
         + [
         "FastInfoset-1.2.15.jar",
         "JavaEWAH-1.1.13.jar",
-        "activation-1.1.jar",
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
@@ -871,6 +870,7 @@ task verifyWar(type: VerifyJarTask) {
         "jackson-annotations-${project.versions.jackson}.jar",
         "jackson-core-${project.versions.jackson}.jar",
         "jackson-databind-${project.versions.jackson}.jar",
+        "jakarta.activation-2.0.1.jar",
         "javassist-${project.versions.javaAssist}.jar",
         "javax.activation-api-1.2.0.jar",
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",

@@ -15,15 +15,17 @@
  */
 package com.thoughtworks.go.config;
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
+
 import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
 
-import static javax.mail.Message.RecipientType.TO;
+import static jakarta.mail.Message.RecipientType.TO;
 
-/* This class is a wrapper over javax.mail.Session, which has been marked "final", making
+/* This class is a wrapper over jakarta.mail.Session, which has been marked "final", making
  * it nearly impossible to test, especially since it is created statically.
  *
  * The getInstance method in this class can be setup to return a mock or stub of
@@ -33,10 +35,7 @@ public class MailSession {
     private Session session;
 
     public static MailSession getInstance() {
-        if (fakeSessionJustForTestsSinceSessionClassIsFinal != null) {
-            return fakeSessionJustForTestsSinceSessionClassIsFinal;
-        }
-        return new MailSession();
+        return Objects.requireNonNullElseGet(fakeSessionJustForTestsSinceSessionClassIsFinal, MailSession::new);
     }
 
     public MailSession createWith(Properties props, String username, String password) {
@@ -74,7 +73,7 @@ public class MailSession {
         return session;
     }
 
-    private final class SMTPAuthenticator extends Authenticator {
+    private static final class SMTPAuthenticator extends Authenticator {
         private final String username;
         private final String password;
 

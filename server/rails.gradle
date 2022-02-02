@@ -288,10 +288,9 @@ task rspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
 
-  maxHeapSize = '2g'
   jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
-
   args = ['-S', 'rspec', '--backtrace']
+  maxHeapSize = '2g'
 
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts')) as List<String>
@@ -317,10 +316,9 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
 
-  maxHeapSize = '2g'
   jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
-
   args = ['-S', 'rspec', '--backtrace']
+  maxHeapSize = '2g'
 
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts')) as List<String>

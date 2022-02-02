@@ -176,13 +176,13 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
     'BROWSER'            : browser(),
   ]
 
-  args = ['-S', 'rails', 'jasmine:ci']
-
   jvmArgs += [
           // Address JRuby: WARN FilenoUtil : Native subprocess control requires open access to the JDK IO subsystem
           '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
           '--add-opens=java.base/java.io=ALL-UNNAMED'
   ]
+  args = ['-S', 'rails', 'jasmine:ci']
+  maxHeapSize = '2g'
 
   doFirst {
     def additionalPaths = [

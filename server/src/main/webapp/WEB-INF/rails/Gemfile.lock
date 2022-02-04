@@ -159,7 +159,7 @@ GEM
       rspec-support (~> 3.10.0)
     rspec-instafail (1.0.0)
       rspec
-    rspec-mocks (3.10.2)
+    rspec-mocks (3.10.3)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-rails (5.1.0)

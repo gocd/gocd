@@ -4864,10 +4864,10 @@ karma-sourcemap-loader@^0.3.8:
   dependencies:
     graceful-fs "^4.1.2"
 
-karma@^6.3.12:
-  version "6.3.12"
-  resolved "https://registry.yarnpkg.com/karma/-/karma-6.3.12.tgz#fe6347f027385fc16da1a9bb87d766e2d25981c6"
-  integrity sha512-qwIG+oB2YmHx4hjvYSRMNzL3YWAJ9baHaLAxiP7biFNkfpwYTUTtPck0joFpucalNLzMr+7z/FX1uY/kl8DV9A==
+karma@^6.3.13:
+  version "6.3.13"
+  resolved "https://registry.yarnpkg.com/karma/-/karma-6.3.13.tgz#ff58622c4f913508dbf86506a5fc614be0e98137"
+  integrity sha512-64lbtHBnM/sG7XKvitSQVlImKYNugyjw4K2e8cZYrlZm0GwoWrfsrkzgS/KWY/r3+fVM/2xvT/JN6MyfdttxLw==
   dependencies:
     body-parser "^1.19.0"
     braces "^3.0.2"
@@ -4881,7 +4881,7 @@ karma@^6.3.12:
     http-proxy "^1.18.1"
     isbinaryfile "^4.0.8"
     lodash "^4.17.21"
-    log4js "^6.3.0"
+    log4js "^6.4.1"
     mime "^2.5.2"
     minimatch "^3.0.4"
     qjobs "^1.2.0"
@@ -5060,10 +5060,10 @@ lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-log4js@^6.3.0:
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/log4js/-/log4js-6.4.0.tgz#3f63ccfc8033c83cd617a4d2d50e48be5944eae9"
-  integrity sha512-ysc/XUecZJuN8NoKOssk3V0cQ29xY4fra6fnigZa5VwxFsCsvdqsdnEuAxNN89LlHpbE4KUD3zGcn+kFqonSVQ==
+log4js@^6.4.1:
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/log4js/-/log4js-6.4.1.tgz#9d3a8bf2c31c1e213fe3fc398a6053f7a2bc53e8"
+  integrity sha512-iUiYnXqAmNKiIZ1XSAitQ4TmNs8CdZYTAWINARF3LjnsLN8tY5m0vRwd6uuWj/yNY0YHxeZodnbmxKFUOM2rMg==
   dependencies:
     date-format "^4.0.3"
     debug "^4.3.3"

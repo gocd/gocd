@@ -6725,10 +6725,10 @@ safe-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sass-lint-webpack@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/sass-lint-webpack/-/sass-lint-webpack-1.0.3.tgz#53d4abb39d01da386793bef6a218e1b0bd4fe10d"
-  integrity sha512-4qsFG12U/saZKRe+mMlUCIAWEfVWl5ftDHxmZwDBsq4jcjuOMswGWl9GqukKR0ZTRtuvXt+WiutJzgayN0D1xQ==
+sass-lint-webpack@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/sass-lint-webpack/-/sass-lint-webpack-1.0.4.tgz#f5febcf8083974ddc3c9ca051f93f778a113b94c"
+  integrity sha512-dhSJLMUH6uotqrTXQR4dRA9Ec3Oulvj2RJt7c37V2CmEgcajbmINAu1HYafJfcUB32gfhhhicVDK2duiFRrfAA==
   dependencies:
     chalk "^2.4.2"
 

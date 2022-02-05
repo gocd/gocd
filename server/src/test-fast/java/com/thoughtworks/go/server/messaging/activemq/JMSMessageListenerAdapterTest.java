@@ -15,45 +15,54 @@
  */
 package com.thoughtworks.go.server.messaging.activemq;
 
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
-
-import static com.thoughtworks.go.serverhealth.HealthStateLevel.ERROR;
-import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoSettings;
 
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+
+import static com.thoughtworks.go.serverhealth.HealthStateLevel.ERROR;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
+@MockitoSettings
 public class JMSMessageListenerAdapterTest {
 
+    @Mock
     private MessageConsumer consumer;
-    private GoMessageListener mockListener;
+
+    @Mock
     private SystemEnvironment systemEnvironment;
+
+    @Mock
     private ServerHealthService serverHealthService;
+
+    @Mock(stubOnly = true)
+    private DaemonThreadStatsCollector daemonThreadStatsCollector;
+
+    private GoMessageListener mockListener;
 
     @BeforeEach
     public void setUp() throws Exception {
-        consumer = mock(MessageConsumer.class);
-        systemEnvironment = mock(SystemEnvironment.class);
-        serverHealthService = mock(ServerHealthService.class);
-
         mockListener = new GoMessageListener() {
             @Override
             public void onMessage(GoMessage message) {
@@ -67,17 +76,22 @@ public class JMSMessageListenerAdapterTest {
         };
     }
 
+    @AfterEach
+    public void tearDown() throws Exception {
+        // We must reset the consumer to ensure it returns null and the threads exit or they will go-on forever
+        // creating a memory leak on the mock invocations
+        Mockito.reset(consumer);
+    }
+
     @Test
     public void shouldNotKillTheThreadWhenThereIsAnException() throws Exception {
         when(consumer.receive()).thenThrow(new RuntimeException("should swallow me"));
 
-        JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class), systemEnvironment, serverHealthService);
-        try {
-            listenerAdapter.runImpl();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Expected no exception. Got: " + e);
-        }
+        daemonThreadStatsCollector = mock(DaemonThreadStatsCollector.class);
+        JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
+        listenerAdapter.runImpl();
+
+        verify(consumer, atLeastOnce()).receive();
     }
 
     @Test
@@ -86,7 +100,7 @@ public class JMSMessageListenerAdapterTest {
         when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME)).thenReturn(3000);
 
         try (LogFixture logFixture = logFixtureFor(JMSMessageListenerAdapter.class, Level.DEBUG)) {
-            JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class), systemEnvironment, serverHealthService);
+            JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
 
             final long startTime = System.nanoTime();
             listenerAdapter.runImpl();
@@ -103,10 +117,9 @@ public class JMSMessageListenerAdapterTest {
     @Test
     public void shouldNotBackOffAfterNonJMSExceptionHappens() throws JMSException {
         when(consumer.receive()).thenThrow(new RuntimeException("should NOT back off after this"));
-        when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME)).thenThrow(new RuntimeException("Should not have needed listener backoff time"));
 
         try (LogFixture logFixture = logFixtureFor(JMSMessageListenerAdapter.class, Level.DEBUG)) {
-            JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class), systemEnvironment, serverHealthService);
+            JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
 
             final long startTime = System.nanoTime();
             listenerAdapter.runImpl();
@@ -116,11 +129,12 @@ public class JMSMessageListenerAdapterTest {
             assertThat(endTime - startTime, lessThan(1000 * 1000 * 1000L));
 
             verify(serverHealthService, never()).update(any(ServerHealthState.class));
+            verify(systemEnvironment, never()).get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME);
         }
     }
 
     private ServerHealthState matchesServerHealthMessage(final HealthStateLevel expectedLevel, String expectedPartOfMessage) {
-        return argThat(new ArgumentMatcher<ServerHealthState>() {
+        return argThat(new ArgumentMatcher<>() {
             @Override
             public boolean matches(ServerHealthState argument) {
                 return argument.getLogLevel().equals(expectedLevel) && argument.getMessage().contains(expectedPartOfMessage);

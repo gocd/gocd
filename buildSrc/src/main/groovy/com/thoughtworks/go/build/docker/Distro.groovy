@@ -16,11 +16,17 @@
 
 package com.thoughtworks.go.build.docker
 
+import com.thoughtworks.go.build.OperatingSystem
 import org.gradle.api.Project
 
 enum Distro implements DistroBehavior {
 
   alpine{
+    @Override
+    OperatingSystem getOperatingSystem() {
+      OperatingSystem.linux
+    }
+
     @Override
     List<DistroVersion> getSupportedVersions() {
       def installSasl_Post_3_9 = ['apk add --no-cache libsasl']
@@ -184,6 +190,11 @@ enum Distro implements DistroBehavior {
 
   docker{
     @Override
+    OperatingSystem getOperatingSystem() {
+      return alpine.getOperatingSystem()
+    }
+
+    @Override
     boolean isPrivilegedModeSupport() {
       return true
     }
@@ -211,7 +222,6 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
       return alpine.getInstallPrerequisitesCommands(distroVersion)
     }
-
 
     @Override
     List<String> getInstallJavaCommands(Project project) {

@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.build.docker
 
-import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
+import com.thoughtworks.go.build.AdoptiumUrlHelper
+import com.thoughtworks.go.build.OperatingSystem
 import org.gradle.api.Project
 
 trait DistroBehavior {
@@ -53,8 +54,8 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = AdoptOpenJDKUrlHelper.downloadURL(
-      com.thoughtworks.go.build.OperatingSystem.linux,
+    def downloadUrl = AdoptiumUrlHelper.downloadURL(
+      getOperatingSystem(),
       project.packaging.adoptOpenjdk.featureVersion,
       project.packaging.adoptOpenjdk.interimVersion,
       project.packaging.adoptOpenjdk.updateVersion,
@@ -66,6 +67,10 @@ trait DistroBehavior {
       'tar -xf /tmp/jre.tar.gz -C /gocd-jre --strip 1',
       'rm -rf /tmp/jre.tar.gz'
     ]
+  }
+
+  OperatingSystem getOperatingSystem() {
+    OperatingSystem.linux
   }
 
   Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {

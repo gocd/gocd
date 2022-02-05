@@ -15,6 +15,7 @@
  */
 
 import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.InstallerType
 import com.thoughtworks.go.build.YarnInstallTask
 import com.thoughtworks.go.build.YarnRunTask
 import groovy.text.SimpleTemplateEngine
@@ -110,20 +111,14 @@ task initializeRailsGems {
   inputs.files(project.configurations.jrubyGems)
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
+  inputs.file("${project.railsRoot}/.bundle/config")
   inputs.properties([
     jrubyVersion: project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
     railsRoot: project.railsRoot
   ])
 
-  def outputDirs = [
-    project.bundledGemDir,
-    "${project.railsRoot}/.bundle"
-  ]
-
-  outputDirs.each {
-    outputs.dir(it)
-  }
+  outputs.dir(project.bundledGemDir)
 
   doFirst {
     project.jrubyexec {
@@ -293,10 +288,9 @@ task rspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
 
-  maxHeapSize = '6g'
-  jvmArgs += ['-XX:+UseCompressedOops', '-XX:-UseCompressedClassPointers', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
-
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
   args = ['-S', 'rspec', '--backtrace']
+  maxHeapSize = '2g'
 
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts')) as List<String>
@@ -322,10 +316,9 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
 
-  maxHeapSize = '6g'
-  jvmArgs += ['-XX:+UseCompressedOops', '-XX:-UseCompressedClassPointers', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
-
+  jvmArgs += InstallerType.server.jvmModuleOpensArgs + ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
   args = ['-S', 'rspec', '--backtrace']
+  maxHeapSize = '2g'
 
   if (project.hasProperty('opts')) {
     args += Commandline.translateCommandline(project.property('opts')) as List<String>

@@ -419,8 +419,7 @@ task fastUnitTest(type: Test) { thisTask ->
 
   mustRunAfter test
 
-  forkEvery 256
-  minHeapSize '1g'
+  forkEvery 200
   maxHeapSize '2g'
 
   reports {

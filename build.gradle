@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
+import com.thoughtworks.go.build.InstallerType
 import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -157,19 +157,22 @@ rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : G
 rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 
-project.ext.defaultJvmArgs = []
-
 project.ext.compilerOptions = [
-  sourceCompatibility: 13,
-  targetCompatibility: 13,
+  // source and target compatibility
+  release: 13,
+]
+
+project.ext.toolchains = [
+  compilerVersion: 17,
+  testLauncherVersion: 17,
 ]
 
 project.ext.packaging = [
   adoptOpenjdk: [
-    featureVersion: 15,
+    featureVersion: 17,
     interimVersion: 0, // set to `null` for the first release
     updateVersion : 2, // set to `null` for the first release
-    buildVersion  : 7
+    buildVersion  : 8
   ]
 ]
 
@@ -251,9 +254,9 @@ allprojects {
 
 idea {
   project {
-    jdkName = project.compilerOptions.targetCompatibility
-    targetBytecodeVersion = JavaVersion.toVersion(project.compilerOptions.targetCompatibility)
-    languageLevel = new IdeaLanguageLevel(project.compilerOptions.sourceCompatibility)
+    jdkName = project.toolchains.compilerVersion
+    targetBytecodeVersion = JavaVersion.toVersion(project.compilerOptions.release)
+    languageLevel = new IdeaLanguageLevel(project.compilerOptions.release)
   }
 }
 
@@ -400,8 +403,6 @@ subprojects {
       }
     }
 
-    sourceCompatibility = project.compilerOptions.sourceCompatibility
-    targetCompatibility = project.compilerOptions.targetCompatibility
     buildDir = "${projectDir}/target"
 
     configurations {
@@ -447,8 +448,8 @@ subprojects {
         'Go-Revision': project.gitRevision,
         'Implementation-Title': project.name,
         'Implementation-Version': project.version,
-        'Source-Compatibility': project.compilerOptions.sourceCompatibility,
-        'Target-Compatibility': project.compilerOptions.targetCompatibility
+        'Source-Compatibility': project.compilerOptions.release,
+        'Target-Compatibility': project.compilerOptions.release
       )
     }
 
@@ -488,6 +489,11 @@ subprojects {
     options.warnings = false
     options.encoding = "UTF-8"
     options.compilerArgs += '-Xlint:-deprecation'
+    options.release = project.compilerOptions.release
+
+    javaCompiler = javaToolchains.compilerFor {
+      languageVersion = JavaLanguageVersion.of(project.toolchains.compilerVersion)
+    }
   }
 
   project.afterEvaluate {
@@ -516,6 +522,10 @@ subprojects {
 //    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
+    javaLauncher = javaToolchains.launcherFor {
+      languageVersion = JavaLanguageVersion.of(project.toolchains.testLauncherVersion)
+    }
+
     def allTestClasses
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
@@ -523,7 +533,7 @@ subprojects {
     // fixup a tempdir that is predictable and we can clean it up later
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
-    jvmArgs += project.defaultJvmArgs
+    jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
 
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40

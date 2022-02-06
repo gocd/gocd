@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -39,7 +37,6 @@ public class NestedJarClassLoader extends ClassLoader {
 
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(NestedJarClassLoader.class);
     private final ClassLoader jarClassLoader;
-    private final ClassLoader parentClassLoader;
     private final String[] excludes;
     private final File jarDir;
     private static final File TEMP_DIR = new File("data/njcl");
@@ -53,9 +50,8 @@ public class NestedJarClassLoader extends ClassLoader {
     }
 
     NestedJarClassLoader(URL jarURL, ClassLoader parentClassLoader, String... excludes) {
-        super(null);
+        super(parentClassLoader);
         this.jarDir = new File(TEMP_DIR, UUID.randomUUID().toString());
-        this.parentClassLoader = parentClassLoader;
         this.jarClassLoader = createLoaderForJar(jarURL);
         this.excludes = excludes;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(jarDir)));
@@ -63,11 +59,7 @@ public class NestedJarClassLoader extends ClassLoader {
 
     private ClassLoader createLoaderForJar(URL jarURL) {
         LOGGER.debug("Creating Loader For jar: {}", jarURL);
-        ClassLoader jarLoader = new URLClassLoader(enumerateJar(jarURL), this);
-        if (jarLoader == null) {
-            LOGGER.warn("No jar found with url: {}", jarURL);
-        }
-        return jarLoader;
+        return new URLClassLoader(enumerateJar(jarURL), this);
     }
 
     private URL[] enumerateJar(URL urlOfJar) {
@@ -103,7 +95,7 @@ public class NestedJarClassLoader extends ClassLoader {
         if (existsInTfsJar(name)) {
             return jarClassLoader.loadClass(name);
         }
-        return parentClassLoader.loadClass(name);
+        return super.loadClass(name);
     }
 
     @Override
@@ -111,36 +103,7 @@ public class NestedJarClassLoader extends ClassLoader {
         if (existsInTfsJar(name)) {
             throw new ClassNotFoundException(name);
         }
-        return invokeParentClassloader(name, resolve);
-    }
-
-    private Class<?> invokeParentClassloader(String name, boolean resolve) throws ClassNotFoundException {
-        LOGGER.debug("Invoking parent classloader for {} with resolve {}", name, resolve);
-        try {
-            Method loadClass = findNonPublicMethod("loadClass", parentClassLoader.getClass(), String.class, boolean.class);
-            return (Class<?>) loadClass.invoke(parentClassLoader, name, resolve);
-        } catch (InvocationTargetException e) {
-            handleClassNotFound(e);
-            throw new RuntimeException("Failed to invoke parent classloader", e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to invoke parent classloader", e);
-        }
-    }
-
-    private Method findNonPublicMethod(String name, Class klass, Class... args) {
-        try {
-            Method method = klass.getDeclaredMethod(name, args);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException e) {
-            return findNonPublicMethod(name, klass.getSuperclass(), args);
-        }
-    }
-
-    private void handleClassNotFound(InvocationTargetException e) throws ClassNotFoundException {
-        if (e.getCause() instanceof ClassNotFoundException) {
-            throw (ClassNotFoundException) e.getCause();
-        }
+        return super.loadClass(name, resolve);
     }
 
     private boolean existsInTfsJar(String name) {
@@ -159,7 +122,7 @@ public class NestedJarClassLoader extends ClassLoader {
     @Override
     public URL getResource(String name) {
         if (isExcluded(name)) {
-            return parentClassLoader.getResource(name);
+            return super.getResource(name);
         }
         return null;
     }

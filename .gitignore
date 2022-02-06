@@ -314,6 +314,7 @@ tw-go-plugins/target/
 util/logs/
 util/out/
 util/target/
+util/data
 plugin-infra/go-plugin-infra/felix-cache/
 **/*.log
 api/api-cctray/out/

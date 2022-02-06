@@ -22,7 +22,6 @@ import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.Csv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +33,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.Streams.stream;
@@ -71,7 +70,7 @@ public class AgentPerformanceVerifier {
         IntStream.iterate(0, i -> i + 1)
                 .limit(noOfThreadsToUse)
                 .forEach(val -> {
-                    int nextInt = new Random().nextInt(val+1);
+                    int nextInt = new Random().nextInt(val + 1);
 //                    UpdateAgentHostCommand updateAgentHostCmd = new UpdateAgentHostCommand(agentService);
                     UpdateAgentResourcesCommand updateAgentResourcesCmd = new UpdateAgentResourcesCommand(agentService);
                     UpdateAgentEnvironmentsCommand updateAgentEnvsCmd = new UpdateAgentEnvironmentsCommand(agentService);
@@ -96,30 +95,24 @@ public class AgentPerformanceVerifier {
     }
 
     private void generateReport() {
-        Csv csv = new Csv();
-        LinkedBlockingQueue<AgentPerformanceCommand> queue = AgentPerformanceCommand.queue;
         try {
-            while (!queue.isEmpty()) {
-                AgentPerformanceCommand commandExecuted = queue.take();
-                addRowToCsv(csv, commandExecuted.getResult());
-            }
             String logDir = System.getProperty("gocd.server.log.dir", "logs");
-            Path reportFilePath = Files.write(Paths.get(logDir + "/agent-perf-result.csv"), csv.toString().getBytes(), StandardOpenOption.CREATE);
+
+            String results =
+                    String.join(",", AgentPerformanceCommandResult.headers()) +
+                    System.lineSeparator() +
+                    AgentPerformanceCommand.queue
+                            .stream()
+                            .map(AgentPerformanceCommand::getResult)
+                            .map(AgentPerformanceCommandResult::fields)
+                            .map(fields -> fields.collect(Collectors.joining(",")))
+                            .collect(Collectors.joining(System.lineSeparator()));
+
+            Path reportFilePath = Files.writeString(Paths.get(logDir + "/agent-perf-result.csv"), results, StandardOpenOption.CREATE);
             LOG.info("Report is available at {}", reportFilePath.toAbsolutePath());
-        } catch (InterruptedException e) {
-            LOG.error("Error while dequeuing", e);
         } catch (IOException e) {
             LOG.error("Error while appending to csv file", e);
         }
-    }
-
-    private void addRowToCsv(Csv csv, AgentPerformanceCommandResult result) {
-        csv.newRow()
-                .put("command_name", result.getName())
-                .put("agents", result.getAgentUuids())
-                .put("status", result.getStatus())
-                .put("failure_message", result.getFailureMessage())
-                .put("time_taken_in_millis", String.valueOf(result.getTimeTakenInMillis()));
     }
 
     private void registerSpecifiedNumberOfAgents(ScheduledExecutorService execService, Collection<Future<Optional<String>>> futures) {

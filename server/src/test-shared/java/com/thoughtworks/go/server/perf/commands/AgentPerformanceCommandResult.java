@@ -15,6 +15,11 @@
  */
 package com.thoughtworks.go.server.perf.commands;
 
+import com.google.common.base.Strings;
+
+import java.util.List;
+import java.util.stream.Stream;
+
 public class AgentPerformanceCommandResult {
     private String name;
     private String status;
@@ -65,5 +70,14 @@ public class AgentPerformanceCommandResult {
     public AgentPerformanceCommandResult setTimeTakenInMillis(long timeTakenInMillis) {
         this.timeTakenInMillis = timeTakenInMillis;
         return this;
+    }
+
+    public static List<String> headers() {
+        return List.of("command_name", "agents", "status", "failure_message", "time_taken_in_millis");
+    }
+
+    public Stream<String> fields() {
+        return Stream.of(getName(), getAgentUuids(), getStatus(), getFailureMessage(), String.valueOf(getTimeTakenInMillis()))
+                .map(Strings::nullToEmpty);
     }
 }

@@ -90,8 +90,7 @@ public class LogFixture implements Closeable {
         return false;
     }
 
-
-    private class ListAppender extends AppenderBase<ILoggingEvent> {
+    private static class ListAppender extends AppenderBase<ILoggingEvent> {
 
         private final PatternLayoutEncoder encoder;
         private Queue<ILoggingEvent> events = new ConcurrentLinkedQueue<ILoggingEvent>();

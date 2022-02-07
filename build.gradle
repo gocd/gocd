@@ -159,7 +159,7 @@ rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
 
 project.ext.compilerOptions = [
   // source and target compatibility
-  release: 13,
+  release: 11,
 ]
 
 project.ext.toolchains = [

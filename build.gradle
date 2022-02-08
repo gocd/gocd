@@ -696,9 +696,9 @@ task sparkTest { thisTask ->
 task sparkTestJunitHtmlReport(type: TestReport) {
   dependsOn sparkTest
 
-  reportOn project(':api').subprojects*.test
-  reportOn project(':spark').subprojects*.test
-  destinationDir = file("${project.buildDir}/reports/tests/sparkTest")
+  testResults.from(project(':api').subprojects*.test)
+  testResults.from(project(':spark').subprojects*.test)
+  destinationDirectory = file("${project.buildDir}/reports/tests/sparkTest")
 }
 
 private void forAllTask(Closure<Task> closure) {
@@ -732,10 +732,10 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
   description = "Run all api tests"
 
   forAllTask { Test eachTestTask ->
-    thisTask.reportOn eachTestTask.binaryResultsDirectory
+    testResults.from(eachTestTask)
     eachTestTask.finalizedBy(thisTask)
   }
-  destinationDir = file("${project.buildDir}/reports/tests/allTests")
+  destinationDirectory = file("${project.buildDir}/reports/tests/allTests")
 }
 
 static def toCamelCase(String input) {

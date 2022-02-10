@@ -64,9 +64,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
 import static java.lang.String.format;
 import static java.time.Duration.between;
-import static java.time.LocalDateTime.now;
-import static java.time.LocalDateTime.ofInstant;
-import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -307,9 +304,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void addWarningForAgentsStuckInCancel() {
-        agentInstances.agentsStuckInCancel().stream().forEach(agentInstance -> {
+        agentInstances.agentsStuckInCancel().forEach(agentInstance -> {
             serverHealthService.update(warning(format("Agent `%s` is stuck in cancel.", agentInstance.getHostname()),
-                    format("Looks like agent is stuck in cancelling a job, the job was cancelled: %s (mins) back.", cancelledForMins(agentInstance.cancelledAt())),
+                    format("Looks like the agent is stuck cancelling a job, the job was cancelled %s minutes ago.", cancelledForMins(agentInstance.cancelledAt())),
                     HealthStateType.general(GLOBAL), Timeout.THIRTY_SECONDS));
         });
     }
@@ -324,7 +321,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private long cancelledForMins(Date cancelledAt) {
-        return between(now(), ofInstant(Instant.ofEpochMilli(cancelledAt.getTime()), systemDefault())).toMinutes();
+        return between(cancelledAt.toInstant(), Instant.now()).toMinutes();
     }
 
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {

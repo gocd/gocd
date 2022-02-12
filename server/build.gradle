@@ -85,8 +85,6 @@ sourceSets {
 }
 
 configurations {
-  jrubyGems
-
   integrationTestImplementation.extendsFrom testImplementation
 
   warConfig
@@ -227,7 +225,6 @@ props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemPro
 project.ext.testSystemProperties = props
 
 dependencies {
-  jrubyGems project.deps.bundler
   compileOnly project.deps.jetBrainsAnnotations
 
   apiBase project(':api:api-base')

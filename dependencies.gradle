@@ -33,7 +33,6 @@ final Map<String, String> libraries = [
   assertJ             : 'org.assertj:assertj-core:3.22.0',
   assertJ_DB          : 'org.assertj:assertj-db:2.0.2',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.70', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
-  bundler             : 'rubygems:bundler:2.2.33',
   cglib               : 'cglib:cglib:3.3.0',
   cloning             : 'io.github.kostaskougios:cloning:1.10.3',
   commonsBeanUtils    : 'commons-beanutils:commons-beanutils:1.9.4',

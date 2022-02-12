@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 ruby '2.6.8'
 
-gem 'rails', '5.2.6'
-gem 'sass-rails', '5.1.0'
+gem 'rails'
+gem 'sass-rails'
 
 gem 'dynamic_form'
 

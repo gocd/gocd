@@ -237,13 +237,13 @@ DEPENDENCIES
   jasmine_selenium_runner
   js-routes
   pry-debugger-jruby
-  rails (= 5.2.6)
+  rails
   rails-controller-testing
   rspec-instafail
   rspec-rails
   rspec_junit_formatter
   ruby_audit
-  sass-rails (= 5.1.0)
+  sass-rails
   scss_lint
   ts_routes
   tzinfo-data

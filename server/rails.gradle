@@ -108,7 +108,6 @@ task createJRubyBinstubs {
 task initializeRailsGems {
   outputs.cacheIf { true }
   dependsOn createJRubyBinstubs
-  inputs.files(project.configurations.jrubyGems)
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
   inputs.file("${project.railsRoot}/.bundle/config")
@@ -121,14 +120,6 @@ task initializeRailsGems {
   outputs.dir(project.bundledGemDir)
 
   doFirst {
-    project.jrubyexec {
-      workingDir = project.railsRoot
-
-      args = ['-S', 'gem', 'install', '--quiet', '--no-document', '--local', '--ignore-dependencies', '--install-dir', project.bundledGemDir]
-      args += project.configurations.jrubyGems
-      maxHeapSize = '1g'
-    }
-
     project.jrubyexec {
       workingDir = project.railsRoot
       args = ['-S', 'bundle', 'install']

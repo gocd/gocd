@@ -27,14 +27,16 @@
         <div id="stage_stats">
           <div class="stats">
             <div id="chart_details_container">
-              <iframe sandbox="allow-scripts" width="100%" height="400px" src="<%= stage_detail_tab_stats_iframe_path() %>"></iframe>
+              <iframe id="chart_details_iframe" sandbox="allow-scripts" width="100%" height="400px" src="<%= stage_detail_tab_stats_iframe_path() %>"></iframe>
             </div>
           </div>
         </div>
         <script>
             window.addEventListener("message", function(event) {
-                var data = JSON.parse(event.data);
-                window.location.href = data.openLink;
+                if (event.source === document.getElementById("chart_details_iframe").contentWindow) {
+                    var data = JSON.parse(event.data);
+                    window.location.href = data.openLink;
+                }
             }, false);
         </script>
     <% when 'stage_config' %>

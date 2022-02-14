@@ -46,6 +46,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.util.GoConfigFileHelper unless defined? GoConfigFileHelper
   java_import com.thoughtworks.go.util.ReflectionUtil unless defined? ReflectionUtil
   java_import com.thoughtworks.go.server.service.UserService unless defined? UserService
+  java_import com.thoughtworks.go.server.service.AdminService unless defined? AdminService
   java_import com.thoughtworks.go.presentation.TriStateSelection unless defined? TriStateSelection
   java_import com.thoughtworks.go.server.domain.Username unless defined? Username
   java_import com.thoughtworks.go.config.materials.AbstractMaterial unless defined? AbstractMaterial

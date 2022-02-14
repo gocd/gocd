@@ -99,7 +99,7 @@ class ExecuteUnderRailsTask extends JavaExec {
   }
 
   static dumpTaskCommand(JavaExecSpec execSpec) {
-    println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.allJvmArgs.join(' ')} ${execSpec.mainClass.get()} ${execSpec.args.join(' ')}"
+    println "[${execSpec.workingDir}]\$ java ${execSpec.allJvmArgs.join(' ')} ${execSpec.mainClass.get()} ${execSpec.args.join(' ')}"
   }
 
   static void debugEnvironment(JavaExecSpec javaExecSpec, Map<String, Object> originalEnv) {

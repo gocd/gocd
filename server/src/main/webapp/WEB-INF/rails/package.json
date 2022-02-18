@@ -60,7 +60,7 @@
     "@types/lodash": "^4.14.178",
     "@types/lru-cache": "^5.1.0",
     "@types/mini-css-extract-plugin": "^1",
-    "@types/mithril": "2.0.8",
+    "@types/mithril": "2.0.9",
     "@types/node": "^16.11.24",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.5",
     "@types/prismjs": "^1.26.0",

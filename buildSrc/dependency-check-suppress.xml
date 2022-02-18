@@ -151,9 +151,10 @@
    context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
    so GoCD does not appear to be vulnerable to these problems even when running with H2 DB.
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
         <cve>CVE-2021-42392</cve>
         <cve>CVE-2022-23221</cve>
+        <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
     </suppress>
 
     <suppress until="2022-05-01Z">

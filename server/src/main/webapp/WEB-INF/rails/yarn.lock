@@ -2011,10 +2011,10 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
 
-bourbon@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/bourbon/-/bourbon-7.0.0.tgz#42c0b691e99cb1f7616aad2a11b17ab88bbc4918"
-  integrity sha512-49kyBY+4gwnEvnez8H0TzFjfNZpUVdCmmS873S9nQ6YUuh2+qesbOh8lA+9gAuWlqtYlF+/3Etxm/13RhceOrg==
+bourbon@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/bourbon/-/bourbon-7.2.0.tgz#32bc40fd368383e4b7b82bb832c34c67584282bd"
+  integrity sha512-Zx/lY/YzMkSyFC7yYPp9QcI2OCWnUHQdSrXvRtfnaUGT/edKNh44mVPYkP7QEyk6yQOLCJottsuTnidqKcpbNg==
 
 brace-expansion@^1.1.7:
   version "1.1.11"

@@ -258,12 +258,12 @@
   },
   "momentjs": {
     "moduleName": "momentjs",
-    "moduleVersion": "2.18.1",
+    "moduleVersion": "2.29.1",
     "moduleUrls": [
       "https://github.com/moment/moment"
     ],
     "filenames": [
-      "moment-2.18.1.js"
+      "moment-2.29.1.js"
     ],
     "moduleLicenses": [
       {
@@ -274,12 +274,12 @@
   },
   "moment-duration-format": {
     "moduleName": "moment-duration-format",
-    "moduleVersion": "1.3.0",
+    "moduleVersion": "2.3.2",
     "moduleUrls": [
       "https://github.com/jsmreese/moment-duration-format"
     ],
     "filenames": [
-      "moment-duration-format-1.3.0.js"
+      "moment-duration-format-2.3.2.js"
     ],
     "moduleLicenses": [
       {

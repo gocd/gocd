@@ -316,9 +316,9 @@
   },
   "prototypejs": {
     "moduleName": "prototypejs",
-    "moduleVersion": "1.5.0",
+    "moduleVersion": "1.6.0.3",
     "filenames": [
-      "prototype-1.6.0.js"
+      "prototype-1.6.0.3.js"
     ],
     "moduleLicenses": [
       {

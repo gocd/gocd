@@ -838,7 +838,7 @@ task verifyWar(type: VerifyJarTask) {
         "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-${project.versions.ehcache}.jar",
-        "error_prone_annotations-2.7.1.jar",
+        "error_prone_annotations-2.11.0.jar",
         "failureaccess-1.0.1.jar",
         "freemarker-${project.versions.freemarker}.jar",
         "geronimo-j2ee-management_1.1_spec-1.0.1.jar",

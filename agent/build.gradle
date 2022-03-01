@@ -147,7 +147,7 @@ task verifyJar(type: VerifyJarTask) {
       "db-${project.version}.jar",
       "dom4j-${project.versions.dom4j}.jar",
       "domain-${project.version}.jar",
-      "error_prone_annotations-2.7.1.jar",
+      "error_prone_annotations-2.11.0.jar",
       "failureaccess-1.0.1.jar",
       "go-plugin-access-${project.version}.jar",
       "go-plugin-activator.jar",

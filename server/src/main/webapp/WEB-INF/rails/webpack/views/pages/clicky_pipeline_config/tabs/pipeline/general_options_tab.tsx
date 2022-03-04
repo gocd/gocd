@@ -29,7 +29,7 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
   }
 
   getPipelineSchedulingCheckBox(entity: PipelineConfig, templateConfig: TemplateConfig) {
-    let additionalHelpText: string = ";";
+    let additionalHelpText: string = "";
     if (entity.isUsingTemplate()) {
       additionalHelpText = ` Since this pipeline is based on '${entity.template()}' template, automatic/manual behaviour of the pipeline is determined by the template's first stage.`;
     }

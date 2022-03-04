@@ -55,7 +55,6 @@ import static org.mockito.Mockito.*;
 public class HgMaterialTest {
     private static final HgVersion LINUX_HG_094 = HgVersion.parse("Mercurial Distributed SCM (version 0.9.4)\n");
     private static final HgVersion WINDOWS_HG_OFFICIAL_102 = HgVersion.parse("Mercurial Distributed SCM (version 1.0.2+20080813)\n");
-    private static final String WINDOWS_HG_TORTOISE = "Mercurial Distributed SCM (version 626cb86a6523+tortoisehg)";
     private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
     private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
     private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
@@ -213,12 +212,6 @@ public class HgMaterialTest {
             File testFile = new File(workingFolder, "not_in_hg_repository.txt");
             testFile.createNewFile();
             return testFile;
-        }
-
-        @Test
-        void shouldReturnFalseWhenVersionIsNotRecgonized() {
-            assertThatCode(() -> hgMaterial.isVersionOneDotZeroOrHigher(WINDOWS_HG_TORTOISE))
-                    .isInstanceOf(Exception.class);
         }
 
         @Test

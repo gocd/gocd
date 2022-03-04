@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,33 +52,42 @@ public class HgCommand extends SCMCommand {
         this.secrets = secrets != null ? secrets : new ArrayList<>();
     }
 
-
-    private boolean pull(ConsoleOutputStreamConsumer outputStreamConsumer) {
-        CommandLine hg = hg("pull", "-b", branch, "--config", String.format("paths.default=%s", url));
-        return execute(hg, outputStreamConsumer) == 0;
-    }
-
     public HgVersion version() {
-        CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("utf-8");
+        CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("UTF-8");
         String hgOut = execute(hg, new NamedProcessTag("hg version check")).outputAsString();
         return HgVersion.parse(hgOut);
     }
 
-
     public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, UrlArgument repositoryUrl) {
-        CommandLine hg = createCommandLine("hg").withArgs("clone").withArg("-b").withArg(branch).withArg(repositoryUrl)
-                .withArg(workingDir.getAbsolutePath()).withNonArgSecrets(secrets).withEncoding("utf-8");
+        CommandLine hg = createCommandLine("hg")
+                .withArgs("clone")
+                .withArg(branchArg())
+                .withArg("--")
+                .withArg(repositoryUrl)
+                .withArg(workingDir.getAbsolutePath())
+                .withNonArgSecrets(secrets)
+                .withEncoding("UTF-8");
         return execute(hg, outputStreamConsumer);
     }
 
     public void checkConnection(UrlArgument repositoryURL) {
-        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets).withEncoding("utf-8"), new NamedProcessTag(repositoryURL.forDisplay()));
+        CommandLine hg = createCommandLine("hg")
+                .withArgs("id", "--id", "--")
+                .withArg(repositoryURL)
+                .withNonArgSecrets(secrets)
+                .withEncoding("UTF-8");
+        execute(hg, new NamedProcessTag(repositoryURL.forDisplay()));
     }
 
     public void updateTo(Revision revision, ConsoleOutputStreamConsumer outputStreamConsumer) {
         if (!pull(outputStreamConsumer) || !update(revision, outputStreamConsumer)) {
             bomb(format("Unable to update to revision [%s]", revision));
         }
+    }
+
+    private boolean pull(ConsoleOutputStreamConsumer outputStreamConsumer) {
+        CommandLine hg = hg("pull", branchArg(), "--config", String.format("paths.default=%s", url));
+        return execute(hg, outputStreamConsumer) == 0;
     }
 
     private boolean update(Revision revision, ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -105,34 +114,27 @@ public class HgCommand extends SCMCommand {
         return findRecentModifications(1);
     }
 
-    private String templatePath() {
-        if (templatePath == null) {
-            String file = HgCommand.class.getResource("/hg.template").getFile();
-            try {
-                templatePath = URLDecoder.decode(new File(file).getAbsolutePath(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                templatePath = URLDecoder.decode(new File(file).getAbsolutePath());
-            }
-        }
-        return templatePath;
-    }
-
-    List<Modification> findRecentModifications(int count) {
+    private List<Modification> findRecentModifications(int count) {
         // Currently impossible to check modifications on a remote repository.
         InMemoryStreamConsumer consumer = inMemoryConsumer();
         bombUnless(pull(consumer), "Failed to run hg pull command: " + consumer.getAllOutput());
-        CommandLine hg = hg("log", "--limit", String.valueOf(count), "-b", branch, "--style", templatePath());
+        CommandLine hg = hg("log", "--limit", String.valueOf(count), branchArg(), "--style", templatePath());
         return new HgModificationSplitter(execute(hg)).modifications();
     }
 
     public List<Modification> modificationsSince(Revision revision) {
         InMemoryStreamConsumer consumer = inMemoryConsumer();
         bombUnless(pull(consumer), "Failed to run hg pull command: " + consumer.getAllOutput());
-        CommandLine hg = hg("log",
-                "-r", "tip:" + revision.getRevision(),
-                "-b", branch,
-                "--style", templatePath());
+        CommandLine hg = hg("log", "-r", "tip:" + revision.getRevision(), branchArg(), "--style", templatePath());
         return new HgModificationSplitter(execute(hg)).filterOutRevision(revision);
+    }
+
+    private String templatePath() {
+        if (templatePath == null) {
+            String file = HgCommand.class.getResource("/hg.template").getFile();
+            templatePath = URLDecoder.decode(new File(file).getAbsolutePath(), StandardCharsets.UTF_8);
+        }
+        return templatePath;
     }
 
     public ConsoleResult workingRepositoryUrl() {
@@ -142,6 +144,10 @@ public class HgCommand extends SCMCommand {
         LOGGER.trace("Current repository url of [{}]: {}", workingDir, result.outputForDisplayAsString());
         LOGGER.trace("Target repository url: {}", url);
         return result;
+    }
+
+    private String branchArg() {
+        return "--branch=" + branch;
     }
 
     private CommandLine hg(String... arguments) {

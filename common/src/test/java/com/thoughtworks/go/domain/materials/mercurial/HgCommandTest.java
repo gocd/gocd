@@ -35,10 +35,14 @@ import java.util.List;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 public class HgCommandTest {
+
+    private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
+    private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
+    private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
+
     private File serverRepo;
     private File clientRepo;
 
@@ -46,16 +50,13 @@ public class HgCommandTest {
 
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
     private File workingDirectory;
-    private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
-    private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
-    private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
     private File secondBranchWorkingCopy;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws IOException {
         serverRepo = TempDirUtils.createTempDirectoryIn(tempDir, "testHgServerRepo").toFile();
-        clientRepo =  TempDirUtils.createTempDirectoryIn(tempDir, "testHgClientRepo").toFile();
-        secondBranchWorkingCopy =  TempDirUtils.createTempDirectoryIn(tempDir, "second").toFile();
+        clientRepo = TempDirUtils.createTempDirectoryIn(tempDir, "testHgClientRepo").toFile();
+        secondBranchWorkingCopy = TempDirUtils.createTempDirectoryIn(tempDir, "second").toFile();
 
         setUpServerRepoFromHgBundle(serverRepo, new File("../common/src/test/resources/data/hgrepo.hgbundle"));
         workingDirectory = new File(clientRepo.getPath());
@@ -65,11 +66,32 @@ public class HgCommandTest {
 
     @Test
     public void shouldCloneFromRemoteRepo() {
-        assertThat(clientRepo.listFiles().length > 0, is(true));
+        assertThat(clientRepo.listFiles().length, is(2));
     }
 
     @Test
-    public void shouldGetLatestModifications() throws Exception {
+    public void shouldCloneWithEscapedRepoUrl() {
+        hgCommand.clone(outputStreamConsumer, new UrlArgument(echoingAliasFor("clone")));
+        assertNoUnescapedEcho();
+    }
+
+    @Test
+    public void shouldCloneWithEscapedBranch() {
+        hgCommand = new HgCommand(null, workingDirectory, echoingAliasFor("clone"), serverRepo.getAbsolutePath(), null);
+        hgCommand.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));
+        assertNoUnescapedEcho();
+    }
+
+    private String echoingAliasFor(String command) {
+        return String.format("--config=alias.%s=!echo hello world", command);
+    }
+
+    private void assertNoUnescapedEcho() {
+        assertThat(outputStreamConsumer.getAllOutput(), not(containsString("\nhello world\n")));
+    }
+
+    @Test
+    public void shouldGetLatestModifications() {
         List<Modification> actual = hgCommand.latestOneModificationAsModifications();
         assertThat(actual.size(), is(1));
         final Modification modification = actual.get(0);
@@ -79,7 +101,7 @@ public class HgCommandTest {
     }
 
     @Test
-    public void shouldNotIncludeCommitFromAnotherBranchInGetLatestModifications() throws Exception {
+    public void shouldNotIncludeCommitFromAnotherBranchInGetLatestModifications() {
         Modification lastCommit = hgCommand.latestOneModificationAsModifications().get(0);
 
         makeACommitToSecondBranch();
@@ -98,7 +120,7 @@ public class HgCommandTest {
     }
 
     @Test
-    public void shouldNotGetModificationsFromOtherBranches() throws Exception {
+    public void shouldNotGetModificationsFromOtherBranches() {
         makeACommitToSecondBranch();
         hg(workingDirectory, "pull").runOrBomb(null);
 
@@ -131,7 +153,7 @@ public class HgCommandTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfUpdateFails() throws Exception {
+    public void shouldThrowExceptionIfUpdateFails() {
         InMemoryStreamConsumer output =
                 ProcessOutputStreamConsumer.inMemoryConsumer();
 
@@ -140,7 +162,8 @@ public class HgCommandTest {
 
         // now hg pull will fail and throw an exception
         assertThatThrownBy(() -> hgCommand.updateTo(new StringRevision("tip"), output))
-                .isExactlyInstanceOf(RuntimeException.class);
+                .isExactlyInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Unable to update to revision [StringRevision[tip]]");
     }
 
     @Test
@@ -151,7 +174,20 @@ public class HgCommandTest {
     }
 
     @Test
-    public void shouldThrowExceptionForBadConnection() throws Exception {
+    public void shouldCheckConnection() {
+        hgCommand.checkConnection(new UrlArgument(serverRepo.getAbsolutePath()));
+    }
+
+    @Test
+    public void shouldCheckConnectionWithEscapedRepoUrl() {
+        assertThatThrownBy(() -> hgCommand.checkConnection(new UrlArgument(echoingAliasFor("id"))))
+                .isExactlyInstanceOf(CommandLineException.class)
+                .hasMessageContaining("repository --config")
+                .hasMessageContaining("not found");
+    }
+
+    @Test
+    public void shouldThrowExceptionForBadConnection() {
         String url = "http://not-exists";
         HgCommand hgCommand = new HgCommand(null, null, null, null, null);
 

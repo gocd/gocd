@@ -30,16 +30,14 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
@@ -52,7 +50,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * @understands configuration for mercurial version control
  */
 public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
-    private static final Pattern HG_VERSION_PATTERN = Pattern.compile(".*\\(.*\\s+(\\d(\\.\\d)+.*)\\)");
     private static final Logger LOGGER = LoggerFactory.getLogger(HgMaterial.class);
     private HgUrlArgument url;
 
@@ -63,7 +60,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private static final String ERR_NO_HG_INSTALLED =
             "Failed to find 'hg' on your PATH. Please ensure 'hg' is executable by the Go Server and on the Go Agents where this material will be used.";
 
-    private final String HG_DEFAULT_BRANCH = "default";
+    private static final String HG_DEFAULT_BRANCH = "default";
     private String branch;
 
     private HgMaterial() {
@@ -157,34 +154,20 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
     }
 
+    @TestOnly
     public void add(File baseDir, ProcessOutputStreamConsumer outputStreamConsumer, File file) throws Exception {
         hg(baseDir, outputStreamConsumer).add(outputStreamConsumer, file);
     }
 
+    @TestOnly
     public void commit(File baseDir, ProcessOutputStreamConsumer consumer, String comment, String username)
             throws Exception {
         hg(baseDir, consumer).commit(consumer, comment, username);
     }
 
+    @TestOnly
     public void push(File baseDir, ProcessOutputStreamConsumer consumer) throws Exception {
         hg(baseDir, consumer).push(consumer);
-    }
-
-    boolean isVersionOneDotZeroOrHigher(String hgout) {
-        String hgVersion = parseHgVersion(hgout);
-        Float aFloat = NumberUtils.createFloat(hgVersion.subSequence(0, 3).toString());
-        return aFloat >= 1;
-    }
-
-    private String parseHgVersion(String hgOut) {
-        String[] lines = hgOut.split("\n");
-        String firstLine = lines[0];
-        Matcher m = HG_VERSION_PATTERN.matcher(firstLine);
-        if (m.matches()) {
-            return m.group(1);
-        } else {
-            throw bomb("can not parse hgout : " + hgOut);
-        }
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
@@ -206,7 +189,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
                 "Repository " + url.forDisplay() + " not found!" + " : \n" + e.getMessage());
         try {
             if (version.isOlderThanOneDotZero()) {
-                return ValidationBean.notValid(ERROR_OLD_VERSION + version.toString());
+                return ValidationBean.notValid(ERROR_OLD_VERSION + version);
             } else {
                 return defaultResponse;
             }

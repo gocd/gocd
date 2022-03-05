@@ -1,5 +1,6 @@
 /*!
-ModalBox - The pop-up window thingie with AJAX, based on prototype and script.aculo.us.
+ModalBox - The pop-up window thingie with AJAX, based on prototype and effects.js from script.aculo.us.
+https://wildbit.com/blog/modalbox-160
 
 Copyright Andrey Okonetchnikov (andrej.okonetschnikow@gmail.com), 2006-2007
 All rights reserved.

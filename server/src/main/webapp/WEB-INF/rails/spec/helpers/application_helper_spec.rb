@@ -477,28 +477,6 @@ describe ApplicationHelper do
     end
   end
 
-  describe 'is_ie8?' do
-    it "should return true when IE8" do
-      user_agent = "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; WOW64; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)"
-      expect(is_ie8?(user_agent)).to eq(true)
-    end
-
-    it "should return false when IE9" do
-      user_agent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)"
-      expect(is_ie8?(user_agent)).to eq(false)
-    end
-
-    it "should return false when Firefox" do
-      user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:21.0) Gecko/20100101 Firefox/21.0"
-      expect(is_ie8?(user_agent)).to eq(false)
-    end
-
-    it "should return false when Chrome" do
-      user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
-      expect(is_ie8?(user_agent)).to eq(false)
-    end
-  end
-
   describe "is_user_a_template_admin" do
     before :each do
       @security_service = double('security service')

@@ -31,7 +31,6 @@ describe ValueStreamMapController do
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     @user = double('some user')
     allow(controller).to receive(:current_user).and_return(@user)
-    allow(controller).to receive(:is_ie8?).and_return(false)
     allow(@result).to receive(:isSuccessful).and_return(true)
     allow(@result).to receive(:message).and_return(nil)
     @vsm_path_partial = proc do |name, counter|

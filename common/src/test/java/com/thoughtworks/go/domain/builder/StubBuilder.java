@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.nio.charset.Charset;
+
 public class StubBuilder extends Builder {
     boolean wasCalled;
 
@@ -36,7 +38,7 @@ public class StubBuilder extends Builder {
 
     @Override
     public void build(DefaultGoPublisher publisher,
-                      EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
+                      EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) throws CruiseControlException {
         wasCalled = true;
     }
 }

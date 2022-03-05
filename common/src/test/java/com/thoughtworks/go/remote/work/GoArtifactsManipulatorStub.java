@@ -28,6 +28,7 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class GoArtifactsManipulatorStub extends GoArtifactsManipulator {
     }
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
-                                                                   AgentIdentifier agentIdentifier, String consoleLogCharset) {
+                                                                   AgentIdentifier agentIdentifier, Charset consoleLogCharset) {
         return new ConsoleOutputTransmitter(new ConsoleAppender() {
             @Override
             public void append(String content) throws IOException {

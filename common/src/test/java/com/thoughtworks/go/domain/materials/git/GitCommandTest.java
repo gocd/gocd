@@ -197,7 +197,7 @@ public class GitCommandTest {
 
         private String git(File cwd, String... args) {
             return CommandLine.createCommandLine("git").
-                    withEncoding("UTF-8").
+                    withEncoding(UTF_8).
                     withWorkingDir(cwd).
                     withArgs(args).runOrBomb(new NamedProcessTag(null)).outputAsString();
         }
@@ -247,7 +247,7 @@ public class GitCommandTest {
         void shouldCloneFromMasterWhenNoBranchIsSpecified() {
             InMemoryStreamConsumer output = inMemoryConsumer();
             git.clone(output, repoUrl);
-            CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir);
+            CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("branch").withWorkingDir(gitLocalRepoDir);
             commandLine.run(output, null);
             assertEquals("* master", output.getStdOut());
         }
@@ -319,14 +319,14 @@ public class GitCommandTest {
             GitCommand branchedGit = new GitCommand(null, gitLocalRepoDir, BRANCH, false, null);
             branchedGit.clone(inMemoryConsumer(), gitFooBranchBundle.projectRepositoryUrl());
             InMemoryStreamConsumer output = inMemoryConsumer();
-            CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, null);
+            CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, null);
             assertEquals("* foo", output.getStdOut());
         }
 
         @Test
         void shouldGetTheCurrentBranchForTheCheckedOutRepo() throws IOException {
             gitLocalRepoDir = createTempWorkingDirectory();
-            CommandLine gitCloneCommand = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("clone");
+            CommandLine gitCloneCommand = CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("clone");
             gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(gitFooBranchBundle.projectRepositoryUrl())).withArg(gitLocalRepoDir.getAbsolutePath());
             gitCloneCommand.run(inMemoryConsumer(), null);
             git = new GitCommand(null, gitLocalRepoDir, BRANCH, false, null);
@@ -895,7 +895,7 @@ public class GitCommandTest {
         private ConsoleResult git_C(File dir, String... args) {
             CommandLine commandLine = CommandLine.createCommandLine("git");
             commandLine.withArgs(args);
-            commandLine.withEncoding("utf-8");
+            commandLine.withEncoding(UTF_8);
             assertTrue(dir.exists());
             commandLine.setWorkingDir(dir);
             return commandLine.runOrBomb(true, null);

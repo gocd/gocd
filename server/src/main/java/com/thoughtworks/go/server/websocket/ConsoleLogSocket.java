@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Optional;
@@ -48,12 +49,12 @@ public class ConsoleLogSocket implements SocketEndpoint {
     private SocketHealthService socketHealthService;
     private final String consoleLogCharsetJSONMessage;
 
-    ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService, String consoleLogCharset) {
+    ConsoleLogSocket(ConsoleLogSender handler, JobIdentifier jobIdentifier, SocketHealthService socketHealthService, Charset consoleLogCharset) {
         this.handler = handler;
         this.jobIdentifier = jobIdentifier;
         this.key = String.format("%s:%d", jobIdentifier, hashCode());
         this.socketHealthService = socketHealthService;
-        this.consoleLogCharsetJSONMessage = GSON.toJson(Collections.singletonMap("charset", consoleLogCharset));
+        this.consoleLogCharsetJSONMessage = GSON.toJson(Collections.singletonMap("charset", consoleLogCharset.name()));
     }
 
     @OnWebSocketConnect

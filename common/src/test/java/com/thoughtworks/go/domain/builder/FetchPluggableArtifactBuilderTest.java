@@ -40,7 +40,6 @@ import org.mockito.InOrder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +49,7 @@ import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.
 import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.OUT;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -77,7 +77,7 @@ public class FetchPluggableArtifactBuilderTest {
         registry = mock(PluginRequestProcessorRegistry.class);
 
         metadataDest = TempDirUtils.createTempDirectoryIn(tempDir, "dest").resolve("cd.go.s3.json").toFile();
-        FileUtils.writeStringToFile(metadataDest, "{\"artifactId\":{}}", StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(metadataDest, "{\"artifactId\":{}}", UTF_8);
 
         jobIdentifier = new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L);
         artifactStore = new ArtifactStore("s3", PLUGIN_ID, ConfigurationPropertyMother.create("ACCESS_KEY", true, "hksjdfhsksdfh"));
@@ -96,7 +96,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallPublisherToFetchMetadataFile() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
         final ArgumentCaptor<FetchArtifactBuilder> argumentCaptor = ArgumentCaptor.forClass(FetchArtifactBuilder.class);
 
@@ -112,7 +112,7 @@ public class FetchPluggableArtifactBuilderTest {
     public void shouldCallArtifactExtension() {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
 
-        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
         verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
@@ -122,9 +122,9 @@ public class FetchPluggableArtifactBuilderTest {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
 
-        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), UTF_8);
 
-        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
         verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
     }
@@ -134,9 +134,9 @@ public class FetchPluggableArtifactBuilderTest {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
 
-        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), UTF_8);
 
-        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
         InOrder inOrder = inOrder(registry, artifactExtension);
         inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), ArgumentMatchers.any(ArtifactRequestProcessor.class));
@@ -163,7 +163,7 @@ public class FetchPluggableArtifactBuilderTest {
                         new FetchArtifactEnvironmentVariable("VAR6", "new-value6-secure", true)
                 ));
 
-        builder.build(publisher, environmentVariableContext, null, artifactExtension, registry, "utf-8");
+        builder.build(publisher, environmentVariableContext, null, artifactExtension, registry, UTF_8);
 
         Map<String, String> newVariablesAfterFetchArtifact = environmentVariableContext.getProperties();
 

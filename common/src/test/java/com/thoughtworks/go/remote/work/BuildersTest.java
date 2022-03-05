@@ -24,17 +24,18 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import static com.thoughtworks.go.config.RunIfConfig.ANY;
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class BuildersTest {
 
     @Test
-    public void shouldNotBuildIfTheJobIsCanceled() throws Exception {
+    public void shouldNotBuildIfTheJobIsCanceled() {
         StubGoPublisher goPublisher = new StubGoPublisher();
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -44,20 +45,20 @@ public class BuildersTest {
 
         Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null, null, null);
         builders.setIsCancelled(true);
-        builders.build(environmentVariableContext, "utf-8");
+        builders.build(environmentVariableContext, StandardCharsets.UTF_8);
 
         assertThat(goPublisher.getMessage(), is(""));
     }
 
 
     @Test
-    public void shouldNotSetAsCurrentBuilderIfNotRun() throws Exception {
+    public void shouldNotSetAsCurrentBuilderIfNotRun() {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), null, "");
         Builders builders = new Builders(Collections.singletonList(builder), null, null, null, null);
 
         builders.setIsCancelled(true);
-        builders.build(environmentVariableContext, "utf-8");
+        builders.build(environmentVariableContext, StandardCharsets.UTF_8);
 
         Builders expected = new Builders(Collections.singletonList(builder), null, null, null, null);
         expected.setIsCancelled(true);
@@ -66,11 +67,11 @@ public class BuildersTest {
     }
 
     @Test
-    public void shouldNotCancelAnythingIfAllBuildersHaveRun() throws Exception {
+    public void shouldNotCancelAnythingIfAllBuildersHaveRun() {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new StubBuilder(new RunIfConfigs(ANY));
         Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), null, null, null);
-        builders.build(environmentVariableContext, "utf-8");
-        builders.cancel(environmentVariableContext, "utf-8");
+        builders.build(environmentVariableContext, StandardCharsets.UTF_8);
+        builders.cancel(environmentVariableContext, StandardCharsets.UTF_8);
     }
 }

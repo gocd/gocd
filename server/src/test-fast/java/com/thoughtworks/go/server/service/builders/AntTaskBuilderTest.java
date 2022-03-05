@@ -33,6 +33,7 @@ import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -88,7 +89,7 @@ class AntTaskBuilderTest {
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
         try {
-            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null, "utf-8");
+            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null, UTF_8);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage()).contains("Build failed. Command ant reported [BUILD FAILED].");
         }

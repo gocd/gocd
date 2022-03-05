@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class Builders {
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
     }
 
-    public JobResult build(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+    public JobResult build(EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
         JobResult result = JobResult.Passed;
 
         for (Builder builder : builders) {
@@ -109,7 +110,7 @@ public class Builders {
         return result;
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
         cancelStarted = true;
         synchronized (this) {
             currentBuilder.cancel(goPublisher, environmentVariableContext, taskExtension, artifactExtension, consoleLogCharset);

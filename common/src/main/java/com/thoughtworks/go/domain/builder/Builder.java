@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 
 public abstract class Builder implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Builder.class);
@@ -49,7 +50,7 @@ public abstract class Builder implements Serializable {
         return conditions.match(previousStatus);
     }
 
-    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException;
+    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) throws CruiseControlException;
 
     public String getDescription() {
         return description;
@@ -96,7 +97,7 @@ public abstract class Builder implements Serializable {
         return result;
     }
 
-    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, String consoleLogCharset) {
+    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, Charset consoleLogCharset) {
         publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
             cancelBuilder.build(publisher, environmentVariableContext, taskExtension, artifactExtension, null, consoleLogCharset);

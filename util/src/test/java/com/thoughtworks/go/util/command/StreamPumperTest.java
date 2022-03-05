@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +42,7 @@ public class StreamPumperTest {
                 new ByteArrayInputStream(lines.getBytes());
 
         TestConsumer consumer = new TestConsumer();
-        StreamPumper pumper = new StreamPumper(inputStream, consumer, "", "utf-8", new SystemTimeClock());
+        StreamPumper pumper = new StreamPumper(inputStream, consumer, "", StandardCharsets.UTF_8, new SystemTimeClock());
         new Thread(pumper).start();
 
         //Check the consumer to see if it got both lines.
@@ -52,10 +53,10 @@ public class StreamPumperTest {
     @Test
     public void shouldKnowIfPumperExpired() throws Exception {
         PipedOutputStream output = new PipedOutputStream();
-        InputStream inputStream = new PipedInputStream(output);
-        try {
+        try (output) {
+            InputStream inputStream = new PipedInputStream(output);
             TestingClock clock = new TestingClock();
-            StreamPumper pumper = new StreamPumper(inputStream, new TestConsumer(), "", "utf-8", clock);
+            StreamPumper pumper = new StreamPumper(inputStream, new TestConsumer(), "", StandardCharsets.UTF_8, clock);
             new Thread(pumper).start();
 
             output.write("line1\n".getBytes());
@@ -65,8 +66,6 @@ public class StreamPumperTest {
             assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS), is(false));
             clock.addSeconds(5);
             assertThat(pumper.didTimeout(timeoutDuration, TimeUnit.SECONDS), is(true));
-        } finally {
-            output.close();
         }
     }
 
@@ -75,7 +74,7 @@ public class StreamPumperTest {
         PipedOutputStream output = new PipedOutputStream();
         InputStream inputStream = new PipedInputStream(output);
         TestingClock clock = new TestingClock();
-        StreamPumper pumper = new StreamPumper(inputStream, new TestConsumer(), "", "utf-8", clock);
+        StreamPumper pumper = new StreamPumper(inputStream, new TestConsumer(), "", StandardCharsets.UTF_8, clock);
         new Thread(pumper).start();
 
         output.write("line1\n".getBytes());
@@ -91,7 +90,7 @@ public class StreamPumperTest {
      */
     class TestConsumer implements StreamConsumer {
 
-        private List lines = new ArrayList();
+        private final List<String> lines = new ArrayList<>();
 
         /**
          * Checks to see if this consumer consumed a particular line. This method

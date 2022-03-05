@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +45,11 @@ public class PluggableTaskConsoleTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        console = new PluggableTaskConsole(safeOutputStreamConsumer, "utf-8");
+        console = new PluggableTaskConsole(safeOutputStreamConsumer, StandardCharsets.UTF_8);
     }
 
     @Test
-    public void shouldPrintLineToPublisher() throws Exception {
+    public void shouldPrintLineToPublisher() {
         String line = "Test Line";
         doNothing().when(safeOutputStreamConsumer).stdOutput(line);
         console.printLine(line);
@@ -56,7 +57,7 @@ public class PluggableTaskConsoleTest {
     }
 
     @Test
-    public void shouldPrintEnvironmentVars() throws Exception {
+    public void shouldPrintEnvironmentVars() {
         Map<String, String> env = new HashMap<>();
         Console.SecureEnvVarSpecifier varSpecifier = mock(Console.SecureEnvVarSpecifier.class);
         for (int i = 0; i < keys.size(); i++) {
@@ -79,7 +80,7 @@ public class PluggableTaskConsoleTest {
     }
 
     @Test
-    public void shouldReadOutputOfAGiveStream() throws Exception {
+    public void shouldReadOutputOfAGiveStream() {
         InputStream in = new ByteArrayInputStream(("Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n"
                 + "used do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n "
                 + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi \n"
@@ -94,7 +95,7 @@ public class PluggableTaskConsoleTest {
     }
 
     @Test
-    public void shouldReadErrorOfAGiveStream() throws Exception {
+    public void shouldReadErrorOfAGiveStream() {
         InputStream in = new ByteArrayInputStream(("Lorem ipsum dolor sit amet, consectetur adipisicing elit, \n"
                 + "used do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n "
                 + "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi \n"

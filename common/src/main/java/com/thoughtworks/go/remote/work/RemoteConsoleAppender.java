@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 public class RemoteConsoleAppender implements ConsoleAppender {
 
@@ -30,9 +31,9 @@ public class RemoteConsoleAppender implements ConsoleAppender {
 
     private String consoleUri;
     private HttpService httpService;
-    private final String charset;
+    private final Charset charset;
 
-    public RemoteConsoleAppender(String consoleUri, HttpService httpService, String charset) {
+    public RemoteConsoleAppender(String consoleUri, HttpService httpService, Charset charset) {
         this.consoleUri = consoleUri;
         this.httpService = httpService;
         this.charset = charset;

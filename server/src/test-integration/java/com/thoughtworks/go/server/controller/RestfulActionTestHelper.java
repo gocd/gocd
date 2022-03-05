@@ -24,21 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 public class RestfulActionTestHelper {
-
-    public static void assertContentStatusWithTextPlain(MockHttpServletResponse response,
-                                                        int status, String content)
-            throws UnsupportedEncodingException {
-        assertValidContentAndStatus(response, status, RESPONSE_CHARSET, content);
-    }
-
     public static void assertValidContentAndStatus(MockHttpServletResponse response, int status, String contentType,
                                                    String content) throws UnsupportedEncodingException {
         assertThat(response.getStatus(), is(status));
         assertThat(response.getContentType(), is(contentType));
         //NOTE: Explicitly using junit assertion here since in IntelliJ this will give us a diff
         assertEquals(content, response.getContentAsString());
-
-
     }
-
 }

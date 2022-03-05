@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 import static com.thoughtworks.go.domain.JobState.*;
 import static java.lang.String.format;
@@ -38,7 +39,7 @@ import static java.lang.String.format;
 public class DefaultGoPublisher implements GoPublisher {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
     private final AgentRuntimeInfo agentRuntimeInfo;
-    private final String consoleLogCharset;
+    private final Charset consoleLogCharset;
     private GoArtifactsManipulator manipulator;
     private JobIdentifier jobIdentifier;
     private AgentIdentifier agentIdentifier;
@@ -48,7 +49,7 @@ public class DefaultGoPublisher implements GoPublisher {
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
                               BuildRepositoryRemote remoteBuildRepository,
-                              AgentRuntimeInfo agentRuntimeInfo, String consoleLogCharset) {
+                              AgentRuntimeInfo agentRuntimeInfo, Charset consoleLogCharset) {
         this.manipulator = manipulator;
         this.jobIdentifier = jobIdentifier;
         this.agentIdentifier = agentRuntimeInfo.getIdentifier();

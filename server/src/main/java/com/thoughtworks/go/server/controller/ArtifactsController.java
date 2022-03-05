@@ -88,7 +88,7 @@ public class ArtifactsController {
         this.jsonViewFactory = FileModelAndView.jsonViewfactory();
         this.zipViewFactory = zipViewFactory(zipArtifactCache);
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
-        this.consoleLogCharset = systemEnvironment.consoleLogCharsetAsCharset();
+        this.consoleLogCharset = systemEnvironment.consoleLogCharset();
     }
 
 

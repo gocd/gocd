@@ -22,16 +22,17 @@ import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.util.command.StreamPumper;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public class PluggableTaskConsole implements Console {
     public static final String MASK_VALUE = "********";
     private final SafeOutputStreamConsumer safeOutputStreamConsumer;
-    private final String consoleLogCharset;
+    private final Charset consoleLogCharset;
     private ErrorConsumer errorConsumer;
     private OutputConsumer outputConsumer;
 
-    public PluggableTaskConsole(SafeOutputStreamConsumer safeOutputStreamConsumer, String consoleLogCharset) {
+    public PluggableTaskConsole(SafeOutputStreamConsumer safeOutputStreamConsumer, Charset consoleLogCharset) {
         this.safeOutputStreamConsumer = safeOutputStreamConsumer;
         outputConsumer = new OutputConsumer(safeOutputStreamConsumer);
         errorConsumer = new ErrorConsumer(safeOutputStreamConsumer);

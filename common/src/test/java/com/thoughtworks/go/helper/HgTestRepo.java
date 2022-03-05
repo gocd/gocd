@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -106,7 +107,7 @@ public class HgTestRepo extends TestRepo {
     }
 
     private CommandLine hgAt(File workingFolder, String... arguments) {
-        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding("utf-8");
+        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding(StandardCharsets.UTF_8);
         hg.setWorkingDir(workingFolder);
         return hg;
     }

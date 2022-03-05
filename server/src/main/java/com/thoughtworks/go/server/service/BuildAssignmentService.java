@@ -52,7 +52,6 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENV
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static org.apache.commons.collections4.CollectionUtils.forAllDo;
 
 
 /**
@@ -116,7 +115,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 LOGGER.info("[Configuration Changed] Removing deleted jobs for pipeline {}.", pipelineConfig.name());
@@ -256,7 +255,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     jobsToRemove.add(jobPlan);
                 }
             }
-            forAllDo(jobsToRemove, o -> removeJob((JobPlan) o));
+            IterableUtils.forEach(jobsToRemove, this::removeJob);
         }
     }
 
@@ -356,9 +355,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         secretParamResolver.resolve(environmentForPipeline);
 
         environmentVariableContext.setProperty(GO_ENVIRONMENT_NAME, CaseInsensitiveString.str(environmentForPipeline.name()), false);
-        environmentForPipeline.getVariables().forEach(variable -> {
-            environmentVariableContext.setProperty(variable.getName(), variable.valueForCommandline(), variable.isSecure() || variable.hasSecretParams());
-        });
+        environmentForPipeline.getVariables().forEach(variable -> environmentVariableContext.setProperty(variable.getName(), variable.valueForCommandline(), variable.isSecure() || variable.hasSecretParams()));
         return environmentVariableContext;
     }
 

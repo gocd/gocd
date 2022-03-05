@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.nio.charset.Charset;
+
 public class FetchArtifactBuilder extends Builder {
     private final JobIdentifier jobIdentifier;
     private String srcdir;
@@ -42,7 +44,7 @@ public class FetchArtifactBuilder extends Builder {
     }
 
     @Override
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) {
         publisher.fetch(this);
     }
 

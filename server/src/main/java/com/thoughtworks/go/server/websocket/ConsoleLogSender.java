@@ -52,7 +52,7 @@ public class ConsoleLogSender {
     ConsoleLogSender(ConsoleService consoleService, JobInstanceDao jobInstanceDao, SystemEnvironment systemEnvironment) {
         this.consoleService = consoleService;
         this.jobInstanceDao = jobInstanceDao;
-        this.charset = systemEnvironment.consoleLogCharsetAsCharset();
+        this.charset = systemEnvironment.consoleLogCharset();
     }
 
     public void process(final SocketEndpoint webSocket, JobIdentifier jobIdentifier, long start) throws Exception {

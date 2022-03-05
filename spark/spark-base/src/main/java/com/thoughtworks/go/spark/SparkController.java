@@ -24,6 +24,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import spark.Request;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public interface SparkController {
             return path;
         } else {
             List<BasicNameValuePair> queryParams = params.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
-            return path + '?' + URLEncodedUtils.format(queryParams, "utf-8");
+            return path + '?' + URLEncodedUtils.format(queryParams, StandardCharsets.UTF_8);
         }
     }
 

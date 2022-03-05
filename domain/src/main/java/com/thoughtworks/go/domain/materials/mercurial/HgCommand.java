@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HgCommand extends SCMCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(HgCommand.class);
@@ -53,7 +53,7 @@ public class HgCommand extends SCMCommand {
     }
 
     public HgVersion version() {
-        CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("UTF-8");
+        CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding(UTF_8);
         String hgOut = execute(hg, new NamedProcessTag("hg version check")).outputAsString();
         return HgVersion.parse(hgOut);
     }
@@ -66,7 +66,7 @@ public class HgCommand extends SCMCommand {
                 .withArg(repositoryUrl)
                 .withArg(workingDir.getAbsolutePath())
                 .withNonArgSecrets(secrets)
-                .withEncoding("UTF-8");
+                .withEncoding(UTF_8);
         return execute(hg, outputStreamConsumer);
     }
 
@@ -75,7 +75,7 @@ public class HgCommand extends SCMCommand {
                 .withArgs("id", "--id", "--")
                 .withArg(repositoryURL)
                 .withNonArgSecrets(secrets)
-                .withEncoding("UTF-8");
+                .withEncoding(UTF_8);
         execute(hg, new NamedProcessTag(repositoryURL.forDisplay()));
     }
 
@@ -132,7 +132,7 @@ public class HgCommand extends SCMCommand {
     private String templatePath() {
         if (templatePath == null) {
             String file = HgCommand.class.getResource("/hg.template").getFile();
-            templatePath = URLDecoder.decode(new File(file).getAbsolutePath(), StandardCharsets.UTF_8);
+            templatePath = URLDecoder.decode(new File(file).getAbsolutePath(), UTF_8);
         }
         return templatePath;
     }
@@ -151,7 +151,7 @@ public class HgCommand extends SCMCommand {
     }
 
     private CommandLine hg(String... arguments) {
-        return createCommandLine("hg").withArgs(arguments).withNonArgSecrets(secrets).withWorkingDir(workingDir).withEncoding("UTF-8");
+        return createCommandLine("hg").withArgs(arguments).withNonArgSecrets(secrets).withWorkingDir(workingDir).withEncoding(UTF_8);
     }
 
     private static ConsoleResult execute(CommandLine hgCmd, NamedProcessTag processTag) {

@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -34,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +50,9 @@ public class BuildWork implements Work {
     private static final Logger LOGGER = LoggerFactory.getLogger(BuildWork.class);
 
     private final BuildAssignment assignment;
+
+    // Type as String to make object serialization easier
+    // Currently object serialization seems only used internally for server onto ActiveMQ messages
     private final String consoleLogCharset;
 
     private transient DefaultGoPublisher goPublisher;
@@ -55,9 +62,9 @@ public class BuildWork implements Work {
     private transient Builders builders;
     private ArtifactsPublisher artifactsPublisher;
 
-    public BuildWork(BuildAssignment assignment, String consoleLogCharset) {
+    public BuildWork(BuildAssignment assignment, Charset consoleLogCharset) {
         this.assignment = assignment;
-        this.consoleLogCharset = consoleLogCharset;
+        this.consoleLogCharset = consoleLogCharset == null ? null : consoleLogCharset.name();
     }
 
     private void initialize(AgentWorkContext agentWorkContext) {
@@ -67,9 +74,13 @@ public class BuildWork implements Work {
         agentWorkContext.getAgentRuntimeInfo().busy(new AgentBuildingInfo(jobIdentifier.buildLocatorForDisplay(), jobIdentifier.buildLocator()));
         this.workingDirectory = assignment.getWorkingDirectory();
         this.materialRevisions = assignment.materialRevisions();
-        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset);
+        this.goPublisher = new DefaultGoPublisher(agentWorkContext.getArtifactsManipulator(), jobIdentifier, agentWorkContext.getRepositoryRemote(), agentWorkContext.getAgentRuntimeInfo(), consoleLogCharset());
         this.artifactsPublisher = new ArtifactsPublisher(goPublisher, agentWorkContext.getArtifactExtension(), assignment.getArtifactStores(), agentWorkContext.getPluginRequestProcessorRegistry(), workingDirectory);
         this.builders = new Builders(assignment.getBuilders(), goPublisher, agentWorkContext.getTaskExtension(), agentWorkContext.getArtifactExtension(), agentWorkContext.getPluginRequestProcessorRegistry());
+    }
+
+    private Charset consoleLogCharset() {
+        return consoleLogCharset == null ? null : Charset.forName(consoleLogCharset);
     }
 
     @Override
@@ -126,7 +137,7 @@ public class BuildWork implements Work {
             return null;
         }
 
-        return completeJob(buildJob(environmentVariableContext, consoleLogCharset), environmentVariableContext);
+        return completeJob(buildJob(environmentVariableContext, consoleLogCharset()), environmentVariableContext);
     }
 
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
@@ -176,7 +187,7 @@ public class BuildWork implements Work {
         materialRevisions.populateAgentSideEnvironmentVariables(context, workingDirectory);
     }
 
-    private JobResult buildJob(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+    private JobResult buildJob(EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
         goPublisher.reportStartingToBuild();
         return execute(environmentVariableContext, consoleLogCharset);
     }
@@ -204,7 +215,7 @@ public class BuildWork implements Work {
         return result;
     }
 
-    private JobResult execute(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+    private JobResult execute(EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
         JobResult result = builders.build(environmentVariableContext, consoleLogCharset);
         goPublisher.reportCompleting(result);
         return result;
@@ -219,7 +230,7 @@ public class BuildWork implements Work {
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
 
         agentruntimeInfo.cancel();
-        builders.cancel(environmentVariableContext, consoleLogCharset);
+        builders.cancel(environmentVariableContext, consoleLogCharset());
     }
 
     public BuildAssignment getAssignment() {

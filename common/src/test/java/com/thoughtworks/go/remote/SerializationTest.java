@@ -31,6 +31,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -137,6 +139,18 @@ class SerializationTest {
         File file = new File("/hello/world");
         assertThatJson(Serialization.instance().toJson(file))
                 .isEqualTo(format("{\"path\":\"%s\"}", escapeJson(separatorsToSystem(file.getPath()))));
+    }
+
+    @Test
+    void serializesCharsets() {
+        assertThatJson(Serialization.instance().toJson(StandardCharsets.UTF_8)).isEqualTo("UTF-8");
+        assertThatJson(Serialization.instance().toJson(Charset.forName("ascii"))).isEqualTo("US-ASCII");
+    }
+
+    @Test
+    void deserializesCharsets() {
+        assertEquals(StandardCharsets.UTF_8, Serialization.instance().fromJson("UTF-8", Charset.class));
+        assertEquals(StandardCharsets.US_ASCII, Serialization.instance().fromJson("ascii", Charset.class));
     }
 
     @SuppressWarnings("unchecked")

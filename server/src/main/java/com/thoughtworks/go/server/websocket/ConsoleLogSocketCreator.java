@@ -24,12 +24,14 @@ import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.Charset;
+
 @Component
 public class ConsoleLogSocketCreator implements WebSocketCreator {
 
     private final ConsoleLogSender handler;
     private final RestfulService restfulService;
-    private final String consoleLogCharset;
+    private final Charset consoleLogCharset;
     private SocketHealthService socketHealthService;
 
     @Autowired

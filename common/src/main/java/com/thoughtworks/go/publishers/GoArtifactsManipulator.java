@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.zip.Deflater;
@@ -184,7 +185,7 @@ public class GoArtifactsManipulator {
     }
 
     public ConsoleOutputTransmitter createConsoleOutputTransmitter(JobIdentifier jobIdentifier,
-                                                                   AgentIdentifier agentIdentifier, String consoleLogCharset) {
+                                                                   AgentIdentifier agentIdentifier, Charset consoleLogCharset) {
         String consoleUrl = urlService.getUploadUrlOfAgent(jobIdentifier, getConsoleOutputFolderAndFileNameUrl());
         return new ConsoleOutputTransmitter(new RemoteConsoleAppender(consoleUrl, httpService, consoleLogCharset));
     }

@@ -106,7 +106,7 @@ var ElementAligner = function() {
         if (cooldown) {
             clearTimeout(cooldown);
         }
-        cooldown = setTimeout(alignAll, jQuery.browser.msie ? 500 : 150);
+        cooldown = setTimeout(alignAll, 150);
     }
 
     function alignSection(section) {

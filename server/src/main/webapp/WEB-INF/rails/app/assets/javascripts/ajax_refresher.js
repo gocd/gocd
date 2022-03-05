@@ -124,17 +124,6 @@ function AjaxRefresher(url, redirectUrl, options) {
 
     var _startExecution = function() {
         _hookupAutoRefresh();
-        if ($j.browser.msie) {
-            stopped = true;
-            periodicalExecuter.stop();
-            setTimeout(function() {
-                stopped = false;
-                if (periodicalExecuter) {
-                    periodicalExecuter.registerCallback();
-                    periodicalExecuter.execute();
-                }
-            }, (30*1000));
-        }
         if (options.executeImmediately) {
             _request();
         }

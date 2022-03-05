@@ -465,10 +465,6 @@ module ApplicationHelper
     TopLevelFormNameProvider.new(form.instance_variable_get("@object_name"))
   end
 
-  def is_ie8? user_agent
-    !(user_agent =~ /MSIE 8.0/).blank?
-  end
-
   def view_cache_key
     @view_cache_key ||= com.thoughtworks.go.server.ui.ViewCacheKey.new
   end

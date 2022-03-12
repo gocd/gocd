@@ -46,7 +46,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
@@ -73,7 +72,7 @@ public class JobController {
     private SystemEnvironment systemEnvironment;
     private SecurityService securityService;
 
-    private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
+    private final ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
     public JobController() {
     }
@@ -102,10 +101,10 @@ public class JobController {
                                   @RequestParam("pipelineCounter") String pipelineCounter,
                                   @RequestParam("stageName") String stageName,
                                   @RequestParam("stageCounter") String stageCounter,
-                                  @RequestParam("jobName") String jobName) throws Exception {
+                                  @RequestParam("jobName") String jobName) {
         Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
 
-        if (!pipelineCounterValue.isPresent()) {
+        if (pipelineCounterValue.isEmpty()) {
             throw bomb(String.format("Expected numeric pipelineCounter or latest keyword, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));
         }
@@ -132,7 +131,7 @@ public class JobController {
     @ErrorHandler
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) {
         LOGGER.error("Job detail page error: ", e);
-        Map model = new HashMap();
+        Map<String, Object> model = new HashMap<>();
         model.put(ERROR_FOR_PAGE, e.getMessage());
         return new ModelAndView("exceptions_page", model);
     }
@@ -176,9 +175,9 @@ public class JobController {
         return StringUtils.isNumeric(pipelineCounter) || JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter);
     }
 
-    private ModelAndView getModelAndView(JobInstance jobDetail) throws IOException {
+    private ModelAndView getModelAndView(JobInstance jobDetail) {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
-        Map data = new HashMap();
+        Map<String, Object> data = new HashMap<>();
         data.put("presenter", presenter);
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
         data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
@@ -188,7 +187,7 @@ public class JobController {
         return new ModelAndView("build_detail/build_detail_page", data);
     }
 
-    private void addElasticAgentInfo(JobInstance jobInstance, Map data) {
+    private void addElasticAgentInfo(JobInstance jobInstance, Map<String, Object> data) {
         if (!jobInstance.currentStatus().isActive()) {
             return;
         }
@@ -219,21 +218,20 @@ public class JobController {
             if (agent != null && agent.isElastic()) {
                 data.put("elasticAgentPluginId", agent.getElasticPluginId());
                 data.put("elasticAgentId", agent.getElasticAgentId());
-                return;
             }
         }
     }
 
-    private Map errorJsonMap(Exception e) {
+    private Map<String, Object> errorJsonMap(Exception e) {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         addDeveloperErrorMessage(jsonMap, e);
         return jsonMap;
     }
 
-    private List createBuildInfo(JobStatusJsonPresentationModel presenter) {
+    private List<Map<String, Object>> createBuildInfo(JobStatusJsonPresentationModel presenter) {
         Map<String, Object> info = new LinkedHashMap<>();
         info.put("building_info", presenter.toJsonHash());
-        List jsonList = new ArrayList();
+        List<Map<String, Object>> jsonList = new ArrayList<>();
         jsonList.add(info);
         return jsonList;
     }

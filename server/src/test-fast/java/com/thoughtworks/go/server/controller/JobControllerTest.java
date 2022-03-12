@@ -151,7 +151,7 @@ public class JobControllerTest {
         }
 
         @Test
-        void shouldReturnJobDetail() throws Exception {
+        void shouldReturnJobDetail() {
             ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2",
                     "job1");
             assertThat(modelAndView.getModel().isEmpty()).isFalse();
@@ -184,19 +184,19 @@ public class JobControllerTest {
         }
 
         @Test
-        void shouldAcceptLatestAsPipelineCounter() throws Exception {
+        void shouldAcceptLatestAsPipelineCounter() {
             ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
             assertThat(modelAndView.getModel().isEmpty()).isFalse();
         }
 
         @Test
-        void shouldAcceptLatestAsStageCounter() throws Exception {
+        void shouldAcceptLatestAsStageCounter() {
             ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "latest", "job1");
             assertThat(modelAndView.getModel().isEmpty()).isFalse();
         }
 
         @Test
-        void shouldConsistElasticAgentInformationForAJobRunningOnAnElasticAgent() throws Exception {
+        void shouldConsistElasticAgentInformationForAJobRunningOnAnElasticAgent() {
             final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
             elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,
                     null, null, null, new Capabilities(true, true)));
@@ -215,7 +215,7 @@ public class JobControllerTest {
         }
 
         @Test
-        void shouldNotHaveElasticAgentInformationIfJobMetadataDoesNotHaveClusterInformation() throws Exception {
+        void shouldNotHaveElasticAgentInformationIfJobMetadataDoesNotHaveClusterInformation() {
             JobAgentMetadata jobAgentMetadata = mock(JobAgentMetadata.class);
             final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
             elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null,

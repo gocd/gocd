@@ -130,7 +130,6 @@
   <context:component-scan base-package="com.thoughtworks.go.server.service.support"/>
   <context:component-scan base-package="com.thoughtworks.go.plugins"/>
   <context:component-scan base-package="com.thoughtworks.go.config.registry"/>
-  <context:component-scan base-package="com.thoughtworks.go.server.search"/>
   <context:component-scan base-package="com.thoughtworks.go.server.messaging"/>
   <context:component-scan base-package="com.thoughtworks.go.server.util"/>
   <context:component-scan base-package="com.thoughtworks.go.server.scheduling"/>
@@ -176,14 +175,14 @@
   <!--END OVERRIDE THE SPRING ADAPTERS-->
 
   <bean id="configRepositoryValidatorService"
-        class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect"
+        class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="constructor"
         lazy-init="false"/>
 
   <bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory"/>
   <bean id="scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" class="org.quartz.Scheduler"
-        init-method="start" scope="singleton"/>
+        init-method="start"/>
 
   <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true"
-        autowire="autodetect"/>
+        autowire="constructor"/>
 </beans>
 

@@ -31,7 +31,6 @@
   <context:component-scan base-package="com.thoughtworks.go.addon"/>
   <context:component-scan base-package="com.thoughtworks.go.util"/>
   <context:component-scan base-package="com.thoughtworks.go.server.controller"/>
-  <context:component-scan base-package="com.thoughtworks.go.server.search"/>
   <context:component-scan base-package="com.thoughtworks.go.server.ui"/>
   <context:component-scan base-package="com.thoughtworks.go.server.web"/>
   <context:component-scan base-package="com.thoughtworks.go.server.newsecurity.controllers"/>
@@ -43,7 +42,7 @@
         <ref bean="authorizationInterceptor"/>
       </list>
     </property>
-    <property name="alwaysUseFullPath" value="true"></property>
+    <property name="alwaysUseFullPath" value="true"/>
   </bean>
 
   <bean id="interceptorInjector"

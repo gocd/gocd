@@ -58,7 +58,7 @@
     "@types/jquery": "^3.5.14",
     "@types/license-checker": "^25.0.1",
     "@types/lodash": "^4.14.180",
-    "@types/lru-cache": "^7.4.0",
+    "@types/lru-cache": "^7.5.0",
     "@types/mini-css-extract-plugin": "^1",
     "@types/mithril": "2.0.9",
     "@types/node": "^16.11.26",

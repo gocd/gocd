@@ -210,7 +210,7 @@ GEM
       railties (>= 4.0)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
-    tzinfo-data (1.2021.5)
+    tzinfo-data (1.2022.1)
       tzinfo (>= 1.0.0)
     webrick (1.7.0)
     websocket-driver (0.7.5)

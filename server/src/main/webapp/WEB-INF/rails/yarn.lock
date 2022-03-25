@@ -1219,10 +1219,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
 
-"@types/mithril@2.0.9":
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.9.tgz#5efb9145f44b3c8693745da3ff48aba4a323b500"
-  integrity sha512-a8TMNdGsowAB0R+VppKKmJNAA9YKGVuBvMZcITWTHIZGSKdu3LtyBDKGyU6QkzKJSzq+pW2egxg+09nRK03qIg==
+"@types/mithril@2.0.10":
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.10.tgz#27ed0cc7cab30daf722d0d7c48c826bea381c954"
+  integrity sha512-ef44j85vtiFuwu4ADkHSDfYu1MbnSQSgOrTMRfQ5v4gvAnB4ms8KjelJzUIuSrL3lO7y8k2T0DiUAAEfisnsQw==
 
 "@types/node@*", "@types/node@>=10.0.0":
   version "17.0.8"

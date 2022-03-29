@@ -42,18 +42,6 @@ public class URLServiceTest {
     }
 
     @Test
-    public void shouldReturnRepositoryURLWhenBaseURLIsEndedCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", BASE_URL);
-        assertThat(new URLService().getBuildRepositoryURL(), is(BASE_URL + "/remoting/remoteBuildRepository"));
-    }
-
-    @Test
-    public void shouldReturnRepositoryURLWhenBaseURLIsNotEndedCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", BASE_URL + "/");
-        assertThat(new URLService().getBuildRepositoryURL(), is(BASE_URL + "/remoting/remoteBuildRepository"));
-    }
-
-    @Test
     public void propertiesURLShouldGoThroughtSecurityCheck() {
         String url = urlService.getPropertiesUrl(jobIdentifier, "failedcount");
         assertThat(url, endsWith("/remoting/properties/pipelineName/LATEST/stageName/LATEST/buildName/failedcount"));

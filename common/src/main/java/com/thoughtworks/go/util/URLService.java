@@ -45,11 +45,6 @@ public class URLService implements ServerUrlGenerator {
         return format("%s/%s/%s", baseRemotingURL, "remoting/api/agent", action);
     }
 
-    @Deprecated(forRemoval = true) // TODO: remove this when we drop support for RMI
-    public String getBuildRepositoryURL() {
-        return baseRemotingURL + "/remoting/remoteBuildRepository";
-    }
-
     public String getAgentRegistrationURL() {
         return baseRemotingURL + "/admin/agent";
     }

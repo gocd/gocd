@@ -141,7 +141,7 @@ public class AgentHTTPClientControllerTest {
     void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, loopServer, artifactsManipulator, sslInfrastructureService,
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService,
                 agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager,
                 packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, null, null, pluginJarLocationMonitor);
         agentController.init();
@@ -173,7 +173,7 @@ public class AgentHTTPClientControllerTest {
     private AgentHTTPClientController createAgentController() {
 
         return new AgentHTTPClientController(
-                loopServer, loopServer,
+                loopServer,
                 artifactsManipulator,
                 sslInfrastructureService,
                 agentRegistry,

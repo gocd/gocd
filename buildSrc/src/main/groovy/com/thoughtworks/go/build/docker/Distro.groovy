@@ -164,7 +164,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: '9', releaseName: 'stretch-slim', eolDate: parseDate('2022-06-30')),
+        new DistroVersion(version: '9', releaseName: 'stretch-slim', eolDate: parseDate('2022-06-30'), continueToBuild: true),
         // No EOL-LTS specified for buster release. Checkout https://wiki.debian.org/DebianReleases for more info
         new DistroVersion(version: '10', releaseName: 'buster-slim', eolDate: parseDate('2024-06-01')),
         new DistroVersion(version: '11', releaseName: 'bullseye-slim', eolDate: parseDate('2026-08-15')),

@@ -20,9 +20,8 @@ dependencies {
   api project(':common')
   api project(':server')
 
-  implementation(platform(project.deps.jacksonBom))
-  implementation 'com.fasterxml.jackson.core:jackson-core'
-  implementation 'com.fasterxml.jackson.core:jackson-databind'
+  implementation project.deps.jackson
+  implementation project.deps.jacksonDatabind
   implementation project.deps.springWeb
 
   api(project.deps.spark) {

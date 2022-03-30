@@ -20,7 +20,8 @@ dependencies {
   api project(':common')
   api project(':server')
 
-  implementation project.deps.jackson
+  implementation platform(project.deps.jacksonBom)
+  implementation project.deps.jacksonCore
   implementation project.deps.jacksonDatabind
   implementation project.deps.springWeb
 

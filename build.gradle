@@ -634,14 +634,10 @@ subprojects {
   configurations.all { configuration ->
 
     def versionOverrides = [
-      "com.fasterxml.jackson.core:jackson-annotations": project.versions.jackson,
-      "com.fasterxml.jackson.core:jackson-core"       : project.versions.jackson,
-      "com.fasterxml.jackson.core:jackson-databind"   : project.versions.jackson,
       "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils,
       "org.apache.commons:commons-pool2"              : project.versions.commonsPool,
       "org.objenesis:objenesis"                       : project.versions.objenesis,
     ]
-
 
     configuration.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
       def overrideVersion = versionOverrides[details.requested.group + ":" + details.requested.name]

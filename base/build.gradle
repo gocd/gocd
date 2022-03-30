@@ -20,6 +20,10 @@ dependencies {
   providedAtPackageTime project.deps.bouncyCastle
   providedAtPackageTime project.deps.bouncyCastlePkix
 
+  // Use BOMs to control versions of dependencies for other projects, all of which consume 'base'.
+  // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
+  api enforcedPlatform(project.deps.jacksonBom)
+
   api(project.deps.apacheAnt)  {
     transitive = false
   }

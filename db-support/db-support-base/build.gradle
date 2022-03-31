@@ -15,18 +15,17 @@
  */
 
 dependencies {
-    implementation project.deps.commonsDbcp
-    api project.deps.commonsLang3
-    api project.deps.ztExec
-    api(project.deps.apacheAnt) {
-        transitive = false
-    }
+  implementation project.deps.commonsDbcp
+  api project.deps.commonsLang3
+  api project.deps.ztExec
+  api(project.deps.apacheAnt) {
+    transitive = false
+  }
 
-    annotationProcessor project.deps.lombok
+  annotationProcessor project.deps.lombok
 
-    testImplementation project.deps.assertJ
-
-    testImplementation project.deps.junit5Api
-    testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junit5Api
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.assertJ
 }
 

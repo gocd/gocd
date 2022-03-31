@@ -253,7 +253,6 @@ dependencies {
   implementation project.deps.commonsDbcp
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
-    exclude(module: 'commons-collections')
   }
 
   implementation project.deps.commonsFileUpload

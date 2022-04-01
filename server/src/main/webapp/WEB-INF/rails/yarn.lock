@@ -1200,10 +1200,10 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.180.tgz#4ab7c9ddfc92ec4a887886483bc14c79fb380670"
   integrity sha512-XOKXa1KIxtNXgASAnwj7cnttJxS4fksBRywK/9LzRV5YxrF80BXZIGeQSuoESQ/VkUj30Ae0+YcuHc15wJCB2g==
 
-"@types/lru-cache@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@types/lru-cache/-/lru-cache-7.5.0.tgz#4b7dfa2583d82c9377feddb04c386bed88e6b274"
-  integrity sha512-uZGjbDsQpBxLR0znOeyAneSfMfEDDhi6FFKBY0sDI3EQMwcWCZfUZsOg3WhMTF0arvkvFquLMdrxAhCNgqpoww==
+"@types/lru-cache@^7.6.1":
+  version "7.6.1"
+  resolved "https://registry.yarnpkg.com/@types/lru-cache/-/lru-cache-7.6.1.tgz#99809260ef1e870b8ef2ab3a625784a33cec5ba9"
+  integrity sha512-69x+Dhrm2aShFkTqUuPgUXbKYwvq4FH/DVeeQH7MBfTjbKjPX51NGLERxVV1vf33N71dzLvXCko4OLqRvsq53Q==
 
 "@types/mini-css-extract-plugin@^1":
   version "1.4.3"

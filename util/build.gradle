@@ -27,6 +27,5 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Params
   testImplementation project.deps.hamcrest
-  testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.assertJ
 }

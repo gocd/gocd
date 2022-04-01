@@ -36,13 +36,12 @@ dependencies {
   implementation project.deps.mail
 
   api project.deps.assertJ
+  api project.deps.hamcrest
   api project.deps.junit5
   api project.deps.junit5Params
   api project.deps.systemStubs
   runtimeOnly project.deps.junit5Engine
 
-  api project.deps.hamcrest
-  api project.deps.hamcrestLibrary
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test:test-agent')

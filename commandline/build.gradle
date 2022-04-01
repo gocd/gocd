@@ -27,6 +27,5 @@ dependencies {
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest
-  testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.mockito
 }

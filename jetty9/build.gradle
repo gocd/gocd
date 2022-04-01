@@ -39,7 +39,6 @@ dependencies {
   testImplementation project(':config:config-server')
   testImplementation project(':test:http-mocks')
   testImplementation project(':test:test-utils')
-  testImplementation project.deps.hamcrestLibrary
   testImplementation project.deps.junit5
   testImplementation project.deps.junit5Params
   testImplementation project.deps.mockito

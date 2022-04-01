@@ -25,7 +25,6 @@ dependencies {
   testRuntimeOnly project.deps.bouncyCastle
   testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation project.deps.mockito
-  testImplementation project.deps.hamcrestLibrary
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine

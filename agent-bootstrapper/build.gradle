@@ -26,7 +26,6 @@ dependencies {
   testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation project(':test:test-utils')
   testImplementation project.deps.mockito
-  testImplementation project.deps.hamcrestLibrary
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   extractedAtTopLevel project(':jar-class-loader')
   testImplementation project.deps.junit5

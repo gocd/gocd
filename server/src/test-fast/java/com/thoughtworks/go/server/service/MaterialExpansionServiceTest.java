@@ -44,8 +44,8 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 

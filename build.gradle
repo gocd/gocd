@@ -649,11 +649,15 @@ subprojects {
 
       // replace log4j and commons-logging implementations with the slf4j apis that redirect logs to slf4j
       // see https://www.slf4j.org/legacy.html
-      if (details.requested.name == 'log4j' && details.requested.group == 'log4j') {
+      if (details.requested.group == 'log4j' && details.requested.name == 'log4j') {
         details.useTarget project.deps.slf4jLog4j
       }
-      if (details.requested.name == 'commons-logging' && details.requested.group == 'commons-logging') {
+      if (details.requested.group == 'commons-logging' && details.requested.name == 'commons-logging') {
         details.useTarget project.deps.slf4jJcl
+      }
+      // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
+      if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
+        details.useTarget project.deps.hamcrest
       }
     }
   }

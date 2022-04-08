@@ -114,6 +114,19 @@
         <cve>CVE-2021-22112</cve>
     </suppress>
 
+    <suppress until="2022-07-01Z">
+        <notes><![CDATA[
+   It is not believed that GoCD is directly vulnerable to the "SpringShell" attack since although we use WAR
+   deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
+   required to exploit the vulnerability.
+
+   Suppression will be time-limited for now to ensure it is reviewed based on new information until we can upgrade Spring.
+   See https://github.com/gocd/gocd/issues/10321#issuecomment-1085691072
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-22965</vulnerabilityName>
+    </suppress>
+
     <suppress>
         <notes><![CDATA[
    From review of https://nvd.nist.gov/vuln/detail/CVE-2019-14900 and the fix on Hibernate 5.3 at https://github.com/hibernate/hibernate-orm/pull/3440/files

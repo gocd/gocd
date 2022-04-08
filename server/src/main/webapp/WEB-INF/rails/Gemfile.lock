@@ -85,7 +85,7 @@ GEM
       selenium-webdriver (~> 3.8)
     js-routes (1.4.14)
       railties (>= 4)
-    loofah (2.15.0)
+    loofah (2.16.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)

@@ -51,16 +51,6 @@
 
     <suppress>
         <notes><![CDATA[
-   This one only affects Spring Framework 5.0.5 when combined with Spring Security so is a false positive.
-   https://nvd.nist.gov/vuln/detail/CVE-2018-1258 OWASP Dependency Check code does not currently understand "A and B"
-   CPE constraints and how to apply them. See https://github.com/jeremylong/DependencyCheck/issues/1827
-   ]]></notes>
-        <gav regex="true">^org\.springframework\.security:spring-security-.*:4\..*$</gav>
-        <cve>CVE-2018-1258</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
    https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
    separately and which is not used within GoCD.
    ]]></notes>
@@ -112,6 +102,19 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
         <cve>CVE-2021-22112</cve>
+    </suppress>
+
+    <suppress until="2022-07-01Z">
+        <notes><![CDATA[
+   It is not believed that GoCD is directly vulnerable to the "SpringShell" attack since although we use WAR
+   deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
+   required to exploit the vulnerability.
+
+   Suppression will be time-limited for now to ensure it is reviewed based on new information until we can upgrade Spring.
+   See https://github.com/gocd/gocd/issues/10321#issuecomment-1085691072
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-22965</vulnerabilityName>
     </suppress>
 
     <suppress>

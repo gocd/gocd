@@ -331,8 +331,8 @@ describe("New Plugins Widget", () => {
           "Linux"
         ],
         vendor: {
-          name: "ThoughtWorks Go Team",
-          url: "https://www.thoughtworks.com"
+          name: "GoCD Team",
+          url: "https://gocd.org"
         }
       },
       extensions: []

@@ -95,7 +95,7 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
         "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
         "revision":    {
           "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+          "user":              "GoCD Team <go-cd-dev@googlegroups.com>",
           "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
           "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
         }
@@ -121,31 +121,31 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   const searchResults = [
     {
       "revision": "2a4b782a3a7d2eb13868da75149e716b15f52e5d",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:02:48Z",
       "comment":  "implemented feature boo"
     },
     {
       "revision": "7f7653464e14682c7c9ce6a8bf85989a9a52eb35",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:53Z",
       "comment":  "implemented feature boo"
     },
     {
       "revision": "24d682d8b8a99e8862acac8cae092caeca3a51f3",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:36Z",
       "comment":  "implemented feature baz"
     },
     {
       "revision": "e5b730abdf7954e7ff45a4c15b2333c550559b35",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:12Z",
       "comment":  "implemented feature bar"
     },
     {
       "revision": "c30118c0a6e7e6042a50e2db1e191db081e915f0",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:02Z",
       "comment":  "implemented feature foo"
     }

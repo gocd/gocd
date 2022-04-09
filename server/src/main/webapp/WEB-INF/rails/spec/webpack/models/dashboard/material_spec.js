@@ -77,7 +77,7 @@ describe("Dashboard", () => {
       {
         "revision": {
           "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+          "user":              "GoCD Team <go-cd-dev@googlegroups.com>",
           "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
           "last_run_revision": "foo"
         }

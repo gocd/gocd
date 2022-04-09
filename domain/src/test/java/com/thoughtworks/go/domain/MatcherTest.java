@@ -82,7 +82,7 @@ class MatcherTest {
         assertThat(new Matcher("ja").matches("ja ")).isTrue();
         assertThat(new Matcher("ja").matches(" ja")).isTrue();
         assertThat(new Matcher("ja").matches("ja:")).isTrue();
-        assertThat(new Matcher("jez.humble@thoughtworks.com").matches("[jez.humble@thoughtworks.com] i checkin")).isTrue();
+        assertThat(new Matcher("go-cd-dev@googlegroups.com").matches("[go-cd-dev@googlegroups.com] i checkin")).isTrue();
         assertThat(new Matcher("ja").matches("ja&jh")).isTrue();
     }
 
@@ -90,7 +90,7 @@ class MatcherTest {
     void shouldNotMatchWordContainsMatcher() throws Exception {
         assertThat(new Matcher("ja").matches("javascript")).isFalse();
         assertThat(new Matcher("ja").matches("kaja")).isFalse();
-        assertThat(new Matcher("jez.humble@thoughtworks.com").matches("jez.humble")).isFalse();
+        assertThat(new Matcher("go-cd-dev@googlegroups.com").matches("go-cd-dev")).isFalse();
     }
 
     @Test

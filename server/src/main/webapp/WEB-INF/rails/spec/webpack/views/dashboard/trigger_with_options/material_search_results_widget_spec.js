@@ -89,25 +89,25 @@ describe("Dashboard Material Search Results Widget", () => {
   const json = [
     {
       "revision": "2a4b782a3a7d2eb13868da75149e716b15f52e5d",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:02:48Z",
       "comment":  "implemented feature boo"
     },
     {
       "revision": "7f7653464e14682c7c9ce6a8bf85989a9a52eb35",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:53Z",
       "comment":  "implemented feature boo"
     },
     {
       "revision": "24d682d8b8a99e8862acac8cae092caeca3a51f3",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:36Z",
       "comment":  "implemented feature baz"
     },
     {
       "revision": "e5b730abdf7954e7ff45a4c15b2333c550559b35",
-      "user":     "GaneshSPatil <ganeshpl@thoughtworks.com>",
+      "user":     "GoCD Team <go-cd-dev@googlegroups.com>",
       "date":     "2018-02-12T11:01:12Z",
       "comment":  "implemented feature bar"
     }

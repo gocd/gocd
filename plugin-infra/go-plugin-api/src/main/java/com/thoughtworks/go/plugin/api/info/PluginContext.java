@@ -24,7 +24,7 @@ package com.thoughtworks.go.plugin.api.info;
  * @see  com.thoughtworks.go.plugin.api.annotation.Load
  * @see  com.thoughtworks.go.plugin.api.annotation.UnLoad
  *
- * @author Go Team
+ * @author GoCD Team
  */
 public interface PluginContext {
 }

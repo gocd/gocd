@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.api.material.packagerepository.exceptions;
  * Exception generated when the data related to package revision is invalid
  * - may be empty or may be invalid format.
  *
- * @author Go Team
+ * @author GoCD Team
  * @see com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision#addData(String, String)
  */
 @Deprecated

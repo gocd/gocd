@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @see <a href="https://developer.gocd.org/current/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  *
- * @author Go Team
+ * @author GoCD Team
  */
 public interface PluginDescriptor extends Serializable {
 
@@ -51,7 +51,7 @@ public interface PluginDescriptor extends Serializable {
     /**
      * Plugin author information.
      *
-     * @author Go Team
+     * @author GoCD Team
      */
     interface About {
 

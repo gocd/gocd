@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 /**
  * Logger for use by plugin developers.
  *
- * @author Go Team
+ * @author GoCD Team
  * @see <a href="https://developer.gocd.org/current/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  */
 public class Logger {

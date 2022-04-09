@@ -97,7 +97,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
         "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
         "revision":    {
           "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+          "user":              "GoCD Team <go-cd-dev@googlegroups.com>",
           "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
           "last_run_revision": "a2d23c5505ac571d9512bdf08d6287e47dcb52d5"
         }
@@ -109,7 +109,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
         "fingerprint": "3dcc10e7943de637211a4742342fe456ffbe832577bb377173007499434fd819",
         "revision":    {
           "date":              "2018-02-08T04:32:11Z",
-          "user":              "Ganesh S Patil <ganeshpl@thoughtworks.com>",
+          "user":              "GoCD Team <go-cd-dev@googlegroups.com>",
           "comment":           "Refactor Pipeline Widget (#4311)\n\n* Extract out PipelineHeaderWidget and PipelineOperationsWidget into seperate msx files",
           "last_run_revision": null
         }

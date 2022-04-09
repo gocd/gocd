@@ -15,7 +15,7 @@
  * limitations under the License.
  * -->
 
-<testsuite errors="1" failures="0" hostname="phydeaux3.corporate.thoughtworks.com" name="com.thoughtworks.studios.shine.semweb.jena.JenaBoundVariablesTest" tests="16" time="0.048" timestamp="2009-12-18T22:00:33">
+<testsuite errors="1" failures="0" hostname="somehost.somedomain.com" name="com.thoughtworks.studios.shine.semweb.jena.JenaBoundVariablesTest" tests="16" time="0.048" timestamp="2009-12-18T22:00:33">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
     <property name="sun.boot.library.path" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Libraries" />

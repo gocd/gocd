@@ -22,8 +22,8 @@
         <target-go-version>17.12</target-go-version>
         <description>Generates an abstract method error when invoked</description>
         <vendor>
-            <name>ThoughtWorks GoCD Team</name>
-            <url>www.thoughtworks.com</url>
+            <name>GoCD Team</name>
+            <url>https://gocd.org</url>
         </vendor>
     </about>
 </go-plugin>

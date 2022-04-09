@@ -39,8 +39,8 @@ import java.io.InputStream;
         <target-go-version>19.5</target-go-version>
         <description>Example plugin 1</description>
         <vendor>
-          <name>ThoughtWorks GoCD Team</name>
-          <url>www.thoughtworks.com</url>
+          <name>GoCD Team</name>
+          <url>https://gocd.org</url>
         </vendor>
         <target-os>
           <value>Linux</value>

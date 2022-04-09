@@ -38,8 +38,8 @@ public final class GoPluginDescriptorParser {
             <target-go-version>17.12</target-go-version>
             <description>Validates its own plugin descriptor</description>
             <vendor>
-                <name>ThoughtWorks GoCD Team</name>
-                <url>www.thoughtworks.com</url>
+                <name>GoCD Team</name>
+                <url>https://gocd.org</url>
             </vendor>
             <target-os>
               <value>Linux</value>

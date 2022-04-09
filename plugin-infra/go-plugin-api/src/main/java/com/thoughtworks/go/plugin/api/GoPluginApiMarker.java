@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * The plugin framework would do required runtime setup so that
  * the interface classes are available to the plugin implementations.
  *
- * @author Go Team
+ * @author GoCD Team
  *
  */
 @Target(ElementType.TYPE)

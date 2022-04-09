@@ -300,7 +300,7 @@ class FelixGoPluginOSGiFrameworkTest {
                         .version("1.0.1")
                         .targetGoVersion("17.12")
                         .description("Validates its own plugin descriptor")
-                        .vendor(new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"))
+                        .vendor(new GoPluginDescriptor.Vendor("GoCD Team", "https://gocd.org"))
                         .targetOperatingSystems(List.of("Linux", "Windows"))
                         .build()
                 ).isBundledPlugin(true)

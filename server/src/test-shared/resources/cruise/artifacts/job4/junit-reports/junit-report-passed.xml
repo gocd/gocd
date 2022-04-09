@@ -15,7 +15,7 @@
  * limitations under the License.
  * -->
 
-<testsuite errors="0" failures="0" hostname="phydeaux3.corporate.thoughtworks.com" name="com.foobar.ATestSuite" tests="2" time="0.601" timestamp="2009-12-18T20:26:42">
+<testsuite errors="0" failures="0" hostname="somehost.somedomain.com" name="com.foobar.ATestSuite" tests="2" time="0.601" timestamp="2009-12-18T20:26:42">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment" />
     <property name="sun.boot.library.path" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Libraries" />

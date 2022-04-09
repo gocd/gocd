@@ -35,7 +35,7 @@ public class ConfigRepositoryValidatorService implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         if (configRepository.isRepositoryCorrupted()) {
-            LOG.error("[FAILURE] Go Server failed to start as its configuration history store is corrupt. Please contact support@thoughtworks.com");
+            LOG.error("[FAILURE] Go Server failed to start as its configuration history store is corrupt.");
             shutDownServer();
         }
     }

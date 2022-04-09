@@ -59,7 +59,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Component
 public class ConfigRepository {
     private static final String CRUISE_CONFIG_XML = "cruise-config.xml";
-    private static final String STUDIOS_PRODUCT = "support@thoughtworks.com";
+    private static final String COMMIT_EMAIL = "go-cd-dev@googlegroups.com";
     static final String BRANCH_AT_REVISION = "branch-at-revision";
     static final String BRANCH_AT_HEAD = "branch-at-head";
     public static final String CURRENT = "current";
@@ -126,7 +126,7 @@ public class ConfigRepository {
                 @Override
                 public void run() throws Exception {
                     addCommand.addFilepattern(CRUISE_CONFIG_XML).call();
-                    git.commit().setAuthor(rev.getUsername(), STUDIOS_PRODUCT).setMessage(rev.getComment()).call();
+                    git.commit().setAuthor(rev.getUsername(), COMMIT_EMAIL).setMessage(rev.getComment()).call();
                 }
             });
         } catch (Exception e) {

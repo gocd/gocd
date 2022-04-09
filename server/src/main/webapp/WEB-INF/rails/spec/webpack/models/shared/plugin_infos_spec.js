@@ -209,8 +209,8 @@ describe('PluginInfos', () => {
       "description":              "Plugin that polls a Nuget Server using the new API",
       "target_operating_systems": [],
       "vendor":                   {
-        "name": "ThoughtWorks Go Plugin Team",
-        "url":  "www.thoughtworks.com"
+        "name": "GoCD Team",
+        "url":  "https://gocd.org"
       }
     },
     "extensions": [
@@ -669,8 +669,8 @@ describe('PluginInfos', () => {
       "description":              "Provides metrics",
       "target_operating_systems": [],
       "vendor":                   {
-        "name": "TW",
-        "url":  "https://thoughtworks.com/go"
+        "name": "GoCD Team",
+        "url":  "https://gocd.org"
       }
     },
     "extensions": [
@@ -1167,8 +1167,8 @@ describe('PluginInfos', () => {
           "description":              "Has multiple extensions",
           "target_operating_systems": [],
           "vendor":                   {
-            "name": "TW",
-            "url":  "https://www.thoughtworks.com/go"
+            "name": "GoCD Team",
+            "url":  "https://gocd.org"
           }
         },
       };

@@ -23,7 +23,7 @@ OrEjueo23vMefUn/AxmPtgXaU++yqAPCJ/PXGBg+0LSpe40Z+m2OUz9Pr6BH&#xD;
 bNoig0/gA57KaziiFazsMdD0EYy83gN7HQdolSEImIZJuW9ABG0WAzPhscFh&#xD;
 hOI0BEABLEI+yIvWc8zfm6D8bhR4i+3ufPYc+q1J9+00VHY60QPgR2CBE3p5&#xD;
 BvpkX64b6XCyV9logzYeEr2MRUzct0hkGhGYZkzMag==</license>
-    <mailhost hostname="10.18.3.171" port="25" username="cruise2" password="password123" tls="false" from="cruise2@cruise.com" admin="ccedev@thoughtworks.com" />
+    <mailhost hostname="10.18.3.171" port="25" username="cruise2" password="password123" tls="false" from="cruise2@cruise.com" admin="go-cd-dev@googlegroups.com" />
   </server>
   <pipelines group="group1">
     <pipeline name="studios">

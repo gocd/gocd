@@ -137,8 +137,8 @@ class GoPluginBundleDescriptorBuilderTest {
                  <target-go-version>17.12</target-go-version>
                  <description>Validates its own plugin descriptor</description>
                  <vendor>
-                   <name>ThoughtWorks GoCD Team</name>
-                   <url>www.thoughtworks.com</url>
+                   <name>GoCD Team</name>
+                   <url>https://gocd.org</url>
                  </vendor>
                  <target-os>
                    <value>Linux</value>
@@ -158,7 +158,7 @@ class GoPluginBundleDescriptorBuilderTest {
                         .name("Plugin Descriptor Validator")
                         .version("1.0.1")
                         .targetGoVersion("17.12")
-                        .vendor(new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"))
+                        .vendor(new GoPluginDescriptor.Vendor("GoCD Team", "https://gocd.org"))
                         .targetOperatingSystems(List.of(new String[]{"Linux", "Windows", "Mac OS X"}))
                         .description("Validates its own plugin descriptor").build()
                 ).build();
@@ -179,7 +179,7 @@ class GoPluginBundleDescriptorBuilderTest {
                         .name("Plugin 1")
                         .version("1.0.0")
                         .targetGoVersion("19.5")
-                        .vendor(new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"))
+                        .vendor(new GoPluginDescriptor.Vendor("GoCD Team", "https://gocd.org"))
                         .targetOperatingSystems(List.of(new String[]{"Linux", "Windows"}))
                         .description("Example plugin 1").build()
                 )
@@ -216,8 +216,8 @@ class GoPluginBundleDescriptorBuilderTest {
                  <target-go-version>17.12</target-go-version>
                  <description>Validates its own plugin descriptor</description>
                  <vendor>
-                   <name>ThoughtWorks GoCD Team</name>
-                   <url>www.thoughtworks.com</url>
+                   <name>GoCD Team</name>
+                   <url>https://gocd.org</url>
                  </vendor>
                  <target-os>
                    <value>Linux</value>

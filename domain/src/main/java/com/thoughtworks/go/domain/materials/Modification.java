@@ -40,7 +40,6 @@ import java.util.regex.Pattern;
  * <file >
  * </modification>
  *
- * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
 public class Modification extends PersistentObject implements Comparable, Serializable {
 

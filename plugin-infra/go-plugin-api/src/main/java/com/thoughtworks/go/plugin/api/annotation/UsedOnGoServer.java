@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  *
  * @see com.thoughtworks.go.plugin.api.annotation.UsedOnGoAgent
  *
- * @author Go Team
+ * @author GoCD Team
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.CLASS)

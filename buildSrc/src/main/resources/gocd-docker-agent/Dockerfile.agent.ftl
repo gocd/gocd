@@ -32,7 +32,7 @@ FROM ${distro.getBaseImageLocation(distroVersion)}
 
 LABEL gocd.version="${goVersion}" \
   description="GoCD agent based on ${distro.getBaseImageLocation(distroVersion)}" \
-  maintainer="ThoughtWorks, Inc. <support@thoughtworks.com>" \
+  maintainer="GoCD Team <go-cd-dev@googlegroups.com>" \
   url="https://www.gocd.org" \
   gocd.full.version="${fullVersion}" \
   gocd.git.sha="${gitRevision}"

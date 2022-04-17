@@ -56,13 +56,6 @@
                 fi
             fi
 
-            if [ ! -z "${GO_SERVER_SSL_PORT}" ]; then
-                # non default port
-                if [ "${GO_SERVER_SSL_PORT}" != "8154" ]; then
-                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.ssl.port=${GO_SERVER_SSL_PORT}"
-                fi
-            fi
-
             if [ ! -z "${GO_SERVER_SYSTEM_PROPERTIES}" ]; then
                 MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }${GO_SERVER_SYSTEM_PROPERTIES}"
             fi

@@ -169,7 +169,6 @@ project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPlu
 project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
 
 project.ext.railsSystemProperties = [
-  'always.reload.config.file'                    : true,
   'cruise.config.dir'                            : project.rails.testConfigDir,
   'plugins.go.provided.path'                     : project.rails.testBundledPluginsDir,
   'plugins.external.provided.path'               : project.rails.testExternalPluginsDir,

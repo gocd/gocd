@@ -80,7 +80,7 @@ final Map<String, String> libraries = [
   junit5              : 'org.junit.jupiter:junit-jupiter-api:5.8.2',
   liquibase           : 'org.liquibase:liquibase-core:4.9.1',
   logback             : 'ch.qos.logback:logback-classic:1.2.11',
-  lombok              : 'org.projectlombok:lombok:1.18.22',
+  lombok              : 'org.projectlombok:lombok:1.18.24',
   mail                : 'com.sun.mail:mailapi:2.0.1',
   mockito             : 'org.mockito:mockito-core:4.4.0',
   mybatis             : 'org.mybatis:mybatis:3.5.9',

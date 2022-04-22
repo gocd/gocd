@@ -1203,10 +1203,10 @@
   resolved "https://registry.yarnpkg.com/@types/license-checker/-/license-checker-25.0.3.tgz#fbe80df33f1ac9d4bc2d4c167da3c2fd2999eb73"
   integrity sha512-sFkIgeXh6HJR79DbTrZrsHWhfyr3q8v2Gswj3y0tRPEo57OEPVgDF/z/ePybHUGuSCwiDiAt/3YMta9ujUxQpQ==
 
-"@types/lodash@^4.14.181":
-  version "4.14.181"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.181.tgz#d1d3740c379fda17ab175165ba04e2d03389385d"
-  integrity sha512-n3tyKthHJbkiWhDZs3DkhkCzt2MexYHXlX0td5iMplyfwketaOeKboEVBqzceH7juqvEg3q5oUoBFxSLu7zFag==
+"@types/lodash@^4.14.182":
+  version "4.14.182"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.182.tgz#05301a4d5e62963227eaafe0ce04dd77c54ea5c2"
+  integrity sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==
 
 "@types/lru-cache@^7.6.1":
   version "7.6.1"

@@ -80,7 +80,7 @@
     "eslint-webpack-plugin": "^2",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6",
-    "fs-extra": "^10.0.1",
+    "fs-extra": "^10.1.0",
     "html-webpack-plugin": "^4.5.2",
     "jasmine": "^3.10.0",
     "jasmine-ajax": "^4.0.0",

@@ -70,7 +70,7 @@
     "@types/uuid": "^8.3.4",
     "@types/webpack": "^4.41.32",
     "add-matchers": "^0.6.2",
-    "babel-loader": "^8.2.3",
+    "babel-loader": "^8.2.5",
     "cache-loader": "^4.1.0",
     "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^5.2.7",

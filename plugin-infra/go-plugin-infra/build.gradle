@@ -36,7 +36,7 @@ dependencies {
   testImplementation project.deps.mockitoJunit5
   testImplementation project(':test:test-utils')
   testImplementation project.deps.tinybundles
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }
 

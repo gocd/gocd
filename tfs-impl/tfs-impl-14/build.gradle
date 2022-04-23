@@ -24,7 +24,7 @@ dependencies {
   implementation project(':common')
   implementation files("${project.buildDir}/tfssdk/lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar")
 
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest
   testImplementation project.deps.mockitoCore

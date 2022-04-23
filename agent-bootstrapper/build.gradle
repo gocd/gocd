@@ -28,7 +28,7 @@ dependencies {
   testImplementation project.deps.mockitoCore
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   extractedAtTopLevel project(':jar-class-loader')
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }
 

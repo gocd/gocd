@@ -344,7 +344,7 @@ dependencies {
 
   testImplementation project.deps.httpClientMock
 
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockitoJunit5

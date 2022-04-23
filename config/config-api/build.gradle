@@ -43,7 +43,7 @@ dependencies {
 
   testImplementation project(':test:test-utils')
   testImplementation project.deps.jaxen
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5

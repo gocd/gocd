@@ -24,7 +24,7 @@ dependencies {
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project(':test:test-utils')
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest
   testImplementation project.deps.mockitoCore

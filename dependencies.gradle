@@ -99,7 +99,7 @@ final Map<String, String> libraries = [
   spring              : 'org.springframework:spring-core:4.3.30.RELEASE',
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
-  systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:1.2.0',
+  systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:2.0.1',
   testcontainers      : 'org.testcontainers:testcontainers:1.17.1',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   tokenBucket         : 'org.isomorphism:token-bucket:1.7',

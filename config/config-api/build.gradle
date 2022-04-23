@@ -45,7 +45,7 @@ dependencies {
   testImplementation project.deps.jaxen
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.junit5Params
 }

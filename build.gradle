@@ -418,6 +418,10 @@ subprojects {
       }
     }
 
+    dependencies {
+      testImplementation enforcedPlatform(project.deps.mockitoBom)
+    }
+
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
       archiveClassifier = 'tests'
       from sourceSets.test.output

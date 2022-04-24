@@ -536,6 +536,7 @@ subprojects {
     // fixup a tempdir that is predictable and we can clean it up later
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
+    systemProperty 'jdk.attach.allowAttachSelf', 'true'
     jvmArgs += testTask.project.name.startsWith("agent") ? InstallerType.agent.jvmModuleOpensArgs : InstallerType.server.jvmModuleOpensArgs
 
     doFirst {

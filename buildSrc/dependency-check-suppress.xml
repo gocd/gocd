@@ -119,6 +119,15 @@
 
     <suppress>
         <notes><![CDATA[
+   GoCD is not affected by this as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
+   as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-22968</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    From review of https://nvd.nist.gov/vuln/detail/CVE-2019-14900 and the fix on Hibernate 5.3 at https://github.com/hibernate/hibernate-orm/pull/3440/files
    GoCD is not subject to this defect, since at time of writing we do not use literals on the Criteria API (it's also
    unclear whether older Hibernate versions are subject to the same defect)

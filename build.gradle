@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
@@ -171,8 +172,8 @@ project.ext.packaging = [
   adoptOpenjdk: [
     featureVersion: 17,
     interimVersion: 0, // set to `null` for the first release
-    updateVersion : 2, // set to `null` for the first release
-    buildVersion  : 8
+    updateVersion : 3, // set to `null` for the first release
+    buildVersion  : 7
   ]
 ]
 

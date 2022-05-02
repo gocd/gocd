@@ -40,7 +40,7 @@ public class GoPlainSocketConnectorTest {
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
-        Jetty9Server server = new Jetty9Server(systemEnvironment, null);
+        Jetty9Server server = new Jetty9Server(systemEnvironment);
 
         connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 

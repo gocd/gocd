@@ -162,8 +162,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
     public static GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);
     public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
-    public static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
-    public static GoSystemProperty<String> GO_SERVER_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.server.keystore.password", "serverKeystorepa55w0rd");
     public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
@@ -670,14 +668,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isApiSafeModeEnabled() {
         return GO_API_WITH_SAFE_MODE.getValue();
-    }
-
-    public String getAgentKeyStorePassword() {
-        return get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
-    }
-
-    public String getServerKeyStorePassword() {
-        return get(SystemEnvironment.GO_SERVER_KEYSTORE_PASSWORD);
     }
 
     public int sessionTimeoutInSeconds() {

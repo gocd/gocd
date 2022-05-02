@@ -26,7 +26,7 @@ OperatingSystem currentOS = OperatingSystem.current()
 // Firefox/gecko: See https://github.com/mozilla/geckodriver/releases and review compatibility at
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
-  chromedriver: '99.0.4844.51',
+  chromedriver: '100.0.4896.60',
   geckodriver: '0.30.0',
 ]
 

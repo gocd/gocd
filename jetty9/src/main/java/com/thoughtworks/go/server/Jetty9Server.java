@@ -57,12 +57,12 @@ public class Jetty9Server extends AppServer {
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
     private final DeploymentManager deploymentManager;
 
-    public Jetty9Server(SystemEnvironment systemEnvironment, String password) {
-        this(systemEnvironment, password, new Server(), new DeploymentManager());
+    public Jetty9Server(SystemEnvironment systemEnvironment) {
+        this(systemEnvironment, new Server(), new DeploymentManager());
     }
 
-    Jetty9Server(SystemEnvironment systemEnvironment, String password, Server server, DeploymentManager deploymentManager) {
-        super(systemEnvironment, password);
+    Jetty9Server(SystemEnvironment systemEnvironment, Server server, DeploymentManager deploymentManager) {
+        super(systemEnvironment);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
         this.server = server;
         this.deploymentManager = deploymentManager;

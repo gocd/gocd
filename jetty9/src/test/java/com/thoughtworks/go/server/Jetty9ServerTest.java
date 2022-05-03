@@ -111,7 +111,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
-        jetty9Server = new Jetty9Server(systemEnvironment, "pwd", server, deploymentManager);
+        jetty9Server = new Jetty9Server(systemEnvironment, server, deploymentManager);
         ReflectionUtil.setStaticField(Jetty9Server.class, "JETTY_XML_LOCATION_IN_JAR", "config");
     }
 

@@ -18,14 +18,15 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class AppServerStub extends AppServer {
 
-    public HashMap<String, Object> calls = new HashMap<>();
-    public HashMap<String, String> initparams = new HashMap<>();
+    public final Map<String, Object> calls = new HashMap<>();
+    public final Map<String, String> initParams = new HashMap<>();
 
-    public AppServerStub(SystemEnvironment systemEnvironment, String password) {
-        super(systemEnvironment, password);
+    public AppServerStub(SystemEnvironment systemEnvironment) {
+        super(systemEnvironment);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class AppServerStub extends AppServer {
 
     @Override
     void setInitParameter(String name, String value) {
-        initparams.put(name, value);
+        initParams.put(name, value);
     }
 
     @Override
@@ -50,17 +51,17 @@ public class AppServerStub extends AppServer {
     }
 
     @Override
-    void configure() throws Exception {
+    void configure() {
         calls.put("configure", true);
     }
 
     @Override
-    void start() throws Exception {
+    void start() {
         calls.put("start", true);
     }
 
     @Override
-    void stop() throws Exception {
+    void stop() {
         calls.put("stop", true);
 
     }

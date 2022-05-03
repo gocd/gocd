@@ -34,7 +34,7 @@ public class GoServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);
 
-    private SystemEnvironment systemEnvironment;
+    private final SystemEnvironment systemEnvironment;
     private AppServer server;
     protected SubprocessLogger subprocessLogger;
 
@@ -69,8 +69,8 @@ public class GoServer {
     }
 
     AppServer configureServer() throws Exception {
-        Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class);
-        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, systemEnvironment.getServerKeyStorePassword()));
+        Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class);
+        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment));
         server.configure();
         logMessageIfUsingAddons();
         server.setSessionConfig();

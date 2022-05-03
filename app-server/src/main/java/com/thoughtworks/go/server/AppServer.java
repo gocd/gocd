@@ -19,11 +19,9 @@ import com.thoughtworks.go.util.SystemEnvironment;
 
 public abstract class AppServer {
     protected SystemEnvironment systemEnvironment;
-    protected String password;
 
-    public AppServer(SystemEnvironment systemEnvironment, String password) {
+    public AppServer(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
-        this.password = password;
     }
 
     abstract void addExtraJarsToClasspath(String extraClasspath);

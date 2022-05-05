@@ -23,6 +23,7 @@ dependencies {
   // Use BOMs to control versions of dependencies for other projects, all of which consume 'base'.
   // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
   api enforcedPlatform(project.deps.jacksonBom)
+  api platform(project.deps.jaxbBom)
 
   api(project.deps.apacheAnt)  {
     transitive = false

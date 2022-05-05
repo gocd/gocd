@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

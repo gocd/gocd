@@ -392,7 +392,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             return;
         }
 
-        if (System.getProperty("gocd.verify.url.correctness", "y").equalsIgnoreCase("y") && !url.isValidURLOrLocalPath()) {
+        if (!url.isValidURLOrLocalPath()) {
             errors().add(URL, "URL does not seem to be valid.");
         }
     }

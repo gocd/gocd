@@ -667,11 +667,9 @@ subprojects {
     }
   }
 
-  project.configurations*.exclude(group: 'javax.xml.bind')
-  project.configurations*.exclude(group: 'junit')
-  project.configurations*.exclude(group: 'dom4j')
-  project.configurations*.exclude(group: 'xalan')
-  project.configurations*.exclude(group: 'xml-apis')
+  project.configurations*.exclude(group: 'javax.xml.bind') // Moved to jakarta.xml.bind
+  project.configurations*.exclude(group: 'junit') // Moved to org.junit
+  project.configurations*.exclude(group: 'dom4j') // Moved to org.dom4j
 }
 
 task allDependencies {

@@ -25,8 +25,6 @@ dependencies {
   // https://github.com/Microsoft/team-explorer-everywhere/issues/268
   implementation files('tfssdk/lib/com.microsoft.tfs.sdk-14.118.0.jar')
 
-  // not an implementation dependency, but some classloader hell
-  implementation project.deps.xalan
   testImplementation project.deps.junit5
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest
@@ -43,9 +41,7 @@ task fatJar(type: Jar) {
   dependsOn jar
   from(jar.archiveFile) { into('lib/') }
 
-  from(project.configurations.compileClasspath.findAll {
-    it.absolutePath.contains('tfssdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
-  }) {
+  from(project.configurations.compileClasspath.findAll { it.absolutePath.contains('tfssdk') }) {
     into 'lib/'
   }
 

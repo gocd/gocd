@@ -25,7 +25,6 @@ dependencies {
     exclude(module: 'jzlib')
   }
   implementation project.deps.slf4j
-  implementation project.deps.cglib
   implementation project.deps.jaxen
   compileOnly project.deps.jetBrainsAnnotations
   providedAtPackageTime(project.deps.bouncyCastle)

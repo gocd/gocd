@@ -32,7 +32,7 @@ final Map<String, String> libraries = [
   aspectj             : 'org.aspectj:aspectjrt:1.9.9.1',
   assertJ             : 'org.assertj:assertj-core:3.22.0',
   assertJ_DB          : 'org.assertj:assertj-db:2.0.2',
-  bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.70', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
+  bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.71',
   cglib               : 'cglib:cglib:3.3.0',
   cloning             : 'io.github.kostaskougios:cloning:1.10.3',
   commonsBeanUtils    : 'commons-beanutils:commons-beanutils:1.9.4',
@@ -192,7 +192,7 @@ final Map<String, String> v = [
 final Map<String, String> related = [
   apacheHttpMime          : "org.apache.httpcomponents:httpmime:${v.apacheHttpComponents}",
   aspectjWeaver           : "org.aspectj:aspectjweaver:${v.aspectj}",
-  bouncyCastlePkix        : "org.bouncycastle:bcpkix-jdk15on:${v.bouncyCastle}",
+  bouncyCastlePkix        : "org.bouncycastle:bcpkix-jdk18on:${v.bouncyCastle}",
   jacksonCore             : 'com.fasterxml.jackson.core:jackson-core',
   jacksonDatabind         : 'com.fasterxml.jackson.core:jackson-databind',
   jaxbApi                 : "jakarta.xml.bind:jakarta.xml.bind-api",

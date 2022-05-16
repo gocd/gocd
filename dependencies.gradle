@@ -139,6 +139,7 @@ final Map<String, String> v = [
   h2                  : versionOf(libraries.h2),
   hamcrest            : versionOf(libraries.hamcrest),
   hibernate           : versionOf(libraries.hibernate),
+  jacksonBom          : versionOf(libraries.jacksonBom),
   javaAssist          : versionOf(libraries.javaAssist),
   javaxAnnotation     : versionOf(libraries.javaxAnnotation),
   jaxb                : versionOf(libraries.jaxbBom),

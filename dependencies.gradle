@@ -75,7 +75,7 @@ final Map<String, String> libraries = [
   jruby               : 'org.jruby:jruby-complete:9.3.4.0',
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.35.0',
   jsontools           : 'com.sdicons.jsontools:jsontools-core:1.7',
-  jsoup               : 'org.jsoup:jsoup:1.14.3',
+  jsoup               : 'org.jsoup:jsoup:1.15.1',
   junit5              : 'org.junit.jupiter:junit-jupiter-api:5.8.2',
   liquibase           : 'org.liquibase:liquibase-core:4.10.0',
   logback             : 'ch.qos.logback:logback-classic:1.2.11',

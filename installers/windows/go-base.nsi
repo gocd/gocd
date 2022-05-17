@@ -152,6 +152,21 @@ Function ".onInit"
   ${LogSet} off
 FunctionEnd
 
+Function "SetupDirectoryPermissions"
+    ${LogText} "Setting directory permissions..."
+
+	; Disable inheritance. This breaks the inheritance chain and turns inherited permissions into explicit ones.
+	AccessControl::DisableFileInheritance $INSTDIR
+	; Make Administrators the owner
+	AccessControl::SetFileOwner $INSTDIR "(S-1-5-32-544)"
+	; Clear all explicit permissions on the file, leaving Administrators with full access
+	AccessControl::ClearOnFile  $INSTDIR "(S-1-5-32-544)" "FullAccess"
+	; Give SYSTEM full access.
+	AccessControl::SetOnFile    $INSTDIR "(S-1-5-18)"     "FullAccess"
+	; Give Everyone only access to read, list dir, and execute.
+	AccessControl::SetOnFile    $INSTDIR "(S-1-1-0)"      "GenericRead + GenericExecute + ListDirectory + ReadAttributes"
+FunctionEnd
+
 ; This section (being the first one, not because it's called Install) will be executed after the `.onInit` callback
 Section "Install"
   SectionIn RO
@@ -159,6 +174,8 @@ Section "Install"
   SetOverWrite on
   SetOutPath $INSTDIR
   ${LogSet} on
+
+  Call SetupDirectoryPermissions
 
   ${If} $IsUpgrading == "true"
     ${LogText} "Performing an upgrade"

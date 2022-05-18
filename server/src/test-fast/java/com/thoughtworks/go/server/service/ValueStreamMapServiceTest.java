@@ -827,6 +827,7 @@ public class ValueStreamMapServiceTest {
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("p1"))).thenReturn(false);
+        when(goConfigService.findPipelineByName(new CaseInsensitiveString("p1"))).thenReturn(null);
         when(pipelineService.findPipelineByNameAndCounter("p3", 1)).thenReturn(new Pipeline("p3", "p3-label", p3buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, user, result);

@@ -45,6 +45,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ValueStreamMapService {
@@ -204,8 +205,12 @@ public class ValueStreamMapService {
                 }
 
                 pipelineDependencyNode.setCanEdit(goConfigService.canEditPipeline(pipelineName, username, new HttpLocalizedOperationResult()));
-                CaseInsensitiveString templateName = goConfigService.findPipelineByName(new CaseInsensitiveString(pipelineName)).getTemplateName();
-                pipelineDependencyNode.setTemplateName(templateName != null ? templateName.toString() : null);
+                pipelineDependencyNode.setTemplateName(
+                        Optional.ofNullable(goConfigService.findPipelineByName(new CaseInsensitiveString(pipelineName)))
+                                .map(PipelineConfig::getTemplateName)
+                                .map(CaseInsensitiveString::toString)
+                                .orElse(null))
+                ;
             }
         }
     }

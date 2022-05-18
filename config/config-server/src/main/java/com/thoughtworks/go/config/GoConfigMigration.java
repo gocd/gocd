@@ -142,10 +142,18 @@ public class GoConfigMigration {
     private Transformer transformer(String xsltName, InputStream xslt) {
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
-            factory.setAttribute("jdk.xml.xpathExprOpLimit", XPATH_EXPRESSION_OPERATION_LIMIT);
+            tryIncreaseXpathExpressionOperationLimit(factory);
             return factory.newTransformer(new StreamSource(xslt));
         } catch (TransformerConfigurationException tce) {
             throw bomb("Couldn't parse XSL template " + xsltName, tce);
+        }
+    }
+
+    private void tryIncreaseXpathExpressionOperationLimit(TransformerFactory factory) {
+        try {
+            factory.setAttribute("jdk.xml.xpathExprOpLimit", XPATH_EXPRESSION_OPERATION_LIMIT);
+        } catch (IllegalArgumentException e) {
+            LOG.info("Cannot increase Xpath Expression Operation Limit, may not be supported on this JDK. Continuing... [{}]", e.getMessage());
         }
     }
 

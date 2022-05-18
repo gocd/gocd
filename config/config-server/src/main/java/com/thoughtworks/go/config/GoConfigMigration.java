@@ -48,6 +48,7 @@ import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 @Component
 public class GoConfigMigration {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class.getName());
+    private static final int XPATH_EXPRESSION_OPERATION_LIMIT = 200;
     private final String schemaVersion = "schemaVersion";
     private final TimeProvider timeProvider;
     private final ConfigElementImplementationRegistry registry;
@@ -140,7 +141,9 @@ public class GoConfigMigration {
 
     private Transformer transformer(String xsltName, InputStream xslt) {
         try {
-            return TransformerFactory.newInstance().newTransformer(new StreamSource(xslt));
+            TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setAttribute("jdk.xml.xpathExprOpLimit", XPATH_EXPRESSION_OPERATION_LIMIT);
+            return factory.newTransformer(new StreamSource(xslt));
         } catch (TransformerConfigurationException tce) {
             throw bomb("Couldn't parse XSL template " + xsltName, tce);
         }

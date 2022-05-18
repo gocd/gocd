@@ -20,9 +20,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
 
 public class URLServiceTest {
     private static final String BASE_URL = "http://localhost:9090/go";
@@ -42,31 +42,15 @@ public class URLServiceTest {
     }
 
     @Test
-    public void shouldReturnRepositoryURLWhenBaseURLIsEndedCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", BASE_URL);
-        assertThat(new URLService().getBuildRepositoryURL(), is(BASE_URL + "/remoting/remoteBuildRepository"));
-    }
-
-    @Test
-    public void shouldReturnRepositoryURLWhenBaseURLIsNotEndedCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", BASE_URL + "/");
-        assertThat(new URLService().getBuildRepositoryURL(), is(BASE_URL + "/remoting/remoteBuildRepository"));
-    }
-
-    @Test
-    public void propertiesURLShouldGoThroughtSecurityCheck() {
-        String url = urlService.getPropertiesUrl(jobIdentifier, "failedcount");
-        assertThat(url, endsWith("/remoting/properties/pipelineName/LATEST/stageName/LATEST/buildName/failedcount"));
-    }
-
-    @Test public void shouldReturnProperDownloadUrl() throws Exception {
+    public void shouldReturnProperDownloadUrl() {
         String downloadUrl1 = urlService.getRestfulArtifactUrl(jobIdentifier, "file");
         String downloadUrl2 = urlService.getRestfulArtifactUrl(jobIdentifier, "/file");
         assertThat(downloadUrl1, is("/files/pipelineName/LATEST/stageName/LATEST/buildName/file"));
         assertThat(downloadUrl1, is(downloadUrl2));
     }
 
-    @Test public void shouldReturnProperRestfulUrlOfArtifact() throws Exception {
+    @Test
+    public void shouldReturnProperRestfulUrlOfArtifact() {
         String downloadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file");
         String downloadUrl2 = urlService.getUploadUrlOfAgent(jobIdentifier, "/file");
         assertThat(downloadUrl1,
@@ -75,7 +59,7 @@ public class URLServiceTest {
     }
 
     @Test
-    public void shouldReturnRestfulUrlOfAgentWithAttemptCounter() throws Exception {
+    public void shouldReturnRestfulUrlOfAgentWithAttemptCounter() {
         String uploadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file", 1);
         assertThat(uploadUrl1,
                 endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123"));

@@ -73,10 +73,6 @@
                     fixed-delay="${gocd.accesstoken.lastused.update.interval}"/>
   </task:scheduled-tasks>
 
-  <bean name="/remoteBuildRepository" class="com.thoughtworks.go.remote.AgentRemoteInvokerServiceExporter"
-        p:service-ref="buildRepositoryImpl"
-        p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote"/>
-
   <bean id="buildRepositoryRemoteImpl" class="com.thoughtworks.go.remote.BuildRepositoryRemoteImpl"/>
 
   <bean id="buildRepositoryImpl" class="com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer"

@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
@@ -39,18 +38,15 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import static com.thoughtworks.go.remote.AgentInstruction.NONE;
-import static java.util.Objects.requireNonNullElse;
 
 @Component
 public class AgentHTTPClientController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
 
     private final RemotingClient client;
-    private final BuildRepositoryRemote legacyRmi;
     private final GoArtifactsManipulator manipulator;
     private final SslInfrastructureService sslInfrastructureService;
     private final ArtifactExtension artifactExtension;
@@ -65,8 +61,6 @@ public class AgentHTTPClientController extends AgentController {
 
     @Autowired
     public AgentHTTPClientController(RemotingClient client,
-                                     @Qualifier("buildLoopServer")
-                                     BuildRepositoryRemote legacyRmi,
                                      GoArtifactsManipulator manipulator,
                                      SslInfrastructureService sslInfrastructureService,
                                      AgentRegistry agentRegistry,
@@ -86,19 +80,15 @@ public class AgentHTTPClientController extends AgentController {
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
-        this.legacyRmi = legacyRmi;
         this.manipulator = manipulator;
         this.sslInfrastructureService = sslInfrastructureService;
         this.artifactExtension = artifactExtension;
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
         this.pluginJarLocationMonitor = pluginJarLocationMonitor;
-
-        LOG.info("Configured remoting type: {}", remote().getClass().getSimpleName());
     }
 
     @Override
     public void ping() {
-        final BuildRepositoryRemote client = remote();
         try {
             if (sslInfrastructureService.isRegistered()) {
                 AgentIdentifier agent = agentIdentifier();
@@ -137,14 +127,13 @@ public class AgentHTTPClientController extends AgentController {
     private void retrieveCookieIfNecessary() {
         if (!getAgentRuntimeInfo().hasCookie() && sslInfrastructureService.isRegistered()) {
             LOG.info("About to get cookie from the server.");
-            String cookie = remote().getCookie(getAgentRuntimeInfo());
+            String cookie = client.getCookie(getAgentRuntimeInfo());
             getAgentRuntimeInfo().setCookie(cookie);
             LOG.info("Got cookie: {}", cookie);
         }
     }
 
     void retrieveWork() {
-        final BuildRepositoryRemote client = remote();
         AgentIdentifier agentIdentifier = agentIdentifier();
         LOG.debug("[Agent Loop] {} is checking for work from Go", agentIdentifier);
         Work work;
@@ -163,22 +152,5 @@ public class AgentHTTPClientController extends AgentController {
         } finally {
             getAgentRuntimeInfo().idle();
         }
-    }
-
-    private BuildRepositoryRemote remote() {
-        boolean useLegacy = useLegacy();
-
-        LOG.debug("Remoting type used: {}", (useLegacy ? "RMI" : "JSON"));
-
-        return useLegacy ? legacyRmi : client;
-    }
-
-    private boolean useLegacy() {
-        return "true".equalsIgnoreCase(
-                requireNonNullElse(
-                        System.getProperty("gocd.agent.remoting.legacy"),
-                        "false"
-                ).trim()
-        );
     }
 }

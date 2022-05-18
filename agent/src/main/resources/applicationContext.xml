@@ -40,13 +40,6 @@
     <property name="systemPropertiesMode" value="2"/>
   </bean>
 
-  <bean id="buildLoopServer" class="com.thoughtworks.go.agent.service.HttpInvokerProxyFactoryWrapper"
-        p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote">
-    <property name="httpInvokerRequestExecutor">
-      <bean class="com.thoughtworks.go.agent.GoHttpClientHttpInvokerRequestExecutor" autowire="constructor" />
-    </property>
-  </bean>
-
   <bean id="urlService" class="com.thoughtworks.go.util.URLService"/>
   <bean id="httpService" class="com.thoughtworks.go.util.HttpService"/>
   <bean id="artifactsManipulator" class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>

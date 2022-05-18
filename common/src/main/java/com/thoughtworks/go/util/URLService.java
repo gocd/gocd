@@ -45,11 +45,6 @@ public class URLService implements ServerUrlGenerator {
         return format("%s/%s/%s", baseRemotingURL, "remoting/api/agent", action);
     }
 
-    @Deprecated(forRemoval = true) // TODO: remove this when we drop support for RMI
-    public String getBuildRepositoryURL() {
-        return baseRemotingURL + "/remoting/remoteBuildRepository";
-    }
-
     public String getAgentRegistrationURL() {
         return baseRemotingURL + "/admin/agent";
     }
@@ -77,20 +72,6 @@ public class URLService implements ServerUrlGenerator {
      */
     public String getRestfulArtifactUrl(JobIdentifier jobIdentifier, String filePath) {
         return format("/%s/%s", "files", jobIdentifier.artifactLocator(filePath));
-    }
-
-
-    public String getUploadBaseUrlOfAgent(JobIdentifier jobIdentifier) {
-        return format("%s/%s/%s/%s", baseRemotingURL, "remoting", "files", jobIdentifier.artifactLocator(""));
-    }
-
-    /*
-     * Agent will use this method, the baseUrl will be injected from config xml in agent side.
-     *   This is used to fix security issues with the agent uploading artifacts when security is enabled.
-     */
-    public String getPropertiesUrl(JobIdentifier jobIdentifier, String propertyName) {
-        return format("%s/%s/%s/%s",
-                baseRemotingURL, "remoting", "properties", jobIdentifier.propertyLocator(propertyName));
     }
 
     @Override

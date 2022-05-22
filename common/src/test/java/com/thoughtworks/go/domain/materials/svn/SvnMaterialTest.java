@@ -26,6 +26,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.JsonValue;
+import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -35,7 +36,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Iterator;
@@ -189,11 +191,7 @@ public class SvnMaterialTest {
     @Test
     void shouldSerializeAndDeserializeCorrectly() throws Exception {
         final SvnMaterial material1 = MaterialsMother.svnMaterial("url1", "foo");
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        ObjectOutputStream serialized = new ObjectOutputStream(buf);
-        serialized.writeObject(material1);
-        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buf.toByteArray()));
-        assertThat(in.readObject()).isEqualTo(material1);
+        assertThat(SerializationTester.objectSerializeAndDeserialize(material1)).isEqualTo(material1);
     }
 
     @Test

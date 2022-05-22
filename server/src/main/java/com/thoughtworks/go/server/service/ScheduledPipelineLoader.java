@@ -30,7 +30,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

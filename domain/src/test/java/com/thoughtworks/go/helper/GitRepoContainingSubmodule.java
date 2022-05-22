@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.util.CommandUtils.exec;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static com.thoughtworks.go.utils.CommandUtils.exec;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GitRepoContainingSubmodule extends TestRepo {

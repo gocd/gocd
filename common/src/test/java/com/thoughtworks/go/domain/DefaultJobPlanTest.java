@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.thoughtworks.go.utils.SerializationTester.serializeAndDeserialize;
+import static com.thoughtworks.go.util.SerializationTester.objectSerializeAndDeserialize;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultJobPlanTest {
@@ -69,7 +69,7 @@ class DefaultJobPlanTest {
     void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
                 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null, null);
-        DefaultJobPlan clone = (DefaultJobPlan) serializeAndDeserialize(original);
+        DefaultJobPlan clone = objectSerializeAndDeserialize(original);
         assertThat(clone).isEqualTo(original);
     }
 }

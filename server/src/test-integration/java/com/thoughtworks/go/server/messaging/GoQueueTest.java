@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.messaging;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
+import static com.thoughtworks.go.util.Assertions.assertWillHappen;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)

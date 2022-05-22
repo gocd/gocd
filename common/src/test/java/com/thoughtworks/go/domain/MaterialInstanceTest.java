@@ -18,18 +18,17 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class MaterialInstanceTest {
     @Test
@@ -45,11 +44,7 @@ public class MaterialInstanceTest {
         HgMaterial m = MaterialsMother.hgMaterial("url");
         MaterialInstance materialInstance = m.createMaterialInstance();
         materialInstance.setId(10);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(materialInstance);
-        ObjectInputStream inputStream1 = new ObjectInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
-        MaterialInstance unserializedMaterial = (MaterialInstance) inputStream1.readObject();
+        MaterialInstance unserializedMaterial = SerializationTester.objectSerializeAndDeserialize(materialInstance);
         assertThat(unserializedMaterial, Matchers.is(materialInstance));
         assertThat(unserializedMaterial.getId(), is(10L));
         assertThat(unserializedMaterial, is(materialInstance));

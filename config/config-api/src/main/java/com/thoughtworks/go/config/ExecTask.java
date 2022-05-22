@@ -17,8 +17,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
+import com.thoughtworks.go.util.CommandUtils;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.utils.CommandUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 

@@ -54,7 +54,6 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.utils.SerializationTester;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -489,7 +488,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
         BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgent()));
 
-        BuildWork deserialized = (BuildWork) SerializationTester.serializeAndDeserialize(work);
+        BuildWork deserialized = SerializationTester.objectSerializeAndDeserialize(work);
 
         assertThat(deserialized.getAssignment().materialRevisions(), is(work.getAssignment().materialRevisions()));
 

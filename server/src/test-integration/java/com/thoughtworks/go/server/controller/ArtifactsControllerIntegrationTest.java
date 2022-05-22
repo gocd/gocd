@@ -578,7 +578,7 @@ public class ArtifactsControllerIntegrationTest {
 
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(), null, stage.getName(), Integer.toString(stage.getCounter()), job.getName(), job.getId());
         File artifact = artifactService.findArtifact(jobIdentifier, filePath);
-        assertThat(FileUtils.readFileToString(artifact, "utf-8"), is(artifactFileContent));
+        assertThat(FileUtils.readFileToString(artifact, UTF_8), is(artifactFileContent));
     }
 
     @Test
@@ -600,7 +600,7 @@ public class ArtifactsControllerIntegrationTest {
                 job.getName(), job.getId());
         assertTrue(consoleService.doesLogExist(jobIdentifier));
         File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
-        assertThat(FileUtils.readFileToString(consoleLogFile, "utf-8"), is(consoleLogContent));
+        assertThat(FileUtils.readFileToString(consoleLogFile, UTF_8), is(consoleLogContent));
     }
 
     private File createFile(File buildIdArtifactRoot, String fileName) throws IOException {

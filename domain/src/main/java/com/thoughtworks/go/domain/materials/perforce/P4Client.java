@@ -30,12 +30,13 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class P4Client extends SCMCommand {
     private static final Logger LOG = LoggerFactory.getLogger(P4Client.class);
     private final String p4Port;
     private final String p4user;
-    private String p4passwd;
+    private final String p4passwd;
     private final String p4ClientName;
 
     private boolean useTickets;
@@ -72,7 +73,7 @@ public class P4Client extends SCMCommand {
     }
 
     public ConsoleResult version() {
-        CommandLine p4 = createCommandLine("p4").withArgs("-V").withEncoding("utf-8");
+        CommandLine p4 = createCommandLine("p4").withArgs("-V").withEncoding(UTF_8);
         return execute(p4);
     }
 
@@ -157,7 +158,7 @@ public class P4Client extends SCMCommand {
         CommandLine line = createCommandLine("p4")
                 .withArgs(command).withArgs(params)
                 .withEnv(env)
-                .withEncoding("UTF-8");
+                .withEncoding(UTF_8);
         if (hasPassword()) {
             line = line.withNonArgSecret(new PasswordArgument(p4passwd));
         }

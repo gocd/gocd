@@ -32,8 +32,9 @@ import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.Assertions;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -42,9 +43,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.utils.Assertions.assertAlwaysHappens;
-import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
-import static com.thoughtworks.go.utils.Timeout.TEN_SECONDS;
+import static com.thoughtworks.go.util.Timeout.TEN_SECONDS;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -151,10 +150,10 @@ public class ScheduleHelper {
         long startTime = System.currentTimeMillis();
         pipelineScheduler.onTimer();
         if (pipelines.length == 0) {
-            assertAlwaysHappens(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
+            Assertions.assertAlwaysHappens(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
                     waitTime());
         } else {
-            assertWillHappen(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
+            Assertions.assertWillHappen(pipelines, ScheduleCheckMatcher.scheduleCheckCompleted(scheduleCompleteListener),
                     Timeout.TWENTY_SECONDS);
 
             long endTime = System.currentTimeMillis();

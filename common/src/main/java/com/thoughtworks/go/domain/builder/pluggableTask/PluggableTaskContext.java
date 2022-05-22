@@ -21,14 +21,16 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 
+import java.nio.charset.Charset;
+
 public class PluggableTaskContext implements TaskExecutionContext {
     private final SafeOutputStreamConsumer publisher;
     private final EnvironmentVariableContext environmentVariableContext;
     private final String workingDir;
-    private final String consoleLogCharset;
+    private final Charset consoleLogCharset;
 
     public PluggableTaskContext(SafeOutputStreamConsumer safeOutputStreamConsumer,
-                                EnvironmentVariableContext environmentVariableContext, String workingDir, String consoleLogCharset) {
+                                EnvironmentVariableContext environmentVariableContext, String workingDir, Charset consoleLogCharset) {
         this.publisher = safeOutputStreamConsumer;
         this.environmentVariableContext = environmentVariableContext;
         this.workingDir = workingDir;

@@ -34,6 +34,7 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -61,7 +62,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, (task, pluginDescriptor) -> executeTask(task, publisher, environmentVariableContext, consoleLogCharset));
@@ -80,7 +81,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     protected ExecutionResult executeTask(Task task,
                                           DefaultGoPublisher publisher,
-                                          EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+                                          EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
         final TaskExecutionContext taskExecutionContext = buildTaskContext(publisher, environmentVariableContext, consoleLogCharset);
         JobConsoleLoggerInternal.setContext(taskExecutionContext);
 
@@ -89,7 +90,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     }
 
     protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher,
-                                                    EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
+                                                    EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
 
         CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR,  publisher);
         CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT,  publisher);

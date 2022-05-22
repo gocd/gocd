@@ -54,7 +54,7 @@ public class ConsoleStreamer implements ConsoleConsumer {
     public long stream(Consumer<String> action) throws IOException {
         long linesStreamed = 0L;
 
-        if (null == stream) stream = Files.lines(path, new SystemEnvironment().consoleLogCharsetAsCharset()).skip(start);
+        if (null == stream) stream = Files.lines(path, new SystemEnvironment().consoleLogCharset()).skip(start);
         if (null == iterator) iterator = stream.iterator();
 
         while (iterator.hasNext()) {

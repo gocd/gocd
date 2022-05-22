@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class ProcessManager {
     private static final Logger LOG = LoggerFactory.getLogger(ProcessManager.class);
     private static final ProcessManager processManager = new ProcessManager();
 
-    private ConcurrentMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Process, ProcessWrapper> processMap = new ConcurrentHashMap<>();
 
     ProcessManager() {
     }
@@ -44,7 +45,7 @@ public class ProcessManager {
     }
 
     public ProcessWrapper createProcess(String[] commandLine, String commandLineForDisplay, File workingDir, Map<String, String> envMap, EnvironmentVariableContext environmentVariableContext,
-                                        ConsoleOutputStreamConsumer consumer, ProcessTag processTag, String encoding, String errorPrefix) {
+                                        ConsoleOutputStreamConsumer consumer, ProcessTag processTag, Charset encoding, String errorPrefix) {
         ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
         LOG.debug("Executing: {}", commandLineForDisplay);
         if (workingDir != null) {
@@ -62,7 +63,7 @@ public class ProcessManager {
     }
 
     public void processKilled(Process process) {
-        if (process != null && processMap.containsKey(process)) {
+        if (process != null) {
             processMap.remove(process);
         }
     }

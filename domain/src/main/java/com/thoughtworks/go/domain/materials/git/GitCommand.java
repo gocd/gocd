@@ -41,6 +41,7 @@ import static com.thoughtworks.go.util.DateUtils.formatRFC822;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 public class GitCommand extends SCMCommand {
@@ -465,7 +466,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private CommandLine git() {
-        CommandLine git = CommandLine.createCommandLine("git").withEncoding("UTF-8");
+        CommandLine git = CommandLine.createCommandLine("git").withEncoding(UTF_8);
         return git.withNonArgSecrets(secrets);
     }
 

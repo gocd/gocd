@@ -26,6 +26,7 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.File;
 
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BuilderTest {
@@ -51,7 +52,7 @@ class BuilderTest {
         CommandBuilder builder = new CommandBuilder("echo", "normal task", new File("."), new RunIfConfigs(FAILED),
                 cancelBuilder,
                 "");
-        builder.cancel(goPublisher, new EnvironmentVariableContext(), null, null, "utf-8");
+        builder.cancel(goPublisher, new EnvironmentVariableContext(), null, null, UTF_8);
 
         assertThat(goPublisher.getMessage()).contains("Error happened while attempting to execute 'echo2 cancel task'");
     }
@@ -61,7 +62,7 @@ class BuilderTest {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext, null, null, "utf-8");
+        builder.cancel(goPublisher, environmentVariableContext, null, null, UTF_8);
         assertThat(stubBuilder.wasCalled).isTrue();
     }
 
@@ -70,7 +71,7 @@ class BuilderTest {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
-        builder.cancel(goPublisher, environmentVariableContext, null, null, "utf-8");
+        builder.cancel(goPublisher, environmentVariableContext, null, null, UTF_8);
 
         assertThat(goPublisher.getMessage()).contains("On Cancel Task");
         assertThat(goPublisher.getMessage()).contains("On Cancel Task completed");

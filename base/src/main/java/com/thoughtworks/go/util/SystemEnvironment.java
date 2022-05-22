@@ -213,7 +213,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private volatile static Integer agentConnectionTimeout;
     private volatile static String cruiseConfigDir;
     private volatile static Long databaseFullSizeLimit;
-    private volatile static Charset consoleLogCharsetAsCharset;
+    private volatile static Charset consoleLogCharset;
     private volatile static Long artifactFullSizeLimit;
     private volatile static Long diskSpaceCacheRefresherInterval;
     public static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
@@ -527,7 +527,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         cruiseConfigDir = null;
         databaseFullSizeLimit = null;
         artifactFullSizeLimit = null;
-        consoleLogCharsetAsCharset = null;
+        consoleLogCharset = null;
     }
 
     public String getWebappContextPath() {
@@ -579,15 +579,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Level.toLevel(getPropertyImpl("plugin." + pluginId + ".log.level", "INFO"), Level.INFO);
     }
 
-    public String consoleLogCharset() {
-        return consoleLogCharsetAsCharset().name();
-    }
-
-    public Charset consoleLogCharsetAsCharset() {
-        if (consoleLogCharsetAsCharset == null) {
-            consoleLogCharsetAsCharset = Charset.forName(get(CONSOLE_LOG_CHARSET));
+    public Charset consoleLogCharset() {
+        if (consoleLogCharset == null) {
+            consoleLogCharset = Charset.forName(get(CONSOLE_LOG_CHARSET));
         }
-        return consoleLogCharsetAsCharset;
+        return consoleLogCharset;
     }
 
     public String getExternalPluginAbsolutePath() {

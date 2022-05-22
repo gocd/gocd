@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.utils;
+package com.thoughtworks.go.util;
 
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
+import java.io.*;
 
 /**
  * @understands how to test serialization of classes
  */
 public class SerializationTester {
-    public static Object serializeAndDeserialize(Object o) throws IOException, ClassNotFoundException {
+    @SuppressWarnings("unchecked")
+    public static <T> T objectSerializeAndDeserialize(T o) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(buffer);
         out.writeObject(o);
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-        return in.readObject();
+        return (T) in.readObject();
     }
 
 }

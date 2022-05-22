@@ -34,6 +34,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
+import java.nio.charset.StandardCharsets
+
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static com.thoughtworks.go.helper.MaterialsMother.*
 import static org.assertj.core.api.Assertions.assertThat
@@ -70,10 +72,10 @@ class WorkRepresenterTest {
             def buildCause = BuildCause.createWithModifications(materialRevisions(), "user1")
             def assignment = BuildAssignment.create(jobPlan(), buildCause,builders(), null, new EnvironmentVariableContext(), artifactStores())
 
-            def work = new com.thoughtworks.go.remote.work.BuildWork(assignment, "utf-8")
+            def work = new BuildWork(assignment, StandardCharsets.UTF_8)
             def workJSON = WorkRepresenter.toJSON(work)
 
-            BuildWork deserializedWork = WorkRepresenter.fromJSON(workJSON)
+            BuildWork deserializedWork = WorkRepresenter.fromJSON(workJSON) as BuildWork
 
             def assignmentBeforeSerialization = work.getAssignment()
             def deserializedAssignment = deserializedWork.getAssignment()
@@ -94,7 +96,7 @@ class WorkRepresenterTest {
     }
 
 
-    private MaterialRevisions materialRevisions() {
+    private static MaterialRevisions materialRevisions() {
         def materials = new HashMap<Material, String>()
         materials.put(gitMaterial("http://somegitrepo.com"), "rev1")
         materials.put(svnMaterial(), "rev2")

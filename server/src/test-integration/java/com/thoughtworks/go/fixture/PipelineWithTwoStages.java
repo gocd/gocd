@@ -47,10 +47,10 @@ import java.util.Collections;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
+import static com.thoughtworks.go.util.CommandUtils.exec;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static com.thoughtworks.go.utils.CommandUtils.exec;
 
 public class PipelineWithTwoStages implements PreCondition {
     private SvnCommand svnClient;

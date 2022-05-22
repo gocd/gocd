@@ -58,7 +58,7 @@ public class ConsoleLogSenderTest {
         socket = mock(SocketEndpoint.class);
         when(socket.isOpen()).thenReturn(true);
         systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.consoleLogCharsetAsCharset()).thenReturn(UTF_8);
+        when(systemEnvironment.consoleLogCharset()).thenReturn(UTF_8);
         consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, systemEnvironment);
         jobIdentifier = mock(JobIdentifier.class);
     }

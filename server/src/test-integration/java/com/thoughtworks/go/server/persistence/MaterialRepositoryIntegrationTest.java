@@ -61,10 +61,10 @@ import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.json.JsonHelper;
-import com.thoughtworks.go.utils.SerializationTester;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.joda.time.DateTime;
@@ -94,7 +94,8 @@ import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -508,7 +509,7 @@ public class MaterialRepositoryIntegrationTest {
 
         List<Modification> mods = repo.findMaterialRevisionsForMaterial(materialInstance.getId());
 
-        List<Modification> deserialized = (List<Modification>) SerializationTester.serializeAndDeserialize(mods);
+        List<Modification> deserialized = SerializationTester.objectSerializeAndDeserialize(mods);
         assertThat(deserialized, is(mods));
     }
 

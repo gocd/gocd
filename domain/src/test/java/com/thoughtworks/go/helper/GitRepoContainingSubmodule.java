@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.util.CommandUtils.exec;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static com.thoughtworks.go.utils.CommandUtils.exec;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GitRepoContainingSubmodule extends TestRepo {
@@ -61,7 +61,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
         return submodule;
     }
 
-    public void removeSubmodule(String folderName) throws Exception {
+    public void removeSubmodule(String folderName) {
         git(remoteRepoDir).updateSubmoduleWithInit(inMemoryConsumer(), false);
         git(remoteRepoDir).submoduleRemove(folderName);
         git(remoteRepoDir).commit("Removed submodule " + folderName);
@@ -97,7 +97,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
         changeFile(remoteSubmoduleRepoLocation, fileName, newContentOfFile);
         checkInOneFile(remoteSubmoduleRepoLocation, new File(fileName), comment);
 
-        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("pull").
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("pull").
                 withWorkingDir(new File(remoteRepoDir, submoduleNameInRepo)).
                 runOrBomb(new MaterialFingerprintTag(null));
         checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
@@ -146,9 +146,9 @@ public class GitRepoContainingSubmodule extends TestRepo {
         File withSubmodules = new File(workingDir, repoName);
         withSubmodules.mkdirs();
         git(withSubmodules).init();
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
 
         String fileName = "file-" + System.currentTimeMillis();
         addAndCommitNewFile(withSubmodules, fileName, "Added " + fileName);

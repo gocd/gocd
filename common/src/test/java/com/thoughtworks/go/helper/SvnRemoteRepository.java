@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -50,7 +51,7 @@ public class SvnRemoteRepository {
         port = RandomPort.find(toString());
         CommandLine svnserve = CommandLine.createCommandLine("svnserve")
                 .withArgs("-d", "--foreground", "--listen-port", Integer.toString(port), "-r", repo.projectRepositoryRoot().getCanonicalPath())
-                .withEncoding("utf-8");
+                .withEncoding(StandardCharsets.UTF_8);
         consumer = inMemoryConsumer();
         processWrapper = svnserve.execute(consumer, new EnvironmentVariableContext(),null);
 

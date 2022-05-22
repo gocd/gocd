@@ -20,6 +20,7 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -28,7 +29,7 @@ class ScriptRunnerTest {
     @EnabledOnOs(OS.LINUX)
     void shouldReplaceSecretsOnTheOutputUnderLinux() throws CheckedCommandLineException {
         CommandLine command = CommandLine.createCommandLine("echo").withArg("My password is ").withArg(
-                new PasswordArgument("secret")).withEncoding("utf-8");
+                new PasswordArgument("secret")).withEncoding(UTF_8);
         InMemoryConsumer output = new InMemoryConsumer();
 
         command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
@@ -43,7 +44,7 @@ class ScriptRunnerTest {
                 .withArg("echo")
                 .withArg("My password is ")
                 .withArg(new PasswordArgument("secret"))
-                .withEncoding("utf-8");
+                .withEncoding(UTF_8);
         InMemoryConsumer output = new InMemoryConsumer();
 
         command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
@@ -52,7 +53,7 @@ class ScriptRunnerTest {
 
     @Test
     void shouldReplaceSecretsInErrors() {
-        CommandLine command = CommandLine.createCommandLine("notexist").withEncoding("utf-8").withArg("My password is ").withArg(
+        CommandLine command = CommandLine.createCommandLine("notexist").withEncoding(UTF_8).withArg("My password is ").withArg(
                 new PasswordArgument("secret"));
         InMemoryConsumer output = new InMemoryConsumer();
         try {
@@ -68,7 +69,7 @@ class ScriptRunnerTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldBeAbleToSpecifyEncoding() throws CheckedCommandLineException {
         String chrisWasHere = "司徒空在此";
-        CommandLine command = CommandLine.createCommandLine("echo").withArg(chrisWasHere).withEncoding("UTF-8");
+        CommandLine command = CommandLine.createCommandLine("echo").withArg(chrisWasHere).withEncoding(UTF_8);
         InMemoryConsumer output = new InMemoryConsumer();
         ExecScript script = new ExecScript("FOO");
 
@@ -81,7 +82,7 @@ class ScriptRunnerTest {
     void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
-        CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding("utf-8");
+        CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding(UTF_8);
         InMemoryConsumer output = new InMemoryConsumer();
         ExecScript script = new ExecScript("ERROR_STRING");
 
@@ -99,7 +100,7 @@ class ScriptRunnerTest {
                 .withArg("/c")
                 .withArg("echo")
                 .withArg("the_secret_password")
-                .withEncoding("utf-8");
+                .withEncoding(UTF_8);
 
         InMemoryConsumer output = new InMemoryConsumer();
         ExecScript script = new ExecScript("ERROR_STRING");

@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -215,7 +216,7 @@ public class HgCommandTest {
     }
 
     private CommandLine hg(File workingDir, String... arguments) {
-        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding("utf-8");
+        CommandLine hg = CommandLine.createCommandLine("hg").withArgs(arguments).withEncoding(UTF_8);
         hg.setWorkingDir(workingDir);
         return hg;
     }
@@ -258,7 +259,7 @@ public class HgCommandTest {
     private void setUpServerRepoFromHgBundle(File serverRepo, File hgBundleFile) {
         String[] input = new String[]{};
         CommandLine.createCommandLine("hg")
-                .withArgs("clone", hgBundleFile.getAbsolutePath(), serverRepo.getAbsolutePath()).withEncoding("utf-8").runOrBomb(null, input);
+                .withArgs("clone", hgBundleFile.getAbsolutePath(), serverRepo.getAbsolutePath()).withEncoding(UTF_8).runOrBomb(null, input);
     }
 
     private void makeACommitToSecondBranch() {

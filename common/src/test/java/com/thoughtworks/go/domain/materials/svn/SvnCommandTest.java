@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -237,7 +238,7 @@ public class SvnCommandTest {
     void shouldGetWorkingUrl() throws IOException {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         String url = subversion.workingRepositoryUrl(checkoutFolder);
-        assertThat(URLDecoder.decode(url, "UTF-8")).isEqualToIgnoringCase(svnRepositoryUrl);
+        assertThat(URLDecoder.decode(url, StandardCharsets.UTF_8)).isEqualToIgnoringCase(svnRepositoryUrl);
     }
 
     void assertAtRevision(int rev, String file) {

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,16 +66,16 @@ class ProcessManagerTest {
         when(processTwo.getOutputStream()).thenReturn(mock(OutputStream.class));
         ConcurrentMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
         tag1 = mock(ProcessTag.class);
-        wrapperForProcessOne = new ProcessWrapper(processOne, tag1, null, inMemoryConsumer(), "utf-8", "ERROR: ");
+        wrapperForProcessOne = new ProcessWrapper(processOne, tag1, null, inMemoryConsumer(), UTF_8, "ERROR: ");
         processMap.put(processOne, wrapperForProcessOne);
         tag2 = mock(ProcessTag.class);
-        wrapperForProcessTwo = new ProcessWrapper(processTwo, tag2, null, inMemoryConsumer(), "utf-8", "ERROR: ");
+        wrapperForProcessTwo = new ProcessWrapper(processTwo, tag2, null, inMemoryConsumer(), UTF_8, "ERROR: ");
         processMap.put(processTwo, wrapperForProcessTwo);
     }
 
     @Test
     void shouldAddToProcessListWhenNewProcessCreated() {
-        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), null, "utf-8",
+        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), null, UTF_8,
                 "ERROR: ");
         assertThat(processManager.getProcessMap().size()).isEqualTo(3);
     }

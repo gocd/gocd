@@ -15,11 +15,7 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.ProcessManager;
-import com.thoughtworks.go.util.ProcessTag;
-import com.thoughtworks.go.util.ProcessWrapper;
-import com.thoughtworks.go.utils.CommandUtils;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -27,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -53,16 +50,17 @@ import java.util.function.Consumer;
 public class CommandLine {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandLine.class);
+    private static final String ERROR_STREAM_PREFIX_FOR_CMDS = "STDERR: ";
+    private static final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
 
     private final String executable;
     private final List<CommandArgument> arguments = new ArrayList<>();
-    private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
-    private final String ERROR_STREAM_PREFIX_FOR_CMDS = "STDERR: ";
-    private List<SecretString> secrets = new ArrayList<>();
+    private final List<SecretString> secrets = new ArrayList<>();
+    private final Map<String, String> env = new HashMap<>();
+    private final List<String> inputs = new ArrayList<>();
+
     private File workingDir = null;
-    private Map<String, String> env = new HashMap<>();
-    private List<String> inputs = new ArrayList<>();
-    private String encoding;
+    private Charset encoding;
 
     private CommandLine(String executable) {
         this.executable = executable;
@@ -79,7 +77,7 @@ public class CommandLine {
         }
 
         // path containing one or more elements
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         for (int i = 0; i < line.length; i++) {
             if (i > 0) {
                 result.append(separator);
@@ -104,15 +102,15 @@ public class CommandLine {
         final int inQuote = 1;
         final int inDoubleQuote = 2;
         int state = normal;
-        StringTokenizer tok = new StringTokenizer(toProcess, "\"\' ", true);
-        Vector v = new Vector();
-        StringBuffer current = new StringBuffer();
+        StringTokenizer tok = new StringTokenizer(toProcess, "\"' ", true);
+        Vector<String> v = new Vector<>();
+        StringBuilder current = new StringBuilder();
 
         while (tok.hasMoreTokens()) {
             String nextTok = tok.nextToken();
             switch (state) {
                 case inQuote:
-                    if ("\'".equals(nextTok)) {
+                    if ("'".equals(nextTok)) {
                         state = normal;
                     } else {
                         current.append(nextTok);
@@ -126,7 +124,7 @@ public class CommandLine {
                     }
                     break;
                 default:
-                    if ("\'".equals(nextTok)) {
+                    if ("'".equals(nextTok)) {
                         state = inQuote;
                     } else if ("\"".equals(nextTok)) {
                         state = inDoubleQuote;
@@ -164,7 +162,7 @@ public class CommandLine {
     }
 
     public String describe() {
-        String description = "--- Command ---\n" + toString()
+        String description = "--- Command ---\n" + this
                 + "\n--- Environment ---\n" + env + "\n"
                 + "--- INPUT ----\n" + StringUtils.join(inputs, ",") + "\n";
         for (CommandArgument argument : arguments) {
@@ -308,7 +306,7 @@ public class CommandLine {
         inputs.addAll(Arrays.asList(input));
     }
 
-    public CommandLine withEncoding(String encoding) {
+    public CommandLine withEncoding(Charset encoding) {
         this.encoding = encoding;
         return this;
     }
@@ -322,7 +320,7 @@ public class CommandLine {
         //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
 
         ProcessWrapper process;
-        int exitCode = -1;
+        int exitCode;
 
         SafeOutputStreamConsumer streamConsumer = null;
         try {
@@ -387,11 +385,10 @@ public class CommandLine {
         if (executable != null) {
             args.add(executable);
         }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
+        for (CommandArgument argument : arguments) {
             args.add(argument.forCommandLine());
         }
-        return args.toArray(new String[args.size()]);
+        return args.toArray(new String[0]);
     }
 
     protected File getWorkingDir() {
@@ -417,11 +414,10 @@ public class CommandLine {
         if (executable != null) {
             args.add(executable);
         }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
+        for (CommandArgument argument : arguments) {
             args.add(argument.forDisplay());
         }
-        return args.toArray(new String[args.size()]);
+        return args.toArray(new String[0]);
     }
 
     // throws an exception if the specified working directory is non null

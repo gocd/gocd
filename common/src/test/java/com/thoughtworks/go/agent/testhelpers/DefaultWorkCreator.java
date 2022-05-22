@@ -34,6 +34,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -88,12 +89,12 @@ public class DefaultWorkCreator implements WorkCreator {
         return dir;
     }
 
-    public Work getWork(AgentIdentifier agentIdentifier) {
+    public Work getWork() {
         try {
             CruiseConfig config = GoConfigMother.pipelineHavingJob(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, ARTIFACT_FILE.getAbsolutePath(), ARTIFACT_FOLDER.getAbsolutePath());
             BuildCause buildCause = BuildCause.createWithEmptyModifications();
             BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME), new EnvironmentVariableContext(), new ArtifactStores());
-            return new BuildWork(buildAssignment, "utf-8");
+            return new BuildWork(buildAssignment, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw bomb(e);
         }
@@ -101,7 +102,7 @@ public class DefaultWorkCreator implements WorkCreator {
 
     @Override
     public Work work(AgentIdentifier agentIdentifier) {
-        return getWork(agentIdentifier);
+        return getWork();
     }
 
     private JobPlan toPlan(final CruiseConfig config) throws Exception {

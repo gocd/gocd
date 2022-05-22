@@ -19,6 +19,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
     }
 
     public StubGoPublisher(boolean shouldFail) {
-        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), "utf-8");
+        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), StandardCharsets.UTF_8);
         this.shouldFail = shouldFail;
     }
 

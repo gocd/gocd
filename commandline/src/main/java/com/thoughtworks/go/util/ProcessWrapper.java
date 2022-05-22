@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ProcessWrapper {
     private String command;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
-    ProcessWrapper(Process process, ProcessTag processTag, String command, ConsoleOutputStreamConsumer consumer, String encoding, String errorPrefix) {
+    ProcessWrapper(Process process, ProcessTag processTag, String command, ConsoleOutputStreamConsumer consumer, Charset encoding, String errorPrefix) {
         this.process = process;
         this.processTag = processTag;
         this.command = command;

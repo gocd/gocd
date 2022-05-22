@@ -27,7 +27,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,12 +40,9 @@ import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServerHealthServiceTest {
     private ServerHealthService serverHealthService;

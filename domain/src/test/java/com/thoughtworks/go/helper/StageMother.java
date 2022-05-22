@@ -22,7 +22,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.joda.time.DateTime;
 
 import java.sql.Timestamp;

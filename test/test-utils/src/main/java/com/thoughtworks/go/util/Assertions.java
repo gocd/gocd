@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.utils;
+package com.thoughtworks.go.util;
 
 import org.hamcrest.Matcher;
 
 import java.util.function.BooleanSupplier;
 
-import static com.thoughtworks.go.utils.Timeout.TWENTY_SECONDS;
-import static com.thoughtworks.go.utils.Timeout.TWO_MINUTES;
+import static com.thoughtworks.go.util.Timeout.TWENTY_SECONDS;
+import static com.thoughtworks.go.util.Timeout.TWO_MINUTES;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Assertions {

@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -255,7 +255,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     private CommandLine svnExecutable() {
-        return createCommandLine("svn").withEncoding("UTF-8");
+        return createCommandLine("svn").withEncoding(StandardCharsets.UTF_8);
     }
 
     private void addCredentials(CommandLine line, StringArgument svnUserName, PasswordArgument svnPassword) {
@@ -310,8 +310,6 @@ public class SvnCommand extends SCMCommand implements Subversion {
         private String path = "";
         private String encodedUrl = "";
         private String root = "";
-        private static final String ENCODING = "UTF-8";
-
 
         public void parse(String xmlOutput, SAXBuilder builder) {
             try {
@@ -322,7 +320,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             }
         }
 
-        private void parseDOMTree(Document document) throws UnsupportedEncodingException {
+        private void parseDOMTree(Document document) {
             Element infoElement = document.getRootElement();
             Element entryElement = infoElement.getChild("entry");
             String encodedUrl = entryElement.getChildTextTrim("url");
@@ -331,7 +329,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
             String root = repositoryElement.getChildTextTrim("root");
             String encodedPath = StringUtils.replace(encodedUrl, root, "");
 
-            this.path = URLDecoder.decode(encodedPath, ENCODING);
+            this.path = URLDecoder.decode(encodedPath, StandardCharsets.UTF_8);
             this.root = root;
             this.encodedUrl = encodedUrl;
         }

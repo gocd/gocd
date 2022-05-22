@@ -18,7 +18,7 @@ package com.thoughtworks.go.serverhealth;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.joda.time.DateTime;

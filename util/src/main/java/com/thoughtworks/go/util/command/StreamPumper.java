@@ -24,11 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static java.lang.String.format;
 
 public class StreamPumper implements Runnable {
 
@@ -40,20 +37,16 @@ public class StreamPumper implements Runnable {
     private long lastHeard;
     private final Clock clock;
 
-    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding) {
+    private StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, Charset encoding) {
         this(in, streamConsumer, prefix, encoding, new SystemTimeClock());
     }
 
-    StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, String encoding, Clock clock) {
+    StreamPumper(InputStream in, StreamConsumer streamConsumer, String prefix, Charset encoding, Clock clock) {
         this.streamConsumer = streamConsumer;
         this.prefix = prefix;
         this.clock = clock;
         this.lastHeard = System.currentTimeMillis();
-        try {
-            this.in = new InputStreamReader(in, encoding);
-        } catch (UnsupportedEncodingException e) {
-            bomb(format("Unable to use [%s] to decode stream.", encoding));
-        }
+        this.in = new InputStreamReader(in, encoding);
     }
 
     @Override
@@ -89,7 +82,7 @@ public class StreamPumper implements Runnable {
         }
     }
 
-    public static StreamPumper pump(InputStream stream, StreamConsumer streamConsumer, String prefix, String encoding) {
+    public static StreamPumper pump(InputStream stream, StreamConsumer streamConsumer, String prefix, Charset encoding) {
         StreamPumper pumper = new StreamPumper(stream, streamConsumer, prefix, encoding);
         new Thread(pumper).start();
         return pumper;
@@ -101,7 +94,9 @@ public class StreamPumper implements Runnable {
     }
 
     public boolean didTimeout(long duration, TimeUnit unit) {
-        if (completed) { return false; }
+        if (completed) {
+            return false;
+        }
         return timeSinceLastLine(unit) > duration;
     }
 

@@ -1322,10 +1322,10 @@ public class CachedGoConfigIntegrationTest {
     private Modification setupExternalConfigRepo(File configRepo, String configRepoTestResource) throws IOException {
         ClassPathResource resource = new ClassPathResource(configRepoTestResource);
         FileUtils.copyDirectory(resource.getFile(), configRepo);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb(null);
         gitAddDotAndCommit(configRepo);
-        ConsoleResult consoleResult = CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb(null);
+        ConsoleResult consoleResult = CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb(null);
 
         Modification modification = new Modification();
         modification.setRevision(consoleResult.outputAsString());
@@ -1333,10 +1333,10 @@ public class CachedGoConfigIntegrationTest {
     }
 
     private void gitAddDotAndCommit(File configRepo) {
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("add").withArg("-A").withArg(".").withWorkingDir(configRepo).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("add").withArg("-A").withArg(".").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb(null);
     }
 
     private ConfigRepoConfig createConfigRepoWithDefaultRules(MaterialConfig materialConfig, String pluginId, String id) {

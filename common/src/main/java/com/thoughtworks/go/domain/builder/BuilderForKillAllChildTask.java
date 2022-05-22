@@ -23,6 +23,8 @@ import com.thoughtworks.go.process.CurrentProcess;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.nio.charset.Charset;
+
 public class BuilderForKillAllChildTask extends Builder {
     private CurrentProcess currentProcess;
     private boolean cancelAttempted = false;
@@ -45,7 +47,7 @@ public class BuilderForKillAllChildTask extends Builder {
     @Override
     public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext,
                       TaskExtension taskExtension, ArtifactExtension artifactExtension,
-                      PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
+                      PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) {
         if (!cancelAttempted) {
             publisher.consumeLineWithPrefix("Attempting to kill child processes.");
             cancelAttempted = true;

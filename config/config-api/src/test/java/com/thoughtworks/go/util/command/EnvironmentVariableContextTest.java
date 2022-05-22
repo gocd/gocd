@@ -15,15 +15,16 @@
  */
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.util.SerializationTester;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class EnvironmentVariableContextTest {
 
@@ -99,7 +100,7 @@ public class EnvironmentVariableContextTest {
     @Test
     public void shouldBeAbleToSerialize() throws ClassNotFoundException, IOException {
         EnvironmentVariableContext original = new EnvironmentVariableContext("blahKey", "blahValue");
-        EnvironmentVariableContext clone = (EnvironmentVariableContext) SerializationTester.serializeAndDeserialize(original);
+        EnvironmentVariableContext clone = SerializationTester.objectSerializeAndDeserialize(original);
         assertThat(clone,is(original));
     }
 

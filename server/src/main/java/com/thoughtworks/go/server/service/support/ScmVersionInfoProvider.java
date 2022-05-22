@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
@@ -57,7 +58,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
 
     private String getGitVersion() {
         try {
-            return createCommandLine("git").withEncoding("UTF-8").withArgs("version").runOrBomb(new NamedProcessTag("git version check")).outputAsString();
+            return createCommandLine("git").withEncoding(UTF_8).withArgs("version").runOrBomb(new NamedProcessTag("git version check")).outputAsString();
         } catch (Exception e) {
             return null;
         }
@@ -65,7 +66,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
 
     private String getHgVersion() {
         try {
-            CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("utf-8");
+            CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding(UTF_8);
             String hgOut = hg.runOrBomb(new NamedProcessTag("hg version check")).outputAsString();
             return hgOut;
         } catch (Exception e) {
@@ -75,7 +76,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
 
     private String getSvnVersion() {
         try {
-            CommandLine svn = createCommandLine("svn").withArgs("--version").withEncoding("utf-8");
+            CommandLine svn = createCommandLine("svn").withArgs("--version").withEncoding(UTF_8);
             return svn.runOrBomb(new NamedProcessTag("svn version check")).outputAsString();
         } catch (Exception e) {
             return null;
@@ -84,7 +85,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
 
     private String getP4Version() {
         try {
-            CommandLine p4 = createCommandLine("p4").withArgs("-V").withEncoding("utf-8");
+            CommandLine p4 = createCommandLine("p4").withArgs("-V").withEncoding(UTF_8);
             return p4.runOrBomb(new NamedProcessTag("p4 version check")).outputAsString();
         } catch (Exception e) {
             return null;

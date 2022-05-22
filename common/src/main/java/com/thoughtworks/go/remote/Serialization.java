@@ -49,6 +49,7 @@ import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
 import java.io.File;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 
 import static java.lang.String.format;
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
@@ -76,6 +77,7 @@ public class Serialization {
                 .registerTypeAdapter(ArtifactStore.class, new ArtifactStoreAdapter())
                 .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
                 .registerTypeAdapter(File.class, new FileAdapter())
+                .registerTypeHierarchyAdapter(Charset.class, new CharsetAdapter())
                 .registerTypeAdapterFactory(builderAdapter())
                 .registerTypeAdapterFactory(materialAdapter())
                 .registerTypeAdapterFactory(workAdapter())
@@ -180,6 +182,18 @@ public class Serialization {
             JsonObject serialized = new JsonObject();
             serialized.add("path", new JsonPrimitive(src.getPath()));
             return serialized;
+        }
+    }
+
+    private static class CharsetAdapter implements JsonSerializer<Charset>, JsonDeserializer<Charset> {
+        @Override
+        public Charset deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            return Charset.forName(json.getAsString());
+        }
+
+        @Override
+        public JsonElement serialize(Charset src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.name());
         }
     }
 

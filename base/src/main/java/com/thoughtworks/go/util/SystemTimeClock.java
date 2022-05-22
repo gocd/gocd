@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;

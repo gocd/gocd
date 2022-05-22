@@ -15,18 +15,18 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import java.util.Date;
-
 import com.thoughtworks.go.util.SystemTimeClock;
 import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.utils.Timeout;
+import com.thoughtworks.go.util.Timeout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ServerHealthStateTest {

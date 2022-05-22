@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.command.CommandLineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 public class PostBackupScript {
@@ -83,7 +84,7 @@ public class PostBackupScript {
         }
 
         return CommandLine.createCommandLine(postBackupScript)
-                .withEncoding("UTF-8")
+                .withEncoding(StandardCharsets.UTF_8)
                 .withEnv(envBuilder.build());
 
     }

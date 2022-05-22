@@ -40,6 +40,7 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static java.nio.charset.StandardCharsets.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -118,19 +119,19 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     private String setupExternalConfigRepo(File configRepo, String configRepoTestResource) throws IOException {
         ClassPathResource resource = new ClassPathResource(configRepoTestResource);
         FileUtils.copyDirectory(resource.getFile(), configRepo);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("init").withArg(configRepo.getAbsolutePath()).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArgs("config", "commit.gpgSign", "false").withWorkingDir(configRepo.getAbsoluteFile()).runOrBomb(null);
         gitAddDotAndCommit(configRepo);
-        ConsoleResult consoleResult = CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb(null);
+        ConsoleResult consoleResult = CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("log").withArg("-1").withArg("--pretty=format:%h").withWorkingDir(configRepo).runOrBomb(null);
 
         return consoleResult.outputAsString();
     }
 
     private void gitAddDotAndCommit(File configRepo) {
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("add").withArg("-A").withArg(".").withWorkingDir(configRepo).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb(null);
-        CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("add").withArg("-A").withArg(".").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb(null);
+        CommandLine.createCommandLine("git").withEncoding(UTF_8).withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb(null);
     }
 
 }

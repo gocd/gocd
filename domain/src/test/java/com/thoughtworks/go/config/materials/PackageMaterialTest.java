@@ -40,7 +40,6 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -258,7 +257,7 @@ class PackageMaterialTest {
     }
 
     @Test
-    void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() throws UnsupportedEncodingException {
+    void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", true, "!secure_value:with_special_chars"),

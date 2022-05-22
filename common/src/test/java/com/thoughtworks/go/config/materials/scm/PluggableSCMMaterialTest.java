@@ -47,7 +47,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -281,7 +280,7 @@ class PluggableSCMMaterialTest {
     }
 
     @Test
-    void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() throws UnsupportedEncodingException {
+    void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "!secure_value:with_special_chars");
         SCM scmConfig = SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1, k2));

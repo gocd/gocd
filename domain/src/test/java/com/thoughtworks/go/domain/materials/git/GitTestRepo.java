@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GitTestRepo extends TestRepo {
     private static final String GIT_3_REVISIONS_BUNDLE = "../common/src/test/resources/data/git/git-3-revisions.git";
@@ -112,9 +113,9 @@ public class GitTestRepo extends TestRepo {
             throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
         }
 
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding(UTF_8).withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
 
         git.fetchAndResetToHead(outputStreamConsumer, false);
     }
@@ -163,7 +164,7 @@ public class GitTestRepo extends TestRepo {
 
         public void commitWithAmend(String message, File gitRepo) {
             String[] args = new String[]{"commit", "--amend", "-m", message};
-            CommandLine gitCommit = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArgs(args).withWorkingDir(gitRepo);
+            CommandLine gitCommit = CommandLine.createCommandLine("git").withEncoding(UTF_8).withArgs(args).withWorkingDir(gitRepo);
             runOrBomb(gitCommit);
         }
 

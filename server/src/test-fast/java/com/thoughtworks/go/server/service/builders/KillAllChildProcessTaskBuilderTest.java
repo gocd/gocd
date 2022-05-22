@@ -32,11 +32,10 @@ import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 
 public class KillAllChildProcessTaskBuilderTest {
@@ -50,7 +49,7 @@ public class KillAllChildProcessTaskBuilderTest {
     @Test
     @Timeout(value=11, unit=MINUTES)
     public void shouldKillAllChildProcessOnBuild() throws Exception {
-        ProcessWrapper processWrapper = platformSpecificSleepCommand().withArg(String.valueOf(10 * 60)).withEncoding("utf-8").execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
+        ProcessWrapper processWrapper = platformSpecificSleepCommand().withArg(String.valueOf(10 * 60)).withEncoding(UTF_8).execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
                 null);//10 mins
 
         assertThat(processWrapper.isRunning(), is(true));
@@ -61,7 +60,7 @@ public class KillAllChildProcessTaskBuilderTest {
 
         long before = getSystemTime();
         Builder builder = new KillAllChildProcessTaskBuilder().createBuilder(builderFactory, new KillAllChildProcessTask(), null, null);
-        builder.build(publisher, environmentVariableContext, null, null, null, "utf-8");
+        builder.build(publisher, environmentVariableContext, null, null, null, UTF_8);
 
         assertThat(processWrapper.waitForExit(), is(greaterThan(0)));
         assertThat(getSystemTime() - before, is(lessThan(10 * 60 * 1000 * 1000 * 1000L)));//min = 10; sec = 60*min; mills = 1000*sec; micro = 1000*mills; nano = 1000*micro;

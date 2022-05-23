@@ -216,11 +216,11 @@ function isEmpty<T>(i: Iterable<T>): boolean {
   if (void 0 === i) { return true; }
 
   if ("string" === typeof i || "length" in i) {
-    return (i as { length: number }).length === 0;
+    return (i as unknown as { length: number }).length === 0;
   }
 
   if ("size" in i) {
-    return (i as { size: number }).size === 0;
+    return (i as unknown as { size: number }).size === 0;
   }
 
   // last resort, but if `i` does not implement Iterable, this test will return true

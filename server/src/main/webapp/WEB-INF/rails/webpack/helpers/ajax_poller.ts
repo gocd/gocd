@@ -69,9 +69,10 @@ export class AjaxPoller<T> {
       this.timeout = undefined;
     }
 
+    // @ts-ignore
     if (this.currentXHR()) {
       if ("abort" in this.currentXHR()) {
-        ((this.currentXHR() as unknown) as XMLHttpRequest).abort();
+        (this.currentXHR() as unknown as XMLHttpRequest).abort();
       }
     }
   }

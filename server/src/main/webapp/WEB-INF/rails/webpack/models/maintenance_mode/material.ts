@@ -402,7 +402,8 @@ export class Material {
         } else if (_.isObject(value)) {
           map.set(key, JSON.stringify(value));
         } else {
-          map.set(key, value ? value!.toString() : null);
+          const stringValue: string = value;
+          map.set(key, stringValue ? stringValue!.toString() : null);
         }
       }
     });

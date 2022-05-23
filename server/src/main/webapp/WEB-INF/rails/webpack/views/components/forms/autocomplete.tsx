@@ -46,7 +46,7 @@ function onlyAwesompleteOpts(config: any): Awesomplete.Options {
 }
 
 function onlyTextFieldAttrs(config: any): TextFieldAttrs {
-  return _.omit(config, ["css", "provider", "autoEvaluate"].concat(AWESOMPLETE_KEYS)) as TextFieldAttrs;
+  return _.omit(config, ["css", "provider", "autoEvaluate"].concat(AWESOMPLETE_KEYS)) as unknown as TextFieldAttrs;
 }
 
 export abstract class SuggestionProvider {

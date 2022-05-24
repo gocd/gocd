@@ -129,7 +129,7 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
   def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-${flavor}-setup.exe")
 
   // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
-  def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padRight(5, '0')}"
+  def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padLeft(5, '0')}"
 
   def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${project.goVersion}")
 

@@ -54,8 +54,9 @@ Function "UpgradeToOlderVersionMessageAndExit"
   ReadRegStr $GoCDCurrentVersion HKLM "Software\ThoughtWorks Studios\Go ${COMPONENT_NAME}" "Version"
   ${LogText} "Go ${COMPONENT_NAME} $GoCDCurrentVersion is installed, and you are trying to install an older version (${COMPONENT_FULL_VERSION}). This is not supported."
 
-
   ${IfNot} ${Silent}
     MessageBox MB_OK "Go ${COMPONENT_NAME} $GoCDCurrentVersion is installed, and you are trying to install an older version (${COMPONENT_FULL_VERSION}).$\r$\nThis is not supported."
   ${EndIf}
+
+  Call ExitInstaller
 FunctionEnd

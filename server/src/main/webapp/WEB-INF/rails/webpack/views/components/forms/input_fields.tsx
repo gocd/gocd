@@ -155,8 +155,16 @@ function isMithrilVnode(o: any): o is m.Vnode {
   return !!("tag" in o && "children" in o);
 }
 
-export function labelToId(label: m.Children): string {
-  if (label === null || label === undefined) {
+function textFromVnode(vnode: m.Vnode): string {
+  if (typeof vnode.children === "string") return vnode.children as string;
+  if (vnode.children instanceof Array && vnode.children.length === 1) {
+    return textFromVnode(vnode.children[0] as m.Vnode);
+  }
+  return "";
+}
+
+export function labelToId(label: string | number | boolean | m.Vnode | m.Children): string {
+  if (_.isNil(label)) {
     return "";
   }
 
@@ -172,20 +180,23 @@ export function labelToId(label: m.Children): string {
     return s.slugify(result);
   }
 
-  if (label instanceof Array) { // best guess, only consider top-level and don't recurse
-    let text = "";
-    for (const child of label) {
-      if ("string" === typeof child) {
-        text += child;
-      } else if (child === null || child === undefined) {
-        // ignore
-      } else if (!(child instanceof Array)) {
-        text += (child as m.Vnode).text || "";
-      }
-    }
-    return s.slugify(text);
+  if (!(label instanceof Array)) {
+    return "";
   }
-  return "";
+
+   // We have an array. Let's get the text elements best guess, only consider top-level and don't recurse
+  let text = "";
+  for (const child of label) {
+    if (typeof child === "string") {
+      text += child;
+    } else if (_.isNil(child)) {
+      // ignore
+    } else if (!(child instanceof Array)) {
+      text += textFromVnode(child as m.Vnode);
+    }
+  }
+
+  return s.slugify(text);
 }
 
 class Label extends RestyleViewComponent<Styles, LabelComponentAttrs & RestyleAttrs<Styles>> {

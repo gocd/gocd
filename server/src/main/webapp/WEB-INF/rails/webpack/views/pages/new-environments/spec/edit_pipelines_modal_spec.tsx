@@ -89,7 +89,7 @@ describe("Edit Pipelines Modal", () => {
     expect(configRepoAssociated).toBeInDOM();
     expect(configRepoAssociated).toContainText(expectedMsg);
     expect(helper.byTestId(pipeline1Selector, configRepoAssociated)).toBeInDOM();
-
+    expect(helper.byTestId(`form-field-input-${pipelineName}`)).toBeDisabled();
     expect(configRepoLink).toHaveAttr("href", SparkRoutes.ConfigRepoViewPath(configRepoId));
   });
 

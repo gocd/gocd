@@ -51,19 +51,6 @@ describe("PipelineConfig model", () => {
         "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 
-  xit("should validate mutual exclusivity of template and stages", () => {
-    const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
-    expect(pip.isValid()).toBe(true);
-
-    pip.template("wubba_lubba_dub_dub");
-    expect(pip.isValid()).toBe(false);
-    expect(pip.errors().errorsForDisplay("template"))
-      .toBe("Pipeline stages must not be defined when using a pipeline template.");
-
-    pip.stages().clear();
-    expect(pip.isValid()).toBe(true);
-  });
-
   it("should validate parameters don't have duplicate names", () => {
     const pip    = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     const param1 = new PipelineParameter("same_name", "foo");

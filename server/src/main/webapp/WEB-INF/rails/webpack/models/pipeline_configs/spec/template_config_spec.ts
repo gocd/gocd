@@ -14,24 +14,9 @@
  * limitations under the License.
  */
 
-import {SparkRoutes} from "helpers/spark_routes";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 
 describe("TemplateConfig model", () => {
-
-  xit("getTemplate()", (done) => {
-    jasmine.Ajax.withMock(() => {
-      stubGetSuccess();
-
-      TemplateConfig.getTemplate("name", (result) => {
-        const params = result.parameters();
-        expect(params.length).toBe(1);
-        expect(params[0].name).toBe("foo");
-        expect(params[0].value).toBe("bar");
-        done();
-      });
-    });
-  });
 
   it("should include a name", () => {
     let pip = new TemplateConfig("name", []);
@@ -53,14 +38,3 @@ describe("TemplateConfig model", () => {
         "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 });
-
-function stubGetSuccess() {
-  jasmine.Ajax.stubRequest(SparkRoutes.templatesPath("name"), undefined, "GET").
-    andReturn({
-      responseText: JSON.stringify({ parameters: [{ name: "foo", value: "bar"}]}),
-      status: 200,
-      responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v7+json"
-      }
-    });
-}

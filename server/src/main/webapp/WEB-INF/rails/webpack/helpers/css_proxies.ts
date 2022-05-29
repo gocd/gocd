@@ -31,7 +31,7 @@ export function remapCss<T>(obj: T, transform: (key: KeysOf<T>) => maybeString):
         if (key as ReferableKey in target) {
           return transform(key);
         }
-        throw new ReferenceError(`Cannot find classname ${key}`);
+        throw new ReferenceError(`Cannot find classname ${String(key)}`);
       }
     });
   }

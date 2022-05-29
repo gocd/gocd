@@ -24,7 +24,7 @@ type ElementWithValue = ElementWithInput | HTMLSelectElement;
 
 export function stubAllMethods<T>(keys: Array<keyof T>): T {
   return keys.reduce((result, k) => {
-    result[k] = jasmine.createSpy(`${k}()`) as any;
+    result[k] = jasmine.createSpy(`${String(k)}()`) as any;
     return result;
   }, {} as T);
 }

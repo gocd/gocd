@@ -125,7 +125,6 @@ describe("Api Request Builder", () => {
       ApiRequestBuilder.GET("/foo", ApiVersion.v1)
                        .then((value) => {
                          expect(value.getOrThrow()).toEqual(JSON.stringify({foo: "bar"}));
-                         done();
                        }, () => done.fail("should have passed"));
 
       mockInternalServerError();

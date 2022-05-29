@@ -602,7 +602,7 @@ task prepareNoRails {
 }
 
 task prepare {
-  dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsDev']
+  dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsWebpackDev']
 }
 
 test {

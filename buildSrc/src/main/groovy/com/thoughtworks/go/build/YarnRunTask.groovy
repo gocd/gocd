@@ -30,6 +30,7 @@ class YarnRunTask extends DefaultTask {
   private List<String> yarnCommand = new ArrayList<>()
   private List<Object> sourceFiles = new ArrayList<Object>()
   private File destinationDir
+  private Map<String, Object> environment
 
   YarnRunTask() {
     inputs.property('os', OperatingSystem.current().toString())
@@ -57,6 +58,14 @@ class YarnRunTask extends DefaultTask {
     return destinationDir
   }
 
+  @Input
+  Map<String, Object> getEnvironment() {
+    if (environment == null) {
+      this.setEnvironment(System.getenv())
+    }
+    return environment;
+  }
+
   @SkipWhenEmpty
   @InputFiles
   @PathSensitive(PathSensitivity.NONE)
@@ -82,6 +91,10 @@ class YarnRunTask extends DefaultTask {
     this.destinationDir = destinationDir
   }
 
+  void setEnvironment(Map<String, ?> environmentVariables) {
+    this.environment = new HashMap(environmentVariables)
+  }
+
   @TaskAction
   def execute(IncrementalTaskInputs inputs) {
     def shouldExecute = !inputs.incremental
@@ -100,6 +113,8 @@ class YarnRunTask extends DefaultTask {
       }
 
       project.exec { ExecSpec execSpec ->
+        execSpec.environment = environment
+        execSpec.environment("FORCE_COLOR", "true")
         execSpec.standardOutput = System.out
         execSpec.errorOutput = System.err
 

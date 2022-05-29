@@ -56,10 +56,6 @@ function paused_json(planName) {
     return json;
 }
 
-function agent_resources(uuid) {
-    return {resources : ["jdk1.5", "jdk1.4"], hostname : "machine1", status:'Idle',ipAddress:'192.168.0.45', agentId:uuid};
-}
-
 function construct_new_json(projectname, current_status, result) {
     return {building_info :
     {name : projectname,
@@ -78,18 +74,6 @@ function assertEquals() {
         actual = arguments[2];
     }
     expect(actual).toBe(expected);
-}
-
-function assertNotEquals() {
-    var actual = null;
-    if(arguments.length == 2){
-        expected = arguments[0];
-        actual = arguments[1];
-    }else{
-        expected = arguments[1];
-        actual = arguments[2];
-    }
-    expect(actual).not.toBe(expected);
 }
 
 function assertTrue() {

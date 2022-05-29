@@ -158,7 +158,7 @@ task cleanRails(type: Delete) {
 }
 clean.dependsOn cleanRails
 
-task compileAssetsDev(type: YarnRunTask) {
+task compileAssetsWebpackDev(type: YarnRunTask) {
   dependsOn yarnInstall
   dependsOn generateJSRoutes
 
@@ -195,7 +195,32 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
 }
 
-task compileRailsAssets(type: ExecuteUnderRailsTask) {
+task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
+  outputs.cacheIf { true }
+  onlyIf { !project.hasProperty('fastBuild') }
+
+  def publicAssetsDir = file("${project.railsRoot}/public/assets")
+
+  inputs.dir(file("${project.railsRoot}/config"))
+  inputs.dir(file("${project.railsRoot}/app/assets/javascripts"))
+  inputs.dir(file("${project.railsRoot}/vendor/assets/javascripts"))
+
+  outputs.dir(publicAssetsDir)
+
+  environment += [
+    'RAILS_ENV' : 'test',
+  ]
+
+  args = ['-S', 'rake', '--trace', 'assets:clobber', "assets:precompile"]
+
+  doFirst {
+    delete "${project.railsRoot}/tmp"
+    delete publicAssetsDir
+    publicAssetsDir.parentFile.mkdirs()
+  }
+}
+
+task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
   outputs.cacheIf { true }
   onlyIf { !project.hasProperty('fastBuild') }
 
@@ -235,9 +260,9 @@ task compileRailsAssets(type: ExecuteUnderRailsTask) {
 task compileAssets {
   dependsOn compileAssetsWebpackProd
   dependsOn licenseReportAggregate
-  dependsOn compileRailsAssets
+  dependsOn compileAssetsRailsProd
   inputs.files licenseReportAggregate.outputs.files
-  inputs.files compileRailsAssets.outputs.files
+  inputs.files compileAssetsRailsProd.outputs.files
   inputs.files compileAssetsWebpackProd.outputs.files
 
   def outputDir = project.file("${project.buildDir}/assets")
@@ -255,7 +280,7 @@ task compileAssets {
       into "${outputDir}/dependency-license-report-${project.version}"
     }
     copy {
-      from compileRailsAssets
+      from compileAssetsRailsProd
       into outputDir
     }
     copy {

@@ -1,5 +1,5 @@
 import com.thoughtworks.go.build.DownloaderTask
-import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.YarnRunTask
 import org.gradle.internal.os.OperatingSystem
 
 import java.util.regex.Pattern
@@ -143,86 +143,60 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
   url = "https://chromedriver.storage.googleapis.com/${packageVersion}/chromedriver_${osURIPart}.zip"
 }
 
-task karma(type: Exec) {
+task jasmineKarma(type: YarnRunTask) {
+  description = 'Run new jasmine tests (typescript) via karma'
   dependsOn ':server:yarnInstall'
-  dependsOn ':server:compileAssetsDev'
+  dependsOn ':server:compileAssetsWebpackDev'
 
   outputs.upToDateWhen { false }
-
-  description = 'Run new jasmine tests'
-
-  standardOutput = System.out
-  errorOutput = System.err
-
-  commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "run", "jasmine-ci"]
   workingDir = project.railsRoot
 
-  doFirst {
-    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
-  }
-
+  yarnCommand = ['jasmine-ci']
 }
 
-task jasmineOld(type: ExecuteUnderRailsTask) {
+task jasmineOld(type: YarnRunTask) {
+  description = 'Run old jasmine tests (legacy JS) via jasmine-browser-runner'
   dependsOn driverImpl()
+  dependsOn ':server:yarnInstall'
+  dependsOn ':server:compileAssetsRailsTest'
 
   outputs.upToDateWhen { false }
+  workingDir = project.railsRoot
 
-  description = 'Run old jasmine tests'
-
-  environment += [
-    'RAILS_ENV'          : 'test',
-    'REPORTERS'          : 'console,junit',
-    'BROWSER'            : browser(),
-  ]
-
-  jvmArgs += [
-          // Address JRuby: WARN FilenoUtil : Native subprocess control requires open access to the JDK IO subsystem
-          '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
-          '--add-opens=java.base/java.io=ALL-UNNAMED'
-  ]
-  args = ['-S', 'rails', 'jasmine:ci']
-  maxHeapSize = '2g'
+  yarnCommand = ['jasmine-old-ci']
 
   doFirst {
-    def additionalPaths = [
-      driverImpl().ext.outputDir
-    ]
-
-    additionalPaths += environment['PATH']
-
-    environment['PATH'] = additionalPaths.join(File.pathSeparator)
+    environment['PATH'] = ([ driverImpl().ext.outputDir ] + environment['PATH']).join(File.pathSeparator)
     browserExecutable(environment['PATH'])
   }
 }
 
-task jasmine(dependsOn: [karma, jasmineOld])
+task jasmine(dependsOn: [jasmineKarma, jasmineOld])
 
-task jasmineKarmaServer(type: Exec) {
+task jasmineKarmaServer(type: YarnRunTask) {
+  description = 'Run new jasmine tests (typescript) via karma inside a browser'
   dependsOn ':server:yarnInstall'
-  dependsOn ':server:compileAssetsDev'
+  dependsOn ':server:compileAssetsWebpackDev'
+
   outputs.upToDateWhen { false }
-
-  description = 'Run new jasmine tests'
-
-  standardOutput = System.out
-  errorOutput = System.err
-
-  commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "run", "karma"]
   workingDir = project.railsRoot
 
-  doFirst {
-    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
-  }
+  yarnCommand = ['jasmine-server']
 }
 
-task jasmineOldServer(type: ExecuteUnderRailsTask) {
-  description 'Run a web server to run jasmine tests locally'
+task jasmineOldServer(type: YarnRunTask) {
+  description = 'Run old jasmine tests (legacy JS) via jasmine-browser-runner inside a browser'
+  dependsOn driverImpl()
+  dependsOn ':server:yarnInstall'
+  dependsOn ':server:compileAssetsRailsTest'
 
-  environment += [
-    'RAILS_ENV'          : 'test',
-    'REPORTERS'          : 'console, junit',
-  ]
+  outputs.upToDateWhen { false }
+  workingDir = project.railsRoot
 
-  args = ["-S", "rails", "--trace", "jasmine:server"]
+  yarnCommand = ['jasmine-old-server']
+
+  doFirst {
+    environment['PATH'] = ([ driverImpl().ext.outputDir ] + environment['PATH']).join(File.pathSeparator)
+    browserExecutable(environment['PATH'])
+  }
 }

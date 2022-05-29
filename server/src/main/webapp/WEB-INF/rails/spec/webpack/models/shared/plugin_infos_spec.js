@@ -19,6 +19,20 @@ import _ from "lodash";
 
 describe('PluginInfos', () => {
 
+  const verifyBasicProperties = (pluginInfo, {id, about, status, extensions}) => {
+    expect(pluginInfo.id()).toEqual(id);
+    expect(pluginInfo.types()).toContain(extensions[0].type);
+    expect(pluginInfo.status().state()).toEqual(status.state);
+    expect(pluginInfo.status().messages()).toEqual(status.messages);
+    expect(pluginInfo.about().name()).toEqual(about.name);
+    expect(pluginInfo.about().version()).toEqual(about.version);
+    expect(pluginInfo.about().targetGoVersion()).toEqual(about.target_go_version);
+    expect(pluginInfo.about().description()).toEqual(about.description);
+    expect(pluginInfo.about().targetOperatingSystems()).toEqual(about.target_operating_systems);
+    expect(pluginInfo.about().vendor().name()).toEqual(about.vendor.name);
+    expect(pluginInfo.about().vendor().url()).toEqual(about.vendor.url);
+  };
+
   const pluginInfoWithElasticAgentExtensionV4 = {
     "id":         "cd.go.contrib.elastic-agent.docker",
     "status":     {
@@ -1137,12 +1151,13 @@ describe('PluginInfos', () => {
       },
     };
 
-    _.each(_.keys(PluginInfos.Extensions), (pluginType) => {
+    _.each(_.keys(PluginInfos.PluginInfo.Extensions), (pluginType) => {
       it(`should read image for ${pluginType}`, () => {
         const pluginInfoJSON      = _.cloneDeep(json);
         pluginInfoJSON.extensions = [
           {
-            type: pluginType
+            type: pluginType,
+            capabilities: {},
           }
         ];
         const pluginInfo          = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
@@ -1206,18 +1221,4 @@ describe('PluginInfos', () => {
       expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(pluginInfoWithNotificationExtension.extensions[0].plugin_settings.view.template);
     });
   });
-
-  const verifyBasicProperties = (pluginInfo, {id, about, status, extensions}) => {
-    expect(pluginInfo.id()).toEqual(id);
-    expect(pluginInfo.types()).toContain(extensions[0].type);
-    expect(pluginInfo.status().state()).toEqual(status.state);
-    expect(pluginInfo.status().messages()).toEqual(status.messages);
-    expect(pluginInfo.about().name()).toEqual(about.name);
-    expect(pluginInfo.about().version()).toEqual(about.version);
-    expect(pluginInfo.about().targetGoVersion()).toEqual(about.target_go_version);
-    expect(pluginInfo.about().description()).toEqual(about.description);
-    expect(pluginInfo.about().targetOperatingSystems()).toEqual(about.target_operating_systems);
-    expect(pluginInfo.about().vendor().name()).toEqual(about.vendor.name);
-    expect(pluginInfo.about().vendor().url()).toEqual(about.vendor.url);
-  };
 });

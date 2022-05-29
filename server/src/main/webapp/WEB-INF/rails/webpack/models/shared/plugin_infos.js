@@ -19,7 +19,9 @@ import Stream from "mithril/stream";
 import {Mixins} from "models/mixins/model_mixins";
 import {CrudMixins} from "models/mixins/crud_mixins";
 import {PluggableInstanceSettings} from "models/shared/plugin_infos/pluggable_instance_settings";
-import {Capabilities as AuthorizationPluginCapabilities} from "models/shared/plugin_infos/authorization_plugin_capabilities";
+import {
+  Capabilities as AuthorizationPluginCapabilities
+} from "models/shared/plugin_infos/authorization_plugin_capabilities";
 import {Capabilities as ElasticPluginCapabilities} from "models/shared/plugin_infos/elastic_plugin_capabilities";
 import {Capabilities as AnalyticsPluginCapabilities} from "models/shared/plugin_infos/analytics_plugin_capabilities";
 import {About} from "models/shared/plugin_infos/about";

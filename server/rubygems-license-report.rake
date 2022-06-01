@@ -25,17 +25,6 @@ missing_licenses = {
       }
     ]
   },
-  method_source: {
-    moduleName: 'method_source',
-    moduleVersion: '0.9.0',
-    moduleLicenses: [
-      {
-        :moduleLicense => "MIT",
-        :moduleLicenseUrl => "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  }
-
 }
 
 require 'active_support/core_ext/hash/deep_merge'

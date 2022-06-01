@@ -15,7 +15,8 @@
     "tslint": "yarn run tslint:prod && yarn run tslint:spec",
     "tslint:prod": "tslint --format stylish --project webpack/tsconfig.json --config tslint.json",
     "tslint:spec": "tslint --format stylish --project spec/tsconfig.json --config tslint.json",
-    "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
+    "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix",
+    "postinstall": "patch-package --patch-dir spec/javascripts/support"
   },
   "dependencies": {
     "@shopify/draggable": "^1.0.0-beta.12",
@@ -103,6 +104,8 @@
     "mini-css-extract-plugin": "^1.6.2",
     "mockdate": "^3.0.5",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0",
     "sass": "^1.52.2",
     "sass-lint": "^1.13.1",
     "sass-lint-webpack": "^1.0.4",

@@ -72,6 +72,7 @@ class YarnInstallTask extends DefaultTask {
       project.delete(getNodeModules())
 
       project.exec { execTask ->
+        execTask.environment("FORCE_COLOR", "true")
         execTask.standardOutput = System.out
         execTask.errorOutput = System.err
         execTask.workingDir = this.getWorkingDir()

@@ -26,23 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
   ModalManager.onPageLoad();
 });
 
-//function blowUpAjaxFunction() {
-//  fail("Ajax calls need to be stubbed!"); //eslint-disable-line no-undef
-//}
-
-//const realAjaxFunction = window.XMLHttpRequest;
-//
-//beforeEach(() => {
-//  if (window.XMLHttpRequest !== blowUpAjaxFunction) {
-//    window.XMLHttpRequest = blowUpAjaxFunction;
-//  }
-//});
-//
-//afterEach(() => {
-//  window.XMLHttpRequest = realAjaxFunction;
-//});
-
-
 beforeEach(() => {
   expect(jasmine.Ajax.requests.count()).toBe(0);
 });

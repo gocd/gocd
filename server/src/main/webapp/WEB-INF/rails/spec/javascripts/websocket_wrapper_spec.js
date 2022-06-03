@@ -162,7 +162,7 @@ describe("Websocket Wrapper", function () {
     expect(onError.calls.count()).toEqual(0);
 
     myWebsocket.ws.onopen();
-    myWebsocket.on("beforeInitialize", done);
+    myWebsocket.on("beforeInitialize", function() { done(); });
     myWebsocket.ws.onerror({data: "Boom!"});
 
     expect(onError).toHaveBeenCalled();

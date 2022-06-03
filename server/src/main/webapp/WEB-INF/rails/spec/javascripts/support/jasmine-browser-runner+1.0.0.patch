@@ -1,0 +1,25 @@
+diff --git a/node_modules/jasmine-browser-runner/lib/runner.js b/node_modules/jasmine-browser-runner/lib/runner.js
+index cf4f385..62af587 100644
+--- a/node_modules/jasmine-browser-runner/lib/runner.js
++++ b/node_modules/jasmine-browser-runner/lib/runner.js
+@@ -14,8 +14,19 @@ function getBatch(driver) {
+       "try { JSON.stringify(expectation.actual); } catch (e) { expectation.actual = '<circular actual>'; }\n" +
+       '}\n' +
+       '}\n' +
+-      'return results;'
++      'return JSON.parse(JSON.parse(JSON.stringify(results)));'
+   );
++// Above line contains a patch/workaround for serialization bugs with FF/geckodriver - relating to
++// https://github.com/mozilla/geckodriver/issues/914
++// https://github.com/mozilla/geckodriver/issues/792
++//
++// Root cause is that Prototype.JS (1.6 at time of writing) seems to hack/patch `toJSON` methods on most JS types
++// (arrays, strings, dates etc...) which interferes with JSON.stringify somehow. This will manifest as errors on return
++// from WebDriver on firefox such as "JavascriptError: Cyclic object value" during JSONizing of object for marshalling.
++// We therefore, un-monkey-patch and serialize/deserialize to work around this. No idea why two parses are required. :-/
++//
++// Similar patch was used on previous Ruby Jasmine runner:
++// https://github.com/gocd/gocd/blob/2daf703480f3d33cf5f06eeb0efd218bf2f031ae/server/src/main/webapp/WEB-INF/rails/lib/extensions/jasmine_rails_spec_helper.rb#L17-L50
+ }
+ 
+ function proxyToReporters(batch, reporters) {

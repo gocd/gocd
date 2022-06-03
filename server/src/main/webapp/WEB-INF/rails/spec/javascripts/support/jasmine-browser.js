@@ -13,7 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//=require jasmine-jquery
 
-jasmine.getFixtures().fixturesPath = "./../../spec/javascripts/fixtures/";
-jasmine.getFixtures().containerId  = "jasmine_content";
+module.exports = {
+  srcDir: 'public/assets',
+  srcFiles: [
+    'application-*.js',
+    'lib/d3-*.js',
+  ],
+  specDir: '.',
+  specFiles: [
+    'spec/javascripts/**/*[sS]pec.?(m)js',
+  ],
+  helpers: [
+    'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+    'node_modules/jasmine-ajax/lib/mock-ajax.js',
+    'spec/javascripts/helpers/**/*.?(m)js',
+  ],
+  env: {
+    'stopSpecOnExpectationFailure': false,
+    'stopOnSpecFailure': false,
+    'random': false,
+  },
+  browser: {
+    name: 'chrome' === process.env.BROWSER ? "headlessChrome" : 'firefox',
+  }
+};

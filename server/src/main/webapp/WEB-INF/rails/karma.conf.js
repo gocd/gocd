@@ -18,7 +18,6 @@
 const path                = require('path');
 const process             = require('process');
 const jasmineSeedReporter = require('karma-jasmine-seed-reporter');
-const childProcess        = require('child_process');
 
 let browsers;
 

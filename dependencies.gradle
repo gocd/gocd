@@ -81,7 +81,7 @@ final Map<String, String> libraries = [
   logback             : 'ch.qos.logback:logback-classic:1.2.11',
   lombok              : 'org.projectlombok:lombok:1.18.24',
   mail                : 'com.sun.mail:mailapi:2.0.1',
-  mockito             : 'org.mockito:mockito-core:4.5.1',
+  mockito             : 'org.mockito:mockito-core:4.6.1',
   mybatis             : 'org.mybatis:mybatis:3.5.10',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.0.7',
   mysql               : 'mysql:mysql-connector-java:8.0.29',

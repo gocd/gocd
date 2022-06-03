@@ -3668,10 +3668,10 @@ file-uri-to-path@1.0.0:
   resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
   integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
 
-filesize@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/filesize/-/filesize-9.0.0.tgz#4be41a09a3e5e4a22a7e9ff4a93f6c8abb7264cf"
-  integrity sha512-Is0jgR3gdoTVnbTOHZUYineME5w02oUtxJ9T7FI22sp0zAtUyjjy7RSGzwsTSw4Rm0U+VB+rfsL/xkXEJLwpgQ==
+filesize@^9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/filesize/-/filesize-9.0.1.tgz#eaf252bdda67912639153ef8554058ecd88ccb52"
+  integrity sha512-4OpF3eYI7S0O+memD6RetheN3qZYR2gGapwYauB2T2F+Da2uBml8jLcukv/7lJeL7ByC+2nzaHZfUR/bGT/HVQ==
 
 fill-range@^4.0.0:
   version "4.0.0"

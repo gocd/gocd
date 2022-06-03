@@ -48,7 +48,14 @@
         <vulnerabilityName>CVE-2010-1330</vulnerabilityName>
         <vulnerabilityName>CVE-2011-4838</vulnerabilityName>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   Suppressing false positive - vulnerability is in Artemis, not the wider ActiveMQ, and NVD data has the wrong
+   affected versions anyway.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
+        <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged

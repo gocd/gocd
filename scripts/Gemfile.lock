@@ -8,8 +8,7 @@ GEM
     ruby2_keywords (0.0.5)
 
 PLATFORMS
-  x86_64-darwin-18
-  x86_64-darwin-20
+  x86_64-darwin-21
   x86_64-linux
 
 DEPENDENCIES
@@ -17,4 +16,4 @@ DEPENDENCIES
   faraday-net_http
 
 BUNDLED WITH
-   2.2.24
+   2.3.11

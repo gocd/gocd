@@ -112,12 +112,37 @@
 
     <suppress>
         <notes><![CDATA[
+   This appears to be a false positive. Vulnerability is only reported against Spring `5.2.0` to `5.2.3` (not 4.3)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
+        <vulnerabilityName>CVE-2020-5397</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    From review of https://tanzu.vmware.com/security/cve-2021-22112 and the code of GoCD, GoCD does not appear to be
    subject to this defect, since it does not alter the security context in the manner required to elevate privileges
    in a small portion of the application and potentially be subject to this defect.
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
         <cve>CVE-2021-22112</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   GoCD does not use bcrypt from Spring Security, so does not seem vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2022-22976
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
+        <cve>CVE-2022-22976</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+      GoCD does not use RegexRequestMatchers from Spring Security with a value of '.' as required by https://nvd.nist.gov/vuln/detail/CVE-2022-22978
+      to be vulnerable to this issue.
+       ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-web@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
     </suppress>
 
     <suppress>
@@ -132,11 +157,29 @@
 
     <suppress>
         <notes><![CDATA[
+   GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
+   vulnerable to this issue.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-22950</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    GoCD is not affected by this as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
    as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
         <vulnerabilityName>CVE-2022-22968</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
+   rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+        <vulnerabilityName>CVE-2022-22970</vulnerabilityName>
     </suppress>
 
     <suppress>

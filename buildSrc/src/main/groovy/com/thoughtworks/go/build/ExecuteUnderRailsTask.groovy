@@ -23,6 +23,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.process.JavaExecSpec
 
+import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
+
 class ExecuteUnderRailsTask extends JavaExec {
   private static final OperatingSystem CURRENT_OS = OperatingSystem.current()
   private Map<String, Object> originalEnv
@@ -50,11 +52,7 @@ class ExecuteUnderRailsTask extends JavaExec {
 
   static void setup(Project project, JavaExecSpec execSpec, boolean disableJRubyOptimization) {
     execSpec.with {
-      if(CURRENT_OS.isWindows()) {
-        // because windows PATH variable is case-insensitive, so we force it to be `PATH` instead of `Path` or whatever else
-        def pathVariableName = environment.keySet().find { eachKey -> eachKey.toUpperCase().equals("PATH")}
-        environment['PATH'] = environment.remove(pathVariableName)
-      }
+      normalizeEnvironmentPath(environment)
       environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
 
       classpath(project.jrubyJar())

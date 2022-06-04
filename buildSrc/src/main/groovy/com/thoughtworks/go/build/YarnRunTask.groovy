@@ -23,6 +23,8 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.process.ExecSpec
 
+import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
+
 @CacheableTask
 class YarnRunTask extends DefaultTask {
   private File workingDir
@@ -62,8 +64,9 @@ class YarnRunTask extends DefaultTask {
   Map<String, Object> getEnvironment() {
     if (environment == null) {
       this.setEnvironment(System.getenv())
+      normalizeEnvironmentPath(environment)
     }
-    return environment;
+    return environment
   }
 
   @SkipWhenEmpty
@@ -113,7 +116,7 @@ class YarnRunTask extends DefaultTask {
       }
 
       project.exec { ExecSpec execSpec ->
-        execSpec.environment = environment
+        execSpec.environment = this.getEnvironment()
         execSpec.environment("FORCE_COLOR", "true")
         execSpec.standardOutput = System.out
         execSpec.errorOutput = System.err

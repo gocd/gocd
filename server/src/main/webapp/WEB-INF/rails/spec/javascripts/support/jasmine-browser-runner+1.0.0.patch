@@ -1,15 +1,11 @@
 diff --git a/node_modules/jasmine-browser-runner/lib/runner.js b/node_modules/jasmine-browser-runner/lib/runner.js
-index cf4f385..62af587 100644
+index cf4f385..9b6ba55 100644
 --- a/node_modules/jasmine-browser-runner/lib/runner.js
 +++ b/node_modules/jasmine-browser-runner/lib/runner.js
-@@ -14,8 +14,19 @@ function getBatch(driver) {
-       "try { JSON.stringify(expectation.actual); } catch (e) { expectation.actual = '<circular actual>'; }\n" +
-       '}\n' +
-       '}\n' +
--      'return results;'
-+      'return JSON.parse(JSON.parse(JSON.stringify(results)));'
-   );
-+// Above line contains a patch/workaround for serialization bugs with FF/geckodriver - relating to
+@@ -1,6 +1,19 @@
+ const querystring = require('querystring');
+ 
++// Below contains a patch/workaround for serialization bugs with FF/geckodriver - relating to
 +// https://github.com/mozilla/geckodriver/issues/914
 +// https://github.com/mozilla/geckodriver/issues/792
 +//
@@ -20,6 +16,21 @@ index cf4f385..62af587 100644
 +//
 +// Similar patch was used on previous Ruby Jasmine runner:
 +// https://github.com/gocd/gocd/blob/2daf703480f3d33cf5f06eeb0efd218bf2f031ae/server/src/main/webapp/WEB-INF/rails/lib/extensions/jasmine_rails_spec_helper.rb#L17-L50
+ function getBatch(driver) {
++  return driver.getCapabilities().then(function(c) {
++
+   return driver.executeScript(
+     'var results = batchReporter.getBatch();\n' +
+       'for (var i = 0; i < results.length; i++) {\n' +
+@@ -14,8 +27,10 @@ function getBatch(driver) {
+       "try { JSON.stringify(expectation.actual); } catch (e) { expectation.actual = '<circular actual>'; }\n" +
+       '}\n' +
+       '}\n' +
+-      'return results;'
++      (c.getBrowserName() !== 'firefox' ? 'return results;' : 'return JSON.parse(JSON.parse(JSON.stringify(results)));')
+   );
++
++  });
  }
  
  function proxyToReporters(batch, reporters) {

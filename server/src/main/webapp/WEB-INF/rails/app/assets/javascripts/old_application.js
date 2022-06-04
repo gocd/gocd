@@ -106,11 +106,6 @@ jQuery(function () {
     });
 });
 
-//highlight your fields
-function highlightElement(element) {
-    element.stop().css('background-color','#ffe8aa').animate({backgroundColor:'#fff'},1500);
-}
-
 //breadcrumb shadow
 jQuery(function(){
     jQuery(window).scroll(function(){

@@ -157,7 +157,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
 
     public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
-    public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
 
     public static GoSystemProperty<Boolean> GO_API_WITH_SAFE_MODE = new GoBooleanSystemProperty("go.api.with.safe.mode", true);
     public static GoSystemProperty<Integer> MAX_PENDING_AGENTS_ALLOWED = new GoIntSystemProperty("max.pending.agents.allowed", 100);

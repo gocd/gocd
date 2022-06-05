@@ -18,6 +18,8 @@ package com.thoughtworks.go.domain.materials;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -30,7 +32,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class AbstractMaterialTest {
 
@@ -206,5 +208,28 @@ public class AbstractMaterialTest {
         assertThatCode(() -> material.checkConnection(executionContext))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("'checkConnection' cannot be performed on material of type name");
+    }
+
+    @Test
+    public void updateConfigShouldIgnoreNonPasswordAwareConfig() {
+        MaterialConfig config = mock(MaterialConfig.class);
+        SvnMaterial passwordAwareMaterial = new SvnMaterial("url", "username", "password", false);
+        passwordAwareMaterial.updateFromConfig(config);
+        verifyNoInteractions(config);
+    }
+
+    @Test
+    public void updateConfigShouldTakeUserPassFromPasswordAwareConfig() {
+        SvnMaterialConfig config = mock(SvnMaterialConfig.class);
+        when(config.getUserName()).thenReturn("newUsername");
+        when(config.getPassword()).thenReturn("newPassword");
+        SvnMaterial passwordAwareMaterial = new SvnMaterial("url", "username", "password", false);
+        passwordAwareMaterial.updateFromConfig(config);
+
+        assertThat(passwordAwareMaterial.getUserName()).isEqualTo("newUsername");
+        assertThat(passwordAwareMaterial.getPassword()).isEqualTo("newPassword");
+
+        verify(config).getUserName();
+        verify(config).getPassword();
     }
 }

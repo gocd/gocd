@@ -16,6 +16,8 @@
 package com.thoughtworks.go.config.materials;
 
 public interface PasswordAwareMaterial {
+    void setUserName(String userName);
+    String getUserName();
     void setPassword(String password);
     String getPassword();
 }

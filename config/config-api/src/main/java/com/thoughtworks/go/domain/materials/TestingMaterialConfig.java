@@ -17,17 +17,10 @@ package com.thoughtworks.go.domain.materials;
 
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import org.joda.time.DateTime;
 
-import java.util.Date;
 import java.util.Map;
 
-public class TestingMaterialConfig extends ScmMaterialConfig {
-    public static final Date TWO_DAYS_AGO_CHECKIN = new DateTime().minusDays(2).toDate();
-
-    public static final String MOD_TYPE = "svn";
-    public static final String MOD_REVISION = "98";
-
+public class TestingMaterialConfig extends ScmMaterialConfig{
     private static final String TYPE = "TestingMaterial";
 
     private String url;

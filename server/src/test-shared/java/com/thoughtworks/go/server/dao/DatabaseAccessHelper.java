@@ -206,10 +206,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return transactionTemplate;
     }
 
-    public TransactionSynchronizationManager txSynchronizationManager() {
-        return transactionSynchronizationManager;
-    }
-
     public JobInstanceDao getBuildInstanceDao() {
         return jobInstanceDao;
     }
@@ -228,13 +224,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         }
     }
 
-    public long getScheduledStageId(String pipelineName, String stageName) throws SQLException {
-        Pipeline pipeline = saveTestPipeline(pipelineName, stageName);
-        return pipeline.getStages().get(0).getId();
-    }
-
-    public Pipeline saveTestPipeline(String pipelineName, String stageName, String... jobConfigNames)
-            throws SQLException {
+    public Pipeline saveTestPipeline(String pipelineName, String stageName, String... jobConfigNames) {
         PipelineConfig pipelineConfig = configurePipeline(pipelineName, stageName, jobConfigNames);
         Pipeline pipeline = scheduleWithFileChanges(pipelineConfig);
         pipeline = savePipelineWithStagesAndMaterials(pipeline);
@@ -242,11 +232,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Pipeline savePipelineWithStagesAndMaterials(Pipeline pipeline) {
-        saveRevs(pipeline.getBuildCause().getMaterialRevisions());
-        return save(pipeline);
-    }
-
-    public Pipeline savePipelineWithMaterials(Pipeline pipeline) {
         saveRevs(pipeline.getBuildCause().getMaterialRevisions());
         return save(pipeline);
     }
@@ -272,31 +257,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                 GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
     }
 
-    public Pipeline saveTestPipelineWithoutSchedulingBuilds(String pipelineName, String stageName,
-                                                            String... jobConfigNames)
-            throws SQLException {
-        PipelineConfig pipelineConfig = configurePipeline(pipelineName, stageName, jobConfigNames);
-        Pipeline pipeline = scheduleWithFileChanges(pipelineConfig);
-        clearAllBuildInstances(pipeline);
-        return savePipelineWithStagesAndMaterials(pipeline);
-    }
-
-    private void clearAllBuildInstances(Pipeline pipeline) {
-        pipeline.getFirstStage().setJobInstances(new JobInstances());
-    }
-
-    public Pipeline rescheduleTestPipeline(String pipelineName, String stageName, String userName) throws SQLException {
-        String[] jobConfigNames = new String[]{};
-        PipelineConfig pipelineConfig = configurePipeline(pipelineName, stageName, jobConfigNames);
-
-        BuildCause buildCause = BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()),
-                ModificationsMother.currentRevision()), Username.ANONYMOUS);
-
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(
-                GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
-        return savePipelineWithStagesAndMaterials(pipeline);
-    }
-
     @Deprecated // Only actually passes the first stage. Use newPipelineWithAllStagesPassed instead
     public Pipeline passPipeline(Pipeline pipeline) {
         for (Stage stage : pipeline.getStages()) {
@@ -311,7 +271,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return loadedPipeline;
     }
 
-    public Pipeline newPipelineWithFirstStagePassed(PipelineConfig config) throws SQLException {
+    public Pipeline newPipelineWithFirstStagePassed(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
                 BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
                 new DefaultSchedulingContext(
@@ -325,7 +285,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         passStage(pipeline.getFirstStage());
     }
 
-    public Pipeline newPipelineWithFirstStageFailed(PipelineConfig config) throws SQLException {
+    public Pipeline newPipelineWithFirstStageFailed(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config, BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()),
                 ModificationsMother.currentRevision()), Username.ANONYMOUS),
                 new DefaultSchedulingContext(
@@ -335,7 +295,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return pipeline;
     }
 
-    public Pipeline newPipelineWithFirstStageScheduled(PipelineConfig config) throws SQLException {
+    public Pipeline newPipelineWithFirstStageScheduled(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
                 BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
                 new DefaultSchedulingContext(
@@ -488,18 +448,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         updateResultInTransaction(stage, StageResult.Cancelled);
     }
 
-    public void buildInstanceWithDiscontinuedState(Stage instance) {
-        final JobInstance first = instance.getJobInstances().get(0);
-        final JobInstance second = instance.getJobInstances().get(1);
-        first.completing(JobResult.Passed);
-        second.changeState(JobState.Discontinued);
-        second.setResult(JobResult.Passed);
-        first.completed(new Date());
-        jobInstanceDao.updateStateAndResult(first);
-        jobInstanceDao.updateStateAndResult(second);
-        updateResultInTransaction(instance, StageResult.Passed);
-    }
-
     public void saveMaterials(final MaterialRevisions materialRevisions) {
         saveRevs(materialRevisions);
     }
@@ -610,7 +558,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     public Integer updateNaturalOrder(final long pipelineId, final double naturalOrder) {
         return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
             @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 return PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder);
             }
         });

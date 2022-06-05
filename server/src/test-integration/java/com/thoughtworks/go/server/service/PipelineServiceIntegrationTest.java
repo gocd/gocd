@@ -52,11 +52,9 @@ import java.util.Date;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -99,7 +97,7 @@ public class PipelineServiceIntegrationTest {
     @Test
     public void shouldFetchPipelinePointedToByGivenDMR() {
         Pipeline pipeline = PipelineMother.passedPipelineInstance("pipeline", "stage", "job");
-        dbHelper.savePipelineWithMaterials(pipeline);
+        dbHelper.savePipelineWithStagesAndMaterials(pipeline);
 
         UpstreamPipelineResolver resolver = pipelineService;
         BuildCause loadedBC = resolver.buildCauseFor(

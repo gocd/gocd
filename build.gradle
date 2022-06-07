@@ -636,15 +636,15 @@ subprojects {
     }
   }
 
-  configurations.all { configuration ->
+  configurations.all {
 
     def versionOverrides = [
-      "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils,
-      "org.apache.commons:commons-pool2"              : project.versions.commonsPool,
-      "org.objenesis:objenesis"                       : project.versions.objenesis,
+      "commons-beanutils:commons-beanutils": project.versions.commonsBeanutils,
+      "org.apache.commons:commons-pool2"   : project.versions.commonsPool,
+      "org.objenesis:objenesis"            : project.versions.objenesis,
     ]
 
-    configuration.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
       def overrideVersion = versionOverrides[details.requested.group + ":" + details.requested.name]
 
       if (overrideVersion != null && details.requested.version != overrideVersion) {
@@ -673,11 +673,11 @@ subprojects {
         details.useTarget project.deps.servletApi
       }
     }
-  }
 
-  project.configurations*.exclude(group: 'javax.xml.bind') // Moved to jakarta.xml.bind
-  project.configurations*.exclude(group: 'junit') // Moved to org.junit
-  project.configurations*.exclude(group: 'dom4j') // Moved to org.dom4j
+    exclude(group: 'javax.xml.bind') // Moved to jakarta.xml.bind
+    exclude(group: 'junit') // Moved to org.junit
+    exclude(group: 'dom4j') // Moved to org.dom4j
+  }
 }
 
 task allDependencies {

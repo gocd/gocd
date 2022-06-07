@@ -23,7 +23,7 @@ dependencies {
   implementation project(':plugin-infra:go-plugin-domain')
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':db')
-  api project.deps.javaxAnnotation
+  api project.deps.jakartaAnnotation
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsCollections4

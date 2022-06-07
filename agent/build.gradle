@@ -69,7 +69,7 @@ dependencies {
 
   implementation project(':agent-common')
   implementation project(':common')
-  implementation project.deps.javaxAnnotation
+  implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsConfiguration
   implementation project.deps.nanohttpd
 
@@ -166,7 +166,7 @@ task verifyJar(type: VerifyJarTask) {
       "jackson-core-${project.versions.jacksonBom}.jar",
       "jackson-databind-${project.versions.jacksonBom}.jar",
       "jakarta.activation-2.0.1.jar",
-      "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
+      "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
       "javax.inject-1.jar",
       "javax.servlet-api-${project.versions.servletApi}.jar",
       "jakarta.xml.bind-api-3.0.1.jar",

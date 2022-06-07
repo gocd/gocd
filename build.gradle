@@ -664,6 +664,10 @@ subprojects {
       if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
         details.useTarget project.deps.hamcrest
       }
+      // Javax Annotation has migrated to jakarta annotations
+      if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
+        details.useTarget project.deps.jakartaAnnotation
+      }
     }
   }
 

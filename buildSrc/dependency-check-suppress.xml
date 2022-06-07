@@ -251,4 +251,12 @@
         <cve>CVE-2021-29425</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+   The Eclipse Angus Mail SMTP component is not the Eclipse IDE :-)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
+        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+    </suppress>
+
 </suppressions>

@@ -23,7 +23,7 @@ dependencies {
     implementation project.deps.commonsLang3
     implementation project.deps.gson
     implementation project.deps.springContext
-    implementation project.deps.javaxAnnotation
+    implementation project.deps.jakartaAnnotation
 
     implementation(project.deps.liquibase) {
         // Not needed, according to https://github.com/liquibase/liquibase/issues/1866

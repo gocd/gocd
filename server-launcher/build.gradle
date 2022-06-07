@@ -203,7 +203,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",
-      "javax.servlet-api-${project.versions.servletApi}.jar",
+      "jakarta.servlet-api-${project.versions.servletApi}.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jetty-client-${project.versions.jetty}.jar",
       "jetty-continuation-${project.versions.jetty}.jar",

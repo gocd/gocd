@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.build
 
-import jdk.internal.module.Modules
 import org.gradle.api.DefaultTask
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.ysb33r.grolifant.api.core.OperatingSystem
 import org.ysb33r.grolifant.api.core.ProjectOperations
 import org.ysb33r.grolifant.api.v4.downloader.AbstractDistributionInstaller
+import org.ysb33r.grolifant.api.v4.downloader.ArtifactRootVerification
+import org.ysb33r.grolifant.api.v4.downloader.ArtifactUnpacker
 
 class DownloaderTask extends DefaultTask {
   @Input
@@ -51,7 +51,7 @@ class DownloaderTask extends DefaultTask {
   }
 
   private AbstractDistributionInstaller createInstaller() {
-    new AbstractDistributionInstaller(packageName, "download/${packageName}/${packageVersion}", projectOperations) {
+    new GroovyJava16WorkaroundDistributionInstaller(packageName, "download/${packageName}/${packageVersion}", projectOperations) {
 
       @Override
       URI uriFromVersion(String version) {
@@ -59,21 +59,32 @@ class DownloaderTask extends DefaultTask {
       }
 
       @Override
-      Provider<File> getDistributionRoot(String version) {
-        // Workaround for issues with Java 17 and Groovy-generated dynamic proxies used by Grolifant on Groovy 3.0.9
-        // Raised at https://gitlab.com/ysb33rOrg/grolifant/-/issues/82
-        // On Groovy side, https://issues.apache.org/jira/browse/GROOVY-10145 has a linked fix for Groovy 4, but
-        // currently seems not to be back-ported to 3.x
-
-        // Relies on gradle.properties setting to be able to do this opening dynamically
-        Modules.addOpensToAllUnnamed(artifactRootVerification.class.module, artifactRootVerification.class.packageName)
-
-        return super.getDistributionRoot(version)
-      }
-
-      @Override
       protected File verifyDistributionRoot(File distDir) {
         distDir
+      }
+    }
+  }
+
+  /**
+   * Workaround for issues with Java 17 and Groovy-generated dynamic proxies used by Grolifant on Groovy 3.0.9
+   # https://issues.apache.org/jira/browse/GROOVY-10145 has the fix, but currently seems not backported to 3.x.
+   #
+   # This is logged at https://gitlab.com/ysb33rOrg/grolifant/-/issues/82 but likely no fix possible unless
+   */
+  private abstract class GroovyJava16WorkaroundDistributionInstaller extends AbstractDistributionInstaller {
+    GroovyJava16WorkaroundDistributionInstaller(String distributionName, String basePath, ProjectOperations projectOperations) {
+      super(distributionName, basePath, projectOperations)
+      this.artifactRootVerification = new ArtifactRootVerification() {
+        @Override
+        File apply(File unpackedRoot) {
+          return GroovyJava16WorkaroundDistributionInstaller.this.verifyDistributionRoot(unpackedRoot)
+        }
+      }
+      this.artifactUnpacker = new ArtifactUnpacker() {
+        @Override
+        void accept(File source, File destDir) {
+          GroovyJava16WorkaroundDistributionInstaller.this.unpack(source, destDir)
+        }
       }
     }
   }

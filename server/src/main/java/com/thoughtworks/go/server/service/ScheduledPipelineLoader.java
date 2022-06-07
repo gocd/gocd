@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -116,16 +115,6 @@ public class ScheduledPipelineLoader {
             MaterialConfig configuredMaterial = currentConfig.materialConfigFor(new CaseInsensitiveString(pipeline.getName()), fingerprint);
             if (configuredMaterial != null) {
                 configuredMaterials.add(configuredMaterial);
-                continue;
-            }
-
-            //todo: remove the global lookup fallback code after we feel safe
-            if(new SystemEnvironment().get(SystemEnvironment.GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP)) {
-                // fallback to global lookup if material is not in current pipeline config (old behavior)
-                configuredMaterial = currentConfig.materialConfigFor(fingerprint);
-                if (configuredMaterial != null) {
-                    configuredMaterials.add((configuredMaterial));
-                }
             }
         }
         MaterialConfigs knownMaterials = new MaterialConfigs();

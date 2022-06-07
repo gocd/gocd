@@ -129,7 +129,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineAlongwithBuildCauseHavingMaterialPasswordsPopulated() {
+    public void shouldLoadPipelineAlongWithBuildCauseHavingMaterialPasswordsPopulated() {
         JobConfig jobConfig = new JobConfig("job-one");
         jobConfig.addTask(new AntTask());
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
@@ -143,7 +143,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         configHelper.addPipeline(pipelineConfig);
 
         Pipeline building = PipelineMother.building(pipelineConfig);
-        Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
+        Pipeline pipeline = dbHelper.savePipelineWithStagesAndMaterials(building);
 
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
         Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
@@ -221,7 +221,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     private Pipeline simulateSuccessfulPipelineRun(PipelineConfig pipelineConfig) {
         final Pipeline previousSuccessfulBuildWithOlderPackageConfig = PipelineMother.completed(pipelineConfig);
-        dbHelper.savePipelineWithMaterials(previousSuccessfulBuildWithOlderPackageConfig);
+        dbHelper.savePipelineWithStagesAndMaterials(previousSuccessfulBuildWithOlderPackageConfig);
         return previousSuccessfulBuildWithOlderPackageConfig;
     }
 
@@ -262,7 +262,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         configHelper.addPipeline(pipelineConfig);
 
         Pipeline building = PipelineMother.building(pipelineConfig);
-        final Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
+        final Pipeline pipeline = dbHelper.savePipelineWithStagesAndMaterials(building);
 
         CruiseConfig cruiseConfig = configHelper.currentConfig();
         PipelineConfig cfg = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("last"));
@@ -353,7 +353,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         MaterialConfigs expandedConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
         MaterialRevisions materialRevisions = ModificationsMother.modifyOneFile(new MaterialConfigConverter().toMaterials(expandedConfigs));
         Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
-        Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
+        Pipeline pipeline = dbHelper.savePipelineWithStagesAndMaterials(building);
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
         return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
     }

@@ -668,6 +668,10 @@ subprojects {
       if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
         details.useTarget project.deps.jakartaAnnotation
       }
+      // Javax Servlet API has migrated to jakarta Servlet API
+      if (details.requested.group == 'javax.servlet' && details.requested.name == 'javax.servlet-api') {
+        details.useTarget project.deps.servletApi
+      }
     }
   }
 

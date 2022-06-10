@@ -35,6 +35,6 @@ module.exports = {
     'random': false,
   },
   browser: {
-    name: 'chrome' === process.env.BROWSER ? "headlessChrome" : 'firefox',
+    name: 'chrome' === process.env.BROWSER ? "headlessChrome" : 'headlessFirefox',
   }
 };

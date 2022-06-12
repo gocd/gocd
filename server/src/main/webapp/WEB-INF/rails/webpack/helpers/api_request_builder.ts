@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {CaseInsensitiveMap} from "helpers/collections";
+import {mrequest} from "helpers/mrequest";
 import _ from "lodash";
 import m from "mithril";
 
@@ -78,7 +79,7 @@ export class ApiResult<T> {
   }
 
   getEtag(): string | null {
-    return this.header("etag") || null;
+    return mrequest.normalizeEtag(this.header("etag"));
   }
 
   getRedirectUrl(): string {

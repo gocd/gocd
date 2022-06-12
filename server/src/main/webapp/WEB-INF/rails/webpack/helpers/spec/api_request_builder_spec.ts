@@ -134,6 +134,41 @@ describe("Api Request Builder", () => {
     });
   });
 
+  describe("ETag handling", () => {
+    it("should normalize quoted etags to unquoted", (done) => {
+      mockSuccessfulRequest("GET", undefined, '"hello"');
+      ApiRequestBuilder.GET("/foo", ApiVersion.v1).then((result) => {
+        expect(result.getEtag()).toEqual("hello");
+        expect(result.getStatusCode()).toEqual(200);
+        done();
+      }, () => {
+        done.fail("should have passed");
+      });
+    });
+
+    it("should normalize weak Etags to strong", (done) => {
+      mockSuccessfulRequest("GET", undefined, 'W/"hello"');
+      ApiRequestBuilder.GET("/foo", ApiVersion.v1).then((result) => {
+        expect(result.getEtag()).toEqual("hello");
+        expect(result.getStatusCode()).toEqual(200);
+        done();
+      }, () => {
+        done.fail("should have passed");
+      });
+    });
+
+    it("should normalize suffixed etags", (done) => {
+      mockSuccessfulRequest("GET", undefined, 'hello--gzip');
+      ApiRequestBuilder.GET("/foo", ApiVersion.v1).then((result) => {
+        expect(result.getEtag()).toEqual("hello");
+        expect(result.getStatusCode()).toEqual(200);
+        done();
+      }, () => {
+        done.fail("should have passed");
+      });
+    });
+  });
+
   describe("Headers", () => {
     it("should pass headers to request", () => {
       mockSuccessfulRequest();
@@ -176,7 +211,7 @@ describe("Api Request Builder", () => {
     });
   });
 
-  function mockSuccessfulRequest(method?: string, payload?: any) {
+  function mockSuccessfulRequest(method?: string, payload?: any, etag?: string) {
     const _method = method || "GET";
     return jasmine.Ajax.stubRequest("/foo", payload ? JSON.stringify(payload) : undefined, _method)
                   .andReturn({
@@ -184,7 +219,7 @@ describe("Api Request Builder", () => {
                                status: 200,
                                responseHeaders: {
                                  "Content-Type": contentType,
-                                 "Etag": "etag-value"
+                                 "Etag": etag ?? "etag-value"
                                }
                              });
   }

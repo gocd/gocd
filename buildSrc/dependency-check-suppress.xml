@@ -18,12 +18,6 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
-   Suppressing false positive as GoCD internal mysql support JAR is not the same thing as MySQL.
-   ]]></notes>
-        <cpe>cpe:/a:mysql:mysql</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    Suppressing false positive caused by OWASP Dependency Check thinking the shaded/packaged dirgra library is the same
    as the JRuby version. These are versioned independently and not the same thing.
    ]]></notes>

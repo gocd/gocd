@@ -120,6 +120,17 @@
 
     <suppress>
         <notes><![CDATA[
+   Spring WebMVC 4.3.x does not appear to be affected by https://tanzu.vmware.com/security/cve-2021-22060 based on review
+   of the patches made to `LogFormatUtils` in the fixed 5.2.19.RELEASE version: https://github.com/spring-projects/spring-framework/compare/v5.2.18.RELEASE...v5.2.19.RELEASE
+   This is because in Spring 4.3 all of these log statements are at TRACE level, which are very unlikely to be enabled
+   for a GoCD instance in production, and not in the default configuration
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
+        <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    From review of https://tanzu.vmware.com/security/cve-2021-22112 and the code of GoCD, GoCD does not appear to be
    subject to this defect, since it does not alter the security context in the manner required to elevate privileges
    in a small portion of the application and potentially be subject to this defect.

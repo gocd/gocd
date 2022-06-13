@@ -200,15 +200,8 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<DistroVersion> getSupportedVersions() {
-      def installSasl = [
-              'apk add --no-cache sudo',
-              // Workaround for https://github.com/docker-library/docker/commit/75e26edc9ea7fff4aa3212fafa5966f4d6b00022
-              // which causes a clash with glibc, which is installed later for AdoptOpenJDK and will serve the same purpose
-              'apk del --purge libc6-compat'
-      ]
-
       return [
-        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: installSasl)
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
       ]
     }
 
@@ -219,12 +212,22 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      return alpine.getInstallPrerequisitesCommands(distroVersion)
+      return alpine.getInstallPrerequisitesCommands(distroVersion) +
+        [
+          'apk add --no-cache sudo',
+        ]
     }
 
     @Override
     List<String> getInstallJavaCommands(Project project) {
-      return alpine.getInstallJavaCommands(project)
+      return [
+        // Workaround for https://github.com/docker-library/docker/commit/75e26edc9ea7fff4aa3212fafa5966f4d6b00022
+        // which causes a clash with glibc, which is installed later due to being needed for Tanuki Java Wrapper (and
+        // thus used by the particular Adoptium builds we are using Alpine Adoptium builds seemingly can't co-exist happily).
+        // We could avoid doing this once https://github.com/containerd/containerd/issues/5824 is fixed and makes its
+        // way to the relevant docker:dind image version.
+        'apk del --purge libc6-compat'
+      ] + alpine.getInstallJavaCommands(project)
     }
 
     @Override

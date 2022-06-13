@@ -74,7 +74,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       return (<div data-test-id="maintenance-mode-banner" class={styles.footerWarningBanner}>
         {updatedByMessage}
         &nbsp;
-        <Link target="_blank" href={docsUrl("/advanced_usage/maintenance_mode.html")}>Learn more..</Link>
+        <Link href={docsUrl("/advanced_usage/maintenance_mode.html")} target="_blank" externalLinkIcon={true}>Learn More</Link>
       </div>);
     }
 

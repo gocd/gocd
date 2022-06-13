@@ -109,7 +109,7 @@ export class ComparePage extends Page<null, State> {
     return <div>
       GoCD allows the comparison between any two builds of a pipeline and displays the changes happened between the two. The information included in
       the view are code check-ins, upstream pipelines info, mainly revision and instance and story/defect numbers (when linked to a tracking tool).
-      <Link href={docsUrl('advanced_usage/compare_pipelines.html')} externalLinkIcon={true}> Learn More</Link>
+      <Link href={docsUrl('advanced_usage/compare_pipelines.html')} target="_blank" externalLinkIcon={true}> Learn More</Link>
     </div>;
   }
 

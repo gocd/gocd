@@ -357,7 +357,7 @@ export class ElasticAgentsPage extends Page<null, State> {
         image (ami, container image), size of the CPU/memory/disk, network settings among other things.
       </li>
       <li>You can read more about elastic agent configurations from
-        <Link target="_blank" href={docsUrl("configuration/elastic_agents.html")}> here</Link>.
+        <Link href={docsUrl("configuration/elastic_agents.html")} target="_blank" externalLinkIcon={true}>here</Link>.
       </li>
     </ul>;
   }

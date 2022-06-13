@@ -137,7 +137,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
       const entity = (this.getEntity() as PipelineConfig);
       if (entity.origin().isDefinedInConfigRepo()) {
         const message = <div>
-          Can not edit pipeline '{entity.name()}' as it is defined in <a href={`/go/admin/config_repos#!${entity.origin().id()}`} target="_blank">{entity.origin().id()}</a> Config Repository!
+          Can not edit pipeline '{entity.name()}' as it is defined in <a href={`/go/admin/config_repos#!${entity.origin().id()}`}>{entity.origin().id()}</a> Config Repository!
         </div>;
 
         configRepoPipelineMessage = <FlashMessage message={message} type={MessageType.warning}/>;

@@ -187,7 +187,7 @@ export class AdminTemplatesWidget extends MithrilViewComponent<Attrs> {
     return <ul>
       <li>Templating helps to create reusable workflows and makes managing large number of pipelines easier.</li>
       <li>GoCD Administrators can enable any GoCD user to edit a template by making them a template administrator.
-        <Link href={docsUrl("configuration/pipeline_templates.html")} externalLinkIcon={true}> Learn More</Link>
+        <Link href={docsUrl("configuration/pipeline_templates.html")} target="_blank" externalLinkIcon={true}> Learn More</Link>
       </li>
     </ul>;
   }

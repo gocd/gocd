@@ -46,7 +46,7 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
     return <ul>
       <li>Click on "Create Package Repository" to add new package repository.</li>
       <li>A package repository can be set up to use packages as a material in the pipelines. You can read more
-        from <Link target="_blank" href={docsUrl("extension_points/package_repository_extension.html")}>here</Link>.
+        from <Link href={docsUrl("extension_points/package_repository_extension.html")} target="_blank" externalLinkIcon={true}>here</Link>.
       </li>
     </ul>;
   }

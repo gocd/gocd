@@ -42,7 +42,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
       <li>Click on "Add" to add new secret configuration.</li>
       <li>A secret configuration can be used to access secrets from an external secret management store.</li>
       <li>You can read more about secret configurations from
-        <Link target="_blank" href={docsUrl('configuration/secrets_management.html')}> here</Link>.
+        <Link href={docsUrl('configuration/secrets_management.html')} target="_blank" externalLinkIcon={true}> here</Link>.
       </li>
     </ul>;
   }

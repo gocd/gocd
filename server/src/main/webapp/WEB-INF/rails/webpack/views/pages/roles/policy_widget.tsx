@@ -206,7 +206,7 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
       }
     };
     const message                  = <span>Configure the policy below to manage access to GoCD entities for users in this role. <Link
-      externalLinkIcon={true} target="_blank"
+      target="_blank" externalLinkIcon={true}
       href={docsUrl("configuration/dev_authorization.html#role-based-access-control")}>Learn More</Link></span>;
     const policyBody               = vnode.attrs.policy && _.isEmpty(vnode.attrs.policy())
                                      ? <FlashMessage type={MessageType.info}

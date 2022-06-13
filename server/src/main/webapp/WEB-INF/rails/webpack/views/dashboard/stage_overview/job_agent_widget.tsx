@@ -41,7 +41,7 @@ export class JobAgentWidget extends MithrilComponent<Attrs, State> {
       const agentDetailsPageLink = `/go/agents/${job.agent_uuid}/job_run_history`;
       const agent: Agent | undefined = agents().getAgent(job.agent_uuid);
       const agentForDisplay = agent ? agent.hostname : job.agent_uuid;
-      return <Link title={agentForDisplay} href={agentDetailsPageLink} target={"_blank"}>{agentForDisplay}</Link>;
+      return <Link title={agentForDisplay} href={agentDetailsPageLink}>{agentForDisplay}</Link>;
     };
   }
 

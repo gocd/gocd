@@ -16,9 +16,20 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
-import {EnvironmentVariable, EnvironmentVariables, EnvironmentVariableWithOrigin} from "models/environment_variables/types";
-import {EnvironmentVariablesWidget, GroupedEnvironmentVariables, GroupedEnvironmentVariablesAttrs} from "views/components/environment_variables";
-import {EnvironmentVariableWidget, EnvironmentVariableWidgetAttrs} from "views/components/environment_variables/environment_variable_widget";
+import {
+  EnvironmentVariable,
+  EnvironmentVariables,
+  EnvironmentVariableWithOrigin
+} from "models/environment_variables/types";
+import {
+  EnvironmentVariablesWidget,
+  GroupedEnvironmentVariables,
+  GroupedEnvironmentVariablesAttrs
+} from "views/components/environment_variables";
+import {
+  EnvironmentVariableWidget,
+  EnvironmentVariableWidgetAttrs
+} from "views/components/environment_variables/environment_variable_widget";
 import {Link} from "views/components/link";
 
 class EnvironmentVariableWithOriginWidget extends EnvironmentVariableWidget {
@@ -26,7 +37,7 @@ class EnvironmentVariableWithOriginWidget extends EnvironmentVariableWidget {
     const environmentVariable = vnode.attrs.environmentVariable as EnvironmentVariableWithOrigin;
     return <div>
       Cannot edit this environment variable as it is defined in config repository:&nbsp;
-      <Link target="_blank" href={SparkRoutes.ConfigRepoViewPath(environmentVariable.origin().id())}>{environmentVariable.origin().id()}</Link>
+      <Link href={SparkRoutes.ConfigRepoViewPath(environmentVariable.origin().id())}>{environmentVariable.origin().id()}</Link>
     </div>;
   }
 }

@@ -29,12 +29,10 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<DistroVersion> getSupportedVersions() {
-      def installSasl_Post_3_9 = ['apk add --no-cache libsasl']
-
       return [
-        new DistroVersion(version: '3.13', releaseName: '3.13', eolDate: parseDate('2022-11-01'), installPrerequisitesCommands: installSasl_Post_3_9, continueToBuild: true),
-        new DistroVersion(version: '3.14', releaseName: '3.14', eolDate: parseDate('2023-05-01'), installPrerequisitesCommands: installSasl_Post_3_9),
-        new DistroVersion(version: '3.15', releaseName: '3.15', eolDate: parseDate('2023-11-01'), installPrerequisitesCommands: installSasl_Post_3_9),
+        new DistroVersion(version: '3.13', releaseName: '3.13', eolDate: parseDate('2022-11-01'), continueToBuild: true),
+        new DistroVersion(version: '3.14', releaseName: '3.14', eolDate: parseDate('2023-05-01')),
+        new DistroVersion(version: '3.15', releaseName: '3.15', eolDate: parseDate('2023-11-01')),
       ]
     }
 
@@ -202,7 +200,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       def installSasl = [
-              'apk add --no-cache libsasl sudo',
+              'apk add --no-cache sudo',
               // Workaround for https://github.com/docker-library/docker/commit/75e26edc9ea7fff4aa3212fafa5966f4d6b00022
               // which causes a clash with glibc, which is installed later for AdoptOpenJDK and will serve the same purpose
               'apk del --purge libc6-compat'

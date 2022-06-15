@@ -15,12 +15,10 @@
  */
 package com.thoughtworks.go.domain.builder;
 
-import java.io.File;
-
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.command.CommandLine;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
+
+import java.io.File;
 
 public class CommandBuilder extends BaseCommandBuilder {
     protected String args;
@@ -39,26 +37,8 @@ public class CommandBuilder extends BaseCommandBuilder {
     }
 
     @Override
-    protected CommandLine buildCommandLine() {
-        CommandLine command = null;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            command = CommandLine.createCommandLine("cmd").withWorkingDir(workingDir);
-            command.withArg("/c");
-            command.withArg(translateToWindowsPath(this.command));
-        }
-        else {
-            command = CommandLine.createCommandLine(this.command).withWorkingDir(workingDir);
-        }
-        String[] argsArray = CommandLine.translateCommandLine(args);
-        for (int i = 0; i < argsArray.length; i++) {
-            String arg = argsArray[i];
-            command.withArg(arg);
-        }
-        return command;
-    }
-
-    private String translateToWindowsPath(String command) {
-        return StringUtils.replace(command, "/", "\\");
+    protected String[] argList() {
+        return CommandLine.translateCommandLine(args);
     }
 
     public File getWorkingDir() {

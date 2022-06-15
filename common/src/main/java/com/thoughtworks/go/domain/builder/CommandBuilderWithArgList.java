@@ -15,14 +15,12 @@
  */
 package com.thoughtworks.go.domain.builder;
 
+import com.thoughtworks.go.domain.RunIfConfigs;
+
 import java.io.File;
 
-import com.thoughtworks.go.domain.RunIfConfigs;
-import com.thoughtworks.go.util.command.CommandLine;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
-
 public class CommandBuilderWithArgList extends BaseCommandBuilder {
+
     private String[] args;
 
     public CommandBuilderWithArgList(String command, String[] args, File workingDir, RunIfConfigs conditions,
@@ -32,24 +30,8 @@ public class CommandBuilderWithArgList extends BaseCommandBuilder {
     }
 
     @Override
-    protected CommandLine buildCommandLine() {
-        CommandLine command = null;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            command = CommandLine.createCommandLine("cmd").withWorkingDir(workingDir);
-            command.withArg("/c");
-            command.withArg(translateToWindowsPath(this.command));
-        }
-        else {
-            command = CommandLine.createCommandLine(this.command).withWorkingDir(workingDir);
-        }
-        for (String arg : args) {
-            command.withArg(arg);
-        }
-        return command;
-    }
-
-    private String translateToWindowsPath(String command) {
-        return StringUtils.replace(command, "/", "\\");
+    protected String[] argList() {
+        return args;
     }
 
 }

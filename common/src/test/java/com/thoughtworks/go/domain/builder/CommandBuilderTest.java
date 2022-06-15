@@ -21,29 +21,29 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommandBuilderTest {
 
     @TempDir
-    File tempWorkDir;
+    Path tempWorkDir;
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void commandWithArgsList_shouldAddCmdBeforeAWindowsCommand() {
         String[] args = {"some thing"};
-        CommandBuilderWithArgList commandBuilderWithArgList = new CommandBuilderWithArgList("echo", args, tempWorkDir, null, null, "some desc");
+        CommandBuilderWithArgList commandBuilderWithArgList = new CommandBuilderWithArgList("echo", args, tempWorkDir.toFile(), null, null, "some desc");
         CommandLine commandLine = commandBuilderWithArgList.buildCommandLine();
-        assertThat(commandLine.toStringForDisplay()).isEqualTo("cmd /c echo some thing");
+        assertThat(commandLine.toStringForDisplay()).isEqualTo("cmd /s /c \" echo some thing \"");
     }
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void commandWithArgs_shouldAddCmdBeforeAWindowsCommand() {
-        CommandBuilder commandBuilder = new CommandBuilder("echo", "some thing", tempWorkDir, null, null, "some desc");
+        CommandBuilder commandBuilder = new CommandBuilder("echo", "some thing", tempWorkDir.toFile(), null, null, "some desc");
         CommandLine commandLine = commandBuilder.buildCommandLine();
-        assertThat(commandLine.toStringForDisplay()).isEqualTo("cmd /c echo some thing");
+        assertThat(commandLine.toStringForDisplay()).isEqualTo("cmd /s /c \" echo some thing \"");
     }
 }

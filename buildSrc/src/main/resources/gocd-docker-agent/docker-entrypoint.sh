@@ -124,7 +124,7 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
 
   # setup the java binary and wrapper log
   try sed -i \
-    -e "s@wrapper.logfile=.*@/wrapper.logfile=${AGENT_WORK_DIR}/logs/go-agent-bootstrapper-wrapper.log@g" \
+    -e "s@wrapper.logfile=.*@wrapper.logfile=${AGENT_WORK_DIR}/logs/go-agent-bootstrapper-wrapper.log@g" \
     -e "s@wrapper.java.command=.*@wrapper.java.command=${GO_JAVA_HOME}/bin/java@g" \
     -e "s@wrapper.working.dir=.*@wrapper.working.dir=${AGENT_WORK_DIR}@g" \
     /go-agent/wrapper-config/wrapper.conf

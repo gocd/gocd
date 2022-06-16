@@ -80,7 +80,7 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
 
   # setup the java binary and wrapper log
   try sed -i \
-    -e "s@wrapper.logfile=.*@/wrapper.logfile=${SERVER_WORK_DIR}/logs/go-server-wrapper.log@g" \
+    -e "s@wrapper.logfile=.*@wrapper.logfile=${SERVER_WORK_DIR}/logs/go-server-wrapper.log@g" \
     -e "s@wrapper.java.command=.*@wrapper.java.command=${GO_JAVA_HOME}/bin/java@g" \
     -e "s@wrapper.working.dir=.*@wrapper.working.dir=${SERVER_WORK_DIR}@g" \
     /go-server/wrapper-config/wrapper.conf

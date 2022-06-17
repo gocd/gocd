@@ -125,7 +125,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^4.46.0",
     "webpack-build-notifier": "^2.2.1",
-    "webpack-cli": "^4.9.2"
+    "webpack-cli": "^4.10.0"
   },
   "resolutions": {
     "**/chokidar/**/glob-parent": ">=6.0.2",

@@ -94,7 +94,7 @@
     "karma-chrome-launcher": "^3.1.1",
     "karma-firefox-launcher": "^2.1.2",
     "karma-html-reporter": "https://github.com/dtabuenc/karma-html-reporter.git#51ba3f91a6f19ef383c676431aa7f8c3fa73dab3",
-    "karma-jasmine": "^5.0.1",
+    "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.0.0",
     "karma-jasmine-seed-reporter": "^0.2.0",
     "karma-junit-reporter": "^2.0.1",

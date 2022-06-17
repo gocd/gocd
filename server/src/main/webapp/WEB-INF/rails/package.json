@@ -28,7 +28,7 @@
     "classnames": "^2.3.1",
     "clipboard-polyfill": "^3.0.3",
     "core-js": "^3.22.8",
-    "filesize": "^9.0.1",
+    "filesize": "^9.0.8",
     "font-awesome": "^4.7.0",
     "foundation-sites": "=6.3.0",
     "hack-font": "^3.3.0",

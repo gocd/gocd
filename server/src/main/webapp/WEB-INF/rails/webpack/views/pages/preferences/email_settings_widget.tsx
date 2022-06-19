@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -44,8 +43,8 @@ export class EmailSettingsWidget extends MithrilViewComponent<Attrs> {
           <Form compactForm={true}>
             <TextField label="Email" type={"email"}
                        property={currentUser.email}
-                       helpText={"The email to which the notification is send."}
-                       docLink={docsUrl("configuration/dev_notifications.html")}
+                       helpText={"The email to which the notification is sent."}
+                       docLink={"configuration/dev_notifications.html"}
                        placeholder={"Email not set"}/>
             <CheckboxField dataTestId="enable-email-notification"
                            property={currentUser.emailMe}

@@ -45,7 +45,7 @@ describe('EmailSettingsWidgetSpec', () => {
     expect(helper.byTestId('save-email-settings')).toBeInDOM();
     expect(helper.byTestId('save-email-settings')).toBeDisabled();
 
-    expect(helpText('form-field-input-email')).toContainText('The email to which the notification is send.');
+    expect(helpText('form-field-input-email')).toContainText('The email to which the notification is sent.');
     expect(helpText('form-field-input-my-check-in-aliases')).toContainText("Usually the commits will be either in 'user' or 'username'. Specify both the values here.");
   });
 

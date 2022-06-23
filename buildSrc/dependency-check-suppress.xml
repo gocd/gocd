@@ -16,253 +16,260 @@
   -->
 
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-    <suppress>
-        <notes><![CDATA[
-   Suppressing false positive caused by OWASP Dependency Check thinking the shaded/packaged dirgra library is the same
-   as the JRuby version. These are versioned independently and not the same thing.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.jruby/dirgra@.*$</packageUrl>
-        <cpe>cpe:/a:jruby:jruby</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   Suppressing false positive caused by OWASP Dependency Check thinking shaded RubyGems are the same thing as
-   as JRuby or their related libraries independently. These are not the same things.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
-        <cpe>cpe:/a:jruby:jruby</cpe>
-        <cpe>cpe:/a:openssl:openssl</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   Suppressing false positive caused by OWASP Dependency Check thinking jruby-rack is the same thing as
-   as JRuby independently. These are not the same things.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
-        <vulnerabilityName>CVE-2010-1330</vulnerabilityName>
-        <vulnerabilityName>CVE-2011-4838</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   Suppressing false positive - vulnerability is in Artemis, not the wider ActiveMQ, and NVD data has the wrong
-   affected versions anyway.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
-        <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
-   separately and which is not used within GoCD.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
-        <cve>CVE-2020-13697</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppressing false positive caused by OWASP Dependency Check thinking the shaded/packaged dirgra library is the same
+    as the JRuby version. These are versioned independently and not the same thing.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.jruby/dirgra@.*$</packageUrl>
+    <cpe>cpe:/a:jruby:jruby</cpe>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppressing false positive caused by OWASP Dependency Check thinking shaded RubyGems are the same thing as
+    as JRuby or their related libraries independently. These are not the same things.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
+    <cpe>cpe:/a:jruby:jruby</cpe>
+    <cpe>cpe:/a:openssl:openssl</cpe>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppressing false positive caused by OWASP Dependency Check thinking jruby-rack is the same thing as
+    as JRuby independently. These are not the same things.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
+    <vulnerabilityName>CVE-2010-1330</vulnerabilityName>
+    <vulnerabilityName>CVE-2011-4838</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Suppressing false positive - vulnerability is in Artemis, not the wider ActiveMQ, and NVD data has the wrong
+    affected versions anyway.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
+    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+    https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
+    separately and which is not used within GoCD.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
+    <cve>CVE-2020-13697</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   Hibernate Commons Annotations is a different project, versioned separately to the core "Hibernate ORM", so CVEs against this are misleading
-   and false positives. We will still seem them reported against other Hibernate dependencies, however.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-commons\-annotations@.*$</packageUrl>
-        <cpe>cpe:/a:hibernate:hibernate_orm</cpe>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Hibernate Commons Annotations is a different project, versioned separately to the core "Hibernate ORM", so CVEs against this are misleading
+    and false positives. We will still seem them reported against other Hibernate dependencies, however.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-commons\-annotations@.*$</packageUrl>
+    <cpe>cpe:/a:hibernate:hibernate_orm</cpe>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   It is not possible to upload/modify Velocity Templates within GoCD, so GoCD does not appear to be vulnerable to this
-   vulnerability. See https://nvd.nist.gov/vuln/detail/CVE-2020-13936
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.velocity/velocity@.*$</packageUrl>
-        <cve>CVE-2020-13936</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    It is not possible to upload/modify Velocity Templates within GoCD, so GoCD does not appear to be vulnerable to this
+    vulnerability. See https://nvd.nist.gov/vuln/detail/CVE-2020-13936
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.velocity/velocity@.*$</packageUrl>
+    <cve>CVE-2020-13936</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is not correct to have Engine CVEs
-   reported against the tools jar.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
-        <cpe>cpe:/a:apache:velocity_engine</cpe>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is not correct to have Engine CVEs
+    reported against the tools jar.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
+    <cpe>cpe:/a:apache:velocity_engine</cpe>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   The vulnerability in Velocity Tools View is in the VelocityViewServlet per https://nvd.nist.gov/vuln/detail/CVE-2020-13959
-   which we do not use - we use Spring's WebMVC VelocityView implementation, so we are not vulnerable to this issue.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
-        <cve>CVE-2020-13959</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    The vulnerability in Velocity Tools View is in the VelocityViewServlet per https://nvd.nist.gov/vuln/detail/CVE-2020-13959
+    which we do not use - we use Spring's WebMVC VelocityView implementation, so we are not vulnerable to this issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
+    <cve>CVE-2020-13959</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
-   https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
+    https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <cve>CVE-2016-1000027</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   This appears to be a false positive. Vulnerability is only reported against Spring `5.2.0` to `5.2.3` (not 4.3)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
-        <vulnerabilityName>CVE-2020-5397</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    This appears to be a false positive. Vulnerability is only reported against Spring `5.2.0` to `5.2.3` (not 4.3)
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
+    <vulnerabilityName>CVE-2020-5397</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   Spring WebMVC 4.3.x does not appear to be affected by https://tanzu.vmware.com/security/cve-2021-22060 based on review
-   of the patches made to `LogFormatUtils` in the fixed 5.2.19.RELEASE version: https://github.com/spring-projects/spring-framework/compare/v5.2.18.RELEASE...v5.2.19.RELEASE
-   This is because in Spring 4.3 all of these log statements are at TRACE level, which are very unlikely to be enabled
-   for a GoCD instance in production, and not in the default configuration
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
-        <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    Spring WebMVC 4.3.x does not appear to be affected by https://tanzu.vmware.com/security/cve-2021-22060 based on review
+    of the patches made to `LogFormatUtils` in the fixed 5.2.19.RELEASE version: https://github.com/spring-projects/spring-framework/compare/v5.2.18.RELEASE...v5.2.19.RELEASE
+    This is because in Spring 4.3 all of these log statements are at TRACE level, which are very unlikely to be enabled
+    for a GoCD instance in production, and not in the default configuration
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-webmvc@4\.3.*$</packageUrl>
+    <vulnerabilityName>CVE-2021-22060</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   From review of https://tanzu.vmware.com/security/cve-2021-22112 and the code of GoCD, GoCD does not appear to be
-   subject to this defect, since it does not alter the security context in the manner required to elevate privileges
-   in a small portion of the application and potentially be subject to this defect.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
-        <cve>CVE-2021-22112</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    It is not believed that GoCD is directly vulnerable to the "SpringShell" attack since although we use WAR
+    deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
+    required to exploit the vulnerability.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <cve>CVE-2022-22965</cve>
+    <vulnerabilityName>CVE-2022-22965</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   GoCD does not use bcrypt from Spring Security, so does not seem vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2022-22976
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
-        <cve>CVE-2022-22976</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
+    vulnerable to this issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <cve>CVE-2022-22950</cve>
+    <vulnerabilityName>CVE-2022-22950</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-      GoCD does not use RegexRequestMatchers from Spring Security with a value of '.' as required by https://nvd.nist.gov/vuln/detail/CVE-2022-22978
-      to be vulnerable to this issue.
-       ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
-        <cve>CVE-2022-22978</cve>
-        <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not affected by this as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
+    as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <cve>CVE-2022-22968</cve>
+    <vulnerabilityName>CVE-2022-22968</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   It is not believed that GoCD is directly vulnerable to the "SpringShell" attack since although we use WAR
-   deployment, GoCD uses Jetty rather than Tomcat, and does not have the vulnerable classloader from Tomcat
-   required to exploit the vulnerability.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
-        <vulnerabilityName>CVE-2022-22965</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
+    rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
+    <cve>CVE-2022-22970</cve>
+    <vulnerabilityName>CVE-2022-22970</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
-   vulnerable to this issue.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@.*$</packageUrl>
-        <vulnerabilityName>CVE-2022-22950</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    From review of https://tanzu.vmware.com/security/cve-2021-22112 and the code of GoCD, GoCD does not appear to be
+    subject to this defect, since it does not alter the security context in the manner required to elevate privileges
+    in a small portion of the application and potentially be subject to this defect.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
+    </packageUrl>
+    <cve>CVE-2021-22112</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   GoCD is not affected by this as we do not use disallowedFieldPatterns on DataBinders as required to trigger the issue
-   as documented in https://spring.io/blog/2022/04/13/spring-framework-data-binding-rules-vulnerability-cve-2022-22968
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
-        <vulnerabilityName>CVE-2022-22968</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use bcrypt from Spring Security, so does not seem vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2022-22976
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
+    </packageUrl>
+    <cve>CVE-2022-22976</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   GoCD is not vulnerable to the default as described at https://nvd.nist.gov/vuln/detail/CVE-2022-22970 as we do not
-   rely on data binding for dealing with MultipartFile or javax.servlet.Part objects into models.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
-        <vulnerabilityName>CVE-2022-22970</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    GoCD does not use RegexRequestMatchers from Spring Security with a value of '.' as required by https://nvd.nist.gov/vuln/detail/CVE-2022-22978
+    to be vulnerable to this issue.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
+    </packageUrl>
+    <cve>CVE-2022-22978</cve>
+    <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   From review of https://nvd.nist.gov/vuln/detail/CVE-2019-14900 and the fix on Hibernate 5.3 at https://github.com/hibernate/hibernate-orm/pull/3440/files
-   GoCD is not subject to this defect, since at time of writing we do not use literals on the Criteria API (it's also
-   unclear whether older Hibernate versions are subject to the same defect)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
-        <cve>CVE-2019-14900</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    From review of https://nvd.nist.gov/vuln/detail/CVE-2019-14900 and the fix on Hibernate 5.3 at https://github.com/hibernate/hibernate-orm/pull/3440/files
+    GoCD is not subject to this defect, since at time of writing we do not use literals on the Criteria API (it's also
+    unclear whether older Hibernate versions are subject to the same defect)
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
+    <cve>CVE-2019-14900</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   From review of https://nvd.nist.gov/vuln/detail/CVE-2020-25638 and https://bugzilla.redhat.com/show_bug.cgi?id=1881353
-   GoCD is not subject to this defect, because `hibernate.use_sql_comments` is left as the default (false) value.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
-        <cve>CVE-2020-25638</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    From review of https://nvd.nist.gov/vuln/detail/CVE-2020-25638 and https://bugzilla.redhat.com/show_bug.cgi?id=1881353
+    GoCD is not subject to this defect, because `hibernate.use_sql_comments` is left as the default (false) value.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
+    <cve>CVE-2020-25638</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   This is a false positive and not a vulnerability according to https://github.com/h2database/h2database/issues/3175#issuecomment-1142186324
-   - it's being reported against the wrong version from OSSINDEX.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
-        <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    This is a false positive and not a vulnerability according to https://github.com/h2database/h2database/issues/3175#issuecomment-1142186324
+    - it's being reported against the wrong version from OSSINDEX.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+    <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   From review of https://nvd.nist.gov/vuln/detail/CVE-2021-23463 GoCD is not subject to this XXE vulnerability, because
-   neither GoCD, Hibernate or MyBatis use JdbcResultSet.getSQLXML(). It seems this is unlikely to get a backport to
-   H2 1.4.x which is a breaking change. See https://github.com/h2database/h2database/issues/3195 and
-   https://github.com/h2database/h2database/issues/3271
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
-        <cve>CVE-2021-23463</cve>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    From review of https://nvd.nist.gov/vuln/detail/CVE-2021-23463 GoCD is not subject to this XXE vulnerability, because
+    neither GoCD, Hibernate or MyBatis use JdbcResultSet.getSQLXML(). It seems this is unlikely to get a backport to
+    H2 1.4.x which is a breaking change. See https://github.com/h2database/h2database/issues/3195 and
+    https://github.com/h2database/h2database/issues/3271
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+    <cve>CVE-2021-23463</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   The CVEs as documented at https://github.com/h2database/h2database/security/advisories/GHSA-h376-j262-vhq6 and
-   https://github.com/advisories/GHSA-45hx-wfhj-473x only affect the H2 console (not enabled on GoCD),
-   context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
-   so GoCD does not appear to be vulnerable to these problems even when running with H2 DB.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
-        <cve>CVE-2021-42392</cve>
-        <cve>CVE-2022-23221</cve>
-        <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    The CVEs as documented at https://github.com/h2database/h2database/security/advisories/GHSA-h376-j262-vhq6 and
+    https://github.com/advisories/GHSA-45hx-wfhj-473x only affect the H2 console (not enabled on GoCD),
+    context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
+    so GoCD does not appear to be vulnerable to these problems even when running with H2 DB.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
+    <cve>CVE-2021-42392</cve>
+    <cve>CVE-2022-23221</cve>
+    <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
+  </suppress>
 
-    <suppress until="2022-08-01Z">
-        <notes><![CDATA[
-   Time-limited suppression for https://nvd.nist.gov/vuln/detail/CVE-2021-29425. GoCD is not vulnerable as the use of
-   FilenameUtils.normalize does not "use the result to construct a path value" as required by the defect. Neither does
-   any of GoCD's libraries use this functionality.
+  <suppress until="2022-08-01Z">
+    <notes><![CDATA[
+    Time-limited suppression for https://nvd.nist.gov/vuln/detail/CVE-2021-29425. GoCD is not vulnerable as the use of
+    FilenameUtils.normalize does not "use the result to construct a path value" as required by the defect. Neither does
+    any of GoCD's libraries use this functionality.
 
-   This was fixed in Commons IO 2.7 and GoCD originally upgraded to 2.11.0, however unfortunately all later versions
-   have some regressions as noted in https://github.com/gocd/gocd/issues/9397 https://github.com/gocd/gocd/pull/9517
-   and https://github.com/gocd/gocd/issues/9927
+    This was fixed in Commons IO 2.7 and GoCD originally upgraded to 2.11.0, however unfortunately all later versions
+    have some regressions as noted in https://github.com/gocd/gocd/issues/9397 https://github.com/gocd/gocd/pull/9517
+    and https://github.com/gocd/gocd/issues/9927
 
-   While the last issue appears to be fixed by Commons IO 2.12 (not yet released) there are other regressions in 2.12
-   master due to ongoing work and it feels the path to stability might take some time.
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
-        <cve>CVE-2021-29425</cve>
-    </suppress>
+    While the last issue appears to be fixed by Commons IO 2.12 (not yet released) there are other regressions in 2.12
+    master due to ongoing work and it feels the path to stability might take some time.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+    <cve>CVE-2021-29425</cve>
+  </suppress>
 
-    <suppress>
-        <notes><![CDATA[
-   The Eclipse Angus Mail SMTP component is not the Eclipse IDE :-)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
-        <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-    </suppress>
+  <suppress>
+    <notes><![CDATA[
+    The Eclipse Angus Mail SMTP component is not the Eclipse IDE :-)
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
+    <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+  </suppress>
 
 </suppressions>

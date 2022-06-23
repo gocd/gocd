@@ -1,1 +1,0 @@
-<#if task.errors().on("command")?? >ERROR:</#if> ${task.errors().on("command")}

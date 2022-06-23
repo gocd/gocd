@@ -1,1 +1,0 @@
-hello world mates. This is my ${task.taskType}

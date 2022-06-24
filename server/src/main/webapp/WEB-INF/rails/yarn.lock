@@ -3779,10 +3779,10 @@ filelist@^1.0.1:
   dependencies:
     minimatch "^5.0.1"
 
-filesize@^9.0.8:
-  version "9.0.8"
-  resolved "https://registry.yarnpkg.com/filesize/-/filesize-9.0.8.tgz#dcbe7a156a4f2f4e22f3c93947daf99d3619f619"
-  integrity sha512-B1Ob0fyW9AfklCylPmLQrdOuaS8QOFt/5p0I/xwc7hQmTDWDhqm/bFfegpPMtcjXy8RJDldRYU4REgZf6rxq1g==
+filesize@^9.0.9:
+  version "9.0.9"
+  resolved "https://registry.yarnpkg.com/filesize/-/filesize-9.0.9.tgz#f2e487c85280d3a2fa800d404c23cd454291c5d4"
+  integrity sha512-1p0ZaDrILQ9fmkDnxITzF9O+EjnsEsr+aNEC45DL+3dxO2g5ypmhf9+b2i1hg264F+glTLQBM4bK/sadk8KVrA==
 
 fill-range@^4.0.0:
   version "4.0.0"

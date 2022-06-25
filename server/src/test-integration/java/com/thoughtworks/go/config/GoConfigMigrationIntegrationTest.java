@@ -48,7 +48,6 @@ import org.xmlunit.assertj.XmlAssert;
 
 import java.io.File;
 import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
@@ -164,7 +163,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateExecTaskArgValueToTextNode() throws Exception {
+    public void shouldMigrateExecTaskArgValueToTextNode() {
         String migratedContent = migrateXmlString(ConfigFileFixture.VALID_XML_3169, 14);
         assertThat(migratedContent).contains("<arg>test</arg>");
     }
@@ -370,7 +369,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveLicenseSection_asPartOfMigration72() throws Exception {
+    public void shouldRemoveLicenseSection_asPartOfMigration72() {
         String licenseUser = "Go UAT ThoughtWorks";
         String configWithLicenseSection =
                 "<cruise schemaVersion='71'>" +
@@ -391,7 +390,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldPerformNOOPWhenNoLicenseIsPresent_asPartOfMigration72() throws Exception {
+    public void shouldPerformNOOPWhenNoLicenseIsPresent_asPartOfMigration72() {
         String licenseUser = "Go UAT ThoughtWorks";
         String configWithLicenseSection =
                 "<cruise schemaVersion='71'>" +
@@ -405,7 +404,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldNotRemoveNonEmptyUserTags_asPartOfMigration78() throws Exception {
+    public void shouldNotRemoveNonEmptyUserTags_asPartOfMigration78() {
         String configXml =
                 "<cruise schemaVersion='77'>"
                         + "  <pipelines group='first'>"
@@ -426,7 +425,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveEmptyTags_asPartOfMigration78() throws Exception {
+    public void shouldRemoveEmptyTags_asPartOfMigration78() {
         String configXml =
                 "<cruise schemaVersion='77'>"
                         + "  <pipelines group='first'>"
@@ -452,7 +451,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveEmptyTagsRecursively_asPartOfMigration78() throws Exception {
+    public void shouldRemoveEmptyTagsRecursively_asPartOfMigration78() {
         String configXml =
                 "<cruise schemaVersion='77'>"
                         + "  <pipelines group='first'>"
@@ -475,7 +474,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldAddIdOnConfigRepoAsPartOfMigration94() throws Exception {
+    public void shouldAddIdOnConfigRepoAsPartOfMigration94() {
         String configXml = "<cruise schemaVersion='93'>" +
                 "<config-repos>\n" +
                 "   <config-repo plugin=\"json.config.plugin\">\n" +
@@ -489,7 +488,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertPluginToPluginIdOnConfigRepoAsPartOfMigration95() throws Exception {
+    public void shouldConvertPluginToPluginIdOnConfigRepoAsPartOfMigration95() {
         String configXml = "<cruise schemaVersion='94'>" +
                 "<config-repos>\n" +
                 "   <config-repo plugin=\"json.config.plugin\" id=\"config-repo-1\">\n" +
@@ -519,7 +518,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldNotSupportedUncesseryMaterialFieldsAsPartOfMigration99() throws Exception {
+    public void shouldNotSupportedUncesseryMaterialFieldsAsPartOfMigration99() {
         String configXml = "<cruise schemaVersion='99'>" +
                 "<config-repos>\n" +
                 "   <config-repo pluginId=\"json.config.plugin\" id=\"config-repo-1\">\n" +
@@ -768,7 +767,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldIntroduceTypeOnBuildArtifacts_asPartOf106Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldIntroduceTypeOnBuildArtifacts_asPartOf106Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"105\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -803,7 +802,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertTestTagToArtifactWithTypeOnTestArtifacts_asPartOf106Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldConvertTestTagToArtifactWithTypeOnTestArtifacts_asPartOf106Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"105\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -903,7 +902,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldAddTypeAttributeOnFetchArtifactTag_asPartOf107Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldAddTypeAttributeOnFetchArtifactTag_asPartOf107Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"106\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -948,7 +947,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldConvertFetchPluggableArtifactToFetchArtifactTagWithType_asPartOf107Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, CryptoException {
+    public void shouldConvertFetchPluggableArtifactToFetchArtifactTagWithType_asPartOf107Migration() throws CryptoException {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"106\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -1035,7 +1034,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldAddTheConfigurationSubTagOnExternalArtifacts_asPartOf108Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldAddTheConfigurationSubTagOnExternalArtifacts_asPartOf108Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"107\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -1119,7 +1118,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRenameOriginAttributeOnFetchArtifactToArtifactOrigin_AsPartOf110To111Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldRenameOriginAttributeOnFetchArtifactToArtifactOrigin_AsPartOf110To111Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"110\">\n"
                 + "    <server artifactsdir=\"artifacts\"/>\n"
@@ -1178,7 +1177,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveMaterialNameFromConfigRepos_AsPartOf114To115Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void shouldRemoveMaterialNameFromConfigRepos_AsPartOf114To115Migration() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<cruise schemaVersion='114'>" +
                 "<config-repos>\n" +
@@ -1777,7 +1776,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void migration131_shouldRemoveMingleTagFromPipelineTag() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void migration131_shouldRemoveMingleTagFromPipelineTag() {
         String configXml =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                         + "<cruise schemaVersion=\"130\">"
@@ -1830,7 +1829,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveArtifactRelatedAttributesAndAddAsChildElements_Migration131To132() throws Exception {
+    public void shouldRemoveArtifactRelatedAttributesAndAddAsChildElements_Migration131To132() {
         String originalConfig = "<server artifactsdir=\"artifacts\" " +
                 "purgeStart=\"50.0\" " +
                 "purgeUpto=\"100.0\" " +
@@ -1870,7 +1869,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldNotBreakIfPurgeSettingsAreNotPresent_Migration131To132() throws Exception {
+    public void shouldNotBreakIfPurgeSettingsAreNotPresent_Migration131To132() {
         String originalConfig = "<server artifactsdir=\"artifacts\" " +
                 "agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" " +
                 "webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" " +
@@ -1904,7 +1903,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrate_allowOnlyKnownUsersToLogin_attributeFromSecurityToAuthConfig_Migration132To133() throws Exception {
+    public void shouldMigrate_allowOnlyKnownUsersToLogin_attributeFromSecurityToAuthConfig_Migration132To133() {
         String originalConfig = "<server agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" commandRepositoryLocation=\"default\" serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
                 "<security allowOnlyKnownUsersToLogin=\"true\" >\n" +
                 "      <authConfigs>\n" +
@@ -1928,7 +1927,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldDefine_allowOnlyKnownUsersToLogin_attributeOnAuthConfigAttributeDoesNotExistOnSecurity_Migration132to133() throws Exception {
+    public void shouldDefine_allowOnlyKnownUsersToLogin_attributeOnAuthConfigAttributeDoesNotExistOnSecurity_Migration132to133() {
         String originalConfig = "<server agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" commandRepositoryLocation=\"default\" serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
                 "<security>\n" +
                 "      <authConfigs>\n" +
@@ -2070,7 +2069,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void migration137_shouldAddEchoTasksForEmptyJob() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void migration137_shouldAddEchoTasksForEmptyJob() {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                         + "<cruise schemaVersion=\"136\">"
                         + "    <pipelines>"

@@ -38,7 +38,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -71,8 +71,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-
-
 
 @ExtendWith(ResetCipher.class)
 @ExtendWith(SpringExtension.class)
@@ -148,7 +146,7 @@ public class GoConfigMigratorIntegrationTest {
         goFileConfigDataSource.forceLoad(configFile);
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(config);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConstants.CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
         assertThat(configRepository.getRevision(ConfigRepository.CURRENT).getUsername()).isNotEqualTo("Upgrade");
     }
 
@@ -172,7 +170,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldUpgradeCruiseConfigFileIfVersionDoesNotMatch() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.OLD);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConstants.CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
     }
 
     @Test
@@ -247,7 +245,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateRevision5ToTheLatest() throws Exception {
         CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.VERSION_5);
-        assertThat(cruiseConfig.schemaVersion()).isEqualTo(GoConstants.CONFIG_SCHEMA_VERSION);
+        assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
     }
 
     @Test

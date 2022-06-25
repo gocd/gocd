@@ -46,7 +46,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.List;
 
-import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.agent.ResponseHelpers.readBodyAsString;
 import static com.thoughtworks.go.agent.ResponseHelpers.readBodyAsStringOrElse;
 import static java.lang.String.format;
@@ -141,10 +140,7 @@ public class RemotingClient implements BuildRepositoryRemote {
             throw new ClientProtocolException(String.join("\n   - ", List.of(
                     format("The server returned status code %d. Possible reasons include:", status.getStatusCode()),
                     "This agent has been deleted from the configuration",
-                    "This agent is pending approval",
-                    "There is possibly a reverse proxy (or load balancer) that has been misconfigured. See "
-                            + docsUrl("/installation/configure-reverse-proxy.html#agents-and-reverse-proxies") +
-                            " for details."
+                    "This agent is pending approval"
             )));
         }
 

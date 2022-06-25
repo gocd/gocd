@@ -38,7 +38,7 @@ describe("Plugin Settings", () => {
     configuration: [
       {
         key: "GoServerUrl",
-        value: "http://localhost:8154/go"
+        value: "http://localhost:8153/go"
       },
       {
         errors: {
@@ -65,7 +65,7 @@ describe("Plugin Settings", () => {
 
   it("should deserialize plugin settings", () => {
     const configuration          = [
-      new Configuration("GoServerUrl", new PlainTextValue("http://localhost:8154/go")),
+      new Configuration("GoServerUrl", new PlainTextValue("http://localhost:8153/go")),
       new Configuration("accessKeyId", new PlainTextValue(""), ["Unable to load credentials from any provider in the chain"]),
       new Configuration("region", new PlainTextValue("")),
       new Configuration("secret", new EncryptedValue("hidden-value"))
@@ -77,7 +77,7 @@ describe("Plugin Settings", () => {
 
   it("should serialize plugin settings", () => {
     const configuration  = [
-      new Configuration("GoServerUrl", new PlainTextValue("http://localhost:8154/go")),
+      new Configuration("GoServerUrl", new PlainTextValue("http://localhost:8153/go")),
       new Configuration("accessKeyId", new PlainTextValue(""), ["Unable to load credentials from any provider in the chain"]),
       new Configuration("region", new PlainTextValue("")),
       new Configuration("secret", new EncryptedValue("hidden-value"))
@@ -88,7 +88,7 @@ describe("Plugin Settings", () => {
       configuration: [
         {
           key: "GoServerUrl",
-          value: "http://localhost:8154/go"
+          value: "http://localhost:8153/go"
         },
         {
           key: "accessKeyId",

@@ -14295,7 +14295,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-ubuntu10.04" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14320,7 +14319,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-ubuntu9.10" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14345,7 +14343,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-centos5.4" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14370,7 +14367,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-windows7" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template-windows-x86">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">C:\Program Files (x86)\Cruise Server</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">C:\Program Files (x86)\Cruise Server\config</variable>
         <variable name="TWIST_AGENT_PATH">C:\Program Files (x86)\Cruise Agent</variable>
@@ -14396,7 +14392,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-windows2008" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template-windows-x86">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">C:\Program Files (x86)\Cruise Server</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">C:\Program Files (x86)\Cruise Server\config</variable>
         <variable name="TWIST_AGENT_PATH">C:\Program Files (x86)\Cruise Agent</variable>
@@ -14422,7 +14417,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-windows_xp" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template-windows-x86">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">C:\Program Files (x86)\Cruise Server</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">C:\Program Files (x86)\Cruise Server\config</variable>
         <variable name="TWIST_AGENT_PATH">C:\Program Files (x86)\Cruise Agent</variable>
@@ -14448,7 +14442,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-windows_vista" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template-windows">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">C:\Program Files\Cruise Server</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">C:\Program Files\Cruise Server\config</variable>
         <variable name="TWIST_AGENT_PATH">C:\Program Files\Cruise Agent</variable>
@@ -14474,7 +14467,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-fedora_core" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14497,7 +14489,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-windows2003" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template-windows">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">C:\Program Files\Cruise Server</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">C:\Program Files\Cruise Server\config</variable>
         <variable name="TWIST_AGENT_PATH">C:\Program Files\Cruise Agent</variable>
@@ -14523,7 +14514,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="migration-testing" labeltemplate="${CRUISE_PIPELINE}" isLocked="true">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14648,7 +14638,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-ubuntu8.04" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14661,7 +14650,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
         <variable name="USER_ID">username</variable>
         <variable name="PASSWORD">password</variable>
         <variable name="TWIST_CRUISE_PORsT">8153</variable>
-        <variable name="TWIST_CRUISE_SSsL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PsATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_sCONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_sPATH">/var/lib/cruise-agent</variable>
@@ -14686,7 +14674,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-mac" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14711,7 +14698,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-open-solaris" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-solaris-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14738,7 +14724,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-suse" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14763,7 +14748,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-solaris10" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-solaris-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14788,7 +14772,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-ubuntu7.10" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>
@@ -14813,7 +14796,6 @@ hlEEf0SNrZqx5PxTJ4PiKAoSWlxbX8CFVY489NufGQ==</license>
     <pipeline name="auto-deploy-testing-redhat5" labeltemplate="${CRUISE_PIPELINE}" isLocked="false" template="auto-deploy-testing-template">
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">8153</variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">8154</variable>
         <variable name="TWIST_SERVER_PATH">/etc/cruise</variable>
         <variable name="TWIST_SERVER_CONFIG_PATH">/etc/cruise</variable>
         <variable name="TWIST_AGENT_PATH">/var/lib/cruise-agent</variable>

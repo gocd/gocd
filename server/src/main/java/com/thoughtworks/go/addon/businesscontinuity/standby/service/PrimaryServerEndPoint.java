@@ -31,7 +31,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Component
 public class PrimaryServerEndPoint {
 
-    private final String DEFAULT_PRIMARY = "https://localhost:8154";
+    private final String DEFAULT_PRIMARY = "http://localhost:8153";
     private static Map<ConfigFileType, String> urlMap = new HashMap<>();
     private final SystemEnvironment systemEnvironment;
 

@@ -34,8 +34,8 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.server.service.plugins.processor.serverinfo.ServerInfoRequestProcessor.GET_SERVER_INFO;
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +55,7 @@ public class ServerInfoRequestProcessorTest {
     public void setUp() throws Exception {
         serverConfig = new ServerConfig();
         serverConfig.ensureServerIdExists();
-        serverConfig.setSecureSiteUrl("https://example.com:8154/go");
+        serverConfig.setSecureSiteUrl("https://example.com/go");
         serverConfig.setSiteUrl("http://example.com:8153/go");
 
         processorRegistry = new PluginRequestProcessorRegistry();

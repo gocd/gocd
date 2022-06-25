@@ -417,7 +417,7 @@ describe("ElasticAgentWizard", () => {
             key: "go_server_url",
             value: "http://localhost",
             errors: {
-              go_server_url: ["Go Server URL must be a valid HTTPs URL (https://example.com:8154/go)"]
+              go_server_url: ["Go Server URL must be a valid HTTPs URL (https://example.com/go)"]
             }
           }],
           errors: {}

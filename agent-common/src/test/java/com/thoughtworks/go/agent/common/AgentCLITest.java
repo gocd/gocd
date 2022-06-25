@@ -64,15 +64,15 @@ public class AgentCLITest {
 
     @Test
     public void shouldPassIfCorrectArgumentsAreProvided() {
-        AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "NONE");
-        assertThat(agentBootstrapperArgs.getServerUrl().toString()).isEqualTo("https://go.example.com:8154/go");
+        AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com/go", "-sslVerificationMode", "NONE");
+        assertThat(agentBootstrapperArgs.getServerUrl().toString()).isEqualTo("https://go.example.com/go");
         assertThat(agentBootstrapperArgs.getSslVerificationMode()).isEqualTo(AgentBootstrapperArgs.SslMode.NONE);
     }
 
     @Test
     public void shouldRaisExceptionWhenInvalidSslModeIsPassed() {
         assertThatCode(() -> {
-            agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "FOOBAR");
+            agentCLI.parse("-serverUrl", "https://go.example.com/go", "-sslVerificationMode", "FOOBAR");
         })
                 .isInstanceOf(ExitException.class)
                 .satisfies(o -> {

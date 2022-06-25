@@ -27,7 +27,7 @@ public class MessageHandlerForServerInfoRequestProcessor2_0Test {
     public void shouldSerializeServerConfigToJSON() {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.ensureServerIdExists();
-        serverConfig.setSecureSiteUrl("https://example.com:8154/go");
+        serverConfig.setSecureSiteUrl("https://example.com/go");
         serverConfig.setSiteUrl("http://example.com:8153/go");
         CurrentGoCDVersion goCDVersion = CurrentGoCDVersion.getInstance();
 

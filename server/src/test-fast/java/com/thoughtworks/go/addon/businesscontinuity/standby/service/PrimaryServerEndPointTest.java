@@ -32,7 +32,7 @@ class PrimaryServerEndPointTest {
     @Test
     void shouldPointToTheConfigFileStatusGetURL() {
         HttpRequestBase getMethod = primaryServerEndPoint.configFileStatus("token");
-        assertThat(getMethod.getURI().toString()).isEqualTo("https://localhost:8154/go/add-on/business-continuity/api/config_files_status");
+        assertThat(getMethod.getURI().toString()).isEqualTo("http://localhost:8153/go/add-on/business-continuity/api/config_files_status");
     }
 
     @Test
@@ -44,13 +44,13 @@ class PrimaryServerEndPointTest {
     @Test
     void shouldPointToTheDownloadConfigFileStatusGetURL() {
         HttpRequestBase request = primaryServerEndPoint.downloadConfigFile(ConfigFileType.CRUISE_CONFIG_XML, "foo:bar");
-        assertThat(request.getURI().toString()).isEqualTo("https://localhost:8154/go/add-on/business-continuity/api/cruise_config");
+        assertThat(request.getURI().toString()).isEqualTo("http://localhost:8153/go/add-on/business-continuity/api/cruise_config");
     }
 
     @Test
     void shouldPointToTheUserFeatureToggleGetURL() {
         HttpRequestBase request = primaryServerEndPoint.downloadConfigFile(ConfigFileType.USER_FEATURE_TOGGLE, "foo:bar");
-        assertThat(request.getURI().toString()).isEqualTo("https://localhost:8154/go/add-on/business-continuity/api/user_feature_toggle");
+        assertThat(request.getURI().toString()).isEqualTo("http://localhost:8153/go/add-on/business-continuity/api/user_feature_toggle");
     }
 
     @Test
@@ -61,7 +61,7 @@ class PrimaryServerEndPointTest {
 
     @Test
     void shouldGetDefaultPrimaryServerUrl() {
-        assertThat(primaryServerEndPoint.primaryServerUrl()).isEqualTo("https://localhost:8154");
+        assertThat(primaryServerEndPoint.primaryServerUrl()).isEqualTo("http://localhost:8153");
     }
 
     @Test
@@ -87,19 +87,19 @@ class PrimaryServerEndPointTest {
     @Test
     void shouldPointToLatestDatabaseWalLocationURL() {
         HttpRequestBase getMethod = primaryServerEndPoint.latestDatabaseWalLocation("foo:bar");
-        assertThat(getMethod.getURI().toString()).isEqualTo("https://localhost:8154/go/add-on/business-continuity/api/latest_database_wal_location");
+        assertThat(getMethod.getURI().toString()).isEqualTo("http://localhost:8153/go/add-on/business-continuity/api/latest_database_wal_location");
         assertThat(getMethod.getFirstHeader("Authorization").getValue()).isEqualTo("Basic Zm9vOmJhcg==");
     }
 
     @Test
     void shouldPointToThePluginListingGetURL() {
         HttpRequestBase getMethod = primaryServerEndPoint.pluginsListing("token");
-        assertThat(getMethod.getURI().toString()).isEqualTo("https://localhost:8154/go/add-on/business-continuity/api/plugin_files_status");
+        assertThat(getMethod.getURI().toString()).isEqualTo("http://localhost:8153/go/add-on/business-continuity/api/plugin_files_status");
     }
 
     @Test
     void shouldPointToTheDownloadPluginGetURL() {
         HttpRequestBase request = primaryServerEndPoint.downloadPlugin("external", "external1.jar", "foo:bar");
-        assertThat(request.getURI().toString()).isEqualTo("https://localhost:8154/go/add-on/business-continuity/api/plugin?folderName=external&pluginName=external1.jar");
+        assertThat(request.getURI().toString()).isEqualTo("http://localhost:8153/go/add-on/business-continuity/api/plugin?folderName=external&pluginName=external1.jar");
     }
 }

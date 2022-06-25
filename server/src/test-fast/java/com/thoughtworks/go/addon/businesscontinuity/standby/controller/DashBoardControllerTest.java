@@ -80,16 +80,16 @@ class DashBoardControllerTest {
                 .withBasicAuth(USERNAME, PASSWORD)
                 .build();
 
-        httpClientMock.onGet("https://localhost:8154/go/add-on/business-continuity/api/health-check")
+        httpClientMock.onGet("http://localhost:8153/go/add-on/business-continuity/api/health-check")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturnStatus(200);
-        httpClientMock.onGet("https://localhost:8154/go/add-on/business-continuity/api/latest_database_wal_location")
+        httpClientMock.onGet("http://localhost:8153/go/add-on/business-continuity/api/latest_database_wal_location")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturn(200, "/logs/location");
-        httpClientMock.onGet("https://localhost:8154/go/add-on/business-continuity/api/config_files_status")
+        httpClientMock.onGet("http://localhost:8153/go/add-on/business-continuity/api/config_files_status")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturn(200, "{\"configFilesUpdateInterval\":10,\"fileDetailsMap\":{\"CRUISE_CONFIG_XML\":{\"md5\":\"a\"}}}");
-        httpClientMock.onGet("https://localhost:8154/go/add-on/business-continuity/api/plugin_files_status")
+        httpClientMock.onGet("http://localhost:8153/go/add-on/business-continuity/api/plugin_files_status")
                 .withHeader("Authorization", AUTHORIZATION_HEADER_VALUE)
                 .doReturn(200, "{\"bundled\":[{\"name\":\"yum.jar\",\"md5\":\"LAVBbwaDykricDnAP57klg\\u003d\\u003d\"}],\"external\":[{\"name\":\"external1.jar\",\"md5\":\"+yWDK4+tYQtfqyh3tmT95A\\u003d\\u003d\"},{\"name\":\"external2.jar\",\"md5\":\"DS/Oa0vv5URteXfzSU7mvQ\\u003d\\u003d\"}]}");
 
@@ -117,7 +117,7 @@ class DashBoardControllerTest {
                         "      \"md5\": \"a\"\n" +
                         "    },\n" +
                         "    \"pluginStatus\": \"external1.jar\\u003d+yWDK4+tYQtfqyh3tmT95A\\u003d\\u003d, external2.jar\\u003dDS/Oa0vv5URteXfzSU7mvQ\\u003d\\u003d\",\n" +
-                        "    \"url\": \"https://localhost:8154\"\n" +
+                        "    \"url\": \"http://localhost:8153\"\n" +
                         "  },\n" +
                         "  \"syncErrors\": []\n" +
                         "}");
@@ -220,12 +220,12 @@ class DashBoardControllerTest {
 
         long time = 1428051875504L;
         doReturn(new ServerStatusResponse(60000, time, fileDetailsMap)).when(primaryServerCommunicationService).getLatestFileStatus();
-        doReturn("https://localhost:8154").when(primaryServerCommunicationService).primaryServerUrl();
+        doReturn("http://localhost:8153").when(primaryServerCommunicationService).primaryServerUrl();
         doReturn("12345").when(primaryServerCommunicationService).latestDatabaseWalLocation();
         doReturn(plugins).when(primaryServerCommunicationService).getLatestPluginsStatus();
 
         Map<String, Object> primaryServerDetails = controller.primaryServerDetails();
-        JsonFluentAssert.assertThatJson(gson.toJson(primaryServerDetails)).isEqualTo("{\"CRUISE_CONFIG_XML\":{\"md5\":\"md51\"},\"configFilesUpdateInterval\":60000,\"latestDatabaseWalLocation\":\"12345\",\"pluginStatus\":\"plugin-one=md51, plugin-two=md52\",\"AES_CIPHER\":{\"md5\":\"md53\"},\"url\":\"https://localhost:8154\",\"lastConfigUpdateTime\":\"" +
+        JsonFluentAssert.assertThatJson(gson.toJson(primaryServerDetails)).isEqualTo("{\"CRUISE_CONFIG_XML\":{\"md5\":\"md51\"},\"configFilesUpdateInterval\":60000,\"latestDatabaseWalLocation\":\"12345\",\"pluginStatus\":\"plugin-one=md51, plugin-two=md52\",\"AES_CIPHER\":{\"md5\":\"md53\"},\"url\":\"http://localhost:8153\",\"lastConfigUpdateTime\":\"" +
                         new SimpleDateFormat("MMM d, YYYY HH:mm:ss").format(new Date(time)) + "\"}");
     }
 

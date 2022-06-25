@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -33,11 +32,15 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.security.ResetCipher;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -397,7 +400,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldIntroduceAWrapperTagForUsersOfRole() throws Exception {
         String content = "<cruise schemaVersion='" + 47 + "'>\n"
-                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"
+                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url\" jobTimeout=\"60\">\n"
                 + "    <security>\n"
                 + "      <roles>\n"
                 + "        <role name=\"admins\">\n"
@@ -452,7 +455,7 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldSetServerId_toARandomUUID_ifOneDoesntExist() {
         GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 55 + "'>\n"
-                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"
+                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url\" jobTimeout=\"60\">\n"
                 + "  </server>"
                 + "</cruise>", goConfigService.configFileMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();

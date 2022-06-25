@@ -14320,9 +14320,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -14370,9 +14367,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
@@ -14422,9 +14416,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -14472,9 +14463,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>C:\Program Files (x86)\Cruise Server</value>
@@ -14527,9 +14515,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>C:\Program Files (x86)\Cruise Server</value>
         </variable>
@@ -14580,9 +14565,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>C:\Program Files (x86)\Cruise Server</value>
@@ -14635,9 +14617,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>C:\Program Files\Cruise Server</value>
         </variable>
@@ -14689,9 +14668,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -14733,9 +14709,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>C:\Program Files\Cruise Server</value>
@@ -14787,9 +14760,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
@@ -14947,9 +14917,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -14985,9 +14952,6 @@
         </variable>
         <variable name="TWIST_CRUISE_PORsT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSsL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PsATH">
           <value>/etc/cruise</value>
@@ -15037,9 +15001,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -15087,9 +15048,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
@@ -15141,9 +15099,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -15191,9 +15146,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
@@ -15243,9 +15195,6 @@
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
         </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
-        </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>
         </variable>
@@ -15293,9 +15242,6 @@
       <environmentvariables>
         <variable name="TWIST_CRUISE_PORT">
           <value>8153</value>
-        </variable>
-        <variable name="TWIST_CRUISE_SSL_PORT">
-          <value>8154</value>
         </variable>
         <variable name="TWIST_SERVER_PATH">
           <value>/etc/cruise</value>

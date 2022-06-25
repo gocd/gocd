@@ -251,7 +251,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldSetServerId_toARandomUUID_ifOneDoesntExist() {
         GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 55 + "'>\n"
-                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"
+                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url\" jobTimeout=\"60\">\n"
                 + "  </server>"
                 + "</cruise>", goConfigService.configFileMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
@@ -266,7 +266,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldLoadServerId_ifOneExists() {
         GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 55 + "'>\n"
-                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\" serverId=\"foo\">\n"
+                + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url\" jobTimeout=\"60\" serverId=\"foo\">\n"
                 + "  </server>"
                 + "</cruise>", goConfigService.configFileMd5());
         assertThat(configValidity.isValid()).as("Has no error").isTrue();
@@ -1277,7 +1277,7 @@ public class GoConfigMigrationIntegrationTest {
                 "      <clusterProfile id=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
                 "        <property>\n" +
                 "          <key>GoServerUrl</key>\n" +
-                "          <value>https://build.gocd.io:8154/go</value>\n" +
+                "          <value>https://build.gocd.io/go</value>\n" +
                 "        </property>\n" +
                 "      </clusterProfile>\n" +
                 "    </clusterProfiles>\n" +

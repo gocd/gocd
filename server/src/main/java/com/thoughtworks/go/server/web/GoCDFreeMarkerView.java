@@ -25,14 +25,12 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.velocity.Template;
-import org.apache.velocity.context.Context;
-import org.springframework.web.servlet.view.velocity.VelocityToolboxView;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.StringWriter;
+import java.util.Map;
 
-public class GoVelocityView extends VelocityToolboxView {
+public class GoCDFreeMarkerView extends FreeMarkerView {
     public static final String PRINCIPAL = "principal";
     public static final String ADMINISTRATOR = "userHasAdministratorRights";
     public static final String TEMPLATE_ADMINISTRATOR = "userHasTemplateAdministratorRights";
@@ -54,76 +52,80 @@ public class GoVelocityView extends VelocityToolboxView {
 
     private final SystemEnvironment systemEnvironment;
 
-    public GoVelocityView() {
+    public GoCDFreeMarkerView() {
         this(new SystemEnvironment());
     }
 
-    public GoVelocityView(SystemEnvironment systemEnvironment) {
+    public GoCDFreeMarkerView(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
     }
 
-    RailsAssetsService getRailsAssetsService() {
+    public RailsAssetsService getRailsAssetsService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(RailsAssetsService.class);
     }
 
-    WebpackAssetsService webpackAssetsService() {
+    public WebpackAssetsService webpackAssetsService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(WebpackAssetsService.class);
     }
 
-    VersionInfoService getVersionInfoService() {
+    public VersionInfoService getVersionInfoService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(VersionInfoService.class);
     }
 
-    MaintenanceModeService getMaintenanceModeService() {
+    public MaintenanceModeService getMaintenanceModeService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(MaintenanceModeService.class);
     }
 
-    SecurityService getSecurityService() {
+    public SecurityService getSecurityService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(SecurityService.class);
     }
 
-    DefaultPluginInfoFinder getPluginInfoFinder() {
+    public DefaultPluginInfoFinder getPluginInfoFinder() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DefaultPluginInfoFinder.class);
     }
 
+
     @Override
-    protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
+    protected void exposeHelpers(Map<String, Object> model, HttpServletRequest request) throws Exception {
+        super.exposeHelpers(model, request);
+
         RailsAssetsService railsAssetsService = getRailsAssetsService();
         VersionInfoService versionInfoService = getVersionInfoService();
         SecurityService securityService = getSecurityService();
         Username username = SessionUtils.getCurrentUser().asUsernameObject();
 
-        velocityContext.put(ADMINISTRATOR, securityService.isUserAdmin(username));
-        velocityContext.put(GROUP_ADMINISTRATOR, securityService.isUserGroupAdmin(username));
-        velocityContext.put(TEMPLATE_ADMINISTRATOR, securityService.isAuthorizedToViewAndEditTemplates(username));
-        velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, securityService.canViewAdminPage(username));
-        velocityContext.put(TEMPLATE_VIEW_USER, securityService.isAuthorizedToViewTemplates(username));
-        velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
+        model.put(ADMINISTRATOR, securityService.isUserAdmin(username));
+        model.put(GROUP_ADMINISTRATOR, securityService.isUserGroupAdmin(username));
+        model.put(TEMPLATE_ADMINISTRATOR, securityService.isAuthorizedToViewAndEditTemplates(username));
+        model.put(VIEW_ADMINISTRATOR_RIGHTS, securityService.canViewAdminPage(username));
+        model.put(TEMPLATE_VIEW_USER, securityService.isAuthorizedToViewTemplates(username));
+        model.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
-        velocityContext.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
-        velocityContext.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
-        velocityContext.put(CONCATENATED_SPINNER_ICON_FILE_PATH, railsAssetsService.getAssetPath("spinner.gif"));
-        velocityContext.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
+        model.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
+        model.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
+        model.put(CONCATENATED_SPINNER_ICON_FILE_PATH, railsAssetsService.getAssetPath("spinner.gif"));
+        model.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
 
-        velocityContext.put(PATH_RESOLVER, railsAssetsService);
-        velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
-        velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
+        model.put(PATH_RESOLVER, railsAssetsService);
+        model.put(GO_UPDATE, versionInfoService.getGoUpdate());
+        model.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
-        velocityContext.put(SHOW_ANALYTICS_DASHBOARD, (securityService.isUserAdmin(username) && supportsAnalyticsDashboard()));
-        velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
-        velocityContext.put(MAINTENANCE_MODE_SERVICE, getMaintenanceModeService());
+        model.put(SHOW_ANALYTICS_DASHBOARD, (securityService.isUserAdmin(username) && supportsAnalyticsDashboard()));
+        model.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
+        model.put(MAINTENANCE_MODE_SERVICE, getMaintenanceModeService());
 
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
         }
         final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
 
-        setPrincipal(velocityContext, authentication);
-        setAnonymousUser(velocityContext, authentication);
+        setPrincipal(model, authentication);
+        setAnonymousUser(model, authentication);
+
     }
 
-    private void setAnonymousUser(Context velocityContext, AuthenticationToken<?> authentication) {
-        velocityContext.put(IS_ANONYMOUS_USER, "anonymous".equalsIgnoreCase(authentication.getUser().getDisplayName()));
+    private void setAnonymousUser(Map<String, Object> model, AuthenticationToken<?> authentication) {
+        model.put(IS_ANONYMOUS_USER, "anonymous".equalsIgnoreCase(authentication.getUser().getDisplayName()));
     }
 
     private boolean supportsAnalyticsDashboard() {
@@ -136,18 +138,8 @@ public class GoVelocityView extends VelocityToolboxView {
         return false;
     }
 
-    private void setPrincipal(Context velocityContext, AuthenticationToken<?> authentication) {
-        velocityContext.put(PRINCIPAL, authentication.getUser().getDisplayName());
+    private void setPrincipal(Map<String, Object> model, AuthenticationToken<?> authentication) {
+        model.put(PRINCIPAL, authentication.getUser().getDisplayName());
     }
 
-    public String getContentAsString() {
-        try {
-            Template template = getTemplate();
-            StringWriter writer = new StringWriter();
-            template.merge(null, writer);
-            return writer.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

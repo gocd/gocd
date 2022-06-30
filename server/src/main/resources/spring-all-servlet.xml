@@ -27,7 +27,7 @@
         http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
 
   <context:annotation-config/>
-  <import resource="velocity-config.xml"/>
+  <import resource="freemarker-config.xml"/>
   <context:component-scan base-package="com.thoughtworks.go.addon"/>
   <context:component-scan base-package="com.thoughtworks.go.util"/>
   <context:component-scan base-package="com.thoughtworks.go.server.controller"/>

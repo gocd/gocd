@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.ClearSingleton;
@@ -25,8 +26,6 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.context.Context;
 import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
@@ -46,14 +47,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(ClearSingleton.class)
-public class GoVelocityViewTest {
-    private GoVelocityView view;
+class GoCDFreeMarkerViewTest {
+    private GoCDFreeMarkerView view;
     private HttpServletRequest request;
-    private Context velocityContext;
+    private Map<String, Object> context;
     @Mock
     private RailsAssetsService railsAssetsService;
     @Mock
@@ -73,7 +76,7 @@ public class GoVelocityViewTest {
     public void setUp() throws Exception {
         lenient().when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
-        view = spy(new GoVelocityView());
+        view = spy(new GoCDFreeMarkerView());
         lenient().doReturn(railsAssetsService).when(view).getRailsAssetsService();
         lenient().doReturn(versionInfoService).when(view).getVersionInfoService();
         lenient().doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
@@ -81,13 +84,13 @@ public class GoVelocityViewTest {
         lenient().doReturn(securityService).when(view).getSecurityService();
         lenient().doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         request = new MockHttpServletRequest();
-        velocityContext = new VelocityContext();
+        context = new HashMap<>();
     }
 
     @Test
     public void shouldNotShowAnalyticsDashboardIfPluginMissing() throws Exception {
-        view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.SHOW_ANALYTICS_DASHBOARD), is(false));
+        view.exposeHelpers(context, request);
+        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD), is(false));
     }
 
     @Test
@@ -98,9 +101,9 @@ public class GoVelocityViewTest {
         when(securityService.isUserAdmin(any())).thenReturn(true);
         when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.SHOW_ANALYTICS_DASHBOARD), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD), is(true));
     }
 
     @Test
@@ -111,45 +114,45 @@ public class GoVelocityViewTest {
         when(securityService.isUserAdmin(any())).thenReturn(false);
         lenient().when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.SHOW_ANALYTICS_DASHBOARD), is(false));
+        assertThat(context.get(GoCDFreeMarkerView.SHOW_ANALYTICS_DASHBOARD), is(false));
     }
 
     @Test
     public void shouldSetAdministratorIfUserIsAdministrator() throws Exception {
         when(securityService.isUserAdmin(any())).thenReturn(true);
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.ADMINISTRATOR), is(true));
     }
 
     @Test
     public void shouldSetTemplateAdministratorIfUserIsTemplateAdministrator() throws Exception {
         when(securityService.isAuthorizedToViewAndEditTemplates(any())).thenReturn(true);
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.TEMPLATE_ADMINISTRATOR), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_ADMINISTRATOR), is(true));
     }
 
     @Test
     public void shouldSetTemplateViewUserRightsForTemplateViewUser() throws Exception {
         when(securityService.isAuthorizedToViewTemplates(any())).thenReturn(true);
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.TEMPLATE_VIEW_USER), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.TEMPLATE_VIEW_USER), is(true));
     }
 
     @Test
     public void shouldSetViewAdministratorRightsIfUserHasAnyLevelOfAdministratorRights() throws Exception {
         when(securityService.canViewAdminPage(any())).thenReturn(true);
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
     }
 
     @Test
@@ -157,29 +160,29 @@ public class GoVelocityViewTest {
         when(securityService.isUserAdmin(any())).thenReturn(false);
         when(securityService.isUserGroupAdmin(any())).thenReturn(true);
 
-        view.exposeHelpers(velocityContext, request);
+        view.exposeHelpers(context, request);
 
-        assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(false));
-        assertThat(velocityContext.get(GoVelocityView.GROUP_ADMINISTRATOR), is(true));
+        assertThat(context.get(GoCDFreeMarkerView.ADMINISTRATOR), is(false));
+        assertThat(context.get(GoCDFreeMarkerView.GROUP_ADMINISTRATOR), is(true));
     }
 
     @Test
     public void shouldNotSetPrincipalIfNoSession() throws Exception {
-        view.exposeHelpers(velocityContext, request);
-        assertNull(velocityContext.get(GoVelocityView.PRINCIPAL), "Principal should be null");
+        view.exposeHelpers(context, request);
+        assertNull(context.get(GoCDFreeMarkerView.PRINCIPAL), "Principal should be null");
     }
 
     @Test
     public void shouldNotSetPrincipalIfAuthenticationInformationNotAvailable() throws Exception {
-        view.exposeHelpers(velocityContext, request);
-        assertNull(velocityContext.get(GoVelocityView.PRINCIPAL), "Principal should be null");
+        view.exposeHelpers(context, request);
+        assertNull(context.get(GoCDFreeMarkerView.PRINCIPAL), "Principal should be null");
     }
 
     @Test
     public void principalIsTheUsernameWhenNothingElseAvailable() throws Exception {
         setAuthenticationToken(request, "Test User");
-        view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
+        view.exposeHelpers(context, request);
+        assertThat(context.get(GoCDFreeMarkerView.PRINCIPAL), is("Test User"));
     }
 
     @Test
@@ -189,7 +192,7 @@ public class GoVelocityViewTest {
         when(railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png")).thenReturn("assets/g9/stage_bar_cancelled_icon.png");
         when(railsAssetsService.getAssetPath("spinner.gif")).thenReturn("assets/spinner.gif");
         when(railsAssetsService.getAssetPath("cruise.ico")).thenReturn("assets/cruise.ico");
-        GoVelocityView view = spy(new GoVelocityView(systemEnvironment));
+        GoCDFreeMarkerView view = spy(new GoCDFreeMarkerView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
@@ -198,12 +201,12 @@ public class GoVelocityViewTest {
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 
-        view.exposeHelpers(velocityContext, servletRequest);
+        view.exposeHelpers(context, servletRequest);
 
-        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
-        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
-        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
-        assertThat(velocityContext.get(GoVelocityView.PATH_RESOLVER), is(railsAssetsService));
+        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
+        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
+        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
+        assertThat(context.get(GoCDFreeMarkerView.PATH_RESOLVER), is(railsAssetsService));
     }
 
     @Test
@@ -214,9 +217,10 @@ public class GoVelocityViewTest {
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
         when(versionInfoService.getGoUpdate()).thenReturn("16.1.0-123");
 
-        view.exposeHelpers(velocityContext, servletRequest);
+        view.exposeHelpers(context, servletRequest);
 
-        assertTrue((Boolean) velocityContext.get(GoVelocityView.GO_UPDATE_CHECK_ENABLED));
-        assertThat(velocityContext.get(GoVelocityView.GO_UPDATE), is("16.1.0-123"));
+        assertTrue((Boolean) context.get(GoCDFreeMarkerView.GO_UPDATE_CHECK_ENABLED));
+        assertThat(context.get(GoCDFreeMarkerView.GO_UPDATE), is("16.1.0-123"));
     }
+
 }

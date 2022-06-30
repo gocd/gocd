@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-#set($tab='&nbsp;&nbsp;&nbsp;')
+ -->
+<#assign tab='&nbsp;&nbsp;&nbsp;'>
 <p>No test output found. Make sure your job configuration includes a test artifact.</p><br/>
 <p>For example:</p><br/>
 <pre>
 &lt;job name="example"&gt;
-  $tab &lt;resources&gt;
-  $tab$tab &lt;resource&gt;java&lt;/resource&gt;
-  $tab &lt;/resources&gt;
-  <strong class='code'>$tab &lt;artifacts&gt;
-  $tab$tab &lt;test src="target/reports" /&gt;
-  $tab &lt;/artifacts&gt;</strong>
-  $tab &lt;tasks&gt;
-  $tab$tab &lt;ant target="unit_tests" /&gt;
-  $tab &lt;/tasks&gt;
+  ${tab} &lt;resources&gt;
+  ${tab}${tab} &lt;resource&gt;java&lt;/resource&gt;
+  ${tab} &lt;/resources&gt;
+  <strong class='code'>${tab} &lt;artifacts&gt;
+  ${tab}${tab} &lt;test src="target/reports" /&gt;
+  ${tab} &lt;/artifacts&gt;</strong>
+  ${tab} &lt;tasks&gt;
+  ${tab}${tab} &lt;ant target="unit_tests" /&gt;
+  ${tab} &lt;/tasks&gt;
 &lt;/job&gt;
 </pre>
 <br/>

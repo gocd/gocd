@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-<div id="tab-content-of-${customized_name.toLowerCase()}" style='display:none'>
+ -->
+<div id="tab-content-of-${customized_name?lower_case}" style='display:none'>
 </div>
 <script>
-window["tab-content-of-${customized_name.toLowerCase()}_callback"] = function() {
-    var innerHTML = $("tab-content-of-${customized_name.toLowerCase()}").innerHTML;
+window["tab-content-of-${customized_name?lower_case}_callback"] = function() {
+    var innerHTML = $("tab-content-of-${customized_name?lower_case}").innerHTML;
     innerHTML = innerHTML ? innerHTML : "";
     if (innerHTML.include("iframe")) {
         return;
     }
-    var iframe = '<iframe src="$req.getContextPath()/$presenter.getRestfulUrl($customized_path)" frameborder="0"></iframe>';
-  $("tab-content-of-${customized_name.toLowerCase()}").innerHTML = '<div><a href="$req.getContextPath()/$presenter.getRestfulUrl($customized_path)">Download ${customized_name}</a></div>'
-            + iframe;
-    $("tab-content-of-${customized_name.toLowerCase()}").show();
-}
-
-function a() {
-    alert(1);
+    var iframe = '<iframe src="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}" frameborder="0"></iframe>';
+    $("tab-content-of-${customized_name?lower_case}")
+      .innerHTML = '<div><a href="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}">Download ${customized_name}</a></div>' + iframe;
+    $("tab-content-of-${customized_name?lower_case}")
+      .show();
 }
 </script>

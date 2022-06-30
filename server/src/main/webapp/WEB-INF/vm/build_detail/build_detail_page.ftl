@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-## layout level variable
-#set ($title = "$presenter.buildName Job Details - Go")
-#set($current_tab='build')
-## page level variable
-#set($_page_title="Job Details for ${presenter.buildLocatorForDisplay}")
-#parse("shared/_header.vm")
+ -->
+<#assign title = "${presenter.buildName} Job Details - Go">
+<#assign _page_title = "Job Details for ${presenter.buildLocatorForDisplay}">
+<#assign current_tab = "build">
+<#include "../shared/_header.ftl">
 
-#parse("build_detail/_build_detail_summary_jstemplate.vm")
+<#include "_build_detail_summary_jstemplate.ftl">
 <div id="yui-main">
   <div class="yui-b">
     <!-- breadcrumbs -->
-      #set($current_page="build_detail")
-      #set($pipelineName=$presenter.pipelineName)
-      #set($stageLocator=$presenter.stageLocator)
+      <#assign current_page="build_detail">
+      <#assign pipelineName="${presenter.pipelineName}">
+      <#assign stageLocator="${presenter.stageLocator}">
 
-      #parse("shared/_job_details_breadcrumbs.vm")
+      <#include "../shared/_job_details_breadcrumbs.ftl">
     <!-- /breadcrumbs -->
 
     <div class="content_wrapper_outer">
@@ -36,15 +34,15 @@
         <div class="content_wrapper_inner">
           <div id="build-status-panel" class="bd-container rounded-corner-for-pipeline">
             <div class="maincol build_detail">
-                #parse("shared/_flash_message.vm")
-                #set($jobConfigName = $presenter.buildName)
+                <#include "../shared/_flash_message.ftl">
+                <#assign jobConfigName = "${presenter.buildName}">
               <div id="build_detail_summary_container" class="build_detail_summary">
                 <ul id="build-detail-summary" class="summary">
                   <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">Loading...</span></li>
                   <li><span class="header">Agent: </span><span id="agent_name">Loading...</span></li>
                   <li><span class="header">Completed on: </span><span id="build_completed_date">Loading...</span></li>
                   <li><span class="header">Build cause: </span><span
-                    id="stage-${presenter.id}-buildCause">$esc.html($presenter.buildCauseMessage)</span></li>
+                    id="stage-${presenter.id}-buildCause">${presenter.buildCauseMessage?html}</span></li>
                   <li class="timer_area">
                     <div class="progress-info">
                       <div id="${presenter.buildName}_progress_bar" class="progress-bar" style="display: none;">
@@ -60,7 +58,7 @@
                 <div class="clear"></div>
               </div>
 
-              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-pipeline-counter="${presenter.pipelineCounter}" data-pipeline-label="${presenter.pipelineLabel}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter}" data-job="${presenter.id}" data-build="${presenter.buildName}" data-result="$presenter.result" data-websocket="#if($websocketEnabled)enabled#{else}disabled#end">
+              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-pipeline-counter="${presenter.pipelineCounter}" data-pipeline-label="${presenter.pipelineLabel}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter}" data-job="${presenter.id}" data-build="${presenter.buildName}" data-result="$presenter.result" data-websocket="${websocketEnabled?string("enabled", "disabled")}">
                 <div class="sub_tabs_container">
                   <ul>
                     <li class="current_tab" id="build_console">
@@ -79,12 +77,12 @@
                       <a class="tab_button_body_match_text">materials</a>
                       <a>Materials</a>
                     </li>
-                      #foreach( $tab in $presenter.customizedTabs )
+                    <#list presenter.customizedTabs as tab>
                         <li>
-                          <a class="tab_button_body_match_text">$tab.name.toLowerCase()</a>
-                          <a>$tab.name</a>
+                          <a class="tab_button_body_match_text">${tab.name?lower_case}</a>
+                          <a>${tab.name}</a>
                         </li>
-                      #end
+                    </#list>
                   </ul>
                   <a href="#" id="link-to-this-page"
                      title="The permanent link of this tab, you can share this url with other team members.">Link to
@@ -95,7 +93,7 @@
                 </div>
 
               <div class="sidebar_history">
-                  #parse("sidebar/_sidebar_build_list.vm")
+                  <#include "../sidebar/_sidebar_build_list.ftl">
               </div>
                 <div class="build_detail_container sub_tab_container rounded-corner-for-tab-container">
 
@@ -103,23 +101,22 @@
                   <div class="sub_tab_container_content">
                     <div class="clear"></div>
 
-                      #set($buildoutput_extra_attrs="")
-                      #parse("build_detail/_buildoutput.vm")
+                      <#assign buildoutput_extra_attrs="">
+                      <#include "_buildoutput.ftl">
 
-                      #set($tests_extra_attrs="style='display:none'")
-                      #parse("build_detail/_tests.vm")
+                      <#assign tests_extra_attrs="style='display:none'">
+                      <#include "_tests.ftl">
 
-                      #set($artifacts_extra_attrs="style='display:none'")
-                      #parse("build_detail/_artifacts.vm")
+                      <#assign artifacts_extra_attrs="style='display:none'">
+                      <#include "_artifacts.ftl">
 
-                      #set($modification_extra_attrs="style='display:none'")
-                      #parse("build_detail/_materials.vm")
-
-                      #foreach( $tab in $presenter.customizedTabs )
-                          #set($customized_name=$tab.name)
-                          #set($customized_path=$tab.path)
-                          #parse("build_detail/_customized.vm")
-                      #end
+                      <#assign modification_extra_attrs="style='display:none'">
+                      <#include "_materials.ftl">
+                      <#list presenter.customizedTabs as tab>
+                        <#assign customized_name="${tab.name}">
+                        <#assign customized_path="${tab.path}">
+                        <#include "_customized.ftl">
+                      </#list>
                   </div>
                 </div>
               </div>
@@ -131,4 +128,4 @@
   </div>
 </div>
 </div>
-#parse("shared/_footer.vm")
+<#include "../shared/_footer.ftl">

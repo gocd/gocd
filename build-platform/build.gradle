@@ -19,7 +19,6 @@ dependencies {
   constraints {
     api project.deps.commonsPool
     api project.deps.commonsCollections
-    api project.deps.commonsBeanUtils
     api project.deps.objenesis
     api project.deps.slf4j
   }

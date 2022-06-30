@@ -24,7 +24,7 @@ Rails.application.config.assets.paths << Rails.root.join('node_modules')
 
 Rails.application.config.assets.precompile = %w(lib/d3-3.1.5.min.js)
 
-# Used by vm templates `_header.vm`
+# Used by legacy templates `_header.ftl`
 Rails.application.config.assets.precompile += %w(application.css patterns/application.css css/application.css vm/application.css new-theme.css)
 Rails.application.config.assets.precompile += %w(application.js)
 

@@ -104,14 +104,6 @@ configurations {
     transitive = true
   }
 
-  compileClasspath {
-    exclude group: 'commons-lang', module: 'commons-lang'
-    exclude group: 'commons-collections', module: 'commons-collections'
-    exclude group: 'org.springframework', module: 'spring-support'
-  }
-  runtimeClasspath {
-    exclude group: 'org.springframework', module: 'spring-support'
-  }
   apiBase
   allApis
   spark
@@ -287,27 +279,7 @@ dependencies {
   implementation project.deps.aspectjWeaver
   implementation project.deps.urlrewrite
 
-  implementation project.deps.velocity
-  constraints {
-    implementation(project.deps.commonsCollections) {
-      because 'used by both velocity/velocityToolsView, but out of date'
-    }
-    implementation(project.deps.commonsLang) {
-      because 'used by velocity, but out of date'
-    }
-  }
-
-  runtimeOnly project.deps.velocityToolsView
-  sharedTestRuntimeOnly project.deps.velocityToolsView
-  if (project.deps.velocityToolsView) {
-    // Transitive dependencies required only for velocityTools which does not publish a POM properly: https://velocity.apache.org/tools/devel/dependencies.html#VelocityView
-    // Also see https://github.com/apache/velocity-tools/blob/1.x/pom.xml
-    sharedTestRuntimeOnly project.deps.commonsCollections
-    sharedTestRuntimeOnly project.deps.commonsLang
-    runtimeOnly project.deps.commonsDigester
-    integrationTestRuntimeOnly project.deps.commonsDigester
-  }
-
+  implementation project.deps.freemarker
   implementation project.deps.guava
   implementation project.deps.mail
   implementation project.deps.mailSmtp
@@ -822,15 +794,12 @@ task verifyWar(type: VerifyJarTask) {
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
-        "commons-beanutils-${project.versions.commonsBeanutils}.jar",
         "commons-codec-${project.versions.commonsCodec}.jar",
         "commons-collections-${project.versions.commonsCollections}.jar",
         "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp2-${project.versions.commonsDbcp}.jar",
-        "commons-digester-${project.versions.commonsDigester}.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
-        "commons-lang-${project.versions.commonsLang}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-text-${project.versions.commonsText}.jar",
         "commons-pool2-${project.versions.commonsPool}.jar",
@@ -928,8 +897,6 @@ task verifyWar(type: VerifyJarTask) {
         "txw2-${project.versions.jaxb}.jar",
         "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",
-        "velocity-${project.versions.velocity}.jar",
-        "velocity-tools-view-${project.versions.velocityToolsView}.jar",
         "zt-exec-${project.versions.ztExec}.jar",
       ])
   ]
@@ -1002,19 +969,6 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'MIT',
           moduleLicenseUrl: "https://spdx.org/licenses/MIT.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'velocity-tools:velocity-tools-view',
-      moduleVersion : project.versions.velocityToolsView,
-      moduleUrls    : [
-        "https://velocity.apache.org"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Apache-2.0',
-          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
         ]
       ]
     ],

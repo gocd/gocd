@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,5 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-$presenter.renderArtifactFiles($req.getContextPath())
+ -->
+</div>
+
+
+        </div>
+        <!-- end content -->
+
+    </div></div></div><!-- end of body_bg, body_bg_highlight, body_wrapper-->
+<div id="app-footer"></div>
+           <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
+    </body>
+</html>

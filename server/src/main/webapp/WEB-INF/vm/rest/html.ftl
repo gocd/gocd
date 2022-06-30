@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-## layout level variable
-#set ($title = "Artifacts for $jobIdentifier.pipelineName > $jobIdentifier.pipelineLabel > $jobIdentifier.stageName > $jobIdentifier.stageCounter > $jobIdentifier.buildName")
-#set($_hide_collapse-sidebar-button = true)
-#parse("shared/_header.vm")
+ *
+ -->
+<#assign title = "Artifacts for ${jobIdentifier.pipelineName} > ${jobIdentifier.pipelineLabel} > ${jobIdentifier.stageName} > ${jobIdentifier.stageCounter} > ${jobIdentifier.buildName}">
+<#include "../shared/_header.ftl">
 
 <div id="yui-main">
     <div class="yui-b">
         <div class="bd-container rounded-corner-for-pipeline">
             <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
             <div id="rest-output">
-                <h2>$title</h2>
+                <h2>${title}</h2>
 
                 <div id="artifacts" class="container-in-body">
-                    #parse ("shared/_artifacts.vm")
+                    <#include "../shared/_artifacts.ftl">
                 </div>
             </div>
         </div>
 
-#parse("shared/_footer.vm")
+<#include "../shared/_footer.ftl">
+

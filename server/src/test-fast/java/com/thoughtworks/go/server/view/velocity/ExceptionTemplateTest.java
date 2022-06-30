@@ -15,38 +15,35 @@
  */
 package com.thoughtworks.go.server.view.velocity;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
-public class ExceptionTemplateTest {
-    public static final String TEMPLATE_PATH = "/WEB-INF/vm/exceptions_page.vm";
+public class ExceptionTemplateTest extends AbstractFreemarkerTemplateTest {
+    public static final String TEMPLATE_PATH = "exceptions_page.ftl";
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp(TEMPLATE_PATH);
+    }
 
     @Test
-    public void shouldHaveErrorMessageAlongWithCustomMessageInOutputOfTemplate() throws Exception {
-        HashMap<String, Object> data = new HashMap<>();
+    public void shouldHaveErrorMessageAlongWithCustomMessageInOutputOfTemplate() {
+        Map<String, Object> data = new HashMap<>();
         data.put("errorMessage", "ERROR MESSAGE");
 
-        TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalFakeTemplate("shared/_header.vm", "header_template_content");
-        view.setupAdditionalFakeTemplate("shared/_flash_message.vm", "flash_message_template_content");
-
-        String output = view.render();
+        String output = view.render(data);
         assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred [ERROR MESSAGE]. :( Please check the server logs for more information.\");"));
     }
 
     @Test
-    public void shouldHaveTheGenericMessageInOutputOfTemplateWhenCustomErrorMessageIsNotProvided() throws Exception {
-        HashMap<String, Object> data = new HashMap<>();
-
-        TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalFakeTemplate("shared/_header.vm", "header_template_content");
-        view.setupAdditionalFakeTemplate("shared/_flash_message.vm", "flash_message_template_content");
-
-        String output = view.render();
+    public void shouldHaveTheGenericMessageInOutputOfTemplateWhenCustomErrorMessageIsNotProvided() {
+        String output = view.render(new HashMap<>());
         assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred. :( Please check the server logs for more information.\");"));
     }
 }

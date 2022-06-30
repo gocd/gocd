@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.view.velocity;
 
+import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -28,11 +29,12 @@ import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel
 import com.thoughtworks.go.server.service.ArtifactsService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithModifications;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
@@ -41,36 +43,39 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineMother.schedule;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class BuildDetailPageVelocityTemplateTest {
+public class BuildDetailPageFreeMarkerTemplateTest extends AbstractFreemarkerTemplateTest {
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp("build_detail/build_detail_page.ftl");
+    }
 
     @Test
-    public void shouldEscapeBuildCauseOnVelocityTemplate() throws Exception {
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(createJobDetailModel()).render());
+    public void shouldEscapeBuildCauseOnVelocityTemplate() {
+        Document actualDoc = Jsoup.parse(view.render(createJobDetailModel()));
         assertThat(actualDoc.select("#build-detail-summary").last().html(), containsString("modified by Ernest Hemingway &lt;oldman@sea.com&gt;"));
     }
 
     @Test
-    public void shouldEscapeBuildCauseInTrimpathTemplate() throws Exception {
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(createJobDetailModel()).render());
+    public void shouldEscapeBuildCauseInTrimPathTemplate() {
+        Document actualDoc = Jsoup.parse(view.render(createJobDetailModel()));
         assertThat(actualDoc.select("#build-summary-template").last().html(), containsString("modified by Ernest Hemingway &amp;lt;oldman@sea.com&amp;gt;"));
     }
 
     @Test
-    public void shouldRenderIframeSandboxForTestsTab() throws IOException {
-        HashMap<String, Object> data = new HashMap<>();
-        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
-        data.put("presenter", jobDetailPresentationModel);
+    public void shouldRenderIframeSandboxForTestsTab() {
+        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class, RETURNS_SMART_NULLS);
         when(jobDetailPresentationModel.hasTests()).thenReturn(true);
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
+        when(jobDetailPresentationModel.getCustomizedTabs()).thenReturn(new Tabs());
+
+        Document actualDoc = Jsoup.parse(view.render(minimalModelFrom(jobDetailPresentationModel)));
 
         assertThat(actualDoc.select("#tab-content-of-tests").last().html(), containsString("<iframe sandbox=\"allow-scripts\""));
     }
 
-
-    private HashMap<String, Object> createJobDetailModel() {
+    private Map<String, Object> createJobDetailModel() {
         GitMaterialConfig gitMaterialConfig = gitMaterialConfig();
 
         MaterialRevisions materialRevisions = new MaterialRevisions();
@@ -79,35 +84,18 @@ public class BuildDetailPageVelocityTemplateTest {
 
         Pipeline pipeline = schedule(pipelineConfig("pipeline", new MaterialConfigs(gitMaterialConfig)), createWithModifications(materialRevisions, ""));
         JobDetailPresentationModel model = new JobDetailPresentationModel(building("job"), new JobInstances(), null,
-                pipeline, null, new TrackingTool(),
+                pipeline, new Tabs(), new TrackingTool(),
                 mock(ArtifactsService.class), StageMother.custom("stage"));
 
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("presenter", model);
+        return minimalModelFrom(model);
+    }
+
+    private static Map<String, Object> minimalModelFrom(JobDetailPresentationModel jobDetailPresentationModel) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("presenter", jobDetailPresentationModel);
+        data.put("isAgentAlive", false);
+        data.put("websocketEnabled", false);
         return data;
     }
 
-    private TestVelocityView getBuildDetailVelocityView(HashMap<String, Object> data) throws IOException {
-        TestVelocityView view = new TestVelocityView("/WEB-INF/vm/build_detail/build_detail_page.vm", data);
-        view.setupAdditionalRealTemplate("shared/_header.vm");
-        view.setupAdditionalRealTemplate("shared/_footer.vm");
-        view.setupAdditionalRealTemplate("shared/_flash_message.vm");
-        view.setupAdditionalRealTemplate("shared/_artifacts.vm");
-        view.setupAdditionalRealTemplate("shared/_artifact_entry.vm");
-        view.setupAdditionalRealTemplate("shared/_package_material_revision_comment.vm");
-        view.setupAdditionalRealTemplate("shared/_job_details_breadcrumbs.vm");
-
-        view.setupAdditionalRealTemplate("sidebar/_sidebar_build_list.vm");
-
-        view.setupAdditionalRealTemplate("build_detail/_buildoutput.vm");
-        view.setupAdditionalRealTemplate("build_detail/_build_output_raw.vm");
-        view.setupAdditionalRealTemplate("build_detail/_tests.vm");
-        view.setupAdditionalRealTemplate("build_detail/_test_output_config.vm");
-        view.setupAdditionalRealTemplate("build_detail/_artifacts.vm");
-        view.setupAdditionalRealTemplate("build_detail/_materials.vm");
-        view.setupAdditionalRealTemplate("build_detail/_material_revisions_jstemplate.vm");
-        view.setupAdditionalRealTemplate("build_detail/_build_detail_summary_jstemplate.vm");
-
-        return view;
-    }
 }

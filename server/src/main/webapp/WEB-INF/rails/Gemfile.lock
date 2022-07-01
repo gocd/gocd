@@ -99,7 +99,7 @@ GEM
     public_suffix (4.0.7)
     racc (1.6.0)
     racc (1.6.0-java)
-    rack (2.2.3.1)
+    rack (2.2.4)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (5.2.8)

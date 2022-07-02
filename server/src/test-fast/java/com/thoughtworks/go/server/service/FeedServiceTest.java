@@ -195,7 +195,7 @@ public class FeedServiceTest {
 
             assertThat(document).isNotNull();
             verify(xmlApiService).write(any(JobXmlRepresenter.class), eq(BASE_URL));
-            verify(jobInstanceService).findJobInstance(pipelineName, stageName, jobName, 100, 1, username);
+            verify(jobInstanceService).findJobInstanceWithTransitions(pipelineName, stageName, jobName, 100, 1, username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
             verifyNoInteractions(stageService);

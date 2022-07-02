@@ -125,7 +125,7 @@ public class JobControllerTest {
             Pipeline pipeline = PipelineMother.passedPipelineInstance("p1", "s1", "build");
             JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("p1");
             StageIdentifier stageIdentifier = new StageIdentifier("p1", 1, "s1", "1");
-            JobInstance jobInstance = JobInstanceMother.jobInstance("building", "one");
+            JobInstance jobInstance = new JobInstance("building");
             jobInstance.setIdentifier(jobIdentifier);
             jobInstance.setId(12);
             jobInstance.setState(JobState.Building);

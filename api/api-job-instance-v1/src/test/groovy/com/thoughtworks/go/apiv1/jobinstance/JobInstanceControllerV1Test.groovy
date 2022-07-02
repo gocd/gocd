@@ -257,7 +257,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return job instance for given counters'() {
         def jobInstance = getJobInstance()
-        when(jobInstanceService.findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(1), eq(1), eq(currentUsername()))).thenReturn(jobInstance)
+        when(jobInstanceService.findJobInstanceWithTransitions(eq(pipelineName), eq(stageName), eq(jobName), eq(1), eq(1), eq(currentUsername()))).thenReturn(jobInstance)
 
         getWithApiHeader(controller.controllerPath(pipelineName, 1, stageName, 1, jobName), [:])
 
@@ -273,7 +273,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return null job instance if the job has not been ran for the given counters'() {
         def nullJobInstance = new NullJobInstance(jobName)
-        when(jobInstanceService.findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), eq(currentUsername()))).thenReturn(nullJobInstance)
+        when(jobInstanceService.findJobInstanceWithTransitions(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), eq(currentUsername()))).thenReturn(nullJobInstance)
 
         getWithApiHeader(controller.controllerPath(pipelineName, 10, stageName, 10, jobName), [:])
 
@@ -321,7 +321,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should render error if pipeline does not exist'() {
         doThrow(new RecordNotFoundException(EntityType.Pipeline, pipelineName))
-          .when(jobInstanceService).findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), eq(currentUsername()))
+          .when(jobInstanceService).findJobInstanceWithTransitions(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), eq(currentUsername()))
 
         getWithApiHeader(controller.controllerPath(pipelineName, 10, stageName, 10, jobName), [:])
 
@@ -333,7 +333,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should render error if the user does not have permission to view the pipeline'() {
         doThrow(new NotAuthorizedException("some message"))
-          .when(jobInstanceService).findJobInstance(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), eq(currentUsername()))
+          .when(jobInstanceService).findJobInstanceWithTransitions(eq(pipelineName), eq(stageName), eq(jobName), eq(10), eq(10), eq(currentUsername()))
 
         getWithApiHeader(controller.controllerPath(pipelineName, 10, stageName, 10, jobName), [:])
 

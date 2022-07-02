@@ -63,8 +63,8 @@ import java.util.List;
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -432,12 +432,26 @@ public class JobInstanceServiceTest {
     }
 
     @Test
+    public void shouldFindJobInstancesWithTransitions() {
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("user"), "pipeline")).thenReturn(true);
+        JobInstance instance = new JobInstance("job");
+        when(jobInstanceDao.mostRecentJobWithTransitions(any())).thenReturn(instance);
+
+        JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+
+        assertThat(jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("user")),
+                is(instance));
+    }
+
+    @Test
     void shouldThrowExceptionIfPipelineDoesNotExistForJobInstance() {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
 
-        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, new Username("admin")))
+        assertThatCode(() -> jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("admin")))
             .isInstanceOf(RecordNotFoundException.class)
             .hasMessage("Pipeline with name 'pipeline' was not found!");
     }
@@ -450,7 +464,7 @@ public class JobInstanceServiceTest {
 
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
-        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, new Username("user")))
+        assertThatCode(() -> jobInstanceService.findJobInstanceWithTransitions("pipeline", "stage", "job", 1, 1, new Username("user")))
             .isInstanceOf(NotAuthorizedException.class)
             .hasMessage("Not authorized to view pipeline");
     }

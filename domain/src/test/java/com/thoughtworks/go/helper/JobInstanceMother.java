@@ -16,7 +16,6 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
@@ -40,19 +39,10 @@ public class JobInstanceMother {
     }
 
     public static JobInstance scheduled(String jobConfigName) {
-        return scheduled(jobConfigName, new ResourceConfigs());
-    }
-
-    public static JobInstance scheduled(String jobConfigName, ResourceConfigs resourceConfigs) {
         JobInstance instance = new JobInstance(jobConfigName);
         instance.setId(999);
         instance.setIdentifier(defaultJobIdentifier(jobConfigName));
         return instance;
-    }
-
-    public static JobInstance jobInstance(String jobConfigName, String resourceName) {
-        return new JobInstance(jobConfigName
-        );
     }
 
     public static JobInstance completed(String jobConfigName) {

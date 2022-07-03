@@ -958,20 +958,6 @@ task licenseReportAggregate {
       ]
     ],
     [
-      moduleName    : 'org.ow2.asm:asm',
-      moduleVersion : '7.1',
-      moduleUrls    : [
-        "https://asm.ow2.io/"
-      ],
-      moduleLicenses: [
-        [
-          // License is automatically detected as 0BSD by gradle-license-report, but appears to actually be BSD-3-Clause in nature
-          moduleLicense   : 'BSD-3-Clause',
-          moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
-        ]
-      ]
-    ],
-    [
       moduleName    : 'com.bazaarvoice.jolt:jolt-core',
       moduleVersion : project.versions.jolt,
       moduleUrls    : [

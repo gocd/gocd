@@ -4,8 +4,6 @@ ruby '2.6.8'
 gem 'rails'
 gem 'sass-rails'
 
-gem 'dynamic_form'
-
 gem 'js-routes'
 gem 'ts_routes'
 

@@ -63,7 +63,6 @@ GEM
     concurrent-ruby (1.1.10)
     crass (1.0.6)
     diff-lcs (1.5.0)
-    dynamic_form (1.1.4)
     erubi (1.10.0)
     ffi (1.15.5)
     ffi (1.15.5-java)
@@ -213,7 +212,6 @@ DEPENDENCIES
   brakeman
   bundler-audit
   capybara
-  dynamic_form
   js-routes
   pry-debugger-jruby
   rails

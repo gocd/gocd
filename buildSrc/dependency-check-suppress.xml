@@ -39,8 +39,7 @@
     as JRuby independently. These are not the same things.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
-    <vulnerabilityName>CVE-2010-1330</vulnerabilityName>
-    <vulnerabilityName>CVE-2011-4838</vulnerabilityName>
+    <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -212,15 +211,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-(core|ehcache)@.*$</packageUrl>
     <cve>CVE-2020-25638</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    This is a false positive and not a vulnerability according to https://github.com/h2database/h2database/issues/3175#issuecomment-1142186324
-    - it's being reported against the wrong version from OSSINDEX.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
-    <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
   </suppress>
 
   <suppress>

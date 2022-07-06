@@ -39,8 +39,7 @@
     as JRuby independently. These are not the same things.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
-    <vulnerabilityName>CVE-2010-1330</vulnerabilityName>
-    <vulnerabilityName>CVE-2011-4838</vulnerabilityName>
+    <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
   <suppress>
     <notes><![CDATA[

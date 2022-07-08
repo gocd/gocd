@@ -37,7 +37,7 @@
     "lodash-inflection": "^1.5.0",
     "lru-cache": "^7.12.0",
     "mithril": "^2",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",

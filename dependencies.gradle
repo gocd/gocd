@@ -184,6 +184,8 @@ final Map<String, String> v = [
   // misc
   tanuki              : '3.5.50-st',
   tanukiSha256sum     : '9c1afb62d8b07fe86d54a018e4f52badbdee9c6e727facbfa2c694a52a5786d6',
+  tfsSdk              : '14.137.0',
+  tfsSdkSha256sum     : '1f3a5a29b777511e06b5f88e8bea5a670426ee0e01a0e649f160bc493e306e91',
   tini                : '0.19.0',
 ]
 

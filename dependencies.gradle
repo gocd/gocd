@@ -184,10 +184,8 @@ final Map<String, String> v = [
   // misc
   tanuki              : '3.5.50-st',
   tanukiSha256sum     : '9c1afb62d8b07fe86d54a018e4f52badbdee9c6e727facbfa2c694a52a5786d6',
-
-  // Don't upgrade unless you have to! see https://github.com/Microsoft/team-explorer-everywhere/issues/268
-  tfsSdk              : '14.118.0',
-  tfsSdkSha256sum     : '0846e7c94edaa34eb48e398cda9afcd137cb56f037eca2b4ad12ad081f7d9614',
+  tfsSdk              : '14.137.0',
+  tfsSdkSha256sum     : '1f3a5a29b777511e06b5f88e8bea5a670426ee0e01a0e649f160bc493e306e91',
   tini                : '0.19.0',
 ]
 

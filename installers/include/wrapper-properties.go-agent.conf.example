@@ -1,3 +1,6 @@
+#encoding=UTF-8
+# First line specifies encoding, see https://wrapper.tanukisoftware.com/doc/english/props-directives.html
+
 # For a detailed description about setting various environment variables, see the page at
 # https://wrapper.tanukisoftware.com/doc/english/props-envvars.html
 

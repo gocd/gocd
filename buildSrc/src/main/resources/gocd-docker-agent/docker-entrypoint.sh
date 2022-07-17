@@ -25,6 +25,7 @@ function stringToArgsArray() {
 
 setup_autoregister_properties_file_for_elastic_agent() {
  {
+    echo "# Auto-registration properties in key=value format, encoded in UTF-8"
     echo "agent.auto.register.key=${GO_EA_AUTO_REGISTER_KEY}"
     echo "agent.auto.register.environments=${GO_EA_AUTO_REGISTER_ENVIRONMENT}"
     echo "agent.auto.register.elasticAgent.agentId=${GO_EA_AUTO_REGISTER_ELASTIC_AGENT_ID}"
@@ -38,6 +39,7 @@ setup_autoregister_properties_file_for_elastic_agent() {
 
 setup_autoregister_properties_file_for_normal_agent() {
   {
+    echo "# Auto-registration properties in key=value format, encoded in UTF-8"
     echo "agent.auto.register.key=${AGENT_AUTO_REGISTER_KEY}"
     echo "agent.auto.register.resources=${AGENT_AUTO_REGISTER_RESOURCES}"
     echo "agent.auto.register.environments=${AGENT_AUTO_REGISTER_ENVIRONMENTS}"

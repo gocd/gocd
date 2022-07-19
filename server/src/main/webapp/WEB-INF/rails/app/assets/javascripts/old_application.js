@@ -72,7 +72,7 @@ function iframeResizer(Iframe){
         Iframe.contents().find("body > pre").css({whiteSpace:'pre-wrap',margin : 0,fontSize : '12px',fontFamily: 'consolas, monaco, courier', wordWrap:'break-word', '-ms-word-wrap':'break-word', overflow:'hidden'});
         setTimeout(function(){
             jQuery('iframe').each(function(){
-                Iframe.height(Iframe.contents().find("body").contents().height());
+                Iframe.height(Iframe.contents().find("body").height());
             });
         }, 200);
     }

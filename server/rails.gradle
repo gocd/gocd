@@ -124,10 +124,6 @@ task initializeRailsGems {
       workingDir = project.railsRoot
       args = ['-S', 'bundle', 'install']
       maxHeapSize = '1g'
-
-      // Workaround JDK 17.0.3 issue https://bugs.openjdk.java.net/browse/JDK-8285445 on Windows. See https://github.com/jruby/jruby/issues/7182
-      // Should be able to be removed after OpenJDK 17.0.4 (July 2022)
-      jvmArgs += '-Djdk.io.File.enableADS=true'
     }
   }
 }
@@ -217,10 +213,6 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', "assets:precompile"]
 
-  // Workaround JDK 17.0.3 issue https://bugs.openjdk.java.net/browse/JDK-8285445 on Windows. See https://github.com/jruby/jruby/issues/7182
-  // Should be able to be removed after OpenJDK 17.0.4 (July 2022)
-  jvmArgs += '-Djdk.io.File.enableADS=true'
-
   doFirst {
     delete "${project.railsRoot}/tmp"
     delete publicAssetsDir
@@ -249,10 +241,6 @@ task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
   )
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
-
-  // Workaround JDK 17.0.3 issue https://bugs.openjdk.java.net/browse/JDK-8285445 on Windows. See https://github.com/jruby/jruby/issues/7182
-  // Should be able to be removed after OpenJDK 17.0.4 (July 2022)
-  jvmArgs += '-Djdk.io.File.enableADS=true'
 
   doFirst {
     delete "${project.railsRoot}/tmp"

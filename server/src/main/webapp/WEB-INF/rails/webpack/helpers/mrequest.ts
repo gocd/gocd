@@ -16,6 +16,7 @@
 
 import * as CONSTANTS from "helpers/constants";
 import $ from "jquery";
+import _ from "lodash";
 
 const setHeaders = (xhr: JQuery.jqXHR, version: string) => {
   xhr.setRequestHeader("Content-Type", "application/json");
@@ -60,10 +61,17 @@ export const mrequest = {
     }
   },
 
+  normalizeEtag(value: string | undefined | null) {
+    return _.isNil(value) ? null : value
+      .replace(/^W\//, "")
+      .replace(/"/g, "")
+      .replace(/--(gzip|deflate)$/, "");
+  },
+
   unwrapMessageOrEntity: (type: any, originalEtag: string) => (data: any, xhr: JQuery.jqXHR) => {
     if (xhr.status === 200) {
       const entity = type.fromJSON(data);
-      entity.etag(xhr.getResponseHeader("ETag"));
+      entity.etag(mrequest.normalizeEtag(xhr.getResponseHeader("ETag")));
       return entity;
     }
     if (xhr.status === 422 && !!data.data) {

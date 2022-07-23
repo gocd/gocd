@@ -21,7 +21,7 @@ import {Dashboard} from "models/dashboard/dashboard";
 import {DashboardWidget} from "views/dashboard/dashboard_widget";
 import {AjaxPoller} from "helpers/ajax_poller";
 import {PageLoadError} from "views/shared/page_load_error";
-import {PersonalizationVM as PersonalizeVM} from "views/dashboard/models/personalization_vm";
+import {parseNormalizedEtagFrom, PersonalizationVM as PersonalizeVM} from "views/dashboard/models/personalization_vm";
 import {PluginInfos} from "../models/shared/plugin_infos";
 
 $(() => {
@@ -124,13 +124,9 @@ $(() => {
     dashboard.message(message);
   }
 
-  function parseEtag(req) {
-    return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, "");
-  }
-
   function createRepeater() {
     const onsuccess = (data, _textStatus, jqXHR) => {
-      const etag = parseEtag(jqXHR);
+      const etag = parseNormalizedEtagFrom(jqXHR);
 
       if (jqXHR.status === 304) {
         return;

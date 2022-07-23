@@ -186,7 +186,7 @@ CrudMixins.Refresh = function (options) {
 
       const didFulfill = (data, _textStatus, jqXHR) => {
         const entity = type.fromJSON(data);
-        entity.etag(jqXHR.getResponseHeader('ETag'));
+        entity.etag(mrequest.normalizeEtag(jqXHR.getResponseHeader('ETag')));
         deferred.resolve(entity);
       };
 

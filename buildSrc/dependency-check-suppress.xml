@@ -261,15 +261,4 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
   </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   CVE-2022-25858/NPM-1081698 was backported/patched in Terser 4.8.1, however the data is incorrect in OSSINDEX and NPM
-   repositories so this is a false positive.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:npm/terser@4.*$</packageUrl>
-    <vulnerabilityName>CVE-2022-25858</vulnerabilityName>
-    <vulnerabilityName>1081698</vulnerabilityName>
-  </suppress>
-
 </suppressions>

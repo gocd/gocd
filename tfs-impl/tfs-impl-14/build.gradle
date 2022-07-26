@@ -62,6 +62,7 @@ task extractTfsSdk(type: Copy) {
 }
 
 compileJava.dependsOn extractTfsSdk
+generateLicenseReport.dependsOn extractTfsSdk
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'

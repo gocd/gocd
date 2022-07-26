@@ -85,7 +85,7 @@ final Map<String, String> libraries = [
   mockito             : 'org.mockito:mockito-core:4.6.1',
   mybatis             : 'org.mybatis:mybatis:3.5.10',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.0.7',
-  mysql               : 'mysql:mysql-connector-java:8.0.29',
+  mysql               : 'mysql:mysql-connector-java:8.0.30',
   nanohttpd           : 'org.nanohttpd:nanohttpd:2.3.1',
   objenesis           : 'org.objenesis:objenesis:3.2',
   oscache             : 'opensymphony:oscache:2.4.1',

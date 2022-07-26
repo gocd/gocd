@@ -29,15 +29,9 @@ import static com.thoughtworks.go.build.SpdxLicense.*
 class LicenseReport {
 
   private static Set<String> LICENSE_EXCEPTIONS = [
-    'Apple License',
     'Bouncy Castle Licence',
-    'BSD',
-    'Custom: https://raw.github.com/bjoerge/deferred.js/master/dist/dfrrd.js',
-    'dom4j BSD license',
-    'Similar to Apache License but with the acknowledgment clause removed',
+    'Similar to Apache License but with the acknowledgment clause removed', // JDOM2
     'The OpenSymphony Software License 1.1',
-    '(OFL-1.1 AND MIT)',
-    'MPL 2.0 or EPL 1.0',
   ]
 
   private static Set<String> ALLOWED_LICENSES = (LICENSE_EXCEPTIONS + [
@@ -49,16 +43,17 @@ class LicenseReport {
     BSD_3_CLAUSE,
     CDDL_1_0,
     CDDL_1_1,
-    CDDL_1_1_GPL_2_0,
     EDL_1_0,
     EPL_1_0,
     EPL_2_0,
     GPL_2_0_CLASSPATH_EXCEPTION,
+    GPL_2_0_UNIVERSAL_FOSS_EXCEPTION,
     LGPL_2_1,
     LGPL_3_0,
     LGPL_3_0_ONLY,
     MIT,
     MPL_1_1,
+    MPL_2_0_EPL_1_0,
     UNLICENSE,
     PUBLIC_DOMAIN,
     ISC

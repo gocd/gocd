@@ -18,8 +18,9 @@ package com.thoughtworks.go.build
 
 enum NonSpdxLicense {
   EDL_1_0("EDL-1.0", "Eclipse Distribution License - v1.0", "Eclipse Distribution License v1.0", "Eclipse Distribution License (New BSD License)"),
-  CDDL_1_1_GPL_2_0('CDDL-1.1+GPL-2.0',    'CDDL+GPL License', 'Dual license consisting of the CDDL v1.1 and GPL v2', 'https://glassfish.java.net/public/CDDL+GPL_1_1.html'),
-  GPL_2_0_CLASSPATH_EXCEPTION('GPL-2.0+CE', 'GPLv2 with the Classpath Exception', 'GNU GENERAL PUBLIC LICENSE, Version 2 + Classpath Exception'),
+  GPL_2_0_CLASSPATH_EXCEPTION('GPL-2.0+Classpath-exception-2.0', 'GPLv2 with the Classpath Exception', 'GNU GENERAL PUBLIC LICENSE, Version 2 + Classpath Exception'),
+  GPL_2_0_UNIVERSAL_FOSS_EXCEPTION('GPL-2.0+Universal-FOSS-exception-1.0', 'GPLv2 with Oracle Universal FOSS exception', 'The GNU General Public License, v2 with FOSS exception', 'https://oss.oracle.com/licenses/universal-foss-exception/'),
+  MPL_2_0_EPL_1_0('MPL-2.0+EPL-1.0', 'MPL 2.0 or EPL 1.0', 'Dual license consisting of the MPL 2.0 or EPL 1.0', 'Mozilla Public License 2.0 or Eclipse Public License 1.0'),
   PUBLIC_DOMAIN("Public Domain"),
 
   public final Set<String> names

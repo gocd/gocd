@@ -261,5 +261,4 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
   </suppress>
-
 </suppressions>

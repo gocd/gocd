@@ -38,7 +38,7 @@ export function PersonalizationVM(currentView) {
   function fetchPersonalization() {
     return Personalization.get(checksum()).then((personalization, xhr) => {
       if (304 !== xhr.status) {
-        checksum(parseEtag(xhr));
+        checksum(parseNormalizedEtagFrom(xhr));
 
         names(personalization.names());
         model(personalization);
@@ -93,7 +93,7 @@ export function PersonalizationVM(currentView) {
     return Personalization.getPipelines(pipelinesChecksum()).then((data, _textStatus, xhr) => {
       if (304 !== xhr.status) {
         model().pipelineGroups(data.pipelines);
-        pipelinesChecksum(parseEtag(xhr));
+        pipelinesChecksum(parseNormalizedEtagFrom(xhr));
       }
     });
   };
@@ -161,8 +161,8 @@ export function PersonalizationVM(currentView) {
   };
 }
 
-function parseEtag(req) {
-  return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, "");
+export function parseNormalizedEtagFrom(req) {
+  return (req.getResponseHeader("ETag") || "").replace(/^W\//, "").replace(/"/g, "").replace(/--(gzip|deflate)$/, "");
 }
 
 /** Case-insensitive functions */

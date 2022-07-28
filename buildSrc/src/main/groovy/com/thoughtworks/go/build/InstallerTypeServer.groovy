@@ -63,9 +63,6 @@ class InstallerTypeServer implements InstallerType {
       // so we increase the buffer limit to 30mb.
       // See org.jruby.rack.servlet.RewindableInputStream
       '-Djruby.rack.request.size.threshold.bytes=30000000',
-      // Workaround JDK 17.0.3 issue https://bugs.openjdk.java.net/browse/JDK-8285445 on Windows. See https://github.com/jruby/jruby/issues/7182
-      // Should be able to be removed after OpenJDK 17.0.4 (July 2022)
-      '-Djdk.io.File.enableADS=true',
     ]
   }
 

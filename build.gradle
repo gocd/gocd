@@ -172,8 +172,8 @@ project.ext.packaging = [
   adoptOpenjdk: [
     featureVersion: 17,
     interimVersion: 0, // set to `null` for the first release
-    updateVersion : 3, // set to `null` for the first release
-    buildVersion  : 7
+    updateVersion : 4, // set to `null` for the first release
+    buildVersion  : 8
   ]
 ]
 

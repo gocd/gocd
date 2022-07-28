@@ -187,7 +187,7 @@ GEM
     thor (1.2.1)
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
-    tilt (2.0.10)
+    tilt (2.0.11)
     ts_routes (1.0.3)
       railties (>= 4.0)
     tzinfo (1.2.10)

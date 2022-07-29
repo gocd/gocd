@@ -21,13 +21,18 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class BaseCommandBuilder extends Builder {
+    static final String QUOTE_ALL_WINDOWS_ARGS = "toggle.agent.windows.command.quote.all.args";
     private static final Logger LOG = LoggerFactory.getLogger(BaseCommandBuilder.class);
 
     protected String command;
@@ -83,7 +88,22 @@ public abstract class BaseCommandBuilder extends Builder {
         }
     }
 
-    protected abstract CommandLine buildCommandLine();
+    protected CommandLine buildCommandLine() {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return CommandLine.createCommandLine("cmd")
+                    .withWorkingDir(workingDir)
+                    .withArgs(windowsCmdArgsStart())
+                    .withArg(translateToWindowsPath(this.command))
+                    .withArgs(argList())
+                    .withArgs(windowsCmdArgsEnd());
+        } else {
+            return CommandLine.createCommandLine(this.command)
+                    .withWorkingDir(workingDir)
+                    .withArgs(argList());
+        }
+    }
+
+    protected abstract String[] argList();
 
     private void setTaskError(String errorMessage) {
         LOG.warn(errorMessage);
@@ -100,5 +120,25 @@ public abstract class BaseCommandBuilder extends Builder {
                 ", workingDir=" + workingDir +
                 ", errorString='" + errorString + '\'' +
                 "} " + super.toString();
+    }
+
+    private List<String> windowsCmdArgsStart() {
+        return shouldQuoteAllWindowsArgs()
+                ? List.of("/s", "/c", "\"")
+                : List.of("/c");
+    }
+
+    private List<String> windowsCmdArgsEnd() {
+        return shouldQuoteAllWindowsArgs()
+                ? List.of("\"")
+                : Collections.emptyList();
+    }
+
+    private boolean shouldQuoteAllWindowsArgs() {
+        return "Y".equalsIgnoreCase(System.getProperty(QUOTE_ALL_WINDOWS_ARGS, "Y"));
+    }
+
+    private String translateToWindowsPath(String command) {
+        return StringUtils.replace(command, "/", "\\");
     }
 }

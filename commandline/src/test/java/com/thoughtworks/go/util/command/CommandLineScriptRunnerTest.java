@@ -24,7 +24,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-class ScriptRunnerTest {
+class CommandLineScriptRunnerTest {
     @Test
     @EnabledOnOs(OS.LINUX)
     void shouldReplaceSecretsOnTheOutputUnderLinux() throws CheckedCommandLineException {
@@ -79,7 +79,7 @@ class ScriptRunnerTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
+    void shouldMaskOutOccurrenceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
         CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding(UTF_8);
@@ -93,7 +93,7 @@ class ScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
+    void shouldMaskOutOccurrenceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
         CommandLine command = CommandLine.createCommandLine("cmd")

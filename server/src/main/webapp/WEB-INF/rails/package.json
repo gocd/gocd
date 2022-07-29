@@ -23,7 +23,7 @@
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.5",
     "bourbon": "^7.2.0",
-    "chart.js": "^3.8.0",
+    "chart.js": "^3.8.2",
     "chartjs-plugin-zoom": "^1.2.1",
     "classnames": "^2.3.1",
     "clipboard-polyfill": "^3.0.3",

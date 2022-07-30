@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,19 +29,16 @@ body {
 
 .yui-t3 .yui-b {
     width: 27em;
-    *width : 27.52em;
 }
 
 .yui-t3 #yui-main .yui-b {
     margin-left: 27em;
     *margin-left : 27.52em;
     border-left: 1px solid white;
-    *broder-left : none;
 }
 
 .yui-t1 #yui-main, .yui-t2 #yui-main, .yui-t3 #yui-main {
     margin-left: -27em;
-    *margin-left : -27.52em;
 }
 
 .experimental {
@@ -94,12 +91,6 @@ iframe {
     position: absolute;
     top: 20px;
     left: 1em;
-}
-.logo-enterprise {
-    background-image: image_url('logo-cruise-enterprise.png');
-    background-repeat: no-repeat;
-    width: 99px;
-    height: 37px;
 }
 
 .links,

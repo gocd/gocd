@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ConcatFilter
 import org.apache.tools.ant.filters.FixCrLfFilter
 
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,25 +87,25 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       include 'App.bat.in' // to run app as a console app
       rename 'App.bat.in', "${installerType.baseName}.bat"
 
-      include 'InstallApp-NT.bat.in' // to install gocd as a service
+      include 'InstallApp-NT.bat.in' // to install GoCD as a service
       rename 'InstallApp-NT.bat.in', "install-${installerType.baseName}-service.bat"
 
-      include 'UninstallApp-NT.bat.in' // to remove gocd as a service
+      include 'UninstallApp-NT.bat.in' // to remove GoCD as a service
       rename 'UninstallApp-NT.bat.in', "uninstall-${installerType.baseName}-service.bat"
 
-      include 'StartApp-NT.bat.in' // to start the gocd service
+      include 'StartApp-NT.bat.in' // to start the GoCD service
       rename 'StartApp-NT.bat.in', "start-${installerType.baseName}-service.bat"
 
-      include 'StopApp-NT.bat.in' // to stop the gocd service
+      include 'StopApp-NT.bat.in' // to stop the GoCD service
       rename 'StopApp-NT.bat.in', "stop-${installerType.baseName}-service.bat"
 
-      include 'PauseApp-NT.bat.in' // to pause the gocd service
+      include 'PauseApp-NT.bat.in' // to pause the GoCD service
       rename 'PauseApp-NT.bat.in', "pause-${installerType.baseName}-service.bat"
 
-      include 'ResumeApp-NT.bat.in' // to resume the gocd service
+      include 'ResumeApp-NT.bat.in' // to resume the GoCD service
       rename 'ResumeApp-NT.bat.in', "resume-${installerType.baseName}-service.bat"
 
-      include 'QueryApp-NT.bat.in' // to get the status of the gocd service
+      include 'QueryApp-NT.bat.in' // to get the status of the GoCD service
       rename 'QueryApp-NT.bat.in', "query-${installerType.baseName}-service.bat"
 
       into "bin"

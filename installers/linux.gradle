@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -344,10 +344,10 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         cmd += ['--version', project.goVersion]
         cmd += ['--iteration', distVersion]
         cmd += ['--license', 'Apache-2.0']
-        cmd += ['--vendor', 'ThoughtWorks, Inc.']
+        cmd += ['--vendor', 'Thoughtworks, Inc.']
         cmd += ['--category', 'Development/Build Tools']
         cmd += ['--architecture', 'all']
-        cmd += ['--maintainer', 'ThoughtWorks, Inc.']
+        cmd += ['--maintainer', 'Thoughtworks, Inc.']
         cmd += ['--url', 'https://gocd.org']
         cmd += ['--before-install', project.file('linux/shared/before-install.sh.erb').path]
         cmd += ['--before-upgrade', project.file("linux/${osType}/before-upgrade.sh.erb").path]

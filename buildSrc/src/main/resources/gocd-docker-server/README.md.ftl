@@ -160,7 +160,7 @@ With release `v19.6.0`, GoCD containers will run as non-root user, by default. T
 # License
 
 ```plain
-Copyright ${copyrightYear} ThoughtWorks, Inc.
+Copyright ${copyrightYear} Thoughtworks, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

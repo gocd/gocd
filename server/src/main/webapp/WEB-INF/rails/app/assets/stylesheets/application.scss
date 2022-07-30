@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@
  *= require "_main"
  *= require "_layout"
  *= require "./_structure"
- *= require "./_ie_hacks"
  *= require "structure/_application"
  *= require "_module"
  *= require_tree ./plugins

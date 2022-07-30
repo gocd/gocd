@@ -4,7 +4,7 @@ import com.thoughtworks.go.build.VerifyJarTask
 import org.apache.commons.codec.digest.DigestUtils
 
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,23 +27,23 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
-    tagName: 'v2.2.0-144',
-    asset: 'gocd-ldap-authentication-plugin-2.2.0-144.jar',
-    checksum: 'a13a17a5620ec202027044376081781ee8c8f5be3aca253ef254991fc580b188'
+    tagName: 'v2.2.1-168',
+    asset: 'gocd-ldap-authentication-plugin-2.2.1-168.jar',
+    checksum: '879d7c8eed44496478dc90fc7d104bc36d35ee9a540ca340a8ecd90e1e857a5b'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    tagName: 'v2.1.1-137',
-    asset: 'gocd-filebased-authentication-plugin-2.1.1-137.jar',
-    checksum: '24ac7e9340a5aad52f07e6e8d992ca2e2844889618eb970011d73f7f33263f24'
+    tagName: 'v2.1.2-148',
+    asset: 'gocd-filebased-authentication-plugin-2.1.2-148.jar',
+    checksum: 'a0ef21a3ec0929c47a914f5ad8ce3cfccdb7e878438c91a88f28ea2d83873e57'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-yum-repository-poller-plugin',
-    tagName: 'v2.0.5-92',
-    asset: 'gocd-yum-repo-plugin-2.0.5-92.jar',
-    checksum: '1e8accc81660cb2e49c4c1c423a8a4471fbf6ec0f0d56f86ffecaa666ccf9bf3'
+    tagName: 'v2.0.6-115',
+    asset: 'gocd-yum-repo-plugin-2.0.6-115.jar',
+    checksum: 'bf399b3e1ebda45b2d92d755662cedec44b4535b1753ab9044d0d578016207b6'
   ),
   new GithubArtifact(
     user: 'tomzo',
@@ -62,9 +62,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-file-based-secrets-plugin',
-    tagName: 'v1.1.0-80',
-    asset: 'gocd-file-based-secrets-plugin-1.1.0-80.jar',
-    checksum: '41611dcceff2cb3c1923baac051a7993f055b3876edb3b3956282e47e0c2e359'
+    tagName: 'v1.1.1-106',
+    asset: 'gocd-file-based-secrets-plugin-1.1.1-106.jar',
+    checksum: '19b85d9406f3ffa26f83650d742e7a1c7ac5970c6b19d3850dfaecc0e9014053'
   )
 ]
 

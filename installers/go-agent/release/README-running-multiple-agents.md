@@ -91,7 +91,7 @@ Each agent needs to be configured to run in its own separate directory so that e
 
       /bin/mkdir -p "${AGENT_ID}" "${AGENT_ID}/run"
     
-      # use the same jre and gocd jars from main agent
+      # use the same jre and GoCD jars from main agent
       /bin/ln -sf "${AGENT_PATH}/jre" "${AGENT_ID}/jre"
       /bin/ln -sf "${AGENT_PATH}/lib" "${AGENT_ID}/lib"
     

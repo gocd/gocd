@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2022 ThoughtWorks, Inc.
+# Copyright 2022 Thoughtworks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ function stringToArgsArray() {
 
 SERVER_WORK_DIR="/go-working-dir"
 
-# no arguments are passed so assume user wants to run the gocd server
+# no arguments are passed so assume user wants to run the GoCD server
 # we prepend "${SERVER_WORK_DIR}/bin/go-server console" to the argument list
 if [[ $# -eq 0 ]] ; then
   set -- "${SERVER_WORK_DIR}/bin/go-server" console "$@"

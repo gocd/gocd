@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,11 +60,6 @@
     font-weight: bold;
     padding: 0.2em 0.909em;
     zoom: 1;
-}
-
-/* fix wired IE6/IE7 rendering bug */
-.stage-detail-summary h3 * {
-    *float: left;
 }
 
 .stage-detail-summary h3 .complete-time {

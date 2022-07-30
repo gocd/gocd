@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -370,7 +370,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldRemoveLicenseSection_asPartOfMigration72() {
-        String licenseUser = "Go UAT ThoughtWorks";
+        String licenseUser = "Go UAT Thoughtworks";
         String configWithLicenseSection =
                 "<cruise schemaVersion='71'>" +
                         "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">" +
@@ -391,7 +391,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldPerformNOOPWhenNoLicenseIsPresent_asPartOfMigration72() {
-        String licenseUser = "Go UAT ThoughtWorks";
+        String licenseUser = "Go UAT Thoughtworks";
         String configWithLicenseSection =
                 "<cruise schemaVersion='71'>" +
                         "<server artifactsdir=\"logs\" commandRepositoryLocation=\"default\" serverId=\"dev-id\">" +

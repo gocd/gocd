@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,6 @@ a#add-new-pipeline-button {
     margin-left: 10px;
 }
 
-
-
-
-/* Fix a IE7 bug */
-.bd-container {
-    *padding-top: 0.75em;
-}
 #content_area textarea {
     width: 99.8%;
     background-color: #fffacd;

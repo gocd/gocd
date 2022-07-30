@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ describe("RolesWidgetSpec", () => {
     expect(infoElements[1].textContent).toEqual("A role configuration is used to define a group of users, along with the access permissions, who perform similar tasks. You can read more about roles based access control in GoCD from here.");
   });
 
-  it("should show that no user is present and action buttons for gocd role with no users", () => {
+  it("should show that no user is present and action buttons for GoCD role with no users", () => {
     mount(new Roles(Role.fromJSON(RolesTestData.EmptyGoCDRoleJSON())), authConfigs, pluginInfos);
 
     expect(helper.textByTestId("key-value-key-name")).toContain("Name");
@@ -73,7 +73,7 @@ describe("RolesWidgetSpec", () => {
     expect(helper.byTestId("role-delete")).not.toBeDisabled();
   });
 
-  it("should render user info and action buttons for gocd role", () => {
+  it("should render user info and action buttons for GoCD role", () => {
     mount(new Roles(Role.fromJSON(RolesTestData.GoCDRoleJSON())), authConfigs, pluginInfos);
 
     expect(helper.textByTestId("key-value-key-name")).toContain("Name");
@@ -163,7 +163,7 @@ describe("RolesWidgetSpec", () => {
     expect(helper.byTestId("role-delete", githubRolePanel)).not.toBeDisabled();
   });
 
-  it('should render policy info for gocd role', () => {
+  it('should render policy info for GoCD role', () => {
     mount(new Roles(Role.fromJSON(RolesTestData.GoCDRoleJSON())), authConfigs, pluginInfos);
 
     expect(helper.byTestId("policy-info")).toBeInDOM();

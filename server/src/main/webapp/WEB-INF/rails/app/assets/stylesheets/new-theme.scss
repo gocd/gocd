@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1805,14 +1805,6 @@ form#notification_form fieldset {
   }
 }
 
-#graphic-dialog-container {
-  position:   absolute;
-  text-align: center;
-  transform:  translate(-50%, -80%);
-  top:        50%;
-  left:       50%;
-}
-
 button#signin2 {
   min-width:        100px;
   padding:          6px 9px;
@@ -1826,12 +1818,6 @@ button#signin2 {
     font-size: 12px !important;
     color:     #fff;
   }
-}
-
-#graphic-dialog-input #user_login, #graphic-dialog-input #user_password {
-  padding:     5px 10px;
-  height:      30px;
-  line-height: 18px;
 }
 
 a:link.help, a:visited.help {
@@ -2596,10 +2582,6 @@ table.variables th {
 
 #error-container {
   margin-top: -40px;
-}
-
-#graphic-dialog {
-  margin: 0 auto;
 }
 
 .exec_task_editor {

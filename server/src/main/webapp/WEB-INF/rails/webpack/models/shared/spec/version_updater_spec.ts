@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ describe("VersionUpdater", () => {
       });
     });
 
-    it("update_check should not remove update system notification on for same gocd version", () => {
+    it("update_check should not remove update system notification on for same GoCD version", () => {
       jasmine.Ajax.withMock(() => {
         const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
         localStorage.setItem("versionCheckInfo", JSON.stringify({last_updated_at: twentyNineMinutesBack}));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,6 @@
 .modifications {
     border: none;
     width: 100%;
-    *width: 95%;
     font-size: 0.85em;
 }
 
@@ -110,7 +109,6 @@
 
 .modifications .highlight-true {
     font-style: italic;
-    /*background-color: #F9F0B5;*/
 }
 
 .modifications .odd {

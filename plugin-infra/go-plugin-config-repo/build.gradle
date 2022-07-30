@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ javadoc {
     windowTitle = 'GoCD Plugin Config Repo Contract'
     docTitle = 'GoCD Plugin Config Repo Contract'
     header = 'GoCD Plugin Config Repo Contract'
-    bottom = "Copyright &copy; ${Calendar.getInstance().get(Calendar.YEAR).toString()} ThoughtWorks, Inc. GoCD Version: ${project.version}"
+    bottom = "Copyright &copy; ${Calendar.getInstance().get(Calendar.YEAR).toString()} Thoughtworks, Inc. GoCD Version: ${project.version}"
   }
 }
 

@@ -1,4 +1,4 @@
-# Copyright ${copyrightYear} ThoughtWorks, Inc.
+# Copyright ${copyrightYear} Thoughtworks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ RUN \
 </#if>
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
-# add user to root group for gocd to work on openshift
+# add user to root group for GoCD to work on openshift
 <#list distro.createUserAndGroupCommands as command>
   ${command} && \
 </#list>

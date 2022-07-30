@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -781,7 +781,7 @@ task newSPA {
 
     String licenseHeader =
       """
-      * Copyright ${project.copyrightYear} ThoughtWorks, Inc.
+      * Copyright ${project.copyrightYear} Thoughtworks, Inc.
       *
       * Licensed under the Apache License, Version 2.0 (the "License");
       * you may not use this file except in compliance with the License.
@@ -1029,7 +1029,7 @@ task newApi {
       def contents =
         """
           /*
-           * Copyright ${project.copyrightYear} ThoughtWorks, Inc.
+           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.
@@ -1062,7 +1062,7 @@ task newApi {
       def contents =
         """
           /*
-           * Copyright ${project.copyrightYear} ThoughtWorks, Inc.
+           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.
@@ -1173,7 +1173,7 @@ task newApi {
       def contents =
         """
           /*
-           * Copyright ${project.copyrightYear} ThoughtWorks, Inc.
+           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.
@@ -1359,7 +1359,7 @@ private Object addProjectToSettingsGradle(String newProjectName, it) {
     def contents =
       """
           /*
-           * Copyright ${project.copyrightYear} ThoughtWorks, Inc.
+           * Copyright ${project.copyrightYear} Thoughtworks, Inc.
            *
            * Licensed under the Apache License, Version 2.0 (the "License");
            * you may not use this file except in compliance with the License.

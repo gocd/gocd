@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1712,7 +1712,7 @@ public final class ConfigFileFixture {
     public static final String VALID_XML_3169 = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"14\">\n"
             + "  <server artifactsdir=\"artifacts\">\n"
-            + "    <license user=\"Go UAT ThoughtWorks\">dc7Q7ii7wQA7O8UxZAnud3ZFDi09MDaXYCwNZjjVyyhnZXK1kAQIZ4U+k/Tt\n"
+            + "    <license user=\"Go UAT Thoughtworks\">dc7Q7ii7wQA7O8UxZAnud3ZFDi09MDaXYCwNZjjVyyhnZXK1kAQIZ4U+k/Tt\n"
             + "wCbfAmLCizhqvNvC3ZYCsa2zKfA26f+tUnc0WjRBK6ttfTVl9M9t08t+ZcAI\n"
             + "JhtONBURkA3YumffkxyAaPdPJq5tMaZYWjaX1pBpGlG0LjR+HwAkZnteTYeI\n"
             + "XMd7w0z741K8irGi3fLY+pyc8VB0jnv0J8tSWamL2sjy6irkuSw9q70PAtxb\n"

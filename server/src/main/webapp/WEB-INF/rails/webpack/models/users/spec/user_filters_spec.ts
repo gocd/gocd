@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,7 +259,7 @@ describe("UsersFilter", () => {
         expect(filteredUsers.totalUsersCount()).toBe(0);
       });
 
-      it("should select all the enabled admin users with gocd role", () => {
+      it("should select all the enabled admin users with GoCD role", () => {
         const users = Users.fromJSON(usersJSON());
 
         const userFilters = new UserFilters();

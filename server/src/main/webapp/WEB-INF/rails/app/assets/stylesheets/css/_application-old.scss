@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -557,52 +557,12 @@ body#login-page #yui-main {
     border: 0;
 }
 
-
-/* Graphical dialog */
-#graphic-dialog-container {
-
-/*    margin: 100px auto 0 auto; /* Left and right margins of auto centre the dialog */
-    position: relative;
-    text-align: center;
-}
-
-#graphic-dialog-container h3 {
-    margin: 0 0 15px 0;
-    color: #FFF;
-    font-size: 18px;
-}
-
-
-
 #login-page .yui-t7 #yui-main .yui-b {
 
     background-color: #444444;
 
 
 }
-
-#graphic-dialog {
-/*    width: 600px;*/
-/*    height: 380px;*/
-/*    background: image_url('g9/backgrounds/bg_login_box.png') no-repeat 0 0;*/
-/*    margin: auto;*/
-
-
-
-    margin: 80px auto;
-    width: 510px;
-    border: 0px solid #895A8D;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
-    -o-border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    -o-box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-}
-
 
 img#application_logo {
     display: none;
@@ -618,77 +578,9 @@ div#logo-login {
 }
 
 
-
-/* community or enterprise login */
-.graphic-dialog-community div#logo-login h2,
-.graphic-dialog-free div#logo-login h2 {
-    margin: 0;
-    padding: 20px 20px 10px 195px;
-    font-size: 24px;
-    background: transparent image_url('g9/logo_go_non_enterprise.png') no-repeat 0 5px;
-}
-
-.graphic-dialog-professional div#logo-login h2,
-.graphic-dialog-enterprise div#logo-login h2 {
-    margin: 0;
-    padding: 20px 20px 10px 195px;
-    font-size: 24px;
-    background: transparent image_url('g9/logo_go_enterprise.png') no-repeat 0 5px;
-}
-
-/* OpenSource login */
-.graphic-dialog-opensource div#logo-login h2 {
-    margin: 0;
-    padding: 20px 20px 10px 195px;
-    font-size: 24px;
-    background: transparent image_url('g9/logo_go_non_enterprise.png') no-repeat 0 5px;
-}
-
-#graphic-dialog-input
-{
-    clear: both;
-    width: 300px;
-    margin: 20px auto 0 auto;
-    text-align: left;
-}
-
-#graphic-dialog-input p {
-    margin-bottom: 25px;
-}
-
-#graphic-dialog-input label
-{
-    color: #FFF;
-    display: block;
-    padding-bottom: 5px;
-    font-size: 11px;
-    text-transform: uppercase;
-}
-#graphic-dialog-input #user_login,
-#graphic-dialog-input #user_password
-{
-    width: 100%;
-    padding: 5px;
-    border: 0;
-    -moz-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
-    background-color: #FFF;
-}
 input:-webkit-autofill {
   background: #FFF !important;
 }
-
-#graphic-dialog-input #user_login:focus,
-#graphic-dialog-input #user_password:focus {
-    -moz-box-shadow: inset 0 0 4px rgba(0,0,0,0.5);
-}
-
-#graphic-dialog-input form
-{
-
-}
-
 
 p#login-actions {
     padding: 10px 0;
@@ -823,7 +715,6 @@ button#signin2 span {
 .item-list .summary {
     list-style: none inside;
     padding-left: 22px;
-    *padding-left: 0.2em;
     margin-left: -13px;
     background: transparent no-repeat left top;
 }

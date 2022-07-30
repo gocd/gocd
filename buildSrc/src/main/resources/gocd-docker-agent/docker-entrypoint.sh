@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2022 ThoughtWorks, Inc.
+# Copyright 2022 Thoughtworks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ fi
 
 AGENT_WORK_DIR="/go"
 
-# no arguments are passed so assume user wants to run the gocd agent
+# no arguments are passed so assume user wants to run the GoCD agent
 # we prepend "/${AGENT_WORK_DIR}/bin/go-agent console" to the argument list
 if [[ $# -eq 0 ]] ; then
   set -- "${AGENT_WORK_DIR}/bin/go-agent" console "$@"

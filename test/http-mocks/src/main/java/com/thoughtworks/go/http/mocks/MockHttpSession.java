@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * Modifications Copyright 2022 ThoughtWorks, Inc.
+ * Modifications Copyright 2022 Thoughtworks, Inc.
  */
 package com.thoughtworks.go.http.mocks;
 

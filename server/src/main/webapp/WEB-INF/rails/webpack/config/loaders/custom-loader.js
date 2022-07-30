@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 module.exports = function customLoader(content) {
-  if (/Copyright \d+ ThoughtWorks/.test(content) && content.indexOf("/*!") >= 0) {
+  if (/Copyright \d+ Thoughtworks/.test(content) && content.indexOf("/*!") >= 0) {
     throw new Error(`Files copyright by thoughtworks should not contain loud comments (/*!). The content was ${content}`);
   }
   return content;

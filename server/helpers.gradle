@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ task bumpSchemaVersion {
       out.println("""
 <?xml version="1.0"?>
 <!--
-  ~ Copyright ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.
+  ~ Copyright ${Calendar.getInstance().get(Calendar.YEAR)} Thoughtworks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ task createDbMigration {
       def contents =
         """
           --
-          -- Copyright ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.
+          -- Copyright ${Calendar.getInstance().get(Calendar.YEAR)} Thoughtworks, Inc.
           --
           -- Licensed under the Apache License, Version 2.0 (the "License");
           -- you may not use this file except in compliance with the License.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ class InstallerTypeAgent implements InstallerType {
   String getPackageDescription() {
     '''
     GoCD Agent Component
-    Next generation continuous integration and release management server from ThoughtWorks.
+    Next generation continuous integration and release management server from Thoughtworks.
     '''.stripIndent().trim()
   }
 

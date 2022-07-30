@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 ThoughtWorks, Inc.
+ * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -355,7 +355,7 @@ export class AuthorizationPluginInfo extends BasePluginInfo {
         description: "LDAP Authorization Plugin for GoCD",
         target_operating_systems: [],
         vendor: {
-          name: "ThoughtWorks, Inc. & GoCD Contributors",
+          name: "Thoughtworks, Inc. & GoCD Contributors",
           url: "https://github.com/gocd/gocd-ldap-authorization-plugin"
         }
       },

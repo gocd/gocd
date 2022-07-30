@@ -869,13 +869,11 @@ table#artifacts-table td {
 
 .rerun {
     _background: none;
-    _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-rerun-s.png', sizingMethod='crop');
 }
 
 button:hover.rerun {
     background-position: -27px -558px;
     _background: none;
-    _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/go/images/ie_specific/icons-pipeline-history-rerun-high-s.png', sizingMethod='crop');
     cursor: pointer;
 }
 

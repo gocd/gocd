@@ -260,7 +260,6 @@ div.build_detail_container_content {
 /* Styles in tabbed report section below summary bar */
 .widget {
   list-style: none;
-  *overflow-x: auto; /*IE hack*/
   min-height: 300px;
   height: auto !important;
   height: 300px;

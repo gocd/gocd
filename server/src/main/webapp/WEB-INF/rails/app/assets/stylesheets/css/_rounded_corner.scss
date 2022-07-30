@@ -51,35 +51,23 @@ display: none;}
 }
 .f-r-corner .c1, .rounded-corner-grey-border .f-r-corner .c1 {
     background: transparent image_url('trans_rc_white_lt.png') no-repeat left top;
-    *background: none;
-    behavior: url(iepngfix.htc);
     left: 0;
     top: 0;
 }
 .f-r-corner .c2, .rounded-corner-grey-border .f-r-corner .c2 {
     background: transparent image_url('trans_rc_white_rt.png') no-repeat left top;
-    *background: none;
-    behavior: url(iepngfix.htc);
     right: 0;
-    *right: -1px;
     top: 0;
 }
 .f-r-corner .c3, .rounded-corner-grey-border .f-r-corner .c3 {
     background: transparent image_url('trans_rc_white_lb.png') no-repeat left top;
-    *background: none;
-    behavior: url(iepngfix.htc);
     left: 0;
     bottom: 0;
-    *bottom: -1px;
 }
 .f-r-corner .c4, .rounded-corner-grey-border .f-r-corner .c4 {
     background: transparent image_url('trans_rc_white_rb.png') no-repeat left top;
-    *background: none;
-    behavior: url(iepngfix.htc);
     right: 0;
-    *right: -1px;
     bottom: 0;
-    *bottom: -1px;
 }
 
 /* float rounded corner container, with grey(#EEEEEE) background, and use css sprites cominbe all the bg image in on file */
@@ -334,31 +322,21 @@ display: none;}
 
 .rounded-corner-grey-border .c1 {
     background: transparent image_url('bg_pipeline_history_corner.png') no-repeat left top;
-    *background: none;
-    behavior: url(iepngfix.htc);
     left: -1px;
     top: -1px;
 }
 .rounded-corner-grey-border .c2 {
     background: transparent image_url('bg_pipeline_history_corner.png') no-repeat right top;
-    *background: none;
-    behavior: url(iepngfix.htc);
     right: -1px;
-    *right: -2px;
     top: -1px;
 }
 .rounded-corner-grey-border .c3 {
     background: transparent image_url('bg_pipeline_history_corner.png') no-repeat left bottom;
-    *background: none;
-    behavior: url(iepngfix.htc);
     left: -1px;
     bottom: -1px;
 }
 .rounded-corner-grey-border .c4 {
     background: transparent image_url('bg_pipeline_history_corner.png') no-repeat right bottom;
-    *background: none;
-    behavior: url(iepngfix.htc);
     right: -1px;
-    *right: -2px;
     bottom: -1px;
 }

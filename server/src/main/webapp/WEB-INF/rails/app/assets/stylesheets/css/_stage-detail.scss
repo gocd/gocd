@@ -62,11 +62,6 @@
     zoom: 1;
 }
 
-/* fix wired IE6/IE7 rendering bug */
-.stage-detail-summary h3 * {
-    *float: left;
-}
-
 .stage-detail-summary h3 .complete-time {
     font-weight: normal;
 }

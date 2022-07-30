@@ -137,15 +137,12 @@ input[disabled],input:disabled{
 select {
   outline: none;
   margin: 1px 0;
-  *margin: 2px 0;
   padding: 2px 4px;
   width: 250px;
 }
 textarea {
   width: 100%;
-  *width: 99%;
   overflow: auto;
-  *padding: 0;
   resize: none;
 }
 button a {

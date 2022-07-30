@@ -29,19 +29,16 @@ body {
 
 .yui-t3 .yui-b {
     width: 27em;
-    *width : 27.52em;
 }
 
 .yui-t3 #yui-main .yui-b {
     margin-left: 27em;
     *margin-left : 27.52em;
     border-left: 1px solid white;
-    *broder-left : none;
 }
 
 .yui-t1 #yui-main, .yui-t2 #yui-main, .yui-t3 #yui-main {
     margin-left: -27em;
-    *margin-left : -27.52em;
 }
 
 .experimental {

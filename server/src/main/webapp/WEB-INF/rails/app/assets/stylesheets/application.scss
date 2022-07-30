@@ -31,7 +31,6 @@
  *= require "_main"
  *= require "_layout"
  *= require "./_structure"
- *= require "./_ie_hacks"
  *= require "structure/_application"
  *= require "_module"
  *= require_tree ./plugins

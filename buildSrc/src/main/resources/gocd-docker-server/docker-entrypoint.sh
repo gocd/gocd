@@ -25,7 +25,7 @@ function stringToArgsArray() {
 
 SERVER_WORK_DIR="/go-working-dir"
 
-# no arguments are passed so assume user wants to run the gocd server
+# no arguments are passed so assume user wants to run the GoCD server
 # we prepend "${SERVER_WORK_DIR}/bin/go-server console" to the argument list
 if [[ $# -eq 0 ]] ; then
   set -- "${SERVER_WORK_DIR}/bin/go-server" console "$@"

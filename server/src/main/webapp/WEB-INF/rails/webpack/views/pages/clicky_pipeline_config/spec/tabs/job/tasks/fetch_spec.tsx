@@ -34,7 +34,7 @@ describe("Fetch Task Modal", () => {
     expect(helper.byTestId("fetch-artifact-task-modal")).toBeInDOM();
   });
 
-  it("should render gocd or plugin fetch artifact task selection", () => {
+  it("should render GoCD or plugin fetch artifact task selection", () => {
     mount();
 
     expect(helper.byTestId("form-field-label")).toContainText("Type of Fetch Artifact");
@@ -46,7 +46,7 @@ describe("Fetch Task Modal", () => {
     expect(helper.byTestId("radio-external")).not.toBeChecked();
   });
 
-  it("should render gocd fetch artifact task view", () => {
+  it("should render GoCD fetch artifact task view", () => {
     mount();
 
     expect(helper.byTestId("radio-gocd")).toBeChecked();
@@ -74,7 +74,7 @@ describe("Fetch Task Modal", () => {
       mount(undefined, false, true);
     });
 
-    it("should render disabled gocd or plugin fetch artifact task selection", () => {
+    it("should render disabled GoCD or plugin fetch artifact task selection", () => {
       expect(helper.byTestId("radio-gocd")).toBeDisabled();
       expect(helper.byTestId("radio-external")).toBeDisabled();
     });

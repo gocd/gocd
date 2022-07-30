@@ -267,7 +267,7 @@ describe("Task", () => {
       expect(task.toJSON()).toEqual(copy.toJSON());
     });
 
-    it("should provide properties for gocd artifact", () => {
+    it("should provide properties for GoCD artifact", () => {
       const task = TaskTestData.fetchGoCDTask();
       expect(task.attributes().properties()).toEqual(new Map([
                                                                ["Pipeline Name", "pipeline"],

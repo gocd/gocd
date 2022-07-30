@@ -47,7 +47,7 @@ LABEL gocd.version="${goVersion}" \
   gocd.full.version="${fullVersion}" \
   gocd.git.sha="${gitRevision}"
 
-# the ports that go server runs on
+# the ports that GoCD server runs on
 EXPOSE 8153
 
 <#list additionalFiles as filePath, fileDescriptor>
@@ -72,7 +72,7 @@ RUN \
 </#if>
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
-# add user to root group for gocd to work on openshift
+# add user to root group for GoCD to work on openshift
 <#list distro.createUserAndGroupCommands as command>
   ${command} && \
 </#list>

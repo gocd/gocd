@@ -35,7 +35,7 @@ docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_S
 ```
 OR
 
-If the docker container running the gocd server has ports mapped to the host,
+If the docker container running the GoCD server has ports mapped to the host,
 
 ```
 docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d -e GO_SERVER_URL=http://<ip_of_host_machine>:$(docker inspect --format='{{(index (index .NetworkSettings.Ports "8153/tcp") 0).HostPort}}' angry_feynman)/go gocd/${imageName}:v${goVersion}
@@ -107,7 +107,7 @@ To be able to run the `docker` and `docker-compose` commands inside your jobs, y
 
 In this case, as the docker deamon will be the one mounting the volumes you define, the path to the files you will want to mount (basically inside `/godata/pipelines`) need to be the same so that the docker deamon (which is running on the host) can find the files.
 
-If you run several agents container, you will need to overwrite the `VOLUME_DIR` environment variable to have a different path for your `/godata` for each of your gocd agent containers (to avoid issues). For example, if the volume on your host for the first container is `/go-agent1/godata`, you will set the `VOLUME_DIR` environment data on your container to `/go-agent1/godata` and the `docker-entrypoint.sh` script will automatically manage it and make sure the agent stores its configuration, logs and pipelines there.
+If you run several agents container, you will need to overwrite the `VOLUME_DIR` environment variable to have a different path for your `/godata` for each of your GoCD agent containers (to avoid issues). For example, if the volume on your host for the first container is `/go-agent1/godata`, you will set the `VOLUME_DIR` environment data on your container to `/go-agent1/godata` and the `docker-entrypoint.sh` script will automatically manage it and make sure the agent stores its configuration, logs and pipelines there.
 </#if>
 
 # Running GoCD Containers as Non Root

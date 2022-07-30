@@ -18,7 +18,7 @@ import {GoCDRole, PluginRole, Role, RolesWithSuggestions, RolesWithSuggestionsJS
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 
 describe("RoleModel", () => {
-  it("should deserialize gocd role json", () => {
+  it("should deserialize GoCD role json", () => {
     const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
     const goCDRole     = Role.fromJSON(goCDRoleJSON) as GoCDRole;
 
@@ -86,7 +86,7 @@ describe("RoleModel", () => {
     expect(goCDRole.errors().keys()).toEqual(["name"]);
   });
 
-  it("should serialize gocd role to json", () => {
+  it("should serialize GoCD role to json", () => {
     const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
 
     const serializedGoCDRole = JSON.parse(JSON.stringify(Role.fromJSON(goCDRoleJSON)));

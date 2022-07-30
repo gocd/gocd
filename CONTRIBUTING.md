@@ -14,6 +14,6 @@ Pull requests are always welcome. Please:
 
 ## Issue triage [![Open Source Helpers](https://www.codetriage.com/gocd/gocd/badges/users.svg)](https://www.codetriage.com/gocd/gocd)
 
-You can contribute to GoCD by triaging issues which may include reproducing bug reports or asking for vital information, such as version numbers or reproduction instructions. If you would like to start triaging issues, one easy way to get started is to [subscribe to gocd on CodeTriage](https://www.codetriage.com/gocd/gocd).
+You can contribute to GoCD by triaging issues which may include reproducing bug reports or asking for vital information, such as version numbers or reproduction instructions. If you would like to start triaging issues, one easy way to get started is to [subscribe to GoCD on CodeTriage](https://www.codetriage.com/gocd/gocd).
 
 You can contribute any security related issue by [responsibly reporting the issue](https://hackerone.com/gocd) that you find in our product or service.

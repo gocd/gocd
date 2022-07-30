@@ -124,7 +124,7 @@ describe("VersionUpdater", () => {
       });
     });
 
-    it("update_check should not remove update system notification on for same gocd version", () => {
+    it("update_check should not remove update system notification on for same GoCD version", () => {
       jasmine.Ajax.withMock(() => {
         const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
         localStorage.setItem("versionCheckInfo", JSON.stringify({last_updated_at: twentyNineMinutesBack}));

@@ -103,7 +103,7 @@ public class SslInfrastructureService {
                 getTokenIfNecessary();
                 registered = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {
-                LOGGER.error("[Agent Registration] There was a problem registering with the go server.", e);
+                LOGGER.error("[Agent Registration] There was a problem registering with the GoCD server.", e);
                 throw e;
             }
 

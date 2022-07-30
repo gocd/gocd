@@ -34,7 +34,7 @@ describe("RoleCRUD", () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
   });
 
-  it("should create a new gocd role", () => {
+  it("should create a new GoCD role", () => {
     jasmine.Ajax.stubRequest("/go/api/admin/security/roles").andReturn(getGoCDRole());
 
     RolesCRUD.create(Role.fromJSON(RolesTestData.GoCDRoleJSON()));
@@ -60,7 +60,7 @@ describe("RoleCRUD", () => {
     expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
-  it("should update a gocd role", () => {
+  it("should update a GoCD role", () => {
     const gocdRole = Role.fromJSON(RolesTestData.GoCDRoleJSON());
     jasmine.Ajax.stubRequest(`/go/api/admin/security/roles/${gocdRole.name()}`)
            .andReturn(getGoCDRole());
@@ -76,7 +76,7 @@ describe("RoleCRUD", () => {
     expect(request.requestHeaders["If-Match"]).toEqual("some-etag");
   });
 
-  it("should delete a gocd role", () => {
+  it("should delete a GoCD role", () => {
     const gocdRole = Role.fromJSON(RolesTestData.GoCDRoleJSON());
     jasmine.Ajax.stubRequest(`/go/api/admin/security/roles/${gocdRole.name()}`)
            .andReturn(deleteRoleResponse());

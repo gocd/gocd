@@ -259,7 +259,7 @@ describe("UsersFilter", () => {
         expect(filteredUsers.totalUsersCount()).toBe(0);
       });
 
-      it("should select all the enabled admin users with gocd role", () => {
+      it("should select all the enabled admin users with GoCD role", () => {
         const users = Users.fromJSON(usersJSON());
 
         const userFilters = new UserFilters();

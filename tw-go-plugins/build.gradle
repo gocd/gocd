@@ -62,9 +62,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-file-based-secrets-plugin',
-    tagName: 'v1.1.0-80',
-    asset: 'gocd-file-based-secrets-plugin-1.1.0-80.jar',
-    checksum: '41611dcceff2cb3c1923baac051a7993f055b3876edb3b3956282e47e0c2e359'
+    tagName: 'v1.1.1-106',
+    asset: 'gocd-file-based-secrets-plugin-1.1.1-106.jar',
+    checksum: '19b85d9406f3ffa26f83650d742e7a1c7ac5970c6b19d3850dfaecc0e9014053'
   )
 ]
 

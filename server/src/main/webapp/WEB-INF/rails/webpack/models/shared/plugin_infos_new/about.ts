@@ -52,7 +52,7 @@ export class About {
     if (_.isEmpty(this.targetOperatingSystems)) {
       return "No restrictions";
     }
-    return _.join(this.targetOperatingSystems, ",");
+    return _.join(this.targetOperatingSystems, ", ");
   }
 }
 

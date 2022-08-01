@@ -20,6 +20,7 @@ import m from "mithril";
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import s from "underscore.string";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
@@ -42,7 +43,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
                          ]);
     return [
       (
-        <KeyValueTitle image={vnode.attrs.image} titleTestId="plugin-name" title={vnode.attrs.pluginName}/>
+        <KeyValueTitle image={vnode.attrs.image} titleTestId="plugin-name" title={s.isBlank(vnode.attrs.pluginName) ? <em>(Not specified)</em> : vnode.attrs.pluginName}/>
       ),
       (
         <KeyValuePair inline={true} data={data}/>
@@ -123,7 +124,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
   }
 
   private getAuthorInfo(pluginInfo: PluginInfo): m.Children {
-    return (
+    return s.isBlank(pluginInfo.about.vendor.name) ? "" : (
       <a target="_blank" href={pluginInfo.about.vendor.url}>
         {pluginInfo.about.vendor.name}
       </a>

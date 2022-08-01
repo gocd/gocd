@@ -91,7 +91,7 @@ public class EntityHashingServiceTest {
         ), actual);
 
         final CombinedPluginInfo info2v2 = new CombinedPluginInfo(
-            new NotificationPluginInfo(GoPluginDescriptor.builder().id("bar").version("2").build(), testSettings)
+            new NotificationPluginInfo(GoPluginDescriptor.builder().id("bar").about(GoPluginDescriptor.About.builder().version("2").build()).build(), testSettings)
         );
 
         assertThat(service.hashForEntity(info2v2)).isNotEqualTo(service.hashForEntity(info2));

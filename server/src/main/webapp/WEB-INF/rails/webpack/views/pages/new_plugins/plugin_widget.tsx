@@ -43,7 +43,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
                          ]);
     return [
       (
-        <KeyValueTitle image={vnode.attrs.image} titleTestId="plugin-name" title={vnode.attrs.pluginName}/>
+        <KeyValueTitle image={vnode.attrs.image} titleTestId="plugin-name" title={s.isBlank(vnode.attrs.pluginName) ? <em>(Not specified)</em> : vnode.attrs.pluginName}/>
       ),
       (
         <KeyValuePair inline={true} data={data}/>

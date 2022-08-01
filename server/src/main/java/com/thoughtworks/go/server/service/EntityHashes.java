@@ -26,12 +26,14 @@ import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 import com.thoughtworks.go.server.util.DigestMixin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -108,6 +110,7 @@ public class EntityHashes implements DigestMixin {
             final JsonObject result = new JsonObject();
             result.addProperty("id", src.getDescriptor().id());
             result.addProperty("version", src.getDescriptor().version());
+            result.addProperty("aboutVersion", Optional.ofNullable(src.getDescriptor().about()).map(PluginDescriptor.About::version).orElse(null));
             result.addProperty("extension", src.getExtensionName());
             result.add("settings", context.serialize(src.getPluginSettings()));
             return result;

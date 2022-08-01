@@ -22,10 +22,10 @@
         <name>Plugin 1</name>
         <version>1.0.0</version>
         <target-go-version>19.5</target-go-version>
-        <description>Example plugin 1</description>
+        <description> Example plugin 1 </description>
         <vendor>
           <name>GoCD Team</name>
-          <url>https://gocd.org</url>
+          <url> https://gocd.org </url>
         </vendor>
         <target-os>
           <value>Linux</value>

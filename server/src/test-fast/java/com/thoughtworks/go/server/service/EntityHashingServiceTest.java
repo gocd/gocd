@@ -41,6 +41,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.server.service.EntityHashingService.ETAG_CACHE_KEY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -72,29 +73,35 @@ public class EntityHashingServiceTest {
 
     @Test
     void digestsCombinedPluginInfoAndCollection() {
-        final CombinedPluginInfo info1 = new CombinedPluginInfo(new NotificationPluginInfo(
-                GoPluginDescriptor.builder().id("foo").build(),
-                new PluggableInstanceSettings(List.of(new PluginConfiguration("user", null)))
-        ));
-        final CombinedPluginInfo info2 = new CombinedPluginInfo(new NotificationPluginInfo(
-                GoPluginDescriptor.builder().id("bar").build(),
-                new PluggableInstanceSettings(List.of(new PluginConfiguration("user", null)))
-        ));
+        PluggableInstanceSettings testSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("user", null)));
+        final CombinedPluginInfo info1 = new CombinedPluginInfo(
+            new NotificationPluginInfo(GoPluginDescriptor.builder().id("foo").build(), testSettings)
+        );
+        final CombinedPluginInfo info2 = new CombinedPluginInfo(
+            new NotificationPluginInfo(GoPluginDescriptor.builder().id("bar").build(), testSettings)
+        );
         final Collection<CombinedPluginInfo> many = List.of(info1, info2);
 
         final String actual = service.hashForEntity(many);
         assertTrue(actual.matches("[a-f0-9]{64}"));
 
         assertEquals(digests.digest(
-                service.hashForEntity(info1),
-                service.hashForEntity(info2)
+            service.hashForEntity(info1),
+            service.hashForEntity(info2)
         ), actual);
+
+        final CombinedPluginInfo info2v2 = new CombinedPluginInfo(
+            new NotificationPluginInfo(GoPluginDescriptor.builder().id("bar").version("2").build(), testSettings)
+        );
+
+        assertThat(service.hashForEntity(info2v2)).isNotEqualTo(service.hashForEntity(info2));
+
     }
 
     @Test
     @DisplayName("when plugin settings contain secret properties, the digest used for" +
-            "ETags should not change as long as the decrypted values remain the same, " +
-            "even if the crypto salt changes between requests")
+        "ETags should not change as long as the decrypted values remain the same, " +
+        "even if the crypto salt changes between requests")
     void digestIsConsistentForPluginSettingsWithSecretPropertiesEvenWhenCryptoSaltChanges() {
         TestIVProvider.with(new ProductionIVProvider(), () -> {
             final String id = "com.foo.plugin";
@@ -106,9 +113,9 @@ public class EntityHashingServiceTest {
             final PluginSettings p2 = pluginSettings(id, key, secret);
 
             assertNotEquals(
-                    p1.getPluginSettingsProperties().get(0).getEncryptedValue(),
-                    p2.getPluginSettingsProperties().get(0).getEncryptedValue(),
-                    "both entities should have different cipherTexts even though the input values are equal"
+                p1.getPluginSettingsProperties().get(0).getEncryptedValue(),
+                p2.getPluginSettingsProperties().get(0).getEncryptedValue(),
+                "both entities should have different cipherTexts even though the input values are equal"
             );
 
             final String expected = service.hashForEntity(p1);
@@ -162,7 +169,7 @@ public class EntityHashingServiceTest {
 
     @Test
     @DisplayName("hashForEntity() can determine the proper overloaded method for implementations of " +
-            "EnvironmentConfig and List<EnvironmentConfig> without ambiguity")
+        "EnvironmentConfig and List<EnvironmentConfig> without ambiguity")
     void hashesEnvironmentConfigsWithoutClassAmbiguityIssues() {
         // important to test these when typed as the non-specific parent interface
         final EnvironmentConfig basic = new BasicEnvironmentConfig(new CaseInsensitiveString("hello"));
@@ -175,11 +182,11 @@ public class EntityHashingServiceTest {
         // resolving the wrong overload might result in an exception indicating that the object "does not
         // have a ConfigTag"
         assertDoesNotThrow(() -> {
-                    assertTrue(isNotBlank(service.hashForEntity(basic)));
-                    assertTrue(isNotBlank(service.hashForEntity(merged)));
-                    assertTrue(isNotBlank(service.hashForEntity(mult)));
-                    assertTrue(isNotBlank(service.hashForEntity(nested)));
-                }
+                assertTrue(isNotBlank(service.hashForEntity(basic)));
+                assertTrue(isNotBlank(service.hashForEntity(merged)));
+                assertTrue(isNotBlank(service.hashForEntity(mult)));
+                assertTrue(isNotBlank(service.hashForEntity(nested)));
+            }
         );
     }
 
@@ -190,8 +197,8 @@ public class EntityHashingServiceTest {
         MergeEnvironmentConfig merged = new MergeEnvironmentConfig(env1, env2);
 
         when(goCache.get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env")).
-                thenReturn("foo").
-                thenReturn("bar");
+            thenReturn("foo").
+            thenReturn("bar");
 
         final String type = MergeEnvironmentConfig.class.getSimpleName();
         assertEquals(digests.digest(type, "foo", "bar"), service.hashForEntity(merged));

@@ -107,6 +107,7 @@ public class EntityHashes implements DigestMixin {
         JsonSerializer<PluginInfo> PLUGIN_INFO = (src, typeOfSrc, context) -> {
             final JsonObject result = new JsonObject();
             result.addProperty("id", src.getDescriptor().id());
+            result.addProperty("version", src.getDescriptor().version());
             result.addProperty("extension", src.getExtensionName());
             result.add("settings", context.serialize(src.getPluginSettings()));
             return result;

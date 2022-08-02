@@ -92,7 +92,7 @@ public class FeedService {
 
     public Document jobXml(Username username, String pipelineName, Integer pipelineCounter, String stageName,
                            Integer stageCounter, String jobName, String baseUrl) {
-        JobInstance jobInstance = jobInstanceService.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter, username);
+        JobInstance jobInstance = jobInstanceService.findJobInstanceWithTransitions(pipelineName, stageName, jobName, pipelineCounter, stageCounter, username);
         return xmlApiService.write(new JobXmlRepresenter(jobInstance), baseUrl);
     }
 

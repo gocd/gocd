@@ -49,10 +49,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 
@@ -204,8 +201,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstance mostRecentJobWithTransitions(JobIdentifier job) {
-        Long buildId = findOriginalJobIdentifier(job.getStageIdentifier(), job.getBuildName()).getBuildId();
-        return buildByIdWithTransitions(buildId);
+        return Optional.ofNullable(findOriginalJobIdentifier(job.getStageIdentifier(), job.getBuildName()))
+            .map(JobIdentifier::getBuildId)
+            .map(this::buildByIdWithTransitions)
+            .orElse(JobInstance.NULL);
     }
 
     @Override

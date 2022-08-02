@@ -31,8 +31,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.*;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -163,7 +163,7 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     private JobInstance instance(long id) {
-        JobInstance instance = JobInstanceMother.jobInstance("first", "resource");
+        JobInstance instance = new JobInstance("first");
         instance.setId(id);
         return instance;
     }

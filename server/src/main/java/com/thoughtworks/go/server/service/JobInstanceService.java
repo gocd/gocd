@@ -113,7 +113,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
     }
 
-    public JobInstance findJobInstance(String pipelineName, String stageName, String jobName, Integer pipelineCounter, Integer stageCounter, Username username) {
+    public JobInstance findJobInstanceWithTransitions(String pipelineName, String stageName, String jobName, Integer pipelineCounter, Integer stageCounter, Username username) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
@@ -121,7 +121,8 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
             throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
         }
 
-        return jobInstanceDao.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter);
+        StageIdentifier stageIdentifier = new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter.toString());
+        return jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
     }
 
     public JobInstance buildByIdWithTransitions(long buildId) {

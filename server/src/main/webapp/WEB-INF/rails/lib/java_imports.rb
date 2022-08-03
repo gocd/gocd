@@ -147,7 +147,6 @@ module JavaImports
   java_import com.thoughtworks.go.server.ui.JobInstanceModel unless defined? JobInstanceModel
   java_import com.thoughtworks.go.server.ui.StageSummaryModel unless defined? StageSummaryModel
   java_import com.thoughtworks.go.server.ui.StageSummaryModels unless defined? StageSummaryModels
-  java_import com.thoughtworks.go.server.ui.ViewCacheKey unless defined? ViewCacheKey
   java_import com.thoughtworks.go.server.util.Pagination unless defined? Pagination
   java_import com.thoughtworks.go.util.GoConstants unless defined? GoConstants
   java_import com.thoughtworks.go.util.SystemEnvironment unless defined? SystemEnvironment

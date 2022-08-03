@@ -449,10 +449,6 @@ module ApplicationHelper
     form.label(name, text.html_safe)
   end
 
-  def view_cache_key
-    @view_cache_key ||= com.thoughtworks.go.server.ui.ViewCacheKey.new
-  end
-
   def register_defaultable_list nested_name
     hidden_field_tag 'default_as_empty_list[]', nested_name, id: nil
   end

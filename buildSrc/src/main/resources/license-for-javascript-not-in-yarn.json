@@ -112,22 +112,6 @@
       }
     ]
   },
-  "jquery-tiptip": {
-    "moduleName": "jquery-tiptip",
-    "moduleVersion": "1.3",
-    "moduleUrls": [
-      "https://github.com/drewwilson/TipTip"
-    ],
-    "filenames": [
-      "jquery.tipTip-1.3.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
   "jquery-validation": {
     "moduleName": "jquery-validation",
     "moduleVersion": "1.5.5",

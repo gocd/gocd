@@ -1323,21 +1323,6 @@ input:focus, textarea:focus {
   box-shadow:       none;
 }
 
-#pipelines .dashboard_build_cause_like_microcontent_popups .enhanced_dropdown, #stages .dashboard_build_cause_like_microcontent_popups.fbh_microcontent_popup .enhanced_dropdown {
-
-  border-radius: 3px;
-  box-shadow:    0 0 5px rgba(152, 152, 152, 0.5);
-}
-
-#tiptip_content a, .dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a {
-  color: #0277bd;
-}
-
-.page_header
-#tiptip_content a:hover, .dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a:hover {
-  color: #0277bd;
-}
-
 .list_aggregation li {
   color: #333;
 }
@@ -3076,13 +3061,6 @@ a.add_item {
       margin-left: -10px;
     }
   }
-}
-
-#tiptip_content {
-  box-shadow:  none;
-  font-size:   rem-calc(13px);
-  line-height: 18px;
-  font-weight: 600;
 }
 
 .checkbox_row div.contextual_help {

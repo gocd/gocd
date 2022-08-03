@@ -448,35 +448,6 @@ describe ApplicationHelper do
 
   end
 
-  describe "plugins" do
-    it "should render the right plugin template" do
-      view_model = TaskViewModel.new(ExecTask.new(), "new")
-      expect(self).to receive(:render).with(file: view_model.getTemplatePath(), locals: {})
-      render_pluggable_template(view_model)
-    end
-
-    it "should render the right form plugin template" do
-      view_model = TaskViewModel.new(ExecTask.new(), "new")
-      form_name_provider = Object.new()
-      expect(self).to receive(:render).with(file: view_model.getTemplatePath(), locals: {"formNameProvider" => form_name_provider, "foo" => "bar"})
-      render_pluggable_form_template(view_model, form_name_provider, "foo" => "bar")
-    end
-
-    it "should return a NameProvider which uses the object name" do
-      form = Class.new do
-        def initialize
-        # This is where the Rails FormBuilder object stores the name
-          @object_name = "foo"
-        end
-
-      end.new
-
-      provider = form_name_provider(form)
-
-      expect(provider.name("simple")).to eq("foo[simple]")
-    end
-  end
-
   describe "is_user_a_template_admin" do
     before :each do
       @security_service = double('security service')

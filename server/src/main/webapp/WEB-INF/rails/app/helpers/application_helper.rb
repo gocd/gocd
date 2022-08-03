@@ -449,22 +449,6 @@ module ApplicationHelper
     form.label(name, text.html_safe)
   end
 
-  def render_pluggable_template(task_view_model, options = {})
-    # The view is self here since this method will be called only from views.
-    options.reject { |key, val| key.is_a?(String) }.map { |key, val| options[key.to_s] = val }
-    options.reverse_merge!(task_view_model.getParameters())
-    render file: task_view_model.getTemplatePath(), locals: options
-  end
-
-  def render_pluggable_form_template(task_view_model, form_provider, options = {})
-    options.merge!("formNameProvider" => form_provider)
-    render_pluggable_template task_view_model, options
-  end
-
-  def form_name_provider form
-    TopLevelFormNameProvider.new(form.instance_variable_get("@object_name"))
-  end
-
   def view_cache_key
     @view_cache_key ||= com.thoughtworks.go.server.ui.ViewCacheKey.new
   end

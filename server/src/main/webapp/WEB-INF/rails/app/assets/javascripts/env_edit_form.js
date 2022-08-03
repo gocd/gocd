@@ -31,7 +31,7 @@ AjaxForm = function() {
         jQuery(container).html(Util.flash_message(req.responseText));
     }
 
-    function focusModalBox() {
+    function focusModalbox() {
         var focusables = Modalbox._findFocusableElements();
         var realFocusables = [];
         for(var i = 0; i < focusables.length; i++) {
@@ -46,7 +46,7 @@ AjaxForm = function() {
 
     function handlePopupFailure(req, container) {
         addErrorMessage(req, container);
-        focusModalBox();
+        focusModalbox();
         enablePrimaryButton();
     }
 

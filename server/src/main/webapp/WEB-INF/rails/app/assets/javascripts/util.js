@@ -122,29 +122,6 @@ Util = function() {
             return "<p class='error'>" + text + "</p>";
         },
 
-        ajax_modal: function() {
-            function create_default_modal_body_wrapper(text) {
-                return '<div class="ajax_modal_body flash">' + Util.flash_message(text) + '</div>';
-            }
-
-            return function(url, options, error_create_wrapper, use_modal_box_with_special_properties) {
-                options.autoFocusing = false; //doesn't work in IE without this.
-                var request = jQuery.ajax({url: url});
-                request.done(function() {
-                    if(use_modal_box_with_special_properties){
-                          ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show(request.responseText, options);
-                    }
-                    Modalbox.show(request.responseText, options);
-                    if(options.readOnly) {
-                        Util.disableAllFormElementsFor('.popup_form')
-                    }
-                });
-                request.fail(function() {
-                    Modalbox.show((error_create_wrapper || create_default_modal_body_wrapper)(request.responseText), options);
-                });
-            };
-        }(),
-
         MB_CONTENT: '#MB_content',
 
         client_timestamp: function() {

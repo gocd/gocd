@@ -116,68 +116,6 @@ describe("util", function () {
         assertEquals("#2\\.1\\.1\\.2", Util.escapeDotsFromId("2.1.1.2"));
     });
 
-
-    it("test_ajax_modal_success", function () {
-
-        var ajax_options = null;
-        var ajax_request = {};
-
-        jQuery.ajax = function (options) {
-            ajax_options = options;
-            return ajax_request;
-        };
-
-        ajax_request.done = function (func) {
-            func();
-        };
-        ajax_request.fail = function (func) {
-        };
-        ajax_request.responseText = 'response_body';
-
-        var modal_box_options = null;
-        var modal_box_content = null;
-        Modalbox.show = function (data) {
-            modal_box_content = data;
-        };
-
-        Util.ajax_modal("some_url", {title: "some_title"});
-
-        assertEquals("some_url", ajax_options.url);
-        assertContains('response_body', modal_box_content);
-    });
-
-
-    it("test_ajax_modal_failure", function () {
-
-        var ajax_options = null;
-        var ajax_request = {};
-
-        jQuery.ajax = function (options) {
-            ajax_options = options;
-            return ajax_request;
-        };
-
-        ajax_request.done = function (func) {
-        };
-        ajax_request.fail = function (func) {
-            func();
-        };
-        ajax_request.responseText = 'response_body';
-
-        var modal_box_options = null;
-        var modal_box_content = null;
-        Modalbox.show = function (data, options) {
-            modal_box_content = data;
-            modal_box_options = options;
-        };
-
-        Util.ajax_modal("some_url", {title: "some_title"});
-
-        assertEquals("some_url", ajax_options.url);
-        assertContains('response_body', jQuery(modal_box_content)[0].innerHTML);
-    });
-
-
     it("test_updates_dom_elements_on_callback", function () {
         var mapping = {name_foo: "id_bar", name_baz: "id_quux"};
         jQuery('#foo_link').click(Util.domUpdatingCallback(mapping, jQuery('#update_on_evt'), function () {

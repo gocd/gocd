@@ -40,7 +40,7 @@
 //= require "lib/modalbox-1.6.1.js"
 //= require "lib/trimpath-template-1.0.38.js"
 //= require "lib/lodash.js"
-//= require "lib/moment-2.29.3.js"
+//= require "lib/moment-2.29.4.js"
 //= require "lib/moment-duration-format-2.3.2.js"
 //= require "lib/humanize-for-gocd.js"
 //= require "lib/pako_inflate-1.0.5.js"

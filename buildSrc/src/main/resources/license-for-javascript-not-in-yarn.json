@@ -209,12 +209,12 @@
   },
   "momentjs": {
     "moduleName": "momentjs",
-    "moduleVersion": "2.29.3",
+    "moduleVersion": "2.29.4",
     "moduleUrls": [
       "https://github.com/moment/moment"
     ],
     "filenames": [
-      "moment-2.29.3.js"
+      "moment-2.29.4.js"
     ],
     "moduleLicenses": [
       {

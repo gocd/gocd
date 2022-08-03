@@ -40,7 +40,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
       <li>By default, GoCD internally manages and stores artifacts. The Artifact extension allows GoCD to make use of an external artifact store for
         storing artifacts while retaining traceability between pipelines.
       </li>
-      <li>To build your own custom plugin, please refer <Link href={"https://plugin-api.gocd.org/current/artifacts/#artifact-plugins"}>this</Link>.
+      <li>To build your own custom plugin, please refer to <Link href={"https://plugin-api.gocd.org/current/artifacts/#artifact-plugins"}>this</Link>.
       </li>
     </ul>;
   }

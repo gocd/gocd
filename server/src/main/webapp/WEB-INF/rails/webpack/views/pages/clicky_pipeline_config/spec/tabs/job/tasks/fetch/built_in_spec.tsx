@@ -133,7 +133,7 @@ describe("Built In Fetch Artifact Task", () => {
   it("should render is source a file checkbox", () => {
     mount();
 
-    const label = "Source is a file(Not a directory)";
+    const label = "Source is a file (Not a directory)";
     expect(helper.byTestId("form-field-label-source-is-a-file-not-a-directory")).toContainText(label);
     expect(helper.byTestId("form-field-input-source-is-a-file-not-a-directory")).not.toBeChecked();
   });

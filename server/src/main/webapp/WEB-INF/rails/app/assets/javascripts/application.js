@@ -35,7 +35,6 @@
 //= require "lib/jquery-ui-1.7.3.custom.min.js"
 //= require "lib/jquery.dirtyform.js"
 //= require "lib/jquery.highlight-3.0.js"
-//= require "lib/jquery.validate-1.5.5.js"
 //= require "lib/modalbox-1.6.1.js"
 //= require "lib/trimpath-template-1.0.38.js"
 //= require "lib/lodash.js"

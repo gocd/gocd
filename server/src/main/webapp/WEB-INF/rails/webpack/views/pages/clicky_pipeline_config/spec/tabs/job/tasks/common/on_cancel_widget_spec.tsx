@@ -30,7 +30,7 @@ describe("On Cancel Task Widget", () => {
     const task: Stream<Task | undefined> = Stream();
     mount(task);
 
-    const helpText = "Task which needs to be run, if the parent task is cancelled. Note: The default action of killing the parent task will not be performed.";
+    const helpText = "Run an additional task when the parent task is cancelled, instead of killing the parent task (the default behavior).";
     expect(helper.byTestId("on-cancel-view")).toBeInDOM();
     expect(helper.byTestId("form-field-input-on-cancel-task")).not.toBeChecked();
     expect(helper.byTestId("on-cancel-view")).toContainText(helpText);

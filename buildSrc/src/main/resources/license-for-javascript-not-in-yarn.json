@@ -96,22 +96,6 @@
       }
     ]
   },
-  "jquery-highlight-plugin": {
-    "moduleName": "jquery-highlight-plugin",
-    "moduleVersion": "3.0",
-    "moduleUrls": [
-      "https://github.com/bartaz/sandbox.js"
-    ],
-    "filenames": [
-      "jquery.highlight-3.0.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
   "jquery with sizzle.js": {
     "moduleName": "jquery with sizzle.js",
     "moduleVersion": "1.7.2",

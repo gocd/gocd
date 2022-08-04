@@ -26,6 +26,7 @@ TimerObserver.prototype = {
             if(this.name && this.name != jsonArray[i].building_info.name) {
                 continue;
             }
+            // relies on trimpath-template via String.prototype.process hack
             $('build-detail-summary').innerHTML = $('build-summary-template').value.process({build:jsonArray[i].building_info});
         }
     }

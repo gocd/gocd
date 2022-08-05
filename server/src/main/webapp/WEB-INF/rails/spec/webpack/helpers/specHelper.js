@@ -19,6 +19,7 @@ import {ModalManager} from "views/components/modal/modal_manager";
 import {Modal} from "views/shared/new_modal";
 import "jasmine-ajax";
 import "./dom_matchers";
+import "rails-shared/promise-finally-override";
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
 

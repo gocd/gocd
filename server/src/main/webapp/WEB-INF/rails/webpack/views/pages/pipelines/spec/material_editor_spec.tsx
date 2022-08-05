@@ -28,6 +28,7 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {getScmPlugin} from "views/pages/pluggable_scms/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialEditor} from "../material_editor";
+import {DummyCache} from "./dummy_cache";
 
 describe("AddPipeline: Material Editor", () => {
   const helper = new TestHelper();
@@ -138,7 +139,7 @@ describe("AddPipeline: Material Editor", () => {
 
   it('should show material destination blank warning message when `disableScmMaterials` is set to true', () => {
     const pluginInfos = new PluginInfos(PluginInfo.fromJSON(getScmPlugin()));
-    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} disableScmMaterials={true} pluginInfos={pluginInfos}/>);
+    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} disableScmMaterials={true} pluginInfos={pluginInfos} cache={new DummyCache()}/>);
 
     const materialTypeSelection = helper.byTestId('form-field-input-material-type');
     expect(materialTypeSelection).not.toBeDisabled();

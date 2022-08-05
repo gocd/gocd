@@ -18,13 +18,22 @@ import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
-import {DependencyMaterialAttributes, Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
+import {
+  DependencyMaterialAttributes,
+  Material,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/types";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
-import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
+import {
+  getPackageRepository,
+  pluginInfoWithPackageRepositoryExtension
+} from "models/package_repositories/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {getPluggableScm, getScmPlugin} from "views/pages/pluggable_scms/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {DependencyFields, PackageFields, PluginFields, SuggestionCache} from "../non_scm_material_fields";
+import {DependencyFields, PackageFields, PluginFields} from "../non_scm_material_fields";
+import {DummyCache} from "./dummy_cache";
 
 describe("AddPipeline: Non-SCM Material Fields", () => {
   const helper = new TestHelper();
@@ -64,40 +73,6 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
     expect(helper.byTestId('radio-auto')).toBeDisabled();
   });
 });
-
-class DummyCache implements SuggestionCache {
-  ready() {
-    return true;
-  }
-
-  // tslint:disable-next-line
-  prime(onSuccess: () => void, onError?: () => void) {
-  }
-
-  contents() {
-    return [];
-  }
-
-  pipelines() {
-    return [];
-  }
-
-  stages(pipeline: string) {
-    return [];
-  }
-
-  failureReason() {
-    return undefined;
-  }
-
-  failed() {
-    return false;
-  }
-
-  // tslint:disable-next-line
-  invalidate() {
-  }
-}
 
 describe('PackageFieldsSpec', () => {
   const helper = new TestHelper();

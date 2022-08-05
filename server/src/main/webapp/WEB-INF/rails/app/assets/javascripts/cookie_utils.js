@@ -68,20 +68,3 @@ function getCookie(name) {
     return unescape(document.cookie.substring(cookieStartIndex +
                                               prefix.length,cookieEndIndex));
 }
-
-/* name - name of the cookie
- * [path] - path of the cookie
- * (must be same as path used to create cookie)
- * [domain] - domain of the cookie
- * (must be same as domain used to create cookie)
- * path and domain default if assigned
- * null or omitted if no explicit argument proceeds
- */
-function deleteCookie(name, path, domain) {
-    if (getCookie(name)) {
-        document.cookie = name + "=" +
-                          ((path) ? "; path=" + path : "") +
-                          ((domain) ? "; domain=" + domain : "") +
-                          "; expires=Thu, 01-Jan-70 00:00:01 GMT";
-    }
-}

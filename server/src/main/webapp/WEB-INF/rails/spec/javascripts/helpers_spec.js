@@ -27,11 +27,4 @@ describe("helpers", function () {
         assertEquals($('elem_id').innerHTML, "&nbsp;");
         assertTrue($('elem_id').hasClassName('spinny'));
     });
-
-    it("test_hide_show", function () {
-        showElement($('elem_id'), true);
-        assertTrue($('elem_id').visible());
-        showElement($('elem_id'), false);
-        assertFalse($('elem_id').visible());
-    });
 });

@@ -78,6 +78,5 @@
 //= require "micro_content_popup.js"
 //= require "console_log_tailing.js"
 //= require "js-routes"
-//= require "promise-finally-override.js"
 //= require_directory .
 

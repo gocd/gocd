@@ -32,7 +32,7 @@ public class GoConstants {
     /**
      * This will force the browser to clear the cache only for this page.
      * If any other pages need to clear the cache, we might want to move this
-     * logic to an intercepter.
+     * logic to an interceptor.
      */
     public static final String CACHE_CONTROL = "max-age=1, no-cache";
     public static final String DEFAULT_APPROVED_BY = "changes";
@@ -42,14 +42,6 @@ public class GoConstants {
 
     public static final String RESPONSE_CHARSET = "text/plain; charset=utf-8";
     public static final String RESPONSE_CHARSET_JSON = "application/json; charset=utf-8";
-    public static final String CRUISE_PIPELINE_LABEL = "cruise_pipeline_label";
-    public static final String CRUISE_PIPELINE_COUNTER = "cruise_pipeline_counter";
-    public static final String CRUISE_STAGE_COUNTER = "cruise_stage_counter";
-    public static final String CRUISE_AGENT = "cruise_agent";
-    public static final String CRUISE_RESULT = "cruise_job_result";
-    public static final String CRUISE_JOB_DURATION = "cruise_job_duration";
-    public static final String CRUISE_JOB_ID = "cruise_job_id";
-    public static final String CRUISE_TIMESTAMP = "cruise_timestamp_";
 
     public static final String PRODUCT_NAME = "go";
 

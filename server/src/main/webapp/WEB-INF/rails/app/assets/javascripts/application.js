@@ -22,41 +22,61 @@
 // It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
 // compiled file.
 //
-// Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
-// about supported directives
+// Read Sprockets README (https://github.com/rails/sprockets#directives) for details about supported directives
 
 //= require "lib/jquery-1.7.2.js"
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
+
+// A number of things depend on this including ModalBox. Also causes some issues with hacks it applies to the browser
+// toJSON that need to be worked around with Json.parse(Json.stringify(jsonObject)) in various places
 //= require "lib/prototype-1.6.0.3.js"
+
+// Used by Rails job history dropdown (at very least, via .dropdown-menu) and ModalBox claims it doe
 //= require "lib/bootstrap-2.3.2.min.js"
-//= require "lib/angular-1.0.8.js"
+
+// Used by Rails stage details / stage history (via ModalBox) at least
 //= require "lib/effects-1.8.0.js"
+
+// used by Rails value_stream_map_renderer
 //= require "lib/jquery-ui-1.7.3.custom.min.js"
+
+// Used by shared/_dirty_form and (maybe still used?) Rails views/admin/pipelines_snippet (pipeline group admin editing config?)
 //= require "lib/jquery.dirtyform.js"
-//= require "lib/jquery.highlight-3.0.js"
-//= require "lib/jquery.tipTip-1.3.js"
-//= require "lib/jquery.validate-1.5.5.js"
+
+// Used by Rails stage details / stage history widget for showing config changes between stages. Relies on prototype+effects
 //= require "lib/modalbox-1.6.1.js"
+
+// Used by Rails job details page via timer_observer
 //= require "lib/trimpath-template-1.0.38.js"
+
 //= require "lib/lodash.js"
+
+// Used by Rails job details and console log for formatting timestamps, along with Rails value stream map
 //= require "lib/moment-2.29.4.js"
 //= require "lib/moment-duration-format-2.3.2.js"
 //= require "lib/humanize-for-gocd.js"
+
+// Used by Rails job details console_log_socket.js
 //= require "lib/pako_inflate-1.0.5.js"
+
+// used by Rails job details console and websocket_wrapper.js
 //= require "lib/often-0.3.2.js"
 //= require "lib/component-emitter-1.2.1.js"
+
+// GoCD's own shared functions
 //= require "plugin-endpoint.js"
 //= require "gocd-link-support.js"
 //= require "plugin-endpoint-request-handler.js"
+
+// Used within job details console log formatting
 //= require "ansi_up.js"
 //= require "crel.js"
+
 //= require "json_to_css.js"
 //= require "util.js"
 //= require "micro_content_popup.js"
-//= require "ajax_popup_handler.js"
 //= require "console_log_tailing.js"
 //= require "js-routes"
-//= require "xhr_promise.js"
 //= require_directory .
 

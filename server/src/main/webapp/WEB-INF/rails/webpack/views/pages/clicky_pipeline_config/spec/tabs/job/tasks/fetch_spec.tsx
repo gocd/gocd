@@ -87,7 +87,7 @@ describe("Fetch Task Modal", () => {
                                          jasmine.createSpy(),
                                          new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())),
                                          readonly,
-                                         Stream());
+                                         Stream({}));
       return modal.body();
     });
   }

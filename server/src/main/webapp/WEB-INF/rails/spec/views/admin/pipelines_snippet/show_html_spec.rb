@@ -17,7 +17,6 @@
 require 'rails_helper'
 
 describe "admin/pipelines_snippet/show.html.erb" do
-  include ReflectiveUtil
 
   it "should render the group xml" do
     group_xml = "<foo></foo>"

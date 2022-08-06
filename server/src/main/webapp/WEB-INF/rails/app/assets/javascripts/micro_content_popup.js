@@ -18,7 +18,6 @@ MicroContentPopup = function() {
     var opened_popup = null;
     var panels = [];
     var handlers = [];
-    var cleanupList = [];
     var ignoreNextClose = false;
 
     Event.observe(window, 'load', function () {

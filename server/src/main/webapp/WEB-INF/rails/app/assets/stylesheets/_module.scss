@@ -1337,78 +1337,9 @@ a#show_other_stage_runs {
     display: inline;
 }
 
-.dashboard_build_cause_like_microcontent_popups .changes .changed {
-    color: #ffff66;
-    font-style: italic;
-}
-
-.dashboard_build_cause_like_microcontent_popups table.list_table tr.change.changed td a {
-    color: #0080ff;
-}
 /*
  * Changes popup
  */
-
-#stages .dashboard_build_cause_like_microcontent_popups.fbh_microcontent_popup .enhanced_dropdown.failure_detail_popup {
-    max-height: 500px !important;
-    max-width: 700px !important;
-    overflow: auto !important;
-}
-
-.fbh_failure_detail_button {
-    margin-left: .5em;
-    color: #AC0F00;
-}
-
-.dashboard_build_cause_like_microcontent_popups .tooltip_arrow {
-    display: block;
-    height: 15px;
-    background: image_url('g9/backgrounds/tooltip_up_arrow.png') no-repeat 30px 0;
-    z-index: 2;
-}
-
-#pipelines .dashboard_build_cause_like_microcontent_popups .enhanced_dropdown, #stages .dashboard_build_cause_like_microcontent_popups.fbh_microcontent_popup .enhanced_dropdown {
-    border: 0;
-    background-color: #333;
-    color: #fff;
-    width: 100%;
-    padding: 10px;
-    z-index: 1;
-    -moz-border-radius: 6px;
-    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    border-radius: 6px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.dashboard_build_cause_like_microcontent_popups .scrollable_panel {
-    margin-right: -10px;
-}
-
-.dashboard_build_cause_like_microcontent_popups .changes .list_table {
-    -moz-box-shadow: none;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 0;
-    background: transparent;
-}
-
-.dashboard_build_cause_like_microcontent_popups .changes .list_table th {
-    display: none;
-}
-
-.dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td {
-    border-bottom: 1px dotted #666;
-    padding: 5px 8px;
-}
-
-.dashboard_build_cause_like_microcontent_popups .build_cause_popup_material_name {
-    font-weight: bold;
-}
 
 .change .comment p {
     margin-bottom: 8px;

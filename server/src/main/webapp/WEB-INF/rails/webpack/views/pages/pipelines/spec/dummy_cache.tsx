@@ -13,14 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-if (!window.ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing) {
-    window.ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing = {
-        show: function(path_to_task, options) {
-            options['beforeHide'] = function() {
-                jQuery(".ac_results").remove();
-            };
 
-            Modalbox.show(path_to_task, options);
-        }
-    };
+import {SuggestionCache} from "../non_scm_material_fields";
+
+export class DummyCache implements SuggestionCache {
+  ready() {
+    return true;
+  }
+
+  // tslint:disable-next-line
+  prime(onSuccess: () => void, onError?: () => void) {
+  }
+
+  contents() {
+    return [];
+  }
+
+  pipelines() {
+    return [];
+  }
+
+  stages(pipeline: string) {
+    return [];
+  }
+
+  failureReason() {
+    return undefined;
+  }
+
+  failed() {
+    return false;
+  }
+
+  // tslint:disable-next-line
+  invalidate() {
+  }
 }

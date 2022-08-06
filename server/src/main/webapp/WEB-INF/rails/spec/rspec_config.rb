@@ -27,7 +27,6 @@ RSpec.configure do |config|
   config.add_formatter RSpec::Instafail
   config.include ApiSpecHelper
   config.include MiscSpecExtensions
-  config.include CacheTestHelpers
 
 # clear flash messages for every spec
   config.before(:each) do

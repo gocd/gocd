@@ -14,206 +14,23 @@
  * limitations under the License.
  */
 Util = function() {
-    var namespaces = {};
-
-    function enable(element, enabled) {
-        var elem = $(element);
-        elem.disabled = !enabled;
-        enabled ? elem.removeClassName("disabled") : elem.addClassName("disabled");
-    }
-
-    function namespace(key) {
-        return namespaces[key] || (namespaces[key] = $H());
-    }
-
     return {
-        disable_all_hidden_fields: function (searchItem) {
-          var allHiddenInputFields=jQuery(searchItem).find("input[type=hidden]");
-          for(var i=0; i<allHiddenInputFields.length; i++) {
-            allHiddenInputFields[i].disabled = true
-          }
-        },
-        disable_or_enable_submittable_fields: function(submittable_field_ids) {
-            return function(target) {
-                var should_enable = target.checked;
-                for(var i = 0; i < submittable_field_ids.length; i++) {
-                    enable(submittable_field_ids[i], should_enable);
-                }
-            };
-        },
         really_stop_propagation_and_default_action: function(event) {//this one really really stops propagation on IE and other lesser privileged browsers, this is the only reliable way in the whole of milky-way to stop events on IE. -Sara & JJ
             var jq_evt = jQuery.Event(event);
             jq_evt.stopPropagation();
             jq_evt.preventDefault();
             jq_evt.stopImmediatePropagation();
         },
-        domUpdatingCallback: function(name_domid_mapping, container, name_reader) {
-            return function() {
-                var name = name_reader.apply(this);
-                container.html(jQuery('#' + name_domid_mapping[name]).text());
-            };
-        },
+
         on_load: jQuery,
+
         loadPage: function(url) {
             window.location = url;
-        },
-        buildCausePopupCreator: function(popup_panel_id) {
-            return function() {
-                var node = $(popup_panel_id);
-                var microContentPopup = new MicroContentPopup(node, new MicroContentPopup.NeverCloseHandler());
-                var shower = new MicroContentPopup.ClickShower(microContentPopup, {cleanup: true});
-                Util.namespace('build_cause').set(popup_panel_id, shower);
-            };
-        },
-        set_value: function(field, value) {
-            return function() {
-                $(field).value = value;
-            };
-        },
-        disableAllFormElementsFor: function (selector) {
-            jQuery(selector).find(':input').prop("disabled", true);
-        },
-        disable: function(element) {
-            enable(element, false);
-        },
-        enable: function(element) {
-            enable(element, true);
-        },
-
-        timestamp_in_millis: function(timestamp) {
-            return new Date(timestamp * 1000).getTime();
-        },
-
-        refresh_child_text: function(id, text, className) {
-            $(id).getElementsBySelector("p").each(function(p) {
-                $(id).removeChild(p);
-            });
-            var childElement = document.createElement("p");
-            childElement.innerHTML = text;
-            jQuery(childElement).addClass(className);
-            $(id).appendChild(childElement);
-        },
-        validate_name_type: function(name) {
-            return /^[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*$/.test(name);
-        },
-        are_any_rows_selected : function(class_selector) {
-            return function() {
-                var has_rows_selected = false;
-                $(document.body).getElementsBySelector(class_selector).each(function(checkbox) {
-                    has_rows_selected = has_rows_selected || checkbox.checked;
-                });
-                return has_rows_selected;
-            };
-        },
-        remove_from_array: function(array, element_to_be_removed) {
-            var index = jQuery.inArray(element_to_be_removed, array);
-            if (index != -1) {
-                array.splice(index, 1);
-            }
         },
 
         escapeDotsFromId: function(theId) {
             return '#' + theId.replace(/(:|\.)/g,'\\$1');
         },
-
-        namespace: namespace,
-
-        flash_message: function(text) {
-            return "<p class='error'>" + text + "</p>";
-        },
-
-        ajax_modal: function() {
-            function create_default_modal_body_wrapper(text) {
-                return '<div class="ajax_modal_body flash">' + Util.flash_message(text) + '</div>';
-            }
-
-            return function(url, options, error_create_wrapper, use_modal_box_with_special_properties) {
-                options.autoFocusing = false; //doesn't work in IE without this.
-                var request = jQuery.ajax({url: url});
-                request.done(function() {
-                    if(use_modal_box_with_special_properties){
-                          ModalBoxWhichClosesAutoCompleteDropDownBeforeClosing.show(request.responseText, options);
-                    }
-                    Modalbox.show(request.responseText, options);
-                    if(options.readOnly) {
-                        Util.disableAllFormElementsFor('.popup_form')
-                    }
-                });
-                request.fail(function() {
-                    Modalbox.show((error_create_wrapper || create_default_modal_body_wrapper)(request.responseText), options);
-                });
-            };
-        }(),
-
-        MB_CONTENT: '#MB_content',
-
-        client_timestamp: function() {
-            return Math.round(((new Date()).getTime() - Date.UTC(1970, 0, 1)) / 1000);
-        },
-
-        bindPasswordField: function(checkBox, passwordField, showPasswordToggle) {
-            passwordField.val("**********");
-            checkBox.click(function() {
-                var isChecked = checkBox.is(":checked");
-                if (isChecked) {
-                    passwordField.removeAttr("disabled");
-                    passwordField.val("");
-                    if(showPasswordToggle) {
-                        showPasswordToggle.removeAttr("disabled");
-                    }
-                } else {
-                    passwordField.attr("disabled", true);
-                    passwordField.val("**********");
-                    if(showPasswordToggle) {
-                        showPasswordToggle.attr("disabled", true);
-                    }
-                }
-            });
-        },
-
-        server_timestamp: function() {
-            var client_server_timestamp_delta = null;
-
-            function compute_delta() {
-                var server_timestamp = jQuery('#server_timestamp').val();
-                return Util.client_timestamp() - server_timestamp;
-            }
-
-            function enforce_delta_computation() {
-                if (client_server_timestamp_delta === null) {
-                    client_server_timestamp_delta = compute_delta();
-                }
-            }
-
-            //            Util.on_load(enforce_delta_computation);
-            return function() {
-                enforce_delta_computation();
-                return Util.client_timestamp() - client_server_timestamp_delta;
-            };
-        }(),
-
-        click_load: function(options) {
-            Util.on_load(function() {
-                var target = options.target;
-                var url = options.url;
-                var update = options.update;
-                var spinnerContainer = options.spinnerContainer;
-                jQuery(target).click(function(_) {
-                    jQuery.ajax({
-                        url: url,
-                        beforeSend: function() {
-                           spinny(spinnerContainer);
-                        },
-                        success: function(html) {
-                            jQuery(update).html(html);
-                        },
-                        complete: function() {
-                           removeSpinny(spinnerContainer);
-                        }
-                    });
-                });
-            });
-        }
     };
 }();
 

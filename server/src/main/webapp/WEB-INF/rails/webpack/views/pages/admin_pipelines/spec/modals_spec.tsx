@@ -105,7 +105,7 @@ describe("ClonePipelineConfigModal", () => {
     const dummyService = new class implements ApiService {
       performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
         onError({message: "some msg", body: '{"message": "some major error"}'});
-        return Promise.reject();
+        return Promise.resolve();
       }
     }();
     const modal        = new ClonePipelineConfigModal(new Pipeline("blah"), successCallback, dummyService);
@@ -221,7 +221,7 @@ describe("ExtractTemplateModal", () => {
   });
 });
 
-describe('DeletePipelinGroupModalSpec', () => {
+describe('DeletePipelineGroupModalSpec', () => {
   let modal: DeletePipelineGroupModal;
   const successCallBack: (msg: m.Children) => void = jasmine.createSpy("successCallBack");
 
@@ -253,7 +253,7 @@ describe('DeletePipelinGroupModalSpec', () => {
     const dummyService = new class implements ApiService {
       performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
         onError({message: 'some error', body: '{"message": "some major error"}'});
-        return Promise.reject();
+        return Promise.resolve();
       }
     }();
     modal              = new DeletePipelineGroupModal("pipeline-grp-name", successCallBack, dummyService);

@@ -52,10 +52,7 @@ defined? NonApiController && Object.send(:remove_const, :NonApiController)
 
 class NonApiController < ApplicationController
   include ActionRescue
-  include ParamEncoder
   helper FlashMessagesHelper
-
-  decode_params :decodable_param, :only => :encoded_param_user_action
 
   def not_found_action
     hor = HttpOperationResult.new()
@@ -72,16 +69,6 @@ class NonApiController < ApplicationController
   def double_render_without_error
     render :plain => "first render"
     render :plain => "second render"
-  end
-
-  def encoded_param_user_action
-    @decodable_param = params[:decodable_param]
-    render :plain => ""
-  end
-
-  def non_encoded_param_user_action
-    @decodable_param = params[:decodable_param]
-    render :plain => ""
   end
 end
 

@@ -26,7 +26,6 @@ describe StagesController do
 
   include StageModelMother
   include ApplicationHelper
-  include JobMother
 
   before(:each) do
     controller.go_cache.clear

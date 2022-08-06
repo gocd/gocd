@@ -15,11 +15,6 @@
 #
 
 module GoUtil
-  import org.dom4j.io.SAXReader unless defined? SAXReader
-  import java.io.StringBufferInputStream unless defined? StringBufferInputStream
-  import java.util.HashMap unless defined? HashMap
-  import org.dom4j.DocumentFactory unless defined? DocumentFactory
-
   def in_params map
     map.each do |key, value|
       if controller.respond_to?(:extra_params)  # for view specs
@@ -28,24 +23,5 @@ module GoUtil
       controller.params[key] = value
       @request.path_parameters[key] = value
     end
-  end
-
-  def dom4j_root_for xml_string
-    map = HashMap.new()
-    map.put("a", "http://www.w3.org/2005/Atom")
-    map.put("go", "http://www.thoughtworks-studios.com/ns/go")
-    factory = DocumentFactory.getInstance()
-    factory.setXPathNamespaceURIs(map)
-    SAXReader.new().read(StringBufferInputStream.new(xml_string)).getRootElement()
-  end
-
-  def to_list(pipelines)
-    list = java.util.ArrayList.new()
-    pipelines.each { |p| list.add(p)}
-    list
-  end
-
-  def stub_context_path obj
-    allow(obj).to receive(:context_path).and_return("/go")
   end
 end

@@ -34,12 +34,7 @@
 #header, #body, #footer{
 	clear: both;
 }
-/*
-#body_bg {
-  min-height:100%;
-  position:relative;
-}
-*/
+
 /*
  * Header
  */
@@ -89,31 +84,12 @@ h1 .title_secondary_info ul{
 	display: inline;
 }
 
-/* light blue links for all dark backgrounds */
-
-
-#tiptip_content a,
-.dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a {
-    color: #abdffe;
-}
-
-
 .page_header a {
     font-size: 12px;
     font-weight: bold;
 }
-page_header
-
-/*.page_header a:hover,*/
-#tiptip_content a:hover,
-.dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a:hover {
-    color: #dbf2ff;
-}
-
 
 /* Pipeline/Stage Details header - Stages Bar */
-
-
 
 #pipeline_status_bar .pipeline .stages .stage_bar_wrapper{
     margin-right: 4px;

@@ -64,22 +64,6 @@
         <% unless ['stats'].include?(params[:action]) -%>
             AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
        <% end %>
-    <% end %>
-
-        var content_box = jQuery('#fbh_build_cause_content');
-        var popup = new MicroContentPopup('fbh_build_cause_content', new ContextualAjaxPopupHandler(content_box.get(0),
-                function(event) {
-                    return event.target.getAttribute("href");
-                }));
-        var popupShower = new MicroContentPopup.LiveShower(popup);
-
-        jQuery('.fbh_build_cause_button').live('click', function(event) {
-            popupShower.toggle_popup(event, this);
-        });
-
-        jQuery('.fbh_failure_detail_button').live('click', function(event) {
-            popupShower.toggle_popup(event, this);
-        });
-
+      <% end %>
     });
 </script>

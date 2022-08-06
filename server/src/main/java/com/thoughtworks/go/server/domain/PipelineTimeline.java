@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.ClonerFactory;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,11 +56,11 @@ public class PipelineTimeline {
 
     @Autowired
     public PipelineTimeline(PipelineRepository pipelineRepository, TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager,
-                            TimelineUpdateListener... listeners) {
+                            @Autowired(required = false) TimelineUpdateListener... listeners) {
         this.pipelineRepository = pipelineRepository;
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
-        this.listeners = listeners;
+        this.listeners = ArrayUtils.nullToEmpty(listeners, TimelineUpdateListener[].class);
         naturalOrderPmm = new HashMap<>();
         scheduleOrderPmm = new HashMap<>();
         maximumId = -1;

@@ -14,43 +14,7 @@
 # limitations under the License.
 #
 
-
 module ApiSpecHelper
-  def current_api_accept_header
-    @controller.class.default_accepts_header
-  end
-
-  [:get, :delete, :head].each do |http_verb|
-    class_eval(<<-EOS, __FILE__, __LINE__)
-      def #{http_verb}_with_api_header(path, args={})
-        #{http_verb} path, args.merge(as: :json)
-      end
-    EOS
-  end
-
-  [:post, :put, :patch].each do |http_verb|
-    class_eval(<<-EOS, __FILE__, __LINE__)
-      def #{http_verb}_with_api_header(path, args={})
-        allow(controller).to receive(:verify_content_type_on_post).and_return(@verify_content_type_on_post = double())
-        #{http_verb} path, args.merge(as: :json)
-      end
-    EOS
-  end
-
-  def login_as_pipeline_group_Non_Admin_user
-    enable_security
-    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    allow(@security_service).to receive(:isUserAdminOfGroup).and_return(false)
-    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
-  end
-
-  def login_as_pipeline_group_admin_user(group_name)
-    enable_security
-    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    allow(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername, group_name).and_return(true)
-    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
-  end
-
   def login_as_user
     enable_security
     allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
@@ -61,14 +25,6 @@ module ApiSpecHelper
     allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
     allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(false)
     allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(false)
-  end
-
-  def allow_current_user_to_access_pipeline(pipeline_name)
-    allow(@security_service).to receive(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(true)
-  end
-
-  def allow_current_user_to_not_access_pipeline(pipeline_name)
-    allow(@security_service).to receive(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(false)
   end
 
   def disable_security
@@ -109,7 +65,6 @@ module ApiSpecHelper
     allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
     allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
     allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(true)
-
   end
 
   def login_as_anonymous

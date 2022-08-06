@@ -15,10 +15,6 @@
 #
 
 module MiscSpecExtensions
-  def java_date_utc(year, month, day, hour, minute, second)
-    org.joda.time.DateTime.new(year, month, day, hour, minute, second, 0, org.joda.time.DateTimeZone::UTC).toDate()
-  end
-
   def current_user
     @user ||= com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("some-user"), "display name")
     allow(@controller).to receive(:current_user).and_return(@user)
@@ -39,40 +35,10 @@ module MiscSpecExtensions
     end
   end
 
-  def cdata_wraped_regexp_for(value)
-    /<!\[CDATA\[#{value}\]\]>/
-  end
-
-  def fake_template_presence file_path, content
-    controller.prepend_view_path(ActionView::FixtureResolver.new(file_path => content))
-  end
-
   def stub_service(service_getter, thing=controller)
     service = double(service_getter.to_s.camelize)
     allow(thing).to receive(service_getter).and_return(service)
     ServiceCacheStrategy.instance.replace_service(service_getter.to_s, service)
     service
   end
-
-  def stub_localized_result
-    result = HttpLocalizedOperationResult.new
-    allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
-    result
-  end
-
-  def uuid_pattern
-    hex = "[a-f0-9]"
-    "#{hex}{8}-#{hex}{4}-#{hex}{4}-#{hex}{4}-#{hex}{12}"
-  end
-
-  def with_caching(perform_caching)
-    old_perform_caching = ActionController::Base.perform_caching
-    begin
-      ActionController::Base.perform_caching = perform_caching
-      yield
-    ensure
-      ActionController::Base.perform_caching = old_perform_caching
-    end
-  end
-
 end

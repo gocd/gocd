@@ -161,7 +161,6 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => 'content', :layout => @layout_name
-      package_repositories_new_path
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
         expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/go/admin/package_repositories/list']")

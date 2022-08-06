@@ -50,8 +50,8 @@
                     <li id="tab-content-of-pipelines-snippet" class="<%= "current_tab" if @tab_name == "pipelines-snippet" %>">
                       <%= link_to 'Config XML', pipelines_snippet_path, :id => "tab-link-of-pipelines-snippet" -%>
                     </li>
-                    <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
-                      <%= link_to 'Package Repositories', package_repositories_list_path, :id => "tab-link-of-package-repositories" %>
+                    <li id="package-repositories-tab-button" class="<%= "current_tab" if @tab_name == "package-repositories" %>">
+                      <%= link_to 'Package Repositories', '/go/admin/package_repositories/list', :id => "tab-link-of-package-repositories" %>
                     </li>
                 <% end %>
 
@@ -59,14 +59,14 @@
                     <li id="source-xml-tab-button" class="<%= "current_tab" if @tab_name == "configuration-xml" %>">
                       <%= link_to 'Config XML', config_view_path, :id => 'tab-link-of-source-xml' -%>
                     </li>
-                    <li id="user-summary-tab-button" class="<%= @tab_name == "user-listing" ? "current_tab" : "" -%>">
+                    <li id="user-summary-tab-button" class="<%= "current_tab" if @tab_name == "user-listing" %>">
                       <%= link_to "Users Management", '/go/admin/users', :id => "tab-link-of-user-listing" %>
                     </li>
-                    <li id="backup-tab-button" class="<%= @tab_name == "backup" ? "current_tab" : "" -%>">
+                    <li id="backup-tab-button" class="<%= "current_tab" if @tab_name == "backup" %>">
                       <%= link_to "Backup", '/go/admin/backup', :id => "tab-link-of-backup" %>
                     </li>
-                    <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
-                      <%= link_to 'Package Repositories', package_repositories_new_path, :id => "tab-link-of-package-repositories" %>
+                    <li id="package-repositories-tab-button" class="<%= "current_tab" if @tab_name == "package-repositories" %>">
+                      <%= link_to 'Package Repositories', '/go/admin/package_repositories/new', :id => "tab-link-of-package-repositories" %>
                     </li>
                 <% end %>
               </ul>

@@ -122,7 +122,7 @@ enum Distro implements DistroBehavior {
     }
 
     String gitPackageFor(DistroVersion v) {
-      return v.lessThan(8) ? "rh-git218" : "git"
+      return v.lessThan(8) ? "rh-git227" : "git"
     }
 
     @Override

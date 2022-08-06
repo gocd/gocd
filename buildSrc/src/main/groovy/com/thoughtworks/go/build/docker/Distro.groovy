@@ -103,10 +103,13 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      def commands = ['yum update -y']
+      def commands = [
+        'yum update -y',
+        'yum install -y epel-release'
+      ]
 
       String git = gitPackageFor(distroVersion)
-      commands.add("yum install --assumeyes ${git} mercurial subversion openssh-clients bash unzip curl procps ${versionBelow8(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
+      commands.add("yum install -y --allowerasing ${git} mercurial subversion openssh-clients bash unzip curl procps ${versionBelow8(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
 
       if (versionBelow8(distroVersion)) {
         commands.add("cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh")
@@ -144,7 +147,8 @@ enum Distro implements DistroBehavior {
     List<DistroVersion> getSupportedVersions() {
       return [
         new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
-        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en'])
+        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en']),
+        new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en']),
       ]
     }
   },

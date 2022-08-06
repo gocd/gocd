@@ -45,7 +45,7 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         'apk --no-cache upgrade',
         // procps is needed for tanuki wrapper shell script
@@ -97,21 +97,22 @@ enum Distro implements DistroBehavior {
 
   centos{
     @Override
-    String getBaseImageRegistry(DistroVersion distroVersion) {
-      distroVersion.version >= "8" ? "quay.io/centos" : super.baseImageRegistry
+    String getBaseImageRegistry(DistroVersion v) {
+      v.lessThan(8) ? super.baseImageRegistry : "quay.io/centos"
     }
 
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      def commands = [
-        'yum update -y',
-        'yum install -y epel-release'
-      ]
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
+      def commands = ['yum update -y']
 
-      String git = gitPackageFor(distroVersion)
-      commands.add("yum install -y --allowerasing ${git} mercurial subversion openssh-clients bash unzip curl procps ${versionBelow8(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
+      String git = gitPackageFor(v)
+      commands.add(
+        "yum install -y ${git} mercurial subversion openssh-clients bash unzip procps" +
+          (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
+          (v.lessThan(9) ? ' curl' : ' curl-minimal')
+      )
 
-      if (versionBelow8(distroVersion)) {
+      if (v.lessThan(8)) {
         commands.add("cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh")
       }
 
@@ -120,20 +121,16 @@ enum Distro implements DistroBehavior {
       return commands
     }
 
-    private boolean versionBelow8(DistroVersion distroVersion) {
-      distroVersion.version < "8"
-    }
-
-    String gitPackageFor(DistroVersion distroVersion) {
-      return versionBelow8(distroVersion) ? "rh-git218" : "git"
+    String gitPackageFor(DistroVersion v) {
+      return v.lessThan(8) ? "rh-git218" : "git"
     }
 
     @Override
-    Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
-      def vars = super.getEnvironmentVariables(distroVersion)
+    Map<String, String> getEnvironmentVariables(DistroVersion v) {
+      def vars = super.getEnvironmentVariables(v)
 
-      if (versionBelow8(distroVersion)) {
-        String git = gitPackageFor(distroVersion)
+      if (v.lessThan(8)) {
+        String git = gitPackageFor(v)
         return vars + [
           BASH_ENV: "/opt/rh/${git}/enable",
           ENV     : "/opt/rh/${git}/enable"
@@ -148,14 +145,14 @@ enum Distro implements DistroBehavior {
       return [
         new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
         new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en']),
-        new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en']),
+        new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en epel-release']),
       ]
     }
   },
 
   debian{
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         'apt-get update',
         'apt-get install -y git subversion mercurial openssh-client bash unzip curl locales procps sysvinit-utils coreutils',
@@ -175,8 +172,8 @@ enum Distro implements DistroBehavior {
 
   ubuntu{
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      return debian.getInstallPrerequisitesCommands(distroVersion)
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
+      return debian.getInstallPrerequisitesCommands(v)
     }
 
     @Override
@@ -213,8 +210,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      return alpine.getInstallPrerequisitesCommands(distroVersion) +
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
+      return alpine.getInstallPrerequisitesCommands(v) +
         [
           'apk add --no-cache sudo',
         ]
@@ -233,8 +230,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {
-      return alpine.getEnvironmentVariables(distroVersion)
+    Map<String, String> getEnvironmentVariables(DistroVersion v) {
+      return alpine.getEnvironmentVariables(v)
     }
   }
 
@@ -242,7 +239,7 @@ enum Distro implements DistroBehavior {
     return Date.parse("yyyy-MM-dd", date)
   }
 
-  GString projectName(DistroVersion distroVersion) {
-    return "${name()}-${distroVersion.version}"
+  GString projectName(DistroVersion v) {
+    return "${name()}-${v.version}"
   }
 }

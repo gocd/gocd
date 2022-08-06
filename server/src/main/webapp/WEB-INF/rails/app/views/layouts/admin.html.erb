@@ -18,23 +18,11 @@
         <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
       </div>
 
-      <% if @in_pipeline_group_edit %>
-          <div class="page_header">
-            <div class="row">
-              <h1 id="page-title" class="entity_title">
-                <%= link_to 'Administration', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>&nbsp;&raquo;
-                <%= link_to 'Pipeline Groups', spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>&nbsp;&raquo;
-                <%= @group.getGroup() -%>
-              </h1>
-            </div>
-          </div>
-      <% else %>
-          <div class="page_header">
-            <div class="row">
-              <h1 id="page-title" class="entity_title">Administration</h1>
-            </div>
-          </div>
-      <%- end -%>
+      <div class="page_header">
+        <div class="row">
+          <h1 id="page-title" class="entity_title">Administration</h1>
+        </div>
+      </div>
 
       <% unless @config_valid %>
           <%== flash_message_pane_start("config_error", false) %>

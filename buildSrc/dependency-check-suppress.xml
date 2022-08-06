@@ -264,6 +264,15 @@
 
   <suppress>
     <notes><![CDATA[
+   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
+   body content to make it vulnerable to CVE-2022-21230.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
+    <cve>CVE-2022-21230</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

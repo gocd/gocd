@@ -19,10 +19,6 @@ module StageModelMother
     StageMother.createPassedStage("cruise", 1, "dev", counter, "rspec", org.joda.time.DateTime.new().plus_minutes(10).toDate())
   end
 
-  def stage_model_for(stage)
-    StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-  end
-
   def stage_with_three_runs
     stage1 = stage(1)
     stage2 = stage(2)
@@ -56,23 +52,5 @@ module StageModelMother
     StageInstanceModel.new(name, counter.to_s, job_1, StageIdentifier.new("cruise", 10, name, counter.to_s))
   end
 
-  def stage_model_with_result(name, counter, stage_result = StageResult::Passed, job_state = JobState::Completed, job_result = JobResult::Passed)
-    the_model = StageInstanceModel.new(name, counter.to_s, stage_result, StageIdentifier.new("cruise", 10, name, counter.to_s))
-    job_history = the_model.getBuildHistory
-    job_history.addJob("job-1", job_state, job_result, Time.now)
-    the_model
-  end
-
-  def stage_model_with_unknown_state(name)
-    NullStageHistoryItem.new(name, false)
-  end
-
-  def stage_history_for(*stage_names)
-    from_sims = StageInstanceModels.new
-    stage_names.each do |name|
-      from_sims.add(stage_model(name, 35))
-    end
-    from_sims
-  end
 end
 

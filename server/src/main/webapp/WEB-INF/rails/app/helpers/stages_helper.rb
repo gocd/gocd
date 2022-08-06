@@ -52,14 +52,6 @@ module StagesHelper
     end
   end
 
-  def api_pipeline_action_path(options)
-    send("api_pipeline_#{options.delete(:action)}_path", options)
-  end
-
-  def empty_stage(stage_instance_model)
-    stage_instance_model.instance_of? com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem
-  end
-
   def link_with_current_tab(link_name, action)
     class_name = action == params[:action] ? ' class="current"' : ''
     "<li#{class_name}>#{link_to(link_name, stage_detail_tab_path_for(:action => action))}</li>".html_safe

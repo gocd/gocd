@@ -248,11 +248,6 @@ module ApplicationHelper
     com.thoughtworks.go.CurrentGoCDVersion.getInstance().getGocdDistVersion()
   end
 
-  def is_pipeline_editable? pipeline_name
-    go_config_service.isPipelineEditable(pipeline_name.to_s)
-  end
-
-
   def render_json(options = {})
     options = options.merge({locals: {scope: {}}}) unless options.has_key? :locals
     render(options).to_json
@@ -284,25 +279,8 @@ module ApplicationHelper
     @@full_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion()
   end
 
-  def unformatted_version
-    @@unformatted_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().goVersion()
-  end
-
-  def copyright_year
-    @@copyright_year ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().copyrightYear
-  end
-
   def go_update
     version_info_service.getGoUpdate
-  end
-
-  def check_go_updates?
-    version_info_service.isGOUpdateCheckEnabled
-  end
-
-  def json_escape data
-    data.respond_to?(:java_class) && (data = data.to_s)
-    data.is_a?(String) ? data.to_json.gsub(/\A"|"\Z/, "") : data.to_json
   end
 
   def id_for(obj, prefix = nil)
@@ -313,28 +291,10 @@ module ApplicationHelper
     params[:autoRefresh] != "false"
   end
 
-  def pipeline_operations_form_remote_tag(options = {})
-    options[:form] = true
-    options[:html] ||= {}
-    options[:html][:onsubmit] =
-      (options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "")
-    form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
-  end
-
   def merge_block_options(options)
     options[:before] = "AjaxRefreshers.disableAjax();" + (options[:before] || "")
     options[:complete] = "AjaxRefreshers.enableAjax();" + (options[:complete] || "")
     options[401] = "redirectToLoginPage('#{url_for_login}');" + (options[401] || "")
-  end
-
-  def blocking_form_remote_tag(options = {})
-    merge_block_options(options)
-    form_remote_tag(options)
-  end
-
-  def blocking_link_to_remote(name, options = {}, html_options = nil)
-    merge_block_options(options)
-    link_to_remote(name, options, html_options)
   end
 
   def blocking_link_to_remote_new(options = {})
@@ -383,20 +343,6 @@ module ApplicationHelper
     %Q|<a href="#" #{raw tag.tag_options(html_options) unless html_options.nil?} onclick="new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, method:'#{options[:method]}', onSuccess:function(request){#{options[:success]}}}); return false;">#{name}</a>|
   end
 
-  def end_form_tag
-    "</form>".html_safe
-  end
-
-  def check_for_cancelled_contents(state, options = {})
-    # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
-    if state.to_s == 'Cancelled'
-      contents = "<img src='#{image_path('g9/stage_bar_cancelled_icon.png')}' alt='' />"
-    else
-      contents = ""
-    end
-    return contents.html_safe
-  end
-
   def content_wrapper_tag(options = {})
     "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
@@ -411,50 +357,12 @@ module ApplicationHelper
     end
   end
 
-  def to_operation_result_json(localized_result, success_msg = localized_result.message())
-    if localized_result.isSuccessful()
-      {success: success_msg}.to_json
-    else
-      {error: localized_result.message()}.to_json
-    end
-  end
-
   def number? s
     Integer(s) rescue false
   end
 
-  def config_md5_field
-    hidden_field_tag('cruise_config_md5', cruise_config_md5)
-  end
-
   def access_forbidden
     @status == 403
-  end
-
-  def required_label(form, name, text)
-    text = text + "<span class='asterisk'>#{'*'}</span>"
-    form.label(name, text.html_safe)
-  end
-
-  def required_label_text(text)
-    text = text + "<span class='asterisk'>#{'*'}</span>"
-    text.html_safe
-  end
-
-  def label_with_hint(form, name, text, hint, required)
-    if (required != nil)
-      text = text + "<span class='asterisk'>#{'*'}</span>"
-    end
-    text = text + "<span class='hint'>" + hint + "</span>"
-    form.label(name, text.html_safe)
-  end
-
-  def register_defaultable_list nested_name
-    hidden_field_tag 'default_as_empty_list[]', nested_name, id: nil
-  end
-
-  def form_remote_tag_new(options = {})
-    form_remote_tag(options)
   end
 
   def is_server_in_maintenance_mode?
@@ -473,20 +381,9 @@ module ApplicationHelper
     "/go/admin/pipelines/#{pipeline_name}/general"
   end
 
-  def template_edit_path(pipeline_name)
-    "/go/admin/templates/#{pipeline_name}/general"
-  end
-
   def compare_pipelines_path(options)
     options = options.with_indifferent_access
     "/go/compare/#{options[:pipeline_name]}/#{options[:from_counter]}/with/#{options[:to_counter]}"
-  end
-
-  def plugin_supports_status_report?(plugin_id)
-    plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(plugin_id)
-
-    return false if plugin_info.nil?
-    plugin_info.supportsStatusReport()
   end
 
   def supports_analytics_dashboard?
@@ -501,12 +398,6 @@ module ApplicationHelper
     !default_plugin_info_finder.allPluginInfos(PluginConstants::ANALYTICS_EXTENSION).detect do |combined_plugin_info|
       combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION).getCapabilities().supportsVSMAnalytics()
     end.nil?
-  end
-
-  def with_analytics_dashboard_support(&block)
-    return unless block_given? && is_user_an_admin?
-
-    yield if supports_analytics_dashboard?
   end
 
   def vsm_analytics_chart_info

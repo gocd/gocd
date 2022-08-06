@@ -45,14 +45,6 @@ module PipelinesHelper
     end
   end
 
-  def pipelines_pipeline_dom_id(pipeline_model)
-    "pipeline_#{pipeline_name(pipeline_model)}_panel"
-  end
-
-  def pipelines_dom_id(pipeline_group_name)
-    "pipeline_group_#{pipeline_group_name}_panel"
-  end
-
   def pipeline_name pipeline_model
     pipeline_model.getLatestPipelineInstance().getName()
   end
@@ -65,47 +57,12 @@ module PipelinesHelper
     material.is_a? DependencyMaterial
   end
 
-  def revision_for(revision)
-    if dependency?(revision.getMaterial())
-      "#{revision.getRevision().getPipelineName()}/#{revision.getRevision().getPipelineCounter()}"
-    else
-      revision.getLatestShortRevision()
-    end
-  end
-
-  def pipeline_instance_identifier(pim)
-    "#{pim.getName()}_#{pim.getCounter()}"
-  end
-
-  def pipeline_build_cause_popup_id(pim)
-    "changes_#{pipeline_instance_identifier(pim)}"
-  end
-
-  def build_cause_popup_id_for_pipeline_counter(counter, prefix = nil)
-    "#{prefix}for_pipeline_#{counter}"
-  end
-
   def url_for_pipeline_value_stream_map(pipeline, options = {})
     vsm_show_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :action => "show"}))
   end
 
   def url_for_dmr(dmr)
     "/go/pipelines/value_stream_map/#{dmr.getPipelineName()}/#{dmr.getPipelineCounter()}"
-  end
-
-  def with_pipeline_analytics_support(&block)
-    return unless block_given?
-
-    return if show_analytics_only_for_admins? && !is_user_an_admin?
-
-    default_plugin_info_finder.allPluginInfos(PluginConstants::ANALYTICS_EXTENSION).each do |combined_plugin_info|
-      extension_info = combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION)
-      if extension_info.getCapabilities().supportsPipelineAnalytics()
-        supported_analytics = extension_info.getCapabilities().supportedPipelineAnalytics().get(0)
-        yield combined_plugin_info.getDescriptor().id(), supported_analytics.getId()
-        break
-      end
-    end
   end
 
   def show_analytics_only_for_admins?

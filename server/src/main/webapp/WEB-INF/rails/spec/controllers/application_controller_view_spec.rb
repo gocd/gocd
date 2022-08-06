@@ -21,18 +21,6 @@ describe NonApiController do
     draw_test_controller_route
   end
 
-  describe "ParamEncoder" do
-    it "should add before filter for relevant actions" do
-      get :encoded_param_user_action, params:{:decodable_param => "Zm9vL2Jhcg%3D%3D%0A"}
-      expect(assigns(:decodable_param)).to eq("foo/bar")
-    end
-
-    it "should not add before filter for excluded actions" do
-      get :non_encoded_param_user_action, params:{:decodable_param => "Zm9vL2Jhcg%3D%3D%0A"}
-      expect(assigns(:decodable_param)).to eq("Zm9vL2Jhcg%3D%3D%0A")
-    end
-  end
-
   describe "with view" do
     render_views
     it "should render erroneous responses" do

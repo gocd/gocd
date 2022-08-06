@@ -45,11 +45,7 @@ RSpec::Matchers.define :allow_action do |verb, expected_action, **args|
     @reached_controller = false
     allow(controller).to receive(expected_action).and_raise(ReachedControllerError)
     begin
-      if controller.class.name =~ /ApiV/
-        send("#{verb}_with_api_header", **args)
-      else
-        send(verb, expected_action, **args)
-      end
+      send(verb, expected_action, **args)
     rescue => ReachedControllerError
       # ignore
       @reached_controller = true
@@ -85,11 +81,7 @@ RSpec::Matchers.define :disallow_action do |verb, expected_action, **args|
     @reached_controller = false
     allow(controller).to receive(expected_action).and_raise(ReachedControllerError)
     begin
-      if controller.class.name =~ /ApiV/
-        send("#{verb}_with_api_header", expected_action, **args)
-      else
-        send(verb, expected_action, **args)
-      end
+      send(verb, expected_action, **args)
     rescue => ReachedControllerError
       # ignore
       @reached_controller = true

@@ -18,7 +18,6 @@ require 'rails_helper'
 require_relative 'layout_html_examples'
 
 describe "/layouts/admin" do
-  include Admin::AdminHelper
   it_should_behave_like :layout
 
   before do

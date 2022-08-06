@@ -19,12 +19,6 @@ require 'rails_helper'
 describe ApplicationHelper do
   include ApplicationHelper
 
-  it "should generate a label tag with required asterisk" do
-    mock_form = double(:form)
-    expect(mock_form).to receive(:label).with("name", "value<span class='asterisk'>*</span>")
-    required_label(mock_form, "name", "value")
-  end
-
   it "should respect anchor classes provided irrespective of tab being current" do
     allow(self).to receive(:url_for).and_return("/go/quux")
     expect(tab_for("quux", :class => "foo bar", :anchor_class => "skip_dirty_stop")).to eq("<li id='cruise-header-tab-quux' class=' foo bar'>\n<a class=\"skip_dirty_stop\" href=\"/go/quux\">QUUX</a>\n</li>")
@@ -76,11 +70,6 @@ describe ApplicationHelper do
 
   it "should give the server version" do
     version == "N/A"
-  end
-
-  it "should generate hidden field for config_md5" do
-    allow(self).to receive(:cruise_config_md5).and_return("foo_bar_baz")
-    expect(config_md5_field).to eq('<input type="hidden" name="cruise_config_md5" id="cruise_config_md5" value="foo_bar_baz" />')
   end
 
   describe "tab_for" do
@@ -215,37 +204,6 @@ describe ApplicationHelper do
   end
 
   describe 'form remote add on' do
-    it "should return the before and completed options for a form remote action" do
-      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();interesting one; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();alert(0);}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="url" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
-
-      actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here", :before => "interesting one", :complete => "alert(0);")
-
-      expect(actual).to eq(expected)
-    end
-
-    it "should return the before and completed options when not defined" do
-      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="url" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
-
-      actual = blocking_form_remote_tag(:url => "url", :success => "whatever", 202 => "do something here")
-
-      expect(actual).to eq(expected)
-    end
-
-    it "should resolve URL for AJAX Request URL" do
-      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('/errors/inactive', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="/errors/inactive" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
-
-      actual = blocking_form_remote_tag(:url => {:controller => 'go_errors', :action => 'inactive'}, :success => "whatever", 202 => "do something here")
-
-      expect(actual).to eq(expected)
-    end
-
-    it "should append 403 handler to form" do
-      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('url', {asynchronous:true, evalScripts:true, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, parameters:Form.serialize(this)}); return false;" action="url" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
-
-      actual = blocking_form_remote_tag(:url => "url")
-
-      expect(actual).to eq(expected)
-    end
 
     it "should create a blocking link to a remote location" do
       actual = blocking_link_to_remote_new :name => "&nbsp;",
@@ -431,10 +389,6 @@ describe ApplicationHelper do
     expect(selections).to eq([])
   end
 
-  it "should mark defaultable field by adding a hidden input" do
-    assert_dom_equal(register_defaultable_list("foo>bar>baz"), '<input type="hidden" name="default_as_empty_list[]" value="foo&gt;bar&gt;baz"/>')
-  end
-
   describe "unauthorized_access" do
 
     it "should return true if status is 403" do
@@ -508,14 +462,6 @@ describe ApplicationHelper do
       expect(version_info_service).to receive(:getGoUpdate).and_return("1.2.3-1")
 
       expect(go_update).to eq("1.2.3-1")
-    end
-  end
-
-  describe "check_go_updates?" do
-    it 'should return true if go version update check is enabled' do
-      expect(version_info_service).to receive(:isGOUpdateCheckEnabled).and_return(true)
-
-      expect(check_go_updates?).to be_truthy
     end
   end
 
@@ -633,11 +579,6 @@ describe ApplicationHelper do
       expected = nil
       expect(maintenance_mode_updated_by).to eq(expected)
     end
-  end
-
-  it 'should encode cruise-config-md5 before allowing it to be displayed.' do
-    allow(self).to receive(:cruise_config_md5).and_return("<foo>")
-    expect(config_md5_field).to eq('<input type="hidden" name="cruise_config_md5" id="cruise_config_md5" value="&lt;foo&gt;" />')
   end
 
   it 'should render duration to string' do

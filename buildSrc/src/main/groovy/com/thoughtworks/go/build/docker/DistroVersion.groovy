@@ -26,4 +26,8 @@ class DistroVersion implements Serializable {
   boolean isAboutToEol() {
     return eolDate.before(new Date() + 95)
   }
+
+  boolean lessThan(int target) {
+    return Integer.parseInt(version) < target
+  }
 }

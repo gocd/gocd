@@ -178,6 +178,7 @@ project.ext.packaging = [
 ]
 
 dependencyCheck {
+  failBuildOnCVSS = 1
   cve {
     def baseUrl
 

@@ -261,4 +261,82 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
   </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
+   body content to make it vulnerable to CVE-2022-21230.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
+    <cve>CVE-2022-21230</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
+    (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
+    `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on
+   ]]></notes>
+    <packageUrl regex="true">^pkg:(npm|javascript)/angularjs@.*$</packageUrl>
+    <cve>CVE-2019-14863</cve>
+    <cve>CVE-2020-7676</cve>
+    <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
+    <vulnerabilityName>Prototype pollution</vulnerabilityName>
+    <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>
+    <vulnerabilityName>Universal CSP bypass via add-on in Firefox</vulnerabilityName>
+    <vulnerabilityName>End-of-Life: Long term support for AngularJS has been discontinued</vulnerabilityName>
+    <vulnerabilityName>XSS in $sanitize in Safari/Firefox</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   GoCD is not vulnerable to these issues as it does not use jQuery in a vulnerable way.
+   (no user controlled use of `jQuery(strInput)`, no use of cross-site AJAX requests, no use of `jquery.extend`,
+   no ability to pass untrusted code to `.html()`, `.append()`, no ability for users to control boolean attribute names)
+   ]]></notes>
+    <packageUrl regex="true">^pkg:(npm|javascript)/jquery@.*$</packageUrl>
+
+    <cve>CVE-2012-6708</cve>
+
+    <cve>CVE-2015-9251</cve>
+    <vulnerabilityName>1069923</vulnerabilityName>
+
+    <cve>CVE-2019-11358</cve>
+    <vulnerabilityName>CVE-2019-11358</vulnerabilityName>
+    <vulnerabilityName>1069969</vulnerabilityName>
+
+    <cve>CVE-2020-11022</cve>
+    <vulnerabilityName>CVE-2020-11022</vulnerabilityName>
+    <vulnerabilityName>1081826</vulnerabilityName>
+    <cve>CVE-2020-11023</cve>
+    <vulnerabilityName>CVE-2020-11023</vulnerabilityName>
+    <vulnerabilityName>1081827</vulnerabilityName>
+
+    <vulnerabilityName>1070211</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   GoCD is not vulnerable to these issues as it does not use Bootstrap in a vulnerable way.
+   (does not use `data-parent` attribute, does not use `scrollspy.data-target`, does not use `tooltip.data-container` or
+   `data-template`
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
+    <cve>CVE-2018-14040</cve>
+    <cve>CVE-2018-14041</cve>
+    <cve>CVE-2018-14042</cve>
+    <cve>CVE-2019-8331</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   GoCD is not vulnerable to these issues as it does not use the relevant widgets of jQuery UI in a vulnerable way.
+   (does not use `dialog.closeText`, `datepicker` or `element.position()` with `of` parameter.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/jquery\-ui\-dialog@.*$</packageUrl>
+    <cve>CVE-2016-7103</cve>
+    <cve>CVE-2021-41182</cve>
+    <cve>CVE-2021-41183</cve>
+    <cve>CVE-2021-41184</cve>
+  </suppress>
 </suppressions>

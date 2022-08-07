@@ -66,13 +66,13 @@ Ajax.Responders.register({
 
 
 //iframe resizer + back to top
-function iframeResizer(Iframe){
-    if(Iframe.is(':visible')) {
-        Iframe.contents().find("body").css({margin:0});
-        Iframe.contents().find("body > pre").css({whiteSpace:'pre-wrap',margin : 0,fontSize : '12px',fontFamily: 'consolas, monaco, courier', wordWrap:'break-word', '-ms-word-wrap':'break-word', overflow:'hidden'});
+function iframeResizer(iframe){
+    if (iframe.is(':visible') && iframe.attr('sandbox') === undefined) {
+        iframe.contents().find("body").css({margin:0});
+        iframe.contents().find("body > pre").css({whiteSpace:'pre-wrap',margin : 0,fontSize : '12px',fontFamily: 'consolas, monaco, courier', wordWrap:'break-word', '-ms-word-wrap':'break-word', overflow:'hidden'});
         setTimeout(function(){
             jQuery('iframe').each(function(){
-                Iframe.height(Iframe.contents().find("body").height());
+                iframe.height(iframe.contents().find("body").height());
             });
         }, 200);
     }

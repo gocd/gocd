@@ -23,6 +23,10 @@
               document.getElementById('reset_zoom')
           );
       });
+
+      function changeFrameTo(link) {
+          parent.postMessage(JSON.stringify({openLink: link, inFrame: true}), "*");
+      }
   </script>
   <div>
     <!-- position absolute, so it is rendered on top of the canvas -->
@@ -33,11 +37,15 @@
 
     <!-- position absolute, so they are rendered on top of the canvas -->
     <% if @pagination.hasNextPage() %>
-      <%= link_to '<< Older', stage_detail_tab_stats_iframe_path(:page_number => @pagination.getNextPage()), style: "padding-left: 10px; position: absolute; bottom: 5px" -%>
+      <a id="stats-older" href="#" onclick="changeFrameTo('<%= stage_detail_tab_stats_iframe_path(:page_number => @pagination.getNextPage()) %>')" style="padding-left: 10px; position: absolute; bottom: 5px">
+        << Older
+      </a>
     <% end %>
 
     <% if @pagination.hasPreviousPage() %>
-      <%= link_to 'Newer >>', stage_detail_tab_stats_iframe_path(:page_number => @pagination.getPreviousPage()), style: "padding-right: 10px; position: absolute; bottom: 5px; right: 12px;" -%>
+      <a id="stats-newer" href="#" onclick="changeFrameTo('<%= stage_detail_tab_stats_iframe_path(:page_number => @pagination.getPreviousPage()) %>')" style="padding-right: 10px; position: absolute; bottom: 5px; right: 12px;">
+        Newer >>
+      </a>
     <% end %>
   </div>
 <% end %>

@@ -59,28 +59,16 @@ public class BuildDetailPageVelocityTemplateTest {
     }
 
     @Test
-    public void shouldRenderIframeSandboxByDefaultForTestsTab() throws IOException {
+    public void shouldRenderIframeSandboxForTestsTab() throws IOException {
         HashMap<String, Object> data = new HashMap<>();
         JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
         data.put("presenter", jobDetailPresentationModel);
-        data.put("useIframeSandbox", true);
         when(jobDetailPresentationModel.hasTests()).thenReturn(true);
         Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
 
         assertThat(actualDoc.select("#tab-content-of-tests").last().html(), containsString("<iframe sandbox=\"allow-scripts\""));
     }
 
-    @Test
-    public void shouldRenderANormalIframeForTestsTabIfUserHasDisabledSandbox() throws IOException {
-        HashMap<String, Object> data = new HashMap<>();
-        JobDetailPresentationModel jobDetailPresentationModel = mock(JobDetailPresentationModel.class);
-        data.put("presenter", jobDetailPresentationModel);
-        data.put("useIframeSandbox", false);
-        when(jobDetailPresentationModel.hasTests()).thenReturn(true);
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
-
-        assertThat(actualDoc.select("#tab-content-of-tests").last().html(), containsString("<iframe src="));
-    }
 
     private HashMap<String, Object> createJobDetailModel() {
         GitMaterialConfig gitMaterialConfig = gitMaterialConfig();

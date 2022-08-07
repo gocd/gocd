@@ -294,15 +294,12 @@ public class ServerConfig implements Validatable {
 
 
     public ServerSiteUrlConfig getSiteUrlPreferablySecured() {
-        SiteUrl siteUrl = getSiteUrl();
-        SecureSiteUrl secureSiteUrlConfig = getSecureSiteUrl();
-        if (secureSiteUrlConfig.hasNonNullUrl()) {
-            return secureSiteUrlConfig;
+        SecureSiteUrl secureSiteUrl = getSecureSiteUrl();
+        if (!secureSiteUrl.isBlank()) {
+            return secureSiteUrl;
+        } else {
+            return getSiteUrl();
         }
-        if (!secureSiteUrlConfig.hasNonNullUrl()) {
-            return siteUrl;
-        }
-        return new SiteUrl();
     }
 
     public ServerSiteUrlConfig getHttpsUrl() {
@@ -311,7 +308,7 @@ public class ServerConfig implements Validatable {
     }
 
     public boolean hasAnyUrlConfigured() {
-        return getSiteUrl().hasNonNullUrl() || getSecureSiteUrl().hasNonNullUrl();
+        return !getSiteUrl().isBlank() || !getSecureSiteUrl().isBlank();
     }
 
     public Double getPurgeStart() {

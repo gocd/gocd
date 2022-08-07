@@ -41,6 +41,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
+import java.net.MalformedURLException;
+
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -320,6 +322,19 @@ class WebBasedPluginAuthenticationProviderTest {
         authenticationProvider.getAuthorizationServerUrl(PLUGIN_ID, "https://example.com");
 
         verify(authorizationExtension).getAuthorizationServerUrl(PLUGIN_ID, singletonList(githubSecurityAuthconfig), "https://example.com");
+    }
+
+    @Test
+    void shouldThrowUsefulErrorIfAuthorizationServerUrlIsBad() {
+        final ServerConfig serverConfig = mock(ServerConfig.class);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(serverConfig.hasAnyUrlConfigured()).thenReturn(true);
+        when(serverConfig.getSiteUrlPreferablySecured()).thenReturn(new SecureSiteUrl("https://badurl:3434:"));
+
+        assertThatThrownBy(() -> authenticationProvider.getAuthorizationServerUrl(PLUGIN_ID, "https://example.com"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("does not appear to be a valid URL")
+            .hasCauseInstanceOf(MalformedURLException.class);
     }
 
     @Test

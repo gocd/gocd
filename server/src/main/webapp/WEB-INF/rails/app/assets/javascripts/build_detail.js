@@ -52,34 +52,3 @@ var BuildDetail = {
         }
     }
 };
-
-var BuildOutputDetector = Class.create({
-    initialize: function(pipelineId, stageName, debugMode){
-        this.url = context_path('files/pipeline/' + pipelineId + '/stage/' + stageName + '/cruise-output/console.log');
-        if(debugMode != undefined){
-            this.checkIfOutputAvailable();
-        } else {
-            this.checkIfOutputAvailable.bind(this).delay(0.1);
-        }
-    },
-    checkIfOutputAvailable: function(){
-        new Ajax.Request(this.url, {
-            method: 'HEAD',
-            on404: this.showNoOutputWarnning,
-            onFailure: this.showNoOutputWarnning,
-            onExeption: this.showNoOutputWarnning,
-            onSuccess: this.updateIframeSrc.bind(this)
-        });
-    },
-    showNoOutputWarnning: function(){
-        try{
-            $('build-output-console-warnning').show();
-        }catch(e){}
-    },
-    updateIframeSrc: function(){
-        var iframe = $('build-output-console-iframe');
-        if(iframe){
-            iframe.src = this.url;
-        }
-    }
-});

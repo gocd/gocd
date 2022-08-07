@@ -61,11 +61,11 @@ public class ServerConfigTest {
     public void shouldReturnBlankUrlBothSiteUrlAndSecureSiteUrlIsNotDefined() {
         defaultServerConfig.setSiteUrl(null);
         defaultServerConfig.setSecureSiteUrl(null);
-        assertThat(defaultServerConfig.getSiteUrlPreferablySecured().hasNonNullUrl(), is(false));
+        assertThat(defaultServerConfig.getSiteUrlPreferablySecured().isBlank(), is(true));
     }
 
     @Test
-    public void shouldReturnAnEmptyForSecureSiteUrlIfOnlySiteUrlIsConfigured() throws Exception {
+    public void shouldReturnAnEmptyForSecureSiteUrlIfOnlySiteUrlIsConfigured() {
         ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
         assertThat(serverConfig.getHttpsUrl(), is(new SecureSiteUrl()));
     }

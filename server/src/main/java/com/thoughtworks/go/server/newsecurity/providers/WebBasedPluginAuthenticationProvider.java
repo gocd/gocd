@@ -88,12 +88,12 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
         return new AuthenticationToken<>(userPrinciple, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
     }
 
-    private String getRootUrl(String string) {
+    private String rootUrlFrom(String urlString) {
         try {
-            final URL url = new URL(string);
+            final URL url = new URL(urlString);
             return new URL(url.getProtocol(), url.getHost(), url.getPort(), "").toString();
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("Configured siteUrl [%s] does not appear to be a valid URL", urlString), e);
         }
     }
 
@@ -107,11 +107,12 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
         return goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
     }
 
-    public String getAuthorizationServerUrl(String pluginId, String rootURL) {
-        if (goConfigService.serverConfig().hasAnyUrlConfigured()) {
-            rootURL = getRootUrl(goConfigService.serverConfig().getSiteUrlPreferablySecured().getUrl());
-        }
-        return authorizationExtension.getAuthorizationServerUrl(pluginId, getAuthConfigs(pluginId), rootURL);
+    public String getAuthorizationServerUrl(String pluginId, String alternateRootUrl) {
+        String chosenRootUrl =
+            goConfigService.serverConfig().hasAnyUrlConfigured()
+                ? rootUrlFrom(goConfigService.serverConfig().getSiteUrlPreferablySecured().getUrl())
+                : alternateRootUrl;
+        return authorizationExtension.getAuthorizationServerUrl(pluginId, getAuthConfigs(pluginId), chosenRootUrl);
     }
 
 }

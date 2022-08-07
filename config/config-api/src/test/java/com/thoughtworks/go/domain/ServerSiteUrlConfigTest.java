@@ -16,11 +16,14 @@
 package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URISyntaxException;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ServerSiteUrlConfigTest {
     @Test
@@ -77,9 +80,14 @@ public class ServerSiteUrlConfigTest {
         assertThat(url.toString(), is("http://someurl.com"));
     }
 
-    @Test
-    public void shouldReturnEmptyStringForToStringWhenTheUrlIsNotSet() throws Exception {
-        ServerSiteUrlConfig url = new SiteUrl();
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", " "})
+    public void shouldHandleBlankUrlsConsistently(String input) throws Exception {
+        ServerSiteUrlConfig url = new SiteUrl(input);
         assertThat(url.toString(), is(""));
+        assertThat(url.isBlank(), is(true));
+        assertThat(url.isAHttpsUrl(), is(false));
+        assertThat(url.siteUrlFor("http://test.host/foo/bar?foo=bar#quux"), is("http://test.host/foo/bar?foo=bar#quux"));
     }
 }

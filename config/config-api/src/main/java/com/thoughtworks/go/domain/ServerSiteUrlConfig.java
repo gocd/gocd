@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ConfigValue;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,8 +33,8 @@ public abstract class ServerSiteUrlConfig {
         this.url = url;
     }
 
-    public boolean hasNonNullUrl() {
-        return getUrl() != null;
+    public boolean isBlank() {
+        return StringUtils.isBlank(url);
     }
 
     public String getUrl() {
@@ -68,14 +69,22 @@ public abstract class ServerSiteUrlConfig {
     }
 
     public String siteUrlFor(String givenUrl, boolean honorGivenHostName) throws URISyntaxException {
-        if (url == null || isPath(givenUrl)) {
+        if (isBlank() || isPath(givenUrl)) {
             return givenUrl; //it is a path
         }
 
         URI baseUri = new URI(url);
         URI givenUri = new URI(givenUrl);
 
-        return new URI(baseUri.getScheme(), getOrDefault(givenUri, baseUri, URI::getUserInfo), honorGivenHostName ? givenUri.getHost() : baseUri.getHost(), baseUri.getPort(), getOrDefault(givenUri, baseUri, URI::getPath), getOrDefault(givenUri, baseUri, URI::getQuery), getOrDefault(givenUri, baseUri, URI::getFragment)).toString();
+        return new URI(
+            baseUri.getScheme(),
+            getOrDefault(givenUri, baseUri, URI::getUserInfo),
+            honorGivenHostName ? givenUri.getHost() : baseUri.getHost(),
+            baseUri.getPort(),
+            getOrDefault(givenUri, baseUri, URI::getPath),
+            getOrDefault(givenUri, baseUri, URI::getQuery),
+            getOrDefault(givenUri, baseUri, URI::getFragment)
+        ).toString();
     }
 
     private boolean isPath(String givenUrl) {
@@ -88,7 +97,7 @@ public abstract class ServerSiteUrlConfig {
     }
 
     public boolean isAHttpsUrl() {
-        return url != null && url.matches(HTTPS_URL_REGEX);
+        return !isBlank() && url.matches(HTTPS_URL_REGEX);
     }
 
     interface Getter {
@@ -97,7 +106,7 @@ public abstract class ServerSiteUrlConfig {
 
     @Override
     public String toString() {
-        return hasNonNullUrl() ? url : "";
+        return isBlank() ? "" : url;
     }
 }
 

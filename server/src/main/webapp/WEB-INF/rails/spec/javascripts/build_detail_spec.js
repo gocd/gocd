@@ -88,22 +88,4 @@ describe("build_detail", function(){
         var theContainer = BuildDetail.getSubContainer($("link"));
         assertTrue("should return dashboard_download_project1_log123.xml_abc", theContainer.id == "dashboard_download_project1_log123.xml_abc");
     });
-
-    it("test_should_show_no_output_message_when_server_return_404", function(){
-        prepareMockRequest({status: 404}, '');
-        $('build-output-console-warnning').hide();
-        assertFalse($('build-output-console-warnning').visible());
-        var bd = new BuildOutputDetector('pipeline-2', 'stageName', true);
-        assertEquals('/go/files/pipeline/pipeline-2/stage/stageName/cruise-output/console.log', bd.url);
-        assertTrue($('build-output-console-warnning').visible());
-    });
-
-    it("test_should_show_iframe_content_when_server_return_200", function(){
-        prepareMockRequest({status: 200}, 'out put file body');
-        $('build-output-console-warnning').hide();
-        assertFalse($('build-output-console-warnning').visible());
-        var bd = new BuildOutputDetector('pipeline-2', 'stageName', true);
-        assertEquals('/go/files/pipeline/pipeline-2/stage/stageName/cruise-output/console.log', bd.url);
-        assertFalse($('build-output-console-warnning').visible());
-    });
 });

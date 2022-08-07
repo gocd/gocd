@@ -155,7 +155,6 @@ public class JobControllerTest {
             ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2",
                     "job1");
             assertThat(modelAndView.getModel().isEmpty()).isFalse();
-            assertThat(modelAndView.getModel().get("useIframeSandbox")).isEqualTo(false);
             assertThat(modelAndView.getModel().get("websocketEnabled")).isEqualTo(true);
             assertThat(modelAndView.getModel().get("isEditableViaUI")).isEqualTo(false);
             assertThat(modelAndView.getModel().get("isAgentAlive")).isEqualTo(false);

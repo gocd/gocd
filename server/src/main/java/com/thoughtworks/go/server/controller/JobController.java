@@ -180,7 +180,6 @@ public class JobController {
         Map<String, Object> data = new HashMap<>();
         data.put("presenter", presenter);
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
-        data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
         data.put("isAgentAlive", agentService.isRegistered(jobDetail.getAgentUuid()));
         addElasticAgentInfo(jobDetail, data);

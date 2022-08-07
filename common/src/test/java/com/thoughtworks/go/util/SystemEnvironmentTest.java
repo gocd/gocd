@@ -84,11 +84,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldSetTrueAsDefaultForUseIframeSandbox() {
-        assertThat(systemEnvironment.useIframeSandbox()).isTrue();
-    }
-
-    @Test
     void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "1");
         assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);

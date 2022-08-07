@@ -33,9 +33,14 @@
         </div>
         <script>
             window.addEventListener("message", function(event) {
-                if (event.source === document.getElementById("chart_details_iframe").contentWindow) {
+              var chartIframe = document.getElementById("chart_details_iframe");
+              if (event.source === chartIframe.contentWindow) {
                     var data = JSON.parse(event.data);
-                    window.location.href = data.openLink;
+                    if (data.inFrame) {
+                        chartIframe.src = data.openLink;
+                    } else {
+                        window.location.href = data.openLink;
+                    }
                 }
             }, false);
         </script>

@@ -23,10 +23,4 @@
 <div id="app-footer"></div>
            <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
     </body>
-
-    <script type="text/javascript">
-        #if($global_error_message && $global_error_message != "")
-            FlashMessageLauncher.warn("$esc.javascript("$global_error_message")", null, true);
-        #end
-    </script>
 </html>

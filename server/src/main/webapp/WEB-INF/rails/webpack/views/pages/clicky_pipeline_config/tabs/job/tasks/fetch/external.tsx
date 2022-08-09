@@ -26,8 +26,12 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
-import {ArtifactIdAutocompletionProvider} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/artifact_id_autocompletion_provider";
-import {UpstreamJobToFetchArtifactFromWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/upstream_job_info_to_fetch_artifact_from_widget";
+import {
+  ArtifactIdAutocompletionProvider
+} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/artifact_id_autocompletion_provider";
+import {
+  UpstreamJobToFetchArtifactFromWidget
+} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/upstream_job_info_to_fetch_artifact_from_widget";
 
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import styles from "../fetch.scss";
@@ -135,6 +139,6 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
     const job        = attrs.job();
     const artifactId = attrs.artifactId();
 
-    return _.get(vnode.attrs.autoSuggestions(), `${pipeline}.${stage}.${job}.${artifactId}`);
+    return _.get(vnode.attrs.autoSuggestions(), `${pipeline || ""}.${stage}.${job}.${artifactId}`);
   }
 }

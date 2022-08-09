@@ -31,7 +31,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
   private readonly task: FetchArtifactTask;
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
-  private autoSuggestions: Stream<any>;
+  private readonly autoSuggestions: Stream<any>;
   private readonly readonly: boolean;
 
   constructor(task: Task | undefined,

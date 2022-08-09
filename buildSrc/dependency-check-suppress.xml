@@ -331,12 +331,13 @@
   <suppress>
     <notes><![CDATA[
    GoCD is not vulnerable to these issues as it does not use the relevant widgets of jQuery UI in a vulnerable way.
-   (does not use `dialog.closeText`, `datepicker` or `element.position()` with `of` parameter.
+   (does not use `dialog.closeText`, `datepicker`, `element.position()` with `of` parameter or `checkboxradio`.
    ]]></notes>
     <packageUrl regex="true">^pkg:javascript/jquery\-ui\-dialog@.*$</packageUrl>
     <cve>CVE-2016-7103</cve>
     <cve>CVE-2021-41182</cve>
     <cve>CVE-2021-41183</cve>
     <cve>CVE-2021-41184</cve>
+    <cve>CVE-2022-31160</cve>
   </suppress>
 </suppressions>

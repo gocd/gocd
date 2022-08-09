@@ -72,11 +72,11 @@ export class Errors {
   }
 
   errorsForDisplay(attrName: string) {
-    return _.map(this._errors[attrName] || [], s.terminateWithPeriod).join(" ");
+    return _.uniq(_.map(this._errors[attrName] || [], s.terminateWithPeriod)).join(" ");
   }
 
   allErrorsForDisplay(): string[] {
-    return _.map(this.keys(), (key) => this.errorsForDisplay(key));
+    return _.uniq(_.map(this.keys(), (key) => this.errorsForDisplay(key)));
   }
 
   count() {

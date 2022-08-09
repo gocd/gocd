@@ -55,9 +55,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
-    tagName: '0.5.0',
-    asset: 'json-config-plugin-0.5.0.jar',
-    checksum: '645bffcc0ee20ab5689714e28bb81fd34043eb247f3621371f434b4349279a96'
+    tagName: '0.6.0',
+    asset: 'json-config-plugin-0.6.0.jar',
+    checksum: '46aa86927dfb66ce10e0ae01ce5f95b52b6d4a94a6af3b446ddd9b68e9d203de'
   ),
   new GithubArtifact(
     user: 'gocd',

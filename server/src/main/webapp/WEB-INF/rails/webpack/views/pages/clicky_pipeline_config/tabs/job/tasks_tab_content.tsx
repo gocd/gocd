@@ -207,7 +207,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       if (parsed.body) {
         const errorData        = JSON.parse(parsed.body);
         const unconsumedErrors = vnode.state.modal.getTask()!.consumeErrorsResponse(errorData.data);
-        vnode.state.modal.flashMessage.setMessage(MessageType.alert, <span>{parsed.message}<br/> {unconsumedErrors.allErrorsForDisplay().join(" ")}</span>);
+        vnode.state.modal.flashMessage.setMessage(MessageType.alert, <span>{errorData.message}<br/> {unconsumedErrors.allErrorsForDisplay().join(" ")}</span>);
       } else {
         vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
       }

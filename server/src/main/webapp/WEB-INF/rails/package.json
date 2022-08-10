@@ -106,7 +106,7 @@
     "optimize-css-assets-webpack-plugin": "^6.0.1",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
-    "sass": "^1.54.3",
+    "sass": "^1.54.4",
     "sass-lint": "^1.13.1",
     "sass-lint-webpack": "^1.0.4",
     "sass-loader": "^10.2.0",

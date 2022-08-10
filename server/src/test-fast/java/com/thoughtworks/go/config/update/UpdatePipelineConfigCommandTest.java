@@ -19,6 +19,9 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -31,6 +34,8 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -59,7 +64,7 @@ class UpdatePipelineConfigCommandTest {
     @Test
     void shouldDisallowStaleRequest() {
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, entityHashingService,
-                pipelineConfig, "group1", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "group1", username, "stale_digest", localizedOperationResult, externalArtifactsService);
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(true);
@@ -72,7 +77,7 @@ class UpdatePipelineConfigCommandTest {
     @Test
     void shouldDisallowUpdateIfPipelineEditIsDisAllowed() throws Exception {
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, "", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "", username, "stale_digest", localizedOperationResult, externalArtifactsService);
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(false);
@@ -87,7 +92,7 @@ class UpdatePipelineConfigCommandTest {
     @Test
     void shouldInvokeUpdateMethodOfCruiseConfig() throws Exception {
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, "group1", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "group1", username, "stale_digest", localizedOperationResult, externalArtifactsService);
 
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
@@ -100,7 +105,7 @@ class UpdatePipelineConfigCommandTest {
     void shouldEncryptSecurePropertiesOfPipelineConfig() {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, "group1", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "group1", username, "stale_digest", localizedOperationResult, externalArtifactsService);
 
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
         CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
@@ -127,10 +132,10 @@ class UpdatePipelineConfigCommandTest {
         job2.artifactTypeConfigs().add(docker);
 
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+            new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipeline, "group", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipeline, "group", username, "stale_digest", localizedOperationResult, externalArtifactsService);
 
         BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
         preprocessedConfig.addPipelineWithoutValidation("group", pipeline);
@@ -148,23 +153,42 @@ class UpdatePipelineConfigCommandTest {
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("P1"))).thenReturn("group");
 
         FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
-        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
+        ConfigurationProperty fetchDockerConfigProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("invalid_value"));
+        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker", fetchDockerConfigProperty);
 
         job1.addTask(fetchS3Task);
         job2.addTask(fetchDockerTask);
 
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1",
+            new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+            new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2))
+        );
 
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipeline, "group", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipeline, "group", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+
 
         BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
-        preprocessedConfig.addPipelineWithoutValidation("group", pipeline);
+        PipelineConfig preprocessedPipelineConfig = new GoConfigCloner().deepClone(pipeline);
+        preprocessedConfig.addPipelineWithoutValidation("group", preprocessedPipelineConfig);
+
+        doAnswer(invocation -> {
+            FetchPluggableArtifactTask preprocessedFetchDockerTask = (FetchPluggableArtifactTask) preprocessedPipelineConfig.getStages().get(1).getJobs().get(0).getTasks().get(1);
+            preprocessedFetchDockerTask.getConfiguration().getProperty("key1").addError("key1", "badValue");
+            return null;
+        }).when(externalArtifactsService).validateFetchExternalArtifactTask(eq(fetchDockerTask), any(PipelineConfig.class), eq(preprocessedConfig));
+
         command.isValid(preprocessedConfig);
 
-
         verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(PipelineConfig.class), eq(preprocessedConfig));
+
+        // Verify errors are copied to the config we are applying
+        assertThat(fetchDockerConfigProperty.getAllErrors())
+            .singleElement()
+            .satisfies(configErrors -> {
+                assertThat(configErrors.size()).isEqualTo(1);
+                assertThat(configErrors).containsEntry("key1", List.of("badValue"));
+            });
     }
 
     @Test
@@ -181,7 +205,7 @@ class UpdatePipelineConfigCommandTest {
         assertThat(pipelineGroups.hasGroup("updated_group")).isFalse();
 
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, "updated_group", username, "stale_digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "updated_group", username, "stale_digest", localizedOperationResult, externalArtifactsService);
 
         command.update(cruiseConfig);
         verify(cruiseConfig).update("group1", pipelineConfig.name().toString(), pipelineConfig);
@@ -204,7 +228,7 @@ class UpdatePipelineConfigCommandTest {
         when(goConfigService.isUserAdminOfGroup(username.getUsername(), "group2")).thenReturn(false);
 
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, entityHashingService,
-                pipelineConfig, "group2", username, "digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "group2", username, "digest", localizedOperationResult, externalArtifactsService);
 
         boolean canContinue = command.canContinue(cruiseConfig);
 
@@ -232,7 +256,7 @@ class UpdatePipelineConfigCommandTest {
         when(entityHashingService.hashForEntity(pipelineConfig, "group1")).thenReturn("digest");
 
         UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, entityHashingService,
-                pipelineConfig, "group2", username, "digest", localizedOperationResult, externalArtifactsService);
+            pipelineConfig, "group2", username, "digest", localizedOperationResult, externalArtifactsService);
 
         boolean canContinue = command.canContinue(cruiseConfig);
 

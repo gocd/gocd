@@ -78,4 +78,22 @@ describe("Errors", () => {
 
     expect(errors.errorsForDisplay("name")).toEqual("should not be blank. bar.");
   });
+
+  it("should de-duplicate `errorsForDisplay` while retaining order", () => {
+    const errors = new Errors({name: ["should not be blank", "bar", "should not be blank"]});
+
+    expect(errors.errorsForDisplay("name")).toEqual("should not be blank. bar.");
+  });
+
+  it("should respond to `allErrorsForDisplay`", () => {
+    const errors = new Errors({name: ["should not be blank", "bar"], something: ["something else"]});
+
+    expect(errors.allErrorsForDisplay()).toEqual(["should not be blank. bar.", "something else."]);
+  });
+
+  it("should de-duplicate `allErrorsForDisplay` while retaining order", () => {
+    const errors = new Errors({name: ["should not be blank"], something: ["else"], else: ["should not be blank"]});
+
+    expect(errors.allErrorsForDisplay()).toEqual(["should not be blank.", "else."]);
+  });
 });

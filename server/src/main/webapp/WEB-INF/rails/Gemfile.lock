@@ -45,7 +45,7 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     arel (9.0.0)
-    brakeman (5.2.3)
+    brakeman (5.3.1)
     builder (3.2.4)
     bundler-audit (0.9.1)
       bundler (>= 1.2.0, < 3)
@@ -64,6 +64,7 @@ GEM
     crass (1.0.6)
     diff-lcs (1.5.0)
     erubi (1.11.0)
+    ffi (1.15.5)
     ffi (1.15.5-java)
     globalid (1.0.0)
       activesupport (>= 5.0)
@@ -81,8 +82,11 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.16.2)
+    nio4r (2.5.8)
     nio4r (2.5.8-java)
     nokogiri (1.13.8-java)
+      racc (~> 1.4)
+    nokogiri (1.13.8-x86_64-linux)
       racc (~> 1.4)
     pry (0.14.1-java)
       coderay (~> 1.1)
@@ -92,6 +96,7 @@ GEM
       pry (>= 0.13, < 0.15)
       ruby-debug-base (>= 0.10.4, < 0.12)
     public_suffix (4.0.7)
+    racc (1.6.0)
     racc (1.6.0-java)
     rack (2.2.4)
     rack-test (2.0.2)
@@ -180,6 +185,7 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     thor (1.2.1)
+    thread_safe (0.3.6)
     thread_safe (0.3.6-java)
     tilt (2.0.11)
     ts_routes (1.0.3)
@@ -188,6 +194,8 @@ GEM
       thread_safe (~> 0.1)
     tzinfo-data (1.2022.1)
       tzinfo (>= 1.0.0)
+    websocket-driver (0.7.5)
+      websocket-extensions (>= 0.1.0)
     websocket-driver (0.7.5-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -197,6 +205,7 @@ GEM
 PLATFORMS
   java
   universal-java-17
+  x86_64-linux
 
 DEPENDENCIES
   brakeman

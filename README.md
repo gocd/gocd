@@ -8,7 +8,9 @@ To quickly build your first pipeline while learning key GoCD concepts, visit our
 
 ## Development Setup
 
-This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://developer.gocd.org/current/).
+GoCD is predominantly a Java & TypeScript project utilising [Spring Framework](https://spring.io/projects/spring-framework/), [SparkJava](https://sparkjava.com/) & [MithrilJS](https://mithril.js.org/) as key frameworks, built using [Gradle](https://gradle.org/) & [Webpack](https://webpack.js.org/). There are still a small number of pages rendered server-side within [JRuby](https://www.jruby.org/) on [Rails](https://rubyonrails.org/) which utilise some legacy plain JavaScript. GoCD itself is used to [build GoCD](https://build.gocd.org).
+
+Here is the guide to setup your [development environment](https://developer.gocd.org/current/).
 
 ## Contributing
 

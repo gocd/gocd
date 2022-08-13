@@ -142,15 +142,16 @@ class LicenseReport {
 
   private Map<String, Object> openJdkLicense() {
     [
-      "moduleName": "openjdk",
+      "moduleName": "net.adoptium:eclipse-temurin-jre",
       "moduleVersion": "${project.packaging.adoptOpenjdk.featureVersion}",
       "moduleUrls": [
-        "https://jdk.java.net/${project.packaging.adoptOpenjdk.featureVersion}/"
+        "https://adoptium.net/",
+        "https://adoptium.net/about/"
       ],
       "moduleLicenses": [
         [
           "moduleLicense": "GPLv2 with the Classpath Exception",
-          "moduleLicenseUrl": "https://openjdk.java.net/legal/gplv2+ce.html"
+          "moduleLicenseUrl": "https://openjdk.org/legal/gplv2+ce.html"
         ]
       ]
     ]

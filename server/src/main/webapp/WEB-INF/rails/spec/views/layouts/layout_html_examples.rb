@@ -23,12 +23,6 @@ shared_examples :layout do
     expect(response.body).to have_title("My Title - Go")
   end
 
-  it "should disable mycruise tab when mycruise is not available" do
-    allow(view).to receive(:mycruise_available?).and_return(false)
-    render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to_not(have_selector("ul.current_user"))
-  end
-
   it "should render page error" do
     session[:notice] = FlashMessageModel.new("Some error message", "error")
     render :inline => "<span>foo</span>", :layout => @layout_name

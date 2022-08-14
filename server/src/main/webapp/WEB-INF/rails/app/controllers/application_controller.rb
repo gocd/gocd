@@ -34,11 +34,7 @@ class ApplicationController < ActionController::Base
 
   attr_accessor :error_template_for_request
 
-  before_action :set_current_user, :local_access_only, :populate_config_validity
-
-  helper_method :current_user_id_for_oauth
-
-  LOCAL_ONLY_ACTIONS = Hash.new([]).merge("api/server" => ["info"])
+  before_action :set_current_user, :populate_config_validity
 
   if Rails.env.development?
     before_action do |controller|
@@ -66,22 +62,6 @@ class ApplicationController < ActionController::Base
     @user
   end
 
-  def current_user_entity_id
-    @user_id
-  end
-
-  def string_username
-    CaseInsensitiveString.str(current_user.getUsername())
-  end
-
-  def current_user_id_for_oauth
-    string_username
-  end
-
-  def current_user_id
-    current_user.getUsername() == CaseInsensitiveString.new("anonymous") ? nil : string_username
-  end
-
   # flash message
   def redirect_with_flash(msg, options)
     redirect_to url_options_with_flash(msg, options)
@@ -96,20 +76,6 @@ class ApplicationController < ActionController::Base
     flash_message_service.add(FlashMessageModel.new(msg, klass))
   end
 
-  def local_access_only
-    LOCAL_ONLY_ACTIONS[params[:controller]].include?(params[:action]) ? allow_local_only : true
-  end
-
-  def allow_local_only
-    return true if request_from_localhost?
-    render_if_error("Forbidden", 403)
-    false
-  end
-
-  def request_from_localhost?
-    SystemUtil.isLocalhost(request.env["SERVER_NAME"], request.env["REMOTE_ADDR"])
-  end
-
   def unresolved
     render_error_response 'The url you are trying to reach appears to be incorrect.', 404, false
   end
@@ -122,10 +88,6 @@ class ApplicationController < ActionController::Base
   def render_localized_operation_result(result)
     message = result.message()
     render_if_error(message, result.httpCode()) || render_text_with_status(message, result.httpCode())
-  end
-
-  def render_operation_result_if_failure(result)
-    result.httpCode() >= 400 && render_operation_result(result)
   end
 
   def render_operation_result(result)
@@ -158,12 +120,6 @@ class ApplicationController < ActionController::Base
     render plain: message, status: status
   end
 
-  def default_url_options
-    # bug with the rails test framework where it does not setup the params before invoking this causing a NPE
-    return {} unless params
-    super.merge(params["autoRefresh"] ? {:autoRefresh => params["autoRefresh"]} : {})
-  end
-
   def default_as_empty_list
     (params.delete(:default_as_empty_list) || []).each do |locator|
       do_param_defaulting(params, locator.split(/\>/))
@@ -177,27 +133,12 @@ class ApplicationController < ActionController::Base
     do_param_defaulting(sub_map[nested_keys.first], nested_keys[1..-1])
   end
 
-  def cruise_config_md5
-    raise "md5 for config file has not been loaded yet" if @cruise_config_md5.nil?
-    @cruise_config_md5
-  end
-
-  helper_method :cruise_config_md5, :servlet_request
-
   def populate_config_validity
     @config_valid = go_config_service.checkConfigFileValid().isValid()
   end
 
-  def servlet_request
-    request.env['java.servlet_request']
-  end
-
   def is_user_an_admin?
     security_service.isUserAdmin(current_user)
-  end
-
-  def render_not_found_error
-    render json: {message: 'Either the resource you requested was not found, or you are not authorized to perform this action.'}, status: 404
   end
 
   private

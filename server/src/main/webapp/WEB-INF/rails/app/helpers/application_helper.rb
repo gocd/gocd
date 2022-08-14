@@ -62,26 +62,8 @@ module ApplicationHelper
                               stage_counter: stage_identifier.getStageCounter()
   end
 
-  def stage_identifier_for_locator(stage_locator_string)
-    stage_fragments = stage_locator_string.scan(/(.+)\/(\d+)\/(.+)\/(\d+)/).flatten
-    com.thoughtworks.go.domain.StageIdentifier.new(stage_fragments[0], stage_fragments[1].to_i, stage_fragments[2], stage_fragments[3])
-  end
-
   def duration_to_string(duration)
     org.joda.time.format.PeriodFormat.getDefault().print(duration.toPeriod())
-  end
-
-  def tab_for(name, options = {})
-    display_name = name.upcase
-    tab_with_display_name(name, display_name, options)
-  end
-
-  def tab_with_display_name(name, display_name, options = {})
-    options.reverse_merge!(link: :enabled, class: "", anchor_class: "", url: name)
-    url = url_for_path(options[:url])
-    css_class = "current" if ((@current_tab_name == name) || url.match(/#{url_for}$/))
-    link_body = options[:link] != :enabled ? "<span>#{display_name}</span>" : link_to(display_name, url, target: options[:target], class: options[:anchor_class])
-    "<li id='cruise-header-tab-#{name.gsub(/\s+/, '-')}' class='#{css_class} #{options[:class]}'>\n" + link_body + "\n</li>"
   end
 
   def load_flash_message key
@@ -98,20 +80,12 @@ module ApplicationHelper
     return nil
   end
 
-  def session_has key
-    session[key] || (default_key?(key) && GO_MESSAGE_KEYS.inject(false) { |found, key| found || flash.key?(key) })
-  end
-
   def default_key? key
     key == :notice
   end
 
   def random_dom_id(prefix = "")
     prefix + java.util.UUID.randomUUID().to_s
-  end
-
-  def sanitize_for_dom_id(value)
-    value.gsub(".", "_dot_").tr("^a-zA-Z0-9_-", "_")
   end
 
   def onclick_lambda(options)
@@ -184,32 +158,13 @@ module ApplicationHelper
     options
   end
 
-  def mycruise_available?
-    go_config_service.isSecurityEnabled()
-  end
-
-  def use_compressed_js?
-    system_environment.use_compressed_js()
-  end
-
   # TODO: #130 - ugly hack. need to figure out what we can do. move dependent methods to controller as helper methods?
   def current_user
     instance_variable_get(:@user)
   end
 
-  # TODO: #130 - ugly hack. need to figure out what we can do. move dependent methods to controller as helper methods?
-  def cruise_config_md5
-    config_md5 = instance_variable_get(:@cruise_config_md5)
-    raise "md5 for config file has not been loaded yet" if config_md5.nil?
-    config_md5
-  end
-
   def can_view_admin_page?
     security_service.canViewAdminPage(current_user)
-  end
-
-  def has_operate_permission_for_agents?
-    security_service.hasOperatePermissionForAgents(current_user)
   end
 
   def is_user_a_group_admin?
@@ -218,26 +173,6 @@ module ApplicationHelper
 
   def is_user_an_admin?
     security_service.isUserAdmin(current_user)
-  end
-
-  def is_user_admin_of_group? group_name
-    security_service.isUserAdminOfGroup(current_user, group_name)
-  end
-
-  def has_admin_permissions_for_pipeline? pipeline_name
-    security_service.hasAdminPermissionsForPipeline(current_user, pipeline_name)
-  end
-
-  def is_user_a_template_admin?
-    security_service.isAuthorizedToViewAndEditTemplates(current_user)
-  end
-
-  def is_user_a_template_admin_for_template? template_name
-    security_service.isAuthorizedToEditTemplate(template_name, current_user)
-  end
-
-  def is_user_authorized_view_template? template_name
-    security_service.isAuthorizedToViewTemplate(template_name, current_user)
   end
 
   def is_user_authorized_to_view_templates?
@@ -279,16 +214,8 @@ module ApplicationHelper
     @@full_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion()
   end
 
-  def go_update
-    version_info_service.getGoUpdate
-  end
-
   def id_for(obj, prefix = nil)
     "#{prefix || obj.class}_#{obj.object_id}"
-  end
-
-  def auto_refresh?
-    params[:autoRefresh] != "false"
   end
 
   def merge_block_options(options)
@@ -336,29 +263,12 @@ module ApplicationHelper
     return function
   end
 
-  def link_to_remote_new(name, options = {}, html_options = nil)
-    raise "Expected link name. Didn't find it." unless name
-    [:method, :url].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
-
-    %Q|<a href="#" #{raw tag.tag_options(html_options) unless html_options.nil?} onclick="new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, method:'#{options[:method]}', onSuccess:function(request){#{options[:success]}}}); return false;">#{name}</a>|
-  end
-
   def content_wrapper_tag(options = {})
     "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
 
   def end_content_wrapper()
     "</div></div>".html_safe
-  end
-
-  def selections
-    Array(params[:selections]).map do |entry|
-      TriStateSelection.new(*entry)
-    end
-  end
-
-  def number? s
-    Integer(s) rescue false
   end
 
   def access_forbidden
@@ -436,34 +346,6 @@ module ApplicationHelper
     end
 
     first_analytics_combined_plugin_info.extensionFor(PluginConstants::ANALYTICS_EXTENSION) if first_analytics_combined_plugin_info
-  end
-
-  def form_remote_tag(options = {})
-    options[:form] = true
-
-    options[:html] ||= {}
-    options[:html][:onsubmit] =
-      ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
-        "#{remote_function(options)}; return false;").html_safe
-
-    form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
-  end
-
-  # This method used to be in Rails 2.3. Was removed in Rails 3 or so. So, this is needed for compatibility.
-  def remote_function options
-    update = options[:update]
-    url = escape_javascript(url_for(options[:url]))
-    retry_section = options.key?(202) ? "on202:function(request){#{options[202]}}, " : ""
-    success_section = options.key?(:success) ? "onSuccess:function(request){#{options[:success]}}, " : ""
-    complete_section = options.key?(:complete) ? "onComplete:function(request){#{options[:complete]}}, " : ""
-    failure_section = options.key?(:failure) ? "onFailure:function(request){#{options[:failure]}}, " : ""
-    before_section = options.key?(:before) ? "#{options[:before]} " : ""
-    if update.nil? || update.empty? then
-      %Q|#{options[:before]}; new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
-    else
-      %Q|#{before_section}new Ajax.Updater({success:'#{options[:update][:success]}'}, '#{url}', {asynchronous:true, evalScripts:true, #{failure_section}#{complete_section}#{success_section}parameters:Form.serialize(this)})|
-
-    end
   end
 
   def run_stage_path(options)

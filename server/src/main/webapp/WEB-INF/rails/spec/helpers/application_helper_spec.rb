@@ -19,11 +19,6 @@ require 'rails_helper'
 describe ApplicationHelper do
   include ApplicationHelper
 
-  it "should respect anchor classes provided irrespective of tab being current" do
-    allow(self).to receive(:url_for).and_return("/go/quux")
-    expect(tab_for("quux", :class => "foo bar", :anchor_class => "skip_dirty_stop")).to eq("<li id='cruise-header-tab-quux' class=' foo bar'>\n<a class=\"skip_dirty_stop\" href=\"/go/quux\">QUUX</a>\n</li>")
-  end
-
   describe "url_for_path" do
 
     before :each do
@@ -72,93 +67,11 @@ describe ApplicationHelper do
     version == "N/A"
   end
 
-  describe "tab_for" do
-    def root_path
-      "/go/quux"
-    end
-    def url_for(opts=nil)
-      "/go/quux"
-    end
-
-    describe 'with link enabled' do
-      before do
-        expect(self).to receive(:url_for_path).with("baz").and_return(baz_url = "http://foo.bar:8153/go/baz")
-        expect(self).to receive(:link_to).with("BAZ", baz_url, { :target => nil, :class => "" }).and_return("link_to_baz")
-      end
-
-      describe "with current" do
-        before do
-          expect(self).to receive(:url_for_path).with("quux").and_return(quux_url = "http://foo.bar:8153/go/quux")
-          expect(self).to receive(:link_to).with("QUUX", quux_url, { :target => nil, :class => "" }).and_return("link_to_quux")
-        end
-
-        it "should understand current tab" do
-          expect(tab_for("quux")).to eq("<li id='cruise-header-tab-quux' class='current '>\nlink_to_quux\n</li>")
-          expect(tab_for("baz")).to eq("<li id='cruise-header-tab-baz' class=' '>\nlink_to_baz\n</li>")
-        end
-
-        it "should respect classes provided irrespective of tab being current" do
-          expect(tab_for("quux", :class => "foo bar")).to eq("<li id='cruise-header-tab-quux' class='current foo bar'>\nlink_to_quux\n</li>")
-          expect(tab_for("baz",  :class => "foo bar")).to eq("<li id='cruise-header-tab-baz' class=' foo bar'>\nlink_to_baz\n</li>")
-        end
-      end
-
-      it "should honor current tab override" do
-        @current_tab_name = 'baz'
-        expect(tab_for("baz")).to eq("<li id='cruise-header-tab-baz' class='current '>\nlink_to_baz\n</li>")
-      end
-    end
-
-    it "should respect option :link" do
-      expect(tab_for("quux", :link => :disabled)).to eq("<li id='cruise-header-tab-quux' class=' '>\n<span>QUUX</span>\n</li>")
-    end
-
-    it "should respect option :target" do
-      allow(controller).to receive(:root_path).and_return("/go/quux")
-      expect(self).to receive(:link_to).with("QUUX", "/go/quux/quux", { :target => 'foo', :class => "" }).and_return("link_to_quux")
-      expect(tab_for("quux", :target => 'foo')).to eq("<li id='cruise-header-tab-quux' class=' '>\nlink_to_quux\n</li>")
-    end
-
-    it "should substitute ' ' with - for generating css class name" do
-      expect(tab_for("foo bar", :link => :disabled)).to eq("<li id='cruise-header-tab-foo-bar' class=' '>\n<span>FOO BAR</span>\n</li>")
-    end
-
-    it "should honor url if provided with one" do
-      expect(self).to receive(:url_for_path).with("foo/bar/baz").and_return(quux_url = "http://foo.bar:8153/go/foo/bar/baz")
-      expect(tab_for("foo bar", :url => 'foo/bar/baz')).to eq("<li id='cruise-header-tab-foo-bar' class=' '>\n<a class=\"\" href=\"/go/quux\">FOO BAR</a>\n</li>")
-    end
-  end
-
-  it "should understand if mycruise link tab is supposed to be enabled" do
-    expect(self).to receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
-    expect(go_config_service).to receive(:isSecurityEnabled).and_return(true)
-    expect(mycruise_available?).to eq(true)
-  end
-
   it "should ask security service whether user is an admin" do
     expect(self).to receive(:security_service).and_return(security_service = double("security_service"))
     expect(self).to receive(:current_user).and_return(:user)
     expect(security_service).to receive(:canViewAdminPage).with(:user).and_return(:is_admin?)
     expect(can_view_admin_page?).to eq(:is_admin?)
-  end
-
-  it "should ask security service whether user has agent operate permission" do
-    expect(self).to receive(:security_service).and_return(security_service = double("security_service"))
-    expect(self).to receive(:current_user).and_return(:user)
-    expect(security_service).to receive(:hasOperatePermissionForAgents).with(:user).and_return(:is_admin?)
-    expect(has_operate_permission_for_agents?).to eq(:is_admin?)
-  end
-
-  it "should honor system property to choose between compressed js or individual files" do
-    original_value = SystemEnvironment.new.getPropertyImpl(GoConstants::USE_COMPRESSED_JAVASCRIPT)
-    begin
-      SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, false.to_s)
-      expect(use_compressed_js?).to be_falsey
-      SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, true.to_s)
-      expect(use_compressed_js?).to be_truthy
-    ensure
-      SystemEnvironment.new.setProperty(GoConstants::USE_COMPRESSED_JAVASCRIPT, original_value)
-    end
   end
 
   it "should generate object_id based dom id" do
@@ -169,18 +82,6 @@ describe ApplicationHelper do
   it "should use prefix given for dom id" do
     obj = Object.new
     expect(id_for(obj, "prefix")).to eq("prefix_#{obj.object_id}")
-  end
-
-  it "should yield text if autoRefresh enabled" do
-    params.delete(:autoRefresh)
-    expect(auto_refresh?).to eq(true)
-    params[:autoRefresh] = 'true'
-    expect(auto_refresh?).to eq(true)
-  end
-
-  it "should not yield text if autoRefresh disabled" do
-    params[:autoRefresh] = 'false'
-    expect(auto_refresh?).to eq(false)
   end
 
   describe 'render_json' do
@@ -316,26 +217,6 @@ describe ApplicationHelper do
     end
   end
 
-  it "should identify flash messages as session[:notice]" do
-    allow(self).to receive(:session).and_return({})
-
-    expect(session_has(:notice)).to be_falsey
-
-    allow(self).to receive(:flash).and_return({:error => "i errored"})
-    expect(session_has(:notice)).to be_truthy
-
-    allow(self).to receive(:flash).and_return({:notice => "some notice"})
-    expect(session_has(:notice)).to be_truthy
-
-    allow(self).to receive(:flash).and_return({:success => "is success"})
-    expect(session_has(:notice)).to be_truthy
-
-    expect(session_has(:foo)).to be_falsey
-
-    allow(self).to receive(:session).and_return({:foo => "foo"})
-    expect(session_has(:foo)).to be_truthy
-  end
-
   it "should return FlashMessageModel from flash[key]='string'" do
     service = double("flash_message_service")
     expect(service).to receive(:get).with("quux").and_return("bang")
@@ -364,29 +245,12 @@ describe ApplicationHelper do
     expect(load_flash_message(:notice)).to eq(FlashMessageModel.new("is success", "success"))
   end
 
-  it "should create stage_identifier for given locator string" do
-    expect(stage_identifier_for_locator("foo/10/bar/2")).to eq(com.thoughtworks.go.domain.StageIdentifier.new("foo", 10, "bar", "2"))
-  end
-
   describe "load_from_flash" do
     it "should render multiple flash errors seperated by a period" do
       allow(self).to receive(:flash).and_return({:error => ["I errored", "You errored", "We all errored"]})
       flash_model = load_from_flash
       expect(flash_model.toString()).to eq("I errored. You errored. We all errored")
     end
-  end
-
-
-  it "should parse selections" do
-    params[:selections] = [["foo", "add"], ["bar", "remove"]]
-    expect(selections).to eq([TriStateSelection.new("foo", "add"), TriStateSelection.new("bar", "remove")])
-  end
-
-  it "should return empty selections when no selections submitted" do
-    params[:selections] = []
-    expect(selections).to eq([])
-    params.delete(:selections)
-    expect(selections).to eq([])
   end
 
   describe "unauthorized_access" do
@@ -400,69 +264,6 @@ describe ApplicationHelper do
       expect(access_forbidden).to eq(false)
     end
 
-  end
-
-  describe "is_user_a_template_admin" do
-    before :each do
-      @security_service = double('security service')
-    end
-
-    it 'should check with security service if user is a template admin' do
-      expect(self).to receive(:security_service).and_return(@security_service)
-      allow(self).to receive(:current_user).and_return(:template_admin_user)
-      expect(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(:template_admin_user).and_return(true)
-      expect(is_user_a_template_admin?).to eq(true)
-    end
-  end
-
-  describe "link_to_remote_new" do
-    it 'should return anchor tag with on success function' do
-      expected = %q|<a href="#"  class="link_as_button" onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){Modalbox.show(alert('hi')}}); return false;">link name</a>|
-      actual = link_to_remote_new('link name',{:method=>:get, :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
-      expect(actual).to eq(expected)
-    end
-
-    it 'should return anchor tag without optional params' do
-      expected = %q|<a href="#"  onclick="new Ajax.Request('url', {asynchronous:true, evalScripts:true, method:'get', onSuccess:function(request){}}); return false;">link name</a>|
-      actual = link_to_remote_new('link name',{:method=>:get, :url => "url"})
-      expect(actual).to eq(expected)
-    end
-
-    it 'should raise exception when link name not provided' do
-      begin
-        link_to_remote_new(nil,{:method=>:get, :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
-        fail "should have raised exception"
-      rescue => e
-        expect(e.message).to eq("Expected link name. Didn't find it.")
-      end
-    end
-
-    it 'should raise exception when method not provided in options' do
-      begin
-        link_to_remote_new("link name",{ :url => "url", :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
-        fail "should have raised exception"
-      rescue => e
-        expect(e.message).to eq("Expected key: method. Didn't find it. Found: [:url, :success]")
-      end
-    end
-
-    it 'should raise exception when method not provided in options' do
-      begin
-        link_to_remote_new("link name",{:method=> :url, :success=>"Modalbox.show(alert('hi')"},{:class => "link_as_button"})
-        fail "should have raised exception"
-      rescue => e
-        expect(e.message).to eq("Expected key: url. Didn't find it. Found: [:method, :success]")
-      end
-    end
-
-  end
-
-  describe "go_update" do
-    it 'should fetch the new go release' do
-      expect(version_info_service).to receive(:getGoUpdate).and_return("1.2.3-1")
-
-      expect(go_update).to eq("1.2.3-1")
-    end
   end
 
   describe "vsm_analytics" do

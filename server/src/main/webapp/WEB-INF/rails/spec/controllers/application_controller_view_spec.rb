@@ -68,13 +68,6 @@ describe Api::TestController do
     draw_test_controller_route
   end
 
-  describe "disable_auto_refresh" do
-    it "should propagate autoRefresh=false" do
-      get :auto_refresh, params:{"autoRefresh" => "false"}
-      expect(response.body).to eq("http://test.host/?autoRefresh=false")
-    end
-  end
-
   describe "render_operation_result" do
     it "should render 404 responses in error template" do
       get :not_found_action, params:{:no_layout=>true}
@@ -86,14 +79,6 @@ describe Api::TestController do
       get :unauthorized_action, params:{:no_layout=>true}
       expect(response.status).to eq(403)
       expect(response.body).to eq("you are not allowed { description }\n")
-    end
-  end
-
-  describe "render_operation_result_if_failure" do
-    it "should render 404 responses in error template" do
-      get :another_not_found_action, params:{:no_layout => true}
-      expect(response.status).to eq(404)
-      expect(response.body).to eq("it was again not found { description }\n")
     end
   end
 

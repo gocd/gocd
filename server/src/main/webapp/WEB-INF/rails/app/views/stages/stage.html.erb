@@ -65,10 +65,8 @@
 
       stage_run_timestamp_format_handler()
 
-      <% if auto_refresh? %>
-        <% unless ['stats'].include?(params[:action]) -%>
-            AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
-       <% end %>
+      <% unless ['stats'].include?(params[:action]) -%>
+          AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
       <% end %>
-    });
+  });
 </script>

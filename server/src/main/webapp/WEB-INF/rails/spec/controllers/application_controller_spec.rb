@@ -133,26 +133,6 @@ describe ApplicationController do
     end
   end
 
-  describe "config MD5 stuff" do
-    it "should understand loaded config-file md5" do
-      @controller.instance_variable_set('@cruise_config_md5', "md5_value")
-      expect(@controller.send(:cruise_config_md5)).to eq("md5_value")
-    end
-
-    it "should understand loaded config-file md5" do
-      expect do
-        @controller.send(:cruise_config_md5)
-      end.to raise_error("md5 for config file has not been loaded yet")
-    end
-
-    it "should get servlet request" do
-      expect(controller).to receive(:request).and_return(req = double('request'))
-      expect(req).to receive(:env).and_return(env = {})
-      env['java.servlet_request'] = :holy_cow
-      expect(controller.send(:servlet_request)).to eq(:holy_cow)
-    end
-  end
-
   describe "do for every request" do
     controller do
       def index
@@ -167,25 +147,6 @@ describe ApplicationController do
       get :index
 
       expect(assigns[:config_valid]).to eq(true)
-    end
-  end
-
-  describe "current_user_id for gadget rendering server" do
-    it "should return nil if current user is 'anonymous'" do
-      controller.instance_variable_set('@user', Username.new(CaseInsensitiveString.new("anonymous")))
-      expect(@controller.current_user_id).to eq(nil)
-    end
-
-    it "should return the current user if not 'anonymous'" do
-      controller.instance_variable_set('@user', Username.new(CaseInsensitiveString.new("admin")))
-      expect(@controller.current_user_id).to eq("admin")
-    end
-  end
-
-  describe "current_user_id_for_oauth for gadget rendering server" do
-    it "should always return the current user even if it's anonymous" do
-      controller.instance_variable_set('@user', Username.new(CaseInsensitiveString.new("anonymous")))
-      expect(@controller.current_user_id_for_oauth).to eq("anonymous")
     end
   end
 
@@ -236,21 +197,6 @@ describe ApplicationController do
       expect(controller.current_user).to eq("foo")
     end
 
-    it "should render_operation_result_if_failure" do
-      result = HttpOperationResult.new
-      result.forbidden("Unauthorized", "the real cause", nil)
-      expect(controller).to receive(:render_if_error).with("Unauthorized { the real cause }\n", 403).and_return(true)
-
-      controller.render_operation_result_if_failure(result)
-    end
-
-    it "should not render_operation_result when result hasn't failed" do
-      result = double('result', httpCode: 302)
-      expect(controller).to receive(:render).never
-
-      controller.render_operation_result_if_failure(result)
-    end
-
     describe "requiring full path" do
       before(:each) do
         draw_test_controller_route
@@ -295,9 +241,6 @@ describe ApplicationController do
       before do
         Services.go_cache.clear
         draw_test_controller_route
-        def controller.default_url_options
-          super.reverse_merge(UrlBuilder.default_url_options)
-        end
       end
 
       after do
@@ -351,25 +294,6 @@ describe ApplicationController do
         flash = controller.flash_message_service.get(guid)
         expect(flash.to_s).to eq("Flash message")
         expect(flash.flashClass).to eq(nil)
-      end
-    end
-
-    describe "local request recognition" do
-      before :all do
-        import java.net.InetAddress unless defined? InetAddress
-      end
-
-      it "should recognize local request" do
-        @controller.request.env["SERVER_NAME"] = "server_name"
-        @controller.request.env["REMOTE_ADDR"] = "client_ip"
-        localhost = InetAddress.getLocalHost
-        @controller.request.env["SERVER_NAME"] = localhost.getHostName
-        @controller.request.env["REMOTE_ADDR"] = localhost.getHostAddress
-        expect(@controller.send(:request_from_localhost?)).to be_truthy
-
-        @controller.request.env["SERVER_NAME"] = localhost.getHostName
-        @controller.request.env["REMOTE_ADDR"] = "8.8.8.8"
-        expect(@controller.send(:request_from_localhost?)).to be_falsey
       end
     end
   end

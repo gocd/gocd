@@ -5,7 +5,7 @@
 <div class="entity_status_wrapper page_header <%= scope[:entity_wrapper_class] %>">
   <div class="row">
     <span class="page_name">Stage Details</span>
-    <%= render :partial => "shared/pipeline_breadcrumb.html", :locals => {:scope => {:pipeline => @pipeline, :third => {:link => url_for_pipeline_value_stream_map(@pipeline), :text => @pipeline.getLabel()}, :fourth => @stage.getName()}} %>
+    <%= render :partial => "shared/pipeline_breadcrumb", :locals => {:scope => {:pipeline => @pipeline, :third => {:link => url_for_pipeline_value_stream_map(@pipeline), :text => @pipeline.getLabel()}, :fourth => @stage.getName()}} %>
 
     <% if @can_user_view_settings %>
         <div class="stage_detail_setting">

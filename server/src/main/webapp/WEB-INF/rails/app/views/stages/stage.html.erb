@@ -21,7 +21,7 @@
         </div>
     <% when 'materials' %>
         <div class="material_tab">
-            <%= render :partial => 'shared/build_cause.html', :locals => {:scope => {:overview => false, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => true, :pipeline_name => @pipeline.getName()}} -%>
+            <%= render :partial => 'shared/build_cause', :locals => {:scope => {:overview => false, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => true, :pipeline_name => @pipeline.getName()}} -%>
         </div>
     <% when 'stats' %>
         <div id="stage_stats">
@@ -46,7 +46,7 @@
         </script>
     <% when 'stage_config' %>
         <div id="ran_with_config">
-            <%= render :partial => "config.html", :locals => {:scope => {:config_revision => @ran_with_config_revision}} -%>
+            <%= render :partial => "config", :locals => {:scope => {:config_revision => @ran_with_config_revision}} -%>
         </div>
     <% end %>
 </div>

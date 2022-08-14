@@ -2,12 +2,12 @@
     <% if is_user_an_admin? %>
         <% if scope[:config_revision] %>
             <% scope[:info_message] = "This version of config was edited by #{scope[:config_revision].getUsername()} on #{scope[:config_revision].getTime()}" -%>
-            <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => scope[:info_message]}} -%>
+            <%= render :partial => "admin/shared/notification_information", :locals => {:scope => {:notification_message => scope[:info_message]}} -%>
             <pre id="content_container" class="wrap_pre code"><%= h(scope[:config_revision].getContent()) -%></pre>
         <% else %>
-            <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'Historical configuration is not available for this stage run.'}} -%>
+            <%= render :partial => "admin/shared/notification_information", :locals => {:scope => {:notification_message => 'Historical configuration is not available for this stage run.'}} -%>
         <% end %>
     <% else %>
-        <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'Historical configuration is available only for Go Administrators.'}} -%>
+        <%= render :partial => "admin/shared/notification_information", :locals => {:scope => {:notification_message => 'Historical configuration is available only for Go Administrators.'}} -%>
     <% end %>
 </div>

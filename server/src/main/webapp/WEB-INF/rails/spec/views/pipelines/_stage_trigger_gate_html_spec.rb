@@ -28,7 +28,7 @@ describe "stage_trigger_gate.html" do
   it "should show approver when a stage is not automatically approved" do
     @stage.setCanRun(false)
     @stage.setApprovedBy("admin")
-    render :partial => "pipelines/stage_trigger_gate.html", :locals => {:scope => {:stage_in_status_bar => @stage}}
+    render :partial => "pipelines/stage_trigger_gate", :locals => {:scope => {:stage_in_status_bar => @stage}}
     expect(response).to have_selector("span[title='Approved by admin']")
   end
 
@@ -40,7 +40,7 @@ describe "stage_trigger_gate.html" do
     @stage.setScheduled(false)
     @stage.setApprovedBy(nil)
     @stage.setApprovalType("manual")
-    render :partial => "pipelines/stage_trigger_gate.html",
+    render :partial => "pipelines/stage_trigger_gate",
            :locals => {:scope => {:stage_in_status_bar => @stage, :update_opts => {}}}
     expect(response).to have_selector("a[title='Awaiting approval'][class='manual']")
   end
@@ -54,7 +54,7 @@ describe "stage_trigger_gate.html" do
     @stage.setApprovedBy(nil)
     @stage.setApprovalType("success")
 
-    render :partial => "pipelines/stage_trigger_gate.html",
+    render :partial => "pipelines/stage_trigger_gate",
            :locals => {:scope => {:stage_in_status_bar => @stage, :update_opts => {}}}
     expect(response).to have_selector("a[title='Awaiting approval'][class='auto']")
   end

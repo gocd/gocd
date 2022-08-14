@@ -13,5 +13,5 @@
 </div>
 
 <div class="materials_overview_wrapper">
-    <%= render :partial => 'shared/build_cause.html', :locals => { :scope => {:overview => true, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => false, :pipeline_name => @pipeline.getName(), :show_latest_only => true}} -%>
+    <%= render :partial => 'shared/build_cause', :locals => { :scope => {:overview => true, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => false, :pipeline_name => @pipeline.getName(), :show_latest_only => true}} -%>
 </div>

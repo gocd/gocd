@@ -22,7 +22,7 @@
         </td>
         <td class="job_state"><%= job.getState() -%></td>
         <td class="duration">
-            <%= render :partial => "elapsed_time.html", :locals=> {:scope => {:job => job , :show_elapsed => false}} %>
+            <%= render :partial => "elapsed_time", :locals=> {:scope => {:job => job , :show_elapsed => false}} %>
         </td>
         <td class="agent">
             <%- if job.hasAgentInfo() -%>

@@ -11,7 +11,7 @@
 <body>
 
 <% if @no_chart_to_render %>
-  <%= render :partial => "admin/shared/notification_information.html", :locals => {:scope => {:notification_message => 'The graph will be available once there is at least one passed or failed stage.'}} -%>
+  <%= render :partial => "admin/shared/notification_information", :locals => {:scope => {:notification_message => 'The graph will be available once there is at least one passed or failed stage.'}} -%>
 <% else %>
   <script type="text/javascript">
       document.addEventListener('DOMContentLoaded', function () {

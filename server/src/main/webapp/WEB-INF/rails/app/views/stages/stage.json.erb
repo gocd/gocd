@@ -1,20 +1,20 @@
 {
     <%case params[:action]
         when 'overview' %>
-            "jobs_failed": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "Failed: #{@stage.nonPassedJobs().size()}", :jobs => @stage.nonPassedJobs(),:parent_id=>"jobs_failed"}} %>},
-            "jobs_passed": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "Passed: #{@stage.passedJobs().size()}", :jobs => @stage.passedJobs(),:parent_id=>"jobs_passed"}} %>},
-            "jobs_in_progress": {"html": <%== render_json :partial => "jobs_breakdown.html.erb" , :locals=> {:scope => {:message => "In Progress: #{@stage.inProgressJobs().size()}", :jobs => @stage.inProgressJobs(),:parent_id=>"jobs_in_progress"}} %>},
+            "jobs_failed": {"html": <%== render_json :partial => "jobs_breakdown", :formats => [:html], :locals=> {:scope => {:message => "Failed: #{@stage.nonPassedJobs().size()}", :jobs => @stage.nonPassedJobs(),:parent_id=>"jobs_failed"}} %>},
+            "jobs_passed": {"html": <%== render_json :partial => "jobs_breakdown", :formats => [:html], :locals=> {:scope => {:message => "Passed: #{@stage.passedJobs().size()}", :jobs => @stage.passedJobs(),:parent_id=>"jobs_passed"}} %>},
+            "jobs_in_progress": {"html": <%== render_json :partial => "jobs_breakdown", :formats => [:html], :locals=> {:scope => {:message => "In Progress: #{@stage.inProgressJobs().size()}", :jobs => @stage.inProgressJobs(),:parent_id=>"jobs_in_progress"}} %>},
 
         <%when 'jobs'%>
-            "jobs_grid": {"html": <%== render_json :partial=> 'jobs', :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => @has_operate_permissions }}  %>},
+            "jobs_grid": {"html": <%== render_json :partial => 'jobs', :formats => [:html], :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => @has_operate_permissions }}  %>},
     <%end%>
-    "pipeline_status_bar": {"html": <%== render_json :partial => "pipelines/status_bar.html.erb", :locals => {:scope => {:pipeline => @pipeline, :current_config_version => @current_config_version, :stage_config_version => @stage.getStage().getConfigVersion()}} %>},
-    "stage_result": {"html": <%== render_json :partial => "stage_result", :locals => {:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}} %>},
-    "stage_run_details": {"html": <%== render_json :partial => "run_details", :locals => {:scope => {}} %>},
-    "other_stage_runs": {"html": <%== render_json :partial => "other_stage_runs", :locals => {:scope => {}}  %>},
-    "current_stage_run": {"html": <%== render_json :partial => "current_stage_run", :locals => {:scope => {}}  %>},
+    "pipeline_status_bar": {"html": <%== render_json :partial => "pipelines/status_bar", :formats => [:html], :locals => {:scope => {:pipeline => @pipeline, :current_config_version => @current_config_version, :stage_config_version => @stage.getStage().getConfigVersion()}} %>},
+    "stage_result": {"html": <%== render_json :partial => "stage_result", :formats => [:html], :locals => {:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}} %>},
+    "stage_run_details": {"html": <%== render_json :partial => "run_details", :formats => [:html], :locals => {:scope => {}} %>},
+    "other_stage_runs": {"html": <%== render_json :partial => "other_stage_runs", :formats => [:html], :locals => {:scope => {}}  %>},
+    "current_stage_run": {"html": <%== render_json :partial => "current_stage_run", :formats => [:html], :locals => {:scope => {}}  %>},
     <% unless ['pipeline','stats'].include?(params[:action]) -%>
-    "stage_history": {"html": <%== render_json :partial => "stage_history", :locals=> {:scope => {:stage_history_page => @stage_history_page, :tab => params[:action], :current_stage_pipeline => @pipeline, :current_config_version => @current_config_version}} %>},
+    "stage_history": {"html": <%== render_json :partial => "stage_history", :formats => [:html], :locals=> {:scope => {:stage_history_page => @stage_history_page, :tab => params[:action], :current_stage_pipeline => @pipeline, :current_config_version => @current_config_version}} %>},
     <% end %>
-    "pipeline_header": {"html": <%== render_json :partial => "pipelines/pipeline_header", :locals => {:scope => {}}  %>}
+    "pipeline_header": {"html": <%== render_json :partial => "pipelines/pipeline_header", :formats => [:html], :locals => {:scope => {}}  %>}
 }

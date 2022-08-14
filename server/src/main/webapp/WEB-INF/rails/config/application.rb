@@ -27,8 +27,8 @@ Bundler.require(*Rails.groups)
 
 module Go
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.2
+    config.load_defaults 6.1
+    config.autoloader = :zeitwerk
     require_relative '../lib/all_libs'
 
     # Settings in config/environments/* take precedence over those specified here.
@@ -42,8 +42,8 @@ module Go
 
     # Rails4 does not load lib/* by default. Forcing it to do so.
     config.autoload_paths += Dir[
-        Rails.root.join('lib', '**/'),
-        Rails.root.join('app', 'models', '**/'),
+        Rails.root.join('lib'),
+        Rails.root.join('app', 'models'),
         Rails.root.join('app', 'presenters')
     ]
 

@@ -168,15 +168,6 @@ describe ApplicationController do
 
       expect(assigns[:config_valid]).to eq(true)
     end
-
-    it "should set the siteUrl and secureSiteUrl on the thread" do
-      get :index
-
-      # These values are configured in the spec_helper's setup_base_urls method.
-      # But, this controller puts them on the current thread.
-      expect(Thread.current[:ssl_base_url]).to eq("https://ssl.host:443")
-      expect(Thread.current[:base_url]).to eq("http://test.host")
-    end
   end
 
   describe "current_user_id for gadget rendering server" do
@@ -262,7 +253,6 @@ describe ApplicationController do
 
     describe "requiring full path" do
       before(:each) do
-        setup_base_urls
         draw_test_controller_route
       end
 

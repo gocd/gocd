@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
 
   attr_accessor :error_template_for_request
 
-  before_action :set_current_user, :local_access_only, :populate_config_validity, :set_site_urls_in_thread
+  before_action :set_current_user, :local_access_only, :populate_config_validity
 
   helper_method :current_user_id_for_oauth
 
@@ -146,10 +146,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_message(message, status = :ok, data = {})
-    render :json_hal_v1 => {message: message.strip}.merge(data), status: status
-  end
-
   def render_error_template(message, status)
     @status, @message = status, message
     render error_template_for_request, status: @status, layout: 'application'
@@ -190,12 +186,6 @@ class ApplicationController < ActionController::Base
 
   def populate_config_validity
     @config_valid = go_config_service.checkConfigFileValid().isValid()
-  end
-
-  def set_site_urls_in_thread
-    server = go_config_service_for_url.getCurrentConfig().server()
-    Thread.current[:base_url] = server.getSiteUrl().getUrl()
-    Thread.current[:ssl_base_url] = server.getHttpsUrl().getUrl()
   end
 
   def servlet_request

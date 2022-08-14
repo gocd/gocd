@@ -21,20 +21,6 @@ module MiscSpecExtensions
     @user
   end
 
-  def setup_base_urls
-    config_service = Spring.bean("goConfigService")
-    if (config_service.currentCruiseConfig().server().getSiteUrl().getUrl().nil?)
-      config_service.updateConfig(Class.new do
-        def update config
-          server = config.server().siteUrls()
-          com.thoughtworks.go.util.ReflectionUtil.setField(server, "siteUrl", com.thoughtworks.go.domain.SiteUrl.new("http://test.host"))
-          com.thoughtworks.go.util.ReflectionUtil.setField(server, "secureSiteUrl", com.thoughtworks.go.domain.SecureSiteUrl.new("https://ssl.host:443"))
-          return config
-        end
-      end.new)
-    end
-  end
-
   def stub_service(service_getter, thing=controller)
     service = double(service_getter.to_s.camelize)
     allow(thing).to receive(service_getter).and_return(service)

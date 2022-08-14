@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-require_relative 'extensions/module_ext'
-require_relative 'extensions/activesupport_cache'
-require_relative 'extensions/cache_ext'
 require_relative 'extensions/case_insensitive_string'
 require_relative 'extensions/java_util_date'
 require_relative 'extensions/route_ext'

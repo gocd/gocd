@@ -104,8 +104,5 @@ module Services
     :external_artifacts_service,
     :secret_param_resolver
   )
-
-  service_with_alias_name(:go_config_service_for_url, "goConfigService")
-
   extend Services
 end

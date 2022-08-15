@@ -29,7 +29,6 @@ unless defined? NonApiController
         match 'rails/quux', via: :all, to: 'api/test#localized_not_found_action_with_message_ending_in_newline'
         match 'rails/boom', via: :all, to: 'api/test#localized_operation_result_without_message'
         match 'rails/test/test_action', via: :all, to: 'api/test#test_action'
-        match 'rails/auto_refresh', via: :all, to: 'api/test#auto_refresh'
 
         match 'rails/non_api_404', via: :all, to: 'non_api#not_found_action'
         match 'rails/non_api_localized_404', via: :all, to: 'non_api#localized_not_found_action'
@@ -84,12 +83,6 @@ module Api
       render_operation_result(hor)
     end
 
-    def another_not_found_action
-      hor = HttpOperationResult.new()
-      hor.notFound("it was again not found", 'description', HealthStateType.general(HealthStateScope::GLOBAL))
-      render_operation_result_if_failure(hor)
-    end
-
     def unauthorized_action
       hor = HttpOperationResult.new()
       hor.forbidden("you are not allowed", 'description', HealthStateType.general(HealthStateScope::GLOBAL))
@@ -114,10 +107,6 @@ module Api
     end
 
     def test_action;
-    end
-
-    def auto_refresh
-      render :plain => root_url
     end
   end
 end

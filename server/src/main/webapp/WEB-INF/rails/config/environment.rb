@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-ENV['ADMIN_OAUTH_URL_PREFIX'] = "admin"
-ENV['LOAD_OAUTH_SILENTLY'] = "yes"
-
 # Load the Rails application.
 require_relative 'application'
 

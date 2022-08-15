@@ -16,7 +16,7 @@
 
 require 'rails_helper'
 
-describe "/shared/_build_cause.html.erb" do
+describe "shared/_build_cause.html.erb" do
   include StageModelMother
 
   before do

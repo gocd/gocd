@@ -24,6 +24,6 @@ require_relative 'spring'
 
 require_relative 'action_rescue'
 require_relative 'go_cache_store'
-require_relative 'log4j_logger'
+require_relative 'slf4j_logger'
 require_relative 'prototype_helper'
 require_relative 'current_gocd_version'

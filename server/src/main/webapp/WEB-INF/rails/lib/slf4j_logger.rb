@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-class Log4jLogger
+class Slf4jLogger
 
   module LoggerCompatibility # we don't use it, but it's needed as part of the API contract
     attr_accessor :formatter

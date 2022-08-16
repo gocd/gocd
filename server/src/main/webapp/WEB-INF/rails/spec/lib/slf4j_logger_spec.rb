@@ -16,13 +16,13 @@
 
 require 'rails_helper'
 
-describe "Log4jLogger" do
+describe "Slf4jLogger" do
   before(:each) do
     @message = SecureRandom.hex
     @integer_message = SecureRandom.random_number(100000000)
     logger_name = SecureRandom.hex
     @test_appender = LogFixture.logFixtureForLogger(logger_name)
-    @logger = Log4jLogger::Logger.new(logger_name)
+    @logger = Slf4jLogger::Logger.new(logger_name)
   end
 
   after(:each) do

@@ -17,7 +17,7 @@
 require 'rails_helper'
 require_relative 'layout_html_examples'
 
-describe "/layouts/admin" do
+describe "layouts/admin" do
   it_should_behave_like :layout
 
   before do

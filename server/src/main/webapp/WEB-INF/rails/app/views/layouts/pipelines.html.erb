@@ -38,7 +38,7 @@
               %>
               <div id="page_status_bar" class="page_status_bar <%= page_status_bar_class %>">
                 <% if @show_stage_status_bar %>
-                    <%= render :partial => "stages/status_bar.html" %>
+                    <%= render :partial => "stages/status_bar" %>
                 <% end %>
               </div>
             </div>
@@ -47,7 +47,7 @@
             <div class="rail">
               <% if show_stage_history_widget %>
                   <div id="stage_history" class="stage_history overview_widget">
-                    <%= render :partial => "stages/stage_history.html", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => params[:action], :current_stage_pipeline => @pipeline, :current_config_version => @current_config_version}} %>
+                    <%= render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => params[:action], :current_stage_pipeline => @pipeline, :current_config_version => @current_config_version}} %>
                   </div>
                   <input type="hidden" id="stage-history-page" value="<%= @stage_history_page.currentPage() %>"/>
               <% end %>

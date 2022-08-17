@@ -17,7 +17,7 @@
 
 <div class="content">
   <% if supports_vsm_analytics? %>
-    <%= render :partial => "analytics_panel.html", :locals => {:scope =>
+    <%= render :partial => "analytics_panel", :locals => {:scope =>
                                                                  {:current => @material_display_name,
                                                                   :title => vsm_analytics_chart_info["title"],
                                                                   :message => "Select a downstream pipeline"}} -%>

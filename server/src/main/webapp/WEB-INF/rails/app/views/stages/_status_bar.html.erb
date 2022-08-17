@@ -2,21 +2,21 @@
     <div class="run">
         <span class="label">Run:</span>
         <span id="current_stage_run">
-            <%= render :partial => "stages/current_stage_run.html", :locals => {:scope => {}} %>
+            <%= render :partial => "stages/current_stage_run", :locals => {:scope => {}} %>
         </span>
 
         <div class="hidden enhanced_dropdown" id="other_stage_runs">
-            <%= render :partial => "stages/other_stage_runs.html", :locals => {:scope => {}} %>
+            <%= render :partial => "stages/other_stage_runs", :locals => {:scope => {}} %>
         </div>
     </div>
 
     <div class="result" id="stage_result">
-        <%= render :partial=> "stages/stage_result.html", :locals=>{:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}}%>
+        <%= render :partial=> "stages/stage_result", :locals=>{:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}}%>
     </div>
 </div>
 
 <div class="run_details section" id="stage_run_details">
-    <%= render :partial => "stages/run_details.html", :locals => {:scope => {} } %>
+    <%= render :partial => "stages/run_details", :locals => {:scope => {} } %>
 </div>
 
 <script type="text/javascript">

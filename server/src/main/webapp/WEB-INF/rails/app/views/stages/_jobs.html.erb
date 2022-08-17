@@ -20,7 +20,7 @@
         <th class="jobs_summary_header_agent">Agent</th>
     </tr>
 
-    <%= render :partial => "job_listing.html", :locals => {:scope => {:jobs => scope[:jobs], :stage_state => stage_state, :has_operate_permissions => scope[:has_operate_permissions]}} %>
+    <%= render :partial => "job_listing", :locals => {:scope => {:jobs => scope[:jobs], :stage_state => stage_state, :has_operate_permissions => scope[:has_operate_permissions]}} %>
 </table>
 <%- if scope[:stage].getState().completed() -%>
     </form>

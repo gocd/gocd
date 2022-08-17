@@ -105,7 +105,7 @@ describe "layouts/pipelines.html.eb" do
         assign(:show_stage_status_bar,true)
         assign(:stage_history_page,last_stage_history_page(1))
         assign(:stage,stage_with_three_runs)
-        allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path");
+        allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path")
         render :inline => '<div>content</div>', :layout=>@layout_name
         expect(response.body).to have_selector("script[type='text/javascript']", :text=>/new\sMicroContentPopup\(\$\('other_stage_runs'\),\snew\sMicroContentPopup\.NoOpHandler\(\)\)/, :visible=>false)
       end
@@ -252,7 +252,7 @@ describe "layouts/pipelines.html.eb" do
 
     describe "graphs tab" do
       it "should not render stage history widget pane" do
-        allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path");
+        allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path")
         in_params(:action => "stats")
 
         render :inline => '<div>content</div>', :layout=>@layout_name

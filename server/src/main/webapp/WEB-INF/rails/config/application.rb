@@ -54,8 +54,8 @@ module Go
       end
     end
 
-    require Rails.root.join("lib", "log4j_logger.rb")
-    config.logger = Log4jLogger::Logger.new('com.thoughtworks.go.server.Rails')
+    require Rails.root.join("lib", "slf4j_logger.rb")
+    config.logger = Slf4jLogger::Logger.new('com.thoughtworks.go.server.Rails')
 
     config.generators do |g|
       g.test_framework        :rspec, :fixture_replacement => nil

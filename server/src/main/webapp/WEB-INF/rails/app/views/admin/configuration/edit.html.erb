@@ -1,9 +1,9 @@
 <div class="sub_tab_container_content">
     <div id="tab-content-of-source-xml">
-        <%= render :partial => 'admin/configuration/heading.html', :locals => {:scope => {:go_config => @go_config}} -%>
-        <%= render :partial => "admin/shared/global_errors.html" -%>
+        <%= render :partial => 'admin/configuration/heading', :locals => {:scope => {:go_config => @go_config}} -%>
+        <%= render :partial => "admin/shared/global_errors" -%>
         <div class="admin_holder" id="admin-holder-for-admin-config-source-xml">
-            <%= render :partial => 'admin/configuration/form.html', :locals => {:scope => {:go_config => @go_config, :go_config_revision => @go_config_revision}} -%>
+            <%= render :partial => 'admin/configuration/form', :locals => {:scope => {:go_config => @go_config, :go_config_revision => @go_config_revision}} -%>
         </div>
     </div>
 </div>

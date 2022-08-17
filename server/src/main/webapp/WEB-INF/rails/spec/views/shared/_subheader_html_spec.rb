@@ -16,7 +16,7 @@
 
 require 'rails_helper'
 
-describe "/shared/_subheader.html.erb" do
+describe "shared/_subheader.html.erb" do
 
   it 'should display title' do
     assign(:page_header, '<h1 class="entity_title">My Title</h1>')

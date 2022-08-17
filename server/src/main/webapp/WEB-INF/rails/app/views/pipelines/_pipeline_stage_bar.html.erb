@@ -43,6 +43,6 @@
 </div>
 <% if scope[:idx_in_status_bar] > 0 %>
     <div class="trigger_gate">
-        <%= render :partial => "pipelines/stage_trigger_gate.html", :locals => {:scope => {:stage_in_status_bar => scope[:stage_in_status_bar]}} %>
+        <%= render :partial => "pipelines/stage_trigger_gate", :locals => {:scope => {:stage_in_status_bar => scope[:stage_in_status_bar]}} %>
     </div>
 <% end %>

@@ -1,5 +1,5 @@
 <%- @view_title = "Administration" -%>
-<%= render :partial => "admin/shared/global_errors.html" -%>
+<%= render :partial => "admin/shared/global_errors" -%>
 <div id = "pipeline_snippet_edit">
     <%= render :partial => "pipeline_group_list", :locals => {:scope => {:modifiable_groups => @modifiable_groups, :group_name => @group_name}} %>
 

@@ -9,7 +9,7 @@
                     <span class="wrapped_word"> <%= job_in_job_breakdown.getName() %> </span>
                 </a>
                 <% unless job_in_job_breakdown.isCompleted() %>
-                    <%= render :partial => "elapsed_time.html", :locals=> {:scope => {:job => job_in_job_breakdown }} %>
+                    <%= render :partial => "elapsed_time", :locals=> {:scope => {:job => job_in_job_breakdown }} %>
                 <% end %>
             </li>
         <% end %>

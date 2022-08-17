@@ -16,7 +16,7 @@
 
 require 'rails_helper'
 
-describe "/shared/_flash_message.html.erb" do
+describe "shared/_flash_message.html.erb" do
   describe "flash message obtained from session" do
 
     it "should read flash message from the session" do

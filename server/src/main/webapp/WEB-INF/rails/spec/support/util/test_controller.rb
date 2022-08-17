@@ -106,7 +106,7 @@ module Api
       render_localized_operation_result(hor)
     end
 
-    def test_action;
+    def test_action
     end
   end
 end

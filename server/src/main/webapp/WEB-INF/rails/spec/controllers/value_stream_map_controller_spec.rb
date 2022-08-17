@@ -68,7 +68,7 @@ describe ValueStreamMapController do
 
     it "should show Error message when pipeline name and counter cannot be resolved to a unique instance" do
       pipeline = "foo"
-      allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("foo", 1).and_throw(Exception.new());
+      allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("foo", 1).and_throw(Exception.new())
       get :show, params:{pipeline_name: pipeline, pipeline_counter: 1}
 
       expect(assigns(:pipeline)).to eq(nil)

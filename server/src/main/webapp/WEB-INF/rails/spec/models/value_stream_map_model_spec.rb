@@ -117,8 +117,8 @@ describe ValueStreamMapModel do
     vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_2, CaseInsensitiveString.new("p2"))
     modifications = modifications()
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), CaseInsensitiveString.new("p1"), material_revision)
-    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"));
-    p3_node.addRevision(revision_p3_1);
+    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"))
+    p3_node.addRevision(revision_p3_1)
 
     vsm_path_partial = proc do |pipeline_name, counter|
       "some/path/to/#{pipeline_name}/#{counter}"
@@ -219,7 +219,7 @@ describe ValueStreamMapModel do
     vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p1"), "p1"), revision_p1_1, CaseInsensitiveString.new("p2"))
     vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git", "git", "Git"), com.thoughtworks.go.config.CaseInsensitiveString.new("git-trunk"), CaseInsensitiveString.new("p1"), material_revision)
 
-    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"));
+    p3_node = vsm.addDownstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("p3"), "p3"), CaseInsensitiveString.new("current"))
     p3_node.setViewType(com.thoughtworks.go.domain.valuestreammap.VSMViewType::NO_PERMISSION)
     p3_node.setMessage("You are not authorized to view this pipeline")
 

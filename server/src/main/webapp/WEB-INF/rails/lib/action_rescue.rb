@@ -42,8 +42,8 @@ module ActionRescue
   end
 
   def collect_stacktrace
-    java.io.StringWriter writer = java.io.StringWriter.new();
+    java.io.StringWriter writer = java.io.StringWriter.new()
     yield print_writer
-    return writer.getBuffer().toString();
+    return writer.getBuffer().toString()
   end
 end

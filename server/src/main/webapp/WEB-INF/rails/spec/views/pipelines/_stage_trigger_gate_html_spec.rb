@@ -21,8 +21,8 @@ describe "stage_trigger_gate.html" do
   before do
     now = org.joda.time.DateTime.new
     @stage = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate())]).first()
-    @stage.setId(12);
-    @stage.setOperatePermission(true);
+    @stage.setId(12)
+    @stage.setOperatePermission(true)
   end
 
   it "should show approver when a stage is not automatically approved" do

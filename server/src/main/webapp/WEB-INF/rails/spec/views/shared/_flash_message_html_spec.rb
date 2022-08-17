@@ -21,19 +21,19 @@ describe "shared/_flash_message.html.erb" do
 
     it "should read flash message from the session" do
       session[:notice] = FlashMessageModel.new("foo", "success")
-      render :partial => "shared/flash_message.html.erb"
+      render :partial => "shared/flash_message"
       expect(response.body).to have_selector("div#message_pane p.success", :text => "foo")
       expect(session[:notice]).to be(nil)
     end
 
    it "should not show flash message when its not defined in session" do
-      render :partial => "shared/flash_message.html.erb"
+      render :partial => "shared/flash_message"
       expect(response.body).to_not have_selector("div#message_pane p", :text => "foo")
     end
 
     it "should escape flash message" do
       session[:notice] = FlashMessageModel.new("<h2>", "success")
-      render :partial => "shared/flash_message.html.erb"
+      render :partial => "shared/flash_message"
       expect(response.body).to have_selector("div#message_pane p", :text => "<h2>")
     end
 
@@ -45,7 +45,7 @@ describe "shared/_flash_message.html.erb" do
       allow(view).to receive(:load_flash_message).with('flash_key').and_return(flash)
       assign(:flash_help_link, "<a href='foo'>Foo</a>")
 
-      render :partial => "shared/flash_message.html.erb"
+      render :partial => "shared/flash_message"
 
       Capybara.string(response.body).find("p.error").tap do |error|
         expect(error).to have_selector("a[href='foo']", :text => "Foo")
@@ -60,7 +60,7 @@ describe "shared/_flash_message.html.erb" do
       allow(view).to receive(:load_flash_message).with('flash_key').and_return(flash)
       assign(:flash_help_link, nil)
 
-      render :partial => "shared/flash_message.html.erb"
+      render :partial => "shared/flash_message"
 
       Capybara.string(response.body).find("p.error").tap do |error|
         expect(error).not_to have_selector("a[href='foo']", :text => "Foo")

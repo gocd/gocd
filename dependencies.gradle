@@ -91,7 +91,7 @@ final Map<String, String> libraries = [
   oscache             : 'opensymphony:oscache:2.4.1',
   postgresql          : 'org.postgresql:postgresql:42.4.1',
   quartz              : 'org.quartz-scheduler:quartz:2.3.2',
-  rack                : 'org.jruby.rack:jruby-rack:1.1.21',
+  rack                : 'org.jruby.rack:jruby-rack:1.1.22',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations
   slf4j               : 'org.slf4j:slf4j-api:1.7.36',

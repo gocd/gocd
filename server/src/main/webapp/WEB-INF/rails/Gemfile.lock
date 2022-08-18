@@ -81,7 +81,7 @@ GEM
     matrix (0.4.2)
     method_source (1.0.0)
     mini_mime (1.1.2)
-    minitest (5.16.2)
+    minitest (5.16.3)
     nio4r (2.5.8)
     nio4r (2.5.8-java)
     nokogiri (1.13.8-java)

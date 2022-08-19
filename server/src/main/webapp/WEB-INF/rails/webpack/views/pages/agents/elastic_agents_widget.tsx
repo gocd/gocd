@@ -15,6 +15,7 @@
  */
 
 import classNames from "classnames/bind";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Agent, AgentConfigState} from "models/agents/agents";
@@ -104,7 +105,7 @@ export class ElasticAgentsWidget extends MithrilViewComponent<AgentsWidgetAttrs>
       return (<span>{agent.hostname}</span>);
     }
 
-    return <a href={`/go/agents/${agent.uuid}/job_run_history`}>{agent.hostname}</a>;
+    return <a href={SparkRoutes.agentJobRunHistoryPath(agent.uuid)}>{agent.hostname}</a>;
   }
 
   private span(count: number, className: string = ""): m.Children {

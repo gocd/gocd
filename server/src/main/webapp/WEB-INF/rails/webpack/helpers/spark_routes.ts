@@ -246,6 +246,10 @@ export class SparkRoutes {
     return `/go/api/agents/${uuid}/job_run_history?${m.buildQueryString({offset})}`;
   }
 
+  static agentJobRunHistoryPath(uuid: string): string {
+    return `/go/agents/${uuid}/job_run_history`;
+  }
+
   static maintenanceModeInfoPath(): string {
     return `/go/api/admin/maintenance_mode/info`;
   }

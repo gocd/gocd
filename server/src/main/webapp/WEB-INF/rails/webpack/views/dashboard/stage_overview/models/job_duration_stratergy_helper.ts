@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {timeFormatter} from "../../../../helpers/time_formatter";
-import {JobStateTransitionJSON, State} from "../../../../models/agent_job_run_history";
+import {timeFormatter} from "helpers/time_formatter";
+import {JobState} from "models/shared/job_state";
+import {JobStateTransitionJSON} from "models/shared/job_state_transition";
 import {StageInstance} from "./stage_instance";
 import {JobJSON, Result} from "./types";
 
@@ -156,7 +157,7 @@ export class JobDurationStrategyHelper {
     return end.isBefore(start) ? moment.utc(0) : moment.utc(end.diff(start));
   }
 
-  private static getJobStateTime(job: JobJSON, state: State): number {
+  private static getJobStateTime(job: JobJSON, state: JobState): number {
     const isJobCompleted = job.result !== Result[Result.Unknown];
 
     let jobState: JobStateTransitionJSON = job.job_state_transitions.find(t => t.state === state)!;

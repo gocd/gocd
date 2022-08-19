@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Thoughtworks, Inc.
+ * Copyright 2022 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//site header
-$site-header: #000728;
-$header-text-color: #ddd;
-$sub-navigation-bg: #313e68;
-$active-menu: #943a9e;
 
-$header-bg: #33364e;
-
-$border-color: $line-color;
-$passed: #00c853;
-$building: #ffc11b;
-$failed: #fa2d2d;
-
-//footer
-
-$footer-bg: $secondary-bg;
-$footer-fg: #647984;
-$page-header-bg: #fff;
-
-//rgba values - NEED TO BE RENAMED/REORGANIZED
-$box-shadow-color: rgba(0, 0, 0, 0.21);
-$white-opaque: rgba(255, 255, 255, 1);
-$white-transparent: rgba(255, 255, 255, 0);
+// mirror of Java's JobResult
+export type JobResult = 'Passed' |
+  'Failed' |
+  'Cancelled' |
+  'Unknown';

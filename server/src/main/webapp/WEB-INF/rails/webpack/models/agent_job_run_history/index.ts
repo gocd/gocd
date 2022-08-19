@@ -16,6 +16,8 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
+import {JobResult} from "../shared/job_result";
+import {JobStateTransitionJSON} from "../shared/job_state_transition";
 
 export interface AgentJobRunHistoryAPIJSON {
   uuid: string;
@@ -30,33 +32,9 @@ export interface JobRunHistoryJSON {
   stage_counter: string;
   pipeline_name: string;
   pipeline_counter: number;
-  result: Result;
+  result: JobResult;
   rerun: boolean;
 }
-
-export interface JobStateTransitionJSON {
-  state_change_time: string | number;
-  state: State;
-}
-
-export type State =
-  "Unknown" |
-  "Scheduled" |
-  "Assigned" |
-  "Preparing" |
-  "Building" |
-  "Completing" |
-  "Completed" |
-  "Discontinued" |
-  "Rescheduled" |
-  "Paused" |
-  "Waiting" ;
-
-export type Result =
-  "Cancelled" |
-  "Failed" |
-  "Passed" |
-  "Unknown";
 
 export interface PaginationJSON {
   page_size: number;

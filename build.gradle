@@ -418,8 +418,11 @@ subprojects {
     }
 
     dependencies {
+      // Use platforms to enforce centralised control of compatible versions where BOMs are published
+      // for a multi-library project
       testImplementation enforcedPlatform(project.deps.junit5Bom)
       testImplementation enforcedPlatform(project.deps.mockitoBom)
+      testImplementation enforcedPlatform(project.deps.testcontainersBom)
     }
 
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {

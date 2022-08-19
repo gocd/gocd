@@ -18,6 +18,8 @@ import {SupportedEntity} from "models/shared/permissions";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {PluginInfoQuery} from "models/shared/plugin_infos_new/plugin_info_crud";
 
+type CounterLike = number | string;
+
 export class SparkRoutes {
 
   static staleVersionInfoPath() {
@@ -117,7 +119,7 @@ export class SparkRoutes {
     return "/go/api/internal/pipeline_selection/pipelines_data";
   }
 
-  static buildCausePath(pipelineName: string, pipelineCounter: string): string {
+  static buildCausePath(pipelineName: string, pipelineCounter: CounterLike): string {
     return `/go/api/internal/build_cause/${pipelineName}/${pipelineCounter}`;
   }
 
@@ -255,9 +257,9 @@ export class SparkRoutes {
   }
 
   static cancelStage(pipelineName: string,
-                     pipelineCounter: number | string,
+                     pipelineCounter: CounterLike,
                      stageName: string,
-                     stageCounter: number | string): string {
+                     stageCounter: CounterLike): string {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/cancel`;
   }
 
@@ -474,27 +476,27 @@ export class SparkRoutes {
     return `/go/pipelineHistory.json?${m.buildQueryString(params)}`;
   }
 
-  static pipelineVsmLink(pipelineName: string, counter: string) {
+  static pipelineVsmLink(pipelineName: string, counter: CounterLike) {
     return `/go/pipelines/value_stream_map/${pipelineName}/${counter}`;
   }
 
-  static runStage(pipelineName: string, counter: string | number, stageName: string) {
+  static runStage(pipelineName: string, counter: CounterLike, stageName: string) {
     return `/go/api/stages/${pipelineName}/${counter}/${stageName}/run`;
   }
 
-  static rerunFailedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+  static rerunFailedJobs(pipelineName: string, pipelineCounter: CounterLike, stageName: string, stageCounter: CounterLike) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/run-failed-jobs`;
   }
 
-  static rerunSelectedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+  static rerunSelectedJobs(pipelineName: string, pipelineCounter: CounterLike, stageName: string, stageCounter: CounterLike) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/run-selected-jobs`;
   }
 
-  static getStageInstance(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: number | string) {
+  static getStageInstance(pipelineName: string, pipelineCounter: CounterLike, stageName: string, stageCounter: CounterLike) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
   }
 
-  static cancelStageInstance(pipelineName: string, pipelineCounter: string, stageName: string, stageCounter: number) {
+  static cancelStageInstance(pipelineName: string, pipelineCounter: CounterLike, stageName: string, stageCounter: CounterLike) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/cancel`;
   }
 
@@ -502,7 +504,7 @@ export class SparkRoutes {
     return `/go/api/stages/${pipelineName}/${stageName}/history`;
   }
 
-  static commentOnPipelineInstance(pipelineName: string, pipelineCounter: string | number) {
+  static commentOnPipelineInstance(pipelineName: string, pipelineCounter: CounterLike) {
     return `/go/api/pipelines/${pipelineName}/${pipelineCounter}/comment`;
   }
 
@@ -522,7 +524,7 @@ export class SparkRoutes {
     return `/go/api/pipelines/${pipelineName}/compare/${fromCounter}/${toCounter}`;
   }
 
-  static getPipelineInstance(pipelineName: string, pipelineCounter: number) {
+  static getPipelineInstance(pipelineName: string, pipelineCounter: CounterLike) {
     return `/go/api/pipelines/${pipelineName}/${pipelineCounter}`;
   }
 
@@ -535,9 +537,9 @@ export class SparkRoutes {
   }
 
   static getStageDetailsPageUrl(pipelineName: string,
-                                pipelineCounter: number,
+                                pipelineCounter: CounterLike,
                                 stageName: string,
-                                stageCounter: string) {
+                                stageCounter: CounterLike) {
     return `/go/pipelines/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
   }
 
@@ -624,7 +626,7 @@ export class SparkRoutes {
     return `/go/api/admin/templates/${id}/authorization`;
   }
 
-  static pipelineEditPath(stageParent: string, pipelineName: string, tab: string): string {
+  static pipelineEditPath(stageParent: 'pipelines' | 'templates', pipelineName: string, tab: string): string {
     return `/go/admin/${stageParent}/${pipelineName}/edit#!${pipelineName}/${tab}`;
   }
 

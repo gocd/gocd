@@ -16,7 +16,8 @@
 
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
 import m from "mithril";
-import {JobRunHistoryJSON, State} from "models/agent_job_run_history";
+import {JobRunHistoryJSON} from "models/agent_job_run_history";
+import {JobState} from "models/shared/job_state";
 import {Modal, Size} from "views/components/modal";
 import {Table} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
@@ -94,7 +95,7 @@ export class AgentJobStateTransitionModal extends Modal {
     return `${this.job.pipeline_name}/${this.job.pipeline_counter}/${this.job.stage_name}/${this.job.stage_counter}/${this.job.job_name}`;
   }
 
-  private findTimeDifference(from: State, to: State) {
+  private findTimeDifference(from: JobState, to: JobState) {
     const fromState = this.job.job_state_transitions.find((t) => t.state === from);
     const toState   = this.job.job_state_transitions.find((t) => t.state === to);
 

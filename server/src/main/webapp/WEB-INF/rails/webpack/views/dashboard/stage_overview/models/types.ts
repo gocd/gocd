@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {JobStateTransitionJSON, State} from "../../../../models/agent_job_run_history";
+import {JobState} from "models/shared/job_state";
+import {JobStateTransitionJSON} from "models/shared/job_state_transition";
 
 export enum Result {
   Passed, Failed, Cancelled, Unknown
@@ -26,7 +27,7 @@ export enum StageState {
 
 export interface JobJSON {
   name: string;
-  state: State;
+  state: JobState;
   result: Result | string;
   scheduled_date: number;
   rerun: boolean;

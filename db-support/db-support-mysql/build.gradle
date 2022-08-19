@@ -31,6 +31,6 @@ dependencies {
     testImplementation project.deps.testcontainersMysql
 
     testImplementation project.deps.assertJ
-    testImplementation project.deps.junit5
+    testImplementation project.deps.junit5Api
     testRuntimeOnly project.deps.junit5Engine
 }

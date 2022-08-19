@@ -23,7 +23,7 @@ dependencies {
   api project.deps.servletApi
   api project.deps.gson
   implementation project.deps.cloning
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Params
   testImplementation project.deps.hamcrest

@@ -23,6 +23,6 @@ dependencies {
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

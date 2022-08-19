@@ -37,7 +37,8 @@ dependencies {
 
   api project.deps.assertJ
   api project.deps.hamcrest
-  api project.deps.junit5
+  api enforcedPlatform(project.deps.junit5Bom)
+  api project.deps.junit5Api
   api project.deps.junit5Params
   api project.deps.systemStubs
   runtimeOnly project.deps.junit5Engine

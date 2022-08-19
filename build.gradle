@@ -19,7 +19,6 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.InstallerType
-import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
@@ -418,6 +417,14 @@ subprojects {
       }
     }
 
+    dependencies {
+      // Use platforms to enforce centralised control of compatible versions where BOMs are published
+      // for a multi-library project
+      testImplementation enforcedPlatform(project.deps.junit5Bom)
+      testImplementation enforcedPlatform(project.deps.mockitoBom)
+      testImplementation enforcedPlatform(project.deps.testcontainersBom)
+    }
+
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
       archiveClassifier = 'tests'
       from sourceSets.test.output
@@ -557,7 +564,7 @@ subprojects {
       List<String> files = []
       testTask.testClassesDirs.files.each { File classDir ->
         if (classDir.exists()) {
-          classDir.eachFileRecurse(FileType.FILES) { f ->
+          classDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
             def relPath = new File(classDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
             files << relPath
           }
@@ -1049,7 +1056,7 @@ task newApi {
 
             testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 
-            testImplementation project.deps.junit5
+            testImplementation project.deps.junit5Api
             testRuntimeOnly project.deps.junit5Engine
           }
         """

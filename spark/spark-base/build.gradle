@@ -34,10 +34,10 @@ dependencies {
   testImplementation project(path: ':jetty9', configuration: 'testOutput')
 
   testImplementation project.deps.bouncyCastle
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 
-  testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoCore
   testImplementation project.deps.assertJ
   testImplementation project.deps.jsonUnit
   testImplementation project.deps.springTest

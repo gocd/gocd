@@ -20,10 +20,10 @@ description = 'Interfaces necessary for GoCD to access plugins'
 
 dependencies {
   api project(':plugin-infra:go-plugin-api-internal')
-  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest
-  testImplementation project.deps.mockito
+  testImplementation project.deps.mockitoCore
   testImplementation project(':test:test-utils')
 }
 

@@ -47,11 +47,13 @@ tags
 
 # virtual machine crash logs
 hs_err_pid*
+*.hprof
 
 # intellij has a tendency to cache rake tasks
 .rakeTasks
 
 # ignore cipher file generated at runtime
+server/config/cipher
 server/config/cipher.aes
 server/config/db.properties
 

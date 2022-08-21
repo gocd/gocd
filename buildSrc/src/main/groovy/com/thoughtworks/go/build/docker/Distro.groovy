@@ -155,8 +155,9 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         'apt-get update',
-        'apt-get install -y git subversion mercurial openssh-client bash unzip curl locales procps sysvinit-utils coreutils',
-        'apt-get autoclean',
+        'apt-get install -y git subversion mercurial openssh-client bash unzip curl ca-certificates locales procps sysvinit-utils coreutils',
+        'apt-get clean all',
+        'rm -rf "/var/lib/apt/lists/*"',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'
       ]
     }

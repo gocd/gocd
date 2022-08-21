@@ -45,7 +45,7 @@ trait DistroBehavior {
 
   List<String> getCreateUserAndGroupCommands() {
     return [
-      'useradd -u ${UID} -g root -d /home/go -m go'
+      'useradd -l -u ${UID} -g root -d /home/go -m go'
     ]
   }
 

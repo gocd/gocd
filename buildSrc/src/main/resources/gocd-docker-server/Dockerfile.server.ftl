@@ -22,11 +22,12 @@ USER root
 ARG UID=1000
 <#if useFromArtifact >
 COPY go-server-${fullVersion}.zip /tmp/go-server-${fullVersion}.zip
+RUN \
 <#else>
-RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip
+RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip && \
 </#if>
-RUN unzip /tmp/go-server-${fullVersion}.zip -d /
-RUN mkdir -p /go-server/wrapper /go-server/bin && \
+    unzip /tmp/go-server-${fullVersion}.zip -d / && \
+    mkdir -p /go-server/wrapper /go-server/bin && \
     mv /go-server-${goVersion}/LICENSE /go-server/LICENSE && \
     mv /go-server-${goVersion}/bin/go-server /go-server/bin/go-server && \
     mv /go-server-${goVersion}/lib /go-server/lib && \
@@ -94,8 +95,8 @@ COPY --from=gocd-server-unzip /go-server /go-server
 COPY --chown=go:root logback-include.xml /go-server/config/logback-include.xml
 COPY --chown=go:root install-gocd-plugins git-clone-config /usr/local/sbin/
 
-RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
-    && chmod -R g=u /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
+RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh && \
+    chmod -R g=u /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

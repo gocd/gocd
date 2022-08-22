@@ -49,4 +49,7 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
   config.java_services_cache = :ServiceCache
+
+  # Headers are far too large in development environment, possibly see https://github.com/rails/rails/pull/39939
+  config.action_view.preload_links_header = false
 end

@@ -59,6 +59,7 @@ trait DistroBehavior {
       project.packaging.adoptOpenjdk.featureVersion,
       project.packaging.adoptOpenjdk.interimVersion,
       project.packaging.adoptOpenjdk.updateVersion,
+      project.packaging.adoptOpenjdk.patchVersion,
       project.packaging.adoptOpenjdk.buildVersion)
 
     return [

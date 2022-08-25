@@ -128,7 +128,7 @@ class LicenseReport {
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
           }
 
-          renderModuleData(markup, counter.incrementAndGet(), "openjdk", openJdkLicense())
+          renderModuleData(markup, counter.incrementAndGet(), openJdkLicense().moduleName, openJdkLicense())
 
           div(class: "footer") {
             span("This report was generated at ")

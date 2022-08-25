@@ -110,6 +110,7 @@ task downloadLinuxJreChecksum(type: DownloadFile) {
     project.packaging.adoptOpenjdk.featureVersion,
     project.packaging.adoptOpenjdk.interimVersion,
     project.packaging.adoptOpenjdk.updateVersion,
+    project.packaging.adoptOpenjdk.patchVersion,
     project.packaging.adoptOpenjdk.buildVersion
   )
   src srcUrl
@@ -124,6 +125,7 @@ task downloadLinuxJre(type: DownloadFile) {
     project.packaging.adoptOpenjdk.featureVersion,
     project.packaging.adoptOpenjdk.interimVersion,
     project.packaging.adoptOpenjdk.updateVersion,
+    project.packaging.adoptOpenjdk.patchVersion,
     project.packaging.adoptOpenjdk.buildVersion
   )
   src srcUrl

@@ -170,9 +170,10 @@ project.ext.toolchains = [
 project.ext.packaging = [
   adoptOpenjdk: [
     featureVersion: 17,
-    interimVersion: 0, // set to `null` for the first release
-    updateVersion : 4, // set to `null` for the first release
-    buildVersion  : 8
+    interimVersion: 0, // set to `null` for the first release of a new featureVersion
+    updateVersion : 4, // set to `null` for the first release of a new featureVersion
+    patchVersion  : 1, // set to `null` for most releases. Patch releases are "exceptional".
+    buildVersion  : 1
   ]
 ]
 

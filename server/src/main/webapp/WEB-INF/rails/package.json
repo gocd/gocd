@@ -41,7 +41,7 @@
     "moment-duration-format": "^2.3.2",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
-    "prismjs": "^1.28.0",
+    "prismjs": "^1.29.0",
     "shell-quote": "^1.7.3",
     "shellwords-ts": "^3.0.0",
     "underscore.string": "^3.3.6",

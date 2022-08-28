@@ -22,6 +22,3 @@
         </div>
     </div>
 </div>
-<script type="application/javascript">
-    angular.bootstrap('#status_reports-page');
-</script>

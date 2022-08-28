@@ -27,6 +27,7 @@ importAll(require.context('./helpers', true, /\.(js|msx|ts|tsx)$/));
 
 importAll(require.context('./lib', true, /\.(js|msx|ts|tsx)$/));
 importAll(require.context('./models', true, /\.(js|msx|ts|tsx)$/));
+importAll(require.context('./single_page_apps', true, /\.(js|msx|ts|tsx)$/));
 importAll(require.context('./views', true, /\.(js|msx|ts|tsx)$/));
 
 importAll(require.context('../../webpack/views/components', true, /spec\.(js|msx|ts|tsx)$/));

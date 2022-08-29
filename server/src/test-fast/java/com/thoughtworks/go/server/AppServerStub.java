@@ -30,11 +30,6 @@ public class AppServerStub extends AppServer {
     }
 
     @Override
-    void addExtraJarsToClasspath(String extraClasspath) {
-        calls.put("addExtraJarsToClasspath", extraClasspath);
-    }
-
-    @Override
     void setSessionConfig() {
         calls.put("setSessionCookieConfig", "something");
     }

@@ -209,6 +209,19 @@ allprojects {
   version = project.fullVersion
   buildDir = "${projectDir}/target"
 
+  repositories {
+    mavenCentral()
+    maven {
+      // Only for velocity-tools-view 1.4
+      url 'https://repo1.maven.org/maven2'
+      metadataSources { artifact() }
+    }
+  }
+
+  if (project.name == 'build-platform') {
+    return
+  }
+
   configurations {
     providedAtPackageTime {
       transitive = true
@@ -244,15 +257,6 @@ allprojects {
       transitive = true
       canBeConsumed = false
       canBeResolved = true
-    }
-  }
-
-  repositories {
-    mavenCentral()
-    maven {
-      // Only for velocity-tools-view 1.4
-      url 'https://repo1.maven.org/maven2'
-      metadataSources { artifact() }
     }
   }
 }
@@ -418,14 +422,6 @@ subprojects {
       }
     }
 
-    dependencies {
-      // Use platforms to enforce centralised control of compatible versions where BOMs are published
-      // for a multi-library project
-      testImplementation enforcedPlatform(project.deps.junit5Bom)
-      testImplementation enforcedPlatform(project.deps.mockitoBom)
-      testImplementation enforcedPlatform(project.deps.testcontainersBom)
-    }
-
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
       archiveClassifier = 'tests'
       from sourceSets.test.output
@@ -436,6 +432,43 @@ subprojects {
       ruleSetFiles = files(rootProject.file('buildSrc/pmd.xml'))
       ruleSets = []
       incrementalAnalysis = true
+    }
+
+    dependencies {
+      // Force all sub-projects to have managed dependency versions for certain transitive dependencies
+      implementation platform(project(':build-platform'))
+
+      modules {
+        module("dom4j:dom4j") {
+          replacedBy("org.dom4j:dom4j", "Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
+        }
+      }
+      components {
+        // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in
+        // optional dependencies when it should not (https://github.com/dom4j/dom4j/issues/99)
+        withModule('org.dom4j:dom4j', { details -> details.allVariants { withDependencies { clear() } } })
+      }
+    }
+  }
+
+  configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+      // replace  commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html
+      if (details.requested.group == 'commons-logging' && details.requested.name == 'commons-logging') {
+        details.useTarget project.deps.slf4jJcl
+      }
+      // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
+      if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
+        details.useTarget project.deps.hamcrest
+      }
+      // Javax Annotation has migrated to jakarta annotations
+      if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
+        details.useTarget project.deps.jakartaAnnotation
+      }
+      // Javax Servlet API has migrated to jakarta Servlet API
+      if (details.requested.group == 'javax.servlet' && details.requested.name == 'javax.servlet-api') {
+        details.useTarget project.deps.servletApi
+      }
     }
   }
 
@@ -640,49 +673,6 @@ subprojects {
         }
       }
     }
-  }
-
-  configurations.all {
-
-    def versionOverrides = [
-      "commons-beanutils:commons-beanutils": project.versions.commonsBeanutils,
-      "org.apache.commons:commons-pool2"   : project.versions.commonsPool,
-      "org.objenesis:objenesis"            : project.versions.objenesis,
-    ]
-
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-      def overrideVersion = versionOverrides[details.requested.group + ":" + details.requested.name]
-
-      if (overrideVersion != null && details.requested.version != overrideVersion) {
-        logger.info "Overriding dependency ${details.requested.group}:${details.requested.name} version ${details.requested.version} --> $overrideVersion"
-        details.useVersion overrideVersion
-      }
-
-      // replace log4j and commons-logging implementations with the slf4j apis that redirect logs to slf4j
-      // see https://www.slf4j.org/legacy.html
-      if (details.requested.group == 'log4j' && details.requested.name == 'log4j') {
-        details.useTarget project.deps.slf4jLog4j
-      }
-      if (details.requested.group == 'commons-logging' && details.requested.name == 'commons-logging') {
-        details.useTarget project.deps.slf4jJcl
-      }
-      // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
-      if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
-        details.useTarget project.deps.hamcrest
-      }
-      // Javax Annotation has migrated to jakarta annotations
-      if (details.requested.group == 'javax.annotation' && details.requested.name == 'javax.annotation-api') {
-        details.useTarget project.deps.jakartaAnnotation
-      }
-      // Javax Servlet API has migrated to jakarta Servlet API
-      if (details.requested.group == 'javax.servlet' && details.requested.name == 'javax.servlet-api') {
-        details.useTarget project.deps.servletApi
-      }
-    }
-
-    exclude(group: 'javax.xml.bind') // Moved to jakarta.xml.bind
-    exclude(group: 'junit') // Moved to org.junit
-    exclude(group: 'dom4j') // Moved to org.dom4j
   }
 }
 

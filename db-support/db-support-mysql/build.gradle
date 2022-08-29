@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
+configurations.all {
+  // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970
+  exclude group: 'junit'
+}
+
 dependencies {
-    implementation(project.deps.mysql) {
-        // Only needed for X DevAPI: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-installing-maven.html
-        exclude group: 'com.google.protobuf'
-    }
-    api project(':db-support:db-support-base')
+  implementation(project.deps.mysql) {
+    // Only needed for X DevAPI: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-installing-maven.html
+    exclude group: 'com.google.protobuf'
+  }
+  api project(':db-support:db-support-base')
 
-    annotationProcessor project.deps.lombok
+  annotationProcessor project.deps.lombok
 
-    testImplementation project(path: ':db-support:db-migration')
-    testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
+  testImplementation project(path: ':db-support:db-migration')
+  testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
-    testImplementation project.deps.testcontainersJunit
-    testImplementation project.deps.testcontainers
-    testImplementation project.deps.testcontainersMysql
+  testImplementation project.deps.junit5Api
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.assertJ
 
-    testImplementation project.deps.assertJ
-    testImplementation project.deps.junit5Api
-    testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.testcontainers
+  testImplementation project.deps.testcontainersJunit
+  testImplementation project.deps.testcontainersMysql
 }

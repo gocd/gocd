@@ -22,8 +22,6 @@ dependencies {
   implementation project(':config:config-server')
   implementation project(':common')
   implementation project(':rack_hack')
-  implementation project.deps.commonsDbcp
-  implementation project.deps.commonsPool
   implementation project.deps.slf4j
 
   providedAtPackageTime project.deps.jetty

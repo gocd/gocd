@@ -1,0 +1,35 @@
+plugins {
+  id 'java-platform'
+  id 'maven-publish'
+}
+
+description = 'Internal platform constraining dependency resolution for GoCD'
+
+javaPlatform {
+  allowDependencies()
+}
+
+// Control versions of transitive dependencies that can have conflicts across various projects
+dependencies {
+  // Use BOMs to control versions of dependencies for other projects where possible.
+  // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
+  api enforcedPlatform(project.deps.jacksonBom)
+  api platform(project.deps.jaxbBom)
+
+  constraints {
+    api project.deps.commonsPool
+    api project.deps.commonsCollections
+    api project.deps.commonsBeanUtils
+    api project.deps.objenesis
+  }
+
+  api enforcedPlatform(project.deps.junit5Bom)
+  api enforcedPlatform(project.deps.mockitoBom)
+  api enforcedPlatform(project.deps.testcontainersBom)
+}
+
+publishing {
+  publications {
+    maven(MavenPublication)
+  }
+}

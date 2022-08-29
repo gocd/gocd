@@ -74,7 +74,7 @@ final Map<String, String> libraries = [
   jsoup               : 'org.jsoup:jsoup:1.15.3',
   junit5Bom           : 'org.junit:junit-bom:5.9.1',
   liquibase           : 'org.liquibase:liquibase-core:4.17.2',
-  logback             : 'ch.qos.logback:logback-classic:1.2.11',
+  logback             : 'ch.qos.logback:logback-classic:1.4.4',
   lombok              : 'org.projectlombok:lombok:1.18.24',
   mail                : 'jakarta.mail:jakarta.mail-api:2.1.0',
   mailSmtp            : 'org.eclipse.angus:smtp:1.0.0',
@@ -90,7 +90,7 @@ final Map<String, String> libraries = [
   rack                : 'org.jruby.rack:jruby-rack:1.1.22',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations
-  slf4j               : 'org.slf4j:slf4j-api:1.7.36',
+  slf4j               : 'org.slf4j:slf4j-api:2.0.4',
   spark               : 'com.sparkjava:spark-core:2.7.2',
   spring              : 'org.springframework:spring-core:4.3.30.RELEASE',
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',

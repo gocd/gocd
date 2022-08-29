@@ -57,8 +57,8 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -236,16 +236,6 @@ public class Jetty9ServerTest {
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
         jetty9Server.setSessionConfig();
         assertThat(sessionCookieConfig.isSecure(), is(false));
-    }
-
-    @Test
-    public void shouldAddExtraJarsIntoClassPath() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.addExtraJarsToClasspath("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar");
-        jetty9Server.startHandlers();
-
-        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
-        assertThat(webAppContext.getExtraClasspath(), is("test-addons/some-addon-dir/addon-1.JAR,test-addons/some-addon-dir/addon-2.jar," + configDir));
     }
 
     @Test

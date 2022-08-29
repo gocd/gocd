@@ -301,8 +301,6 @@ spark/spark-spa/target/
 target/
 test/http-mocks/out/
 test/http-mocks/target/
-test/test-addon/out/
-test/test-addon/target/
 test/test-agent/out/
 test/test-agent/target/
 test/test-utils/out/

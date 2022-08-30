@@ -24,7 +24,7 @@ type Partial<T> = { [P in keyof T]?: maybeString }; // represents a subset of at
  * This is the foundation of all subsequent proxies; takes a `styles` object
  * and applies an arbitrary lambda transformation to a given CSS className.
  */
-export function remapCss<T>(obj: T, transform: (key: KeysOf<T>) => maybeString): T {
+export function remapCss<T extends {}>(obj: T, transform: (key: KeysOf<T>) => maybeString): T {
   if ("function" === typeof Proxy) {
     return new Proxy(obj, {
       get: (target: any, key: KeysOf<T>) => {
@@ -59,7 +59,7 @@ export function remapCss<T>(obj: T, transform: (key: KeysOf<T>) => maybeString):
  * console.log(styles.myClass); // "my-class"
  * console.log(sel.myClass);    // ".my-class"
  */
-export function asSelector<T>(obj: T): T {
+export function asSelector<T extends {}>(obj: T): T {
   return remapCss<T>(obj, (key: keyof T) => `.${obj[key]}`);
 }
 
@@ -67,7 +67,7 @@ export function asSelector<T>(obj: T): T {
  * Allows simple (partial or full) overrides of any css classname. Essentially
  * just syntactic sugar over a simple case for remapCss().
  */
-export function override<T>(obj: T, clobbers: Partial<T>): T {
+export function override<T extends {}>(obj: T, clobbers: Partial<T>): T {
   const overrides = asMap<T>(clobbers);
   return remapCss<T>(obj, (key: keyof T) => ((overrides.has(key) ? overrides.get(key) : obj[key]) as maybeString));
 }

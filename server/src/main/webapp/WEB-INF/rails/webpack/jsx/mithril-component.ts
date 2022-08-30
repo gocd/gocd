@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import m, { _NoLifecycle } from "mithril";
+import m, {_NoLifecycle} from "mithril";
 
 export abstract class MithrilComponent<Attrs = {}, State = {}> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
@@ -61,7 +61,7 @@ interface Restylable<T> {
   css: T;
 }
 
-function adoptStylesheet<T, U extends RestyleAttrs<T>>(receiver: Restylable<T>, vnode: m.Vnode<U>) {
+function adoptStylesheet<T, U extends RestyleAttrs<T>, State = {}>(receiver: Restylable<T>, vnode: m.Vnode<U, State>) {
   if (vnode.attrs.css) {
     receiver.css = vnode.attrs.css;
   }

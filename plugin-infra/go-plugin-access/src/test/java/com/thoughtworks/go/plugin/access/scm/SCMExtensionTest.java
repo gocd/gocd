@@ -41,7 +41,8 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTEN
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -50,7 +51,7 @@ import static org.mockito.Mockito.when;
 public class SCMExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
 
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private PluginManager pluginManager;
     @Mock
     private ExtensionsRegistry extensionsRegistry;

@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -45,13 +45,13 @@ import static org.mockito.Mockito.*;
 public class PluginSettingsMetadataLoaderTest {
     @Mock
     private PackageRepositoryExtension packageRepositoryExtension;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SCMExtension scmExtension;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private TaskExtension taskExtension;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private NotificationExtension notificationExtension;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private ConfigRepoExtension configRepoExtension;
     @Mock
     private PluginManager pluginManager;

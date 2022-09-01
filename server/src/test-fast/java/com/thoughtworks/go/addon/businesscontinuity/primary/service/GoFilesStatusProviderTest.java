@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GoFilesStatusProviderTest {
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private GoConfigService goConfigService;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SystemEnvironment systemEnvironment;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private CruiseConfig cruiseConfig;
     @Mock
     private ScheduledExecutorService scheduledExecutorService;

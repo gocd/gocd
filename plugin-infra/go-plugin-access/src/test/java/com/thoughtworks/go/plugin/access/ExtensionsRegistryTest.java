@@ -32,9 +32,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ExtensionsRegistryTest {
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private GoPluginExtension elasticExtension;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private GoPluginExtension authorizationExtension;
     private ExtensionsRegistry registry;
 

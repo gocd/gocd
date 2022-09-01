@@ -28,13 +28,13 @@ import static org.mockito.Mockito.*;
 public class StandbyFileSyncServiceTest {
     @SystemStub
     private SystemProperties systemProperties;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SystemEnvironment systemEnvironment;
     @Mock
     private PrimaryServerCommunicationService primaryServerCommunicationService;
     @Mock
     private AddOnConfiguration addOnConfiguration;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private AuthToken authToken;
 
 

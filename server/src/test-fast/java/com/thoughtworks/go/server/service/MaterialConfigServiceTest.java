@@ -48,7 +48,7 @@ class MaterialConfigServiceTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SecurityService securityService;
 
     private String user;

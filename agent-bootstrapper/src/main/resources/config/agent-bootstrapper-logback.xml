@@ -22,6 +22,7 @@
     scan="${gocd.agentBootstrapper.logback.scan:-true}"
     scanPeriod="${gocd.agentBootstrapper.logback.scanPeriod:-5 seconds}"
 >
+  <shutdownHook/>
 
   <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${gocd.agent.log.dir:-logs}/go-agent-bootstrapper.log</file>

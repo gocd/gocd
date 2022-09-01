@@ -23,6 +23,7 @@
     debug="false"
     scan="false"
 >
+  <shutdownHook/>
 
   <!-- since `base` module is on CP of all projects, this will be inherited by all projects -->
   <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">

@@ -23,7 +23,7 @@ require "action_view/railtie"
 require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
-Bundler.require(*Rails.groups)
+Bundler.require(*Rails.groups(assets: %w[development test]))
 
 module Go
   class Application < Rails::Application

@@ -55,7 +55,7 @@ public class PrimaryServerCommunicationServiceTest {
     private HttpClientMock httpClientMock;
 
     private PrimaryServerEndPoint primaryServerEndPoint;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private AuthToken authToken;
 
     @BeforeEach

@@ -55,9 +55,9 @@ class FelixGoPluginOSGiFrameworkTest {
     private BundleContext bundleContext;
     @Mock
     private Bundle bundle;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private Framework framework;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private PluginRegistry registry;
     @Mock
     private SystemEnvironment systemEnvironment;

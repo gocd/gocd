@@ -42,7 +42,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ public abstract class NotificationExtensionTestBase {
     private PluginSettingsConfiguration pluginSettingsConfiguration;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     protected PluginManager pluginManager;
     @Mock
     protected ExtensionsRegistry extensionsRegistry;

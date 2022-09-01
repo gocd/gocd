@@ -50,7 +50,7 @@ public class FeedServiceTest {
     private Username username;
     @Mock
     private PipelineHistoryService pipelineHistoryService;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private XmlApiService xmlApiService;
     @Mock
     private StageService stageService;

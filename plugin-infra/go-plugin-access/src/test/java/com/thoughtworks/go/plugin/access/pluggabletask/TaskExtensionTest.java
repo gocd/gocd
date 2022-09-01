@@ -49,7 +49,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskExtensionTest {
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private PluginManager pluginManager;
     @Mock
     private ExtensionsRegistry extensionsRegistry;

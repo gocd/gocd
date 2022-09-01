@@ -65,13 +65,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(SystemStubsExtension.class)
 @ExtendWith(MockitoExtension.class)
 public class Jetty9ServerTest {
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private Server server;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SystemEnvironment systemEnvironment;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SSLSocketFactory sslSocketFactory;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private DeploymentManager deploymentManager;
 
     @SystemStub

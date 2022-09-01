@@ -52,7 +52,7 @@ public class FeatureToggleRepositoryTest {
     @TempDir
     Path temporaryFolder;
 
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SystemEnvironment environment;
 
     @AfterEach

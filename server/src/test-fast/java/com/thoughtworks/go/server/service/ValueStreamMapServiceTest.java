@@ -66,7 +66,7 @@ public class ValueStreamMapServiceTest {
     private PipelineService pipelineService;
     @Mock
     private MaterialRepository materialRepository;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private GoConfigService goConfigService;
     @Mock
     private RunStagesPopulator runStagesPopulator;
@@ -74,7 +74,7 @@ public class ValueStreamMapServiceTest {
     private UnrunStagesPopulator unrunStagesPopulator;
     @Mock
     private DownstreamInstancePopulator downstreaminstancepopulator;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SecurityService securityService;
 
     private Username user;

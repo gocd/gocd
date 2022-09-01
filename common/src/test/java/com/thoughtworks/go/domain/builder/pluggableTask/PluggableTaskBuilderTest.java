@@ -58,7 +58,7 @@ public class PluggableTaskBuilderTest {
     private RunIfConfigs runIfConfigs;
     @Mock
     private Builder cancelBuilder;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private PluggableTask pluggableTask;
     @Mock
     private PluginManager pluginManager;

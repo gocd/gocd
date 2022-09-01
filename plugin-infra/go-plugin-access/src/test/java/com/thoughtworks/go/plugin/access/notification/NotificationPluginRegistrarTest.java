@@ -42,7 +42,7 @@ public class NotificationPluginRegistrarTest {
 
     @Mock
     private PluginManager pluginManager;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private NotificationExtension notificationExtension;
     @Mock
     private NotificationPluginRegistry notificationPluginRegistry;

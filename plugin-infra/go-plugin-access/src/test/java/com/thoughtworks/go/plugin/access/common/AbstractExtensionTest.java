@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 public class AbstractExtensionTest {
 
     private AbstractExtension extension;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private PluginManager pluginManager;
     @Mock
     ExtensionsRegistry extensionsRegistry;

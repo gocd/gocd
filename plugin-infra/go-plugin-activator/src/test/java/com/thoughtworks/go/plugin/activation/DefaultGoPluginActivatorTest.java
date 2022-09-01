@@ -46,7 +46,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +60,7 @@ public class DefaultGoPluginActivatorTest {
     private DefaultGoPluginActivator activator;
     @Captor private ArgumentCaptor<List<String>> errorMessageCaptor;
     @Mock private BundleContext context;
-    @Mock(lenient = true) private Bundle bundle;
+    @Mock(strictness = Mock.Strictness.LENIENT) private Bundle bundle;
     @Mock private ServiceReference<PluginRegistryService> pluginRegistryServiceReference;
     @Mock private PluginRegistryService pluginRegistryService;
     @Mock private ServiceReference<LoggingService> loggingServiceReference;

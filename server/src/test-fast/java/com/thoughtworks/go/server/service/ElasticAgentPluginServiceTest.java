@@ -78,9 +78,9 @@ import static org.mockito.Mockito.*;
 class ElasticAgentPluginServiceTest {
     @Mock
     private PluginManager pluginManager;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private ElasticAgentPluginRegistry registry;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private AgentService agentService;
     @Mock
     private EnvironmentConfigService environmentConfigService;
@@ -88,7 +88,7 @@ class ElasticAgentPluginServiceTest {
     private ServerPingQueueHandler serverPingQueue;
     @Mock
     private ServerHealthService serverHealthService;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private GoConfigService goConfigService;
     @Mock
     private CreateAgentQueueHandler createAgentQueue;
@@ -100,7 +100,7 @@ class ElasticAgentPluginServiceTest {
     private ConsoleService consoleService;
     @Mock
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SecretParamResolver secretParamResolver;
     @Mock
     private JobStatusTopic jobStatusTopic;

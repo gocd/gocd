@@ -37,9 +37,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PluginExtensionsAndVersionValidatorImplTest {
     private static final String PLUGIN_ID = "Some-Plugin-Id";
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private ExtensionsRegistry extensionsRegistry;
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private GoPluginDescriptor descriptor;
     private PluginExtensionsAndVersionValidatorImpl pluginExtensionsAndVersionValidator;
 

@@ -44,7 +44,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     private File bundledPluginDir;
     private File pluginExternalDir;
 
-    @Mock(lenient = true)
+    @Mock(strictness = Mock.Strictness.LENIENT)
     private SystemEnvironment systemEnvironment;
     @Mock
     private PluginJarChangeListener changeListener;

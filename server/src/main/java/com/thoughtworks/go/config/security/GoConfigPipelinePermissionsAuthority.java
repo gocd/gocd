@@ -84,7 +84,7 @@ public class GoConfigPipelinePermissionsAuthority {
 
         if (!group.hasAuthorizationDefined()) {
             boolean everyoneIsAllowedToViewGroupsWithNoAuth = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-            Users viewersAndOperators = everyoneIsAllowedToViewGroupsWithNoAuth ? Everyone.INSTANCE : policy.effectiveAdmins();;
+            Users viewersAndOperators = everyoneIsAllowedToViewGroupsWithNoAuth ? Everyone.INSTANCE : policy.effectiveAdmins();
             return new Permissions(viewersAndOperators, viewersAndOperators, policy.effectiveAdmins(), PipelinePermission.from(pipeline, viewersAndOperators));
         }
 

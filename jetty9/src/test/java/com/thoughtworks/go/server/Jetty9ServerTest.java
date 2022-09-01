@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.deploy.App;
@@ -112,7 +111,7 @@ public class Jetty9ServerTest {
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
         jetty9Server = new Jetty9Server(systemEnvironment, server, deploymentManager);
-        ReflectionUtil.setStaticField(Jetty9Server.class, "JETTY_XML_LOCATION_IN_JAR", "config");
+        Jetty9Server.JETTY_XML_LOCATION_IN_JAR = "config";
     }
 
     @Test
@@ -264,7 +263,7 @@ public class Jetty9ServerTest {
         File jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml")).toFile();
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
-        String originalContent = "jetty-v9.4.8.v20171121\nsome other local changes";
+        String originalContent = "jetty-v9.4.48.v20220622\nsome other local changes";
         FileUtils.writeStringToFile(jettyXml, originalContent, UTF_8);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
         assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is(originalContent));

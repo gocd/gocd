@@ -19,7 +19,7 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
     <!--Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.-->
-    <!--jetty-v9.4.8.v20171121-->
+    <!--jetty-v9.4.48.v20220622-->
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
@@ -68,9 +68,6 @@
                 <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
                     <Set name="requestLog">
                         <New class="com.thoughtworks.go.server.logging.Slf4jRequestLogger">
-                            <Set name="extended">false</Set>
-                            <Set name="logCookies">false</Set>
-                            <Set name="logLatency">true</Set>
                             <Set name="ignorePaths">
                               <Array type="java.lang.String">
                                 <Item>/go/assets/*</Item>

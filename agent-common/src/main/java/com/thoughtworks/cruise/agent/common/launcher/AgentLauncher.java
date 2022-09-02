@@ -21,6 +21,7 @@ package com.thoughtworks.cruise.agent.common.launcher;
 public interface AgentLauncher {
 
     int IRRECOVERABLE_ERROR = 0xBADBAD;
+    int NOT_UP_TO_DATE = 60;
 
     int launch(AgentLaunchDescriptor descriptor);
 }

@@ -71,8 +71,6 @@ public class AgentLauncherImpl implements AgentLauncher {
     private Integer doLaunch(AgentLaunchDescriptor descriptor) {
         Thread shutdownHook = null;
         try {
-            int returnValue;
-
             if (!lockFile.tryLock()) {
                 return IRRECOVERABLE_ERROR;
             }
@@ -92,16 +90,7 @@ public class AgentLauncherImpl implements AgentLauncher {
             ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-            returnValue = agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.getMd5(), urlGenerator, System.getenv(), context);
-
-            try {
-                // Sleep a bit so that if there are problems we don't spin
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return returnValue;
-            }
-            return returnValue;
-
+            return agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.getMd5(), urlGenerator, System.getenv(), context);
         } catch (Exception e) {
             LOG.error("Launch encountered an unknown exception", e);
             return UNKNOWN_EXCEPTION_OCCURRED;

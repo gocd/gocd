@@ -79,7 +79,7 @@ public class AgentLauncherImpl implements AgentLauncher {
 
             shutdownHook = registerShutdownHook();
 
-            Map context = descriptor.context();
+            Map<String, String> context = descriptor.context();
 
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
             ServerUrlGenerator urlGenerator = new UrlConstructor(bootstrapperArgs.getServerUrl().toExternalForm());
@@ -115,13 +115,13 @@ public class AgentLauncherImpl implements AgentLauncher {
         if (shutdownHook != null) {
             try {
                 Runtime.getRuntime().removeShutdownHook(shutdownHook);
-            } catch (Exception e) {
+            } catch (Exception ignore) {
             }
         }
     }
 
     private Thread registerShutdownHook() {
-        Thread shutdownHook = new Thread(() -> lockFile.delete());
+        Thread shutdownHook = new Thread(lockFile::delete);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
         return shutdownHook;
     }
@@ -131,12 +131,12 @@ public class AgentLauncherImpl implements AgentLauncher {
     }
 
     public interface AgentProcessParentRunner {
-        int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context);
+        int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map<String, String> context);
     }
 
     private static class AgentJarBasedAgentParentRunner implements AgentProcessParentRunner {
         @Override
-        public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context) {
+        public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map<String, String> context) {
             String agentProcessParentClassName = JarUtil.getManifestKey(Downloader.AGENT_BINARY_JAR, GO_AGENT_BOOTSTRAP_CLASS);
             String tempDirSuffix = new BigInteger(64, new SecureRandom()).toString(16) + "-" + Downloader.AGENT_BINARY_JAR;
             File tempDir = new File(FileUtil.TMP_PARENT_DIR, "deps-" + tempDirSuffix);

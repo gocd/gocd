@@ -68,13 +68,10 @@ public class AgentBootstrapper {
         DefaultAgentLaunchDescriptorImpl descriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, this);
 
         do {
-            ClassLoader tccl = launcherThread.getContextClassLoader();
             try (AgentLauncherCreator agentLauncherCreator = getLauncherCreator()) {
                 AgentLauncher launcher = agentLauncherCreator.createLauncher();
                 LOG.info("Attempting create and start launcher...");
-                setContextClassLoader(launcher.getClass().getClassLoader());
                 returnValue = launcher.launch(descriptor);
-                resetContextClassLoader(tccl);
                 LOG.info("Launcher returned with code {}(0x{})", returnValue, Integer.toHexString(returnValue).toUpperCase());
                 if (returnValue == AgentLauncher.IRRECOVERABLE_ERROR) {
                     loop = false;
@@ -82,7 +79,6 @@ public class AgentBootstrapper {
             } catch (Exception e) {
                 LOG.error("Error starting launcher", e);
             } finally {
-                resetContextClassLoader(tccl);
                 forceGCToPreventOOM();
             }
 
@@ -119,14 +115,6 @@ public class AgentBootstrapper {
 
     void jvmExit(int returnValue) {
         System.exit(returnValue);
-    }
-
-    private void setContextClassLoader(ClassLoader tccl) {
-        Thread.currentThread().setContextClassLoader(tccl);
-    }
-
-    private void resetContextClassLoader(ClassLoader tccl) {
-        Thread.currentThread().setContextClassLoader(tccl);
     }
 
     public void stopLooping() {

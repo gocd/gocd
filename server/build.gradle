@@ -709,17 +709,19 @@ task configureWar {
       into '/'
       exclude('WEB-INF/web.xml')
       exclude("**/rails/*.log")
-      exclude("**/rails/log/*")
+      exclude("**/rails/log*")
       exclude("**/rails/node_modules/")
       exclude("**/rails/spec/")
       exclude("**/rails/tmp/")
-      exclude("**/rails/**/jruby/*/cache/*.gem")
       exclude("**/rails/app/assets/")
       exclude("**/rails/webpack/")
-    new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
+
+      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bin")
+      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/cache")
+      new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
         theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/gems/${gem}")
         theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/specifications/${gem}.gemspec")
-        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/build_info/${gem}.info")
+        theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/extensions/**/${gem}")
       }
     }
   }

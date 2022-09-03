@@ -16,24 +16,6 @@ import com.thoughtworks.go.build.YarnRunTask
  * limitations under the License.
  */
 
-task scssLint {
-  description "Run scss-lint"
-  dependsOn ':server:initializeRailsGems'
-
-  def inputDir = project.file("${project.railsRoot}/app/assets/new_stylesheets")
-  inputs.dir(inputDir)
-
-  doFirst {
-    project.jrubyexec {
-      workingDir = project.railsRoot
-
-      args = ['-S', 'scss-lint', "--config", 'scss-lint.yml', inputDir]
-      maxHeapSize = '1g'
-    }
-
-  }
-}
-
 task eslintold(type: YarnRunTask) {
   description "Run ESLint for old javascript code"
   dependsOn 'yarnInstall'
@@ -55,6 +37,7 @@ task eslint(type: YarnRunTask) {
   yarnCommand = ['eslint']
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/spec/webpack"))
+  source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
 }
 
 task tslint(type: YarnRunTask) {
@@ -71,5 +54,5 @@ task tslint(type: YarnRunTask) {
 
 task lint {
   description 'Run all lint tools'
-  dependsOn eslintold, scssLint, eslint, tslint
+  dependsOn eslintold, eslint, tslint
 }

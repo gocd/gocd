@@ -27,7 +27,3 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'rails-controller-testing'
 end
-
-group :development do
-  gem 'scss_lint', require: false
-end

@@ -709,7 +709,8 @@ task configureWar {
       into '/'
       exclude('WEB-INF/web.xml')
       exclude("**/rails/*.log")
-      exclude("**/rails/log*")
+      exclude("**/rails/log/")
+      exclude("**/rails/logs/")
       exclude("**/rails/node_modules/")
       exclude("**/rails/spec/")
       exclude("**/rails/tmp/")

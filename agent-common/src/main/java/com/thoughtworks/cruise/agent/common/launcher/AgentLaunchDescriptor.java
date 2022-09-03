@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public interface AgentLaunchDescriptor {
 
-    Map context();
+    Map<String, String> context();
 
     /**
      * future proofing - in case we need the bootstrapper (reflection only)

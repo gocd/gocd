@@ -15,22 +15,26 @@
  */
 package com.thoughtworks.go.server.logging;
 
-import org.eclipse.jetty.server.AbstractNCSARequestLog;
+import org.eclipse.jetty.server.CustomRequestLog;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.RequestLog;
+import org.eclipse.jetty.server.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Slf4jRequestLogger extends AbstractNCSARequestLog implements RequestLog {
+public class Slf4jRequestLogger extends CustomRequestLog implements RequestLog {
 
-    private static Logger LOG = LoggerFactory.getLogger("org.eclipse.jetty.server.RequestLog");
+    private static final Logger LOG = LoggerFactory.getLogger("org.eclipse.jetty.server.RequestLog");
+    private static final String NCSA_FORMAT_WITH_LATENCY_MS = NCSA_FORMAT + " %{ms}T";
 
     public Slf4jRequestLogger() {
-        super(requestEntry -> LOG.info(requestEntry));
+        super(LOG::info, NCSA_FORMAT_WITH_LATENCY_MS);
     }
 
     @Override
-    protected boolean isEnabled() {
-        return LOG.isInfoEnabled();
+    public void log(Request request, Response response) {
+        if (LOG.isInfoEnabled()) {
+            super.log(request, response);
+        }
     }
-
 }

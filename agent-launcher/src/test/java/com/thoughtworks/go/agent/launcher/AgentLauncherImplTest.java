@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent.launcher;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
@@ -45,7 +44,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,12 +74,9 @@ public class AgentLauncherImplTest {
     @Test
     public void shouldPassLauncherVersionToAgent() throws IOException {
         final List<String> actualVersion = new ArrayList<>();
-        final AgentLauncher launcher = new AgentLauncherImpl(new AgentLauncherImpl.AgentProcessParentRunner() {
-            @Override
-            public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlConstructor, Map<String, String> environmentVariables, Map context) {
-                actualVersion.add(launcherVersion);
-                return 0;
-            }
+        final AgentLauncher launcher = new AgentLauncherImpl((launcherVersion, launcherMd5, urlConstructor, environmentVariables, context) -> {
+            actualVersion.add(launcherVersion);
+            return 0;
         });
         TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
         launcher.launch(launchDescriptor());
@@ -91,19 +86,16 @@ public class AgentLauncherImplTest {
     }
 
     @Test
-    public void shouldNotThrowException_instedReturnAppropriateErrorCode_whenSomethingGoesWrongInLaunch() {
+    public void shouldNotThrowException_insteadReturnAppropriateErrorCode_whenSomethingGoesWrongInLaunch() {
         AgentLaunchDescriptor launchDesc = mock(AgentLaunchDescriptor.class);
-        when((String) launchDesc.context().get(AgentBootstrapperArgs.SERVER_URL)).thenThrow(new RuntimeException("Ouch!"));
-        try {
-            assertThat(new AgentLauncherImpl().launch(launchDesc), is(-273));
-        } catch (Exception e) {
-            fail("should not have blown up, because it directly interfaces with bootstrapper");
-        }
+        when(launchDesc.context().get(AgentBootstrapperArgs.SERVER_URL)).thenThrow(new RuntimeException("Ouch!"));
+        assertThat("should not have blown up, because it directly interfaces with bootstrapper",
+            new AgentLauncherImpl().launch(launchDesc), is(-273));
     }
 
     private AgentLaunchDescriptor launchDescriptor() {
         AgentLaunchDescriptor launchDescriptor = mock(AgentLaunchDescriptor.class);
-        Map contextMap = new ConcurrentHashMap();
+        Map<String, String> contextMap = new ConcurrentHashMap<>();
         contextMap.put(AgentBootstrapperArgs.SERVER_URL, "http://localhost:" + server.getPort() + "/go");
         contextMap.put(AgentBootstrapperArgs.SSL_VERIFICATION_MODE, "NONE");
         when(launchDescriptor.context()).thenReturn(contextMap);

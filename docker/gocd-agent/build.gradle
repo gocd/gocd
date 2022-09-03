@@ -112,15 +112,6 @@ subprojects {
 
       Thread.sleep(5000)
 
-      ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "logs", docker.dockerImageName]
-        standardOutput = containerOutput
-        errorOutput = containerOutput
-        ignoreExitValue = true
-      }
-
       // run a `ps aux`
       ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
       project.exec {
@@ -128,6 +119,15 @@ subprojects {
         commandLine = ["docker", "exec", docker.dockerImageName, "ps", "aux"]
         standardOutput = new TeeOutputStream(psOutput, System.out)
         errorOutput = new TeeOutputStream(psOutput, System.err)
+        ignoreExitValue = true
+      }
+
+      ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "logs", docker.dockerImageName]
+        standardOutput = containerOutput
+        errorOutput = containerOutput
         ignoreExitValue = true
       }
 
@@ -140,10 +140,16 @@ subprojects {
       }
 
       // assert if process was running
-      def expectedString = "lib/agent-bootstrapper.jar -serverUrl http://localhost:8153/go"
+      def expectedProcess = "lib/agent-bootstrapper.jar -serverUrl http://localhost:8153/go"
+      def expectedOutput = /Connect to localhost:8153.*Connection refused/
       def processList = psOutput.toString()
-      if (!processList.contains(expectedString)) {
-        throw new GradleException("Expected process output to contain [${expectedString}], but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
+      def containerLog = containerOutput.toString()
+
+      if (!processList.contains(expectedProcess)) {
+        throw new GradleException("Expected process output to contain [${expectedProcess}], but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
+      }
+      if (!(containerLog =~ expectedOutput)) {
+        throw new GradleException("Agent process was up, but expected container output to match /${expectedOutput}/. Was: \n${containerOutput.toString()}")
       }
     }
   }

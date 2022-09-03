@@ -21,6 +21,7 @@ dependencies {
     api project.deps.commonsCollections
     api project.deps.commonsBeanUtils
     api project.deps.objenesis
+    api project.deps.slf4j
   }
 
   api enforcedPlatform(project.deps.junit5Bom)

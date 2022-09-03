@@ -211,7 +211,7 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
     'RAILS_ENV' : 'test',
   ]
 
-  args = ['-S', 'rake', '--trace', 'assets:clobber', "assets:precompile"]
+  args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   doFirst {
     delete "${project.railsRoot}/tmp"

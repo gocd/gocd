@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 
 public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
@@ -52,20 +53,35 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     @Override
     public AgentLauncher createLauncher() {
         createTempLauncherJar();
-        try {
-            String libDir = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_LIB_DIR);
-            String classNameToLoad = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_CLASS);
-            return (AgentLauncher) loadClass(inUseLauncher, GO_AGENT_LAUNCHER_CLASS, libDir, classNameToLoad).getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        String libDir = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_LIB_DIR);
+        String classNameToLoad = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_CLASS);
+        this.urlClassLoader = classLoaderFor(libDir);
+        LOG.info("Attempting to load {} as specified by manifest key {}", classNameToLoad, GO_AGENT_LAUNCHER_CLASS);
+        return (AgentLauncher) withLoggerFactoryClassLoader(() -> {
+            try {
+                return this.urlClassLoader.loadClass(classNameToLoad).getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    private Class<?> loadClass(File sourceJar, String classNameManifestKey, String libDir, String classNameToLoad) throws ClassNotFoundException {
+    private URLClassLoader classLoaderFor(String libDir) {
         Predicate<JarEntry> filter = jarEntry -> jarEntry.getName().startsWith(libDir + "/") && jarEntry.getName().endsWith(".jar");
-        this.urlClassLoader = JarUtil.getClassLoaderFromJar(sourceJar, filter, getDepsDir(), DefaultAgentLauncherCreatorImpl.class.getClassLoader(), AgentLauncher.class, AgentLaunchDescriptor.class);
-        LOG.info("Attempting to load {} as specified by manifest key {}", classNameToLoad, classNameManifestKey);
-        return this.urlClassLoader.loadClass(classNameToLoad);
+        return JarUtil.getClassLoaderFromJar(inUseLauncher, filter, getDepsDir(), DefaultAgentLauncherCreatorImpl.class.getClassLoader(), AgentLauncher.class, AgentLaunchDescriptor.class);
+    }
+
+    private <T> T withLoggerFactoryClassLoader(Supplier<T> supplier) {
+        Thread currentThread = Thread.currentThread();
+        ClassLoader previousCL = currentThread.getContextClassLoader();
+        currentThread.setContextClassLoader(this.urlClassLoader);
+        LOG.info("Switching to classloader {} with {}", this.urlClassLoader, this.urlClassLoader.getURLs());
+        try {
+            return supplier.get();
+        } finally {
+            currentThread.setContextClassLoader(previousCL);
+            LOG.info("Switching back to classloader {}", previousCL);
+        }
     }
 
     private void createTempLauncherJar() {

@@ -69,8 +69,9 @@ public class AgentBootstrapper {
 
         do {
             try (AgentLauncherCreator agentLauncherCreator = getLauncherCreator()) {
+                LOG.info("Creating launcher...");
                 AgentLauncher launcher = agentLauncherCreator.createLauncher();
-                LOG.info("Attempting create and start launcher...");
+                LOG.info("Starting launcher...");
                 returnValue = launcher.launch(descriptor);
                 LOG.info("Launcher returned with code {}(0x{})", returnValue, Integer.toHexString(returnValue).toUpperCase());
                 if (returnValue == AgentLauncher.IRRECOVERABLE_ERROR) {

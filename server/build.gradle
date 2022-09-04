@@ -708,6 +708,7 @@ task configureWar {
     war.from(project.webAppDir) { theSpec ->
       into '/'
       exclude('WEB-INF/web.xml')
+      exclude("**/rails/.tool-versions")
       exclude("**/rails/*.log")
       exclude("**/rails/log/")
       exclude("**/rails/logs/")

@@ -41,6 +41,15 @@
     <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
     <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
+  <suppress until="2022-10-01Z">
+    <notes><![CDATA[
+   Temporary suppression as this dependency is embedded within JRuby as a transitive dependency of ruby/psych,
+   and there is no fixed version of JRuby available. This should be of limited risk to GoCD since it does not
+   directly ingest YAML off APIs. See https://github.com/ruby/psych/pull/574 and https://github.com/jruby/jruby/issues/7342
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+    <cve>CVE-2022-25857</cve>
+  </suppress>
   <suppress>
     <notes><![CDATA[
     Suppressing false positive - vulnerability is in Artemis, not the wider ActiveMQ, and NVD data has the wrong

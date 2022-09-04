@@ -67,8 +67,8 @@ export function massiveTemplate(): Template {
           type: "exec",
           attributes: {
             run_if: ["passed"],
-            command: ".ci/with-java",
-            arguments: ["./gradlew", "allTests", "allTestsJunitHtmlReport", "--continue"]
+            command: "./gradlew",
+            arguments: ["allTests", "allTestsJunitHtmlReport", "--continue"]
           }
         }],
         tabs: [{
@@ -101,8 +101,8 @@ export function massiveTemplate(): Template {
           type: "exec",
           attributes: {
             run_if: ["passed"],
-            command: "./.ci/with-java",
-            arguments: ["./gradlew", "jasmine"]
+            command: "./gradlew",
+            arguments: ["jasmine"]
           }
         }],
         tabs: [],
@@ -148,8 +148,8 @@ export function massiveTemplate(): Template {
           type: "exec",
           attributes: {
             run_if: ["passed"],
-            command: "./.ci/with-java",
-            arguments: ["./gradlew", "server:integrationTest"]
+            command: "./gradlew",
+            arguments: ["server:integrationTest"]
           }
         }],
         tabs: [{
@@ -183,8 +183,8 @@ export function massiveTemplate(): Template {
           type: "exec",
           attributes: {
             run_if: ["passed"],
-            command: "./.ci/with-java",
-            arguments: ["./gradlew", "parallelRspec"]
+            command: "./gradlew",
+            arguments: ["parallelRspec"]
           }
         }],
         tabs: [],

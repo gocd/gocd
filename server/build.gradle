@@ -154,10 +154,12 @@ project.ext.jrubyScriptsDir = project.file("scripts")
 
 project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${project.bundledGemDir}/bin")]
 
+def forwardSlashedString = { File file -> file.toString().replaceAll('\\\\', '/') }
+
 project.ext.defaultJRubyEnvironment = [
   GEM_HOME: project.bundledGemDir,
   GEM_PATH: project.bundledGemDir,
-  RUBY    : project.file("${project.ext.jrubyScriptsDir}/jruby${org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''}")
+  RUBY    : forwardSlashedString(project.file("${project.ext.jrubyScriptsDir}/jruby${org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''}"))
 ]
 
 project.ext.rails = [:]

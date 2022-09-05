@@ -28,7 +28,3 @@ end
 Gem.paths = {'GEM_HOME' => gem_home, 'GEM_PATH' => gem_home, 'GEM_SPEC_CACHE' => File.join(gem_home, 'specifications')}
 ENV['BUNDLE_GEMFILE'] = gemfile_location
 ENV['RAILS_ENV'] ||= (ENV['RACK_ENV'] || 'production')
-
-if ENV['RAILS_ENV'] == 'production'
-  ENV['BUNDLE_WITHOUT'] = 'development:test:assets'
-end

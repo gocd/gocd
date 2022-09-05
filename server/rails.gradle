@@ -44,6 +44,7 @@ task generateJSRoutes(type: ExecuteUnderRailsTask) {
 
   environment(
     'RAILS_ENV': 'production',
+    'RAILS_GROUPS': 'assets',
     'OUTPUT_DIR': outputDir,
   )
 
@@ -128,7 +129,6 @@ task initializeRailsGems {
   }
 }
 
-
 task yarnInstall(type: YarnInstallTask) {
   // delete this in the compile phase, because otherwise the yarnInstall detects a new folder and reinstalls.
   project.delete(project.file("${project.railsRoot}/node_modules/.cache"))
@@ -209,6 +209,7 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
 
   environment += [
     'RAILS_ENV' : 'test',
+    'RAILS_GROUPS': 'assets',
   ]
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
@@ -237,7 +238,8 @@ task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
   disableJRubyOptimization = true
 
   environment(
-    'RAILS_ENV': 'production'
+    'RAILS_ENV': 'production',
+    'RAILS_GROUPS': 'assets',
   )
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']

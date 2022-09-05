@@ -26,7 +26,7 @@ final Map<String, String> libraries = [
   //
   // DO NOT interpolate version variables here because Dependabot is not smart enough to understand those. Dependabot's
   // version parsing is simply regex matching and never actually evaluates a gradle script.
-  activeMQ            : 'org.apache.activemq:activemq-broker:5.17.1',
+  activeMQ            : 'org.apache.activemq:activemq-broker:5.17.2',
   apacheAnt           : 'org.apache.ant:ant:1.10.12',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.13',
   aspectj             : 'org.aspectj:aspectjrt:1.9.9.1',

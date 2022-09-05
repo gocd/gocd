@@ -52,7 +52,4 @@ Rails.application.configure do
 
   # Headers are far too large in development environment, possibly see https://github.com/rails/rails/pull/39939
   config.action_view.preload_links_header = false
-
-  config.sass.line_comments = false
-  config.sass.inline_source_maps = true
 end

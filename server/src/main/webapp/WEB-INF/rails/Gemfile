@@ -7,7 +7,7 @@ gem 'rails'
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :assets do
-  gem 'sass-rails'
+  gem 'sassc-rails'
   gem 'js-routes'
   gem 'ts_routes'
 end

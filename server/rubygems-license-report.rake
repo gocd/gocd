@@ -15,16 +15,7 @@
 ##########################################################################
 
 missing_licenses = {
-  dynamic_form: {
-    moduleName: 'dynamic_form',
-    moduleVersion: '1.1.4',
-    moduleLicenses: [
-      {
-        :moduleLicense => "MIT",
-        :moduleLicenseUrl => "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
+
 }
 
 require 'active_support/core_ext/hash/deep_merge'
@@ -35,8 +26,6 @@ task :default do
   require 'bundler'
   require 'json'
   definition = ::Bundler.definition
-  all = definition.specs.to_a
-  #puts "*** All gems - #{all.collect(&:full_name)}"
 
   requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
   #puts "*** Gems that should be packaged - #{requested.collect(&:full_name)}"
@@ -55,7 +44,7 @@ task :default do
     if missing_licenses[gem_spec.name.to_sym] && missing_licenses[gem_spec.name.to_sym][:moduleVersion] == memo[gem_spec.name][:moduleVersion]
       memo[gem_spec.name] = memo[gem_spec.name].deep_merge(missing_licenses[gem_spec.name.to_sym])
     end
-    memo
+    memo.sort_by { |key| key }.to_h
   end
 
   open(OUTPUT_FILE, 'w') {|f| f.puts(JSON.pretty_generate(report))}

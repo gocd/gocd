@@ -4995,10 +4995,10 @@ jasmine-browser-runner@^1.1.0:
     glob "^7.1.7"
     selenium-webdriver "^4.1.0"
 
-jasmine-core@^4.1.0, jasmine-core@^4.1.1, jasmine-core@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-4.3.0.tgz#aee841fbe7373c2586ed8d8d48f5cc4a88be8390"
-  integrity sha512-qybtBUesniQdW6n+QIHMng2vDOHscIC/dEXjW+JzO9+LoAZMb03RCUC5xFOv/btSKPm1xL42fn+RjlU4oB42Lg==
+jasmine-core@^4.1.0, jasmine-core@^4.3.0, jasmine-core@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-4.4.0.tgz#848fe45c1839cacaf1f2429d400d1d4f85d2856a"
+  integrity sha512-+l482uImx5BVd6brJYlaHe2UwfKoZBqQfNp20ZmdNfsjGFTemGfqHLsXjKEW23w9R/m8WYeFc9JmIgjj6dUtAA==
 
 jasmine-jquery@^2.1.1:
   version "2.1.1"

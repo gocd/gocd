@@ -832,39 +832,6 @@ div#tab_container {
   padding:       20px;
 }
 
-.definition_view {
-  .nav-tabs {
-    overflow:      hidden;
-    padding:       5px 20px 0;
-    background:    $tab-header-bg;
-    border-radius: $global-border-radius $global-border-radius 0 0;
-    box-sizing:    border-box;
-    border:        0;
-
-    li {
-      position: relative;
-      border:   0;
-      margin:   0 5px 0 0;
-
-      a {
-        background:    $tab-bg;
-        padding:       7px 15px;
-        line-height:   19px;
-        font-size:     13px;
-        border-radius: 3px 3px 0 0;
-        font-weight:   600;
-        color:         #333;
-      }
-
-      &.active {
-        a {
-          background: $current-tab-bg;
-        }
-      }
-    }
-  }
-}
-
 .list_table, .simple, .filters {
   box-shadow:    none;
   border:        none;
@@ -3685,45 +3652,6 @@ ul.entity_title {
 #tab-content-of-artifacts .artifact {
   padding: 0 0 5px 25px;
 }
-
-//Note: this is used in Admin > Template > view
-//start: template view
-#templates .definition_view ul.artifact_key_value_pair {
-  width:         100%;
-  margin-bottom: 20px;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li {
-  width:         100%;
-  border-bottom: 1px solid #ddd;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li label {
-  max-width: 49%;
-  display:   inline-block;
-  width:     49%;
-  font-size: 12px;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li label .key {
-  font-weight: 600;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li label .key:after {
-  content: ':';
-  padding: 0 5px;
-}
-
-#templates .definition_view .artifact_title {
-  padding-bottom: 10px;
-  font-weight:    600;
-}
-
-#templates.layout.admin-entity.view .content {
-  width: auto;
-}
-
-//end: template view
 
 .hide {
   display: none;

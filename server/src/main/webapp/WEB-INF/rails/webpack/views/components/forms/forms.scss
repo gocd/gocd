@@ -133,7 +133,7 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   width:           100%;
 }
 
-select.form-control { //sass-lint:disable-line no-qualifying-elements
+select.form-control { // sass-lint:disable-line no-qualifying-elements
   width: 270px;
 }
 
@@ -146,7 +146,7 @@ input::placeholder {
   font-style: italic;
 }
 
-input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-elements
+input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-elements
   width: 35px;
 
   &:focus {

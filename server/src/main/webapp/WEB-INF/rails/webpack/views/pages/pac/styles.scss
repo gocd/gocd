@@ -53,7 +53,7 @@ $shell-sample-cmd: $task-cmd-color;
   flex-grow: 0;
 }
 
-.preview-pane[class*="language-"] { // scss-lint:disable-line
+.preview-pane[class*="language-"] {
   position: relative;
   margin: 0;
 

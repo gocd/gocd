@@ -78,7 +78,7 @@ $console-icon-color: #fff;
   @include icon-before($type: $fa-var-clone);
 }
 
-//delete is a keyword, a literal syntax; can't be accessed using styles.delete hence renaming it to remove
+// delete is a keyword, a literal syntax; can't be accessed using styles.delete hence renaming it to remove
 .remove {
   @include icon-before($type: $fa-var-trash);
 }

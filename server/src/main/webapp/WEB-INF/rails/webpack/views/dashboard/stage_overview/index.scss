@@ -335,7 +335,7 @@ $dark-gray: #2f4f4f;
   display: flex;
 
   select {
-    width:         55px !important; //sass-lint:disable-line no-important
+    width:         55px !important; // sass-lint:disable-line no-important
     padding-right: 25px;
     height:        30px;
     line-height:   30px;
@@ -538,7 +538,7 @@ $dark-gray: #2f4f4f;
   margin:     7px 0 5px 8px;
 }
 
-.checkbox-cell input[type="checkbox"] { //sass-lint:disable-line no-qualifying-elements
+.checkbox-cell input[type="checkbox"] { // sass-lint:disable-line no-qualifying-elements
   height:     13px;
   margin-top: -2px;
 }
@@ -591,7 +591,7 @@ $dark-gray: #2f4f4f;
   border-radius: 6px;
   position:      absolute;
   z-index:       map_get($zindex, tooltip);
-  background:    rgb(243, 243, 243, 0.95); //sass-lint:disable-line no-color-literals
+  background:    rgb(243, 243, 243, 0.95); // sass-lint:disable-line no-color-literals
   border:        1px solid $tooltip-border-color;
 
   :before {

@@ -27,7 +27,4 @@ end
 
 group :development do
   gem 'scss_lint', require: false
-  gem 'brakeman', require: false
-  gem 'bundler-audit', require: false
-  gem 'ruby_audit', require: false
 end

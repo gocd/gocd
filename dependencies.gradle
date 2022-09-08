@@ -82,7 +82,7 @@ final Map<String, String> libraries = [
   lombok              : 'org.projectlombok:lombok:1.18.24',
   mail                : 'jakarta.mail:jakarta.mail-api:2.1.0',
   mailSmtp            : 'org.eclipse.angus:smtp:1.0.0',
-  mockitoBom          : 'org.mockito:mockito-bom:4.7.0',
+  mockitoBom          : 'org.mockito:mockito-bom:4.8.0',
   mybatis             : 'org.mybatis:mybatis:3.5.10',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.0.7',
   mysql               : 'mysql:mysql-connector-java:8.0.30',

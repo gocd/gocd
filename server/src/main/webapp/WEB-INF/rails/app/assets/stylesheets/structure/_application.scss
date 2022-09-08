@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Application.css
  *
@@ -46,36 +47,40 @@
 /**
  * =BODY
  */
-*{
+* {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   line-height: 1;
 }
 
-/*html {
+/* html {
   height: 100%;
-}*/
-
-
+} */
 
 /**
  * =TITLES
 **/
-h1, h2, h3, h4 {
-
+h1,
+h2,
+h3,
+h4 {
   font-weight: 500;
 }
-h1{
+
+h1 {
   font-size: 24px;
   font-weight: normal;
 }
-h2{
+
+h2 {
   font-size: 22px;
   font-weight: 300;
 }
-h3{
-  font-size:14px;
-  margin-bottom:0.5em;
+
+h3 {
+  font-size: 14px;
+  margin-bottom: 0.5em;
 }
+
 /*
 h2 span {
   font-weight:700;
@@ -90,12 +95,7 @@ h2 span {
   color:#E57700;
   margin:0;
   padding:0;
-}*/
-
-
-
-
-
+} */
 
 /**
  * =FORMS
@@ -104,97 +104,110 @@ input,
 button {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
 }
+
 input,
 select,
 button,
 textarea {
   /* this allows you to declare a size regardless of padding and border attributes  */
   box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
 }
+
 input:focus,
 textarea:focus {
-  border-color: #78D2F0;
-  background-color: #ECF4F9;
-  box-shadow: inset 0 0 3px #78D2F0;
-    -moz-box-shadow: inset 0 0 3px #78D2F0;
-    -webkit-box-shadow: inset 0 0 3px #78D2F0;
-    -o-box-shadow: inset 0 0 3px #78D2F0;
+  border-color: #78d2f0;
+  background-color: #ecf4f9;
+  box-shadow: inset 0 0 3px #78d2f0;
+  -moz-box-shadow: inset 0 0 3px #78d2f0;
+  -webkit-box-shadow: inset 0 0 3px #78d2f0;
+  -o-box-shadow: inset 0 0 3px #78d2f0;
 }
+
 label {
-  display:block;
+  display: block;
   font-size: 12px;
   margin-bottom: 5px;
 }
-input[disabled],input:disabled{
-    opacity: 0.8;
-    background-color: #eee;
-    color: #666;
-    cursor: default;
+
+input[disabled],
+input:disabled {
+  opacity: 0.8;
+  background-color: #eee;
+  color: #666;
+  cursor: default;
 }
+
 select {
   outline: none;
   margin: 1px 0;
   padding: 2px 4px;
   width: 250px;
 }
+
 textarea {
   width: 100%;
   overflow: auto;
   resize: none;
 }
+
 button a {
-  color: #FFF;
+  color: #fff;
 }
+
 input[type="text"],
 input[type="password"],
 input[type="file"],
 input[type="url"],
 textarea {
-  border: 1px solid #CCC;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.199219);
-    -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.199219);
-    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.199219);
+  border: 1px solid #ccc;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 19.9%);
+  -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 19.9%);
+  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 19.9%);
   display: inline;
   font-size: 12px;
   outline: none;
   padding: 4px;
 }
+
 input[type="text"],
 input[type="url"],
 input[type="password"] {
   width: 250px;
 }
+
 input[type="radio"],
-input[type="checkbox"]{
+input[type="checkbox"] {
   margin: 4px;
 }
+
 button[disabled] {
   opacity: 0.5;
 }
 
 .inline_checkbox_row {
-    display: inline-block;
-    margin-top: 10px;
-    margin-left: 5px;
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: 5px;
 }
-.inline_checkbox_row input{float:left; margin: 0; margin-right: 3px;}
-.inline_checkbox_row label{ white-space: nowrap; }
-
+.inline_checkbox_row input { float: left; margin: 0; margin-right: 3px; }
+.inline_checkbox_row label { white-space: nowrap; }
 
 /**
  * =LINKS
 **/
-a{
-  color: #1F66BD;
+a {
+  color: #1f66bd;
   cursor: pointer;
   text-decoration: none;
 }
-a:hover{
-    color: #2980EC;
+
+a:hover {
+  color: #2980ec;
 }
+
 /*
 
 a.icon {
@@ -231,14 +244,16 @@ a.delete_parent {
   cursor: pointer;
 }
 */
+
 /**
  * =LISTS
 **/
 
-ul{
+ul {
   float: left;
 }
-li{
+
+li {
   float: left;
   list-style: none;
 }
@@ -246,6 +261,7 @@ li{
 /**
  * =PARAGRAPHS
  */
+
 /*
 p {
   line-height: 130%;
@@ -253,20 +269,20 @@ p {
 }
 */
 
-
 /**
  * =TABLES
 **/
-table{
+table {
   border-collapse: collapse;
 }
-table th{
+
+table th {
   text-align: left;
 }
+
 table td {
   vertical-align: middle;
 }
-
 
 /*
 table {
@@ -285,7 +301,6 @@ th {
 }
 */
 
-
 /**
  * =HELPER_CLASSES
 **/
@@ -296,9 +311,11 @@ th {
 /**
  * =LAYOUTS
  */
+
 /**
  * ==APPLICATION
  */
+
 /*
 #header {
   background: #FF7800;
@@ -345,16 +362,13 @@ th {
 }
 */
 
-
-
 /**
  * ==PARTIALS
  */
+
 /**
  * ===???
  */
-
-
 
 /**
  * =FLOAT CLEARING
@@ -364,7 +378,7 @@ th {
 /**
  * ==STANDARDS COMPLIANT FLOAT CLEARING
  */
-.clear_float:after {
+.clear_float::after {
   clear: both;
   content: ".";
   display: block;
@@ -375,7 +389,7 @@ th {
 /**
  * ==IE7 FLOAT CLEARING HACK
  */
-*+html .clear_float {
+* + html .clear_float {
   display: inline-block;
   zoom: 1;
 }
@@ -383,8 +397,8 @@ th {
 @mixin floating-button($bottom: 60px) {
   border-radius: 10px;
   padding: 10px;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #000;
+  color: #fff;
   bottom: $bottom;
   right: 20px;
   z-index: 10000;
@@ -402,51 +416,57 @@ th {
 
 .back_to_top {
   @include floating-button($bottom: 120px);
-  background: #000000 image_url('back-to-top.png') no-repeat center 10px;
-  padding-top: 30px;
 
+  background: #000 image_url("back-to-top.png") no-repeat center 10px;
+  padding-top: 30px;
   color: white;
 }
 
-#stage_job_form .form_item_block{
-    width: 720px;
+#stage_job_form .form_item_block {
+  width: 720px;
 }
-#stage_job_form textarea{
-    width: 400px;
+
+#stage_job_form textarea {
+  width: 400px;
 }
 
 /* config changes */
 
-.config-changes{
-    overflow: auto;
-    max-height: 400px;
-    padding: 10px 0;
-    font-size: 1.2em;
-    color: #555;
+.config-changes {
+  overflow: auto;
+  max-height: 400px;
+  padding: 10px 0;
+  font-size: 1.2em;
+  color: #555;
 }
-.config-changes  pre{
-    padding: 3px;
+
+.config-changes pre {
+  padding: 3px;
 }
+
 .config-changes .line-info pre {
-    background-color: #ececec;
-    color: #9e9e9e;
+  background-color: #ececec;
+  color: #9e9e9e;
 }
-.config-changes .add pre{
-    color: #2e9202;
-    background-color: #ddffdd;
+
+.config-changes .add pre {
+  color: #2e9202;
+  background-color: #dfd;
 }
-.config-changes .remove pre{
-    color: #b20000;
-    background-color: #ffd4d4;
+
+.config-changes .remove pre {
+  color: #b20000;
+  background-color: #ffd4d4;
 }
 
 button.check_connection {
   display: block;
+
   + .connection_test_message {
     margin: 8px;
   }
 
-  + .connection_test_message pre{
+  + .connection_test_message pre {
     width: 670px;
     float: left;
     white-space: pre-wrap; /* css-3 should we be so lucky... */
@@ -456,7 +476,6 @@ button.check_connection {
     word-wrap: break-word; /* Internet Explorer 5.5+ */
     _white-space: pre; /* IE only hack to re-specify in addition to word-wrap  */
   }
-
 }
 
 #plugin_settings_angular_plugin_settings {

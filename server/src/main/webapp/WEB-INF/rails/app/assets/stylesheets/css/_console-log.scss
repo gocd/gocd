@@ -17,34 +17,34 @@
 @import "font-awesome/scss/mixins";
 
 $CONSOLE_SECTION_HEADER: #383838;
-$CONSOLE_SECTION_HEADER_WHITE: #F5F5F5;
-$CONSOLE_PASS: #99E343;
-$CONSOLE_PASS_WHITE: #00A600;
-$CONSOLE_FAIL: #FF4B48;
-$CONSOLE_CALLOUT: #FFA;
-$CONSOLE_CALLOUT_WHITE: #F0B400;
+$CONSOLE_SECTION_HEADER_WHITE: #f5f5f5;
+$CONSOLE_PASS: #99e343;
+$CONSOLE_PASS_WHITE: #00a600;
+$CONSOLE_FAIL: #ff4b48;
+$CONSOLE_CALLOUT: #ffa;
+$CONSOLE_CALLOUT_WHITE: #f0b400;
 $CONSOLE_INFO: grey;
-$CONSOLE_SETUP: #7992B0;
+$CONSOLE_SETUP: #7992b0;
 $CONSOLE_SETUP_WHITE: darken($CONSOLE_SETUP, 13%);
-$CONSOLE_SETUP_ERR: #A567A5;
+$CONSOLE_SETUP_ERR: #a567a5;
 $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
-
 $PROGRESS_BAR_BG_SIZE: 70px;
 
 .console-area {
-  [data-collapsed="false"]:before {
-    content: "Collapse all"
+  [data-collapsed="false"]::before {
+    content: "Collapse all";
   }
 
-  [data-collapsed="true"]:before {
-    content: "Expand all"
+  [data-collapsed="true"]::before {
+    content: "Expand all";
   }
 }
 
-@-webkit-keyframes progress-bar-stripes {
+@keyframes progress-bar-stripes {
   from {
     background-position: 0 0;
   }
+
   to {
     background-position: $PROGRESS_BAR_BG_SIZE 0;
   }
@@ -54,6 +54,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   from {
     background-position: 0 0;
   }
+
   to {
     background-position: $PROGRESS_BAR_BG_SIZE 0;
   }
@@ -66,29 +67,23 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   color: #fff;
   padding: 10px 20px;
   text-align: center;
-
-  background-image: linear-gradient(-45deg, rgba(128, 128, 128, 0.2) 25%, transparent 25%, transparent 50%, rgba(128, 128, 128, 0.2) 50%, rgba(128, 128, 128, 0.2) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(-45deg, rgba(128, 128, 128, 20%) 25%, transparent 25%, transparent 50%, rgba(128, 128, 128, 20%) 50%, rgba(128, 128, 128, 20%) 75%, transparent 75%, transparent);
   background-size: $PROGRESS_BAR_BG_SIZE $PROGRESS_BAR_BG_SIZE;
 }
 
 .buildoutput_pre {
   $height-of-non-console-log-elements: 500px;
-  overflow: auto;
 
+  overflow: auto;
   white-space: pre;
   white-space: pre-wrap;
   word-break: break-all;
   word-wrap: break-word;
-
   padding-left: 10px;
   padding-bottom: 35px;
-
-  min-height: 800px; // ie < 8
   min-height: calc(100vh - #{$height-of-non-console-log-elements});
-
   background-color: #333;
   color: white;
-
   font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
 
@@ -125,7 +120,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
     text-decoration: none;
     color: inherit;
 
-    &:before {
+    &::before {
       font-size: 120%;
       content: $fa-var-caret-right;
     }
@@ -135,24 +130,24 @@ $PROGRESS_BAR_BG_SIZE: 70px;
     }
   }
 
-
   &.open {
     .toggle {
       margin-left: -13px;
     }
 
-    .toggle:before {
+    .toggle::before {
       content: $fa-var-caret-down;
     }
   }
 }
 
-.with-timestamps .log-fs-line:before {
+.with-timestamps .log-fs-line::before {
   display: inline;
   content: attr(data-timestamp) " ";
 }
 
-.log-fs-duration, .log-fs-exitcode {
+.log-fs-duration,
+.log-fs-exitcode {
   display: inline-block;
   border-radius: 0.5rem;
   margin-left: 0.5rem;
@@ -162,39 +157,47 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   background: #cacaca;
 }
 
-dt.log-fs-line, dt.log-fs-line:before {
+dt.log-fs-line,
+dt.log-fs-line::before {
   background: $CONSOLE_SECTION_HEADER;
 }
 
-.log-fs-line-PREP, .log-fs-line-PUBLISH {
+.log-fs-line-PREP,
+.log-fs-line-PUBLISH {
   color: $CONSOLE_SETUP;
 }
 
-.log-fs-line-PREP_ERR, .log-fs-line-PUBLISH_ERR {
+.log-fs-line-PREP_ERR,
+.log-fs-line-PUBLISH_ERR {
   color: $CONSOLE_SETUP_ERR;
 }
 
-.log-fs-line-INFO, .log-fs-line-COMPLETED {
+.log-fs-line-INFO,
+.log-fs-line-COMPLETED {
   color: $CONSOLE_INFO;
 }
 
-.log-fs-line-ERR, code {
+.log-fs-line-ERR,
+code {
   color: $CONSOLE_CALLOUT;
 }
 
-.log-fs-line-PASS code, .log-fs-line-JOB_PASS code {
+.log-fs-line-PASS code,
+.log-fs-line-JOB_PASS code {
   color: $CONSOLE_PASS;
   font-weight: bold;
 }
 
-.log-fs-line-FAIL code, .log-fs-line-JOB_FAIL code {
+.log-fs-line-FAIL code,
+.log-fs-line-JOB_FAIL code {
   color: red;
   font-weight: bold;
 }
 
 .log-fs-status {
-  &:before {
+  &::before {
     @include fa-icon;
+
     position: absolute;
     left: -30px;
     top: 3px;
@@ -205,9 +208,9 @@ dt.log-fs-line, dt.log-fs-line:before {
   }
 }
 
-.log-fs-task-status-passed, .log-fs-job-status-passed {
-
-  &:before {
+.log-fs-task-status-passed,
+.log-fs-job-status-passed {
+  &::before {
     content: $fa-var-check;
     color: $CONSOLE_PASS;
   }
@@ -217,8 +220,10 @@ dt.log-fs-line, dt.log-fs-line:before {
   }
 }
 
-.log-fs-task-status-failed, .log-fs-job-status-failed, .log-fs-publish-failed {
-  &:before {
+.log-fs-task-status-failed,
+.log-fs-job-status-failed,
+.log-fs-publish-failed {
+  &::before {
     content: $fa-var-exclamation-circle;
     color: red;
   }
@@ -235,12 +240,13 @@ dt.log-fs-line, dt.log-fs-line:before {
 .log-fs-type-cancel {
   color: $CONSOLE_SETUP;
 
-  .log-fs-line-ERR, .log-fs-line-CANCEL_TASK_FAIL {
+  .log-fs-line-ERR,
+  .log-fs-line-CANCEL_TASK_FAIL {
     color: $CONSOLE_SETUP_ERR;
   }
 
   &.log-fs-task-status-passed {
-    &:before {
+    &::before {
       display: none;
     }
 
@@ -255,7 +261,7 @@ dt.log-fs-line, dt.log-fs-line:before {
 }
 
 .log-fs-task-status-cancelled {
-  &:before {
+  &::before {
     content: $fa-var-ban;
     color: $CONSOLE_CALLOUT;
   }
@@ -266,34 +272,39 @@ dt.log-fs-line, dt.log-fs-line:before {
 }
 
 .white-theme {
-
   .console-log-loading {
     color: #000;
   }
 
-  dt.log-fs-line, dt.log-fs-line:before {
+  dt.log-fs-line,
+  dt.log-fs-line::before {
     background-color: $CONSOLE_SECTION_HEADER_WHITE;
   }
 
-  .log-fs-line-PREP, .log-fs-line-PUBLISH {
+  .log-fs-line-PREP,
+  .log-fs-line-PUBLISH {
     color: $CONSOLE_SETUP_WHITE;
   }
 
-  .log-fs-line-PREP_ERR, .log-fs-line-PUBLISH_ERR {
+  .log-fs-line-PREP_ERR,
+  .log-fs-line-PUBLISH_ERR {
     color: $CONSOLE_SETUP_ERR_WHITE;
   }
 
-  .log-fs-line-ERR, code {
+  .log-fs-line-ERR,
+  code {
     color: $CONSOLE_CALLOUT_WHITE;
   }
 
   .log-fs-task-status-cancelled {
-    &:before, code {
+    &::before,
+    code {
       color: $CONSOLE_CALLOUT_WHITE;
     }
   }
 
-  .log-fs-task-status-failed, .log-fs-job-status-failed {
+  .log-fs-task-status-failed,
+  .log-fs-job-status-failed {
     .log-fs-line-ERR {
       color: $CONSOLE_FAIL;
     }
@@ -303,8 +314,9 @@ dt.log-fs-line, dt.log-fs-line:before {
     }
   }
 
-  .log-fs-task-status-passed, .log-fs-job-status-passed {
-    &:before {
+  .log-fs-task-status-passed,
+  .log-fs-job-status-passed {
+    &::before {
       color: $CONSOLE_PASS_WHITE;
     }
 
@@ -320,11 +332,12 @@ dt.log-fs-line, dt.log-fs-line:before {
       color: $CONSOLE_SETUP_WHITE;
     }
 
-    .log-fs-line-ERR, .log-fs-line-CANCEL_TASK_FAIL, &.log-fs-task-status-failed code {
+    .log-fs-line-ERR,
+    .log-fs-line-CANCEL_TASK_FAIL,
+    &.log-fs-task-status-failed code {
       color: $CONSOLE_SETUP_ERR_WHITE;
     }
   }
-
 }
 
 @each $color in black, red, green, yellow, blue, magenta, cyan, white {

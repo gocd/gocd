@@ -14,104 +14,105 @@
  * limitations under the License.
  */
 .stage_history .config_change {
-    padding: 8px 10px;
-    border: 1px solid transparent;
-    border-top: 1px solid #ccc;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-top: 1px solid #ccc;
 }
-.stage_history .config_change span a{
-    display: block;
+
+.stage_history .config_change span a {
+  display: block;
 }
 
 .stage_history .config_change span {
-    background: image_url('g9/icon_config_changed_16.png') no-repeat left center transparent;
-    font-size: 10px;
-    margin:0;
-    padding: 3px 0 3px 20px;
-    display: block;
+  background: image_url("g9/icon_config_changed_16.png") no-repeat left center transparent;
+  font-size: 10px;
+  margin: 0;
+  padding: 3px 0 3px 20px;
+  display: block;
 }
 
 .stage_history .stage {
-    clear: left;
-    position: relative;
-    top: 0;
-    left: 0;
-    background-color: transparent;
-    border-top: 1px solid #DDDDDD;
-    display: block;
+  clear: left;
+  position: relative;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  border-top: 1px solid #ddd;
+  display: block;
 }
-.stage_history .stage > a{
-    display: block;
-    text-decoration: none;
-    color: #333;
-    padding:12px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    background: #f7f7f7; /* Old browsers */
-    background: -moz-linear-gradient(top,  #f7f7f7 0%, #eeeeee 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#eeeeee)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top,  #f7f7f7 0%,#eeeeee 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top,  #f7f7f7 0%,#eeeeee 100%); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top,  #f7f7f7 0%,#eeeeee 100%); /* IE10+ */
-    background: linear-gradient(to bottom,  #f7f7f7 0%,#eeeeee 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#eeeeee',GradientType=0 ); /* IE6-9 */
+
+.stage_history .stage > a {
+  display: block;
+  text-decoration: none;
+  color: #333;
+  padding: 12px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  background: #f7f7f7; /* Old browsers */
+  background: -moz-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f7f7f7), color-stop(100%, #eee)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* IE10+ */
+  background: linear-gradient(to bottom, #f7f7f7 0%, #eee 100%); /* W3C */
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr="#f7f7f7", endColorstr="#eeeeee", GradientType=0); /* IE6-9 */
 }
-.stage_history .stage > a:hover{
-    background: #dedede;
+
+.stage_history .stage > a:hover {
+  background: #dedede;
 }
 
 .stage_history div.stage a.selected,
 .stage_history div.stage a.selected:hover {
-    background: #fff;
-    border-radius: 3px;
-    -moz-box-shadow: inset 0 0 3px #ccc;
-    -webkit-box-shadow: inset 0 0 3px #ccc;
-    box-shadow: inset 0 0 3px #ccc;
+  background: #fff;
+  border-radius: 3px;
+  -moz-box-shadow: inset 0 0 3px #ccc;
+  -webkit-box-shadow: inset 0 0 3px #ccc;
+  box-shadow: inset 0 0 3px #ccc;
 }
 
-.stage_history .pagination{
-    margin-right:10px;
-    margin-left:10px;
+.stage_history .pagination {
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 .has_rerun_jobs_icon {
-    margin: 5px 0px 0px -15px;
-    position: absolute;
-}
-.stage_history .label_counter_wrapper {
-    display: inline;
+  margin: 5px 0 0 -15px;
+  position: absolute;
 }
 
-.stage_history h3{
-    padding-bottom: 5px;
-    padding-left: 10px;
+.stage_history .label_counter_wrapper {
+  display: inline;
+}
+
+.stage_history h3 {
+  padding-bottom: 5px;
+  padding-left: 10px;
 }
 
 /**
  * ==STAGE_RESULT
 **/
 
-
-
 /**
  * ==STATUS_BAR
 **/
 
-.config_changed_info .information{
-    margin: 0 !important;
-    margin-bottom: 20px !important;
+.config_changed_info .information {
+  margin: 0 !important;
+  margin-bottom: 20px !important;
 }
 
 /**
  * ==CONFIG
 **/
-.config #content_container{
-    height: 500px;
-    overflow: auto;
-    padding-top: 15px;
-    padding-bottom: 15px;
+.config #content_container {
+  height: 500px;
+  overflow: auto;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
-
 
 /**
  * ==STATS
@@ -121,4 +122,3 @@
   top: 0;
   left: 0;
 }
-

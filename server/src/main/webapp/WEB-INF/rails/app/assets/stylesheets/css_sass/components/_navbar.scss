@@ -16,9 +16,9 @@
 @import "../base/mixins.sass";
 
 .header #application_logo {
-  background-image: image_url('g9/logo_go.png');
+  background-image: image_url("g9/logo_go.png");
   background-repeat: no-repeat;
-  background-position: 0px 4px;
+  background-position: 0 4px;
   float: left;
   height: 35px;
   width: 114px;
@@ -26,7 +26,7 @@
 
 .user {
   a:hover {
-    color: #ffffff;
+    color: #fff;
   }
 }
 
@@ -36,7 +36,7 @@
   }
 }
 
-/* dropdown nav starts*/
+/* dropdown nav starts */
 .dropdown-menu {
   position: absolute;
   width: 200px;
@@ -63,4 +63,4 @@
   }
 }
 
-/* dropdown nav ends*/
+/* dropdown nav ends */

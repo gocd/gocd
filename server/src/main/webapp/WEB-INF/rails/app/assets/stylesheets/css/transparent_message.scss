@@ -21,31 +21,32 @@
 /* Where vendor-specific prefixes are used (as in -moz-border-radius) for rules in forthcoming specifications, the non-prefixed rule should also be included in anticipation of other user-agents supporting the same rule */
 
 .transparent_message {
-    text-align: center;
-    font-size: 12px;
+  text-align: center;
+  font-size: 12px;
 }
 
-.r4, .r3, .r2, .r1 {
-    display: none;
+.r4,
+.r3,
+.r2,
+.r1 {
+  display: none;
 }
-
 
 .transparent_error {
-    background: #FFF;
-    padding: 20px;
-    -moz-border-radius: 6px;
-    color: #991A00;
-    font-size: large;
+  background: #fff;
+  padding: 20px;
+  -moz-border-radius: 6px;
+  color: #991a00;
+  font-size: large;
 }
 
 .transparent_notice {
-    background: #FFF;
-    padding: 20px;
-    -moz-border-radius: 6px;
-    color: #000;
+  background: #fff;
+  padding: 20px;
+  -moz-border-radius: 6px;
+  color: #000;
 }
 
-
 #trans_content {
-    text-align:center;
+  text-align: center;
 }

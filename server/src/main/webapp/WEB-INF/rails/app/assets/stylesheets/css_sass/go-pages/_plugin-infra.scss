@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-.missing_plugin{
+.missing_plugin {
   font-style: italic;
-  background: image_url('andare/background-lines.png') ;
+  background: image_url("andare/background-lines.png");
 }
-.missing_plugin_link{
+
+.missing_plugin_link {
   padding-left: 22px;
   font-style: italic;
   padding-top: 2px;
   padding-bottom: 2px;
-  background: image_url('andare/icon-warning-small.gif') no-repeat ;
+  background: image_url("andare/icon-warning-small.gif") no-repeat;
 }
- #plugin_missing_error{
-  margin-bottom: 20px;
 
+#plugin_missing_error {
+  margin-bottom: 20px;
 }

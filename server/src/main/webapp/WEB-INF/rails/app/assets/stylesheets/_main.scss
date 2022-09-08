@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 .content_header h3 {
   display: inline;
   float: left;
@@ -22,7 +21,7 @@
 
 .content_header ul {
   float: right;
-  clear:right;
+  clear: right;
 }
 
 .content_header ul li {
@@ -38,26 +37,26 @@ a.contextual_help {
 
 .material li span {
   display: inline;
-  margin-right: .5em;
+  margin-right: 0.5em;
   vertical-align: top;
 }
 
 .material div.deployment_info {
-    margin-left: 1em;
+  margin-left: 1em;
 }
 
 .material div.deployment_info div {
-    margin-bottom: .5em;
+  margin-bottom: 0.5em;
 }
 
 .material div.revisions {
-    overflow-y:auto;
-    margin-bottom: 1em;
-    border: 1px solid #9E9E9E;
+  overflow-y: auto;
+  margin-bottom: 1em;
+  border: 1px solid #9e9e9e;
 }
 
 .material .current {
-    font-style: italic;
+  font-style: italic;
 }
 
 .content_header ul li strong {
@@ -67,7 +66,7 @@ a.contextual_help {
 }
 
 .shadedDefaultValue {
-    color: #aaa;
+  color: #aaa;
 }
 
 .wrapped_word {

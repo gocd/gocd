@@ -17,41 +17,44 @@
 /* Rounded corners added using the sliding doors technique on the div and its contained h1 */
 
 .buildlist_header h1 {
-	display : inline;
-	font-size : 1.7em;
-	font-weight : normal;
-	padding-left : 5px;
+  display: inline;
+  font-size: 1.7em;
+  font-weight: normal;
+  padding-left: 5px;
 }
 
 div.buildlist_header {
-	background-color : #eee;
-	margin-top : 5px;
-	margin-right : 10px;
-	padding-bottom : 5px;
-	margin-bottom : 1px;
+  background-color: #eee;
+  margin-top: 5px;
+  margin-right: 10px;
+  padding-bottom: 5px;
+  margin-bottom: 1px;
 }
 
-.successful_builds .build_profile, .all_builds .build_profile {
-	margin-right : 0;
+.successful_builds .build_profile,
+.all_builds .build_profile {
+  margin-right: 0;
 }
 
-.successful_builds .yui-ge .yui-u, .all_builds .yui-ge .yui-u {
-	width : 100%;
+.successful_builds .yui-ge .yui-u,
+.all_builds .yui-ge .yui-u {
+  width: 100%;
 }
 
-.successful_builds div#container, .all_builds div#container {
-	margin-right : 10px;
+.successful_builds div#container,
+.all_builds div#container {
+  margin-right: 10px;
 }
 
 a.block {
-    margin-bottom:10px;
+  margin-bottom: 10px;
 }
 
 td {
-    padding-bottom: 10px;
-    padding-right: 10px;
+  padding-bottom: 10px;
+  padding-right: 10px;
 }
 
 div.build_profile {
-    padding-left: 52px;
+  padding-left: 52px;
 }

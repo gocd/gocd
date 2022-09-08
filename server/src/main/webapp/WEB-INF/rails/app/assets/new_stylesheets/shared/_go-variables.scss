@@ -97,21 +97,18 @@ $current-tab-bg: #fff;
 $top-bar-bg: transparent;
 $menu-link: $go-white;
 $menu-hover-bg: $go-white;
-
 $main-nav-height: 40px;
-$main-nav-link-bg-hover: rgba(0, 0, 0, 0.20);
+$main-nav-link-bg-hover: rgba(0, 0, 0, 20%);
 $main-nav-link-color: $go-white;
 $drop-down-link-color: #333;
 $drop-down-menu-bg: $go-white;
-$dropdown-arrow-icon-color: rgba(255, 255, 255, 0.43);
-$dropdown-arrow-icon-color-hover-bg: rgba(0, 0, 0, 0.20);
-$dropdown-arrow-icon-color-active: rgba(0, 0, 0, 1);
-
+$dropdown-arrow-icon-color: rgba(255, 255, 255, 43%);
+$dropdown-arrow-icon-color-hover-bg: rgba(0, 0, 0, 20%);
+$dropdown-arrow-icon-color-active: rgba(0, 0, 0, 100%);
 $current-link: $go-primary;
 $current-page-sel-bg: $go-primary;
 $current-page-sel-border: $go-primary;
 $current-page-sel-txt: $go-white;
-
 $dropdown-menu-hover-bg: #efefef;
 $user-dropdown-bg: $go-white;
 $user-link-bg: $go-white;
@@ -125,7 +122,6 @@ $primary-btn-bg-hover: darken($go-primary, 10%);
 
 $btn-bg: #666;
 $btn-txt: #fff;
-
 $btn-bg-hover: darken($btn-bg, 10%);
 
 // light button
@@ -153,12 +149,10 @@ $app-header-z-index: 21;
 
 $stage-history-head-bg: $go-secondary;
 $stage-history-pagination-bg: #dcdcdc;
-
 $icon-color: #039be5;
 $icon-hover-color: #666;
 $icon-txt: #333;
 $icon-txt-hover: #333;
-
-$icon--secondary-color: #666;
+$icon-secondary-color: #666;
 $add-color: #00bfa5;
 $disabled-icon-color: #ccc;

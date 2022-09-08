@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-[type='text']:focus,
-[type='password']:focus,
-[type='date']:focus,
-[type='datetime']:focus,
-[type='datetime-local']:focus,
-[type='month']:focus,
-[type='week']:focus,
-[type='email']:focus,
-[type='number']:focus,
-[type='search']:focus,
-[type='tel']:focus,
-[type='time']:focus,
-[type='url']:focus,
-[type='color']:focus,
+[type="text"]:focus,
+[type="password"]:focus,
+[type="date"]:focus,
+[type="datetime"]:focus,
+[type="datetime-local"]:focus,
+[type="month"]:focus,
+[type="week"]:focus,
+[type="email"]:focus,
+[type="number"]:focus,
+[type="search"]:focus,
+[type="tel"]:focus,
+[type="time"]:focus,
+[type="url"]:focus,
+[type="color"]:focus,
 textarea:focus {
   background-color: #f4f8f9;
-  box-shadow:       none;
-  border-color:     darken($light-border, 10%);
-  transition:       all 0.3s ease-in-out;
+  box-shadow: none;
+  border-color: darken($light-border, 10%);
+  transition: all 0.3s ease-in-out;
 }

@@ -94,7 +94,7 @@ $fa-font-icons: (
   }
 
   @if $progress-spinner == true {
-    &.in-progress:before {
+    &.in-progress::before {
       @include in-progress-spinner;
     }
   }
@@ -107,7 +107,7 @@ $fa-font-icons: (
   }
 
   @if $progress-spinner == true {
-    &.in-progress:after {
+    &.in-progress::after {
       @include in-progress-spinner;
     }
   }

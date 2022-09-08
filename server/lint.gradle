@@ -16,6 +16,17 @@ import com.thoughtworks.go.build.YarnRunTask
  * limitations under the License.
  */
 
+task stylelintold(type: YarnRunTask) {
+  description "Run stylelint for SCSS on old Rails-bundled SCSS"
+  dependsOn 'yarnInstall'
+
+  workingDir = project.railsRoot
+
+  yarnCommand = ['stylelintold']
+  source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
+  source(project.file("${project.railsRoot}/.stylelintrc.json"))
+}
+
 task eslintold(type: YarnRunTask) {
   description "Run ESLint for old javascript code"
   dependsOn 'yarnInstall'
@@ -24,8 +35,8 @@ task eslintold(type: YarnRunTask) {
 
   yarnCommand = ['eslintold']
   source(project.file("${project.railsRoot}/app/assets/javascripts"))
-  source(project.file("${project.railsRoot}/.eslintrc-old.json"))
   source(project.file("${project.railsRoot}/spec/javascripts"))
+  source(project.file("${project.railsRoot}/.eslintrc-old.json"))
 }
 
 task eslint(type: YarnRunTask) {
@@ -38,6 +49,7 @@ task eslint(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/spec/webpack"))
   source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
+  source(project.file("${project.railsRoot}/.eslintrc.json"))
 }
 
 task tslint(type: YarnRunTask) {
@@ -54,5 +66,5 @@ task tslint(type: YarnRunTask) {
 
 task lint {
   description 'Run all lint tools'
-  dependsOn eslintold, eslint, tslint
+  dependsOn stylelintold, eslintold, eslint, tslint
 }

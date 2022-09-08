@@ -15,12 +15,12 @@
  */
 // ensure that none of the files required here will output any css.
 // These should be pure mixins
-@import 'go-variables';
-@import 'variables';
-@import 'settings';
-@import 'foundation-sites/scss/foundation';
+@import "go-variables";
+@import "variables";
+@import "settings";
+@import "foundation-sites/scss/foundation";
 @import "bourbon/core/bourbon";
-@import 'font-awesome-glyphs';
+@import "font-awesome-glyphs";
 
 @mixin animation($animations...) {
   animation: $animations;
@@ -31,27 +31,28 @@
   $line-height: 1.6em;
 
   @include ellipsis;
-  white-space: pre-wrap;
 
+  white-space: pre-wrap;
   line-height: $line-height;
-  font-size:   $font-size;
+  font-size: $font-size;
+
   // show 5 lines of commit message
-  max-height:  $line-height * $line-count;
+  max-height: $line-height * $line-count;
 }
 
 @mixin truncate-to-width($max) {
-  max-width:     $max;
-  white-space:   nowrap;
+  max-width: $max;
+  white-space: nowrap;
   text-overflow: ellipsis;
-  overflow-x:    hidden;
+  overflow-x: hidden;
 }
 
 @mixin commit-message($line-count) {
   @include truncate-to-lines($line-count: $line-count);
 }
 
+// stylelint-disable value-no-vendor-prefix
 @mixin sort-cursor {
-  // scss-lint:disable DuplicateProperty, VendorPrefix
   cursor: move;
   cursor: grab;
   cursor: -moz-grab;
@@ -59,39 +60,38 @@
 }
 
 @mixin sort-cursor-active {
-  // scss-lint:disable DuplicateProperty, VendorPrefix
   cursor: move;
   cursor: grabbing;
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
+// stylelint-enable value-no-vendor-prefix
 
 @mixin grip-icon($color: #ccc, $shadow-color: #333) {
   @include unselectable;
 
-  display:        inline-block;
-
-  width:          1em;
-  height:         2.2em;
-  line-height:    0.45em;
+  display: inline-block;
+  width: 1em;
+  height: 2.2em;
+  line-height: 0.45em;
   letter-spacing: 0.15em;
-  color:          #9b9b9b;
-
+  color: #9b9b9b;
   vertical-align: middle;
-  text-align:     center;
-  font-family:    sans-serif;
-  overflow:       hidden;
-  white-space:    normal;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  white-space: normal;
 
-  &:after {
+  &::after {
     content: ".. .. .. ..";
   }
 }
 
+// stylelint-disable property-no-vendor-prefix
 @mixin unselectable {
-  // scss-lint:disable ImportantRule, VendorPrefix
   -webkit-user-select: none !important;
-  -moz-user-select:    none !important;
-  -ms-user-select:     none !important;
-  user-select:         none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
 }
+// stylelint-enable property-no-vendor-prefix

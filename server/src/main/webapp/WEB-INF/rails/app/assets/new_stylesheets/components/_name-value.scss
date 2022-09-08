@@ -15,24 +15,26 @@
  */
 .name-value {
   list-style-type: none;
-  width:           80%;
+  width: 80%;
 }
 
 @mixin label() {
-  padding:     0 10px 0 0;
-  min-width:   150px;
+  padding: 0 10px 0 0;
+  min-width: 150px;
   font-weight: 600;
 }
 
 .name-value_pair {
   border-bottom: 1px dotted $border-color;
-  display:       flex;
-  padding:       4px 0;
+  display: flex;
+  padding: 4px 0;
 
   label {
     @include label;
+
     font-size: 13px;
   }
+
   .value {
     font-size: 13px;
   }

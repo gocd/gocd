@@ -17,57 +17,59 @@ $btn-group-bg: $go-white;
 $btn-border: $border-grey;
 
 .btn-group {
-  border:        1px solid $btn-border;
+  border: 1px solid $btn-border;
   border-radius: $global-border-radius;
-  display:       inline-flex;
-  background:    $btn-group-bg;
+  display: inline-flex;
+  background: $btn-group-bg;
 }
 
 .btn {
-  border:          0;
-  border-left:     1px solid $btn-border;
-  cursor:          pointer;
-  font-size:       14px;
-  padding:         2px 5px;
-  flex:            0 1 auto;
-  display:         flex;
+  border: 0;
+  border-left: 1px solid $btn-border;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 5px;
+  flex: 0 1 auto;
+  display: flex;
   justify-content: center;
 
   &:first-child {
-    border-left:   0;
+    border-left: 0;
     border-radius: $global-border-radius 0 0 $global-border-radius;
   }
+
   &:last-child {
     border-radius: 0 $global-border-radius $global-border-radius 0;
   }
-  &:focus, &:active {
+
+  &:focus,
+  &:active {
     outline: 0;
   }
-  &:before {
+
+  &::before {
     margin: 0;
   }
-
 }
 
 .plugin-actions {
-  float:   right;
+  float: right;
   display: flex;
-
 }
 
 .edit-button {
   @include icon-before($type: pencil-square-o, $color: $go-icon-color);
+
   &:not(.disabled) {
     &:hover {
-      &:before {
+      &::before {
         color: $go-icon-hover-color;
-
       }
     }
   }
 
   &.disabled {
-    &:before {
+    &::before {
       color: $dark-gray;
     }
   }
@@ -75,9 +77,10 @@ $btn-border: $border-grey;
 
 .delete-button {
   @include icon-before($type: trash, $color: $go-icon-color);
+
   &:not(.disabled) {
     &:hover {
-      &:before {
+      &::before {
         color: $go-icon-hover-color;
       }
     }
@@ -86,14 +89,15 @@ $btn-border: $border-grey;
 
 .clone-button {
   @include icon-before($type: clone, $color: $go-icon-color);
+
   &:hover {
-    &:before {
+    &::before {
       color: $go-icon-hover-color;
     }
   }
 
   &.disabled {
-    &:before {
+    &::before {
       color: $dark-gray;
     }
   }
@@ -101,38 +105,40 @@ $btn-border: $border-grey;
 
 .btn-plugin-status {
   @include icon-before($type: file, $color: $go-icon-color);
+
   &:hover {
-    &:before {
+    &::before {
       color: $go-icon-color;
     }
   }
 
   &.disabled {
-    &:before {
+    &::before {
       color: $dark-gray;
     }
   }
 }
 
 .btn-collapse {
-  background: image-url('icon_collapse.svg') no-repeat 10px 5px;
-  width:      32px;
-  height:     28px;
-  padding:    14px 17px;
-  display:    inline-block;
+  background: image-url("icon_collapse.svg") no-repeat 10px 5px;
+  width: 32px;
+  height: 28px;
+  padding: 14px 17px;
+  display: inline-block;
+
   &:hover {
-    background: image-url('icon_collapse-hover.svg') no-repeat 10px 5px;
+    background: image-url("icon_collapse-hover.svg") no-repeat 10px 5px;
   }
 }
 
 .btn-expand {
-  background: image-url('icon_expand.svg') no-repeat 10px 5px;
-  width:      32px;
-  height:     28px;
-  padding:    14px 17px;
-  display:    inline-block;
+  background: image-url("icon_expand.svg") no-repeat 10px 5px;
+  width: 32px;
+  height: 28px;
+  padding: 14px 17px;
+  display: inline-block;
+
   &:hover {
-    background: image-url('icon_expand-hover.svg') no-repeat 10px 5px;
+    background: image-url("icon_expand-hover.svg") no-repeat 10px 5px;
   }
 }
-

@@ -14,60 +14,63 @@
  * limitations under the License.
  */
 @import "font-awesome-sprockets";
-@import 'bourbon/core/bourbon';
+@import "bourbon/core/bourbon";
 
+// Capitalization here needs to match the font file names in vendor/assets/fonts/opensans
+// stylelint-disable value-keyword-case
 $opensans-variants: (
-                      Light:(
-                        font-weight: 300,
-                        font-style: normal,
-                      ),
-                      LightItalic:(
-                        font-weight: 300,
-                        font-style: italic,
-                      ),
-                      Regular:(
-                        font-weight: normal,
-                        font-style: normal,
-                      ),
-                      Italic:(
-                        font-weight: normal,
-                        font-style: italic,
-                      ),
-                      Semibold:(
-                        font-weight: 600,
-                        font-style: normal,
-                      ),
-                      SemiboldItalic:(
-                        font-weight: 600,
-                        font-style: italic,
-                      ),
-                      Bold:(
-                        font-weight: bold,
-                        font-style: normal,
-                      ),
-                      BoldItalic:(
-                        font-weight: bold,
-                        font-style: italic,
-                      ),
-                      ExtraBold:(
-                        font-weight: 800,
-                        font-style: normal,
-                      ),
-                      ExtraBoldItalic:(
-                        font-weight: 800,
-                        font-style: italic,
-                      ),
-                    );
+  Light:(
+    font-weight: 300,
+    font-style: normal,
+  ),
+  LightItalic:(
+    font-weight: 300,
+    font-style: italic,
+  ),
+  Regular:(
+    font-weight: normal,
+    font-style: normal,
+  ),
+  Italic:(
+    font-weight: normal,
+    font-style: italic,
+  ),
+  Semibold:(
+    font-weight: 600,
+    font-style: normal,
+  ),
+  SemiboldItalic:(
+    font-weight: 600,
+    font-style: italic,
+  ),
+  Bold:(
+    font-weight: bold,
+    font-style: normal,
+  ),
+  BoldItalic:(
+    font-weight: bold,
+    font-style: italic,
+  ),
+  ExtraBold:(
+    font-weight: 800,
+    font-style: normal,
+  ),
+  ExtraBoldItalic:(
+    font-weight: 800,
+    font-style: italic,
+  ),
+);
+// stylelint-enable value-keyword-case
 
 @each $variant-name in map-keys($opensans-variants) {
   $variant: map-get($opensans-variants, $variant-name);
-  @include font-face($font-family: 'Open Sans',
-                     $file-path: 'opensans/OpenSans-#{$variant-name}-webfont',
-                     $file-formats: ("woff"),
-                     $asset-pipeline: true
-  ) {
-    font-style: map-get($variant, 'font-style');
-    font-weight: map-get($variant, 'font-weight');
-  }
 
+  @include font-face(
+    $font-family: "Open Sans",
+    $file-path: "opensans/OpenSans-#{$variant-name}-webfont",
+    $file-formats: ("woff"),
+    $asset-pipeline: true) {
+    font-style: map-get($variant, "font-style");
+    font-weight: map-get($variant, "font-weight");
+  }
 }

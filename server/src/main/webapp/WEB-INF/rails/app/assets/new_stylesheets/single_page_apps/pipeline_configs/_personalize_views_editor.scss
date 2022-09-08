@@ -19,14 +19,14 @@ $icon-color: #647984;
 
 .overlay-personalize-editor {
   width: 530px;
-  top:   10vh;
+  top: 10vh;
 
   .is-invalid-label {
     .form-error {
-      margin:      0;
-      text-align:  right;
+      margin: 0;
+      text-align: right;
       white-space: normal;
-      flex-grow:   1;
+      flex-grow: 1;
     }
   }
 
@@ -39,25 +39,24 @@ $icon-color: #647984;
   }
 
   .tooltip {
-    // scss-lint:disable ImportantRule
-    background:  $personalize-modal-err-tooltip-bg;
-    max-width:   unset !important;
-    top:         -$tooltip-pip-width;
-    transform:   translateY(-100%);
+    background: $personalize-modal-err-tooltip-bg;
+    max-width: unset !important;
+    top: -$tooltip-pip-width;
+    transform: translateY(-100%);
     white-space: nowrap;
 
-    &:before {
+    &::before {
       @include css-triangle($tooltip-pip-width, $personalize-modal-err-tooltip-bg, down);
 
-      top:       100%;
-      left:      20px;
+      top: 100%;
+      left: 20px;
       transform: unset;
     }
   }
 
   .has-tip:hover + .tooltip {
     // disabled buttons don't fire events, thus will not trigger tooltip
-    display: block !important; // scss-lint:disable ImportantRule
+    display: block !important;
   }
 }
 
@@ -74,38 +73,38 @@ $icon-color: #647984;
 }
 
 .personalize-editor-error-response {
-  position:      fixed;
-  top:           53px;
-  left:          0;
-  right:         0;
-  padding:       20px;
+  position: fixed;
+  top: 53px;
+  left: 0;
+  right: 0;
+  padding: 20px;
   padding-right: 40px;
-  background:    map-get($foundation-palette, alert);
-  color:         #fff;
-  font-weight:   600;
-  z-index:       100;
+  background: map-get($foundation-palette, alert);
+  color: #fff;
+  font-weight: 600;
+  z-index: 100;
 
   .close-button {
     @include icon-before($type: close);
 
     position: absolute;
-    right:    20px;
-    padding:  5px;
-    cursor:   pointer;
+    right: 20px;
+    padding: 5px;
+    cursor: pointer;
   }
 }
 
 .view-top {
   background: $view-top-bg;
-  margin:     -20px -30px 20px;
-  padding:    20px 30px;
+  margin: -20px -30px 20px;
+  padding: 20px 30px;
 }
 
 .show-pipelines {
-  border:        1px solid $light-border;
-  background:    #fff;
-  display:       flex;
-  padding:       10px 20px;
+  border: 1px solid $light-border;
+  background: #fff;
+  display: flex;
+  padding: 10px 20px;
   border-radius: 3px;
 
   input {
@@ -119,8 +118,8 @@ $icon-color: #647984;
   .tooltip {
     @include unselectable;
 
-    display:     none;
-    width:       310px;
+    display: none;
+    width: 310px;
     white-space: normal;
   }
 
@@ -128,7 +127,7 @@ $icon-color: #647984;
     @include icon-before($type: question-circle);
 
     vertical-align: middle;
-    margin:         0;
+    margin: 0;
 
     &:hover {
       cursor: pointer;
@@ -142,17 +141,17 @@ $icon-color: #647984;
       .tooltip {
         display: block;
 
-        &:before {
+        &::before {
           display: none;
         }
       }
 
       .tooltip-hint {
-        &:after {
+        &::after {
           @include css-triangle($tooltip-pip-width, $personalize-modal-err-tooltip-bg, down);
 
           position: absolute;
-          top:      -12px;
+          top: -12px;
         }
       }
     }
@@ -160,50 +159,50 @@ $icon-color: #647984;
 }
 
 .section-label {
-  line-height:  25px;
+  line-height: 25px;
   margin-right: 20px;
-  white-space:  nowrap;
+  white-space: nowrap;
 }
 
 .search-pipelines {
   margin-bottom: 10px;
-  border:        1px solid #d6e0e2;
-  background:    #fff;
-  height:        40px;
+  border: 1px solid #d6e0e2;
+  background: #fff;
+  height: 40px;
 }
 
 .search-box-personalize-editor {
-  display:   flex;
+  display: flex;
   flex-grow: 1;
 }
 
 .filter-name {
-  border:        0;
-  padding:       0;
+  border: 0;
+  padding: 0;
   margin-bottom: 10px;
 
   label {
-    display:         flex;
+    display: flex;
     justify-content: space-between;
-    align-content:   center;
-    flex-wrap:       wrap;
-    align-items:     center;
+    align-content: center;
+    flex-wrap: wrap;
+    align-items: center;
 
     span {
-      flex-shrink:  1;
-      white-space:  nowrap;
+      flex-shrink: 1;
+      white-space: nowrap;
       margin-right: 30px;
     }
   }
 }
 
 .view-name {
-  flex-grow:     1;
-  width:         75%;
+  flex-grow: 1;
+  width: 75%;
   margin-bottom: 0;
-  height:        40px;
-  border-color:  $light-border;
-  padding:       10px 20px;
+  height: 40px;
+  border-color: $light-border;
+  padding: 10px 20px;
 
   &:focus {
     background: #fff;
@@ -218,13 +217,14 @@ $icon-color: #647984;
   }
 }
 
-.checkbox-help, .checkbox-help_label {
-  display:     flex;
+.checkbox-help,
+.checkbox-help_label {
+  display: flex;
   align-items: center;
 }
 
 .pipeline-search-container {
-  display:       flex;
+  display: flex;
   margin-bottom: 20px;
 }
 
@@ -233,27 +233,28 @@ $icon-color: #647984;
 }
 
 .blanket-selection_label {
-  font-size:  13px;
+  font-size: 13px;
   margin-top: -2px;
-  display:    block;
+  display: block;
 }
 
 .select-pipelines_buttons {
-  display:    flex;
+  display: flex;
   margin-top: 2px;
 }
 
-.btn_all, .btn_none {
-  border:     1px solid $light-border;
+.btn_all,
+.btn_none {
+  border: 1px solid $light-border;
   background: #fff;
-  color:      #333;
-  padding:    3px 12px;
-  font-size:  12px;
-  margin:     0;
+  color: #333;
+  padding: 3px 12px;
+  font-size: 12px;
+  margin: 0;
 
   &:hover {
     background: #fff;
-    color:      #333;
+    color: #333;
   }
 
   &:focus {
@@ -261,8 +262,8 @@ $icon-color: #647984;
   }
 
   &.active {
-    background:   $go-primary;
-    color:        #fff;
+    background: $go-primary;
+    color: #fff;
     border-color: $go-primary;
   }
 }
@@ -273,12 +274,12 @@ $icon-color: #647984;
 
 .btn_none {
   border-radius: 0 $global-border-radius $global-border-radius 0;
-  margin-left:   -1px;
+  margin-left: -1px;
 }
 
 .pipeline-selections {
-  border:        1px solid $light-border;
-  padding:       20px;
+  border: 1px solid $light-border;
+  padding: 20px;
   border-radius: $global-border-radius;
 
   &.pipeline-search-in-progress .selected-pipelines_group_checkbox {
@@ -290,15 +291,15 @@ $icon-color: #647984;
   }
 
   .loading-pipelines {
-    @include animation(fadeIn 0.2s ease-in);
+    @include animation(fade-in 0.2s ease-in);
 
     text-align: center;
-    font-size:  200%;
+    font-size: 200%;
 
     .spinner {
       @include icon-before($type: spinner, $margin: 0);
 
-      &:before {
+      &::before {
         @include animation(spin 2s linear infinite);
       }
     }
@@ -311,7 +312,7 @@ $icon-color: #647984;
 
 .selected-pipelines {
   list-style-type: none;
-  margin:          0;
+  margin: 0;
 
   > li > label {
     font-weight: 600;
@@ -320,8 +321,8 @@ $icon-color: #647984;
 
 .selected-pipelines_group {
   border-bottom: dashed 1px #ccc;
-  padding-left:  30px;
-  position:      relative;
+  padding-left: 30px;
+  position: relative;
 
   &:last-of-type {
     border: 0;
@@ -331,7 +332,7 @@ $icon-color: #647984;
     .pipeline-list-toggle {
       @include icon-before($type: chevron-down, $size: 12px);
 
-      &:before {
+      &::before {
         color: $icon-color;
       }
     }
@@ -341,7 +342,7 @@ $icon-color: #647984;
     .pipeline-list-toggle {
       @include icon-before($type: chevron-right, $size: 12px, $color: $icon-color);
 
-      &:before {
+      &::before {
         color: $icon-color;
       }
     }
@@ -354,14 +355,14 @@ $icon-color: #647984;
 
 .selected-pipelines_pipeline-list {
   list-style-type: none;
-  margin:          0;
+  margin: 0;
 }
 
 .pipeline-list-toggle {
   position: absolute;
-  left:     0;
-  top:      4px;
-  cursor:   pointer;
+  left: 0;
+  top: 4px;
+  cursor: pointer;
 }
 
 .overlay-footer {
@@ -373,40 +374,41 @@ $icon-color: #647984;
 .btn-delete {
   @include icon-before($type: trash, $margin: 0 10px 0 0, $progress-spinner: true);
 
-  float:      left;
+  float: left;
   background: #fff;
-  color:      #333;
-  border:     1px solid #e9edef;
+  color: #333;
+  border: 1px solid #e9edef;
   transition: $transition;
 
-  &:before {
+  &::before {
     color: $icon-color;
   }
 
   &:hover {
-    transition:   $transition;
-    background:   #fff;
-    color:        #333;
+    transition: $transition;
+    background: #fff;
+    color: #333;
     border-color: darken(#e9edef, 10%);
   }
 }
 
-.btn-save, .btn-cancel {
+.btn-save,
+.btn-cancel {
   float: right;
 
   ~ .tooltip {
-    left:  auto;
+    left: auto;
     right: 0;
 
-    &:before {
-      left:  auto;
+    &::before {
+      left: auto;
       right: 20px;
     }
   }
 }
 
-.required:after {
-  content:      "*";
-  color:        #c00;
+.required::after {
+  content: "*";
+  color: #c00;
   padding-left: 3px;
 }

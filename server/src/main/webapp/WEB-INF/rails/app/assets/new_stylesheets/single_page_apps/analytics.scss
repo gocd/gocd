@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/common';
-@import 'shared/go-variables';
-@import 'shared/header';
-@import 'shared/alert';
-@import 'shared/modal';
-@import 'shared/analytics-common';
+@import "shared/mixins";
+@import "shared/common";
+@import "shared/go-variables";
+@import "shared/header";
+@import "shared/alert";
+@import "shared/modal";
+@import "shared/analytics-common";
 @import "font-awesome-sprockets";
 
 .message {
-  width:   100%;
+  width: 100%;
   padding: 10px 20px 20px 10px;
 }
-
-// scss-lint:disable SelectorDepth
 
 $aspect-ratio: 1.61803398875; // golden ratio
 $analytics-min-height: 525px;
@@ -35,58 +33,55 @@ $analytics-horz-margin: 34px;
 $analytics-min-support-screen-width: 1366px;
 
 .analytics-main-container {
-  display:         flex;
-  flex-wrap:       wrap;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
 
   h1 {
     font-weight: 600;
   }
-
 }
 
 .analytics-dashboard-content {
-  display:        flex;
-  flex-grow:      0.5;
-  width:          100%;
-  padding:        0 30px;
+  display: flex;
+  flex-grow: 0.5;
+  width: 100%;
+  padding: 0 30px;
   flex-direction: column;
-  margin-bottom:  50px;
+  margin-bottom: 50px;
 
   .dashboard-tabs-container {
     border-bottom: 1px solid #ccc;
     margin-bottom: 10px;
-    min-width:     650px;
-
+    min-width: 650px;
   }
-
 }
 
 .dashboard-tabs {
   margin: 0;
 
   li {
-    cursor:        pointer;
-    float:         left;
-    list-style:    none;
-    padding:       7px 15px;
-    line-height:   19px;
-    font-size:     15px;
+    cursor: pointer;
+    float: left;
+    list-style: none;
+    padding: 7px 15px;
+    line-height: 19px;
+    font-size: 15px;
     border-radius: 3px 3px 0 0;
-    font-weight:   600;
-    color:         #333;
+    font-weight: 600;
+    color: #333;
 
     &.current {
       border-bottom: 4px solid #94399e;
-      font-weight:   700;
+      font-weight: 700;
     }
   }
 }
 
 .dashboard-charts {
-  overflow:  visible;
-  border:    0;
-  display:   flex;
+  overflow: visible;
+  border: 0;
+  display: flex;
   flex-flow: row wrap;
 
   &.global {
@@ -99,33 +94,32 @@ $analytics-min-support-screen-width: 1366px;
 }
 
 .chart-pipeline-selector {
-  width:          100%;
-  height:         40px;
-  font-size:      14px;
-  font-weight:    600;
-  font-style:     normal;
-  font-stretch:   normal;
-  line-height:    normal;
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
   letter-spacing: normal;
-  text-align:     left;
-  color:          #333;
+  text-align: left;
+  color: #333;
 
   select {
-    height:      30px;
+    height: 30px;
     font-weight: normal;
-    font-size:   13px;
-    color:       #050505;
-    width:       300px;
+    font-size: 13px;
+    color: #050505;
+    width: 300px;
     margin-left: 10px;
   }
 }
 
 .frame-container {
-  margin:     2px;
-  width:      calc(50vw - #{$analytics-horz-margin});
-  height:     calc(50vw / #{$aspect-ratio} - #{$analytics-horz-margin} / #{$aspect-ratio});
-
-  min-width:  calc(#{$analytics-min-support-screen-width} / 2 - #{$analytics-horz-margin});
+  margin: 2px;
+  width: calc(50vw - #{$analytics-horz-margin});
+  height: calc(50vw / #{$aspect-ratio} - #{$analytics-horz-margin} / #{$aspect-ratio});
+  min-width: calc(#{$analytics-min-support-screen-width} / 2 - #{$analytics-horz-margin});
   min-height: $analytics-min-height;
 
   &[data-error-text] {
@@ -134,7 +128,7 @@ $analytics-min-support-screen-width: 1366px;
     &::before {
       display: block;
       content: attr(data-error-text);
-      color:   #f00;
+      color: #f00;
     }
   }
 }

@@ -17,15 +17,15 @@
 
 .server-health-statuses {
   list-style-type: none;
-  margin:          0;
-  padding:         0;
+  margin: 0;
+  padding: 0;
 }
 
 .server-health-status {
-  margin:         10px;
+  margin: 10px;
   padding-bottom: 10px;
-  border-bottom:  1px dotted $border-color;
-  font-size:      14px;
+  border-bottom: 1px dotted $border-color;
+  font-size: 14px;
 
   &.warning .detail {
     border-left: $building 3px solid;
@@ -36,28 +36,28 @@
   }
 
   .message {
-    display:     inline-block;
+    display: inline-block;
     font-weight: 600;
   }
 
   .timestamp {
-    display:      inline-block;
-    font-size:    13px;
-    font-weight:  600;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
     padding-left: 5px;
   }
 
   .detail {
-    margin-top:    5px;
-    padding-left:  10px;
+    margin-top: 5px;
+    padding-left: 10px;
     margin-bottom: 0;
   }
 
-  .timestamp:before {
-    content: '[';
-  }
-  .timestamp:after {
-    content: ']';
+  .timestamp::before {
+    content: "[";
   }
 
+  .timestamp::after {
+    content: "]";
+  }
 }

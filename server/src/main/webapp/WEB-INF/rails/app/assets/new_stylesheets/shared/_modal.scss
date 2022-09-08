@@ -15,75 +15,86 @@
  */
 .reveal {
   padding: 0;
+
   .modal-header {
-    border-bottom:           1px solid #ccc;
-    padding:                 10px 10px;
-    border-top-left-radius:  $global-border-radius;
-    background:              #e0dfdf;
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    border-top-left-radius: $global-border-radius;
+    background: #e0dfdf;
     border-top-right-radius: $global-border-radius;
-    font-size:               rem-calc(16px);
+    font-size: rem-calc(16px);
 
     .close-button {
       right: 17px;
-      top:   11px;
+      top: 11px;
     }
   }
 
   .modal-title {
-    font-weight:   600;
-    font-size:     18px;
-    margin:        5px 0 5px 15px;
-
-    max-width:     calc(100% - 40px);
-    overflow:      hidden;
-    white-space:   nowrap;
+    font-weight: 600;
+    font-size: 18px;
+    margin: 5px 0 5px 15px;
+    max-width: calc(100% - 40px);
+    overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
   }
 
   .modal-body {
     max-height: 500px;
     overflow-y: auto;
-    padding:    5px 14px;
+    padding: 5px 14px;
   }
 
-  thead th, thead td, tfoot th, tfoot td, tbody th, tbody td {
-    padding:   5px 10px;
+  thead th,
+  thead td,
+  tfoot th,
+  tfoot td,
+  tbody th,
+  tbody td {
+    padding: 5px 10px;
     font-size: 13px;
   }
 
   .modal-buttons {
     margin: 20px 14px 25px 25px;
+
     .button {
       margin: 0 1rem 0 0;
+
       &.in-progress {
         @include icon-before($type: spinner, $margin: 0 5px 0 0);
-        &:before {
+
+        &::before {
           @include animation(spin 1s linear infinite);
         }
       }
 
       &.green-check {
         @include icon-before($type: check, $margin: 0 5px 0 0);
+
         background-color: map-get($foundation-palette, success);
-        transition:       all 0.5s ease-in-out;
-        &:before {
-          @include animation(fadeIn 1s ease-in);
+        transition: all 0.5s ease-in-out;
+
+        &::before {
+          @include animation(fade-in 1s ease-in);
         }
       }
     }
   }
+
   .button {
     margin-right: 10px;
   }
 
   .modal-spinner {
-    border:        16px solid #f3f3f3;
-    border-top:    16px solid #963fb7;
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #963fb7;
     border-radius: 50%;
-    width:         100px;
-    height:        100px;
-    margin:        50px auto;
-    animation:     spin 2s linear infinite;
+    width: 100px;
+    height: 100px;
+    margin: 50px auto;
+    animation: spin 2s linear infinite;
   }
 }
 

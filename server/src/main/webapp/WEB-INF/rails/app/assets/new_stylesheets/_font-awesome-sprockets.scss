@@ -1,4 +1,5 @@
 @charset "UTF-8";
+
 /*
  * Copyright 2022 Thoughtworks, Inc.
  *
@@ -15,19 +16,13 @@
  * limitations under the License.
  */
 
-$fa-font-path: 'font-awesome/fonts';
+$fa-font-path: "font-awesome/fonts";
 
 @import "bourbon/core/bourbon";
+
 // this file is a copy of font-awesome.scss, with changes to `path.scss` substituted in this file
 @import "font-awesome/scss/variables";
 @import "font-awesome/scss/mixins";
-
-@include font-face($font-family: 'FontAwesome',
-                   $file-path: "#{$fa-font-path}/fontawesome-webfont",
-                   $file-formats: ("woff2", "woff"),
-                   $asset-pipeline: true
-);
-
 @import "font-awesome/scss/core";
 @import "font-awesome/scss/larger";
 @import "font-awesome/scss/fixed-width";
@@ -38,3 +33,9 @@ $fa-font-path: 'font-awesome/fonts';
 @import "font-awesome/scss/stacked";
 @import "font-awesome/scss/icons";
 @import "font-awesome/scss/screen-reader";
+@include font-face(
+  $font-family: "FontAwesome",
+  $file-path: "#{$fa-font-path}/fontawesome-webfont",
+  $file-formats: ("woff2", "woff"),
+  $asset-pipeline: true
+);

@@ -14,37 +14,51 @@
  * limitations under the License.
  */
 select {
-  height:  rem-calc(32);
+  height: rem-calc(32);
   padding: 0 0.5rem;
 }
 
-[type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'],
+[type="text"],
+[type="password"],
+[type="date"],
+[type="datetime"],
+[type="datetime-local"],
+[type="month"],
+[type="week"],
+[type="email"],
+[type="number"],
+[type="search"],
+[type="tel"],
+[type="time"],
+[type="url"],
+[type="color"],
 textarea {
   height: rem-calc(32);
 }
 
 .btn-primary {
-  display:       inline-block;
-  padding:       5px;
+  display: inline-block;
+  padding: 5px;
   border-radius: 3px;
-  color:         #fff;
-  font-size:     14px;
-  font-weight:   600;
-  background:    #b66fc2;
-  &:hover, &:visited {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  background: #b66fc2;
+
+  &:hover,
+  &:visited {
     text-decoration: none;
-    color:           #fff;
+    color: #fff;
   }
 }
 
 .btn-small {
-  padding:   4px 10px;
+  padding: 4px 10px;
   font-size: 13px;
 }
 
-// scss-lint:disable SelectorFormat
 .form_error {
-  // scss-lint:enable SelectorFormat
   @include form-error;
+
   display: block;
 }

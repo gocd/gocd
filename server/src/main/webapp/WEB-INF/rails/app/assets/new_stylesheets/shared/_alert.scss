@@ -26,42 +26,50 @@ $secondary: #fff;
 $border-radius: 3px;
 
 .callout {
-  font-weight:   600;
-  font-size:     15px;
-  padding:       10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 10px 20px;
   border-radius: $border-radius;
+
   &.success {
     background-color: $success;
-    border-color:     $success-border;
-    color:            #298a4c;
+    border-color: $success-border;
+    color: #298a4c;
   }
+
   &.warning {
     background-color: $warning;
-    border-color:     $warning-border;
-    color:            #b88c34;
+    border-color: $warning-border;
+    color: #b88c34;
   }
+
   &.info {
     background-color: $info;
-    border-color:     $info-border;
-    color:            #0072b7;
+    border-color: $info-border;
+    color: #0072b7;
   }
+
   &.alert {
     background-color: $alert;
-    border-color:     $alert-border;
-    color:            #f23962;
+    border-color: $alert-border;
+    color: #f23962;
   }
+
   &.small {
-    padding:   5px 10px;
+    padding: 5px 10px;
     font-size: rem-calc(13px);
   }
+
   &.secondary {
     background-color: $secondary;
-    border-color:     #e3e3e3;
-    color:            #4a4a4a;
+    border-color: #e3e3e3;
+    color: #4a4a4a;
   }
+
   .pipeline & {
     margin: 10px 15px;
   }
+
   .modal-content & {
     margin: 10px 0;
   }

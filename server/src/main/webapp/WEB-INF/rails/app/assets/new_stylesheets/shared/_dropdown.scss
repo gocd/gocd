@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$c-dropdown_height: 34px;
-$c-dropdown_border-color: $light-border;
-$c-dropdown_text-color: #000;
-$c-dropdown_bg-hover: $main-nav-link-bg-hover;
+$c-dropdown-height: 34px;
+$c-dropdown-border-color: $light-border;
+$c-dropdown-text-color: #000;
+$c-dropdown-bg-hover: $main-nav-link-bg-hover;
 
 .groupby {
-  display:     flex;
-  align-items: Center;
+  display: flex;
+  align-items: center;
 }
 
 .grouping_label {
   white-space: nowrap;
-  margin:      0 10px 0 0;
-  display:     inline-block;
+  margin: 0 10px 0 0;
+  display: inline-block;
 }
 
 %dropdownwidth {
@@ -35,11 +35,14 @@ $c-dropdown_bg-hover: $main-nav-link-bg-hover;
 
 .c-dropdown {
   @extend %dropdownwidth;
-  position:  relative;
+
+  position: relative;
   font-size: 13px;
+
   &.open {
     position: relative;
-    z-index:  5;
+    z-index: 5;
+
     .c-dropdown_body {
       display: block;
     }
@@ -47,61 +50,70 @@ $c-dropdown_bg-hover: $main-nav-link-bg-hover;
 }
 
 .c-dropdown_head {
-  display:       inline-block;
-  position:      relative;
-  z-index:       2;
-  height:        $c-dropdown_height;
-  line-height:   32px;
-  padding:       0 20px 0 15px;
-  border:        1px solid $c-dropdown_border-color;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+  height: $c-dropdown-height;
+  line-height: 32px;
+  padding: 0 20px 0 15px;
+  border: 1px solid $c-dropdown-border-color;
   border-radius: 3px;
-  background:    #fff;
-  width:         100%;
-  cursor:        pointer;
-  font-weight:   600;
-  color:         $c-dropdown_text-color;
+  background: #fff;
+  width: 100%;
+  cursor: pointer;
+  font-weight: 600;
+  color: $c-dropdown-text-color;
+
   .open & {
     border-radius: 3px 3px 0 0;
   }
-  &:hover, &:active, &:focus, &:visited {
-    color:   $c-dropdown_text-color;
+
+  &:hover,
+  &:active,
+  &:focus,
+  &:visited {
+    color: $c-dropdown-text-color;
     outline: 0;
   }
 }
 
 .c-dropdown_body {
   @extend %dropdownwidth;
-  position:      absolute;
+
+  position: absolute;
   border-radius: 0 0 3px 3px;
-  background:    #fff;
-  top:           $c-dropdown_height;
-  display:       none;
-  border:        1px solid $c-dropdown_border-color;
-  border-top:    0;
-  color:         $c-dropdown_text-color;
+  background: #fff;
+  top: $c-dropdown-height;
+  display: none;
+  border: 1px solid $c-dropdown-border-color;
+  border-top: 0;
+  color: $c-dropdown-text-color;
 }
 
 .c-dropdown_item {
   text-decoration: none;
-  display:         block;
-  padding:         7px 20px;
-  cursor:          default;
-  color:           $c-dropdown_text-color;
+  display: block;
+  padding: 7px 20px;
+  cursor: default;
+  color: $c-dropdown-text-color;
+
   &:first-child {
     border: 0;
   }
+
   &:hover {
-    color:      $c-dropdown_text-color;
-    background: $c-dropdown_bg-hover;
+    color: $c-dropdown-text-color;
+    background: $c-dropdown-bg-hover;
   }
 }
 
 .c-down-arrow {
   @include icon-before($type: angle-down);
-  position:  absolute;
-  right:     9px;
-  top:       5px;
-  cursor:    pointer;
-  z-index:   6;
+
+  position: absolute;
+  right: 9px;
+  top: 5px;
+  cursor: pointer;
+  z-index: 6;
   font-size: 15px;
 }

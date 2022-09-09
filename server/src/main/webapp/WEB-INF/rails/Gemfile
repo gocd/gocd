@@ -7,7 +7,9 @@ gem 'rails'
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :assets do
-  gem 'sass-rails'
+  gem 'sassc-rails'
+  gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
+  gem 'sassc-embedded'
   gem 'js-routes'
   gem 'ts_routes'
 end

@@ -46,10 +46,15 @@
    Temporary suppression as this dependency is embedded within JRuby as a transitive dependency of ruby/psych,
    and there is no fixed version of JRuby available. This should be of limited risk to GoCD since it does not
    directly ingest YAML off APIs. See https://github.com/ruby/psych/pull/574 and https://github.com/jruby/jruby/issues/7342
+
+   These vulnerabilities should be fixed in SnakeYaml 1.31 and JRuby 9.3.8.0+.
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
     <cve>CVE-2022-25857</cve>
     <vulnerabilityName>CVE-2022-25857</vulnerabilityName>
+
+    <cve>CVE-2022-38750</cve>
+    <vulnerabilityName>CVE-2022-38750</vulnerabilityName>
   </suppress>
   <suppress until="2022-11-01Z">
     <notes><![CDATA[

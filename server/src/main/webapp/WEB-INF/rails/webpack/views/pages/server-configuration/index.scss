@@ -18,63 +18,63 @@
 .form-container {
   padding: 20px;
   display: flex;
-  width:   60%;
+  width: 60%;
 }
 
 .purge-settings-fields {
-  display:        flex;
+  display: flex;
   flex-direction: column;
 }
 
 .server-configuration-container {
   display: flex;
-  width:   100%;
+  width: 100%;
 }
 
 .left-panel {
   background-color: $white;
-  margin-right:     10px;
-  padding-right:    10px;
-  width:            20%;
+  margin-right: 10px;
+  padding-right: 10px;
+  width: 20%;
 
   ul {
-    list-style:    none;
+    list-style: none;
     padding-right: 30px;
-    padding-left:  20px;
+    padding-left: 20px;
 
     li {
-      cursor:        pointer;
+      cursor: pointer;
       border-bottom: 1px solid $border-color;
-      padding:       10px 10px 10px 15px;
+      padding: 10px 10px 10px 15px;
     }
 
     .active {
       border-bottom: 2px solid $go-primary;
-      color:         $go-primary;
+      color: $go-primary;
     }
   }
 }
 
 .right-panel {
   background-color: $white;
-  width:            100%;
+  width: 100%;
 }
 
 .form-header {
-  border-bottom:   1px solid $border-color;
-  display:         flex;
-  flex-direction:  row;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
 }
 
 .buttons {
   margin-top: 10px;
-  float:      right;
+  float: right;
 }
 
 .form-fields {
   border-bottom: 1px solid $border-color;
-  padding-top:   20px;
+  padding-top: 20px;
 }
 
 .deleteIcon {
@@ -82,7 +82,7 @@
 }
 
 .admin-mail {
-  width:   100%;
+  width: 100%;
   display: flex;
 
   button {
@@ -96,10 +96,11 @@
 
 @mixin test-connection-button-icon($type, $colors: $icon-light-color, $size: 5px) {
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
-    display:      inline-block;
+    display: inline-block;
     margin-right: $size;
-    @content
+    @content;
   }
+
   font-size: 11px;
 }
 

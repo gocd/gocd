@@ -19,22 +19,22 @@ $spinner-color: $go-primary;
 $spinner-border-color: #f3f3f3;
 
 .page-spinner {
-  position:      absolute;
-  top:           50%;
-  left:          50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   border-radius: 50%;
-  width:         100px;
-  height:        100px;
-  margin:        -50px 0 0 -50px;
-  border:        16px solid $spinner-border-color;
-  border-top:    16px solid $spinner-color;
-  animation:     spin 2s linear infinite;
+  width: 100px;
+  height: 100px;
+  margin: -50px 0 0 -50px;
+  border: 16px solid $spinner-border-color;
+  border-top: 16px solid $spinner-color;
+  animation: spin 2s linear infinite;
 }
 
 .small {
-  width:        50px;
-  height:       50px;
-  margin:       -25px 0 0 -25px;
+  width: 50px;
+  height: 50px;
+  margin: -25px 0 0 -25px;
   border-width: 8px;
 }
 
@@ -42,6 +42,7 @@ $spinner-border-color: #f3f3f3;
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

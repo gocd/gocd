@@ -16,12 +16,13 @@
 @import "../../../global/common";
 
 $z-index: 5;
+
 .dropdown-button-content {
-  background:    $white;
-  position:      absolute;
+  background: $white;
+  position: absolute;
   border-radius: $global-border-radius;
-  padding:       10px 20px;
-  box-shadow:    0 2px 4px $box-shadow-color;
-  z-index:       $z-index;
-  min-width:     100px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px $box-shadow-color;
+  z-index: $z-index;
+  min-width: 100px;
 }

@@ -22,14 +22,14 @@
     li {
       label {
         width: 125px;
-        flex:  0 0 125px;
+        flex: 0 0 125px;
       }
     }
   }
 }
 
 .key-value-pair {
-  display:       flex;
+  display: flex;
   margin-bottom: 10px;
 }
 
@@ -44,7 +44,7 @@
 
 .job-state-transition-icon-container {
   display: inherit;
-  width:   150px;
-  height:  22px;
-  cursor:  pointer;
+  width: 150px;
+  height: 22px;
+  cursor: pointer;
 }

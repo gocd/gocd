@@ -16,20 +16,20 @@
 @import "../../global/common";
 
 $background-color: #ebf5f7;
-$button_color: #2d6ca2;
+$button-color: #2d6ca2;
 
 .help {
   background-color: $white;
-  padding:          20px;
+  padding: 20px;
 }
 
 .material {
   vertical-align: middle;
-  margin:         0 10px 0 -15px;
-  width:          60px;
-  height:         40px;
-  text-align:     center;
-  background:     transparent url('../../../../app/assets/images/andare/thumbs-materials-100x100.png') no-repeat;
+  margin: 0 10px 0 -15px;
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  background: transparent url("../../../../app/assets/images/andare/thumbs-materials-100x100.png") no-repeat;
 
   &.git {
     background-position: 0 -60px;
@@ -56,53 +56,54 @@ $button_color: #2d6ca2;
   }
 
   &.plugin {
-    background:      transparent url("../../../../app/assets/images/andare/icon-plugin-default.png") no-repeat;
+    background: transparent url("../../../../app/assets/images/andare/icon-plugin-default.png") no-repeat;
     background-size: 45px;
   }
 
   &.unknown {
     @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 35px, $margin: 0);
+
     background: $white;
   }
 }
 
 .truncate {
-  overflow:      hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
-  white-space:   nowrap;
+  white-space: nowrap;
 }
 
 .modification-modal {
   background-color: $primary-bg;
+
   // fill the whole modal
-  margin:           0 -30px -20px;
-  padding:          5px 30px 20px;
+  margin: 0 -30px -20px;
+  padding: 5px 30px 20px;
 
   header {
-    top: 50px
+    top: 50px;
   }
 }
 
 .modification {
-  padding:          10px;
+  padding: 10px;
   background-color: $white;
-  margin-bottom:    10px;
-  border:           1px solid $line-color;
-  border-radius:    3px;
-
-  display:          flex;
-  justify-content:  space-between;
-  width:            100%;
+  margin-bottom: 10px;
+  border: 1px solid $line-color;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 
   .user {
-    width:           25%;
-    display:         flex;
-    flex-direction:  column;
+    width: 25%;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
   }
 
   .commentWrapper {
-    width:   55%;
+    width: 55%;
     padding: 0 5px;
   }
 
@@ -112,20 +113,20 @@ $button_color: #2d6ca2;
 }
 
 .pagination {
-  display:         flex;
+  display: flex;
   justify-content: center;
 
   .pagination-link {
-    margin:           4px;
-    padding:          6px 10px;
+    margin: 4px;
+    padding: 6px 10px;
     background-color: $white;
-    border-radius:    $global-border-radius;
-    text-align:       center;
+    border-radius: $global-border-radius;
+    text-align: center;
   }
 
   .disabled {
-    color:           $go-disabled;
-    cursor:          not-allowed;
+    color: $go-disabled;
+    cursor: not-allowed;
     text-decoration: none;
   }
 }
@@ -139,21 +140,21 @@ $button_color: #2d6ca2;
 }
 
 .ellipse-wrapper {
-  display:     inline-block;
-  word-break:  break-all;
+  display: inline-block;
+  word-break: break-all;
   white-space: pre-line;
 }
 
 .ellipsis-action-button {
-  color:        $button_color;
+  color: $button-color;
   padding-left: 10px;
-  cursor:       pointer;
+  cursor: pointer;
 }
 
 .commit-info {
-  font-size:  13px;
+  font-size: 13px;
   word-break: break-all;
-  max-width:  630px;
+  max-width: 630px;
 }
 
 .usages {
@@ -163,9 +164,9 @@ $button_color: #2d6ca2;
 }
 
 .spinner-wrapper {
-  display:         flex;
+  display: flex;
   justify-content: center;
-  flex-direction:  column;
+  flex-direction: column;
 }
 
 .modification-wrapper {
@@ -173,18 +174,18 @@ $button_color: #2d6ca2;
 }
 
 .revision {
-  overflow:      hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
-  display:       inline-block;
-  max-width:     70%;
-  float:         left;
+  display: inline-block;
+  max-width: 70%;
+  float: left;
 }
 
 .comment {
   white-space: pre-wrap;
-  max-height:  160px;
-  overflow-y:  scroll;
-  width:       100%;
+  max-height: 160px;
+  overflow-y: scroll;
+  width: 100%;
 }
 
 .warnings {

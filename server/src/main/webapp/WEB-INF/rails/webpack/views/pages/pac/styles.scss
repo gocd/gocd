@@ -20,7 +20,7 @@
 
 $syntax-bg: #282923;
 $error-container-width: 450px;
-$initial-message-bg: rgba(255, 255, 255, 0.5);
+$initial-message-bg: rgba(255, 255, 255, 50%);
 $initial-message-z: 4; // just underneath the global page header z-index
 
 $shell-sample-bg: $task-editor-bg;
@@ -46,11 +46,10 @@ $shell-sample-cmd: $task-cmd-color;
   }
 }
 
-.builder-form, .preview-pane {
+.builder-form,
+.preview-pane {
   max-width: calc(50% - #{$fillable-section-margin});
-  flex-basis: 50%;
-  flex-shrink: 0;
-  flex-grow: 0;
+  flex: 0 0 50%;
 }
 
 .preview-pane[class*="language-"] {
@@ -92,7 +91,6 @@ $shell-sample-cmd: $task-cmd-color;
 .builder-section-heading {
   font-size: 18px;
   font-weight: 600;
-
   margin: 0 0 10px;
   padding: 0;
 }
@@ -103,7 +101,6 @@ $shell-sample-cmd: $task-cmd-color;
   h3 {
     font-size: 24px;
     font-weight: 600;
-
     margin: 0 0 10px;
     padding: 0;
   }
@@ -128,9 +125,7 @@ $shell-sample-cmd: $task-cmd-color;
 }
 
 .download-instructions {
-  flex-basis: 65%;
-  flex-grow: 0;
-  flex-shrink: 0;
+  flex: 0 0 65%;
 
   p {
     margin: 0;
@@ -151,9 +146,7 @@ $shell-sample-cmd: $task-cmd-color;
 }
 
 .download-action {
-  flex-basis: 35%;
-  flex-grow: 0;
-  flex-shrink: 0;
+  flex: 0 0 35%;
   text-align: right;
 
   .error-response {
@@ -182,7 +175,7 @@ $shell-sample-cmd: $task-cmd-color;
     .line {
       line-height: 175%;
 
-      &:before {
+      &::before {
         display: inline-block;
         content: "$";
         margin-right: 1ex;
@@ -197,6 +190,7 @@ $shell-sample-cmd: $task-cmd-color;
 
   .btn-cancel {
     border: 1px solid $btn-reset;
+
     &:hover {
       background-color: $btn-reset;
       color: $white;

@@ -17,12 +17,12 @@
 
 .backup-container {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }
 
 .content {
   display: flex;
-  margin:  20px 0 0;
+  margin: 20px 0 0;
 }
 
 .available-disk-space {
@@ -34,17 +34,17 @@
 }
 
 .perform-backup-container {
-  width:        60%;
+  width: 60%;
   margin-right: 20px;
-  box-sizing:   border-box;
+  box-sizing: border-box;
 }
 
 .perform-backup-section {
-  padding:     20px;
-  display:     flex;
+  padding: 20px;
+  display: flex;
   align-items: center;
-  border:      1px solid $border-color;
-  background:  $secondary-bg;
+  border: 1px solid $border-color;
+  background: $secondary-bg;
 }
 
 .backup-info {
@@ -55,14 +55,13 @@
 
 .perform-backup-button-container {
   margin-right: 20px;
-  width:        180px;
+  width: 180px;
 }
 
 .backup-help {
-  width:      40%;
-  padding:    0 20px;
+  width: 40%;
+  padding: 0 20px;
   box-sizing: border-box;
-
 }
 
 .help-heading {
@@ -71,8 +70,8 @@
 
 .help-item {
   list-style-type: none;
-  margin:          0;
-  padding:         0;
+  margin: 0;
+  padding: 0;
 
   li {
     margin-bottom: 10px;
@@ -84,15 +83,16 @@
 }
 
 .backup-config-help {
-  padding:     20px;
-  border:       1px solid $border-color;
+  padding: 20px;
+  border: 1px solid $border-color;
+
   p {
     margin: 5px;
   }
 }
 
 a {
-  color:           $link-color;
+  color: $link-color;
   text-decoration: none;
-  cursor:          pointer;
+  cursor: pointer;
 }

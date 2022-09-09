@@ -15,23 +15,25 @@
  */
 @import "../../global/common";
 
-$page-item-padding:         30px;
-$header-padding:            10px 50px 10px 30px;
+$page-item-padding: 30px;
+$header-padding: 10px 50px 10px 30px;
 $collapsible-header-height: 50px;
 
 .collapse {
-  background:    $element-bg;
-  position:      relative;
-  border:        1px solid $border-color;
+  background: $element-bg;
+  position: relative;
+  border: 1px solid $border-color;
   border-radius: $global-border-radius;
   margin-bottom: 10px;
-  transition:    $transition;
+  transition: $transition;
 
   &[data-tag] {
     &::before {
       content: "";
       position: absolute;
-      top: 0; bottom: 0; left: 0;
+      top: 0;
+      bottom: 0;
+      left: 0;
       width: 10px;
     }
   }
@@ -60,111 +62,117 @@ $collapsible-header-height: 50px;
 
 .collapse-header {
   @include icon-after($fa-var-angle-right);
-  position:       relative;
-  display:        flex;
-  flex-wrap:      wrap;
-  flex-direction: column;
-  padding:        $header-padding;
-  box-sizing:     border-box;
-  cursor:         pointer;
-  min-height:     $collapsible-header-height;
+
+  position: relative;
+  display: flex;
+  flex-flow: column wrap;
+  padding: $header-padding;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: $collapsible-header-height;
+
   @media (min-width: $screen-md) {
     justify-content: space-between;
   }
+
   @media (min-width: $screen-lg) {
     flex-direction: row;
-    align-items:    center;
+    align-items: center;
   }
 
-  &:after {
-    position:   absolute;
-    right:      16px;
-    font-size:  22px;
-    color:      $icon-color;
-    top:        50%;
+  &::after {
+    position: absolute;
+    right: 16px;
+    font-size: 22px;
+    color: $icon-color;
+    top: 50%;
     transition: $transition;
-    transform:  translateY(-50%);
-    margin:     0;
+    transform: translateY(-50%);
+    margin: 0;
   }
 
   &.expanded {
-    &:after {
-      transform:  rotate(90deg) translateY(-50%);
+    &::after {
+      transform: rotate(90deg) translateY(-50%);
       transition: $transition;
-      right:      25px;
-      top:        34%;
+      right: 25px;
+      top: 34%;
     }
   }
 }
 
 .non-collapse-header {
-  position:       relative;
-  display:        flex;
-  flex-wrap:      wrap;
-  flex-direction: column;
-  padding:        $header-padding;
-  box-sizing:     border-box;
-  min-height:     $collapsible-header-height;
+  position: relative;
+  display: flex;
+  flex-flow: column wrap;
+  padding: $header-padding;
+  box-sizing: border-box;
+  min-height: $collapsible-header-height;
+
   @media (min-width: $screen-md) {
     justify-content: space-between;
   }
+
   @media (min-width: $screen-lg) {
     flex-direction: row;
-    align-items:    center;
+    align-items: center;
   }
 
-  &:after {
-    position:   absolute;
-    right:      16px;
-    font-size:  22px;
-    color:      $icon-color;
-    top:        50%;
+  &::after {
+    position: absolute;
+    right: 16px;
+    font-size: 22px;
+    color: $icon-color;
+    top: 50%;
     transition: $transition;
-    transform:  translateY(-50%);
-    margin:     0;
+    transform: translateY(-50%);
+    margin: 0;
   }
 
   &.expanded {
-    &:after {
-      transform:  rotate(90deg) translateY(-50%);
+    &::after {
+      transform: rotate(90deg) translateY(-50%);
       transition: $transition;
-      right:      25px;
-      top:        34%;
+      right: 25px;
+      top: 34%;
     }
   }
 }
 
 .header-details {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  float:          left;
+  float: left;
 
   @media (min-width: $screen-md) {
     flex-direction: row;
-    align-items:    center;
+    align-items: center;
   }
+
   @media (min-width: $screen-lg) {
     width: auto;
   }
 }
 
 .actions {
-  float:       right;
-  display:     flex;
-  margin:      20px 0;
+  float: right;
+  display: flex;
+  margin: 20px 0;
   align-items: center;
+
   @media (min-width: $screen-xl) {
-    width:  auto;
+    width: auto;
     margin: 0;
   }
+
   @media (min-width: $screen-lg) {
-    width:  auto;
+    width: auto;
     margin: 0;
   }
 }
 
 .collapse-body {
-  padding:    20px 30px;
+  padding: 20px 30px;
   border-top: 1px solid $line-color;
 }
 

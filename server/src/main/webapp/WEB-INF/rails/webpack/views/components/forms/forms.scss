@@ -18,10 +18,8 @@
 $global-border-color: $line-color;
 $global-border-radius: 3px;
 $form-element-height: 35px;
-
 $form-help-text-color: #999;
 $form-placeholder-color: #bbb;
-
 $form-control-color: #495057;
 $form-control-disabled-color: #d4d7da;
 $form-control-border-color: #80bdff;
@@ -31,14 +29,14 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
 
 .form-header {
   background: $form-header-bg;
-  margin:     -20px -30px $global-margin-bottom -30px;
-  padding:    20px 30px 0;
+  margin: -20px -30px $global-margin-bottom -30px;
+  padding: 20px 30px 0;
 }
 
 .form-group {
   list-style-type: none;
-  font-size:       14px;
-  margin-bottom:   20px;
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .form-disabled {
@@ -46,13 +44,14 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
     color: $form-help-text-color;
   }
 
-  .form-control, .form-check-input {
+  .form-control,
+  .form-check-input {
     cursor: not-allowed;
   }
 }
 
 .form-label {
-  display:       block;
+  display: block;
   margin-bottom: 5px;
 }
 
@@ -61,26 +60,26 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
 }
 
 .form-control {
-  display:          block;
-  height:           $form-element-height;
-  line-height:      $form-element-height;
-  padding:          0 10px;
-  margin-right:     5px;
-  font-size:        14px;
+  display: block;
+  height: $form-element-height;
+  line-height: $form-element-height;
+  padding: 0 10px;
+  margin-right: 5px;
+  font-size: 14px;
   background-color: $form-control-background-color;
-  background-clip:  padding-box;
-  border:           1px solid $global-border-color;
-  border-radius:    $global-border-radius;
-  transition:       border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  width:            250px;
-  box-sizing:       border-box;
+  background-clip: padding-box;
+  border: 1px solid $global-border-color;
+  border-radius: $global-border-radius;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  width: 250px;
+  box-sizing: border-box;
 
   &:focus {
-    color:            $form-control-color;
+    color: $form-control-color;
     background-color: $form-control-background-color;
-    border-color:     $form-control-border-color;
-    outline:          0;
-    box-shadow:       0 0 0 0.2rem $form-control-border-color;
+    border-color: $form-control-border-color;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem $form-control-border-color;
   }
 
   &.inline {
@@ -89,48 +88,49 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
 }
 
 .form-check {
-  position:      relative;
-  display:       block;
-  padding-left:  15px;
+  position: relative;
+  display: block;
+  padding-left: 15px;
   margin-bottom: 10px;
 
   .form-check-input {
     @include size(16px, 16px);
-    position:    absolute;
-    margin-top:  3px;
+
+    position: absolute;
+    margin-top: 3px;
     margin-left: -15px;
   }
 
   .form-label {
-    display:     inline-block;
+    display: inline-block;
     margin-left: 5px;
-    cursor:      pointer;
+    cursor: pointer;
   }
 }
 
 .radio-field {
   list-style-type: none;
-  font-size:       14px;
-  margin-bottom:   5px;
+  font-size: 14px;
+  margin-bottom: 5px;
 
   .form-help {
-    display:    block;
-    font-size:  12px;
+    display: block;
+    font-size: 12px;
     margin-left: 15px;
-    color:      $form-help-text-color;
+    color: $form-help-text-color;
   }
 }
 
 .radio-label {
-  display:     inline-block;
+  display: inline-block;
   margin-left: 5px;
-  cursor:      pointer;
+  cursor: pointer;
 }
 
 .inline-radio-btns {
-  display:         inline-flex;
+  display: inline-flex;
   justify-content: space-between;
-  width:           100%;
+  width: 100%;
 }
 
 select.form-control { // sass-lint:disable-line no-qualifying-elements
@@ -150,7 +150,7 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
   width: 35px;
 
   &:focus {
-    outline:    0;
+    outline: 0;
     box-shadow: none;
   }
 }
@@ -161,26 +161,27 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
 }
 
 .text-area {
-  height:      auto;
+  height: auto;
   line-height: 20px;
 }
 
-.form-control:disabled, .form-control[readonly] {
+.form-control:disabled,
+.form-control[readonly] {
   background-color: $form-control-disabled-color;
-  opacity:          1;
+  opacity: 1;
 }
 
 .form-help {
-  display:    inline-block;
-  font-size:  12px;
+  display: inline-block;
+  font-size: 12px;
   margin-top: 5px;
-  color:      $form-help-text-color;
+  color: $form-help-text-color;
 }
 
 .form-error-text {
-  display:     block;
-  font-size:   12px;
-  margin-top:  5px;
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
   font-weight: bolder;
 }
 
@@ -188,15 +189,15 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
   color: $form-failed-color;
 
   .form-control {
-    border-color:     $form-failed-color;
+    border-color: $form-failed-color;
     background-color: $form-failed-field-background-color;
   }
 }
 
 .form {
   list-style-type: none;
-  margin:          0 0 20px;
-  padding:         0;
+  margin: 0 0 20px;
+  padding: 0;
 
   &.last {
     margin-bottom: 0;
@@ -204,27 +205,29 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
 }
 
 .form-responsive {
-  display:         flex;
-  flex-wrap:       wrap;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
 
   .form-group {
-    width:   100%;
+    width: 100%;
     padding: 0 15px;
-    @media(min-width: $screen-sm) {
-      width:     50%;
+
+    @media (min-width: $screen-sm) {
+      width: 50%;
       max-width: 300px;
     }
-    @media(min-width: $screen-md) {
+
+    @media (min-width: $screen-md) {
       width: 50%;
     }
-    @media(min-width: $screen-lg) {
+
+    @media (min-width: $screen-lg) {
       width: 33.3%;
-
     }
-    @media(min-width: $screen-lg) {
-      width: 300px;
 
+    @media (min-width: $screen-lg) {
+      width: 300px;
     }
   }
 }
@@ -232,19 +235,19 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
 .search-box-wrapper {
   @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) {
     position: absolute;
-    left:     10px;
+    left: 10px;
   }
 
-  display:  inline-block;
+  display: inline-block;
   position: relative;
 
   .search-box-input {
     padding: 0 10px 0 40px;
 
     &::placeholder {
-      color:     $icon-color;
+      color: $icon-color;
       font-size: 12px;
-      opacity:   0.8;
+      opacity: 0.8;
     }
   }
 }
@@ -252,7 +255,7 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
 .form-group-text-field-with-button {
   display: flex;
   padding: 0;
-  width:   auto;
+  width: auto;
 
   .form-control {
     border-radius: $global-border-radius 0 0 $global-border-radius;
@@ -260,11 +263,13 @@ input[type="checkbox"].form-control { // sass-lint:disable-line no-qualifying-el
 
   .quick-add-button {
     @include button($background-color: $btn-secondary);
+
     border-radius: 0 $global-border-radius $global-border-radius 0;
   }
 
   .search-button {
     @include button($background-color: $btn-secondary);
+
     border-radius: 0 $global-border-radius $global-border-radius 0;
   }
 }

@@ -20,26 +20,26 @@ $box-shadow-color: #bbb;
 $hover-background: #c5d9e0;
 
 .timeline-modal-container {
-  display:    flex;
-  width:      100%;
+  display: flex;
+  width: 100%;
   min-height: 380px;
 
   .left-panel {
-    width:            25%;
-    margin:           -20px 10px -20px -28px;
+    width: 25%;
+    margin: -20px 10px -20px -28px;
     background-color: $dark-background;
-    display:          flex;
-    flex-direction:   column;
-    justify-content:  space-between;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     &:first-child {
       padding-top: 10px;
     }
 
     .selected-instance {
-      font-weight:      600;
+      font-weight: 600;
       background-color: $white;
-      box-shadow:       -5px 0 5px $box-shadow-color;
+      box-shadow: -5px 0 5px $box-shadow-color;
     }
   }
 
@@ -49,24 +49,24 @@ $hover-background: #c5d9e0;
 }
 
 .pipeline-run-container {
-  display:        flex;
+  display: flex;
   flex-direction: column;
 }
 
 .pipeline-run {
-  display:        flex;
+  display: flex;
   flex-direction: row;
-  cursor:         pointer;
-  padding:        4px 2px;
+  cursor: pointer;
+  padding: 4px 2px;
 
   &:not(.selected-instance):hover {
     background-color: $hover-background;
   }
 
   span {
-    margin:     5px;
+    margin: 5px;
     text-align: end;
-    flex:       none;
+    flex: none;
 
     &.x-small {
       width: 8%;
@@ -102,7 +102,7 @@ $hover-background: #c5d9e0;
       width: 40px;
 
       & > span {
-        display:    block;
+        display: block;
         min-height: 18px;
       }
     }
@@ -113,49 +113,48 @@ $hover-background: #c5d9e0;
   margin-top: 10px;
 
   & > ul {
-    margin:     5px 0;
+    margin: 5px 0;
     border-top: $global-border-color 1px solid;
   }
 }
 
 .pagination {
-  display:         flex;
+  display: flex;
   justify-content: center;
 
   .pagination-link {
-    margin:           4px;
-    padding:          6px 10px;
+    margin: 4px;
+    padding: 6px 10px;
     background-color: $white;
-    border-radius:    $global-border-radius;
-    text-align:       center;
+    border-radius: $global-border-radius;
+    text-align: center;
   }
 
   .disabled {
-    color:           $go-disabled;
-    cursor:          not-allowed;
+    color: $go-disabled;
+    cursor: not-allowed;
     text-decoration: none;
   }
 }
 
 .stages-container {
-  display:        flex;
-  flex-direction: row;
-  align-items:    center;
-  flex-wrap:      wrap;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
 }
 
 .stage {
-  width:       25px;
-  height:      12px;
-  margin:      2px;
-  text-align:  center;
-  color:       $white;
-  border:      1px solid $border-color;
-  font-size:   8px;
+  width: 25px;
+  height: 12px;
+  margin: 2px;
+  text-align: center;
+  color: $white;
+  border: 1px solid $border-color;
+  font-size: 8px;
   white-space: nowrap;
-  overflow:    hidden;
+  overflow: hidden;
 
-  &:before {
+  &::before {
     position: relative;
   }
 }

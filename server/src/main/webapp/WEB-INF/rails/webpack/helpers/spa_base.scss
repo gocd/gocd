@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../views/global/common';
+@import "../views/global/common";
 
 .main-container {
-  margin:      0 30px 50px;
+  margin: 0 30px 50px;
   padding-top: 110px;
 }
 
@@ -26,26 +26,28 @@
 
 .pagewrap {
   min-height: 100%;
-  @media(min-width: $screen-md) {
+
+  @media (min-width: $screen-md) {
     margin-bottom: -94px;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     margin-bottom: -76px;
   }
 }
 
-.pagewrap:after {
+.pagewrap::after {
   content: "";
   display: block;
-
 }
 
-.sitefooter, .pagewrap:after {
-  @media(min-width: $screen-md) {
+.sitefooter,
+.pagewrap::after {
+  @media (min-width: $screen-md) {
     height: 94px;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     height: 76px;
   }
 }
-

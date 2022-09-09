@@ -15,74 +15,74 @@
  */
 @import "../../global/common";
 
-$passed:                    #00c853;
-$background:                #fff;
-$stage-width:               82px;
-$border-color:              #ccc;
-$disabled-text-color:       #999;
-$stage-status-unknown:      #fafafa;
-$build-details-z-index:     5;
-$modification-text-color:   #ff6;
+$passed: #00c853;
+$background: #fff;
+$stage-width: 82px;
+$border-color: #ccc;
+$disabled-text-color: #999;
+$stage-status-unknown: #fafafa;
+$build-details-z-index: 5;
+$modification-text-color: #ff6;
 $dropdown-background-color: #333;
-$disabled-icon-color:       #e0e0e0;
-$stage-status-bar-z-index:  2;
+$disabled-icon-color: #e0e0e0;
+$stage-status-bar-z-index: 2;
 $stage-action-icon-z-index: 1;
 
 .pipeline-activity {
   display: flex;
-  width:   100%;
+  width: 100%;
 }
 
 .pipeline-activity-table {
   overflow-x: auto;
   background: $background;
-  padding:    16px;
-  width:      100%;
+  padding: 16px;
+  width: 100%;
 }
 
 .group-header,
 .group-content {
-  display:        flex;
+  display: flex;
   flex-direction: row;
-  width:          max-content;
-  min-width:      100%;
+  width: max-content;
+  min-width: 100%;
   padding-bottom: 2px;
-  border-bottom:  1px dashed $border-color;
+  border-bottom: 1px dashed $border-color;
 
   .left {
-    display:         flex;
-    flex-direction:  column;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    width:           20%;
-    max-width:       200px;
-    min-width:       200px;
-    margin-right:    16px;
-    padding-bottom:  5px;
+    width: 20%;
+    max-width: 200px;
+    min-width: 200px;
+    margin-right: 16px;
+    padding-bottom: 5px;
   }
 
   .right {
-    display:       flex;
+    display: flex;
     padding-right: 16px;
   }
 }
 
 .group-header {
-  font-size:   12px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .header {
-  font-size:   12px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .stage-name {
-  display:     flex;
-  width:       $stage-width;
-  word-break:  break-all;
+  display: flex;
+  width: $stage-width;
+  word-break: break-all;
   line-height: 1.22em;
-  align-self:  center;
-  min-width:   $stage-width;
+  align-self: center;
+  min-width: $stage-width;
 
   &:last-child {
     margin-right: 0;
@@ -90,24 +90,24 @@ $stage-action-icon-z-index: 1;
 }
 
 .run {
-  width:           100%;
-  display:         flex;
-  flex-direction:  row;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
-  font-size:       16px;
+  font-size: 16px;
 
   a {
-    font-size:       14px;
+    font-size: 14px;
     text-decoration: none;
-    color:           $link-color;
+    color: $link-color;
   }
 }
 
 .group-content {
   .revision {
-    overflow:      hidden;
-    font-size:     12px;
-    white-space:   nowrap;
+    overflow: hidden;
+    font-size: 12px;
+    white-space: nowrap;
     text-overflow: ellipsis;
   }
 
@@ -121,26 +121,26 @@ $stage-action-icon-z-index: 1;
 }
 
 .stage-box-pipeline-activity {
-  max-width:       $stage-width + 50px;
-  height:          100%;
-  display:         flex;
-  align-items:     center;
+  max-width: $stage-width + 50px;
+  height: 100%;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
 
 .stage-status {
-  display:       block;
-  width:         82px;
-  height:        12px;
+  display: block;
+  width: 82px;
+  height: 12px;
   border-radius: 2px;
-  z-index:       $stage-status-bar-z-index;
+  z-index: $stage-status-bar-z-index;
 }
 
 .stage-status-wrapper {
-  display:         flex;
-  height:          100%;
-  position:        relative;
-  flex-direction:  column;
+  display: flex;
+  height: 100%;
+  position: relative;
+  flex-direction: column;
   justify-content: center;
 }
 
@@ -152,53 +152,63 @@ $stage-action-icon-z-index: 1;
   }
 }
 
-.unknown, .building, .cancelled, .failed, .passed, .waiting, .failing {
+.unknown,
+.building,
+.cancelled,
+.failed,
+.passed,
+.waiting,
+.failing {
   color: $white;
   cursor: pointer;
 
-  &:before {
+  &::before {
     position: absolute;
-    left:     35px;
+    left: 35px;
   }
 }
 
 .unknown {
   background: $stage-status-unknown;
-  border:     1px solid $border-color;
-  cursor:     auto;
-  width:      80px;      // compensating for border
+  border: 1px solid $border-color;
+  cursor: auto;
+  width: 80px;      // compensating for border
 }
 
 .building {
-  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+  background: transparent url("../../../../app/assets/images/building.gif") repeat-x;
 }
 
 .failing {
-  background: $failed url('../../../../app/assets/images/failing.gif') repeat-x;
+  background: $failed url("../../../../app/assets/images/failing.gif") repeat-x;
 }
 
 .cancelled {
   @include icon-before($fa-var-ban, 12px, 0);
-  color:      $black;
-  background: transparent url('../../../../app/assets/images/building.png') repeat-x;
+
+  color: $black;
+  background: transparent url("../../../../app/assets/images/building.png") repeat-x;
 }
 
 .failed {
   @include icon-before($fa-var-info-circle, 12px, 0);
+
   background: $failed;
 }
 
 .passed {
   @include icon-before($fa-var-check, 12px, 0);
+
   background: $passed;
 }
 
 .waiting {
   @include icon-before($fa-var-spinner, 12px, 0);
-  color:      $black;
-  background: transparent url('../../../../app/assets/images/building.png') repeat-x;
 
-  &:before {
+  color: $black;
+  background: transparent url("../../../../app/assets/images/building.png") repeat-x;
+
+  &::before {
     animation: spin 1500ms linear infinite;
   }
 }
@@ -207,28 +217,29 @@ $stage-action-icon-z-index: 1;
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 .build-cause-button {
-  color:     $link-color;
-  cursor:    pointer;
+  color: $link-color;
+  cursor: pointer;
   font-size: 12px;
 }
 
 .close-button-wrapper {
   button {
-    position:   absolute;
-    width:      22px;
-    height:     22px;
-    right:      15px;
-    top:        5px;
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    right: 15px;
+    top: 5px;
     background: $go-darkblue;
 
-    i:before {
-      margin:    -5px;
+    i::before {
+      margin: -5px;
       font-size: 14px;
     }
 
@@ -239,31 +250,31 @@ $stage-action-icon-z-index: 1;
 }
 
 .build-details {
-  position:       absolute;
-  background:     $dropdown-background-color;
-  color:          $white;
-  width:          50%;
-  padding:        10px 16px;
-  border-radius:  3px;
-  display:        flex;
-  z-index:        $build-details-z-index;
+  position: absolute;
+  background: $dropdown-background-color;
+  color: $white;
+  width: 50%;
+  padding: 10px 16px;
+  border-radius: 3px;
+  display: flex;
+  z-index: $build-details-z-index;
   flex-direction: column;
 
   .material-revision-dropdown-content {
-    width:          100%;
-    display:        flex;
+    width: 100%;
+    display: flex;
     flex-direction: column;
-    font-size:      12px;
+    font-size: 12px;
   }
 
   .material-header {
-    display:         flex;
+    display: flex;
     justify-content: space-between;
-    width:           100%;
-    padding:         0 0 5px;
-    font-size:       12px;
-    word-break:      break-all;
-    border-bottom:   1px solid $border-color;
+    width: 100%;
+    padding: 0 0 5px;
+    font-size: 12px;
+    word-break: break-all;
+    border-bottom: 1px solid $border-color;
   }
 
   .modifications {
@@ -272,12 +283,12 @@ $stage-action-icon-z-index: 1;
   }
 
   .modification {
-    display:         flex;
-    font-size:       12px;
-    font-weight:     400;
-    width:           100%;
+    display: flex;
+    font-size: 12px;
+    font-weight: 400;
+    width: 100%;
     justify-content: space-between;
-    border-bottom:   1px dotted $border-color;
+    border-bottom: 1px dotted $border-color;
 
     &:last-of-type {
       border: none;
@@ -286,17 +297,17 @@ $stage-action-icon-z-index: 1;
     .revision,
     .comment,
     .user {
-      width:         20%;
-      padding:       3px 0;
-      overflow:      hidden;
+      width: 20%;
+      padding: 3px 0;
+      overflow: hidden;
       text-overflow: ellipsis;
       align-content: center;
     }
 
     .comment {
-      width:      40%;
+      width: 40%;
       max-height: 6.4em;
-      padding:    3px 10px;
+      padding: 3px 10px;
 
       a {
         color: $link-color;
@@ -316,12 +327,12 @@ $stage-action-icon-z-index: 1;
 .force-build {
   .left {
     align-items: self-start;
-    padding:     10px 0;
+    padding: 10px 0;
   }
 }
 
 .pagination-wrapper {
-  display:    flex;
+  display: flex;
   margin-top: 20px;
 }
 
@@ -329,49 +340,49 @@ $stage-action-icon-z-index: 1;
   display: flex;
 
   .pipeline-info {
-    display:        flex;
+    display: flex;
     flex-direction: column;
-    height:         100%;
+    height: 100%;
 
     .label {
       font-size: 0.625rem;
     }
 
     .value {
-      font-size:     15px;
+      font-size: 15px;
       text-overflow: ellipsis;
-      white-space:   nowrap;
-      max-width:     200px;
-      overflow:      hidden;
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
     }
   }
 
   .icon-container {
-    display:    flex;
-    margin:     0 10px;
+    display: flex;
+    margin: 0 10px;
     align-self: center;
   }
 
   .pause-message {
-    align-self:    center;
-    font-size:     11px;
-    font-weight:   normal;
-    max-width:     400px;
-    white-space:   nowrap;
-    overflow:      hidden;
+    align-self: center;
+    font-size: 11px;
+    font-weight: normal;
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
   }
 }
 
 .pipeline-run-comment {
-  display:       flex;
-  padding:       5px 10px;
-  word-break:    break-word;
-  overflow-y:    auto;
-  margin:        10px 0;
-  min-height:    100px;
-  max-height:    400px;
-  border:        1px dashed $border-color;
+  display: flex;
+  padding: 5px 10px;
+  word-break: break-word;
+  overflow-y: auto;
+  margin: 10px 0;
+  min-height: 100px;
+  max-height: 400px;
+  border: 1px dashed $border-color;
   border-radius: 3px;
 }
 
@@ -384,6 +395,6 @@ $stage-action-icon-z-index: 1;
 }
 
 .manual-wrapper {
-  width:      23px;
+  width: 23px;
   text-align: center;
 }

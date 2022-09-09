@@ -16,17 +16,16 @@
 @import "../../global/common";
 
 .parent {
-  display:         flex;
-  flex-direction:  row;
-  flex-wrap:       nowrap;
+  display: flex;
+  flex-flow: row nowrap;
   justify-content: flex-start;
-  align-content:   space-between;
-  align-items:     stretch;
+  align-content: space-between;
+  align-items: stretch;
 
   .stage-job-tree {
-    overflow:   scroll;
-    width:      200px;
-    flex:       0 1 auto;
+    overflow: scroll;
+    width: 200px;
+    flex: 0 1 auto;
     align-self: auto;
 
     li {
@@ -36,8 +35,8 @@
 
   .stage-or-job {
     margin-left: 10px;
-    flex:        2 1 auto;
-    align-self:  stretch;
+    flex: 2 1 auto;
+    align-self: stretch;
   }
 }
 
@@ -53,50 +52,49 @@
 
 .task-list {
   > div {
-    padding:       5px;
+    padding: 5px;
     border-bottom: 1px solid $border-color;
   }
 }
 
 .task-row {
-  display:         flex;
-  flex-direction:  row;
-  flex-wrap:       nowrap;
+  display: flex;
+  flex-flow: row nowrap;
   justify-content: flex-start;
-  align-content:   stretch;
-  align-items:     stretch;
+  align-content: stretch;
+  align-items: stretch;
 
   .task-description {
-    overflow:   scroll;
-    flex:       1 1 auto;
+    overflow: scroll;
+    flex: 1 1 auto;
     align-self: stretch;
   }
 
   .task-run-if {
-    height:           80%;
-    line-height:      80%;
-
-    font-size:        80%;
-    white-space:      nowrap;
-    flex:             0 1 auto;
-    align-self:       auto;
+    height: 80%;
+    line-height: 80%;
+    font-size: 80%;
+    white-space: nowrap;
+    flex: 0 1 auto;
+    align-self: auto;
     background-color: $secondary-bg;
-    padding:          5px;
-    border:           1px solid $global-border-color;
-    border-radius:    $global-border-radius;
+    padding: 5px;
+    border: 1px solid $global-border-color;
+    border-radius: $global-border-radius;
   }
 }
 
 .icon-delete {
   @include icon-before($type: $fa-var-times);
-  border:  none;
+
+  border: none;
   display: inline;
-  cursor:  pointer;
-  width:   22px;
-  height:  22px;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
   padding: 0;
 
-  &:before {
+  &::before {
     margin: 0;
   }
 
@@ -110,17 +108,17 @@
 }
 
 .permission-name-wrapper {
-  margin-top:    10px;
+  margin-top: 10px;
   margin-bottom: -10px;
 }
 
 .permission-checkbox-wrapper {
-  display:    flex;
+  display: flex;
   margin-top: 15px;
 }
 
 .cancel-button-wrapper {
-  display:       flex;
+  display: flex;
   margin-bottom: 10px;
-  margin-top:    10px;
+  margin-top: 10px;
 }

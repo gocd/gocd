@@ -17,14 +17,14 @@
 
 .container {
   justify-content: center;
-  display:         flex;
-  vertical-align:  middle;
-  padding:         10px 0 10px 0;
+  display: flex;
+  vertical-align: middle;
+  padding: 10px 0 10px 0;
 
   span {
-    font-style:   italic;
-    color:        $footer-fg;
+    font-style: italic;
+    color: $footer-fg;
     margin-right: 25px;
-    line-height:  31px;
+    line-height: 31px;
   }
 }

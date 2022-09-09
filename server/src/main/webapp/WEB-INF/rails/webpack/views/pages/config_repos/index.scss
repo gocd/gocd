@@ -23,6 +23,7 @@ $input-length-for-rules: 300px;
   @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
     text-align: center;
   }
+
   display: block;
 }
 
@@ -34,11 +35,13 @@ $input-length-for-rules: 300px;
 
 .good-modification-icon {
   @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
+
   margin-right: 10px;
 }
 
 .error-last-modification-icon {
   @include key-pair-icon($type: $fa-var-remove, $color: $failed);
+
   margin-right: 10px;
 }
 
@@ -48,8 +51,8 @@ $input-length-for-rules: 300px;
 // this side-effect.
 code {
   white-space: pre-wrap;
-  word-break:  break-all;
-  word-wrap:   break-word;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .spinner-wrapper {
@@ -62,10 +65,11 @@ code {
 
 @mixin fa-icon($type, $colors: $icon-light-color, $size: 5px) {
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
-    display:      inline-block;
+    display: inline-block;
     margin-right: $size;
-    @content
+    @content;
   }
+
   font-size: 11px;
 }
 
@@ -79,7 +83,7 @@ code {
   left: 0;
   width: 100%;
   height: 5px;
-  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+  background: transparent url("../../../../app/assets/images/building.gif") repeat-x;
 }
 
 .material-config-wrapper {
@@ -88,36 +92,36 @@ code {
 
 .header-title {
   margin-right: 50px;
-  width:        360px;
+  width: 360px;
 }
 
 .header-title-text {
-  font-size:  15px;
-  max-width:  360px;
-  margin:     0;
+  font-size: 15px;
+  max-width: 360px;
+  margin: 0;
   word-break: break-all;
 }
 
 .header-title-url {
-  font-size:  13px;
-  display:    block;
+  font-size: 13px;
+  display: block;
   word-break: break-all;
 }
 
 .commit-info {
-  font-size:  13px;
+  font-size: 13px;
   word-break: break-all;
-  max-width:  600px;
+  max-width: 600px;
 }
 
 .committer {
-  font-size:   13px;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .comment,
 .committer-info {
-  display:    block;
+  display: block;
   word-break: break-all;
 }
 
@@ -126,12 +130,12 @@ code {
 }
 
 .wrapper-for-search-box {
-  display:      inline-block;
+  display: inline-block;
   margin-right: 10px;
 }
 
 .config-repo-properties {
-  margin-top:  5px;
+  margin-top: 5px;
   margin-left: -4px;
 }
 
@@ -140,7 +144,7 @@ code {
 }
 
 .section-header {
-  display:   flex;
+  display: flex;
   flex-wrap: wrap;
 }
 
@@ -150,7 +154,7 @@ code {
 
 .error-wrapper {
   margin-bottom: $error-message-margin-bottom;
-  white-space:   pre-wrap;
+  white-space: pre-wrap;
 }
 
 .form-group {
@@ -158,17 +162,17 @@ code {
 }
 
 select.form-control { // sass-lint:disable-line no-qualifying-elements
-  width:        $input-length-for-rules;
+  width: $input-length-for-rules;
 }
 
 input.form-control { // sass-lint:disable-line no-qualifying-elements
-  width:        $input-length-for-rules;
+  width: $input-length-for-rules;
 }
 
 .adjust-height {
   div:first-child {
     padding-top: 10px;
-    height:      50px;
+    height: 50px;
   }
 }
 
@@ -178,7 +182,7 @@ input.form-control { // sass-lint:disable-line no-qualifying-elements
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }
 
 .webhook-suggestions {
@@ -202,7 +206,8 @@ input.form-control { // sass-lint:disable-line no-qualifying-elements
     margin: 0.5em 0;
   }
 
-  .footnote .sigil, .ref {
+  .footnote .sigil,
+  .ref {
     color: $go-danger;
     font-weight: bold;
     font-size: 12px;

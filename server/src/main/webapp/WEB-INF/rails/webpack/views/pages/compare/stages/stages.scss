@@ -20,28 +20,28 @@ $passed: #00c853;
 $icon-size: 10px;
 
 .stages-container {
-  width:        100%;
+  width: 100%;
   table-layout: fixed;
 
   .pipeline-instance-counter {
-    width:      30px;
+    width: 30px;
     text-align: end;
-    word-wrap:  break-word;
+    word-wrap: break-word;
   }
 }
 
 .stage {
-  height:      12px;
-  color:       $white;
-  border:      1px solid $border-color;
-  font-size:   8px;
+  height: 12px;
+  color: $white;
+  border: 1px solid $border-color;
+  font-size: 8px;
   white-space: nowrap;
-  overflow:    hidden;
-  width:       100%;
+  overflow: hidden;
+  width: 100%;
 
-  &:before {
+  &::before {
     position: relative;
-    left:     calc(100% - 50% - 5px)
+    left: calc(100% - 50% - 5px);
   }
 }
 
@@ -51,29 +51,31 @@ $icon-size: 10px;
 
 .unknown {
   background: $stage-status-unknown;
-
 }
 
 .building {
-  background: transparent url('../../../../../app/assets/images/building.gif') repeat-x;
+  background: transparent url("../../../../../app/assets/images/building.gif") repeat-x;
 }
 
 .cancelled {
   @include icon-before($fa-var-ban, $icon-size, 0);
-  color:      $black;
-  background: transparent url('../../../../../app/assets/images/building.png');
+
+  color: $black;
+  background: transparent url("../../../../../app/assets/images/building.png");
 }
 
 .failed {
   @include icon-before($fa-var-info-circle, $icon-size, 0);
+
   background: $failed;
 }
 
 .failing {
-  background: $failed url('../../../../../app/assets/images/failing.gif') repeat-x;
+  background: $failed url("../../../../../app/assets/images/failing.gif") repeat-x;
 }
 
 .passed {
   @include icon-before($fa-var-check, $icon-size, 0);
+
   background: $passed;
 }

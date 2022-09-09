@@ -16,25 +16,26 @@
 
 @import "../../global/common";
 
-$revoked_text_color: #e94c35;
+$revoked-text-color: #e94c35;
+
 .description {
-  display:       inline-block;
-  max-width:     250px;
-  min-width:     250px;
-  overflow:      hidden;
-  white-space:   nowrap;
+  display: inline-block;
+  max-width: 250px;
+  min-width: 250px;
+  overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .revoked {
-  color:       $revoked_text_color;
+  color: $revoked-text-color;
   font-weight: 600;
 }
 
 .access-token-search-box {
-  display:         flex;
+  display: flex;
   justify-content: flex-end;
-  margin-bottom:   10px;
+  margin-bottom: 10px;
 }
 
 .personal-access-token-container {

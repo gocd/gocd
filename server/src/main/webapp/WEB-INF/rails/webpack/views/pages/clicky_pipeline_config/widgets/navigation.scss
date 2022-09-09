@@ -18,14 +18,13 @@
 $template-background: #dee;
 
 .template-name-wrapper {
-  display:   flex;
+  display: flex;
   flex-wrap: wrap;
 }
 
 .template-text {
-  font-size:  11px;
+  font-size: 11px;
   background: $template-background;
-  padding:    1px;
-  margin:     0 7px 0 0;
+  padding: 1px;
+  margin: 0 7px 0 0;
 }
-

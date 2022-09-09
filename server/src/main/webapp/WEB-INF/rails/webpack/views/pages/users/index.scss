@@ -32,29 +32,30 @@ $selected-table-row: #e2f7fa;
 
 .gocd-role {
   @include icon-before($type: $fa-var-circle, $color: $go-primary);
+
   display: inline-block;
 }
 
 .user-management-header {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
-  margin-bottom:   10px;
-  position:        fixed;
-  left:            30px;
-  right:           30px;
-  background:      $body-bg;
-  top:             90px;
-  padding:         15px 0;
-  z-index:         map-get($zindex, user-management-header);
+  margin-bottom: 10px;
+  position: fixed;
+  left: 30px;
+  right: 30px;
+  background: $body-bg;
+  top: 90px;
+  padding: 15px 0;
+  z-index: map-get($zindex, user-management-header);
 }
 
 .user-actions-and-counts {
-  display:         flex;
+  display: flex;
   justify-content: flex-start;
 }
 
 .user-actions {
-  display:      flex;
+  display: flex;
   margin-right: 20px;
 }
 
@@ -63,38 +64,40 @@ $selected-table-row: #e2f7fa;
 }
 
 .filter-dropdown {
-  position:    relative;
+  position: relative;
   margin-left: 5px;
 }
 
-@mixin dropdownContent() {
-  background:    $white;
-  position:      absolute;
+@mixin dropdown-content() {
+  background: $white;
+  position: absolute;
   border-radius: $global-border-radius;
-  padding:       20px;
-  box-shadow:    0 2px 4px $box-shadow-color;
+  padding: 20px;
+  box-shadow: 0 2px 4px $box-shadow-color;
 }
 
 .filter-dropdown-content {
-  @include dropdownContent();
-  z-index: map_get($zindex, 'users-management-filter');
-  top:     36px;
-  right:   0;
-  width:   570px;
+  @include dropdown-content;
+
+  z-index: map_get($zindex, "users-management-filter");
+  top: 36px;
+  right: 0;
+  width: 570px;
 }
 
 .roles-dropdown-content {
-  @include dropdownContent();
+  @include dropdown-content;
+
   width: 250px;
   right: 0;
 }
 
 .filter-header {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
-  padding:         0 20px 10px 20px;
-  margin:          0 -20px;
-  border-bottom:   1px solid $border-color;
+  padding: 0 20px 10px 20px;
+  margin: 0 -20px;
+  border-bottom: 1px solid $border-color;
 
   h4 {
     margin: 0;
@@ -106,7 +109,7 @@ $selected-table-row: #e2f7fa;
 }
 
 .filter-items {
-  width:   33.3%;
+  width: 33.3%;
   padding: 15px 0;
 }
 
@@ -115,33 +118,35 @@ $selected-table-row: #e2f7fa;
 }
 
 .roles-list {
-  max-height:    250px;
-  overflow:      auto;
+  max-height: 250px;
+  overflow: auto;
   margin-bottom: 10px;
 }
 
 .filter-by-roles {
   max-height: 250px;
-  overflow:   scroll;
+  overflow: scroll;
 }
 
 .role-legends {
-  display:        inline-flex;
-  background:     $white;
-  flex-wrap:      nowrap;
-  padding:        0 5px 0 0;
-  border-radius:  3px;
-  margin-left:    10px;
+  display: inline-flex;
+  background: $white;
+  flex-wrap: nowrap;
+  padding: 0 5px 0 0;
+  border-radius: 3px;
+  margin-left: 10px;
   text-transform: none;
 }
 
 .role-gocd {
   @include icon-before($type: $fa-var-circle, $color: $go-primary);
+
   font-size: 12px;
 }
 
 .role-plugin {
   @include icon-before($type: $fa-var-circle, $color: $warning-txt);
+
   font-size: 12px;
 }
 
@@ -154,7 +159,7 @@ $selected-table-row: #e2f7fa;
 }
 
 .disabled {
-  color:      $go-disabled;
+  color: $go-disabled;
   font-style: italic;
 }
 
@@ -163,94 +168,91 @@ $selected-table-row: #e2f7fa;
 }
 
 .admin-switch-wrapper {
-  display:     flex;
+  display: flex;
   align-items: center;
 }
 
 .is-admin-text {
-  margin:      0 10px 0 8px;
-  font-size:   13px;
+  margin: 0 10px 0 8px;
+  font-size: 13px;
   font-weight: 600;
-
 }
 
 .flex-table {
   border-radius: $global-border-radius $global-border-radius 0 0;
-
 }
 
 .table-header {
-  background:    $secondary-bg;
+  background: $secondary-bg;
   border-radius: $global-border-radius $global-border-radius 0 0;
-  position:      static;
-  left:          30px;
-  right:         30px;
-  display:       flex;
-  align-items:   center;
-  flex-grow:     1;
-  box-sizing:    border-box;
-  font-weight:   600;
-  top:           155px;
-  z-index:       map-get($zindex, user-management-table-header);
+  position: static;
+  left: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  box-sizing: border-box;
+  font-weight: 600;
+  top: 155px;
+  z-index: map-get($zindex, user-management-table-header);
 
   .has-message & {
-    margin-top: 44px
+    margin-top: 44px;
   }
 }
 
 .table-head {
   text-transform: uppercase;
-  text-align:     left;
-  font-weight:    600;
+  text-align: left;
+  font-weight: 600;
 }
 
 .table-row {
   border-bottom: 1px solid $border-color;
-  min-height:    45px;
-  display:       flex;
-  align-items:   center;
-  width:         100%;
-  flex-grow:     1;
-  box-sizing:    border-box;
-  font-weight:   600;
-  background:    $white;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  flex-grow: 1;
+  box-sizing: border-box;
+  font-weight: 600;
+  background: $white;
 
   &.selected {
     background: $selected-table-row;
   }
-
 }
 
 .table-body {
-  height:     calc(100vh - 321px);
+  height: calc(100vh - 321px);
   overflow-y: auto;
 
   .has-message & {
-    height:      calc(100vh - 420px);
+    height: calc(100vh - 420px);
     padding-top: 40px;
-    overflow:    auto;
+    overflow: auto;
   }
 }
 
-.table-head, .table-cell {
-  display:         flex;
-  flex-wrap:       Wrap;
+.table-head,
+.table-cell {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
-  padding:         10px;
+  padding: 10px;
 
   &:nth-child(1) {
-    width:           3%;
+    width: 3%;
     justify-content: center;
-
   }
 
   &:nth-child(2) {
-    width:      20%;
+    width: 20%;
     word-break: break-all;
   }
 
   &:nth-child(3) {
-    width:      20%;
+    width: 20%;
     word-break: break-all;
   }
 
@@ -263,7 +265,7 @@ $selected-table-row: #e2f7fa;
   }
 
   &:nth-child(6) {
-    width:      18%;
+    width: 18%;
     word-break: break-all;
   }
 
@@ -273,8 +275,8 @@ $selected-table-row: #e2f7fa;
 }
 
 .fl-error {
-  color:      $go-danger;
-  padding:    10px;
+  color: $go-danger;
+  padding: 10px;
   border-top: 1px solid $go-danger;
 
   p {
@@ -284,7 +286,7 @@ $selected-table-row: #e2f7fa;
 
 .form-check {
   height: 16px;
-  width:  16px;
+  width: 16px;
 }
 
 .system-admin-cell {
@@ -294,7 +296,7 @@ $selected-table-row: #e2f7fa;
 .icon-check {
   @include icon-before($type: $fa-var-check, $color: $go-green);
 
-  &:before {
+  &::before {
     margin: 0 5px;
   }
 }
@@ -304,15 +306,15 @@ $selected-table-row: #e2f7fa;
 }
 
 .alert-error {
-  width:            100%;
-  font-weight:      600;
-  font-size:        12px;
-  padding:          7px 40px 7px 25px;
-  border:           1px solid transparent;
-  position:         relative;
+  width: 100%;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 40px 7px 25px;
+  border: 1px solid transparent;
+  position: relative;
   background-color: $alert;
-  color:            darken($alert, 50%);
-  border-color:     darken($alert, 10%);
+  color: darken($alert, 50%);
+  border-color: darken($alert, 10%);
 
   p {
     margin: 0;
@@ -321,8 +323,8 @@ $selected-table-row: #e2f7fa;
 
 .to-be-deleted-users {
   font-weight: 600;
-  margin-top:  10px;
-  display:     block;
+  margin-top: 10px;
+  display: block;
 }
 
 .flash-message-wrapper-container {
@@ -330,9 +332,8 @@ $selected-table-row: #e2f7fa;
 
   &.has-message {
     position: fixed;
-    top:      110px;
-    left:     30px;
-    right:    30px;
+    top: 110px;
+    left: 30px;
+    right: 30px;
   }
 }
-

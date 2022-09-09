@@ -18,7 +18,7 @@
 
 .material-check-result {
   margin: 10px 0;
-  min-height:  10px;
+  min-height: 10px;
 
   &:empty {
     margin-top: 0;
@@ -40,7 +40,8 @@
       padding: 0;
       font-family: $font-family-monospace;
 
-      .material-check-file, .file-list {
+      .material-check-file,
+      .file-list {
         margin: 0;
         padding: 0;
       }
@@ -83,10 +84,11 @@
 
 @mixin material-check-button-icon($type, $colors: $icon-light-color, $size: 5px) {
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
-    display:      inline-block;
+    display: inline-block;
     margin-right: $size;
-    @content
+    @content;
   }
+
   font-size: 11px;
 }
 
@@ -113,4 +115,3 @@
     }
   }
 }
-

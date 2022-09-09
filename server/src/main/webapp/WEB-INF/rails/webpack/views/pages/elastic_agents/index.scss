@@ -16,50 +16,50 @@
 @import "../../global/common";
 
 .container {
-  width:           100%;
-  display:         flex;
+  width: 100%;
+  display: flex;
   justify-content: center;
-  align-items:     flex-start;
+  align-items: flex-start;
 
   > div {
-    width:      45%;
-    padding:    10px;
+    width: 45%;
+    padding: 10px;
     max-height: calc(100vh - 280px);
-    height:     calc(100vh - 280px);
+    height: calc(100vh - 280px);
   }
 }
 
 .pipeline-structure-wrapper {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  overflow:       hidden;
-  height:         100%;
-  margin-bottom:  10px;
+  overflow: hidden;
+  height: 100%;
+  margin-bottom: 10px;
 }
 
 .pipeline-structure {
-  margin-top:      15px;
-  display:         flex;
-  flex-direction:  column;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
   justify-content: flex-start;
-  padding:         10px;
-  flex:            1;
-  border:          1px solid $global-border-color;
-  border-radius:   $global-border-radius;
-  height:          100%;
+  padding: 10px;
+  flex: 1;
+  border: 1px solid $global-border-color;
+  border-radius: $global-border-radius;
+  height: 100%;
 }
 
 .pipeline-structure-content {
   overflow: auto;
-  height:   100%;
+  height: 100%;
 }
 
 .pipeline-structure-header {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
-  align-items:     center;
-  border-bottom:   1px solid $global-border-color;
-  margin-bottom:   10px;
+  align-items: center;
+  border-bottom: 1px solid $global-border-color;
+  margin-bottom: 10px;
 
   h3 {
     margin: 0;
@@ -71,35 +71,34 @@
 }
 
 .search-field-container {
-  display:       flex;
-  border:        1px solid $global-border-color;
+  display: flex;
+  border: 1px solid $global-border-color;
   border-radius: $global-border-radius;
-  align-items:   center;
-  padding:       10px;
+  align-items: center;
+  padding: 10px;
 }
 
 .select-pipelines-buttons {
-  padding:      5px;
+  padding: 5px;
   margin-right: 15px;
 }
 
-
 .checkbox {
-  padding-left:  20px;
+  padding-left: 20px;
   border-radius: 3px;
 }
 
 .profile-form {
-  display:         flex;
-  flex-direction:  column;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items:     flex-start;
-  border-bottom:   2px solid $global-border-color;
-  margin-bottom:   20px;
+  align-items: flex-start;
+  border-bottom: 2px solid $global-border-color;
+  margin-bottom: 20px;
 }
 
 .footer-error {
-  color:      $go-danger;
-  float:      right;
+  color: $go-danger;
+  float: right;
   margin-top: 7px;
 }

@@ -15,104 +15,105 @@
  */
 @import "../../global/common";
 
-$header-font-size:   17px;
+$header-font-size: 17px;
 $header-font-weight: 600;
-$main-nav-height:    40px;
+$main-nav-height: 40px;
 $page-header-height: 50px;
-$page-item-padding:  30px;
+$page-item-padding: 30px;
 
 .page-header {
-  width:           100%;
-  position:        fixed;
-  display:         flex;
-  left:            0;
-  right:           0;
+  width: 100%;
+  position: fixed;
+  display: flex;
+  left: 0;
+  right: 0;
   justify-content: space-between;
-  align-content:   center;
-  align-items:     center;
-  box-sizing:      border-box;
-  background:      $page-header-bg;
-  top:             $main-nav-height;
-  height:          $page-header-height;
-  padding-left:    $page-item-padding;
-  padding-right:   $page-item-padding;
-  z-index:         map_get($zindex, 'page-header');
-  box-shadow:      0 0 10px $box-shadow-color;
+  align-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  background: $page-header-bg;
+  top: $main-nav-height;
+  height: $page-header-height;
+  padding-left: $page-item-padding;
+  padding-right: $page-item-padding;
+  z-index: map_get($zindex, "page-header");
+  box-shadow: 0 0 10px $box-shadow-color;
 }
 
 .section-wrapper {
   display: flex;
-  align-self:  center;
+  align-self: center;
 
-  &:after {
+  &::after {
     content: "|";
-    color:   $line-color;
-    margin:  0 10px;
+    color: $line-color;
+    margin: 0 10px;
   }
 }
 
 .section-name {
-  margin:      0;
-  font-size:   $header-font-size;
+  margin: 0;
+  font-size: $header-font-size;
   font-weight: $header-font-weight;
 }
 
 .title {
-  display:     inline-block;
-  color:       $text-color;
-  font-size:   $header-font-size;
+  display: inline-block;
+  color: $text-color;
+  font-size: $header-font-size;
   font-weight: $header-font-weight;
-  margin:      0;
+  margin: 0;
 }
 
 .page_title {
-  display:       flex;
+  display: flex;
   align-content: center;
-  align-items:   center;
-  height:        100%;
+  align-items: center;
+  height: 100%;
 }
 
 .key-value-pairs {
-  list-style:  none;
-  display:     flex;
-  margin:      0;
-  height:      100%;
-  padding:     0;
+  list-style: none;
+  display: flex;
+  margin: 0;
+  height: 100%;
+  padding: 0;
   align-items: center;
 
-  &:before {
-    content:   "|";
-    color:     $line-color;
-    margin:    0 10px;
+  &::before {
+    content: "|";
+    color: $line-color;
+    margin: 0 10px;
     font-size: 30px;
-    height:    100%;
+    height: 100%;
   }
 
   .key-value-pair {
-    height:       100%;
+    height: 100%;
     margin-right: 10px;
-    overflow-y:   hidden;
+    overflow-y: hidden;
 
     .key {
-      font-size:    0.625rem;
+      font-size: 0.625rem;
       margin-right: 10px;
     }
 
     .value {
       @include icon-after($fa-var-angle-double-right, $color: $icon-color, $margin: 3px 5px 0 10px);
-      display:     flex;
+
+      display: flex;
       font-weight: 600;
-      font-size:   15px;
+      font-size: 15px;
     }
   }
 
   .key-value-pair:last-of-type {
-    .value:after {
+    .value::after {
       content: "";
     }
   }
 }
 
 .help-text-wrapper i {
-  color: $go-primary
+  color: $go-primary;
 }

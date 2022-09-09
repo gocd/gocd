@@ -16,13 +16,13 @@
 @import "../../../../global/common";
 
 .configuration-type-container > li {
-  display:     flex;
-  width:       415px;
+  display: flex;
+  width: 415px;
   font-weight: 600;
 }
 
 .configuration-type-container > li > label {
-  width:        230px;
+  width: 230px;
   margin-right: 35px;
 }
 
@@ -32,17 +32,16 @@
 
 .template-link {
   line-height: 85px;
-  margin:      0 0 0 30px;
-  cursor:      pointer;
+  margin: 0 0 0 30px;
+  cursor: pointer;
 }
 
 .template-link.disabled {
   opacity: 0.75;
-  cursor:  not-allowed;
+  cursor: not-allowed;
 
   &:hover {
-    color:      $icon-color;
+    color: $icon-color;
     background: $icon-bg;
   }
 }
-

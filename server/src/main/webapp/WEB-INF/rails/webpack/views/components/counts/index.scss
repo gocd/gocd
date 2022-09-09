@@ -17,15 +17,15 @@
 @import "../../global/common";
 
 .count-wrapper {
-  display:         flex;
+  display: flex;
   justify-content: flex-start;
-  align-items:     Center;
+  align-items: center;
 
   ul {
     list-style-type: none;
-    margin:          0;
-    display:         flex;
-    padding:         0;
+    margin: 0;
+    display: flex;
+    padding: 0;
 
     li {
       margin-right: 20px;
@@ -35,7 +35,7 @@
 
 .count {
   font-weight: 600;
-  color:       $black;
+  color: $black;
 }
 
 .green {

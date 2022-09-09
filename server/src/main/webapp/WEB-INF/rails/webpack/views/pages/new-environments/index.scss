@@ -18,22 +18,22 @@
 $border-color: #ddd;
 
 .env-header {
-  display:         flex;
-  min-width:       600px;
+  display: flex;
+  min-width: 600px;
   justify-content: space-between;
 }
 
 .env-name {
-  font-weight:   600;
-  min-width:     250px;
-  max-width:     250px;
+  font-weight: 600;
+  min-width: 250px;
+  max-width: 250px;
   text-overflow: ellipsis;
-  overflow:      hidden;
+  overflow: hidden;
 }
 
 .env-body {
   display: flex;
-  width:   100%;
+  width: 100%;
 
   .env-body-element:nth-child(n) {
     border-right: 1px solid $border-color;
@@ -46,30 +46,30 @@ $border-color: #ddd;
 
 .env-body-element {
   padding: 0 25px 25px 25px;
-  width:   100%;
+  width: 100%;
 
   ul {
     li {
-      width:      100%;
+      width: 100%;
       word-break: break-all;
-      padding:    2px;
+      padding: 2px;
     }
   }
 }
 
 .env-body-element-header {
-  padding:       5px 5px 5px 0;
+  padding: 5px 5px 5px 0;
   border-bottom: 1px solid $border-color;
 
   span {
-    font-weight:  600;
+    font-weight: 600;
     margin-right: 10px;
   }
 }
 
 .env-var-heading {
   font-weight: 600;
-  margin-top:  15px;
+  margin-top: 15px;
 }
 
 .create-env-err-msg-container {
@@ -78,7 +78,7 @@ $border-color: #ddd;
 
 .warning-tooltip-wrapper {
   position: static;
-  display:  inline-block;
+  display: inline-block;
 
   &:hover {
     .warning-tooltip-content {
@@ -90,44 +90,44 @@ $border-color: #ddd;
 .warning-icon {
   @include icon-before($type: $fa-var-info-circle, $color: darken($warning, 30%));
 
-  &:before {
+  &::before {
     font-size: 20px;
-    padding:   2px 12px 2px 2px;
+    padding: 2px 12px 2px 2px;
   }
 }
 
 .warning-tooltip-content {
-  display:       none;
-  background:    $white;
-  line-height:   18px;
-  font-size:     12px;
-  position:      absolute;
-  margin-left:   -8px;
-  margin-top:    3px;
-  font-weight:   400;
+  display: none;
+  background: $white;
+  line-height: 18px;
+  font-size: 12px;
+  position: absolute;
+  margin-left: -8px;
+  margin-top: 3px;
+  font-weight: 400;
   border-radius: $global-border-radius;
-  padding:       10px 20px 0;
-  box-shadow:    0 2px 4px $box-shadow-color;
-  z-index:       map_get($zindex, submenu);
+  padding: 10px 20px 0;
+  box-shadow: 0 2px 4px $box-shadow-color;
+  z-index: map_get($zindex, submenu);
 
-  &:before {
-    content:          "";
-    position:         absolute;
-    width:            10%;
-    height:           0;
-    margin-left:      -0.5em;
-    top:              0;
-    left:             17px;
-    box-sizing:       border-box;
-    border:           6px solid $black;
-    border-color:     $white $white transparent transparent;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 10%;
+    height: 0;
+    margin-left: -0.5em;
+    top: 0;
+    left: 17px;
+    box-sizing: border-box;
+    border: 6px solid $black;
+    border-color: $white $white transparent transparent;
     transform-origin: 0 0;
-    transform:        rotate(-45deg);
-    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+    transform: rotate(-45deg);
+    box-shadow: 1px -1px 1px 0 $box-shadow-color;
   }
 }
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }

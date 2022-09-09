@@ -13,27 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '~bourbon/core/bourbon';
+@import "~bourbon/core/bourbon";
 
 $spinner-wrapper-height: 175px;
 
 @mixin hover-effect-for-top-menu {
-  color:           $subnav-link-color;
-  transition:      all 0.3s ease-in-out;
+  color: $subnav-link-color;
+  transition: all 0.3s ease-in-out;
   text-decoration: none;
+
   &:hover {
-    color:      $white-opaque;
+    color: $white-opaque;
     transition: all 0.3s ease-in-out;
   }
+
   &:visited {
     color: $subnav-link-color;
+
     &:hover {
-      color:      $white-opaque;
+      color: $white-opaque;
       transition: all 0.3s ease-in-out;
     }
   }
-  @media(min-width: $screen-md) {
-    font-size:   13px;
+
+  @media (min-width: $screen-md) {
+    font-size: 13px;
     font-weight: 600;
   }
 }
@@ -43,39 +47,38 @@ $spinner-wrapper-height: 175px;
 }
 
 @mixin button($background-color) {
-  display:       inline-block;
-  padding:       0 20px;
-  height:        $form-element-height;
-  line-height:   $form-element-height;
+  display: inline-block;
+  padding: 0 20px;
+  height: $form-element-height;
+  line-height: $form-element-height;
   border-radius: $global-border-radius;
-  font-size:     14px;
-  font-weight:   400;
-  cursor:        pointer;
-  background:    $background-color;
-  border:        1px solid $background-color;
-  color:         $btn-text-color;
-  transition:    $transition;
-  white-space:   nowrap;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  background: $background-color;
+  border: 1px solid $background-color;
+  color: $btn-text-color;
+  transition: $transition;
+  white-space: nowrap;
 
-  &:active, &:focus {
+  &:active,
+  &:focus {
     outline: 0;
   }
 
   &:disabled {
     opacity: 0.4;
-    cursor:  not-allowed;
+    cursor: not-allowed;
+
+    &:hover {
+      background: $background-color;
+      transition: $transition;
+    }
   }
 
   &:hover {
     background: darken($background-color, 10%);
     transition: $transition;
-  }
-
-  &:disabled {
-    &:hover {
-      background: $background-color;
-      transition: $transition;
-    }
   }
 }
 
@@ -108,21 +111,19 @@ $spinner-wrapper-height: 175px;
 @mixin grip-icon($color: #ccc, $shadow-color: #333) {
   @include unselectable;
 
-  display:        inline-block;
-
-  width:          1em;
-  height:         2.2em;
-  line-height:    0.45em;
+  display: inline-block;
+  width: 1em;
+  height: 2.2em;
+  line-height: 0.45em;
   letter-spacing: 0.15em;
-  color:          $icon-drag;
-
+  color: $icon-drag;
   vertical-align: middle;
-  text-align:     center;
-  font-family:    sans-serif;
-  overflow:       hidden;
-  white-space:    normal;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  white-space: normal;
 
-  &:after {
+  &::after {
     content: ".. .. .. ..";
   }
 }
@@ -130,7 +131,7 @@ $spinner-wrapper-height: 175px;
 @mixin unselectable {
   // sass-lint:disable no-duplicate-properties no-important
   -webkit-user-select: none !important;
-  -moz-user-select:    none !important;
-  -ms-user-select:     none !important;
-  user-select:         none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
 }

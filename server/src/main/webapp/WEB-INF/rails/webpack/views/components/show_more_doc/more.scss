@@ -22,7 +22,11 @@
   margin-block-start: 0;
   margin-block-end: 0;
 
-  .additional, .lead-in { margin: 0; padding: 0; }
+  .additional,
+  .lead-in {
+    margin: 0;
+    padding: 0;
+  }
 
   .toggle {
     cursor: pointer;

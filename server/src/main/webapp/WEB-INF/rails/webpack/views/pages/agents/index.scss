@@ -15,35 +15,37 @@
  */
 @import "../../global/common";
 
-$build_details_z_index:           2;
-$building_bg_color:               #ffeda0;
-$enable_count_bg_color:           #50e3c2;
-$disable_count_bg_color:          #ee6161;
-$disabled-text-color:             #999;
-$icon-hover-color:                #000;
+$build-details-z-index: 2;
+$building-bg-color: #ffeda0;
+$enable-count-bg-color: #50e3c2;
+$disable-count-bg-color: #ee6161;
+$disabled-text-color: #999;
+$icon-hover-color: #000;
 $dropdown-button-content-z-index: 5;
+
 .agent-status {
   @include icon-after($type: $fa-var-caret-down, $color: $icon-color);
-  position:        relative;
-  text-decoration: none;
-  color:           $link-color;
-  display:         block;
 
-  &:after {
+  position: relative;
+  text-decoration: none;
+  color: $link-color;
+  display: block;
+
+  &::after {
     font-size: 10px;
   }
 }
 
 .build-details {
-  position:      absolute;
-  display:       none;
-  background:    $white;
-  list-style:    none;
-  padding:       0;
-  margin:        0;
-  border:        1px solid $border-color;
+  position: absolute;
+  display: none;
+  background: $white;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid $border-color;
   border-radius: 3px;
-  z-index:       $build_details_z_index;
+  z-index: $build-details-z-index;
 
   &.show {
     display: block;
@@ -52,28 +54,28 @@ $dropdown-button-content-z-index: 5;
 
 .build-details li {
   border-bottom: 1px dotted $border-color;
-  padding:       4px 10px;
+  padding: 4px 10px;
 }
 
 .build-details a {
   text-decoration: none;
-  color:           $link-color;
+  color: $link-color;
 }
 
 .hostname {
   a {
     text-decoration: none;
-    color:           $link-color;
+    color: $link-color;
   }
 }
 
 .agent-checkbox {
-  margin:  0;
+  margin: 0;
   padding: 0;
 
   input[type="checkbox"] { // sass-lint:disable-line no-qualifying-elements
-    width:      12px;
-    height:     12px;
+    width: 12px;
+    height: 12px;
     margin-top: -5px;
   }
 }
@@ -86,54 +88,54 @@ $dropdown-button-content-z-index: 5;
   }
 
   table tbody td {
-    padding:        0;
-    display:        table-cell;
+    padding: 0;
+    display: table-cell;
     vertical-align: middle;
-    height:         24px;
+    height: 24px;
   }
 
   table tbody .table-cell {
     padding: 10px;
-    height:  100%;
+    height: 100%;
   }
 }
 
 .building {
-  background: $building_bg_color;
+  background: $building-bg-color;
 }
 
 .disabled-agent {
-  color:      $disabled-text-color;
+  color: $disabled-text-color;
   font-style: italic;
 }
 
 .header-panel {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
-  align-items:     center;
-  margin-bottom:   10px;
+  align-items: center;
+  margin-bottom: 10px;
 
   ul li label {
     font-size: 14px;
   }
 
   .count {
-    font-size:   16px;
+    font-size: 16px;
     font-weight: 600;
-    display:     block;
-    margin-top:  -2px;
+    display: block;
+    margin-top: -2px;
   }
 
   .enabled {
-    color: $enable_count_bg_color;
+    color: $enable-count-bg-color;
   }
 
   .disabled {
-    color: $disable_count_bg_color;
+    color: $disable-count-bg-color;
   }
 
   .left-container {
-    display:     flex;
+    display: flex;
     align-items: center;
   }
 
@@ -143,17 +145,17 @@ $dropdown-button-content-z-index: 5;
 }
 
 .dropdown-content {
-  background:      $white;
-  position:        absolute;
-  border-radius:   $global-border-radius;
-  padding:         20px;
-  box-shadow:      0 2px 4px $box-shadow-color;
-  width:           250px;
-  right:           0;
-  display:         flex;
+  background: $white;
+  position: absolute;
+  border-radius: $global-border-radius;
+  padding: 20px;
+  box-shadow: 0 2px 4px $box-shadow-color;
+  width: 250px;
+  right: 0;
+  display: flex;
   justify-content: center;
-  flex-direction:  column;
-  z-index:         $dropdown-button-content-z-index;
+  flex-direction: column;
+  z-index: $dropdown-button-content-z-index;
 
   li {
     margin-bottom: 10px;
@@ -175,21 +177,22 @@ $dropdown-button-content-z-index: 5;
 
 .agent-analytics a {
   @include icon-before($type: $fa-var-bar-chart);
-  padding:   0;
+
+  padding: 0;
   font-size: 14px;
-  color:     $icon-color;
-  cursor:    pointer;
+  color: $icon-color;
+  cursor: pointer;
 
   &:hover {
     color: $icon-hover-color;
   }
 }
 
-.environment-info{
+.environment-info {
   display: flex;
   justify-content: space-between;
 
   > div {
-   margin-bottom: 0;
+    margin-bottom: 0;
   }
 }

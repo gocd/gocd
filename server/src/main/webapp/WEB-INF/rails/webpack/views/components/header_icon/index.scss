@@ -18,16 +18,16 @@
 $collapse-icon-size: 25px;
 
 .header-icon {
-  display:        none;
+  display: none;
   vertical-align: middle;
-  margin:         0 15px 0 -15px;
-  width:          $collapse-icon-size;
-  height:         $collapse-icon-size;
-  text-align:     center;
+  margin: 0 15px 0 -15px;
+  width: $collapse-icon-size;
+  height: $collapse-icon-size;
+  text-align: center;
 
   img {
-    width:          $collapse-icon-size;
-    height:         $collapse-icon-size;
+    width: $collapse-icon-size;
+    height: $collapse-icon-size;
     vertical-align: middle;
   }
 
@@ -38,6 +38,7 @@ $collapse-icon-size: 25px;
 
 .unknown-icon {
   @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 25px, $margin: 0);
+
   display: block;
 }
 

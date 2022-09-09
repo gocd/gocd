@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 @charset "utf-8";
-
 @import "../../../../app/assets/new_stylesheets/variables";
 @import "../../../../app/assets/new_stylesheets/shared/go-variables";
+
 // Since it's a 3rd party file, we ignore all lint errors
 // sass-lint:disable-all
+// stylelint-disable
 //  Foundation for Sites Settings
 //  -----------------------------
-//
 //  Table of Contents:
-//
 //   1. Global
 //   2. Breakpoints
 //   3. The Grid
@@ -60,7 +59,7 @@
 //  34. Title Bar
 //  35. Tooltip
 //  36. Top Bar
-@import '~foundation-sites/scss/util/util';
+@import "~foundation-sites/scss/util/util";
 
 // 1. Global
 // ---------
@@ -69,12 +68,12 @@ $global-font-size: 100%;
 $global-width: rem-calc(1200);
 $global-lineheight: 1.5;
 $foundation-palette: (
-                       primary: $go-primary, // custom
-                       secondary: #777,
-                       success: #3adb76,
-                       warning: #ffae00,
-                       alert: #ec5840,
-                     );
+  primary: $go-primary,
+  secondary: #777,
+  success: #3adb76,
+  warning: #ffae00,
+  alert: #ec5840
+);
 $light-gray: #e6e6e6;
 $lighter-gray: #f5f5f5; // custom
 $medium-gray: #cacaca;
@@ -83,7 +82,7 @@ $black: #0a0a0a;
 $white: #fefefe;
 $body-background: #f4f8f9;
 $body-font-color: $black;
-$body-font-family: "Open Sans", 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; // custom
+$body-font-family: "Open Sans", "Helvetica Neue", helvetica, roboto, arial, sans-serif; // custom
 $body-antialiased: true;
 $global-margin: 1rem;
 $global-padding: 1rem;
@@ -100,12 +99,12 @@ $print-transparent-backgrounds: true;
 // --------------
 
 $breakpoints: (
-                small: 0,
-                medium: 640px,
-                large: 1024px,
-                xlarge: 1200px,
-                xxlarge: 1440px,
-              );
+  small: 0,
+  medium: 640px,
+  large: 1024px,
+  xlarge: 1200px,
+  xxlarge: 1440px,
+);
 $breakpoint-classes: (small medium large);
 
 // 3. The Grid
@@ -114,9 +113,9 @@ $breakpoint-classes: (small medium large);
 $grid-row-width: $global-width;
 $grid-column-count: 12;
 $grid-column-gutter: (
-                       small: 20px,
-                       medium: 30px,
-                     );
+  small: 20px,
+  medium: 30px,
+);
 $grid-column-align-edge: true;
 $block-grid-max: 8;
 
@@ -126,34 +125,34 @@ $block-grid-max: 8;
 $header-font-family: $body-font-family;
 $header-font-weight: $global-weight-normal;
 $header-font-style: normal;
-$font-family-monospace: Consolas, 'Liberation Mono', Courier, monospace;
+$font-family-monospace: consolas, "Liberation Mono", courier, monospace;
 $header-styles: (
-                  small: (
-                    'h1': ('font-size': 24),
-                    'h2': ('font-size': 20),
-                    'h3': ('font-size': 19),
-                    'h4': ('font-size': 18),
-                    'h5': ('font-size': 17),
-                    'h6': ('font-size': 16),
-                  ),
-                  medium: (
-                    'h1': ('font-size': 48),
-                    'h2': ('font-size': 40),
-                    'h3': ('font-size': 31),
-                    'h4': ('font-size': 25),
-                    'h5': ('font-size': 20),
-                    'h6': ('font-size': 16),
-                  ),
-                );
+  small: (
+    "h1": ("font-size": 24),
+    "h2": ("font-size": 20),
+    "h3": ("font-size": 19),
+    "h4": ("font-size": 18),
+    "h5": ("font-size": 17),
+    "h6": ("font-size": 16),
+  ),
+  medium: (
+    "h1": ("font-size": 48),
+    "h2": ("font-size": 40),
+    "h3": ("font-size": 31),
+    "h4": ("font-size": 25),
+    "h5": ("font-size": 20),
+    "h6": ("font-size": 16),
+  ),
+);
 $header-color: inherit;
 $header-lineheight: 1.4;
 $header-margin-bottom: 0.5rem;
-$header-text-rendering: optimizeLegibility;
+$header-text-rendering: optimizelegibility;
 $small-font-size: 80%;
 $header-small-font-color: $medium-gray;
 $paragraph-lineheight: 1.6;
 $paragraph-margin-bottom: 1rem;
-$paragraph-text-rendering: optimizeLegibility;
+$paragraph-text-rendering: optimizelegibility;
 $code-color: $black;
 $code-font-family: $font-family-monospace;
 $code-font-weight: $global-weight-normal;
@@ -263,11 +262,11 @@ $button-color: $white;
 $button-color-alt: $black;
 $button-radius: $global-radius;
 $button-sizes: (
-                 tiny: 0.6rem,
-                 small: 0.75rem,
-                 default: 0.9rem,
-                 large: 1.25rem,
-               );
+  tiny: 0.6rem,
+  small: 0.75rem,
+  default: 0.9rem,
+  large: 1.25rem,
+);
 $button-opacity-disabled: 0.25;
 
 // 12. Button Group
@@ -275,7 +274,7 @@ $button-opacity-disabled: 0.25;
 
 $buttongroup-margin: 1rem;
 $buttongroup-spacing: 1px;
-$buttongroup-child-selector: '.button';
+$buttongroup-child-selector: ".button";
 $buttongroup-expand-max: 6;
 
 // 13. Callout
@@ -319,10 +318,10 @@ $dropdown-font-size: 1rem;
 $dropdown-width: 300px;
 $dropdown-radius: $global-radius;
 $dropdown-sizes: (
-                   tiny: 100px,
-                   small: 200px,
-                   large: 400px,
-                 );
+  tiny: 100px,
+  small: 200px,
+  large: 400px,
+);
 
 // 17. Dropdown Menu
 // -----------------
@@ -424,7 +423,7 @@ $offcanvas-transition-length: 0.5s;
 $offcanvas-transition-timing: ease;
 $offcanvas-fixed-reveal: true;
 $offcanvas-exit-background: rgba($white, 0.25);
-$maincontent-class: 'off-canvas-content';
+$maincontent-class: "off-canvas-content";
 $maincontent-shadow: 0 0 10px rgba($black, 0.5);
 
 // 25. Orbit
@@ -586,19 +585,20 @@ $topbar-title-spacing: 1rem;
 $topbar-input-width: 200px;
 $topbar-unstack-breakpoint: medium;
 
-@import '~foundation-sites/scss/foundation';
+@import "~foundation-sites/scss/foundation";
 
 .foundation-form-hax {
   @include foundation-forms;
+
   :global .form_error {
     @include form-error;
+
     display: block;
   }
 }
 
-
 .foundation-grid-hax {
   :global {
-    @include foundation-grid
+    @include foundation-grid;
   }
 }

@@ -15,76 +15,78 @@
  */
 @import "../../global/common";
 
-$navbar-height:        40px;
-$page-header-height:   50px;
-$wizard-height:        calc(100vh - #{$navbar-height} - #{$page-header-height});
+$navbar-height: 40px;
+$page-header-height: 50px;
+$wizard-height: calc(100vh - #{$navbar-height} - #{$page-header-height});
 $wizard-header-height: 45px;
 $wizard-footer-height: 56px;
+
 .overlay {
-  border:   none;
+  border: none;
   position: fixed;
-  z-index:  map_get($zindex, 'wizard-overlay');
-  top:      calc(#{$navbar-height} + #{$page-header-height});
-  left:     0;
-  right:    0;
-  height:   $wizard-height;
-  display:  flex;
+  z-index: map_get($zindex, "wizard-overlay");
+  top: calc(#{$navbar-height} + #{$page-header-height});
+  left: 0;
+  right: 0;
+  height: $wizard-height;
+  display: flex;
 }
 
 .wizard {
-  display:        flex;
-  width:          100%;
-  background:     $white;
-  height:         $wizard-height;
+  display: flex;
+  width: 100%;
+  background: $white;
+  height: $wizard-height;
   flex-direction: column;
 }
 
 .wizard-header {
   $border-bottom-size: 3px;
-  max-height:          $wizard-header-height - $border-bottom-size;
-  height:              $wizard-header-height - $border-bottom-size;
-  border-bottom:       $border-bottom-size solid $border-color;
-  display:             flex;
-  align-items:         center;
-  position:            fixed;
-  background:          $white;
-  width:               100%;
+
+  max-height: $wizard-header-height - $border-bottom-size;
+  height: $wizard-header-height - $border-bottom-size;
+  border-bottom: $border-bottom-size solid $border-color;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  background: $white;
+  width: 100%;
 }
 
 .wizard-footer {
-  position:   relative;
-  bottom:     0;
+  position: relative;
+  bottom: 0;
   background: $white;
   border-top: 1px solid $border-color;
-  height:     $wizard-footer-height;
+  height: $wizard-footer-height;
   max-height: $wizard-footer-height;
-  padding:    10px 15px;
-  flex:       0;
+  padding: 10px 15px;
+  flex: 0;
 }
 
 .wizard-body {
-  position:      relative;
-  top:           $wizard-header-height;
-  display:       flex;
-  padding:       10px 15px;
-  background:    $white;
-  flex-grow:     1;
-  overflow-y:    auto;
-  overflow-x:    hidden;
+  position: relative;
+  top: $wizard-header-height;
+  display: flex;
+  padding: 10px 15px;
+  background: $white;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
   margin-bottom: $navbar-height;
 }
 
 .step-header {
   margin-left: 15px;
-  display:     flex;
-  height:      100%;
+  display: flex;
+  height: 100%;
   align-items: center;
-  padding:     0 5px;
+  padding: 0 5px;
   font-weight: 600;
 
   &.selected {
     margin-bottom: -3px;
-    color:         $go-primary;
+    color: $go-primary;
     border-bottom: 3px solid $go-primary;
   }
 
@@ -95,5 +97,5 @@ $wizard-footer-height: 56px;
 
 .step-body {
   font-weight: normal;
-  width:       100%;
+  width: 100%;
 }

@@ -18,9 +18,7 @@ $site-header: #000728;
 $header-text-color: #ddd;
 $sub-navigation-bg: #313e68;
 $active-menu: #943a9e;
-
 $header-bg: #33364e;
-
 $border-color: $line-color;
 $passed: #00c853;
 $building: #ffc11b;
@@ -33,6 +31,6 @@ $footer-fg: #647984;
 $page-header-bg: #fff;
 
 // rgba values - NEED TO BE RENAMED/REORGANIZED
-$box-shadow-color: rgba(0, 0, 0, 0.21);
-$white-opaque: rgba(255, 255, 255, 1);
-$white-transparent: rgba(255, 255, 255, 0);
+$box-shadow-color: rgba(0, 0, 0, 21%);
+$white-opaque: rgba(255, 255, 255, 100%);
+$white-transparent: rgba(255, 255, 255, 0%);

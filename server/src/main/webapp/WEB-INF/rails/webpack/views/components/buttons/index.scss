@@ -15,9 +15,8 @@
  */
 @import "../../global/common";
 
-
 .disabled {
-  cursor:         not-allowed;
+  cursor: not-allowed;
   pointer-events: none;
 }
 
@@ -47,30 +46,33 @@
 
 .btn-cancel {
   @include button($background-color: transparent);
+
   color: $text-color;
 }
 
 .btn-link {
   @include button($background-color: transparent);
-  color:           $text-color;
-  padding:         0;
+
+  color: $text-color;
+  padding: 0;
   text-decoration: underline;
-  line-height:     normal;
-  height:          auto;
+  line-height: normal;
+  height: auto;
 }
 
 .btn-default {
   @include button($background-color: $white);
-  color:  $text-color;
+
+  color: $text-color;
   border: 1px solid $border-color;
 }
 
 .btn-small {
-  padding:     0 10px;
-  height:      $form-element-height-small;
+  padding: 0 10px;
+  height: $form-element-height-small;
   line-height: $form-element-height-small;
   font-weight: 400;
-  font-size:   13px;
+  font-size: 13px;
 }
 
 .btn-dropdown {
@@ -82,7 +84,7 @@
 .icon-add {
   @include icon-before($type: $fa-var-plus);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -90,7 +92,7 @@
 .icon-gear {
   @include icon-before($type: $fa-var-cog);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -98,17 +100,18 @@
 .icon-spinner {
   @include icon-before($type: $fa-var-spinner);
 
-  &:before {
+  &::before {
     animation: spin 1500ms linear infinite;
-    margin:    5px 10px 5px -5px;
+    margin: 5px 10px 5px -5px;
   }
 }
 
 .icon-doc {
   @include icon-before($type: $fa-var-file);
+
   margin-right: 10px;
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -116,7 +119,7 @@
 .icon-filter {
   @include icon-before($type: $fa-var-filter, $color: $icon-color);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -124,7 +127,7 @@
 .icon-remove {
   @include icon-before($type: $fa-var-trash, $color: $icon-color);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -132,7 +135,7 @@
 .icon-check {
   @include icon-before($type: $fa-var-check, $color: $icon-color);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -140,7 +143,7 @@
 .icon-clip {
   @include icon-before($type: $fa-var-clipboard, $color: $icon-color);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -148,7 +151,7 @@
 .icon-copy {
   @include icon-before($type: $fa-var-copy, $color: $icon-color);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -156,7 +159,7 @@
 .icon-ellipsis {
   @include icon-before($type: $fa-var-ellipsis-h, $color: $icon-color);
 
-  &:before {
+  &::before {
     margin: 5px 10px 5px -5px;
   }
 }
@@ -173,12 +176,12 @@
   }
 
   > .button {
-    border:        none;
-    border-left:   1px solid $border-color;
+    border: none;
+    border-left: 1px solid $border-color;
     border-radius: 0;
 
     &:first-child {
-      border-left:   none;
+      border-left: none;
       border-radius: $global-border-radius 0 0 $global-border-radius;
     }
 
@@ -189,7 +192,7 @@
 
   > .btn-dropdown-container {
     border-left: 1px solid $line-color;
-    position:    relative;
+    position: relative;
 
     .btn-dropdown {
       border-radius: 0 $global-border-radius $global-border-radius 0;
@@ -217,6 +220,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

@@ -17,7 +17,7 @@
 .material-input-wrapper {
   input {
     &[type="text"]:not([aria-label="password"]) {
-      width:     25vw;
+      width: 25vw;
       max-width: 350px;
     }
   }

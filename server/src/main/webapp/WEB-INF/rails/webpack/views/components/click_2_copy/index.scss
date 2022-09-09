@@ -33,7 +33,8 @@ $overlay-index: 10;
   color: lighten($text-color, 25%);
   cursor: pointer;
 
-  &:active, &:hover {
+  &:active,
+  &:hover {
     outline: none;
     user-select: none;
     background-color: darken($white, 10%);
@@ -87,20 +88,25 @@ $overlay-index: 10;
       outline: none;
     }
 
-    &.copied:before {
+    &.copied::before {
       content: "";
       display: inline-block;
       position: absolute;
-      top: 0; right: 0; left: 0; bottom: 0;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
       background-color: $overlay-color;
     }
 
-    &.copied:after {
+    &.copied::after {
       content: "Copied to clipboard!";
       display: inline-block;
       position: absolute;
       z-index: $overlay-index;
-      top: 50%; right: 0; left: 0;
+      top: 50%;
+      right: 0;
+      left: 0;
       transform: translateY(-50%);
       text-align: center;
       color: $go-secondary;
@@ -116,7 +122,8 @@ $overlay-index: 10;
     border-color: $go-secondary;
     color: lighten(desaturate($color: $go-secondary, $amount: 20%), 10%);
 
-    &:active, &:hover {
+    &:active,
+    &:hover {
       background-color: lighten($go-secondary, 50%);
     }
   }

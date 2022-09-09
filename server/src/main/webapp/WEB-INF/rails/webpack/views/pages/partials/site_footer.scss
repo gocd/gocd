@@ -19,65 +19,68 @@ $maintenance-mode-banner-height: 54px;
 $maintenance-mode-banner-message-font-size: 17px;
 
 .footer-warning-banner {
-  position:       fixed;
-  background:     $warning;
-  color:          $warning-txt;
-  width:          100%;
-  bottom:         11px;
-  left:           0;
-  height:         $maintenance-mode-banner-height;
-  line-height:    $maintenance-mode-banner-height;
-  text-align:     center;
+  position: fixed;
+  background: $warning;
+  color: $warning-txt;
+  width: 100%;
+  bottom: 11px;
+  left: 0;
+  height: $maintenance-mode-banner-height;
+  line-height: $maintenance-mode-banner-height;
+  text-align: center;
   vertical-align: middle;
-  font-size:      $maintenance-mode-banner-message-font-size;
+  font-size: $maintenance-mode-banner-message-font-size;
 }
 
 .footer {
-  background:      $footer-bg;
-  padding:         10px;
-  display:         flex;
-  flex-direction:  column;
+  background: $footer-bg;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  line-height:     19px;
-  @media(min-width: $screen-md) {
+  line-height: 19px;
+
+  @media (min-width: $screen-md) {
     flex-direction: row;
   }
-
 }
 
 .left {
-  padding:    10px 20px;
+  padding: 10px 20px;
   text-align: center;
-  @media(min-width: $screen-md) {
-    width:      60%;
+
+  @media (min-width: $screen-md) {
+    width: 60%;
     text-align: left;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     width: 70%;
   }
 }
 
 .content {
-  word-break:  break-all;
-  font-size:   12px;
-  margin:      0;
+  word-break: break-all;
+  font-size: 12px;
+  margin: 0;
   line-height: 19px;
 
   a {
     color: $link-color;
   }
-
 }
 
 .right {
-  padding:         10px 20px;
-  display:         flex;
+  padding: 10px 20px;
+  display: flex;
   justify-content: center;
-  @media(min-width: $screen-md) {
-    width:           40%;
+
+  @media (min-width: $screen-md) {
+    width: 40%;
     justify-content: flex-end;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     width: 30%;
   }
 }
@@ -87,9 +90,9 @@ $maintenance-mode-banner-message-font-size: 17px;
 }
 
 .social a {
-  display:         inline-block;
+  display: inline-block;
   text-decoration: none;
-  margin:          0 3px;
+  margin: 0 3px;
 
   @mixin footer-icon($icon) {
     @include icon-before($type: $icon, $color: $icon-color, $size: 16px, $line-height: 1.5rem);

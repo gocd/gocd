@@ -53,10 +53,18 @@
   </suppress>
   <suppress until="2022-11-01Z">
     <notes><![CDATA[
-   Temporary suppression as there is no fix, and the developers do not agree that it is a vulnerability. See
-   https://bitbucket.org/snakeyaml/snakeyaml/issues/531/stackoverflow-oss-fuzz-47081 and https://nvd.nist.gov/vuln/detail/CVE-2022-38752
+   Temporary suppression as there is no available fix, and in some cases the developers do not agree that there are vulnerabilities. See
+   https://bitbucket.org/snakeyaml/snakeyaml/issues/525/got-stackoverflowerror-for-many-open
+   https://bitbucket.org/snakeyaml/snakeyaml/issues/530/stackoverflow-oss-fuzz-47039
+   https://bitbucket.org/snakeyaml/snakeyaml/issues/531/stackoverflow-oss-fuzz-47081
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+    <cve>CVE-2022-38749</cve>
+    <vulnerabilityName>CVE-2022-38749</vulnerabilityName>
+
+    <cve>CVE-2022-38751</cve>
+    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
+
     <cve>CVE-2022-38752</cve>
     <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
   </suppress>

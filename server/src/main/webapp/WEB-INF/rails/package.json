@@ -119,7 +119,7 @@
     "ts-loader": "^8.3.0",
     "ts-node": "^10.9.1",
     "tslint": "^6.1.3",
-    "typescript": "=4.8.2",
+    "typescript": "=4.8.3",
     "unused-webpack-plugin": "^2.4.0",
     "upath": "^2.0.1",
     "url-loader": "^4.1.1",

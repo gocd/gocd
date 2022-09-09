@@ -212,6 +212,12 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
     'RAILS_GROUPS': 'assets',
   ]
 
+  // Native-subprocess control is needed for usage of Dart Sass via sass-embedded
+  jvmArgs += [
+    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+    '--add-opens=java.base/java.io=ALL-UNNAMED'
+  ]
+
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   doFirst {
@@ -241,6 +247,12 @@ task compileAssetsRailsProd(type: ExecuteUnderRailsTask) {
     'RAILS_ENV': 'production',
     'RAILS_GROUPS': 'assets',
   )
+
+  // Native-subprocess control is needed for usage of Dart Sass via sass-embedded
+  jvmArgs += [
+    '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+    '--add-opens=java.base/java.io=ALL-UNNAMED'
+  ]
 
   args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 

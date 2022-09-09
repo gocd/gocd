@@ -16,51 +16,51 @@
 @import "../base/mixins.sass";
 
 .header #application_logo {
-    background-image: image_url('g9/logo_go.png');
-    background-repeat: no-repeat;
-    background-position: 0px 4px;
-    float: left;
-    height: 35px;
-    width: 114px;
+  background-image: image_url('g9/logo_go.png');
+  background-repeat: no-repeat;
+  background-position: 0px 4px;
+  float: left;
+  height: 35px;
+  width: 114px;
 }
 
 .user {
-    a:hover {
-        color: #ffffff;
-    }
+  a:hover {
+    color: #ffffff;
+  }
 }
 
 .current_user.selected {
-    a {
-        color: white;
-    }
+  a {
+    color: white;
+  }
 }
 
 /* dropdown nav starts*/
 .dropdown-menu {
-    position: absolute;
-    width: 200px;
-    top: 46px;
-    display: none;
-    padding: 5px;
-    border-radius: 0 0 10px 10px;
-    background: #222;
+  position: absolute;
+  width: 200px;
+  top: 46px;
+  display: none;
+  padding: 5px;
+  border-radius: 0 0 10px 10px;
+  background: #222;
 
-    li {
-        margin-left: 0;
-        float: none;
+  li {
+    margin-left: 0;
+    float: none;
 
-        a {
-            border-radius: 5px;
-            padding: 0 10px;
-        }
+    a {
+      border-radius: 5px;
+      padding: 0 10px;
     }
+  }
 }
 
 .open {
-    .dropdown-menu {
-        display: block;
-    }
+  .dropdown-menu {
+    display: block;
+  }
 }
 
 /* dropdown nav ends*/

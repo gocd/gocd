@@ -134,7 +134,10 @@ project.ext.jrubyOptimizationJvmArgs = [
   '-XX:+TieredCompilation',
   '-XX:TieredStopAtLevel=1',
   '-Xss2048k',
-  '-client'
+  '-client',
+  // Enable native sub-process control by default, required on JDK 17+ and often needed by bundler and such to fork processes
+  '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+  '--add-opens=java.base/java.io=ALL-UNNAMED',
 ]
 
 project.ext.jrubyOptimizationSystemProperties = [
@@ -508,7 +511,7 @@ task findGemsToNotPack {
   inputs.file("${project.railsRoot}/Gemfile")
   inputs.file("${project.railsRoot}/Gemfile.lock")
   inputs.file("find-gems-to-package.rake")
-  ext.outputFile = file("${project.buildDir}/gems-to-package.json")
+  ext.outputFile = file("${project.buildDir}/gems-to-not-package.json")
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
@@ -720,8 +723,9 @@ task configureWar {
       exclude("**/rails/app/assets/")
       exclude("**/rails/webpack/")
 
-      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bin")
-      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/cache")
+      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bin/")
+      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bundler/")
+      exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/cache/")
       new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
         theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/gems/${gem}")
         theSpec.exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/specifications/${gem}.gemspec")

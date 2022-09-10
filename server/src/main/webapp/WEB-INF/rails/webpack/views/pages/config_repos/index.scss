@@ -157,11 +157,11 @@ code {
   margin-right: 50px;
 }
 
-select.form-control { //sass-lint:disable-line no-qualifying-elements
+select.form-control { // sass-lint:disable-line no-qualifying-elements
   width:        $input-length-for-rules;
 }
 
-input.form-control { //sass-lint:disable-line no-qualifying-elements
+input.form-control { // sass-lint:disable-line no-qualifying-elements
   width:        $input-length-for-rules;
 }
 

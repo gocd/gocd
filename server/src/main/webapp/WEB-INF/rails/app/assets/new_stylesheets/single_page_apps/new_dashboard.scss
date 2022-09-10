@@ -31,7 +31,7 @@
 @import "components/forms";
 @import "components/buttons";
 
-//variables
+// variables
 
 $dark-gray: #333;
 $pipeline_icons_size: 16px;
@@ -59,9 +59,9 @@ body {
 
 // ---------------------  common styles end ------------------------
 
-//animation
+// animation
 
-//building animation
+// building animation
 
 %building {
   position:   relative;
@@ -662,7 +662,7 @@ body {
   }
 }
 
-//operations buttons
+// operations buttons
 
 .pipeline_operations {
   list-style-type: none;
@@ -795,7 +795,7 @@ body {
   }
 }
 
-//trigger with options
+// trigger with options
 
 .pipeline-trigger-with-options {
   margin:     5px 0 5px 10px;
@@ -826,7 +826,7 @@ body {
   }
 }
 
-//material latest run
+// material latest run
 .material-for-trigger {
   padding: 0 30px;
 

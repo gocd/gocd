@@ -74,7 +74,7 @@ $auth-config-icon-text-padding: 20px;
   }
 }
 
-//sticky footer
+// sticky footer
 
 $app-footer-height: 76px;
 
@@ -109,13 +109,13 @@ body {
   height: $app-footer-height;
 }
 
-//page header
+// page header
 
 .header-panel {
   position: fixed;
   top:      $main-nav-height;
-  //transform: translateX(-50%);
-  //left:      50%;
+  // transform: translateX(-50%);
+  // left:      50%;
   width:    100%;
   z-index:  $header-panel-z-index;
   .message {
@@ -218,7 +218,7 @@ body {
   overflow:   auto;
 }
 
-//new styles
+// new styles
 
 .key-value-pair {
   @include clearfix;
@@ -246,7 +246,7 @@ body {
     }
   }
 
-  //extended for header
+  // extended for header
 
   &.key-value-pair-header {
     margin-right: 20px;
@@ -309,7 +309,7 @@ ul.key-value-pair { // scss-lint:disable QualifyingElement
   opacity:        0.3;
 }
 
-//silent classes
+// silent classes
 
 %title {
   margin:      0 20px 0 0;

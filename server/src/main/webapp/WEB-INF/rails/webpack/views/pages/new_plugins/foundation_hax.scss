@@ -69,27 +69,27 @@ $global-font-size: 100%;
 $global-width: rem-calc(1200);
 $global-lineheight: 1.5;
 $foundation-palette: (
-                       primary: $go-primary, //custom
+                       primary: $go-primary, // custom
                        secondary: #777,
                        success: #3adb76,
                        warning: #ffae00,
                        alert: #ec5840,
                      );
 $light-gray: #e6e6e6;
-$lighter-gray: #f5f5f5; //custom
+$lighter-gray: #f5f5f5; // custom
 $medium-gray: #cacaca;
 $dark-gray: #8a8a8a;
 $black: #0a0a0a;
 $white: #fefefe;
 $body-background: #f4f8f9;
 $body-font-color: $black;
-$body-font-family: "Open Sans", 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; //custom
+$body-font-family: "Open Sans", 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif; // custom
 $body-antialiased: true;
 $global-margin: 1rem;
 $global-padding: 1rem;
 $global-weight-normal: normal;
 $global-weight-bold: bold;
-$global-radius: 3px; //custom
+$global-radius: 3px; // custom
 $global-text-direction: ltr;
 $global-flexbox: false;
 $print-transparent-backgrounds: true;
@@ -160,7 +160,7 @@ $code-font-weight: $global-weight-normal;
 $code-background: $light-gray;
 $code-border: 1px solid $medium-gray;
 $code-padding: rem-calc(2 5 1);
-$anchor-color: #1585cf; //custom
+$anchor-color: #1585cf; // custom
 $anchor-color-hover: scale-color($anchor-color, $lightness: -14%);
 $anchor-text-decoration: none;
 $anchor-text-decoration-hover: none;
@@ -214,13 +214,13 @@ $input-error-font-weight: $global-weight-bold;
 // 7. Accordion
 // ------------
 
-$accordion-background: $accordion-bg; //custom
-$accordion-plusminus: false; //custom
-$accordion-item-color: foreground($accordion-background, $black); //custom
-$accordion-item-background-hover: $accordion-bg-hover; //custom
-$accordion-item-padding: 0 2rem; //custom
-$accordion-content-background: $accordion-bg; //custom
-$accordion-content-border: 0; //custom
+$accordion-background: $accordion-bg; // custom
+$accordion-plusminus: false; // custom
+$accordion-item-color: foreground($accordion-background, $black); // custom
+$accordion-item-background-hover: $accordion-bg-hover; // custom
+$accordion-item-padding: 0 2rem; // custom
+$accordion-content-background: $accordion-bg; // custom
+$accordion-content-border: 0; // custom
 $accordion-content-color: foreground($accordion-content-background, $body-font-color);
 $accordion-content-padding: 1rem;
 
@@ -228,7 +228,7 @@ $accordion-content-padding: 1rem;
 // -----------------
 
 $accordionmenu-arrows: true;
-$accordionmenu-arrow-color: $black; //custom
+$accordionmenu-arrow-color: $black; // custom
 
 // 9. Badge
 // --------
@@ -254,7 +254,7 @@ $breadcrumbs-item-slash: true;
 // 11. Button
 // ----------
 
-$button-padding: 0.5em 1em; //custom
+$button-padding: 0.5em 1em; // custom
 $button-margin: 0 0 $global-margin 0;
 $button-fill: solid;
 $button-background: $primary-color;
@@ -327,7 +327,7 @@ $dropdown-sizes: (
 // 17. Dropdown Menu
 // -----------------
 
-$dropdownmenu-arrows: false; //custom
+$dropdownmenu-arrows: false; // custom
 $dropdownmenu-arrow-color: $anchor-color;
 $dropdownmenu-min-width: 200px;
 $dropdownmenu-background: $white;
@@ -365,7 +365,7 @@ $select-radius: $global-radius;
 $input-color: $black;
 $input-placeholder-color: $medium-gray;
 $input-font-family: inherit;
-$input-font-size: rem-calc(14); //custom
+$input-font-size: rem-calc(14); // custom
 $input-background: $white;
 $input-background-focus: $white;
 $input-background-disabled: $light-gray;

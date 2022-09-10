@@ -317,7 +317,7 @@ $icon-color: #647984;
   }
 }
 
-//table styles
+// table styles
 $page-top-nav: 40px;
 $page-header: 108px;
 $page-footer: 76px;
@@ -395,7 +395,7 @@ $arrow-color: #000;
       font-size:    rem-calc(13px);
       border-right: 1px dotted $table-border;
       border-left:  1px dotted $table-border;
-      &:nth-child(even) { //foundation override
+      &:nth-child(even) { // foundation override
         background: #fff;
       }
       &.building {

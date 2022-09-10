@@ -15,7 +15,7 @@
  */
 $transition: all 0.3s ease-in-out;
 
-//colors
+// colors
 
 $go-primary: #943a9e;
 $go-secondary: #d1c4e9;
@@ -36,7 +36,7 @@ $border-grey: #ececec;
 $section-bg: #e7eef0;
 $light-border: #d6e0e2;
 
-//icon size
+// icon size
 
 $icon-color: #647984;
 $component-icon-size: 30px;
@@ -44,12 +44,12 @@ $icon-text-padding: 20px;
 $go-icon-color: #555;
 $go-icon-hover-color: #000;
 
-//table
+// table
 
 $table-header-bg: #b9f6ca;
 $table-header-border: #a5d6a7;
 
-//header
+// header
 
 $header-bg: #33364e;
 $page-header-bg: $go-white;
@@ -59,7 +59,7 @@ $page-header-title: $txt-color;
 $personalize-header-bg: #ccc;
 $agent-filter-button: #ccc;
 
-//pipeline
+// pipeline
 
 $pipeline-header-bg: transparent;
 $unpause-btn-bg: #f16c6c;
@@ -81,18 +81,18 @@ $artifact-plugin-message-background: #f6f6f6;
 $agent-header-button-bg: $go-primary;
 $agents-btn-hover: darken($go-primary, 4%);
 
-//modal
+// modal
 
 $modal-header-bg: #eeeee9;
 
-//tabs
+// tabs
 
 $tab-header-bg: $go-secondary;
 $tab-header-bg-hover: lighten($tab-header-bg, 8%);
 $tab-bg: lighten($tab-header-bg, 5%);
 $current-tab-bg: #fff;
 
-//main navigation
+// main navigation
 
 $top-bar-bg: transparent;
 $menu-link: $go-white;
@@ -116,28 +116,28 @@ $dropdown-menu-hover-bg: #efefef;
 $user-dropdown-bg: $go-white;
 $user-link-bg: $go-white;
 
-//primary button
+// primary button
 
 $primary-btn-bg: $go-primary;
 $primary-btn-bg-hover: darken($go-primary, 10%);
 
-//small  buttons
+// small  buttons
 
 $btn-bg: #666;
 $btn-txt: #fff;
 
 $btn-bg-hover: darken($btn-bg, 10%);
 
-//light button
+// light button
 
 $btn-light-bg: #ccc;
 $btn-light-bg-hover: #666;
 
-//config ui
+// config ui
 
 $pipeline-page-header-bg: $go-white;
 
-//z-index
+// z-index
 
 $agents-filters: 2;
 $build-details-dropdown-arrow-z-index: 2;
@@ -149,7 +149,7 @@ $app-header-top-line: 11;
 $label-filter-group: 11;
 $app-header-z-index: 21;
 
-//stage history table
+// stage history table
 
 $stage-history-head-bg: $go-secondary;
 $stage-history-pagination-bg: #dcdcdc;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//new theme for old pages in go.cd app
+// new theme for old pages in go.cd app
 @import "../new_stylesheets/shared/go-variables";
 @import "../new_stylesheets/shared/mixins";
 @import '../new_stylesheets/shared/common';
@@ -201,7 +201,7 @@ h4 {
   }
 }
 
-//environments
+// environments
 
 .page_header {
   a.link_as_header_button {
@@ -256,7 +256,7 @@ h4 {
   right:            0;
 }
 
-//pipelines
+// pipelines
 .pipeline_bundle {
   padding: 0 30px;
 }
@@ -504,7 +504,7 @@ h1.entity_title {
   float:      left;
 }
 
-//pipeline history
+// pipeline history
 
 
 .container-in-body {
@@ -540,7 +540,7 @@ h1.entity_title {
 }
 
 .config-repo-pipeline-info-message {
-  //these colors are copied from new component styles: gocd/gocd/server/webapp/WEB-INF/rails/webpack/views/global
+  // these colors are copied from new component styles: gocd/gocd/server/webapp/WEB-INF/rails/webpack/views/global
   background-color: #fdf5e2;
   color:            #a2750b;
   border-color:     #fae5b2;
@@ -578,7 +578,7 @@ h1.entity_title {
   font-size: 12px;
 }
 
-//stage history
+// stage history
 
 .two_col .rail {
   box-shadow:    none;
@@ -642,7 +642,7 @@ h1.entity_title {
   }
 }
 
-//job history
+// job history
 
 .sidebar_history #build_history_holder {
   border: 0;
@@ -667,7 +667,7 @@ h1.entity_title {
   padding:   20px;
 }
 
-//css arrows
+// css arrows
 
 $arrow-border-color: lighten(#000, 75%);
 $arrow-border-active-color: lighten(#000, 50%);
@@ -738,7 +738,7 @@ $arrow-border-active-color: lighten(#000, 50%);
 
 
 
-//tab style
+// tab style
 
 .sub_tab_container, .agent_details {
   .sub_tabs_container {
@@ -830,39 +830,6 @@ div#tab_container {
   background:    #fff;
   border-radius: 0 0 3px 3px;
   padding:       20px;
-}
-
-.definition_view {
-  .nav-tabs {
-    overflow:      hidden;
-    padding:       5px 20px 0;
-    background:    $tab-header-bg;
-    border-radius: $global-border-radius $global-border-radius 0 0;
-    box-sizing:    border-box;
-    border:        0;
-
-    li {
-      position: relative;
-      border:   0;
-      margin:   0 5px 0 0;
-
-      a {
-        background:    $tab-bg;
-        padding:       7px 15px;
-        line-height:   19px;
-        font-size:     13px;
-        border-radius: 3px 3px 0 0;
-        font-weight:   600;
-        color:         #333;
-      }
-
-      &.active {
-        a {
-          background: $current-tab-bg;
-        }
-      }
-    }
-  }
 }
 
 .list_table, .simple, .filters {
@@ -1206,7 +1173,7 @@ input.new_resource {
   margin:        0 0 20px 0;
 }
 
-//modal
+// modal
 
 #MB_caption {
   padding:     10px 20px;
@@ -1235,7 +1202,7 @@ input.new_resource {
   padding:  15px;
 }
 
-//forms
+// forms
 
 input[type="text"], input[type="password"], input[type="file"], input[type="url"], textarea {
 
@@ -1615,7 +1582,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 .ui-dialog-titlebar, #MB_header {
   border-bottom: 2px solid #ccc;
   background:    $modal-header-bg;
-  //margin-bottom: 25px;
+  // margin-bottom: 25px;
 }
 
 .permissions .instructions {
@@ -2364,7 +2331,7 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
   }
 }
 
-//plugins
+// plugins
 
 ul.plugins .plugin {
   padding:       20px;
@@ -2400,7 +2367,7 @@ ul.plugins .plugin {
   }
 }
 
-//add user & modal
+// add user & modal
 
 span#add_error_message {
   display: block;
@@ -2740,7 +2707,7 @@ button.edit-environment {
   margin-left: 240px;
 }
 
-//icon replacements
+// icon replacements
 
 %iconstyles {
   background:  none;
@@ -2955,7 +2922,7 @@ a.add_item {
   }
 }
 
-//config pages
+// config pages
 
 .admin_workspace .pipeline_header {
   padding: 0 0 10px 0;
@@ -3409,7 +3376,7 @@ body#login-page {
   top:         8px;
 }
 
-//page title header styles
+// page title header styles
 
 ul.entity_title {
   @extend %page-title;
@@ -3516,7 +3483,7 @@ ul.entity_title {
   }
 }
 
-//Dashboard
+// Dashboard
 
 .pipeline_run_label {
   font-size:     12px;
@@ -3686,50 +3653,11 @@ ul.entity_title {
   padding: 0 0 5px 25px;
 }
 
-//Note: this is used in Admin > Template > view
-//start: template view
-#templates .definition_view ul.artifact_key_value_pair {
-  width:         100%;
-  margin-bottom: 20px;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li {
-  width:         100%;
-  border-bottom: 1px solid #ddd;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li label {
-  max-width: 49%;
-  display:   inline-block;
-  width:     49%;
-  font-size: 12px;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li label .key {
-  font-weight: 600;
-}
-
-#templates .definition_view ul.artifact_key_value_pair li label .key:after {
-  content: ':';
-  padding: 0 5px;
-}
-
-#templates .definition_view .artifact_title {
-  padding-bottom: 10px;
-  font-weight:    600;
-}
-
-#templates.layout.admin-entity.view .content {
-  width: auto;
-}
-
-//end: template view
-
 .hide {
   display: none;
 }
 
-//edit material
+// edit material
 
 .password_field {
   position: relative;

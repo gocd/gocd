@@ -15,7 +15,7 @@
  */
 @import "../new_stylesheets/shared/mixins";
 
-//Variables
+// Variables
 
 $vsm-page-bg: #f4f8f9;
 $border-color: #ccc;
@@ -27,12 +27,12 @@ $vsm-bg: $page-body-background;
 $vsm-highlight: rgba(255, 255, 255, 181);
 $icon-color: #647984;
 $icon-hover-color: #1c435c;
-//buttons
+// buttons
 $btn-primary: $primary-color;
 $btn-secondary: #666;
 $btn-default: #d6d5d5;
 
-//overrides from old styles
+// overrides from old styles
 
 #vsm-container {
   background: $vsm-bg;
@@ -250,7 +250,7 @@ $btn-default: #d6d5d5;
   }
 }
 
-//vsm analytics
+// vsm analytics
 
 .source_container {
   position:      relative;

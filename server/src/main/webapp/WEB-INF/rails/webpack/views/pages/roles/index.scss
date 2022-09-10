@@ -65,7 +65,7 @@ $warning-wrapper-width: 170px;
 }
 
 
-label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable-line no-qualifying-elements
+label.disabled, input[type='radio'][disabled] + label[for] { // sass-lint:disable-line no-qualifying-elements
   color:  $disabled-text-color;
   cursor: not-allowed;
 

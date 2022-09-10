@@ -40,7 +40,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   }
 }
 
-@keyframes progress-bar-stripes {
+@-webkit-keyframes progress-bar-stripes {
   from {
     background-position: 0 0;
   }

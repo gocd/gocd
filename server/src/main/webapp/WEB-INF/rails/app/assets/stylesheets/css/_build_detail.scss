@@ -345,7 +345,7 @@ div.build_detail_container_content {
   @include console-action;
 }
 
-@keyframes pulsate {
+@-moz-keyframes pulsate {
   0% {
     @include -go-opacity(100);
   }
@@ -363,7 +363,7 @@ div.build_detail_container_content {
   }
 }
 
-@keyframes pulsate {
+@-webkit-keyframes pulsate {
   0% {
     @include -go-opacity(100);
   }
@@ -381,7 +381,7 @@ div.build_detail_container_content {
   }
 }
 
-@keyframes pulsate {
+@-o-keyframes pulsate {
   0% {
     @include -go-opacity(100);
   }
@@ -399,7 +399,7 @@ div.build_detail_container_content {
   }
 }
 
-@keyframes pulsate {
+@-ms-keyframes pulsate {
   0% {
     @include -go-opacity(100);
   }

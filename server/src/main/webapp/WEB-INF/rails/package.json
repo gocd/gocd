@@ -10,7 +10,7 @@
     "jasmine-server": "karma start",
     "jasmine-old-ci": "jasmine-browser-runner runSpecs --config=spec/javascripts/support/jasmine-browser.js",
     "jasmine-old-server": "jasmine-browser-runner serve --config=spec/javascripts/support/jasmine-browser.js",
-    "stylelintold": "stylelint --color app/assets/new_stylesheets/**/*.scss",
+    "stylelintold": "stylelint --color app/assets/new_stylesheets",
     "stylelintold:fix": "yarn run stylelintold --fix",
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/",
     "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/ spec/javascripts/",

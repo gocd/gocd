@@ -7,5 +7,8 @@
     "shorthand-property-no-redundant-values" : null,
     "number-max-precision": 11,
     "color-function-notation": "legacy"
-  }
+  },
+  "ignoreFiles": [
+    "app/assets/new_stylesheets/_font-awesome-glyphs.scss.erb"
+  ]
 }

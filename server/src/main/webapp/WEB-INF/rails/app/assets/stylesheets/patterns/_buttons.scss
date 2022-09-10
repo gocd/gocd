@@ -80,7 +80,7 @@ a.link_as_button span {
   white-space: nowrap;
 }
 
-@media screen and (min-device-pixel-ratio: 0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   /* Safari and Google Chrome only - fix margins */
   button span,
   a.link_as_button span {

@@ -4,7 +4,11 @@
     "scss/no-global-function-names": null,
     "selector-class-pattern": null,
     "no-descending-specificity": null,
-    "shorthand-property-no-redundant-values" : null,
+    "shorthand-property-no-redundant-values": null,
+    "property-no-vendor-prefix": null,
+    "value-no-vendor-prefix": null,
+    "media-feature-name-no-vendor-prefix": null,
+    "at-rule-no-vendor-prefix": null,
     "number-max-precision": 11,
     "color-function-notation": "legacy"
   },

@@ -51,7 +51,6 @@
   @include truncate-to-lines($line-count: $line-count);
 }
 
-// stylelint-disable value-no-vendor-prefix
 @mixin sort-cursor {
   cursor: move;
   cursor: grab;
@@ -65,7 +64,6 @@
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
-// stylelint-enable value-no-vendor-prefix
 
 @mixin grip-icon($color: #ccc, $shadow-color: #333) {
   @include unselectable;
@@ -87,11 +85,9 @@
   }
 }
 
-// stylelint-disable property-no-vendor-prefix
 @mixin unselectable {
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important;
 }
-// stylelint-enable property-no-vendor-prefix

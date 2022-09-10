@@ -51,7 +51,7 @@
   }
 
   @media (min-width: $screen-md) {
-    display: flex !important; // sass-lint:disable-line no-important
+    display: flex !important;
     justify-content: space-between;
     flex-grow: 2;
   }

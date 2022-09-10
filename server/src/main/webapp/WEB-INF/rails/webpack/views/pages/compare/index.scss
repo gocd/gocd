@@ -41,7 +41,7 @@ $dropdown-button-content-z-index: 5;
   width: $width-for-instance-selection;
   vertical-align: baseline;
 
-  input[type="search"] { // sass-lint:disable-line no-qualifying-elements
+  input[type="search"] {
     width: $width-for-instance-selection;
   }
 }

@@ -83,7 +83,6 @@ $spinner-wrapper-height: 175px;
 }
 
 @mixin no-select {
-  // sass-lint:disable no-duplicate-properties no-misspelled-properties
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -93,7 +92,6 @@ $spinner-wrapper-height: 175px;
 }
 
 @mixin sort-cursor {
-  // sass-lint:disable no-duplicate-properties
   cursor: move;
   cursor: grab;
   cursor: -moz-grab;
@@ -101,7 +99,6 @@ $spinner-wrapper-height: 175px;
 }
 
 @mixin sort-cursor-active {
-  // sass-lint:disable no-duplicate-properties
   cursor: move;
   cursor: grabbing;
   cursor: -moz-grabbing;
@@ -129,7 +126,6 @@ $spinner-wrapper-height: 175px;
 }
 
 @mixin unselectable {
-  // sass-lint:disable no-duplicate-properties no-important
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;

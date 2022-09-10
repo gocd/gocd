@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/ntkme/sass-embedded-host-ruby.git
+  revision: 4724a844b7cd29ffde084e9c94d93f60f6badc89
+  ref: main
+  specs:
+    sass-embedded (1.54.9)
+      google-protobuf (~> 3.19)
+      rake (>= 10.0.0)
+
+GIT
   remote: https://github.com/sass/sassc-ruby.git
   revision: 244d3dcc8b985e25bab066b296f0f202e43e41ad
   ref: refs/pull/233/head
@@ -186,9 +195,6 @@ GEM
     ruby-debug-base (0.11.0-java)
     sass (3.7.4)
       sass-listen (~> 4.0.0)
-    sass-embedded (1.54.9)
-      google-protobuf (~> 3.19)
-      rake (>= 10.0.0)
     sass-listen (4.0.0)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
@@ -243,6 +249,7 @@ DEPENDENCIES
   rspec-instafail
   rspec-rails
   rspec_junit_formatter
+  sass-embedded!
   sassc!
   sassc-embedded
   sassc-rails

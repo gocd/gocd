@@ -10,6 +10,7 @@ group :assets do
   gem 'sassc-rails'
   gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
   gem 'sassc-embedded'
+  gem 'sass-embedded', github: 'ntkme/sass-embedded-host-ruby', ref: 'main'
   gem 'js-routes'
   gem 'ts_routes'
 end

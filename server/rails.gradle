@@ -196,6 +196,7 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
 }
 
 task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
+  dependsOn yarnInstall
   outputs.cacheIf { true }
   onlyIf { !project.hasProperty('fastBuild') }
 

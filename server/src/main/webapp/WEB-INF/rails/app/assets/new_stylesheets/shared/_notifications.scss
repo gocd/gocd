@@ -13,77 +13,82 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'mixins';
+@import "mixins";
 
 .notifications {
-  margin:   7px 10px 0;
+  margin: 7px 10px 0;
   position: relative;
-  float:right;
+  float: right;
 
   .hover-container {
-    display:     none;
-    position:    absolute;
-    right:       -7px;
-    top:         100%;
+    display: none;
+    position: absolute;
+    right: -7px;
+    top: 100%;
     padding-top: 5px;
   }
 
   .notification-hover {
-    position:           relative;
-    background:         #fff;
-    color:              #000;
-    padding:            5px 20px 10px;
-    border-radius:      5px;
-    width:              300px;
-    box-sizing:         border-box;
-    font-size:          13px;
-    box-shadow:         3px 3px 5px 0 rgba(0, 0, 0, 0.2);
-    &:after {
-      bottom:              100%;
-      right:               14px;
-      border:              solid transparent;
-      content:             " ";
-      height:              0;
-      width:               0;
-      position:            absolute;
-      pointer-events:      none;
-      border-color:        rgba(255, 255, 255, 0);
-      border-bottom-color: #fff;
-      border-width:        6px;
+    position: relative;
+    background: #fff;
+    color: #000;
+    padding: 5px 20px 10px;
+    border-radius: 5px;
+    width: 300px;
+    box-sizing: border-box;
+    font-size: 13px;
+    box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, 20%);
 
+    &::after {
+      bottom: 100%;
+      right: 14px;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(255, 255, 255, 0%);
+      border-bottom-color: #fff;
+      border-width: 6px;
     }
-    a, a:hover {
-      color:     #1f66bd;
+
+    a,
+    a:hover {
+      color: #1f66bd;
       font-size: 13px;
     }
 
     p {
-      border-top:     1px dotted #ccc;
-      padding:        5px 25px 5px 0;
-      margin-bottom:  0;
-      position:       relative;
-      line-height:    20.8px;
+      border-top: 1px dotted #ccc;
+      padding: 5px 25px 5px 0;
+      margin-bottom: 0;
+      position: relative;
+      line-height: 20.8px;
+
       &:first-child {
         border: 0;
       }
     }
+
     .close {
-      width:          17px;
-      height:         17px;
-      line-height:    17px;
-      border-radius:  50%;
-      background:     #e0dede;
-      display:        inline-block;
-      text-align:     center;
-      font-weight:    700;
-      font-size:      10px;
-      position:       absolute;
-      right:          0;
-      top:            50%;
-      transform:      translateY(-50%);
-      cursor:         pointer;
+      width: 17px;
+      height: 17px;
+      line-height: 17px;
+      border-radius: 50%;
+      background: #e0dede;
+      display: inline-block;
+      text-align: center;
+      font-weight: 700;
+      font-size: 10px;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
     }
   }
+
   &:hover {
     .hover-container {
       display: block;
@@ -92,15 +97,16 @@
 
   .bell {
     @include icon-before(bell-o, $color: #fff);
+
     font-size: 18px;
   }
 }
 
 .system-notifications {
-  width:    100px;
-  height:   40px;
+  width: 100px;
+  height: 40px;
   position: relative;
-  float:    right;
+  float: right;
 }
 
 .top-bar .menu .notifications {

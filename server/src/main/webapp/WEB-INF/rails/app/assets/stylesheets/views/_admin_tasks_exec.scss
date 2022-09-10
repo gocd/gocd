@@ -14,119 +14,121 @@
  * limitations under the License.
  */
 .gist_panel {
-    float: right;
-    width: 280px;
-    min-height: 190px;
-    max-height: 290px;
-    border-left: 1px #CCC solid;
-    padding-left: 10px;
+  float: right;
+  width: 280px;
+  min-height: 190px;
+  max-height: 290px;
+  border-left: 1px #ccc solid;
+  padding-left: 10px;
 }
 
-#job_tasks .gist_panel{
-    height: 230px;
+#job_tasks .gist_panel {
+  height: 230px;
 }
 
-.lookup_command{
-    width:  240px !important;
+.lookup_command {
+  width: 240px !important;
 }
 
 .on_cancel_task .gist_panel {
-    width: 280px;
-    height: 250px;
+  width: 280px;
+  height: 250px;
 }
 
 .gist_panel .invalid_snippets h5 {
-    font-size: 10px;
-    font-weight: bold;
-    margin-bottom: 5px;
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
-.gist_panel .invalid_snippets ul, .gist_panel .invalid_snippets li {
-    float: none;
+.gist_panel .invalid_snippets ul,
+.gist_panel .invalid_snippets li {
+  float: none;
 }
 
 .gist_panel .invalid_snippets .snippets {
-    background: #F6F6F6;
-    padding: 5px;
-    max-height: 110px;
-    overflow-y: auto;
+  background: #f6f6f6;
+  padding: 5px;
+  max-height: 110px;
+  overflow-y: auto;
 }
 
-.on_cancel_task .gist_panel .invalid_snippets .snippets, #job_tasks .snippets{
-    max-height: 120px;
+.on_cancel_task .gist_panel .invalid_snippets .snippets,
+#job_tasks .snippets {
+  max-height: 120px;
 }
 
-#task .fieldset{
-    overflow: auto;
+#task .fieldset {
+  overflow: auto;
 }
 
 .gist_panel .invalid_snippets .command_name {
-    display: block;
-    line-height: 14px;
-    padding: 3px;
-    font-weight:bold;
+  display: block;
+  line-height: 14px;
+  padding: 3px;
+  font-weight: bold;
 }
 
-.gist_panel .invalid_snippets ul li{
-    border-bottom: 1px #DDD solid;
-    padding-bottom: 3px;
-    padding-top: 3px;
+.gist_panel .invalid_snippets ul li {
+  border-bottom: 1px #ddd solid;
+  padding-bottom: 3px;
+  padding-top: 3px;
 }
 
-.gist_panel .invalid_snippets ul li:last-child{
-    border-bottom:0 none;
-    margin-bottom:0;
+.gist_panel .invalid_snippets ul li:last-child {
+  border-bottom: 0 none;
+  margin-bottom: 0;
 }
 
 .gist_panel .invalid_snippets .message {
-    clear: both;
-    display: block;
-    line-height: 14px;
-    padding: 2px 5px 1px
+  clear: both;
+  display: block;
+  line-height: 14px;
+  padding: 2px 5px 1px;
 }
 
-.code_text{
-    font-family: courier new, monospace;
+.code_text {
+  font-family: "courier new", monospace;
 }
 
+/* snippet details */
 
-/*snippet details*/
-
-.gist_panel .snippet_details>div {
-    clear: both;
-    overflow: hidden;
-    padding: 5px 0;
-    margin-left: 10px;
-    line-height: 1.5em;
-    margin-right: 10px;
-    border-bottom: 1px solid #ccc;
+.gist_panel .snippet_details > div {
+  clear: both;
+  overflow: hidden;
+  padding: 5px 0;
+  margin-left: 10px;
+  line-height: 1.5em;
+  margin-right: 10px;
+  border-bottom: 1px solid #ccc;
 }
 
-.gist_panel .snippet_details>div:last-child {
-    border-bottom: 0 none;
+.gist_panel .snippet_details > div:last-child {
+  border-bottom: 0 none;
 }
 
 .gist_panel .snippet_details {
-    background: white;
-    border: 1px solid #ccc;
+  background: white;
+  border: 1px solid #ccc;
 }
 
 .gist_panel .snippet_details .name {
-    font-weight: bold;
+  font-weight: bold;
 }
 
-.gist_panel .snippet_details .author, .gist_panel .snippet_details .description .key{
-    float: left;
-    font-weight: bold;
-    color: #999999;
+.gist_panel .snippet_details .author,
+.gist_panel .snippet_details .description .key {
+  float: left;
+  font-weight: bold;
+  color: #999;
 }
 
 .gist_panel .snippet_details .description .key {
-    display: block;
-    float: none;
-    clear:both;
+  display: block;
+  float: none;
+  clear: both;
 }
 
 .gist_panel .snippet_details .more-info {
-    float: right;
+  float: right;
 }

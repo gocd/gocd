@@ -21,45 +21,45 @@ $v-active-tab: #94399e;
 $tab-bg: #e5e5e5;
 
 .h-tab {
-  display:         flex;
-  flex-direction:  column;
+  display: flex;
+  flex-direction: column;
   justify-content: flex-start;
 }
 
 .h-tab_tab-head {
-  display:        flex;
+  display: flex;
   flex-direction: row;
-  margin:         0 0 5px 0;
-  padding:        0;
-  list-style:     none;
-  width:          100%;
+  margin: 0 0 5px;
+  padding: 0;
+  list-style: none;
+  width: 100%;
 
   li {
-    font-size:     16px;
-    margin:        0 0 1px 0;
-    cursor:        pointer;
-    padding:       0 20px;
-    height:        32px;
-    line-height:   31px;
-    color:         $v-tab-head-color;
-    overflow:      hidden;
-    position:      relative;
+    font-size: 16px;
+    margin: 0 0 1px;
+    cursor: pointer;
+    padding: 0 20px;
+    height: 32px;
+    line-height: 31px;
+    color: $v-tab-head-color;
+    overflow: hidden;
+    position: relative;
     border-bottom: 3px solid $v-tab-border;
 
     &:hover {
-      color:         #000;
+      color: #000;
     }
 
     &.active {
-      border-bottom:    3px solid $v-border-color-active;
+      border-bottom: 3px solid $v-border-color-active;
       background-color: #fff;
-      color:            $v-active-tab;
-      display:          block;
+      color: $v-active-tab;
+      display: block;
     }
   }
 }
 
 .h-tab_container {
   min-height: 200px;
-  padding:    20px;
+  padding: 20px;
 }

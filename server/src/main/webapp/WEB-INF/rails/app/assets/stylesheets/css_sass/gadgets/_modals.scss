@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Modalbox.css
  *
@@ -65,7 +66,7 @@
 
 .ui-dialog,
 #MB_frame_content {
-  background-color: #FFF;
+  background-color: #fff;
   border: 2px solid #333;
   box-shadow: 0 0 15px #000;
   -moz-box-shadow: 0 0 15px #000;
@@ -75,7 +76,7 @@
 
 .ui-dialog-titlebar,
 #MB_header {
-  background: #333 image_url('g9/backgrounds/bg_glass_gradient.png') repeat-x center center;
+  background: #333 image_url("g9/backgrounds/bg_glass_gradient.png") repeat-x center center;
   margin: 0;
   padding: 0;
 }
@@ -98,7 +99,7 @@
 
 .ui-dialog-title,
 #MB_caption {
-  color: #FFF;
+  color: #fff;
   font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
   font-size: 18px;
   font-weight: 500;
@@ -109,7 +110,7 @@
 
 .ui-dialog-titlebar-close,
 #MB_close {
-  background-image: image_url('g9/icons/sprite_modal_close.png');
+  background-image: image_url("g9/icons/sprite_modal_close.png");
   background-position: 0 -30px;
   display: block;
   font-size: 1px;
@@ -131,7 +132,7 @@
 }
 
 #MB_loading {
-  background: transparent image_url('spinner.gif') 50% 0 no-repeat;
+  background: transparent image_url("spinner.gif") 50% 0 no-repeat;
   text-indent: -10000px;
   padding: 1.5em;
 }
@@ -173,7 +174,6 @@
   max-height: 400px;
 }
 
-
 #MB_content .content_wrapper_outer .content_wrapper_inner {
   margin: 0;
   border-bottom: 0 none;
@@ -183,11 +183,11 @@
 /* action row and buttons */
 .ui-dialog-buttonpane,
 #MB_content .actions {
-  background: #EEEEE9 image_url('g9/backgrounds/overlay_modal_action_row.png') repeat-x;
+  background: #eeeee9 image_url("g9/backgrounds/overlay_modal_action_row.png") repeat-x;
   border-radius: 0;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
-  border-top: 1px solid #CCC;
+  border-top: 1px solid #ccc;
   bottom: 0;
   box-shadow: none;
   -moz-box-shadow: none;
@@ -195,7 +195,6 @@
   margin: 0;
   padding: 12px 0 11px 0;
   text-align: left;
-
 }
 
 /* janky way to add margin on the close button */

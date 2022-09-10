@@ -16,22 +16,15 @@ import com.thoughtworks.go.build.YarnRunTask
  * limitations under the License.
  */
 
-task scssLint {
-  description "Run scss-lint"
-  dependsOn ':server:initializeRailsGems'
+task stylelintold(type: YarnRunTask) {
+  description "Run stylelint for SCSS on old Rails-bundled SCSS"
+  dependsOn 'yarnInstall'
 
-  def inputDir = project.file("${project.railsRoot}/app/assets/new_stylesheets")
-  inputs.dir(inputDir)
+  workingDir = project.railsRoot
 
-  doFirst {
-    project.jrubyexec {
-      workingDir = project.railsRoot
-
-      args = ['-S', 'scss-lint', "--config", 'scss-lint.yml', inputDir]
-      maxHeapSize = '1g'
-    }
-
-  }
+  yarnCommand = ['stylelintold']
+  source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
+  source(project.file("${project.railsRoot}/.stylelintrc.json"))
 }
 
 task eslintold(type: YarnRunTask) {
@@ -42,8 +35,8 @@ task eslintold(type: YarnRunTask) {
 
   yarnCommand = ['eslintold']
   source(project.file("${project.railsRoot}/app/assets/javascripts"))
-  source(project.file("${project.railsRoot}/.eslintrc-old.json"))
   source(project.file("${project.railsRoot}/spec/javascripts"))
+  source(project.file("${project.railsRoot}/.eslintrc-old.json"))
 }
 
 task eslint(type: YarnRunTask) {
@@ -55,6 +48,8 @@ task eslint(type: YarnRunTask) {
   yarnCommand = ['eslint']
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/spec/webpack"))
+  source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
+  source(project.file("${project.railsRoot}/.eslintrc.json"))
 }
 
 task tslint(type: YarnRunTask) {
@@ -71,5 +66,5 @@ task tslint(type: YarnRunTask) {
 
 task lint {
   description 'Run all lint tools'
-  dependsOn eslintold, scssLint, eslint, tslint
+  dependsOn stylelintold, eslintold, eslint, tslint
 }

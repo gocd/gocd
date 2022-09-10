@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 .buttons-group {
-    padding: 10px 0;
-    height: 25px;
-    clear: both;
+  padding: 10px 0;
+  height: 25px;
+  clear: both;
 }
 
-.buttons-group a.link, .buttons-group input[type='submit'].link {
-    background: transparent;
+.buttons-group a.link,
+.buttons-group input[type="submit"].link {
+  background: transparent;
 }
 
-.buttons-group a{
-    margin-left: 5px;
+.buttons-group a {
+  margin-left: 5px;
 }

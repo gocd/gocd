@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Status Visualizations.css
  *
  * This file contains things like status colors (pass, fail, building, etc) and how shared ways to show these pieces
 **/
-
 
 /**
  * TABLE OF CONTENTS
@@ -28,48 +28,47 @@
  * =COLOR_CODE
 **/
 
-
 /**
  * =STATUS_TREATMENTS
 **/
 .Passed {
-  background-image:    image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat:   repeat-x;
-  background-color:    #78C42D;
+  background-image: image_url("g9/backgrounds/bg_status_gradient.png");
+  background-repeat: repeat-x;
+  background-color: #78c42d;
   background-position: bottom left;
 }
 
 .Failed {
-  background-image:    image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat:   repeat-x;
-  background-color:    #FA2D2D;
+  background-image: image_url("g9/backgrounds/bg_status_gradient.png");
+  background-repeat: repeat-x;
+  background-color: #fa2d2d;
   background-position: bottom left;
 }
 
 .Failing {
-  background: #f77e7f image_url('failing.gif') repeat-x;
+  background: #f77e7f image_url("failing.gif") repeat-x;
 }
 
 .stage_bar.Failing {
-  background: #f77e7f image_url('failing.gif') repeat-x;
+  background: #f77e7f image_url("failing.gif") repeat-x;
 }
 
 .vsm-entity {
   .stage_bar.Failing,
-  .stage_bar.Building{
+  .stage_bar.Building {
     background-size: auto;
   }
 }
 
-.Unknown{
-  background: image_url('g9/backgrounds/bg_state_unknown.png') no-repeat right;
+.Unknown {
+  background: image_url("g9/backgrounds/bg_state_unknown.png") no-repeat right;
 }
 
 .Building,
-.Active{
-  background-image: image_url('building.png');
+.Active {
+  background-image: image_url("building.png");
   background-repeat: repeat-x;
-  background-color: #FFC11B;
+  background-color: #ffc11b;
   background-position: bottom left;
 }
 
@@ -80,38 +79,41 @@ tr.Cancelled td {
   text-align: left;
 }
 
-
 /**
  * =COLOR_CODE
  */
 .color_code {
-    width: 1em;
-    height: 1em;
-    margin-right: .5em;
-    float: left;
-    overflow: hidden;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+  float: left;
+  overflow: hidden;
 }
+
 .color_code_small {
-    float:left;
-    height:12px;
-    width:12px;
-    margin-right:5px;
-    margin-top:0;
-    overflow:hidden;
+  float: left;
+  height: 12px;
+  width: 12px;
+  margin-right: 5px;
+  margin-top: 0;
+  overflow: hidden;
 }
-*+html .color_code_small{
-    width: 1em;
-    height: 1em;
+
+* + html .color_code_small {
+  width: 1em;
+  height: 1em;
 }
-*+html .color_code_small img{
-    position: relative;
-    top: -2px;
-    left: 0
+
+* + html .color_code_small img {
+  position: relative;
+  top: -2px;
+  left: 0;
 }
+
 .color_code_stage {
-    width: 36px;
-    height: 12px;
-    margin-right: 5px;
-    float: left;
-    overflow: visible;
+  width: 36px;
+  height: 12px;
+  margin-right: 5px;
+  float: left;
+  overflow: visible;
 }

@@ -1,0 +1,11 @@
+{
+  "extends": "stylelint-config-standard-scss",
+  "rules": {
+    "scss/no-global-function-names": null,
+    "selector-class-pattern": null,
+    "no-descending-specificity": null,
+    "shorthand-property-no-redundant-values" : null,
+    "number-max-precision": 11,
+    "color-function-notation": "legacy"
+  }
+}

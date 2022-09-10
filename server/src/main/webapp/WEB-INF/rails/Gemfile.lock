@@ -93,12 +93,10 @@ GEM
     crass (1.0.6)
     diff-lcs (1.5.0)
     erubi (1.11.0)
-    ffi (1.15.5)
     ffi (1.15.5-java)
     globalid (1.0.0)
       activesupport (>= 5.0)
     google-protobuf (3.21.5-java)
-    google-protobuf (3.21.5-x86_64-linux)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
@@ -113,11 +111,8 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.16.3)
-    nio4r (2.5.8)
     nio4r (2.5.8-java)
     nokogiri (1.13.8-java)
-      racc (~> 1.4)
-    nokogiri (1.13.8-x86_64-linux)
       racc (~> 1.4)
     pry (0.14.1-java)
       coderay (~> 1.1)
@@ -127,7 +122,6 @@ GEM
       pry (>= 0.13, < 0.15)
       ruby-debug-base (>= 0.10.4, < 0.12)
     public_suffix (5.0.0)
-    racc (1.6.0)
     racc (1.6.0-java)
     rack (2.2.4)
     rack-test (2.0.2)
@@ -163,9 +157,6 @@ GEM
       rake (>= 12.2)
       thor (~> 1.0)
     rake (13.0.6)
-    rb-fsevent (0.11.2)
-    rb-inotify (0.10.1)
-      ffi (~> 1.0)
     regexp_parser (2.5.0)
     rspec (3.11.0)
       rspec-core (~> 3.11.0)
@@ -193,11 +184,6 @@ GEM
     rspec_junit_formatter (0.5.1)
       rspec-core (>= 2, < 4, != 2.12.0)
     ruby-debug-base (0.11.0-java)
-    sass (3.7.4)
-      sass-listen (~> 4.0.0)
-    sass-listen (4.0.0)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
     sassc-embedded (1.54.0)
       sass-embedded (~> 1.54)
       sassc (~> 2.0)
@@ -207,8 +193,6 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    scss_lint (0.59.0)
-      sass (~> 3.5, >= 3.5.5)
     spoon (0.0.6)
       ffi
     sprockets (3.7.2)
@@ -226,8 +210,6 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2022.3)
       tzinfo (>= 1.0.0)
-    websocket-driver (0.7.5)
-      websocket-extensions (>= 0.1.0)
     websocket-driver (0.7.5-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -238,7 +220,6 @@ GEM
 PLATFORMS
   java
   universal-java-17
-  x86_64-linux
 
 DEPENDENCIES
   capybara
@@ -253,7 +234,6 @@ DEPENDENCIES
   sassc!
   sassc-embedded
   sassc-rails
-  scss_lint
   ts_routes
   tzinfo-data
 

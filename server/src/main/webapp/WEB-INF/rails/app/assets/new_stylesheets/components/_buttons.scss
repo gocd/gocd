@@ -20,60 +20,67 @@ $btn-secondary: #666;
 $btn-default: #d6d5d5;
 
 .btn {
-  border:        1px solid transparent;
-  padding:       10px 20px;
+  border: 1px solid transparent;
+  padding: 10px 20px;
   border-radius: 3px;
-  font-weight:   600;
-  font-size:     16px;
-  box-shadow:    0 1px 3px 0 rgba(0, 0, 0, 0.54);
-  margin:        10px;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 54%);
+  margin: 10px;
 }
 
 .btn-small {
-  padding:       5px 10px;
+  padding: 5px 10px;
   border-radius: 3px;
-  font-weight:   600;
-  font-size:     14px;
-  box-shadow:    0 1px 3px 0 rgba(0, 0, 0, 0.54);
-  margin:        10px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 54%);
+  margin: 10px;
 }
 
 .btn-primary {
-  background:   $btn-primary;
+  background: $btn-primary;
   border-color: $btn-primary;
-  color:        #fff;
+  color: #fff;
 }
 
 .btn-secondary {
-  background:   $btn-secondary;
+  background: $btn-secondary;
   border-color: $btn-secondary;
-  color:        #fff;
+  color: #fff;
 }
 
 .btn-default {
-  background:   $btn-default;
+  background: $btn-default;
   border-color: $btn-default;
-  color:        $dark-gray;
+  color: $dark-gray;
 }
 
 .btn-link {
-  border:     0;
+  border: 0;
   background: transparent;
-  color:      $dark-gray;
-  font-size:  14px;
+  color: $dark-gray;
+  font-size: 14px;
+
   &:hover {
     color: $go-links;
   }
 
-  &:active, &:focus, &:hover {
-    border:     0;
+  &:active,
+  &:focus,
+  &:hover {
+    border: 0;
     background: transparent;
-    outline:    none;
+    outline: none;
   }
 }
 
-button, .button, .btn {
-  &:active, &:focus, &:hover {
+button,
+.button,
+.btn {
+  &:active,
+  &:focus,
+  &:hover {
     outline: none;
   }
 }

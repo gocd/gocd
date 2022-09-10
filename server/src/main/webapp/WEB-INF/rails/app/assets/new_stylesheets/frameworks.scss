@@ -14,37 +14,49 @@
  * limitations under the License.
  */
 // contains all common "framework" css
-@import 'variables';
-@import 'foundation_and_overrides';
+@import "variables";
+@import "foundation_and_overrides";
+
 // make sure to load after foundation
 @import "bourbon/core/bourbon";
-@import 'keyframes';
-@import 'font-awesome-glyphs';
-@import 'global';
-@import 'fonts';
+@import "keyframes";
+@import "font-awesome-glyphs";
+@import "global";
+@import "fonts";
 @import "shared/server_health_messages";
 
 $tooltip-background-color: #333;
 
 .tooltip-question-mark {
-  @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
-    margin-left:  10px;
+  @include icon-after(
+    question-circle,
+    $size: $form-label-font-size,
+    $color: $form-label-color,
+    $margin: 0,
+    $line-height: $form-label-line-height) {
+    margin-left: 10px;
     margin-right: 10px;
   }
 }
 
 .tooltip-info {
-  @include icon-after(info-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
-    margin-left:  10px;
+  @include icon-after(
+    info-circle,
+    $size: $form-label-font-size,
+    $color: $form-label-color,
+    $margin: 0,
+    $line-height: $form-label-line-height) {
+    margin-left: 10px;
     margin-right: 10px;
   }
 }
 
 .tooltip-content {
-  font-family:    $body-font-family;
-  cursor:         auto;
-  font-size:      rem-calc(13px);
+  font-family: $body-font-family;
+  cursor: auto;
+  font-size: rem-calc(13px);
   text-transform: none;
+
   * {
     font-size: rem-calc(13px);
   }
@@ -59,6 +71,7 @@ $tooltip-background-color: #333;
     > *:first-child {
       margin-top: 0;
     }
+
     > *:last-child {
       margin-bottom: 0;
     }
@@ -67,12 +80,15 @@ $tooltip-background-color: #333;
   &.tiny {
     width: 200px;
   }
+
   &.small {
     width: 300px;
   }
+
   &.medium {
     width: 500px;
   }
+
   &.large {
     width: 800px;
   }
@@ -80,39 +96,42 @@ $tooltip-background-color: #333;
 
 .has-tip {
   border-bottom: transparent;
-  display:       inline;
+  display: inline;
 }
 
 .tooltip {
-  padding:     6px 10px;
+  padding: 6px 10px;
   line-height: 15px;
-  font-size:   12px;
-  background:  $tooltip-background-color;
+  font-size: 12px;
+  background: $tooltip-background-color;
 
-  &:before {
+  &::before {
     border-color: transparent transparent $tooltip-background-color;
   }
 
   &.top::before {
     @include css-triangle($tooltip-pip-width, $tooltip-background-color, down);
-    top:    100%;
+
+    top: 100%;
     bottom: auto;
   }
 
   &.left::before {
     @include css-triangle($tooltip-pip-width, $tooltip-background-color, right);
-    top:       50%;
-    bottom:    auto;
-    left:      100%;
+
+    top: 50%;
+    bottom: auto;
+    left: 100%;
     transform: translateY(-50%);
   }
 
   &.right::before {
     @include css-triangle($tooltip-pip-width, $tooltip-background-color, left);
-    top:       50%;
-    right:     100%;
-    bottom:    auto;
-    left:      auto;
+
+    top: 50%;
+    right: 100%;
+    bottom: auto;
+    left: auto;
     transform: translateY(-50%);
   }
 }

@@ -15,141 +15,154 @@
  */
 @import "../base/mixins";
 
-
-
-
-.page_header,.pipeline_history,
+.page_header,
+.pipeline_history,
 .yui-b .Job,
 .yui-b .Server,
 #admin-page .Administration,
-#my-cruise-page .Preferences  {
-    background: #f7f7f7;
-    /*@include box-shadow(0,1px,1px,rgba(33, 33, 33, 0.1));*/
-    @include gradient(#f7f7f7, #eeeeee);
-    @include box-shadow(0,0,2px,#ccc);
-    border-bottom:1px solid #ccc;
-    position: fixed;
-    height:25px;
-    top: 45px;
-    z-index: 1000;
-    right: 0;
-    left: 0;
-    padding: 10px 15px;
+#my-cruise-page .Preferences {
+  background: #f7f7f7;
+
+  /* @include box-shadow(0,1px,1px,rgba(33, 33, 33, 0.1)); */
+  @include gradient(#f7f7f7, #eeeeee);
+  @include box-shadow(0,0,2px,#ccc);
+
+  border-bottom: 1px solid #ccc;
+  position: fixed;
+  height: 25px;
+  top: 45px;
+  z-index: 1000;
+  right: 0;
+  left: 0;
+  padding: 10px 15px;
 }
 
-.shadow{
-    @include box-shadow(0,3px,3px,rgba(33, 33, 33, 0.2));
-    border-bottom:0 none;
-}
+.shadow {
+  @include box-shadow(0,3px,3px,rgba(33, 33, 33, 0.2));
 
+  border-bottom: 0 none;
+}
 
 .pipeline_history,
 .yui-b .Job,
 .yui-b .Server,
 #admin-page .Administration,
 #my-cruise-page .Preferences {
-    padding: 10px 15px;
-    overflow: hidden;
+  padding: 10px 15px;
+  overflow: hidden;
 }
 
-ul.entity_title li a{
-    line-height: 27px;
+ul.entity_title li a {
+  line-height: 27px;
 }
 
 ul.entity_title li {
-    background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll right 10px transparent;
-    padding-right: 12px;
-    margin-right: 6px;
-    line-height: 27px;
+  background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll right 10px transparent;
+  padding-right: 12px;
+  margin-right: 6px;
+  line-height: 27px;
 }
+
 ul.entity_title li.last {
-    padding-right: 0;
-    margin-right: 0;
-    background: none;
+  padding-right: 0;
+  margin-right: 0;
+  background: none;
 }
-ul.entity_title li.last > * , h1.entity_title {
-    color: #3D3D3D;
-    font-size: 21px;
-    line-height: 1.2em;
-}
+
+ul.entity_title li.last > *,
 h1.entity_title {
-    float: left;
+  color: #3d3d3d;
+  font-size: 21px;
+  line-height: 1.2em;
 }
+
+h1.entity_title {
+  float: left;
+}
+
 #yui-main .page_header a {
-    font-weight: bold;
+  font-weight: bold;
 }
+
 #yui-main .page_header .label a {
-    font-size: 20px;
+  font-size: 20px;
 }
+
 #yui-main .page_header a:hover {
-    color: #2980ec;
+  color: #2980ec;
 }
+
 #pipeline_header .feed {
-    background: image_url("icon-rss.png") no-repeat;
-    height: 18px;
-    margin-top: 3px;
-    padding-right: 15px;
-    float: right;
+  background: image_url("icon-rss.png") no-repeat;
+  height: 18px;
+  margin-top: 3px;
+  padding-right: 15px;
+  float: right;
 }
+
 .admin_pause_info_and_controls {
-    /*color: #FFF;*/
+  /* color: #FFF; */
 
-    margin-left: 15px;
-    margin-top: 3px;
+  margin-left: 15px;
+  margin-top: 3px;
 }
+
 .admin_pause_info_and_controls .pause_description {
-    font-size: 11px;
+  font-size: 11px;
 }
 
-#pause_info_and_controls > .pause_message{
-    padding-left: 0px;
-    width: 250px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+#pause_info_and_controls > .pause_message {
+  padding-left: 0;
+  width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
 
 #pause_info_and_controls > span {
-    float: left;
-    padding: 6px;
+  float: left;
+  padding: 6px;
 }
+
 .admin_pause_info_and_controls .operate {
-    float: left;
+  float: left;
 }
-.pause_reason input[type=text] {
-    display: block;
-    margin-top: 10px;
-    width: 250px;
+
+.pause_reason input[type="text"] {
+  display: block;
+  margin-top: 10px;
+  width: 250px;
 }
+
 /*
  * Pipeline/Stage Details Header
  */
 #body_content .locked_instance {
-    float: right;
-    margin: 8px 0 0 10px;
-    padding: 0 0 0 0px;
-    border-left: 1px dotted #999;
-    color: #ccc;
+  float: right;
+  margin: 8px 0 0 10px;
+  padding: 0 0 0 0;
+  border-left: 1px dotted #999;
+  color: #ccc;
 }
 
-#body_content .stage_detail_setting, .job_details .job_detail_setting {
+#body_content .stage_detail_setting,
+.job_details .job_detail_setting {
   display: inline-block;
   margin: 5px 0 0 10px;
-
 }
 
 #body_content .page_header .locked_instance {
-    float: left;
-    margin: 8px 0 0 10px;
-    padding: 0 0 0 10px;
-    border-left: 1px dotted #999;
-    color: #ccc;
+  float: left;
+  margin: 8px 0 0 10px;
+  padding: 0 0 0 10px;
+  border-left: 1px dotted #999;
+  color: #ccc;
 }
+
 #body_content .deploy .locked_instance,
 #body_content .pipeline_operations .locked_instance {
-    float: right;
-    border: none;
-    margin: 6px 0 0 10px;
-    color: #555555;
+  float: right;
+  border: none;
+  margin: 6px 0 0 10px;
+  color: #555;
 }

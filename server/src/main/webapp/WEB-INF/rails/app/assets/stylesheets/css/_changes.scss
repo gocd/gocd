@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 .pipeline-changes {
-    border: 1px solid black;
+  border: 1px solid black;
 }
+
 .changes {
-    margin: 1em;
+  margin: 1em;
 }
+
 .changes .changed .details,
 .changes .changed .comment {
-    background: #F9F0B5;
-    font-style: italic;
+  background: #f9f0b5;
+  font-style: italic;
 }

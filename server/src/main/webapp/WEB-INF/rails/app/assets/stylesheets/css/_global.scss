@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /* Uses icons from http://www.famfamfam.com/lab/icons/silk/ */
 
 /* header and footer */
 
 #header {
   background-position: top;
-  background-repeat:   repeat-x;
-  font-weight:         normal;
-  clear:               both;
+  background-repeat: repeat-x;
+  font-weight: normal;
+  clear: both;
 }
 
 div#pageTitle {
-  font-size:   16pt;
+  font-size: 16pt;
   font-weight: bold;
   padding-top: 15px;
-  float:       left;
-  margin:      10px 0;
+  float: left;
+  margin: 10px 0;
 }
 
 div#logo {
-  float:  right;
+  float: right;
   margin: 20px 5px 10px 0;
 }
 
@@ -42,8 +43,8 @@ body {
 }
 
 h1 {
-  font-weight:    bold;
-  font-size:      2em;
+  font-weight: bold;
+  font-size: 2em;
   text-transform: capitalize;
 }
 
@@ -52,14 +53,14 @@ a:hover {
 }
 
 a {
-  color:           black;
+  color: black;
   text-decoration: underline;
 }
 
 label {
-  display:     block;
+  display: block;
   font-weight: bold;
-  margin:      8px 4px 4px 0;
+  margin: 8px 4px 4px 0;
   white-space: nowrap;
 }
 
@@ -69,35 +70,35 @@ img {
 
 h2 {
   font-weight: bold;
-  font-size:   1.5em;
+  font-size: 1.5em;
 }
 
 h3 {
   font-weight: bold;
-  font-size:   1.25em;
+  font-size: 1.25em;
 }
 
 /* forms: see http://www.456bereastreet.com/lab/forms/ for form layout styling */
 
 form label.req {
   font-weight: bold;
-  color:       #300;
+  color: #300;
 }
 
 div.inputblk {
   display: block;
-  margin:  1em 1em 1em 0;
+  margin: 1em 1em 1em 0;
 }
 
 input {
   padding: 0;
-  margin:  0;
+  margin: 0;
 }
 
 input.txt,
 textarea.txt {
-  border:           1px solid black;
-  color:            #000;
+  border: 1px solid black;
+  color: #000;
   background-color: #fff;
 }
 
@@ -112,10 +113,10 @@ textarea.txt:hover {
 }
 
 input.btn {
-  cursor:           pointer;
+  cursor: pointer;
   background-color: #dde;
-  padding:          2px;
-  margin:           2px;
+  padding: 2px;
+  margin: 2px;
 }
 
 input.btn:hover {
@@ -123,7 +124,7 @@ input.btn:hover {
 }
 
 div#content {
-  margin:   0 0 0 10px;
+  margin: 0 0 0 10px;
   position: relative;
 }
 
@@ -142,11 +143,11 @@ div#content {
 /* Generic clearing div to ensure certain floated elements are enclosed by parent */
 
 div.clear {
-  clear:       both;
-  font-size:   1px;
+  clear: both;
+  font-size: 1px;
   line-height: 1px;
-  height:      1px;
-  overflow:    hidden;
+  height: 1px;
+  overflow: hidden;
 }
 
 .control_panel a {
@@ -158,12 +159,12 @@ div.clear {
   white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
   white-space: -pre-wrap; /* Opera 4-6 */
   white-space: -o-pre-wrap; /* Opera 7 */
-  word-wrap:   break-word; /* Internet Explorer 5.5+ */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 caption {
-  width:        80%;
-  margin-left:  0;
+  width: 80%;
+  margin-left: 0;
   margin-right: 0;
 }
 
@@ -176,11 +177,11 @@ caption {
 }
 
 #warning_content {
-  background-color:    lightgoldenrodyellow;
+  background-color: lightgoldenrodyellow;
   background-position: 10px center;
-  background-repeat:   no-repeat;
-  background-image:    image_url("icon-warning-small.gif");
-  padding-left:        35px;
-  font-size:           small;
-  font-weight:         bold;
+  background-repeat: no-repeat;
+  background-image: image_url("icon-warning-small.gif");
+  padding-left: 35px;
+  font-size: small;
+  font-weight: bold;
 }

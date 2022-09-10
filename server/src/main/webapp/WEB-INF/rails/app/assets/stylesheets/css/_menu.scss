@@ -17,106 +17,109 @@
 /* Tab bar styles */
 
 #menu {
-	margin-left: 4px;
-	padding: 0;
-	background: transparent;
-	voice-family: "\"}\"";
-	voice-family: inherit;
-	padding-left: 5px;
-	margin-bottom: 0;
-	min-height: 62px;
+  margin-left: 4px;
+  padding: 0;
+  background: transparent;
+  voice-family: "\"}\"";
+  voice-family: inherit;
+  padding-left: 5px;
+  margin-bottom: 0;
+  min-height: 62px;
 }
 
 /* The tabs are an unordered list */
 
 #menu ul {
-	font: 13px verdana, arial, geneva, helvetica, sans-serif;
-	margin-top: 10px;
-    list-style: none;
-	clear : both;
+  font: 13px verdana, arial, geneva, helvetica, sans-serif;
+  margin-top: 10px;
+  list-style: none;
+  clear: both;
 }
 
 #menu li {
-	float: left;
-	margin-right: .75em;
-	list-style: none;
-	text-align : center;
-	padding : 0;
+  float: left;
+  margin-right: 0.75em;
+  list-style: none;
+  text-align: center;
+  padding: 0;
 }
 
 /* The active tab gets a class of currenttab */
 
 #menu li.currenttab a {
-	background-color : #87c0d4;
-	color : #003;
-	font-weight : bold;
+  background-color: #87c0d4;
+  color: #003;
+  font-weight: bold;
 }
 
 #menu a {
-	float: left;
-	background-color: #538aa7;
-	text-decoration: none;
-	text-align: center;
-	color : white;
+  float: left;
+  background-color: #538aa7;
+  text-decoration: none;
+  text-align: center;
+  color: white;
 }
 
 #menu a span {
-	display: block;
-	padding: 1px 2em 4px 2em;
+  display: block;
+  padding: 1px 2em 4px 2em;
 }
 
 #menu a:hover {
-	color: #999;
+  color: #999;
 }
 
 /* Drop shadow under the tab bar. Some elements in the body of the page are given a top margin of -14px so as to come up directly to the bottom of the tab bar */
 
 #menu_bottom {
-	border-top: 4px solid #87c0d4;
-	clear: both;
-	background : image_url('menu_shadow.gif') left bottom repeat-x;
-	padding-bottom : 14px;
+  border-top: 4px solid #87c0d4;
+  clear: both;
+  background: image_url("menu_shadow.gif") left bottom repeat-x;
+  padding-bottom: 14px;
 }
 
-#menu .rtop, .rbottom {
-	display: block;
-	background: white;
+#menu .rtop,
+.rbottom {
+  display: block;
+  background: white;
 }
 
-#menu .rtop *, .rbottom * {
-	display: block;
-	height: 1px;
-	overflow: hidden;
-	background: white;
+#menu .rtop *,
+.rbottom * {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  background: white;
 }
-
 
 /* Rounded corners on menu tab - currently selected */
 
-#menu li.currenttab .r1, #menu li.currenttab .r2, #menu li.currenttab .r3, #menu li.currenttab .r4 {
-	background : #87c0d4;
+#menu li.currenttab .r1,
+#menu li.currenttab .r2,
+#menu li.currenttab .r3,
+#menu li.currenttab .r4 {
+  background: #87c0d4;
 }
 
 /* Rounded corners on unselected menu tabs */
 
 #menu .r1 {
-	margin: 0 5px;
-	background: #538aa7;
+  margin: 0 5px;
+  background: #538aa7;
 }
 
 #menu .r2 {
-	margin: 0 3px;
-	background: #538aa7;
+  margin: 0 3px;
+  background: #538aa7;
 }
 
 #menu .r3 {
-	margin: 0 2px;
-	background: #538aa7;
+  margin: 0 2px;
+  background: #538aa7;
 }
 
 #menu .r4 {
-	margin: 0 1px;
-	height: 2px;
-	background: #538aa7;
+  margin: 0 1px;
+  height: 2px;
+  background: #538aa7;
 }
-

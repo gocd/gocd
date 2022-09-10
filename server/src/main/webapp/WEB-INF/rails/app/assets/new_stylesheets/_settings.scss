@@ -15,14 +15,9 @@
  */
 @import "../new_stylesheets/shared/go-variables";
 
-// Since it's a 3rd party file, we ignore all lint errors
-// scss-lint:disable all
-
 //  Foundation for Sites Settings
 //  -----------------------------
-//
 //  Table of Contents:
-//
 //   1. Global
 //   2. Breakpoints
 //   3. The Grid
@@ -60,7 +55,7 @@
 //  35. Tooltip
 //  36. Top Bar
 
-@import 'foundation-sites/scss/util/util';
+@import "foundation-sites/scss/util/util";
 
 // 1. Global
 // ---------
@@ -126,34 +121,34 @@ $block-grid-max: 8;
 $header-font-family: $body-font-family;
 $header-font-weight: $global-weight-normal;
 $header-font-style: normal;
-$font-family-monospace: Consolas, 'Liberation Mono', Courier, monospace;
+$font-family-monospace: consolas, "Liberation Mono", courier, monospace;
 $header-styles: (
   small: (
-    'h1': ('font-size': 24),
-    'h2': ('font-size': 20),
-    'h3': ('font-size': 19),
-    'h4': ('font-size': 18),
-    'h5': ('font-size': 17),
-    'h6': ('font-size': 16),
+    "h1": ("font-size": 24),
+    "h2": ("font-size": 20),
+    "h3": ("font-size": 19),
+    "h4": ("font-size": 18),
+    "h5": ("font-size": 17),
+    "h6": ("font-size": 16),
   ),
   medium: (
-    'h1': ('font-size': 48),
-    'h2': ('font-size': 40),
-    'h3': ('font-size': 31),
-    'h4': ('font-size': 25),
-    'h5': ('font-size': 20),
-    'h6': ('font-size': 16),
+    "h1": ("font-size": 48),
+    "h2": ("font-size": 40),
+    "h3": ("font-size": 31),
+    "h4": ("font-size": 25),
+    "h5": ("font-size": 20),
+    "h6": ("font-size": 16),
   ),
 );
 $header-color: inherit;
 $header-lineheight: 1.4;
 $header-margin-bottom: 0.5rem;
-$header-text-rendering: optimizeLegibility;
+$header-text-rendering: optimizelegibility;
 $small-font-size: 80%;
 $header-small-font-color: $medium-gray;
 $paragraph-lineheight: 1.6;
 $paragraph-margin-bottom: 1rem;
-$paragraph-text-rendering: optimizeLegibility;
+$paragraph-text-rendering: optimizelegibility;
 $code-color: $black;
 $code-font-family: $font-family-monospace;
 $code-font-weight: $global-weight-normal;
@@ -218,7 +213,7 @@ $accordion-background: $accordion-bg; // custom
 $accordion-plusminus: false; // custom
 $accordion-item-color: foreground($accordion-background, $black); // custom
 $accordion-item-background-hover: $accordion-bg-hover; // custom
-$accordion-item-padding:0 2rem; // custom
+$accordion-item-padding: 0 2rem; // custom
 $accordion-content-background: $accordion-bg; // custom
 $accordion-content-border: 0; // custom
 $accordion-content-color: foreground($accordion-content-background, $body-font-color);
@@ -275,7 +270,7 @@ $button-opacity-disabled: 0.25;
 
 $buttongroup-margin: 1rem;
 $buttongroup-spacing: 1px;
-$buttongroup-child-selector: '.button';
+$buttongroup-child-selector: ".button";
 $buttongroup-expand-max: 6;
 
 // 13. Callout
@@ -424,7 +419,7 @@ $offcanvas-transition-length: 0.5s;
 $offcanvas-transition-timing: ease;
 $offcanvas-fixed-reveal: true;
 $offcanvas-exit-background: rgba($white, 0.25);
-$maincontent-class: 'off-canvas-content';
+$maincontent-class: "off-canvas-content";
 $maincontent-shadow: 0 0 10px rgba($black, 0.5);
 
 // 25. Orbit
@@ -585,4 +580,3 @@ $topbar-submenu-background: $topbar-background;
 $topbar-title-spacing: 1rem;
 $topbar-input-width: 200px;
 $topbar-unstack-breakpoint: medium;
-

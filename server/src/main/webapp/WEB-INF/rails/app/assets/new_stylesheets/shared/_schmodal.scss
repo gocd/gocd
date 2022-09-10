@@ -13,77 +13,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$overlay-bg:            rgba(0, 0, 0, 0.8);
-$overlay-header-bg:     #33374f;
-$overlay-width:         500px;
-$overlay-height:        300px;
-$overlay-border-color:  #ccc;
+$overlay-bg: rgba(0, 0, 0, 80%);
+$overlay-header-bg: #33374f;
+$overlay-width: 500px;
+$overlay-height: 300px;
+$overlay-border-color: #ccc;
 $overlay-border-radius: 3px;
 
-@keyframes modalIn {
+@keyframes modal-in {
   0% {
-    opacity:   1; // disable animation for now
+    opacity: 1; // disable animation for now
     transform: translate(-50%, 0);
   }
 
   100% {
-    opacity:   1;
+    opacity: 1;
     transform: translate(-50%, 0);
   }
 }
 
-@keyframes modalOut {
+@keyframes modal-out {
   0% {
-    opacity:   1;
+    opacity: 1;
     transform: translate(-50%, 0);
   }
 
   100% {
-    opacity:   0;
+    opacity: 0;
     transform: translate(-50%, -150%);
   }
 }
 
 .overlay-bg {
-  display:    none;
+  display: none;
   background: $overlay-bg;
-  position:   fixed;
-  top:        0;
-  left:       0;
-  right:      0;
-  bottom:     0;
-  z-index:    100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
 }
 
 .overlay-bg-in {
-  @include animation(fadeIn 0.25s ease-in-out);
+  @include animation(fade-in 0.25s ease-in-out);
 }
 
 .overlay-bg-out {
-  @include animation(fadeOut 0.25s ease-in-out);
+  @include animation(fade-out 0.25s ease-in-out);
 }
 
 .overlay {
-  display:       none;
-  border:        0;
+  display: none;
+  border: 0;
   border-radius: $overlay-border-radius;
-  position:      absolute;
-  z-index:       101;
-  top:           25%;
-  left:          50%;
-  min-width:     $overlay-width;
-  transform:     translate(-50%, 0);
-  transition:    opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  position: absolute;
+  z-index: 101;
+  top: 25%;
+  left: 50%;
+  min-width: $overlay-width;
+  transform: translate(-50%, 0);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 
   &.adding {
-    @include animation(modalIn 0.25s ease-out);
+    @include animation(modal-in 0.25s ease-out);
   }
 
   &.removing {
-    @include animation(modalOut 0.25s ease-out);
+    @include animation(modal-out 0.25s ease-out);
   }
 
-  &:nth-of-type(1), &:nth-of-type(2) {
+  &:nth-of-type(1),
+  &:nth-of-type(2) {
     display: block;
   }
 
@@ -93,7 +94,7 @@ $overlay-border-radius: 3px;
 
   &:nth-of-type(2) {
     transform: translate(-50%, 80vh);
-    opacity:   0.7;
+    opacity: 0.7;
 
     .close-icon {
       display: none;
@@ -102,33 +103,32 @@ $overlay-border-radius: 3px;
 }
 
 .overlay-header {
-  background:    $overlay-header-bg;
-  padding:       15px 20px;
+  background: $overlay-header-bg;
+  padding: 15px 20px;
   border-radius: $overlay-border-radius $overlay-border-radius 0 0;
 
   h3 {
-    font-size:     16.5px;
-    margin:        0;
-    color:         #fff;
-    font-weight:   500;
-
-    max-width:     calc(100% - 25px);
-    overflow:      hidden;
-    white-space:   nowrap;
+    font-size: 16.5px;
+    margin: 0;
+    color: #fff;
+    font-weight: 500;
+    max-width: calc(100% - 25px);
+    overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
   }
 }
 
 .overlay-close {
-  position:    absolute;
-  right:       20px;
-  top:         15px;
-  background:  transparent;
-  border:      0;
-  color:       #fff;
-  font-size:   16px;
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 16px;
   font-weight: 500;
-  cursor:      pointer;
+  cursor: pointer;
 }
 
 .close-icon {
@@ -137,24 +137,24 @@ $overlay-border-radius: 3px;
 
 .overlay-content {
   background: #fff;
-  position:   relative;
-  padding:    20px 30px;
+  position: relative;
+  padding: 20px 30px;
   min-height: $overlay-height;
   max-height: 730px;
   overflow-y: auto;
 
   &:last-child {
-    border-bottom-left-radius:  $overlay-border-radius;
+    border-bottom-left-radius: $overlay-border-radius;
     border-bottom-right-radius: $overlay-border-radius;
   }
 }
 
 .overlay-footer {
-  background:                 #fff;
-  display:                    flex;
-  padding:                    10px 30px;
-  border-top:                 1px solid $overlay-border-color;
-  border-bottom-left-radius:  $overlay-border-radius;
+  background: #fff;
+  display: flex;
+  padding: 10px 30px;
+  border-top: 1px solid $overlay-border-color;
+  border-bottom-left-radius: $overlay-border-radius;
   border-bottom-right-radius: $overlay-border-radius;
 
   .button {

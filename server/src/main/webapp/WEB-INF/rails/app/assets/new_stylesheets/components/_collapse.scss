@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// c- is used before a component class to understand that its a component. since collapse is a gerneric name, it might have used in many places and need to avoid the conflicts.
+// c- is used before a component class to understand that its a component. since collapse is a generic name,
+// it might have used in many places and need to avoid the conflicts.
 
 $collapse-icon-size: $component-icon-size;
 $collapse-border: $border-grey;
 $collapse-icon-color: #ddd;
 
 .c-collapse {
-  background:    $go-white;
-  position:      relative;
-  border:        1px solid $collapse-border;
+  background: $go-white;
+  position: relative;
+  border: 1px solid $collapse-border;
   border-radius: $global-border-radius;
   margin-bottom: 10px;
+
   &.collapsed {
     background: $go-white;
   }
+
   &.expanded {
     @extend %box-shadow;
+
     .c-collapse_header {
       border-bottom: 1px solid $collapse-border;
     }
@@ -37,47 +41,53 @@ $collapse-icon-color: #ddd;
 }
 
 .c-collapse_header {
-  @include clearfix();
+  @include clearfix;
+
   padding: 10px 50px 10px 30px;
-  cursor:  pointer;
+  cursor: pointer;
+
   &.collapsed {
     @include icon-before($type: angle-right, $color: $collapse-icon-color);
-    &:before {
-      position:  absolute;
-      right:     10px;
+
+    &::before {
+      position: absolute;
+      right: 10px;
       font-size: 30px;
-      top:       3px;
+      top: 3px;
     }
   }
+
   &.expanded {
     @include icon-before($type: angle-down, $color: $collapse-icon-color);
-    &:before {
-      position:  absolute;
-      right:     10px;
+
+    &::before {
+      position: absolute;
+      right: 10px;
       font-size: 30px;
-      top:       3px;
+      top: 3px;
     }
   }
 }
 
 .c-collapse_header_details {
-  float:       left;
-  display:     flex;
+  float: left;
+  display: flex;
   align-items: center;
 }
 
 .c-collapse_title {
   @extend %title;
+
   float: left;
 }
 
 .c-collapse_icon {
-  width:          $collapse-icon-size;
-  height:         $collapse-icon-size;
-  display:        inline-block;
+  width: $collapse-icon-size;
+  height: $collapse-icon-size;
+  display: inline-block;
   vertical-align: middle;
-  float:          left;
-  margin:         0 15px 0 -15px;
+  float: left;
+  margin: 0 15px 0 -15px;
 }
 
 .c-collapse_body {

@@ -14,39 +14,40 @@
  * limitations under the License.
  */
 .new_role_form {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .deletion_warning div {
-    clear: both;
+  clear: both;
 }
 
 .message {
-    padding: 5px;
+  padding: 5px;
 }
 
-.message ol.groups, .message ol.stages {
-    margin: 5px 0 0 30px;
-    list-style: decimal;
+.message ol.groups,
+.message ol.stages {
+  margin: 5px 0 0 30px;
+  list-style: decimal;
 }
 
 .message li {
-    clear: both;
-    list-style: decimal;
-    margin: 1px;
+  clear: both;
+  list-style: decimal;
+  margin: 1px;
 }
 
 .message .confirmation_message {
-    margin-top: 10px;
-    padding: 5px;
+  margin-top: 10px;
+  padding: 5px;
 }
 
 .deletion_warning .usages {
-    padding: 10px 10px 0 10px;
-    clear: both;
+  padding: 10px 10px 0 10px;
+  clear: both;
 }
 
 .deletion_warning .usage .roles {
-    color: #999;
-    font-style: italic;
+  color: #999;
+  font-style: italic;
 }

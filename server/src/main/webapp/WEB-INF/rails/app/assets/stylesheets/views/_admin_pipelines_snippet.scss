@@ -13,37 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pipeline_snippet_view #view_group, #pipeline_snippet_edit #edit_group {
-    margin-left: 210px;
+#pipeline_snippet_view #view_group,
+#pipeline_snippet_edit #edit_group {
+  margin-left: 210px;
 }
 
 #pipeline_snippet_view #view_group a.edit.link_as_button {
-    float: right;
-    background-color: #3399cc;
-    /*margin: 0px 5px 15px;*/
+  float: right;
+  background-color: #39c;
+
+  /* margin: 0px 5px 15px; */
 }
 
-#pipeline_snippet_edit #edit_group .form_buttons .submit{
-    float: left;
-}
-#pipeline_snippet_view .form_buttons, #pipeline_snippet_edit .form_buttons{
-    background-color: #FFFFFF;
-    float: right;
-    margin: 5px 0px 10px 0px;
-    -moz-box-shadow: none;
+#pipeline_snippet_edit #edit_group .form_buttons .submit {
+  float: left;
 }
 
-#pipeline_snippet_edit #content_container_for_edit, #pipeline_snippet_view #content_container {
-    clear: right;
-    border: 1px solid #CCCCCC;
-    overflow: auto;
-    padding: 5px;
-    height: 500px;
-    max-height: 500px;
+#pipeline_snippet_view .form_buttons,
+#pipeline_snippet_edit .form_buttons {
+  background-color: #fff;
+  float: right;
+  margin: 5px 0 10px 0;
+  -moz-box-shadow: none;
 }
 
-#pipeline_snippet_edit #content_container_for_edit{
-    background-color: #FFFACD;
+#pipeline_snippet_edit #content_container_for_edit,
+#pipeline_snippet_view #content_container {
+  clear: right;
+  border: 1px solid #ccc;
+  overflow: auto;
+  padding: 5px;
+  height: 500px;
+  max-height: 500px;
+}
+
+#pipeline_snippet_edit #content_container_for_edit {
+  background-color: #fffacd;
 }
 
 /**
@@ -51,30 +56,30 @@
 **/
 
 #modifiable_groups {
-    width: 200px;
-    float: left;
+  width: 200px;
+  float: left;
 }
 
 #modifiable_groups ul {
-    width: 200px;
-    margin-top: 34px;
+  width: 200px;
+  margin-top: 34px;
 }
 
 #modifiable_groups li {
-    line-height: 25px;
-    padding: 0px 5px;
-    border-bottom: 1px dotted #CCCCCC;
-    display: block;
-    width: 190px;
-    text-overflow: ellipsis;
-    overflow: hidden;
+  line-height: 25px;
+  padding: 0 5px;
+  border-bottom: 1px dotted #ccc;
+  display: block;
+  width: 190px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 #modifiable_groups li.selected {
-    background-color: #D2EBF0;
-    color: #333;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
-    font-weight: bold;
+  background-color: #d2ebf0;
+  color: #333;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  font-weight: bold;
 }

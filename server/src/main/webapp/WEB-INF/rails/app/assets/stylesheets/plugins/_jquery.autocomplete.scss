@@ -14,55 +14,58 @@
  * limitations under the License.
  */
 .ac_results {
-	padding: 0px;
-	border: 1px solid #CCC;
-	background-color: #FFF;
-	box-shadow: 0 0 5px rgba(0,0,0,0.2);
-	  -moz-box-shadow: 0 0 5px rgba(0,0,0,0.2);
-	  -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.2);
-	overflow: hidden;
-	z-index: 99999;
+  padding: 0;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 20%);
+  -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 20%);
+  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 20%);
+  overflow: hidden;
+  z-index: 99999;
 }
 
 .ac_results ul {
-	width: 100%;
-	list-style-position: outside;
-	list-style: none;
-	padding: 0;
-	margin: 0;
+  width: 100%;
+  list-style-position: outside;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .ac_results li {
-	margin: 0px;
-	padding: 5px;
-	cursor: default;
-	display: block;
-  float:none;
-	/*
+  margin: 0;
+  padding: 5px;
+  cursor: default;
+  display: block;
+  float: none;
+
+  /*
 	if width will be 100% horizontal scrollbar will apear
 	when scroll mode will be used
 	*/
-	/*width: 100%;*/
-	font-size: 12px;
-	/*
+
+  /* width: 100%; */
+  font-size: 12px;
+
+  /*
 	it is very important, if line-height not setted or setted
 	in relative units scroll will be broken in firefox
 	*/
-	line-height: 16px;
-	overflow: hidden;
-	border-bottom: 1px solid #CCC;
+  line-height: 16px;
+  overflow: hidden;
+  border-bottom: 1px solid #ccc;
 }
 
 .ac_loading {
-	background: white image_url('indicator.gif') right center no-repeat;
+  background: white image_url("indicator.gif") right center no-repeat;
 }
 
 .ac_odd {
-/* 	background-color: #eee; */
+  /* 	background-color: #eee; */
 }
 
 .ac_over {
-	background-color: #FF9;
+  background-color: #ff9;
 }
 
 .ac_results li:last-child {

@@ -13,43 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$border-color:        $border;
+$border-color: $border;
 $border-color-active: #94399e;
-$tab-border:          #f5f5f5;
-$tab-head-color:      $dark-gray;
-$tab-bg:              #e5e5e5;
-$active-tab:          #94399e;
+$tab-border: #f5f5f5;
+$tab-head-color: $dark-gray;
+$tab-bg: #e5e5e5;
+$active-tab: #94399e;
 
 .v-tab {
   display: flex;
 }
 
 .v-tab_tab-head {
-  margin:     0;
-  padding:    0;
-  float:      left;
+  margin: 0;
+  padding: 0;
+  float: left;
   list-style: none;
-  height:     32px;
-  width:      250px;
+  height: 32px;
+  width: 250px;
 
   li {
-    margin:        0;
-    padding:       5px 10px;
-    cursor:        pointer;
-    color:         $tab-head-color;
+    margin: 0;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: $tab-head-color;
     border-bottom: 0;
-    overflow:      hidden;
-    position:      relative;
+    overflow: hidden;
+    position: relative;
 
     &:hover {
       color: #000;
     }
 
     &.active {
-      border-right:     3px solid $border-color-active;
+      border-right: 3px solid $border-color-active;
       background-color: #fff;
-      color:            $active-tab;
-      display:          block;
+      color: $active-tab;
+      display: block;
     }
   }
 }
@@ -60,9 +60,9 @@ $active-tab:          #94399e;
 
 .v-tab_container {
   border-left: 1px solid $border-color;
-  float:       left;
-  width:       100%;
-  min-height:  132px;
+  float: left;
+  width: 100%;
+  min-height: 132px;
 }
 
 .v-tab_content {

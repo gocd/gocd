@@ -24,10 +24,11 @@ $primary-color: #943a9e;
 $secondary-color: #2fa8b6;
 $global-border-radius: 3px;
 $vsm-bg: $page-body-background;
-$vsm-highlight: rgba(255, 255, 255, 181);
+$vsm-highlight: rgba(255, 255, 255, 18100%);
 $icon-color: #647984;
 $icon-hover-color: #1c435c;
-// buttons
+
+//buttons
 $btn-primary: $primary-color;
 $btn-secondary: #666;
 $btn-default: #d6d5d5;
@@ -48,13 +49,14 @@ $btn-default: #d6d5d5;
 
 .dependency {
   stroke: #ccd5da;
+
   &.hovered {
     stroke: darken(#ccd5da, 30%);
   }
 }
 
 .vsm-entity.pipeline ul.instances .message {
-  padding:    7px 7px;
+  padding: 7px 7px;
   background: #f4f8f9;
 }
 
@@ -65,12 +67,12 @@ $btn-default: #d6d5d5;
 }
 
 %btn {
-  border:        1px solid transparent;
-  padding:       7px 20px;
+  border: 1px solid transparent;
+  padding: 7px 20px;
   border-radius: 3px;
-  font-weight:   600;
-  font-size:     16px;
-  margin:        0 10px;
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 10px;
 }
 
 .noscroll {
@@ -78,34 +80,39 @@ $btn-default: #d6d5d5;
 }
 
 %node-selection {
-  @include icon-before('check-circle', $margin: 0, $size: 16px);
-  &:before {
-    color:         $primary-color;
-    font-size:     25px;
-    margin-right:  5px;
-    position:      absolute;
-    left:          -11px;
-    top:           -12px;
-    background:    #fff;
-    width:         19px;
+  @include icon-before("check-circle", $margin: 0, $size: 16px);
+
+  &::before {
+    color: $primary-color;
+    font-size: 25px;
+    margin-right: 5px;
+    position: absolute;
+    left: -11px;
+    top: -12px;
+    background: #fff;
+    width: 19px;
     border-radius: 50%;
-    height:        19px;
+    height: 19px;
   }
 }
 
 .vsm-entity.current.vsm-current-node {
   @extend %node-selection;
-  &:before {
+
+  &::before {
     color: $primary-color;
   }
+
   border: 2px solid $primary-color;
+
   &:hover {
     border: 2px solid $primary-color !important;
   }
+
   &.material {
-    &:before {
-      left:      50%;
-      top:       -12px;
+    &::before {
+      left: 50%;
+      top: -12px;
       transform: translateX(-50%);
     }
   }
@@ -113,8 +120,9 @@ $btn-default: #d6d5d5;
 
 .vsm-entity.other-node.vsm-pipeline-node {
   cursor: pointer;
+
   &:hover {
-    border: none
+    border: none;
   }
 }
 
@@ -123,108 +131,116 @@ $btn-default: #d6d5d5;
 }
 
 .onhover-pipeline-overlay {
-  position:      relative;
-  top:           -103px;
-  left:          -10px;
-  width:         210px;
-  height:        150px;
-  background:    #f2f2f2;
-  opacity:       0.85;
+  position: relative;
+  top: -103px;
+  left: -10px;
+  width: 210px;
+  height: 150px;
+  background: #f2f2f2;
+  opacity: 0.85;
   border-radius: 4px;
-  border:        2px solid $secondary-color;
-  box-shadow:    0 0 2px 2px #ccc;
-  color:         #000;
-  z-index:       1;
-  transition:    all 0.3s ease-in-out;
+  border: 2px solid $secondary-color;
+  box-shadow: 0 0 2px 2px #ccc;
+  color: #000;
+  z-index: 1;
+  transition: all 0.3s ease-in-out;
 
   .plus-symbol {
     padding-top: 20px;
-    font-size:   55px;
+    font-size: 55px;
     font-weight: 300;
-    text-align:  center;
+    text-align: center;
   }
 
   .click-text {
     padding-top: 10px;
-    font-size:   18px;
-    text-align:  center;
-  }
-}
-
-.onhover-material-overlay {
-  position:      relative;
-  top:           -103px;
-  left:          -10px;
-  width:         135px;
-  height:        135px;
-  z-index:       2;
-  border-radius: 70px !important;
-  background:    #f2f2f2;
-  opacity:       0.85;
-  border:        2px solid $secondary-color;
-  box-shadow:    0 0 2px 2px #ccc;
-  color:         #000;
-
-  .plus-symbol {
-    padding-top: 15px;
-    font-size:   55px;
-    font-weight: 300;
-    text-align:  center;
-  }
-
-  .click-text {
-    font-size:  18px;
+    font-size: 18px;
     text-align: center;
   }
 }
 
-.vsm-pipeline-node.vsm-other-node, .material.vsm-other-node {
+.onhover-material-overlay {
+  position: relative;
+  top: -103px;
+  left: -10px;
+  width: 135px;
+  height: 135px;
+  z-index: 2;
+  border-radius: 70px !important;
+  background: #f2f2f2;
+  opacity: 0.85;
+  border: 2px solid $secondary-color;
+  box-shadow: 0 0 2px 2px #ccc;
+  color: #000;
+
+  .plus-symbol {
+    padding-top: 15px;
+    font-size: 55px;
+    font-weight: 300;
+    text-align: center;
+  }
+
+  .click-text {
+    font-size: 18px;
+    text-align: center;
+  }
+}
+
+.vsm-pipeline-node.vsm-other-node,
+.material.vsm-other-node {
   cursor: auto !important;
 }
 
 .vsm-other-node {
   @extend %node-selection;
-  &:before {
+
+  &::before {
     color: $secondary-color;
   }
-  border:     2px solid $secondary-color;
+
+  border: 2px solid $secondary-color;
+
   &:hover {
     border: 2px solid $secondary-color !important;
   }
+
   box-shadow: 0 0 2px 2px #ccc;
+
   &.material {
-    &:before {
-      left:      50%;
-      top:       -12px;
+    &::before {
+      left: 50%;
+      top: -12px;
       transform: translateX(-50%);
     }
   }
 }
 
 .analytics-overlay {
-  position:   fixed;
-  top:        180px;
-  left:       0;
-  right:      0;
-  height:     100vh;
-  z-index:    1000;
-  bottom:     0;
-  width:      100%;
+  position: fixed;
+  top: 180px;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 1000;
+  bottom: 0;
+  width: 100%;
   background: $vsm-page-bg;
+
   &.hide {
-    height:  0;
+    height: 0;
     display: block;
   }
 }
 
 .vsm_modal {
-  width:    90%;
-  height:   70%;
-  top:      25px;
-  margin:   0 auto;
+  width: 90%;
+  height: 70%;
+  top: 25px;
+  margin: 0 auto;
   position: relative;
+
   iframe {
-    width:  100%;
+    width: 100%;
     height: 100%;
   }
 }
@@ -232,63 +248,69 @@ $btn-default: #d6d5d5;
 .btn-primary {
   &.disabled {
     opacity: 0.3;
-    cursor:  not-allowed;
+    cursor: not-allowed;
   }
 }
 
 .btn-secondary {
   @extend %btn;
-  background:   $btn-secondary;
+
+  background: $btn-secondary;
   border-color: $btn-secondary;
-  color:        #fff;
-  &:focus, &:active {
+  color: #fff;
+
+  &:focus,
+  &:active {
     outline: 0;
   }
+
   &.disabled {
     opacity: 0.3;
-    cursor:  not-allowed;
+    cursor: not-allowed;
   }
 }
 
 // vsm analytics
 
 .source_container {
-  position:      relative;
+  position: relative;
   margin-bottom: 10px;
-  display:       inline-block;
-  &:before {
-    content:     "";
+  display: inline-block;
+
+  &::before {
+    content: "";
     border-left: 2px dotted #94399e;
-    display:     block;
-    height:      16px;
-    position:    absolute;
-    top:         27px;
-    left:        13px;
+    display: block;
+    height: 16px;
+    position: absolute;
+    top: 27px;
+    left: 13px;
   }
 }
 
 .vsm-analytics-help {
-  border:          1px dotted $secondary-color;
-  border-radius:   3px;
-  font-size:       14px;
-  color:           #666;
-  padding:         5px 10px 5px 30px;
-  box-shadow:      0 0 2px 0 rgba(0, 0, 0, 0.5);
-  background:      #fff image_url('select-pipeline-icon.svg') no-repeat 7px 3px;
+  border: 1px dotted $secondary-color;
+  border-radius: 3px;
+  font-size: 14px;
+  color: #666;
+  padding: 5px 10px 5px 30px;
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 50%);
+  background: #fff image_url("select-pipeline-icon.svg") no-repeat 7px 3px;
   background-size: 14px;
 }
 
-.analytics-current, .analytics-other {
+.analytics-current,
+.analytics-other {
   font-weight: 600;
-  font-size:   14px;
-  display:     flex;
+  font-size: 14px;
+  display: flex;
   align-items: center;
 }
 
 .enable-analytics.btn-primary {
-  font-size:  15px;
-  margin:     3px 0 0 50px;
-  padding:    2px 10px;
+  font-size: 15px;
+  margin: 3px 0 0 50px;
+  padding: 2px 10px;
   background: $btn-primary !important;
 }
 
@@ -302,41 +324,42 @@ $btn-default: #d6d5d5;
 
 .vsm-analytics-panel {
   @include clearfix;
-  padding:    10px;
-  position:   relative;
-  display:    none;
+
+  padding: 10px;
+  position: relative;
+  display: none;
   background: $analytics-selection-panel-bg;
 }
 
 .analytics-close {
-  @include icon-before('close', $margin: 10, $size: 20px);
-  width:       20px;
-  background:  transparent;
+  @include icon-before("close", $margin: 10, $size: 20px);
+
+  width: 20px;
+  background: transparent;
   margin-left: 20px;
-  &:before {
+
+  &::before {
     color: $icon-color;
   }
+
   &:hover {
-    &:before {
+    &::before {
       color: $icon-hover-color;
     }
-
   }
-
 }
 
 .vsm-analytics-title {
-  font-size:   16px;
+  font-size: 16px;
   font-weight: 600;
-  color:       #000;
-  margin:      23px 0 0 38px;
-  float:       left;
+  color: #000;
+  margin: 23px 0 0 38px;
+  float: left;
 }
 
 .vsm-analytics-selection {
-  float:       left;
-  position:    relative;
-
+  float: left;
+  position: relative;
   margin-left: 50px;
 }
 
@@ -346,52 +369,54 @@ $btn-default: #d6d5d5;
 
 .vsm-analytics-help {
   text-align: center;
-  display:    block;
+  display: block;
   margin-top: 5px;
 }
 
 .analytics-other {
-  @include icon-before('check-circle');
-  &:before {
-    color:        $secondary-color;
-    font-size:    20px;
+  @include icon-before("check-circle");
+
+  &::before {
+    color: $secondary-color;
+    font-size: 20px;
     margin-right: 5px;
   }
 }
 
 .analytics-current {
-  @include icon-before('check-circle');
-  &:before {
-    color:        $primary-color;
-    font-size:    20px;
-    margin-right: 5px;
+  @include icon-before("check-circle");
 
+  &::before {
+    color: $primary-color;
+    font-size: 20px;
+    margin-right: 5px;
   }
 }
 
 .vsm-analytics-actions {
-  float:        right;
-  display:      flex;
-  margin-top:   18px;
+  float: right;
+  display: flex;
+  margin-top: 18px;
   margin-right: 20px;
 }
 
 .icon_vsm_analytics {
   @include icon-before($type: bar-chart);
 
-  padding:   0;
+  padding: 0;
   font-size: 15px;
-  color:     #fff;
-  cursor:    pointer;
-  &:before {
+  color: #fff;
+  cursor: pointer;
+
+  &::before {
     margin-right: 10px;
   }
 }
 
 .page-spinner {
-  top:       45% !important;
-  width:     75px !important;
-  height:    75px !important;
+  top: 45% !important;
+  width: 75px !important;
+  height: 75px !important;
   animation: spin 2s linear infinite;
 }
 
@@ -399,28 +424,29 @@ $btn-default: #d6d5d5;
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 .loading-overlay {
-  width:      auto;
-  height:     auto;
+  width: auto;
+  height: auto;
   text-align: center;
   background: #fff;
-  position:   absolute;
-  top:        0;
-  right:      0;
-  bottom:     0;
-  left:       0;
-  z-index:    20;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
 
   .loading-message {
-    position:    relative;
-    font-size:   19px;
+    position: relative;
+    font-size: 19px;
     font-weight: 300;
-    top:         calc(50% + 55px);
-    left:        15px
+    top: calc(50% + 55px);
+    left: 15px;
   }
 }

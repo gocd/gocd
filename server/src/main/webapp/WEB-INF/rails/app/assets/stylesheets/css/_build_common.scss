@@ -14,123 +14,120 @@
  * limitations under the License.
  */
 .yui-ge.build_summary_page {
-    margin-top : 0;
+  margin-top: 0;
 }
 
-.relative_box{
-    position:relative;
+.relative_box {
+  position: relative;
 }
 
 /* Define status colours across the entire site */
 
 .passed {
-    background-color: #F6FFE4;
-    background-color: transparent;
-    color : #000;
+  background-color: #f6ffe4;
+  background-color: transparent;
+  color: #000;
 }
 
 .scheduled,
 .assigned,
 .preparing,
 .building,
-.completing
-{
-    background-color: #FFFEE2;
-    background-color: transparent;
+.completing {
+  background-color: #fffee2;
+  background-color: transparent;
 }
 
 .failed,
 .failing,
-.cancelled
-{
-    background-color: #FFE1E0;
-    background-color: transparent;
-    color: #000;
+.cancelled {
+  background-color: #ffe1e0;
+  background-color: transparent;
+  color: #000;
 }
 
 .inactive,
 .discontinued,
 .unknown,
-.building_unknown
-{
-    background-color: #ECE9D8;
-    background-color: transparent;
-    color : #666;
+.building_unknown {
+  background-color: #ece9d8;
+  background-color: transparent;
+  color: #666;
 }
 
 /* Only one grade of colour for building and inactive projects */
 
 .building_passed {
-    background-color: #B6FFB1;
-    color : #030;
+  background-color: #b6ffb1;
+  color: #030;
 }
 
 .building_failed {
-    background-color: #FFC2C9;
+  background-color: #ffc2c9;
 }
 
 .projects_summary .info {
-    font-weight : bold;
-    border : 0px;
+  font-weight: bold;
+  border: 0;
 }
 
 .projects_summary .rate {
-    font-size : 1em;
+  font-size: 1em;
 }
 
 .tabContent {
-    clear : both;
-    background-color : #FFF;
+  clear: both;
+  background-color: #fff;
 }
 
 .entry img {
-    margin-right : 5px;
+  margin-right: 5px;
 }
 
 /* Modifications style for build detail and stage detail */
 .modifications {
-    border: none;
-    width: 100%;
-    font-size: 0.85em;
+  border: none;
+  width: 100%;
+  font-size: 0.85em;
 }
 
 .modifications .summary {
-    padding-top:1em;
-    padding-bottom:0.5em;
+  padding-top: 1em;
+  padding-bottom: 0.5em;
 }
 
 .modifications th,
 .modifications th .highlight-false,
 .modifications td {
-    border: none;
-    padding: 0.25em 0;
-    line-height: 1em;
+  border: none;
+  padding: 0.25em 0;
+  line-height: 1em;
 }
 
 .modifications .highlight-true {
-    font-style: italic;
+  font-style: italic;
 }
 
 .modifications .odd {
-    background-color: #FFF;
+  background-color: #fff;
 }
 
 .modifications .even {
-    background-color: #FFF;
+  background-color: #fff;
 }
 
 .modifications .user {
-    background: transparent image_url('user.gif') no-repeat left 50%;
-    padding-left:18px;
-    font-weight: bold;
-    line-height: 1.22em;
+  background: transparent image_url("user.gif") no-repeat left 50%;
+  padding-left: 18px;
+  font-weight: bold;
+  line-height: 1.22em;
 }
 
 .modifications .comment {
-    line-height: 1.22em;
+  line-height: 1.22em;
 }
 
 .modifications .normal {
-    font-weight:normal;
-    line-height: 1.22em;
+  font-weight: normal;
+  line-height: 1.22em;
 }

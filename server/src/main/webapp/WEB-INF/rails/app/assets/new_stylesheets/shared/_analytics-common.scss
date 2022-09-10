@@ -18,38 +18,40 @@
 
   iframe {
     height: 100%;
-    width:  100%;
+    width: 100%;
     border: 0;
   }
 
   .loading-overlay {
-    display:    none;
-    width:      auto;
-    height:     auto;
+    display: none;
+    width: auto;
+    height: auto;
     text-align: center;
     background: #fff;
-    position:   absolute;
-    top:        0;
-    right:      0;
-    bottom:     0;
-    left:       0;
-    z-index:    20;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
 
     .loading-message {
-      position:    relative;
-      font-size:   14px;
+      position: relative;
+      font-size: 14px;
       font-weight: 300;
-      top:         calc(50% + 60px);
+      top: calc(50% + 60px);
     }
 
-    .loading-message, .analytics-title, .loading-sub {
+    .loading-message,
+    .analytics-title,
+    .loading-sub {
       display: block;
     }
 
     .loading-sub::after {
-      display:  inline-block;
-      content:  "\2026";
-      width:    0; // don't affect text centering
+      display: inline-block;
+      content: "\2026";
+      width: 0; // don't affect text centering
       overflow: visible;
     }
   }
@@ -65,27 +67,26 @@ $modal-header-height: 55px;
 $modal-border-adj: 2px;
 
 .reveal.analytics-modal {
-  min-width:  850px;
-  width:      50vw;
-  height:     calc(525px + #{$modal-header-height} + #{$modal-border-adj});
+  min-width: 850px;
+  width: 50vw;
+  height: calc(525px + #{$modal-header-height} + #{$modal-border-adj});
   overflow-y: hidden;
 
   .modal-body {
-    padding:    0;
+    padding: 0;
     max-height: unset;
-    height:     525px;
+    height: 525px;
     overflow-y: auto;
   }
 
   .frame-container {
     height: 525px;
-    width:  100%;
+    width: 100%;
 
     iframe {
-      width:  100%;
+      width: 100%;
       height: 100%;
       border: 0;
     }
   }
 }
-

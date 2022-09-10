@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Action Icons.css
  */
-
 
 /**
  * TABLE OF CONTENTS
@@ -25,7 +25,6 @@
  * =ACTION_STATES
  * =DISABLED_ACTION_STATES
  */
-
 
 /**
  * =BASE
@@ -39,36 +38,43 @@
   padding-top: 3px;
 }
 
-
 /**
  * =ACTION_STATES
  */
 .add_icon {
-  background: image_url('g9/icons/icon_add_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_add_16.png") no-repeat left 50%;
 }
+
 .remove_icon {
-  background: image_url('g9/icons/icon_remove_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_remove_16.png") no-repeat left 50%;
 }
+
 .delete_icon {
-  background: image_url('g9/icons/icon_delete_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_delete_16.png") no-repeat left 50%;
 }
+
 .edit_icon {
-  background: image_url('g9/icons/icon_edit_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_edit_16.png") no-repeat left 50%;
 }
+
 .preview_icon {
-    background: image_url('g9/icons/icon_preview_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_preview_16.png") no-repeat left 50%;
 }
-.preview_icon_wobg{
-    background: image_url('g9/icons/icon_preview_wobg_16.png') no-repeat left 50%;
+
+.preview_icon_wobg {
+  background: image_url("g9/icons/icon_preview_wobg_16.png") no-repeat left 50%;
 }
+
 .move_icon {
-  background: image_url('g9/icons/icon_move_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_move_16.png") no-repeat left 50%;
 }
+
 .clone_icon {
-  background: image_url('g9/icons/icon_clone_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_clone_16.png") no-repeat left 50%;
 }
+
 .lock_icon {
-    background: image_url('g9/icons/icon_lock_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_lock_16.png") no-repeat left 50%;
 }
 
 /**
@@ -81,39 +87,42 @@
 .edit_icon_disabled,
 .move_icon_disabled,
 .clone_icon_disabled {
-    color: #999999;
-    cursor: default;
-    display: inline-block;
+  color: #999;
+  cursor: default;
+  display: inline-block;
 }
+
 .remove_icon_disabled,
 .delete_icon_disabled {
-  background: image_url('g9/icons/icon_delete_disabled_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_delete_disabled_16.png") no-repeat left 50%;
 }
 
 .add_icon_disabled {
-    background: image_url("g9/icons/icon_add_disabled_16.png") no-repeat scroll left 50% rgba(0, 0, 0, 0);
-    line-height: 16px;
-    padding-left: 20px;
-}
-.lock_icon_disabled{
-    background: image_url("g9/icons/icon_lock_disabled_16.png") no-repeat scroll left 50% rgba(0, 0, 0, 0);
-    padding-left: 20px;
+  background: image_url("g9/icons/icon_add_disabled_16.png") no-repeat scroll left 50% rgba(0, 0, 0, 0%);
+  line-height: 16px;
+  padding-left: 20px;
 }
 
+.lock_icon_disabled {
+  background: image_url("g9/icons/icon_lock_disabled_16.png") no-repeat scroll left 50% rgba(0, 0, 0, 0%);
+  padding-left: 20px;
+}
 
 .remove_icon_disabled,
 .delete_icon_disabled {
-  background: image_url('g9/icons/icon_delete_disabled_16.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_delete_disabled_16.png") no-repeat left 50%;
 }
 
 .edit_icon_disabled {
-  background: image_url('g9/icons/icon_edit_16_disabled.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_edit_16_disabled.png") no-repeat left 50%;
 }
+
 .move_icon_disabled {
-  background: image_url('g9/icons/icon_move_16_disabled.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_move_16_disabled.png") no-repeat left 50%;
 }
+
 .clone_icon_disabled {
-  background: image_url('g9/icons/icon_clone_16_disabled.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_clone_16_disabled.png") no-repeat left 50%;
 }
 
 /**
@@ -121,22 +130,25 @@
 **/
 .add_link {
   display: inline-block;
-  background: image_url('g9/icons/icon_add.png') no-repeat left 50%;
+  background: image_url("g9/icons/icon_add.png") no-repeat left 50%;
   padding: 5px 5px 5px 20px;
 }
+
 .menu_link {
-  background: image_url('g9/icons/arrow_open.png') no-repeat right 50%;
+  background: image_url("g9/icons/arrow_open.png") no-repeat right 50%;
   padding-right: 16px;
 }
+
 .icon_remove {
   display: block;
   height: 18px;
   width: 18px;
-  background: image_url('g9/icon_close_16.png') no-repeat 1px 3px;
+  background: image_url("g9/icon_close_16.png") no-repeat 1px 3px;
   cursor: pointer;
 }
+
 .icon_cannot_remove {
-  background: image_url('g9/icon_close_16_disabled.png');
+  background: image_url("g9/icon_close_16_disabled.png");
   display: block;
   height: 18px;
   width: 18px;

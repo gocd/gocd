@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Titles.css
  */
-
 
 /**
  * TABLE OF CONTENTS
@@ -25,60 +25,65 @@
  * =! MISC NEEDS MIGRATION
  */
 
-
 /**
  * =ENTITY_TITLES
 **/
 h2.entity_title {
-    background-repeat: no-repeat;
-    border-bottom: 1px dotted #ccc;
-    color: #3f2559;
-    font-weight: 300;
-    margin-bottom: 10px;
-    padding: 0 0 10px 0;
+  background-repeat: no-repeat;
+  border-bottom: 1px dotted #ccc;
+  color: #3f2559;
+  font-weight: 300;
+  margin-bottom: 10px;
+  padding: 0 0 10px 0;
 }
-.pipelines h2.entity_title{
-    font-size: 20px;
+
+.pipelines h2.entity_title {
+  font-size: 20px;
 }
 
 .pipeline_group h2.entity_title {
-    background-position: -12px -10px;
-    line-height: 30px;
-    padding-left: 35px;
+  background-position: -12px -10px;
+  line-height: 30px;
+  padding-left: 35px;
 }
 
 .environment h2.entity_title {
-    background-position: -12px -10px;
-    line-height: 30px;
+  background-position: -12px -10px;
+  line-height: 30px;
 }
 
 .pipeline_group h2.entity_title {
-  background-image: image_url('g9/icons/icon_pipelinegroup_24.png');
+  background-image: image_url("g9/icons/icon_pipelinegroup_24.png");
 }
+
 .template_group h2.entity_title {
-  background-image: image_url('g9/icons/icon_pipeline_template_24.png');
+  background-image: image_url("g9/icons/icon_pipeline_template_24.png");
   background-position: -12px -10px;
   padding-left: 35px;
 }
+
 h3.entity_title {
   background-repeat: no-repeat;
   padding: 5px 0 10px 30px;
   margin: 0;
 }
+
 .pipeline_header h3.entity_title {
-  background-image: image_url('g9/icons/icon_pipeline_24.png');
+  background-image: image_url("g9/icons/icon_pipeline_24.png");
   background-position: -12px -10px;
 }
 
-.pipeline_header .toggle-new-view, .agents-toggle-new-view {
+.pipeline_header .toggle-new-view,
+.agents-toggle-new-view {
   display: inline-block;
   margin-left: 10px;
   background: #86569a;
   color: #fff;
   padding: 5px 10px;
   border-radius: 5px;
+
   &:hover {
-    color:      #fff;
+    color: #fff;
   }
 }
 
@@ -86,16 +91,16 @@ h3.entity_title {
  * =! MISC NEEDS MIGRATION
 **/
 h2.legend {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 h2.inline {
-    display: inline;
-    padding-bottom: 5px;
+  display: inline;
+  padding-bottom: 5px;
 }
 
 /* if there are new materials */
 .pipeline_bundle .pipeline_header h3.has_new_materials {
-    background-image: image_url('g9/icons/icon_pipeline_24_info.png');
-    background-position: -12px -12px;
+  background-image: image_url("g9/icons/icon_pipeline_24_info.png");
+  background-position: -12px -12px;
 }

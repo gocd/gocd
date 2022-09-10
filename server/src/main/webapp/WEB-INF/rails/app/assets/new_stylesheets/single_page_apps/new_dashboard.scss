@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// scss-lint:disable NameFormat
-// scss-lint:disable SelectorFormat
-// scss-lint:disable MergeableSelector
-@import 'shared/common';
-@import 'shared/modal';
-@import 'shared/schmodal';
-@import 'shared/alert';
-@import 'shared/analytics-common';
-@import 'shared/dropdown';
-@import 'pipeline_configs/personalize_views_editor';
-@import 'pipeline_configs/dashboard_view_tabs';
+@import "shared/common";
+@import "shared/modal";
+@import "shared/schmodal";
+@import "shared/alert";
+@import "shared/analytics-common";
+@import "shared/dropdown";
+@import "pipeline_configs/personalize_views_editor";
+@import "pipeline_configs/dashboard_view_tabs";
 @import "font-awesome-sprockets";
 @import "components/horizontal-tabs";
 @import "components/vertical-tabs";
@@ -34,7 +31,7 @@
 // variables
 
 $dark-gray: #333;
-$pipeline_icons_size: 16px;
+$pipeline-icons-size: 16px;
 $icon-color: #647984;
 $filter-width: 362px;
 $pipeline-list-height: 265px;
@@ -45,14 +42,14 @@ $modal-border-adj: 2px;
 
 body {
   background: #f4f8f9;
-  font-size:  14px;
+  font-size: 14px;
 }
 
 .small-txt {
   font-size: 12px;
 }
 
-// scss-lint:disable IdSelector
+// stylelint-disable selector-id-pattern
 #new_dashboard-page .reveal {
   overflow-y: visible;
 }
@@ -64,50 +61,61 @@ body {
 // building animation
 
 %building {
-  position:   relative;
-  background: transparent image_url('building.gif') repeat-x;
+  position: relative;
+  background: transparent image_url("building.gif") repeat-x;
 }
 
 .dashboard {
   padding: 0 30px 50px;
+
+  .tooltip {
+    left: -100%;
+    top: 90%;
+    width: 10rem;
+    word-wrap: break-word;
+
+    &::before {
+      left: 35%;
+    }
+  }
 }
 
 .page_header {
   @include clearfix;
 
-  width:         100%;
-  align-items:   center;
-  background:    #fff;
-  box-shadow:    0 0 0 #000;
-  height:        50px;
-  box-sizing:    border-box;
+  width: 100%;
+  align-items: center;
+  background: #fff;
+  box-shadow: 0 0 0 #000;
+  height: 50px;
+  box-sizing: border-box;
   border-bottom: 1px solid $border-color;
-  position:      fixed;
-  top:           40px;
-  z-index:       10;
+  position: fixed;
+  top: 40px;
+  z-index: 10;
 }
 
 .page_title {
-  font-size:   17px;
+  font-size: 17px;
   font-weight: 600;
-  margin:      12px 0 0 0;
-  padding:     0 30px;
-  align-self:  center;
-  float:       left;
+  margin: 12px 0 0;
+  padding: 0 30px;
+  align-self: center;
+  float: left;
 }
 
 .dashboard-modifiers {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
-  align-items:     center;
-  margin-bottom:   10px;
-  position:        relative;
-  z-index:         5;
+  align-items: center;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 5;
 }
 
 .grouping_select {
-  margin:  0 0 0 10px;
-  width:   145px;
+  margin: 0 0 0 10px;
+  width: 145px;
   display: inline-block;
 }
 
@@ -117,39 +125,53 @@ body {
 
 .dashboard-group {
   margin-bottom: 50px;
-  background:    #fff;
+  background: #fff;
 }
 
 .main-container {
   margin-top: 50px;
   background: transparent;
-  overflow:   visible;
+  overflow: visible;
 }
 
 .dashboard-group_title {
-  background:    #e7eef0;
-  margin:        0;
-  padding:       10px 10px 10px 30px;
-  position:      relative;
-
+  background: #e7eef0;
+  margin: 0;
+  padding: 10px 10px 10px 30px;
+  position: relative;
   border-radius: $global-border-radius $global-border-radius 0 0;
 
   span {
-    position:    absolute;
-    font-size:   12px;
-    color:       #666;
+    position: absolute;
+    font-size: 12px;
+    color: #666;
     font-weight: normal;
-    top:         -19px;
+    top: -19px;
   }
 
   button {
     margin-top: -5px;
   }
 
+  .tooltip {
+    top: 120%;
+  }
+
+  .dashboard-group_add_pipeline {
+    float: right;
+    background: #fff;
+    padding: 2px 10px;
+
+    .icon_add {
+      color: $icon-color;
+      font-weight: 600;
+      line-height: 25px;
+    }
+  }
 }
 
 .dashboard-group_name {
-  font-size:   18px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 25px;
 }
@@ -159,12 +181,12 @@ body {
 }
 
 .dashboard-group_items {
-  display:                    flex;
-  flex-wrap:                  wrap;
-  list-style-type:            none;
-  margin:                     0 0 0 -5px;
-  padding:                    20px 30px;
-  border-bottom-left-radius:  3px;
+  display: flex;
+  flex-wrap: wrap;
+  list-style-type: none;
+  margin: 0 0 0 -5px;
+  padding: 20px 30px;
+  border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
 
   &:empty {
@@ -173,39 +195,39 @@ body {
 }
 
 .dashboard-group_pipeline {
-  width:         267px;
-  padding:       0 0 5px 0;
-  border:        1px solid #ddd;
-  background:    #fff;
+  width: 267px;
+  padding: 0 0 5px;
+  border: 1px solid #ddd;
+  background: #fff;
   border-radius: 5px;
-  margin:        5px;
+  margin: 5px;
 }
 
 .new-pipeline-button {
-  float:    right;
+  float: right;
   position: relative;
-  z-index:  1;
+  z-index: 1;
 
   > button {
     padding: 0 35px;
   }
 
   .new-pipeline-items {
-    position:        absolute;
-    right:           0;
-    margin:          0;
-    padding:         0;
+    position: absolute;
+    right: 0;
+    margin: 0;
+    padding: 0;
     list-style-type: none;
-    text-align:      left;
-    cursor:          pointer;
-    background:      #fff;
-    border:          1px solid #d6e0e2;
-    border-radius:   0 0 3px 3px;
-    width:           100%;
+    text-align: left;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #d6e0e2;
+    border-radius: 0 0 3px 3px;
+    width: 100%;
 
     li {
-      margin:      0;
-      padding:     4px 10px;
+      margin: 0;
+      padding: 4px 10px;
       white-space: nowrap;
 
       > a {
@@ -213,7 +235,7 @@ body {
       }
 
       &:hover {
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 20%);
       }
     }
   }
@@ -226,30 +248,17 @@ body {
 .pipeline_header {
   @include clearfix;
 
-  padding:       0 15px 10px 15px;
-  margin:        10px 0 0 0;
+  padding: 0 15px 10px 15px;
+  margin: 10px 0 0;
   border-radius: 5px 5px 0 0;
   border-bottom: 1px solid $border-color;
 }
 
 .pipeline_name {
-  font-size:   14px;
+  font-size: 14px;
   font-weight: 600;
-  margin:      0 5px 5px 0;
-  word-break:  break-all;
-}
-
-.dashboard {
-  .tooltip {
-    left:      -100%;
-    top:       90%;
-    width:     10rem;
-    word-wrap: break-word;
-
-    &::before {
-      left: 35%;
-    }
-  }
+  margin: 0 5px 5px 0;
+  word-break: break-all;
 }
 
 .config-repo-pipeline-tooltip {
@@ -259,52 +268,34 @@ body {
     display: flex;
 
     label {
-      color:       $white;
-      font-size:   11px;
+      color: $white;
+      font-size: 11px;
       font-weight: 600;
-      display:     inline-flex;
+      display: inline-flex;
       line-height: normal;
     }
 
     span {
-      display:     inline-flex;
-      align-self:  center;
+      display: inline-flex;
+      align-self: center;
       margin-left: 5px;
-      word-break:  break-all;
-    }
-  }
-}
-
-.dashboard-group_title {
-  .tooltip {
-    top: 120%;
-  }
-
-  .dashboard-group_add_pipeline {
-    float:      right;
-    background: #fff;
-    padding:    2px 10px;
-
-    .icon_add {
-      color:       $icon-color;
-      font-weight: 600;
-      line-height: 25px;
+      word-break: break-all;
     }
   }
 }
 
 .pipeline_sub_header {
-  width:           240px;
-  display:         flex;
+  width: 240px;
+  display: flex;
   justify-content: space-between;
 }
 
 .pipeline_actions {
-  display:     flex;
-  position:    relative;
-  top:         -3px;
+  display: flex;
+  position: relative;
+  top: -3px;
   flex-shrink: 0;
-  right:       0;
+  right: 0;
   align-items: flex-start;
 
   .tooltip {
@@ -318,9 +309,9 @@ body {
 
 .pipeline_history {
   text-decoration: underline;
-  font-size:       13px;
-  float:           right;
-  margin-top:      10px;
+  font-size: 13px;
+  float: right;
+  margin-top: 10px;
 }
 
 .material_info-error {
@@ -330,28 +321,28 @@ body {
 .pipeline_locked {
   @include icon-before($type: lock);
 
-  overflow:   hidden;
-  width:      25px;
-  height:     25px;
-  font-size:  $pipeline_icons_size;
-  color:      $icon-color;
-  cursor:     pointer;
+  overflow: hidden;
+  width: 25px;
+  height: 25px;
+  font-size: $pipeline-icons-size;
+  color: $icon-color;
+  cursor: pointer;
   background: none;
-  margin:     0;
-  padding:    0;
+  margin: 0;
+  padding: 0;
 
   &:focus {
-    color:      $icon-color;
+    color: $icon-color;
     background: none;
   }
 
   &:hover {
-    color:      $icon-hover-color;
+    color: $icon-hover-color;
     background: none;
   }
 
   &.disabled {
-    color:  #999;
+    color: #999;
     cursor: not-allowed;
   }
 }
@@ -359,26 +350,21 @@ body {
 .edit_config {
   @include icon-before($type: gear);
 
-  overflow:  hidden;
-  font-size: $pipeline_icons_size;
-  color:     $icon-color;
+  overflow: hidden;
+  font-size: $pipeline-icons-size;
+  color: $icon-color;
 
   &:hover {
     color: $icon-hover-color;
+    animation-name: rotate;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
   }
 
   &.disabled {
-    color:  #999;
+    color: #999;
     cursor: not-allowed;
-  }
-}
-
-.edit_config {
-  &:hover {
-    animation-name:            rotate;
-    animation-duration:        2s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
   }
 
   @keyframes rotate {
@@ -395,10 +381,10 @@ body {
 .pipeline-analytics {
   @include icon-before($type: bar-chart);
 
-  padding:   0;
-  font-size: $pipeline_icons_size;
-  color:     $icon-color;
-  cursor:    pointer;
+  padding: 0;
+  font-size: $pipeline-icons-size;
+  color: $icon-color;
+  cursor: pointer;
 
   &:hover {
     color: $icon-hover-color;
@@ -407,16 +393,16 @@ body {
 
 .pipeline_pause-message {
   word-break: break-all;
-  font-size:  12px;
-  margin:     5px 0 0 0;
-  float:      left;
-  clear:      both;
+  font-size: 12px;
+  margin: 5px 0 0;
+  float: left;
+  clear: both;
 }
 
 .pipeline_instance {
-  padding:    10px 0 0;
+  padding: 10px 0 0;
   border-top: 1px dotted $border-color;
-  margin:     0 15px;
+  margin: 0 15px;
 
   &:first-child {
     border: 0;
@@ -424,14 +410,14 @@ body {
 }
 
 .no_instance {
-  margin:    25px 15px;
+  margin: 25px 15px;
   font-size: 13px;
 }
 
 .pipeline_instance-label {
   @include ellipsis;
 
-  font-size:   14px;
+  font-size: 14px;
   font-weight: 500;
   line-height: normal;
 }
@@ -440,33 +426,33 @@ body {
   position: relative;
 
   .changes {
-    position:      relative;
+    position: relative;
     padding-right: 20px;
 
-    &:after {
-      content:      "";
-      width:        0;
-      height:       0;
+    &::after {
+      content: "";
+      width: 0;
+      height: 0;
       border-right: 6px solid transparent;
-      border-left:  6px solid transparent;
-      border-top:   6px solid $dark-gray;
-      position:     absolute;
-      top:          8px;
-      left:         auto;
-      right:        0;
-      margin:       0;
-      display:      inline-block;
+      border-left: 6px solid transparent;
+      border-top: 6px solid $dark-gray;
+      position: absolute;
+      top: 8px;
+      left: auto;
+      right: 0;
+      margin: 0;
+      display: inline-block;
     }
   }
 
   .info {
     list-style-type: none;
-    margin:          5px 0;
-    padding:         0;
-    line-height:     normal;
+    margin: 5px 0;
+    padding: 0;
+    line-height: normal;
 
     li {
-      display:     inline-block;
+      display: inline-block;
       border-left: 1px solid $border-color;
 
       &:first-child {
@@ -479,27 +465,27 @@ body {
     }
 
     a {
-      display:         block;
-      padding:         0 7px;
-      font-size:       13px;
-      line-height:     13px;
+      display: block;
+      padding: 0 7px;
+      font-size: 13px;
+      line-height: 13px;
       text-decoration: underline;
     }
   }
 }
 
 .material_changes {
-  position:      absolute;
-  background:    $dark-gray;
-  padding:       15px;
-  color:         #fff;
-  font-size:     12px;
-  width:         800px;
-  z-index:       10;
+  position: absolute;
+  background: $dark-gray;
+  padding: 15px;
+  color: #fff;
+  font-size: 12px;
+  width: 800px;
+  z-index: 10;
   border-radius: 3px;
-  max-height:    310px;
-  min-height:    110px;
-  overflow-y:    auto;
+  max-height: 310px;
+  min-height: 110px;
+  overflow-y: auto;
 
   .revisions {
     &.changed {
@@ -509,23 +495,23 @@ body {
 
   .rev-head {
     border-bottom: 1px solid $border-color;
-    padding:       0 0 5px;
-    word-break:    break-all;
+    padding: 0 0 5px;
+    word-break: break-all;
   }
 
   .modifications {
-    padding:       10px 0;
-    display:       flex;
+    padding: 10px 0;
+    display: flex;
     border-bottom: 1px dotted #5b5b5b;
 
     .item {
-      width:      28%;
+      width: 28%;
       box-sizing: border-box;
 
       &:nth-child(2) {
-        padding-left:  10px;
+        padding-left: 10px;
         padding-right: 10px;
-        flex-grow:     2;
+        flex-grow: 2;
       }
     }
   }
@@ -544,10 +530,10 @@ body {
     display: flex;
 
     .revision_id {
-      display:       inline-block;
+      display: inline-block;
       text-overflow: ellipsis;
-      overflow:      hidden;
-      max-width:     77%;
+      overflow: hidden;
+      max-width: 77%;
     }
   }
 
@@ -557,31 +543,31 @@ body {
 }
 
 .pipeline_instance-details {
-  font-size:   12px;
+  font-size: 12px;
   line-height: 16px;
 }
 
 .pipeline_stages {
-  display:         flex;
-  flex-wrap:       wrap;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
   list-style-type: none;
-  margin:          1px 0 10px -4px;
-  padding:         0;
+  margin: 1px 0 10px -4px;
+  padding: 0;
 
   .manual_gate {
     @include icon-before(step-forward, 14px, 0);
 
     padding: 1px 5px;
-    cursor:  pointer;
+    cursor: pointer;
 
     &.disabled {
-      opacity:    0.5;
-      cursor:     not-allowed;
+      opacity: 0.5;
+      cursor: not-allowed;
 
       &:hover {
-        opacity:    0.5;
-        cursor:     not-allowed;
+        opacity: 0.5;
+        cursor: not-allowed;
       }
     }
   }
@@ -591,29 +577,30 @@ body {
   }
 
   .pipeline_stage_manual_gate_wrapper .pipeline_stage {
-    width:       34px;
-    height:      16px;
+    width: 34px;
+    height: 16px;
     line-height: 13px;
-    margin:      5px;
-    text-align:  center;
+    margin: 5px;
+    text-align: center;
 
     &.passed {
       @include icon-before($passed-icon, 12px, 0);
 
       background: $passed;
-      color:      #fff;
+      color: #fff;
     }
 
     &.failed {
       @include icon-before($failed-icon, 12px, 0);
 
       background: $failed;
-      color:      #fff;
+      color: #fff;
     }
 
     &.failing {
       @extend %building;
-      background: $failed image_url('failing.gif') repeat-x 50% 50%;
+
+      background: $failed image_url("failing.gif") repeat-x 50% 50%;
 
       > span {
         background-color: $failed;
@@ -622,11 +609,12 @@ body {
 
     &.building {
       @extend %building;
+
       background-color: $building;
     }
 
     &.unknown {
-      border:     1px solid $border-color;
+      border: 1px solid $border-color;
       background: #e6e3e3;
     }
 
@@ -634,17 +622,17 @@ body {
       @include icon-before($cancelled-icon, 12px, 0);
 
       background: $building;
-      color:      $dark-gray;
+      color: $dark-gray;
     }
   }
 }
 
 .pipeline_message {
-  border:        1px solid $border-color;
-  background:    #fff;
-  font-size:     12px;
-  padding:       1px 10px;
-  margin-top:    5px;
+  border: 1px solid $border-color;
+  background: #fff;
+  font-size: 12px;
+  padding: 1px 10px;
+  margin-top: 5px;
   border-radius: 3px;
 
   p {
@@ -652,12 +640,12 @@ body {
   }
 
   &.success {
-    border:     1px solid #1fc75954;
+    border: 1px solid #1fc75954;
     background: #1fc75929;
   }
 
   &.error {
-    border:     1px solid #c71f1f52;
+    border: 1px solid #c71f1f52;
     background: #c71f1f54;
   }
 }
@@ -666,12 +654,12 @@ body {
 
 .pipeline_operations {
   list-style-type: none;
-  margin:          5px 0 0 0;
-  padding:         0;
-  float:           left;
+  margin: 5px 0 0;
+  padding: 0;
+  float: left;
 
   li {
-    display:     inline-block;
+    display: inline-block;
     margin-left: 5px;
 
     &:first-child {
@@ -681,12 +669,13 @@ body {
 }
 
 .pipeline_btn {
-  border:     1px solid $border-color;
+  border: 1px solid $border-color;
   background: #fff;
-  width:      36px;
-  height:     22px;
+  width: 36px;
+  height: 22px;
 
-  &:focus, &:active {
+  &:focus,
+  &:active {
     outline: 0;
   }
 
@@ -696,93 +685,93 @@ body {
 }
 
 .pipeline_btn.play {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
+  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px -31px no-repeat #fff;
 
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -1px no-repeat #4d4d4d;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px -1px no-repeat #4d4d4d;
   }
 
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
-    opacity:    0.5;
-    cursor:     not-allowed;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px -31px no-repeat #fff;
+    opacity: 0.5;
+    cursor: not-allowed;
 
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
-      opacity:    0.5;
-      cursor:     not-allowed;
+      background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px -31px no-repeat #fff;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }
 
 .pipeline_btn.play_with_options {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
+  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -77px -31px no-repeat #fff;
 
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -1px no-repeat #4d4d4d;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -77px -1px no-repeat #4d4d4d;
   }
 
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
-    opacity:    0.5;
-    cursor:     not-allowed;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -77px -31px no-repeat #fff;
+    opacity: 0.5;
+    cursor: not-allowed;
 
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
-      opacity:    0.5;
-      cursor:     not-allowed;
+      background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -77px -31px no-repeat #fff;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }
 
 .pipeline_btn.pause {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
+  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -31px no-repeat #fff;
 
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -1px no-repeat #4d4d4d;
   }
 
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
-    opacity:    0.5;
-    cursor:     not-allowed;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -31px no-repeat #fff;
+    opacity: 0.5;
+    cursor: not-allowed;
 
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
-      opacity:    0.5;
-      cursor:     not-allowed;
+      background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -31px no-repeat #fff;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }
 
 .pipeline_btn.unpause {
-  background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
+  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -1px no-repeat #4d4d4d;
 
   &:hover {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -31px no-repeat #fff;
   }
 
   &.disabled {
-    background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
-    opacity:    0.5;
-    cursor:     not-allowed;
+    background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -1px no-repeat #4d4d4d;
+    opacity: 0.5;
+    cursor: not-allowed;
 
     &:hover {
-      background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
-      opacity:    0.5;
-      cursor:     not-allowed;
+      background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -2px -1px no-repeat #4d4d4d;
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }
 
 .pipeline_stage_manual_gate_wrapper {
   .tooltip {
-    left:       -60px;
+    left: -60px;
     margin-top: 7px;
-    width:      150px;
+    width: 150px;
   }
 
-  .tooltip:before {
+  .tooltip::before {
     left: 68px;
   }
 }
@@ -798,16 +787,17 @@ body {
 // trigger with options
 
 .pipeline-trigger-with-options {
-  margin:     5px 0 5px 10px;
+  margin: 5px 0 5px 10px;
   min-height: 200px;
 
   .last-run-revision .value {
-    @include ellipsis();
+    @include ellipsis;
 
     display: block;
   }
 
-  .material-name, .latest-revision {
+  .material-name,
+  .latest-revision {
     @include ellipsis($width: 100%);
 
     width: 46%;
@@ -821,8 +811,8 @@ body {
     @include icon-before($failed-icon, $margin: 0, $color: #bd0404);
 
     position: relative;
-    top:      -6px;
-    right:    -6px;
+    top: -6px;
+    right: -6px;
   }
 }
 
@@ -832,7 +822,7 @@ body {
 
   .name-value {
     list-style-type: none;
-    width:           790px;
+    width: 790px;
   }
 
   .value {
@@ -850,52 +840,53 @@ body {
   padding: 0 20px;
 
   .environment-variables {
-    margin: 30px 0 0 0;
+    margin: 30px 0 0;
 
     dt {
-      width:         200px;
-      word-break:    break-all;
+      width: 200px;
+      word-break: break-all;
       padding-right: 10px;
     }
 
     input {
-      display:       inline-block;
-      width:         300px;
+      display: inline-block;
+      width: 300px;
       margin-bottom: 5px;
     }
 
-    .override, .reset {
+    .override,
+    .reset {
       padding-left: 10px;
-      padding-top:  5px;
+      padding-top: 5px;
     }
 
     .overridden-message {
-      padding:       5px 10px;
+      padding: 5px 10px;
       margin-bottom: 10px;
-      max-width:     800px;
-      background:    #f5f5f5;
+      max-width: 800px;
+      background: #f5f5f5;
 
       label {
         font-size: 12px;
-        display:   inline-block;
+        display: inline-block;
       }
 
       p {
-        font-size:     12px;
-        font-weight:   600;
+        font-size: 12px;
+        font-weight: 600;
         margin-bottom: 0;
-        display:       inline-block;
+        display: inline-block;
       }
     }
   }
 }
 
 .helper {
-  font-size:  13px;
-  padding:    5px 10px;
+  font-size: 13px;
+  padding: 5px 10px;
   background: #555;
-  color:      #fff;
-  display:    block;
+  color: #fff;
+  display: block;
 }
 
 .commit_search {
@@ -905,25 +896,25 @@ body {
 $commits-width: 635px;
 
 .commits {
-  position:   fixed;
-  width:      $commits-width;
-  right:      10px;
-  z-index:    100;
+  position: fixed;
+  width: $commits-width;
+  right: 10px;
+  z-index: 100;
   background: #fff;
   overflow-y: scroll;
 }
 
 .commit_info {
   list-style-type: none;
-  margin:          0;
-  padding:         0;
-  width:           $commits-width;
-  border:          1px solid $border-color;
+  margin: 0;
+  padding: 0;
+  width: $commits-width;
+  border: 1px solid $border-color;
 
   li {
     border-bottom: 1px solid $border-color;
-    display:       block;
-    cursor:        pointer;
+    display: block;
+    cursor: pointer;
 
     &:hover {
       background: #e8fafa;
@@ -935,25 +926,25 @@ $commits-width: 635px;
   }
 
   .info {
-    display:    flex;
-    padding:    5px 10px;
-    font-size:  12px;
+    display: flex;
+    padding: 5px 10px;
+    font-size: 12px;
     background: #f5f5f5;
 
     span {
-      padding:     0 3px;
+      padding: 0 3px;
       white-space: nowrap;
 
-      &:before {
-        content:      "";
-        border-left:  1px dotted $dark-gray;
+      &::before {
+        content: "";
+        border-left: 1px dotted $dark-gray;
         margin-right: 10px;
       }
 
       &:first-child {
         padding-left: 0;
 
-        &:before {
+        &::before {
           border: 0;
           margin: 0;
         }
@@ -987,26 +978,26 @@ $commits-width: 635px;
 .search-icon {
   @include icon-before($type: search);
 
-  position:   relative;
+  position: relative;
   margin-top: 3px;
 
-  &:before {
-    position:  absolute;
-    left:      6px;
-    top:       -2px;
-    color:     $border-color;
+  &::before {
+    position: absolute;
+    left: 6px;
+    top: -2px;
+    color: $border-color;
     font-size: 14px;
   }
 }
 
 .material-revision-search {
-  display:       inline-block;
+  display: inline-block;
   margin-bottom: 0;
-  width:         418px;
-  height:        35px;
-  border:        1px solid $border-color;
+  width: 418px;
+  height: 35px;
+  border: 1px solid $border-color;
   border-radius: 3px;
-  padding:       3px 10px 3px 30px;
+  padding: 3px 10px 3px 30px;
 
   &::placeholder {
     font-size: 12px;
@@ -1018,10 +1009,10 @@ $commits-width: 635px;
   @include animation(spin 1s linear infinite);
 
   position: absolute;
-  right:    -16px;
-  top:      10px;
+  right: -16px;
+  top: 10px;
 
-  &:before {
+  &::before {
     @include animation(spin 1s linear infinite);
 
     font-size: rem-calc(15px);

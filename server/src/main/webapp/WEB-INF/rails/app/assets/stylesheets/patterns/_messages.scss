@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Messages.css
  */
-
 
 /**
  * TABLE OF CONTENTS
@@ -26,7 +26,6 @@
  * =MISC
  */
 
-
 /**
  * =NOTIFICATION
  */
@@ -34,77 +33,80 @@
   background-position: 10px center;
   background-repeat: no-repeat;
   border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
   margin: 0 0 10px 0;
   padding: 15px 15px 15px 45px;
 }
+
 .notification .warning {
-  background-color: #EEE;
-  background-image: image_url('g9/icons/icon_warning_24.png');
+  background-color: #eee;
+  background-image: image_url("g9/icons/icon_warning_24.png");
   background-repeat: no-repeat;
-  color:#000;
-}
-.notification .error {
-  background-color:#EEE;
-  background-image: image_url('g9/icons/icon_error_24.png');
-  color:#000;
-}
-.notification .info {
-  background-color:#EEE;
-  background-image: image_url('g9/icons/icon_info_24.png');
   color: #000;
 }
 
+.notification .error {
+  background-color: #eee;
+  background-image: image_url("g9/icons/icon_error_24.png");
+  color: #000;
+}
+
+.notification .info {
+  background-color: #eee;
+  background-image: image_url("g9/icons/icon_info_24.png");
+  color: #000;
+}
 
 /**
  * =MISC
  */
 
 .error_message {
-  background: image_url('g9/icons/icon_error_16.png') no-repeat;
-  display:inline-block;
+  background: image_url("g9/icons/icon_error_16.png") no-repeat;
+  display: inline-block;
   padding: 2px 2px 2px 20px;
   margin-left: 8px;
 }
 
 .inline-message {
-    background-color: transparent;
-    background-position: 11px 4px !important;
-    border: 0 none;
-    display: inline-block;
-    margin: 0 !important;
-    padding: 5px 5px 5px 30px !important;
-    vertical-align: top;
+  background-color: transparent;
+  background-position: 11px 4px !important;
+  border: 0 none;
+  display: inline-block;
+  margin: 0 !important;
+  padding: 5px 5px 5px 30px !important;
+  vertical-align: top;
 }
 
 .information strong {
-    font-weight: bold;
+  font-weight: bold;
 }
 
-.alert{
-  background-color: #FFF1A8;
+.alert {
+  background-color: #fff1a8;
 }
+
 .ok_message {
-  background: image_url('g9/icons/icon_pass_16.png') no-repeat;
-  display:inline-block;
+  background: image_url("g9/icons/icon_pass_16.png") no-repeat;
+  display: inline-block;
   padding: 2px 2px 2px 20px;
   margin-left: 8px;
 }
 
-/*404 error html*/
-.pagenotfound{
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    text-align: center;
-    height: 150px;
-    right: 0;
-    left: 0;
-}
-.biggest{
-    font-size: 80px;
-    margin-bottom: 30px;
+/* 404 error html */
+.pagenotfound {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  text-align: center;
+  height: 150px;
+  right: 0;
+  left: 0;
 }
 
+.biggest {
+  font-size: 80px;
+  margin-bottom: 30px;
+}

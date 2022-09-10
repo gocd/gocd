@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../../global/common';
+@import "../../global/common";
 
 $notification-bg: #fff;
 $icon-background: #e0dede;
 
 .notifications {
-  @include clearfix();
-  @media(max-width: $screen-md-min) {
+  @include clearfix;
+
+  @media (max-width: $screen-md-min) {
     margin-bottom: 20px;
   }
-  @media(min-width: $screen-md) {
+
+  @media (min-width: $screen-md) {
     position: relative;
-    margin:   4px 15px 0;
-    float:    right;
+    margin: 4px 15px 0;
+    float: right;
   }
 
   &:hover {
@@ -38,98 +40,105 @@ $icon-background: #e0dede;
 
 .bell {
   @include icon-before($fa-var-bell-o, $color: $header-text-color);
+
   font-size: 18px;
-  @media(max-width: $screen-md-min) {
+
+  @media (max-width: $screen-md-min) {
     float: left;
   }
 }
 
 .notification-hover {
-  position:      relative;
-  background:    $notification-bg;
-  color:         $text-color;
-  padding:       5px 20px 10px;
+  position: relative;
+  background: $notification-bg;
+  color: $text-color;
+  padding: 5px 20px 10px;
   border-radius: 5px;
-  box-sizing:    border-box;
-  font-size:     13px;
-  box-shadow:    3px 3px 5px 0 $box-shadow-color;
-  z-index:       map_get($zindex, 'menu');
-  @media(max-width: $screen-md-min) {
+  box-sizing: border-box;
+  font-size: 13px;
+  box-shadow: 3px 3px 5px 0 $box-shadow-color;
+  z-index: map_get($zindex, "menu");
+
+  @media (max-width: $screen-md-min) {
     width: 100%;
   }
-  @media(min-width: $screen-md) {
+
+  @media (min-width: $screen-md) {
     width: 300px;
   }
-  &:after {
-    @media(min-width: $screen-md) {
-      bottom:              100%;
-      right:               14px;
-      content:             " ";
-      height:              0;
-      width:               0;
-      position:            absolute;
-      pointer-events:      none;
-      border:              6px $white-transparent;
+
+  &::after {
+    @media (min-width: $screen-md) {
+      bottom: 100%;
+      right: 14px;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border: 6px $white-transparent;
       border-bottom-color: $line-color;
     }
   }
-  a, a:hover {
-    color:     $link-color;
+
+  a,
+  a:hover {
+    color: $link-color;
     font-size: 13px;
   }
-
 }
 
 .notification_item {
-  border-top:    1px dotted $global-border-color;
-  padding:       5px 25px 5px 0;
+  border-top: 1px dotted $global-border-color;
+  padding: 5px 25px 5px 0;
   margin-bottom: 0;
-  position:      relative;
-  line-height:   20.8px;
+  position: relative;
+  line-height: 20.8px;
+
   &:first-child {
     border: none;
   }
 }
 
 .notification_close {
-  width:         17px;
-  height:        17px;
-  line-height:   17px;
+  width: 17px;
+  height: 17px;
+  line-height: 17px;
   border-radius: 50%;
-  background:    $icon-background;
-  display:       inline-block;
-  text-align:    center;
-  font-weight:   700;
-  font-size:     10px;
-  position:      absolute;
-  right:         0;
-  top:           50%;
-  transform:     translateY(-50%);
-  cursor:        pointer;
+  background: $icon-background;
+  display: inline-block;
+  text-align: center;
+  font-weight: 700;
+  font-size: 10px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .hover-container {
-  @media(max-width: $screen-md-min) {
-    float:   left;
+  @media (max-width: $screen-md-min) {
+    float: left;
     display: block;
   }
-  @media(min-width: $screen-md) {
-    display:     none;
-    position:    absolute;
-    right:       -7px;
-    top:         99%;
+
+  @media (min-width: $screen-md) {
+    display: none;
+    position: absolute;
+    right: -7px;
+    top: 99%;
     padding-top: 5px;
   }
-
 }
 
 .system-notifications {
   position: relative;
-  @media(min-width: $screen-md) {
-    height: 40px;
-    width:  100px;
-    float:  right;
 
+  @media (min-width: $screen-md) {
+    height: 40px;
+    width: 100px;
+    float: right;
   }
 }
 

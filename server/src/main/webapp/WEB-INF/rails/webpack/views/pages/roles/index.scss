@@ -26,37 +26,37 @@ $warning-wrapper-width: 170px;
 }
 
 .tag {
-  margin-right:    5px;
-  padding:         2px 10px;
-  display:         inline-flex;
-  font-size:       13px;
-  color:           $text-color;
-  font-weight:     600;
-  border-radius:   2px;
-  border:          1px solid $border-color;
-  margin-bottom:   10px;
+  margin-right: 5px;
+  padding: 2px 10px;
+  display: inline-flex;
+  font-size: 13px;
+  color: $text-color;
+  font-weight: 600;
+  border-radius: 2px;
+  border: 1px solid $border-color;
+  margin-bottom: 10px;
   justify-content: space-between;
 
   span {
-    max-width:     $max-user-tag-width;
-    overflow:      hidden;
+    max-width: $max-user-tag-width;
+    overflow: hidden;
     text-overflow: ellipsis;
-    white-space:   nowrap;
+    white-space: nowrap;
   }
 }
 
 .current-user-tag {
-  animation-name:     color-effect;
+  animation-name: color-effect;
   animation-duration: 4s;
-  background-color:   $current-user-tag-bg-color;
-  color:              $text-color;
+  background-color: $current-user-tag-bg-color;
+  color: $text-color;
 }
 
 .role-user-delete-icon {
-  float:       right;
+  float: right;
   margin-left: 10px;
-  cursor:      pointer;
-  font-size:   20px;
+  cursor: pointer;
+  font-size: 20px;
   line-height: 1;
 }
 
@@ -64,35 +64,36 @@ $warning-wrapper-width: 170px;
   color: $link-hover-color;
 }
 
-
-label.disabled, input[type='radio'][disabled] + label[for] { // sass-lint:disable-line no-qualifying-elements
-  color:  $disabled-text-color;
+label.disabled,
+input[type="radio"][disabled] + label[for] {
+  color: $disabled-text-color;
   cursor: not-allowed;
 
-  i, p {
+  i,
+  p {
     color: $black;
   }
 }
 
 .add-user-to-role {
-  display:    flex;
+  display: flex;
   align-self: center;
 
   button {
     display: inline;
-    margin:  0 0 0.8rem;
+    margin: 0 0 0.8rem;
   }
 }
 
 .users-in-role {
   display: block;
-  width:   100%;
+  width: 100%;
   padding: 0 15px;
 }
 
 .no-users-message {
   font-size: 13px;
-  color:     $disabled-text-color;
+  color: $disabled-text-color;
 }
 
 .warning-wrapper {
@@ -104,56 +105,57 @@ label.disabled, input[type='radio'][disabled] + label[for] { // sass-lint:disabl
 }
 
 .warning-content {
-  display:        none;
-  background:     $white;
-  line-height:    18px;
-  font-size:      12px;
-  position:       absolute;
-  margin-left:    72px;
-  font-weight:    400;
-  border-radius:  $global-border-radius;
-  padding:        10px;
-  box-shadow:     0 2px 4px $box-shadow-color;
+  display: none;
+  background: $white;
+  line-height: 18px;
+  font-size: 12px;
+  position: absolute;
+  margin-left: 72px;
+  font-weight: 400;
+  border-radius: $global-border-radius;
+  padding: 10px;
+  box-shadow: 0 2px 4px $box-shadow-color;
   text-transform: none;
-  z-index:        map_get($zindex, tooltip);
-  width:          $warning-wrapper-width;
+  z-index: map_get($zindex, tooltip);
+  width: $warning-wrapper-width;
 
-  &:before {
-    content:          "";
-    position:         absolute;
-    width:            0;
-    height:           0;
-    margin-left:      -0.5em;
-    top:              0;
-    left:             17px;
-    box-sizing:       border-box;
-    border:           6px solid $black;
-    border-color:     $white $white transparent transparent;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin-left: -0.5em;
+    top: 0;
+    left: 17px;
+    box-sizing: border-box;
+    border: 6px solid $black;
+    border-color: $white $white transparent transparent;
     transform-origin: 0 0;
-    transform:        rotate(-45deg);
-    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+    transform: rotate(-45deg);
+    box-shadow: 1px -1px 1px 0 $box-shadow-color;
   }
 }
 
 .info-icon {
   @include icon-before($type: $fa-var-info-circle, $color: $black);
 
-  &:before {
+  &::before {
     font-size: 15px;
-    padding:   2px;
+    padding: 2px;
   }
 }
 
 .icon-delete {
   @include icon-before($type: $fa-var-times);
-  border:  none;
+
+  border: none;
   display: inline;
-  cursor:  pointer;
-  width:   22px;
-  height:  22px;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
   padding: 0;
 
-  &:before {
+  &::before {
     margin: 0;
   }
 
@@ -167,8 +169,9 @@ label.disabled, input[type='radio'][disabled] + label[for] { // sass-lint:disabl
 }
 
 .select-permission {
-  input, select {
-    width:  200px;
+  input,
+  select {
+    width: 200px;
     margin: 0 0;
   }
 
@@ -187,5 +190,5 @@ label.disabled, input[type='radio'][disabled] + label[for] { // sass-lint:disabl
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }

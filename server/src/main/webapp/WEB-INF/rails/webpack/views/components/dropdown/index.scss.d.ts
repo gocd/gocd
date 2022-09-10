@@ -6,7 +6,6 @@ export const cDropdownHead: string;
 export const cDropdownItem: string;
 export const groupby: string;
 export const groupingLabel: string;
-export const grouping_label: string;
 export const mappings: string;
 export const names: string;
 export const open: string;

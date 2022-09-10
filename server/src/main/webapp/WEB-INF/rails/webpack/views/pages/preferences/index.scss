@@ -19,15 +19,15 @@
   padding: 10px 20px;
 
   table {
-    width:      85%;
+    width: 85%;
     margin-top: 10px;
   }
 }
 
 .form-header {
-  border-bottom:   1px solid $border-color;
-  display:         flex;
-  flex-direction:  row;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
 }
 
@@ -37,5 +37,5 @@
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }

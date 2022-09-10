@@ -18,7 +18,7 @@
 @import "../../global/hack-font";
 
 $attention: #e6e699;
-$info:      #9999e6;
+$info: #9999e6;
 
 .exec-editor {
   display: block;
@@ -29,7 +29,8 @@ $info:      #9999e6;
   font-family: Hack, monospace;
   font-size: 14px;
 
-  pre, code {
+  pre,
+  code {
     font-family: inherit;
   }
 
@@ -54,7 +55,7 @@ $info:      #9999e6;
       cursor: pointer;
       color: $info;
 
-      &:before {
+      &::before {
         content: "+ ";
       }
     }
@@ -70,9 +71,9 @@ $info:      #9999e6;
       padding: 0;
     }
 
-    &.open{
+    &.open {
       .help-header {
-        &:before {
+        &::before {
           content: "- ";
         }
       }
@@ -100,7 +101,6 @@ $info:      #9999e6;
     content: "$";
     margin-left: calc(-2ex + 2px);
     margin-right: 4px;
-
     color: $task-prompt;
   }
 
@@ -125,8 +125,7 @@ $info:      #9999e6;
     cursor: pointer;
     padding: 3px 2px;
     padding-left: calc(2ex + 2px);
-
-    margin: 0; // don't add ANY margin or else user can click between the gaps and trigger parent handler => bad user experience, feels buggy
+    margin: 0; // don't add ANY margin or else user can click between the gaps and trigger parent handler
 
     .mod,
     .cmd,
@@ -142,7 +141,7 @@ $info:      #9999e6;
       padding: 0 5px;
       background-color: $task-mod-bg;
 
-      &:before {
+      &::before {
         float: left;
       }
     }
@@ -172,7 +171,7 @@ $info:      #9999e6;
           padding: 0;
           margin: 0;
 
-          &:before {
+          &::before {
             content: "» ";
           }
         }
@@ -182,12 +181,14 @@ $info:      #9999e6;
     &.has-errors {
       background-color: $task-err-bg;
 
-      .cmd, .args, .mod {
+      .cmd,
+      .args,
+      .mod {
         color: $white;
         background-color: transparent;
         padding: 0;
 
-        &:before { color: $white; }
+        &::before { color: $white; }
       }
     }
   }

@@ -1,3 +1,5 @@
+// noinspection ES6UnusedImports
+
 /*
  * Copyright 2022 Thoughtworks, Inc.
  *
@@ -63,7 +65,7 @@ export class Dropdown {
     const attrName = vnode.attrs.attrName;
 
     const dropdownHtml = _.map(options, (option) => {
-      return <a tabindex="0" class="c-dropdown_item" onclick={selectionChange.bind(this, model, attrName, vnode.state)}
+      return <a tabindex="0" class="c-dropdown-item" onclick={selectionChange.bind(this, model, attrName, vnode.state)}
                 aria-label={`Group by ${option.text}`} data-id={option.id}>{option.text}</a>;
 
     });
@@ -71,12 +73,12 @@ export class Dropdown {
     const selectedText = getSelectedText(options, model, attrName);
 
     return <div class="groupby">
-      <label class="grouping_label">{label}</label>
+      <label class="grouping-label">{label}</label>
       <div class={`c-dropdown ${isOpen(vnode.state)}`}>
-        <a aria-label={`Group by ${selectedText}`} tabindex="0" class="c-dropdown_head"
+        <a aria-label={`Group by ${selectedText}`} tabindex="0" class="c-dropdown-head"
            onclick={toggleDropdown.bind(this, vnode.state)}>{selectedText}</a>
         <i role="presentation" class="c-down-arrow" onclick={toggleDropdown.bind(this, vnode.state)}/>
-        <div class="c-dropdown_body">
+        <div class="c-dropdown-body">
           {dropdownHtml}
         </div>
       </div>

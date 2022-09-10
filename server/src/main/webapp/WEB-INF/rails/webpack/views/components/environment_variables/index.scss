@@ -21,10 +21,10 @@
   .name {
     display: flex;
 
-    &:after {
-      content:      "=";
+    &::after {
+      content: "=";
       margin-right: 5px;
-      line-height:  35px;
+      line-height: 35px;
     }
   }
 
@@ -35,7 +35,7 @@
 
 .info-tooltip-wrapper {
   position: static;
-  display:  inline-block;
+  display: inline-block;
 
   &:hover {
     .info-tooltip-content {
@@ -47,39 +47,39 @@
 .info-icon {
   @include icon-before($type: $fa-var-info-circle, $color: $icon-color);
 
-  &:before {
+  &::before {
     font-size: 16px;
-    padding:   2px 12px 2px 0;
+    padding: 2px 12px 2px 0;
   }
 }
 
 .info-tooltip-content {
-  display:       none;
-  background:    $white;
-  line-height:   18px;
-  font-size:     12px;
-  position:      absolute;
-  margin:        3px 10px 0 -8px;
-  font-weight:   400;
+  display: none;
+  background: $white;
+  line-height: 18px;
+  font-size: 12px;
+  position: absolute;
+  margin: 3px 10px 0 -8px;
+  font-weight: 400;
   border-radius: $global-border-radius;
-  padding:       10px;
-  box-shadow:    0 2px 4px $box-shadow-color;
-  z-index:       map_get($zindex, submenu);
+  padding: 10px;
+  box-shadow: 0 2px 4px $box-shadow-color;
+  z-index: map_get($zindex, submenu);
 
-  &:before {
-    content:          "";
-    position:         absolute;
-    width:            0;
-    height:           0;
-    margin-left:      -0.5em;
-    top:              0;
-    left:             17px;
-    box-sizing:       border-box;
-    border:           6px solid $black;
-    border-color:     $white $white transparent transparent;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin-left: -0.5em;
+    top: 0;
+    left: 17px;
+    box-sizing: border-box;
+    border: 6px solid $black;
+    border-color: $white $white transparent transparent;
     transform-origin: 0 0;
-    transform:        rotate(-45deg);
-    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+    transform: rotate(-45deg);
+    box-shadow: 1px -1px 1px 0 $box-shadow-color;
   }
 }
 

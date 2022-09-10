@@ -23,9 +23,9 @@ $dropdown-button-content-z-index: 5;
   display: flex;
 
   .pipeline-info {
-    display:        flex;
+    display: flex;
     flex-direction: column;
-    height:         100%;
+    height: 100%;
 
     .value {
       font-size: 15px;
@@ -38,17 +38,17 @@ $dropdown-button-content-z-index: 5;
 }
 
 .pipeline-instance-selection {
-  width:          $width-for-instance-selection;
+  width: $width-for-instance-selection;
   vertical-align: baseline;
 
-  input[type="search"] { // sass-lint:disable-line no-qualifying-elements
+  input[type="search"] {
     width: $width-for-instance-selection;
   }
 }
 
 .pipeline-comparison-text {
-  width:          $width-for-msg;
-  font-style:     italic;
+  width: $width-for-msg;
+  font-style: italic;
   vertical-align: middle;
 }
 
@@ -60,7 +60,7 @@ $dropdown-button-content-z-index: 5;
 
 .warning {
   font-size: 0.725rem;
-  color:     $failed;
+  color: $failed;
 
   i {
     color: $building;
@@ -68,11 +68,11 @@ $dropdown-button-content-z-index: 5;
 }
 
 .info-msg {
-  font-size:     0.825rem;
-  padding:       5px 10px;
-  border:        1px solid $go-secondary;
+  font-size: 0.825rem;
+  padding: 5px 10px;
+  border: 1px solid $go-secondary;
   border-radius: $global-border-radius;
-  background:    $info;
+  background: $info;
   margin-bottom: 10px;
 
   i {
@@ -82,43 +82,43 @@ $dropdown-button-content-z-index: 5;
 
 .dropdown-content-wrapper {
   position: relative;
-  top:      -5px;
-  left:     0;
-  z-index:  $dropdown-button-content-z-index;
+  top: -5px;
+  left: 0;
+  z-index: $dropdown-button-content-z-index;
 
   .spinner-wrapper {
-    display:         flex;
+    display: flex;
     justify-content: center;
-    flex-direction:  column;
+    flex-direction: column;
   }
 
   .dropdown-content {
-    position:      absolute;
-    top:           0;
-    left:          0;
-    background:    $white;
-    width:         400px;
-    max-height:    500px;
-    overflow-y:    auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: $white;
+    width: 400px;
+    max-height: 500px;
+    overflow-y: auto;
     border-radius: $global-border-radius;
-    box-shadow:    0 2px 4px $box-shadow-color;
+    box-shadow: 0 2px 4px $box-shadow-color;
   }
 
   .info {
-    padding:    10px;
+    padding: 10px;
     font-style: italic;
   }
 
   .instances-list {
     list-style-type: none;
-    margin:          0;
-    padding:         0;
+    margin: 0;
+    padding: 0;
   }
 
   .list-item {
-    padding:       8px 16px;
+    padding: 8px 16px;
     border-bottom: 1px solid $border-color;
-    cursor:        pointer;
+    cursor: pointer;
 
     h5 {
       margin: 0;
@@ -138,28 +138,28 @@ $dropdown-button-content-z-index: 5;
 
     span {
       display: block;
-      width:   100%;
+      width: 100%;
     }
   }
 }
 
 .modification {
-  width:      100%;
-  font-size:  0.625rem;
+  width: 100%;
+  font-size: 0.625rem;
   border-top: 1px solid $border-color;
-  margin:     5px 0;
+  margin: 5px 0;
   word-break: break-all;
 
   th {
-    width:          80px;
+    width: 80px;
     vertical-align: top;
   }
 
-  td:before {
-    content:  ":";
-    display:  inline-block;
+  td::before {
+    content: ":";
+    display: inline-block;
     position: relative;
-    left:     -10px;
+    left: -10px;
   }
 }
 
@@ -174,7 +174,7 @@ $dropdown-button-content-z-index: 5;
     }
 
     &:nth-child(2) {
-      width:      20%;
+      width: 20%;
       word-break: break-word;
     }
 
@@ -194,10 +194,10 @@ $dropdown-button-content-z-index: 5;
   position: relative;
 
   span {
-    position:      absolute;
-    max-width:     100%;
-    overflow:      hidden;
+    position: absolute;
+    max-width: 100%;
+    overflow: hidden;
     text-overflow: ellipsis;
-    white-space:   pre;
+    white-space: pre;
   }
 }

@@ -18,15 +18,15 @@
 
 .server-health-statuses {
   list-style-type: none;
-  margin:          0;
-  padding:         0;
+  margin: 0;
+  padding: 0;
 }
 
 .server-health-status {
-  margin:         10px;
+  margin: 10px;
   padding-bottom: 10px;
-  border-bottom:  1px dotted $border-color;
-  font-size:      14px;
+  border-bottom: 1px dotted $border-color;
+  font-size: 14px;
 
   &.warning .detail {
     border-left: $building 3px solid;
@@ -37,51 +37,56 @@
   }
 
   .message {
-    display:     inline-block;
+    display: inline-block;
     font-weight: 600;
     white-space: pre-line;
   }
 
   .timestamp {
-    display:      inline-block;
-    font-size:    13px;
-    font-weight:  600;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
     padding-left: 5px;
   }
 
   .detail {
-    margin-top:    5px;
-    padding-left:  10px;
+    margin-top: 5px;
+    padding-left: 10px;
     margin-bottom: 0;
-    white-space:   pre-wrap;
+    white-space: pre-wrap;
   }
 
-  .timestamp:before {
-    content: '[';
+  .timestamp::before {
+    content: "[";
   }
-  .timestamp:after {
-    content: ']';
+
+  .timestamp::after {
+    content: "]";
   }
 }
 
 .server-health-messages-container {
   @include hover-effect-for-top-menu;
   @include icon-before($fa-var-exclamation-circle, $margin: 0);
+
   background-color: darken($failed, 20%);
-  display:          flex;
-  padding:          5px 10px;
-  border-radius:    $global-border-radius;
-  margin:           0 0 20px 0;
-  align-items:      center;
-  color:            $white;
-  cursor:           pointer;
-  &:before {
+  display: flex;
+  padding: 5px 10px;
+  border-radius: $global-border-radius;
+  margin: 0 0 20px 0;
+  align-items: center;
+  color: $white;
+  cursor: pointer;
+
+  &::before {
     margin: 1px 10px 0 0;
   }
-  @media(min-width: $screen-md) {
+
+  @media (min-width: $screen-md) {
     margin: 0 17px 0 0;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     margin: 0 20px 0 0;
   }
 }

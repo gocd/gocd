@@ -18,65 +18,57 @@
 $border-color: #ccc;
 $header-background: #e7eef0;
 $body-background: #f4f8f9;
-
 $table-header-background: #efefef;
-
 $btn-group-border-color: #ccc;
 $btn-color: #647984;
 $btn-hover-color: #1c435c;
-
 $progress-bar-waiting: #c1c1c1;
 $progress-bar-preparing: #85c9d1;
 $progress-bar-building: #2cb1c1;
 $progress-bar-uploading-artifacts: #217a85;
 $progress-bar-unknown: #fff;
-
 $tooltip-background: #f3f3f3;
 $tooltip-border-color: #ccc;
-
 $tooltip-message-background: #333;
-
 $black: #0a0a0a;
 $white: #fff;
 $gray: #808080;
 $dark-gray: #2f4f4f;
 
 .stage-overview-container {
-  position:      absolute;
-  z-index:       map_get($zindex, stage-overview);
-  border:        1px solid $border-color;
+  position: absolute;
+  z-index: map_get($zindex, stage-overview);
+  border: 1px solid $border-color;
   border-radius: 3px;
-  font-size:     12px;
-  width:         813px;
-  min-height:    200px;
-  margin:        29px 0 0 5px;
-  background:    $body-background;
-  box-shadow:    3px 3px $header-background;
+  font-size: 12px;
+  width: 813px;
+  min-height: 200px;
+  margin: 29px 0 0 5px;
+  background: $body-background;
+  box-shadow: 3px 3px $header-background;
 
-  &:before {
-    content:       '';
-    display:       block;
-    width:         0;
-    height:        0;
-    position:      absolute;
-
-    border-top:    10px solid transparent;
+  &::before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
-
-    left:          12px;
-    top:           -13px;
-    transform:     rotate(90deg);
+    left: 12px;
+    top: -13px;
+    transform: rotate(90deg);
   }
 }
 
 .pipeline-activity-align-left {
-  &:before {
+  &::before {
     left: 685px;
   }
 }
 
 .pipeline-activity-align-right {
-  &:before {
+  &::before {
     left: 34.5px;
   }
 }
@@ -88,7 +80,8 @@ $dark-gray: #2f4f4f;
     margin-top: 8px;
   }
 
-  .cancel-or-rerun-stage-icon, .job-rerun-container {
+  .cancel-or-rerun-stage-icon,
+  .job-rerun-container {
     display: none;
   }
 
@@ -102,7 +95,7 @@ $dark-gray: #2f4f4f;
 
   .table-header {
     .name-cell {
-      padding-left: 15px
+      padding-left: 15px;
     }
   }
 
@@ -122,11 +115,11 @@ $dark-gray: #2f4f4f;
 
   .stage-name-container {
     i {
-      font-size:   17px;
-      margin:      17px 10px 0 10px;
+      font-size: 17px;
+      margin: 17px 10px 0 10px;
       font-weight: 400;
 
-      &:before {
+      &::before {
         margin: 0;
       }
     }
@@ -139,7 +132,7 @@ $dark-gray: #2f4f4f;
       display: block;
     }
 
-    &:before {
+    &::before {
       margin: 0;
     }
   }
@@ -149,7 +142,7 @@ $dark-gray: #2f4f4f;
   }
 
   .triggered-by-and-on {
-    width:  auto;
+    width: auto;
     margin: 0 5px 0 5px;
   }
 
@@ -166,7 +159,7 @@ $dark-gray: #2f4f4f;
   }
 
   .tooltip-message {
-    margin-top:  12px;
+    margin-top: 12px;
     margin-left: -78px;
   }
 
@@ -185,41 +178,43 @@ $dark-gray: #2f4f4f;
   }
 }
 
-.stage-overview-container.building-stage, .stage-overview-container.cancelled-stage {
-  &:before {
+.stage-overview-container.building-stage,
+.stage-overview-container.cancelled-stage {
+  &::before {
     border-right: 10px solid $building;
   }
 }
 
 .stage-overview-container.passed-stage {
-  &:before {
+  &::before {
     border-right: 10px solid $passed;
   }
 }
 
-.stage-overview-container.failed-stage, .stage-overview-container.failing-stage {
-  &:before {
+.stage-overview-container.failed-stage,
+.stage-overview-container.failing-stage {
+  &::before {
     border-right: 10px solid $failed;
   }
 }
 
 .stage-overview-status {
-  width:  100%;
+  width: 100%;
   height: 4px;
 }
 
 .stage-overview-status.building-stage {
-  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+  background: transparent url("../../../../app/assets/images/building.gif") repeat-x;
 }
 
 .stage-overview-status.failing-stage {
-  background: transparent url('../../../../app/assets/images/failing.gif') repeat-x;
+  background: transparent url("../../../../app/assets/images/failing.gif") repeat-x;
 }
 
 .stage-overview-status.passed-stage {
   background: $passed;
 
-  &:before {
+  &::before {
     display: none;
   }
 }
@@ -227,7 +222,7 @@ $dark-gray: #2f4f4f;
 .stage-overview-status.failed-stage {
   background: $failed;
 
-  &:before {
+  &::before {
     display: none;
   }
 }
@@ -235,30 +230,30 @@ $dark-gray: #2f4f4f;
 .stage-overview-status.cancelled-stage {
   background: $building;
 
-  &:before {
+  &::before {
     display: none;
   }
 }
 
 .stage-overview-container.align-left {
-  &:before {
+  &::before {
     left: 575px;
   }
 }
 
 .stage-header-container {
-  padding:       16px;
+  padding: 16px;
   border-bottom: 1px solid $border-color;
-  background:    $header-background;
+  background: $header-background;
 }
 
 .stage-operation-button-group {
-  display:       flex;
-  font-size:     15px;
-  border:        1px solid $btn-group-border-color;
+  display: flex;
+  font-size: 15px;
+  border: 1px solid $btn-group-border-color;
   border-radius: 5px;
-  height:        29px;
-  margin-top:    4px;
+  height: 29px;
+  margin-top: 4px;
 
   i:hover {
     background: transparent;
@@ -270,13 +265,12 @@ $dark-gray: #2f4f4f;
 }
 
 .stage-operation-button-group div {
-  color:   $btn-color;
+  color: $btn-color;
   padding: 1px 7px 1px 7px;
 
   &:hover {
     color: $btn-hover-color;
   }
-
 }
 
 .stage-settings {
@@ -285,8 +279,8 @@ $dark-gray: #2f4f4f;
   }
 
   &:hover:enabled {
-    animation-name:            rotate;
-    animation-duration:        2s;
+    animation-name: rotate;
+    animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   }
@@ -303,7 +297,7 @@ $dark-gray: #2f4f4f;
 }
 
 .flex-box {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
 }
 
@@ -311,42 +305,42 @@ $dark-gray: #2f4f4f;
   display: flex;
 
   i {
-    font-size:   17px;
-    margin:      17px 10px 0 10px;
+    font-size: 17px;
+    margin: 17px 10px 0 10px;
     font-weight: 400;
-    color:       $gray;
+    color: $gray;
   }
 }
 
 .stage-name-title {
-  font-size:     10px;
+  font-size: 10px;
   margin-bottom: -2px;
 }
 
 .stage-name {
-  margin-top:  3px;
-  font-size:   17px;
+  margin-top: 3px;
+  font-size: 17px;
   font-weight: 600;
-  max-width:   200px;
-  word-break:  break-all;
+  max-width: 200px;
+  word-break: break-all;
 }
 
 .stage-counter-dropdown-wrapper {
   display: flex;
 
   select {
-    width:         55px !important; // sass-lint:disable-line no-important
+    width: 55px !important;
     padding-right: 25px;
-    height:        30px;
-    line-height:   30px;
-    margin-top:    3px;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 3px;
     margin-bottom: -30px;
   }
 
   i {
-    margin-top:  5px;
+    margin-top: 5px;
     margin-left: 3px;
-    height:      24px;
+    height: 24px;
   }
 }
 
@@ -355,71 +349,73 @@ $dark-gray: #2f4f4f;
 }
 
 .stage-details-page-link {
-  text-align:  right;
+  text-align: right;
   padding-top: 23px;
 }
-
 
 // job list
 
 .job-result {
-  width:         18px;
-  height:        18px;
-  margin-right:  10px;
-  margin-top:    6px;
-  margin-left:   5px;
-  font-size:     11px;
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  margin-top: 6px;
+  margin-left: 5px;
+  font-size: 11px;
   border-radius: 2px;
 }
 
 .passed {
   @include icon-before($type: $fa-var-check, $color: $white);
+
   background: $passed;
 
-  &:before {
+  &::before {
     position: relative;
-    top:      -4px;
-    left:     -1.5px;
+    top: -4px;
+    left: -1.5px;
   }
 }
 
 .failed {
   @include icon-before($type: $fa-var-exclamation-circle, $color: $white);
+
   background: $failed;
 
-  &:before {
+  &::before {
     position: relative;
-    top:      -4px;
-    left:     -0.7px;
+    top: -4px;
+    left: -0.7px;
   }
 }
 
 .cancelled {
   @include icon-before($type: $fa-var-ban);
+
   background: $building;
 
-  &:before {
+  &::before {
     position: relative;
-    top:      -4px;
-    left:     -0.7px;
+    top: -4px;
+    left: -0.7px;
   }
 }
 
 .unknown {
-  min-width:  18px;
-  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+  min-width: 18px;
+  background: transparent url("../../../../app/assets/images/building.gif") repeat-x;
 }
 
 .rerun-wrapper {
-  transform:   rotate(150deg);
+  transform: rotate(150deg);
   font-weight: 900;
-  font-size:   14px;
-  position:    relative;
-  left:        38px;
-  top:         29px;
-  width:       0;
-  height:      0;
-  color:       $dark-gray;
+  font-size: 14px;
+  position: relative;
+  left: 38px;
+  top: 29px;
+  width: 0;
+  height: 0;
+  color: $dark-gray;
 
   i {
     cursor: auto;
@@ -427,7 +423,7 @@ $dark-gray: #2f4f4f;
 }
 
 .job-list-container {
-  font-size:  13px;
+  font-size: 13px;
   margin-top: 10px;
 
   .table-row:last-child {
@@ -436,11 +432,12 @@ $dark-gray: #2f4f4f;
   }
 }
 
-.table-header, .table-row {
-  display:    flex;
-  width:      780px;
-  margin:     0 15px 0 15px;
-  border:     1px solid $border-color;
+.table-header,
+.table-row {
+  display: flex;
+  width: 780px;
+  margin: 0 15px 0 15px;
+  border: 1px solid $border-color;
   border-top: unset;
   background: $white;
 
@@ -449,9 +446,9 @@ $dark-gray: #2f4f4f;
   }
 
   .name-cell {
-    width:         145px;
-    display:       flex;
-    overflow:      hidden;
+    width: 145px;
+    display: flex;
+    overflow: hidden;
     text-overflow: ellipsis;
   }
 
@@ -460,7 +457,7 @@ $dark-gray: #2f4f4f;
   }
 
   .state-cell {
-    width:      165px;
+    width: 165px;
     font-style: italic;
   }
 
@@ -473,20 +470,20 @@ $dark-gray: #2f4f4f;
   }
 
   .agent-cell {
-    width:         110px;
-    margin-right:  10px;
-    overflow:      hidden;
+    width: 110px;
+    margin-right: 10px;
+    overflow: hidden;
     text-overflow: ellipsis;
-    white-space:   nowrap;
+    white-space: nowrap;
   }
 }
 
 .table-header {
-  height:        32px;
-  line-height:   30px;
-  border-top:    1px solid $border-color;
-  font-style:    italic;
-  background:    $table-header-background;
+  height: 32px;
+  line-height: 30px;
+  border-top: 1px solid $border-color;
+  font-style: italic;
+  background: $table-header-background;
   border-radius: 5px 5px 0 0;
 
   .name-cell {
@@ -510,7 +507,7 @@ $dark-gray: #2f4f4f;
 
 .triggered-by-and-on {
   font-weight: 600;
-  font-style:  italic;
+  font-style: italic;
 }
 
 .duration-separator {
@@ -522,44 +519,44 @@ $dark-gray: #2f4f4f;
 }
 
 .table-row {
-  height:      44px;
+  height: 44px;
   line-height: 26px;
 }
 
 .table-header > div {
-  font-size:   13px;
+  font-size: 13px;
   font-weight: 600;
-  text-align:  center;
+  text-align: center;
 }
 
 .table-row > div {
-  font-size:  13px;
+  font-size: 13px;
   text-align: center;
-  margin:     7px 0 5px 8px;
+  margin: 7px 0 5px 8px;
 }
 
-.checkbox-cell input[type="checkbox"] { // sass-lint:disable-line no-qualifying-elements
-  height:     13px;
+.checkbox-cell input[type="checkbox"] {
+  height: 13px;
   margin-top: -2px;
 }
 
 .job-name {
-  font-weight:   600;
-  overflow:      hidden;
+  font-weight: 600;
+  overflow: hidden;
   text-overflow: ellipsis;
-  white-space:   nowrap;
+  white-space: nowrap;
 }
 
-
 .progress-bar-container {
-  height:        11px;
-  display:       flex;
-  border:        0.5px solid $border-color;
+  height: 11px;
+  display: flex;
+  border: 0.5px solid $border-color;
   border-radius: 3px;
-  overflow:      hidden;
-  margin-top:    9px;
+  overflow: hidden;
+  margin-top: 9px;
 
-  .waiting, .scheduled {
+  .waiting,
+  .scheduled {
     background: $progress-bar-waiting;
   }
 
@@ -571,7 +568,8 @@ $dark-gray: #2f4f4f;
     background: $progress-bar-building;
   }
 
-  .uploading-artifacts, .completing {
+  .uploading-artifacts,
+  .completing {
     background: $progress-bar-uploading-artifacts;
   }
 
@@ -581,33 +579,31 @@ $dark-gray: #2f4f4f;
 }
 
 .progress-bar-tooltip {
-  font-size:     12px;
-  visibility:    hidden;
-  margin-top:    7px;
-  margin-left:   -30px;
-  width:         320px;
-  text-align:    center;
-  padding:       10px;
+  font-size: 12px;
+  visibility: hidden;
+  margin-top: 7px;
+  margin-left: -30px;
+  width: 320px;
+  text-align: center;
+  padding: 10px;
   border-radius: 6px;
-  position:      absolute;
-  z-index:       map_get($zindex, tooltip);
-  background:    rgb(243, 243, 243, 0.95); // sass-lint:disable-line no-color-literals
-  border:        1px solid $tooltip-border-color;
+  position: absolute;
+  z-index: map_get($zindex, tooltip);
+  background: rgb(243, 243, 243, 95%);
+  border: 1px solid $tooltip-border-color;
 
-  :before {
-    content:       '';
-    display:       block;
-    width:         0;
-    height:        0;
-    position:      absolute;
-
-    border-top:    8px solid transparent;
+  ::before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-right:  8px solid $tooltip-border-color;
-
-    left:          140px;
-    top:           -12px;
-    transform:     rotate(90deg);
+    border-right: 8px solid $tooltip-border-color;
+    left: 140px;
+    top: -12px;
+    transform: rotate(90deg);
   }
 
   .state-transition-item {
@@ -619,22 +615,23 @@ $dark-gray: #2f4f4f;
   }
 
   .tooltip-key-value-pair {
-    display:     flex;
+    display: flex;
     line-height: 23px;
 
     .in-progress {
       @include icon-after($type: $fa-var-spinner);
 
-      &:after {
-        animation:   spin 1500ms linear infinite;
+      &::after {
+        animation: spin 1500ms linear infinite;
         margin-left: 2px;
-        font-size:   15px;
+        font-size: 15px;
       }
 
       @keyframes spin {
         from {
           transform: rotate(0deg);
         }
+
         to {
           transform: rotate(360deg);
         }
@@ -644,23 +641,24 @@ $dark-gray: #2f4f4f;
     .completed {
       @include icon-after($type: $fa-var-check, $color: $white);
 
-      &:after {
-        position:   absolute;
-        left:       8px;
+      &::after {
+        position: absolute;
+        left: 8px;
         margin-top: 4px;
       }
     }
 
     .transition-circle {
-      background:    $progress-bar-waiting;
-      height:        18px;
-      width:         18px;
+      background: $progress-bar-waiting;
+      height: 18px;
+      width: 18px;
       border-radius: 10px;
-      margin-right:  10px;
-      margin-top:    3px;
+      margin-right: 10px;
+      margin-top: 3px;
     }
 
-    .waiting, .scheduled {
+    .waiting,
+    .scheduled {
       background: $progress-bar-waiting;
     }
 
@@ -672,27 +670,28 @@ $dark-gray: #2f4f4f;
       background: $progress-bar-building;
     }
 
-    .uploadingartifacts, .completing {
+    .uploadingartifacts,
+    .completing {
       background: $progress-bar-uploading-artifacts;
     }
   }
 
   .transition-line {
-    height:      11px;
-    width:       3px;
-    margin:      -8px 0 -4px 8px;
+    height: 11px;
+    width: 3px;
+    margin: -8px 0 -4px 8px;
     border-left: 2px solid $border-color;
   }
 
   .tooltip-key {
-    font-weight:  700;
+    font-weight: 700;
     margin-right: 7px;
   }
 
   .transition-item-tooltip-key {
-    min-width:     150px;
+    min-width: 150px;
     align-content: flex-start;
-    display:       flex;
+    display: flex;
   }
 }
 
@@ -704,11 +703,11 @@ $dark-gray: #2f4f4f;
 
 .job-count-and-rerun-container {
   display: flex;
-  margin:  15px 0 15px 0;
+  margin: 15px 0 15px 0;
 }
 
 .job-rerun-container {
-  margin-left:  15px;
+  margin-left: 15px;
   margin-right: 275px;
 }
 
@@ -721,49 +720,47 @@ $dark-gray: #2f4f4f;
 }
 
 .count-container {
-  display:      flex;
+  display: flex;
   margin-right: 15px;
-  margin-top:   2px;
-  width:        90px;
+  margin-top: 2px;
+  width: 90px;
 }
 
 .count-label {
-  font-size:   14px;
+  font-size: 14px;
   margin-left: 5px;
 }
 
 .count-text {
   margin-left: 5px;
   font-weight: 600;
-  font-size:   15px;
+  font-size: 15px;
 }
 
 .tooltip-message {
-  display:       block;
-  position:      absolute;
-  width:         180px;
-  margin-left:   -73px;
-  color:         $white;
-  background:    $tooltip-message-background;
-  font-size:     12px;
-  padding:       10px;
+  display: block;
+  position: absolute;
+  width: 180px;
+  margin-left: -73px;
+  color: $white;
+  background: $tooltip-message-background;
+  font-size: 12px;
+  padding: 10px;
   border-radius: 3px;
-  margin-top:    2px;
+  margin-top: 2px;
 
-  &:before {
-    content:       '';
-    display:       block;
-    width:         0;
-    height:        0;
-    position:      absolute;
-
-    border-top:    10px solid transparent;
+  &::before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
-    border-right:  10px solid $tooltip-message-background;
-
-    left:          80px;
-    top:           -13px;
-    transform:     rotate(90deg);
+    border-right: 10px solid $tooltip-message-background;
+    left: 80px;
+    top: -13px;
+    transform: rotate(90deg);
   }
 }
 
@@ -773,18 +770,21 @@ $dark-gray: #2f4f4f;
 
 .unsorted {
   @include icon-before($fa-var-sort);
-  color:       $gray;
+
+  color: $gray;
   margin-left: 2px;
 }
 
 .asc {
   @include icon-before($fa-var-sort-asc);
-  color:       $dark-gray;
+
+  color: $dark-gray;
   margin-left: 2px;
 }
 
 .desc {
   @include icon-before($fa-var-sort-desc);
-  color:       $dark-gray;
+
+  color: $dark-gray;
   margin-left: 2px;
 }

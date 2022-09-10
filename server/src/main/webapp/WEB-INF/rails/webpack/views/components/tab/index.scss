@@ -20,49 +20,49 @@ $accordion-header-bg-active: $go-primary;
 $accordion-header-text-color: $go-primary;
 
 .tabs {
-  margin:        0;
-  padding:       0 20px;
-  float:         left;
-  list-style:    none;
-  border:        1px solid $border-color;
-  width:         100%;
-  background:    $tab-header-bg;
+  margin: 0;
+  padding: 0 20px;
+  float: left;
+  list-style: none;
+  border: 1px solid $border-color;
+  width: 100%;
+  background: $tab-header-bg;
   border-radius: $global-border-radius $global-border-radius 0 0;
-  box-sizing:    border-box;
+  box-sizing: border-box;
 
   li {
-    float:  left;
+    float: left;
     margin: 0;
   }
 }
 
 .tab-head {
-  display:         block;
-  padding:         12px 20px 10px 20px;
-  font-size:       13px;
-  border-bottom:   none;
-  overflow:        hidden;
-  position:        relative;
-  text-transform:  uppercase;
+  display: block;
+  padding: 12px 20px 10px 20px;
+  font-size: 13px;
+  border-bottom: none;
+  overflow: hidden;
+  position: relative;
+  text-transform: uppercase;
   text-decoration: none;
-  color:           $text-color;
-  font-weight:     600;
+  color: $text-color;
+  font-weight: 600;
 }
 
 .active {
   border-bottom: 2px solid $go-primary;
-  color:         $accordion-header-bg-active;
+  color: $accordion-header-bg-active;
 }
 
 .tab_container {
-  border:     1px solid $border-color;
+  border: 1px solid $border-color;
   border-top: none;
-  clear:      both;
+  clear: both;
   box-sizing: border-box;
 }
 
 .tab_content {
-  padding:    20px;
+  padding: 20px;
   box-sizing: border-box;
   background: $white;
 }
@@ -75,16 +75,17 @@ $accordion-header-text-color: $go-primary;
   .tabs {
     display: none;
   }
+
   .tab-accordion_heading {
-    border-top:  1px solid $border-color;
-    margin:      0;
-    padding:     10px 20px;
-    display:     block;
-    cursor:      pointer;
+    border-top: 1px solid $border-color;
+    margin: 0;
+    padding: 10px 20px;
+    display: block;
+    cursor: pointer;
     font-weight: normal;
-    color:       $accordion-header-text-color;
-    font-size:   1em;
-    background:  $white;
+    color: $accordion-header-text-color;
+    font-size: 1em;
+    background: $white;
   }
 }
 

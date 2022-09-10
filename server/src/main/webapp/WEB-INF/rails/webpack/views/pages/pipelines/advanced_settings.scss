@@ -17,33 +17,38 @@
 @import "../../../views/components/forms/forms";
 
 .advanced-settings {
-  display:    block;
-  width:      100%;
-
-  margin:     5px 0 0;
-  padding:    15px 0 5px;
+  display: block;
+  width: 100%;
+  margin: 5px 0 0;
+  padding: 15px 0 5px;
   border-top: 1px solid $line-color;
 
   .summary {
-    @include icon-before($type: $fa-var-chevron-right, $color: $text-color, $size: 16px, $line-height: 25px, $margin: 0 5px);
+    @include icon-before(
+      $type: $fa-var-chevron-right,
+      $color: $text-color,
+      $size: 16px,
+      $line-height: 25px,
+      $margin: 0 5px);
 
     line-height: 25px;
-    cursor:      pointer;
-    outline:     none;
+    cursor: pointer;
+    outline: none;
     font-weight: 600;
   }
 
   .details {
-    margin:  0;
+    margin: 0;
     padding: 0;
     display: none;
   }
 
-  &.open, &.lock-open {
+  &.open,
+  &.lock-open {
     .summary {
       margin-bottom: 15px;
 
-      &:before {
+      &::before {
         transform: rotate(90deg);
       }
     }
@@ -56,19 +61,19 @@
   &.lock-open .summary {
     cursor: not-allowed;
 
-    &:before {
+    &::before {
       color: lighten($text-color, 50%);
     }
   }
 }
 
 .selection-container {
-  display:     flex;
+  display: flex;
   align-items: center;
 
   .message {
     margin-left: 10px;
-    margin-top:  10px;
+    margin-top: 10px;
   }
 }
 

@@ -23,17 +23,18 @@ $disabled-text-color: #999;
   @include icon-before($type: $type, $color: $color, $size: 25px) {
     text-align: center;
   }
+
   display: block;
 }
 
 .plugin-icon {
-  display:        none;
+  display: none;
   vertical-align: middle;
-  margin:         0 15px 0 -15px;
+  margin: 0 15px 0 -15px;
 
   img {
-    width:          $collapse-icon-size;
-    height:         $collapse-icon-size;
+    width: $collapse-icon-size;
+    height: $collapse-icon-size;
     vertical-align: middle;
   }
 
@@ -44,26 +45,26 @@ $disabled-text-color: #999;
 
 .plugin-name {
   font-weight: 600;
-  font-size:   13px;
+  font-size: 13px;
 
   @media (min-width: $screen-md) {
     font-size: 12px;
   }
+
   @media (min-width: $screen-lg) {
     font-size: 15px;
   }
-
 }
 
 .cluster-profile-name {
-  overflow:      hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
-  white-space:   nowrap;
+  white-space: nowrap;
 }
 
 .plugin-not-installed {
   margin-right: 15px;
-  align-self:   center;
+  align-self: center;
 }
 
 .key-value-pair {
@@ -79,38 +80,38 @@ $disabled-text-color: #999;
 }
 
 .table-cell {
-  width:     263px;
-  display:   block;
+  width: 263px;
+  display: block;
   word-wrap: break-word;
 }
 
 .job-settings-link {
-  width:     121px;
+  width: 121px;
   word-wrap: break-word;
-  display:   block;
+  display: block;
 }
 
 .disabled {
-  opacity:        0.75;
-  cursor:         not-allowed;
+  opacity: 0.75;
+  cursor: not-allowed;
   pointer-events: none;
 
   &:hover {
-    color:      $icon-color;
+    color: $icon-color;
     background: $icon-bg;
   }
 
   a {
-    color:          $disabled-text-color;
-    cursor:         not-allowed;
+    color: $disabled-text-color;
+    cursor: not-allowed;
     pointer-events: none;
   }
 }
 
 .note {
-  color:           $disabled-text-color;
-  font-size:       12px;
-  display:         flex;
+  color: $disabled-text-color;
+  font-size: 12px;
+  display: flex;
   justify-content: flex-end;
 }
 
@@ -124,25 +125,26 @@ $disabled-text-color: #999;
 
 .cluster-profile-details-header {
   @include icon-before($type: $fa-var-angle-right, $size: 16px);
-  position:     relative;
-  padding-left: 17px;
-  cursor:       pointer;
-  margin:       0 0 20px 0;
 
-  &:before {
-    position:   absolute;
-    left:       1px;
-    top:        1px;
-    margin:     0;
+  position: relative;
+  padding-left: 17px;
+  cursor: pointer;
+  margin: 0 0 20px 0;
+
+  &::before {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    margin: 0;
     transition: $transition;
   }
 
   &.expanded {
-    &:before {
-      transform:  rotate(90deg);
+    &::before {
+      transform: rotate(90deg);
       transition: $transition;
-      left:       3px;
-      top:        2px;
+      left: 3px;
+      top: 2px;
     }
   }
 }
@@ -165,5 +167,5 @@ $disabled-text-color: #999;
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }

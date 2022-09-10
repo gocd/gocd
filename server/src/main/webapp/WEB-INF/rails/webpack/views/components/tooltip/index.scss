@@ -15,14 +15,14 @@
  */
 @import "../../global/common";
 
-$tooltip-min-width:    300px;
+$tooltip-min-width: 300px;
 $tooltip-medium-width: 500px;
-$tooltip-large-width:  700px;
+$tooltip-large-width: 700px;
 
 .tooltip-wrapper {
   position: static;
-  display:  inline-block;
-  cursor:   help;
+  display: inline-block;
+  cursor: help;
 
   &:hover {
     .tooltip-content {
@@ -33,38 +33,38 @@ $tooltip-large-width:  700px;
 
 .tooltip-content-wrapper {
   position: relative;
-  top:      0;
-  left:     0;
+  top: 0;
+  left: 0;
 }
 
 .tooltip-content {
-  display:       none;
-  background:    $white;
-  line-height:   18px;
-  font-size:     12px;
-  position:      absolute;
-  margin-left:   -8px;
-  margin-top:    3px;
-  font-weight:   400;
+  display: none;
+  background: $white;
+  line-height: 18px;
+  font-size: 12px;
+  position: absolute;
+  margin-left: -8px;
+  margin-top: 3px;
+  font-weight: 400;
   border-radius: $global-border-radius;
-  padding:       10px 20px 0;
-  box-shadow:    0 2px 4px $box-shadow-color;
-  z-index:       map_get($zindex, submenu);
+  padding: 10px 20px 0;
+  box-shadow: 0 2px 4px $box-shadow-color;
+  z-index: map_get($zindex, submenu);
 
-  &:before {
-    content:          "";
-    position:         absolute;
-    width:            0;
-    height:           0;
-    margin-left:      -0.5em;
-    top:              0;
-    left:             17px;
-    box-sizing:       border-box;
-    border:           6px solid $black;
-    border-color:     $white $white transparent transparent;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin-left: -0.5em;
+    top: 0;
+    left: 17px;
+    box-sizing: border-box;
+    border: 6px solid $black;
+    border-color: $white $white transparent transparent;
     transform-origin: 0 0;
-    transform:        rotate(-45deg);
-    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+    transform: rotate(-45deg);
+    box-shadow: 1px -1px 1px 0 $box-shadow-color;
   }
 }
 

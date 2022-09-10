@@ -21,31 +21,32 @@
 
 .configuration-details-header {
   @include icon-before($type: $fa-var-angle-right, $size: 16px);
-  position:     relative;
-  padding-left: 17px;
-  cursor:       pointer;
-  margin:       0 0 20px 0;
 
-  &:before {
-    position:   absolute;
-    left:       1px;
-    top:        1px;
-    margin:     0;
+  position: relative;
+  padding-left: 17px;
+  cursor: pointer;
+  margin: 0 0 20px 0;
+
+  &::before {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    margin: 0;
     transition: $transition;
   }
 
   &.expanded {
-    &:before {
-      transform:  rotate(90deg);
+    &::before {
+      transform: rotate(90deg);
       transition: $transition;
-      left:       3px;
-      top:        2px;
+      left: 3px;
+      top: 2px;
     }
   }
 }
 
 .configuration-details {
-  display:     none;
+  display: none;
   margin-left: 20px;
 
   &.expanded {
@@ -59,7 +60,7 @@
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }
 
 .warning {

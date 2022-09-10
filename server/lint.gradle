@@ -24,7 +24,7 @@ task stylelintold(type: YarnRunTask) {
 
   yarnCommand = ['stylelintold']
   source(project.file("${project.railsRoot}/app/assets/new_stylesheets"))
-  source(project.file("${project.railsRoot}/.stylelintrc.json"))
+  source(project.file("${project.railsRoot}/.stylelintrc.yml"))
 }
 
 task eslintold(type: YarnRunTask) {

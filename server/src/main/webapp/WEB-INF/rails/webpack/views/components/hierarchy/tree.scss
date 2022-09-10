@@ -15,14 +15,19 @@
  */
 @import "../../global/common";
 
-$indent-width:             15px;
+$indent-width: 15px;
 $under-label-indent-width: (2 * $indent-width) / 3;
-$tree-connector-color:     #ddd;
-$tick-width:               $under-label-indent-width;
-$selected-color:           #d2ebf0;
+$tree-connector-color: #ddd;
+$tick-width: $under-label-indent-width;
+$selected-color: #d2ebf0;
 
-.tree, .tree-datum, .tree-child, .tree-children, .tree-children ul, .tree-children-label {
-  margin:  0;
+.tree,
+.tree-datum,
+.tree-child,
+.tree-children,
+.tree-children ul,
+.tree-children-label {
+  margin: 0;
   padding: 0;
 }
 
@@ -37,21 +42,21 @@ $selected-color:           #d2ebf0;
 
 .tree-datum {
   font-weight: bold;
-  display:     flex;
+  display: flex;
 
   span {
-    cursor:        pointer;
-    background:    $border-color;
+    cursor: pointer;
+    background: $border-color;
     border-radius: 3px;
-    padding:       0 5px;
-    font-weight:   normal;
-    font-size:     12px;
-    display:       flex;
-    word-break:    break-word;
-    white-space:   normal;
-    line-height:   1.8;
-    margin-top:    2px;
-    align-items:   center;
+    padding: 0 5px;
+    font-weight: normal;
+    font-size: 12px;
+    display: flex;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.8;
+    margin-top: 2px;
+    align-items: center;
 
     &.selected {
       background: $selected-color;
@@ -67,34 +72,33 @@ $selected-color:           #d2ebf0;
   }
 }
 
-
 .tree-child {
-  position:    relative;
+  position: relative;
   margin-left: $indent-width;
 
-  &:before {
-    position:      absolute;
-    left:          -$indent-width;
-    top:           0;
-    height:        1em;
-    width:         $tick-width;
-    display:       block;
-    border-left:   1px solid $tree-connector-color;
-    border-bottom: 1px solid $tree-connector-color;
-    content:       "";
-  }
-
-  &:after {
-    position:    absolute;
-    left:        -$indent-width;
-    bottom:      0;
-    height:      100%;
-    display:     block;
+  &::before {
+    position: absolute;
+    left: -$indent-width;
+    top: 0;
+    height: 1em;
+    width: $tick-width;
+    display: block;
     border-left: 1px solid $tree-connector-color;
-    content:     "";
+    border-bottom: 1px solid $tree-connector-color;
+    content: "";
   }
 
-  &:last-child:after {
+  &::after {
+    position: absolute;
+    left: -$indent-width;
+    bottom: 0;
+    height: 100%;
+    display: block;
+    border-left: 1px solid $tree-connector-color;
+    content: "";
+  }
+
+  &:last-child::after {
     display: none;
   }
 }

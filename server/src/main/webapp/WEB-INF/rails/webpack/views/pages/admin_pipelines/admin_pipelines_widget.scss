@@ -16,29 +16,28 @@
 @import "../../global/common";
 
 @mixin border {
-  border:        1px solid $border-color;
+  border: 1px solid $border-color;
   border-radius: $global-border-radius;
 }
 
 @mixin row {
-  flex-direction:   row;
-  flex-basis:       100%;
-  align-items:      center;
-  justify-content:  space-between;
-  flex-wrap:        wrap;
-  display:          flex;
-  box-sizing:       border-box;
-  padding:          5px;
+  flex-flow: row wrap;
+  flex-basis: 100%;
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  box-sizing: border-box;
+  padding: 5px;
   background-color: $white;
-  margin:           10px;
+  margin: 10px;
 }
 
 @mixin name {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  float:          left;
-  align-items:    center;
-  padding-left:   10px;
+  float: left;
+  align-items: center;
+  padding-left: 10px;
 }
 
 @mixin header {
@@ -46,9 +45,9 @@
 }
 
 @mixin action-buttons {
-  display:     flex;
+  display: flex;
   align-items: center;
-  float:       right;
+  float: right;
 }
 
 .pipeline-group-row {
@@ -57,14 +56,15 @@
 
   .pipeline-group-name {
     @include name;
+
     flex-direction: inherit;
 
     .value {
       @include header;
+
       margin-left: 5px;
     }
   }
-
 
   .pipeline-group-action-buttons {
     @include action-buttons;
@@ -94,5 +94,5 @@
 
 .tips {
   background: $white;
-  padding:    20px;
+  padding: 20px;
 }

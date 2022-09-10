@@ -15,51 +15,51 @@
  */
 @import "../../global/common";
 
-$table-border-color:     $line-color;
-$table-header-bg:        $secondary-bg;
-$table_background_color: #fff;
-$icon_disable_color:     #ccc;
-$draggable-row-color:    #e2f7fa;
+$table-border-color: $line-color;
+$table-header-bg: $secondary-bg;
+$table-background-color: #fff;
+$icon-disable-color: #ccc;
+$draggable-row-color: #e2f7fa;
 
 .table {
   $table-border-top-color: #dee2e6;
-  border:                  1px solid $table-border-color;
-  border-collapse:         collapse;
-  display:                 table;
-  width:                   100%;
-  background:              $table_background_color;
-  margin:                  0 0 $global-margin-bottom 0;
+
+  border: 1px solid $table-border-color;
+  border-collapse: collapse;
+  display: table;
+  width: 100%;
+  background: $table-background-color;
+  margin: 0 0 $global-margin-bottom 0;
 
   caption {
-    text-align:   left;
+    text-align: left;
     caption-side: top;
   }
 
   thead {
-    font-size:      13px;
+    font-size: 13px;
     text-transform: uppercase;
-    background:     $table-header-bg;
-    border-radius:  10px 10px 0 0;
+    background: $table-header-bg;
+    border-radius: 10px 10px 0 0;
     vertical-align: middle;
-
   }
 
   th {
-    padding:     10px;
-    border-top:  1px solid $table-border-top-color;
-    text-align:  left;
+    padding: 10px;
+    border-top: 1px solid $table-border-top-color;
+    text-align: left;
     font-weight: 600;
   }
 
   tr {
-    display:        table-row;
+    display: table-row;
     vertical-align: top;
   }
 
   td {
-    padding:    10px;
+    padding: 10px;
     border-top: 1px solid $table-border-top-color;
-    font-size:  13px;
+    font-size: 13px;
   }
 }
 
@@ -69,27 +69,30 @@ $draggable-row-color:    #e2f7fa;
 
 .sort-button {
   @include icon-before($fa-var-sort);
+
   margin-left: 2px;
-  cursor:      pointer;
-  color:       $icon-color;
+  cursor: pointer;
+  color: $icon-color;
 }
 
 .sort-button-asc {
   @include icon-before($fa-var-sort-asc);
+
   margin-left: 2px;
-  cursor:      pointer;
-  color:       $icon-color;
+  cursor: pointer;
+  color: $icon-color;
 }
 
 .sort-button-desc {
   @include icon-before($fa-var-sort-desc);
+
   margin-left: 2px;
-  cursor:      pointer;
-  color:       $icon-color;
+  cursor: pointer;
+  color: $icon-color;
 }
 
 .in-active {
-  color: $icon_disable_color;
+  color: $icon-disable-color;
 }
 
 .drag-icon {
@@ -97,7 +100,7 @@ $draggable-row-color:    #e2f7fa;
   @include grip-icon;
 
   font-size: 12px;
-  color:     $icon-drag;
+  color: $icon-drag;
 
   &:active {
     @include sort-cursor-active;
@@ -105,8 +108,8 @@ $draggable-row-color:    #e2f7fa;
 }
 
 .draggable {
-
-  tbody, tr {
+  tbody,
+  tr {
     outline: none;
   }
 

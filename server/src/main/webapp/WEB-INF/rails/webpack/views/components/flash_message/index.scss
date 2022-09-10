@@ -16,13 +16,13 @@
 @import "../../global/common";
 
 .callout {
-  font-weight:   600;
-  font-size:     12px;
-  padding:       7px 40px 7px 30px;
-  border:        1px solid transparent;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 7px 40px 7px 30px;
+  border: 1px solid transparent;
   border-radius: $global-border-radius;
-  margin:        0 0 10px 0;
-  position:      relative;
+  margin: 0 0 10px 0;
+  position: relative;
 
   p {
     margin: 0;
@@ -34,9 +34,9 @@
   }
 
   pre {
-    margin:      0;
+    margin: 0;
     white-space: pre-wrap;
-    word-wrap:   break-word;
+    word-wrap: break-word;
 
     a {
       color: $link-color;
@@ -45,36 +45,36 @@
   }
 
   .close-callout {
-    color:      $text-color;
-    cursor:     pointer;
-    position:   absolute;
-    top:        4px;
-    right:      -1px;
-    border:     none;
+    color: $text-color;
+    cursor: pointer;
+    position: absolute;
+    top: 4px;
+    right: -1px;
+    border: none;
     background: transparent;
   }
 
   &.success {
     background-color: $success;
-    color:            darken($success, 50%);
-    border-color:     darken($success, 10%);
+    color: darken($success, 50%);
+    border-color: darken($success, 10%);
   }
 
   &.warning {
     background-color: $warning;
-    color:            darken($warning, 60%);
-    border-color:     darken($warning, 10%);
+    color: darken($warning, 60%);
+    border-color: darken($warning, 10%);
   }
 
   &.info {
     background-color: $info;
-    color:            darken($info, 50%);;
-    border-color:     darken($info, 10%);
+    color: darken($info, 50%);
+    border-color: darken($info, 10%);
   }
 
   &.alert {
     background-color: $alert;
-    color:            darken($alert, 50%);
-    border-color:     darken($alert, 10%);
+    color: darken($alert, 50%);
+    border-color: darken($alert, 10%);
   }
 }

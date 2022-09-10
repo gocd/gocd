@@ -1,0 +1,20 @@
+---
+extends: stylelint-config-standard-scss
+rules:
+  scss/no-global-function-names:
+  selector-class-pattern:
+  no-descending-specificity:
+  shorthand-property-no-redundant-values:
+
+  # Mainly used by legacy "old" JS. Not sure of intent so disabling rules.
+  property-no-vendor-prefix:
+  value-no-vendor-prefix:
+  media-feature-name-no-vendor-prefix:
+  at-rule-no-vendor-prefix:
+
+  number-max-precision: 11
+
+  # May have been a requirement of old Ruby Sass, to validate if necessary against Dart Sass now.
+  color-function-notation: legacy
+ignoreFiles:
+- app/assets/new_stylesheets/_font-awesome-glyphs.scss.erb

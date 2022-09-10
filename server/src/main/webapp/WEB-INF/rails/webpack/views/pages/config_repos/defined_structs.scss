@@ -15,26 +15,26 @@
  */
 
 @import "../../global/common";
-@import "../../components/hierarchy/tree.scss";
+@import "../../components/hierarchy/tree";
 
-$inline-radius:        4px;
-$inline-spacing:       20px;
-$arrow-size:           6px;
-$arrow-horiz:          ($arrow-size + $inline-spacing) / 2;
-$stage-color:          #4ad9d9;
-$fg-color:             #023550;
-$label-color-group:    #dee;
+$inline-radius: 4px;
+$inline-spacing: 20px;
+$arrow-size: 6px;
+$arrow-horiz: ($arrow-size + $inline-spacing) / 2;
+$stage-color: #4ad9d9;
+$fg-color: #023550;
+$label-color-group: #dee;
 $label-color-pipeline: #ede7f3;
-$label-color-env:      #ffe099;
+$label-color-env: #ffe099;
 
 @mixin type-label {
-  display:          inline-block;
-  font-weight:      normal;
-  line-height:      1.5em;
-  margin-right:     $arrow-size;
-  text-transform:   uppercase;
-  padding:          0 5px;
-  border-radius:    2px;
+  display: inline-block;
+  font-weight: normal;
+  line-height: 1.5em;
+  margin-right: $arrow-size;
+  text-transform: uppercase;
+  padding: 0 5px;
+  border-radius: 2px;
 }
 
 .loading {
@@ -44,7 +44,8 @@ $label-color-env:      #ffe099;
 
 .spin {
   @include icon-before($type: $fa-var-spinner, $margin: 0);
-  display:      inline-block;
+
+  display: inline-block;
   margin-right: 10px;
   animation: rotate 1s linear infinite;
 
@@ -63,10 +64,10 @@ $label-color-env:      #ffe099;
   color: $fg-color;
 
   .group-datum {
-    &:before {
+    &::before {
       @include type-label;
 
-      content:          "Group:";
+      content: "Group:";
       background-color: $label-color-group;
     }
   }
@@ -76,10 +77,10 @@ $label-color-env:      #ffe099;
   color: $fg-color;
 
   .environment-datum {
-    &:before {
+    &::before {
       @include type-label;
 
-      content:          "Environment:";
+      content: "Environment:";
       background-color: $label-color-env;
     }
   }
@@ -88,12 +89,14 @@ $label-color-env:      #ffe099;
 .tree {
   color: $fg-color;
 
-  a, a:visited {
+  a,
+  a:visited {
     text-decoration: none;
     color: $link-color;
   }
 
-  a:hover, a:visited {
+  a:hover,
+  a:visited {
     text-decoration: none;
     color: $link-hover-color;
   }
@@ -104,12 +107,11 @@ $label-color-env:      #ffe099;
     display: inline-block;
     padding: 0 5px;
 
-    &:before {
+    &::before {
       @include type-label;
 
-      content:          "Pipeline:";
+      content: "Pipeline:";
       background-color: $label-color-pipeline;
     }
   }
 }
-

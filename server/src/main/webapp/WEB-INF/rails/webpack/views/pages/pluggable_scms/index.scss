@@ -26,11 +26,11 @@
 }
 
 .switch-wrapper {
-  label:after {
+  label::after {
     margin-top: 0.15rem;
   }
 
-  input[type="radio"] { // sass-lint:disable-line no-qualifying-elements
+  input[type="radio"] {
     margin: 0;
   }
 }

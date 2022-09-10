@@ -19,8 +19,8 @@ $key-value-pair-width: 200px;
 $title-element-width: 360px;
 
 .key-value-pair {
-  padding:         0;
-  margin:          0 0 $global-margin-bottom 0;
+  padding: 0;
+  margin: 0 0 $global-margin-bottom 0;
   list-style-type: none;
 
   :last-child {
@@ -29,60 +29,62 @@ $title-element-width: 360px;
 }
 
 .key {
-  font-size:     13px;
-  font-weight:   400;
-  margin:        0 10px 0 0;
-  overflow:      hidden;
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0 10px 0 0;
+  overflow: hidden;
   text-overflow: ellipsis;
+  position: relative;
 
-  position:      relative;
-  @media(max-width: $screen-md-min) {
-    &:after {
-      content:     ":";
+  @media (max-width: $screen-md-min) {
+    &::after {
+      content: ":";
       margin-left: 10px;
       font-weight: 600;
     }
   }
-  @media(min-width: $screen-md) {
+
+  @media (min-width: $screen-md) {
     width: $key-value-pair-width;
-    flex:  0 0 $key-value-pair-width;
+    flex: 0 0 $key-value-pair-width;
   }
 }
 
 .value {
-  font-size:   13px;
+  font-size: 13px;
   font-weight: 600;
-  position:    relative;
+  position: relative;
 
-  @media(min-width: $screen-md) {
+  @media (min-width: $screen-md) {
     padding-left: 15px;
-    margin-left:  0;
-    &:after {
-      content:     ":";
-      position:    absolute;
-      top:         0;
-      left:        5px;
+    margin-left: 0;
+
+    &::after {
+      content: ":";
+      position: absolute;
+      top: 0;
+      left: 5px;
       font-weight: 600;
     }
   }
 
   pre {
-    margin:      0;
+    margin: 0;
     white-space: pre-wrap;
-    word-break:  break-all;
-    word-wrap:   break-word;
+    word-break: break-all;
+    word-wrap: break-word;
   }
 }
 
 .key-value-item {
-  display:        flex;
-  padding:        5px 5px 5px 0;
-  border-bottom:  1px dashed $border-color;
-  align-content:  center;
+  display: flex;
+  padding: 5px 5px 5px 0;
+  border-bottom: 1px dashed $border-color;
+  align-content: center;
   flex-direction: column;
-  @media(min-width: $screen-md) {
-    flex-direction: row;
-    flex-wrap:      nowrap;
+
+  @media (min-width: $screen-md) {
+    flex-flow: row nowrap;
   }
 
   &:last-child {
@@ -92,20 +94,21 @@ $title-element-width: 360px;
 
 // inline key value pair
 .key-value-pair-inline {
-  display:       flex;
-  flex-wrap:     wrap;
+  display: flex;
+  flex-wrap: wrap;
   margin-bottom: 0;
 }
 
 .key-value-inline-item {
-  margin-right:   20px;
-  border:         none;
-  padding:        0;
+  margin-right: 20px;
+  border: none;
+  padding: 0;
   flex-direction: row;
 
   .key {
     width: auto;
-    @media(min-width: $screen-md) {
+
+    @media (min-width: $screen-md) {
       flex: 0 0 auto;
     }
   }
@@ -113,20 +116,20 @@ $title-element-width: 360px;
 
 .title {
   font-weight: 600;
-  font-size:   13px;
-  margin:      0 50px 0 0;
+  font-size: 13px;
+  margin: 0 50px 0 0;
 
   @media (min-width: $screen-md) {
     font-size: 12px;
-
   }
+
   @media (min-width: $screen-lg) {
     font-size: 15px;
-    width:     $title-element-width;
+    width: $title-element-width;
   }
 }
 
 .title-inline {
-  display:     inline;
+  display: inline;
   margin-left: 5px;
 }

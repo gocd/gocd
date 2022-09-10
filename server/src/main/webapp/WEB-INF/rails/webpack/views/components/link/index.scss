@@ -16,13 +16,13 @@
 @import "../../global/common";
 
 .inline-link {
-  color:           $link-color;
+  color: $link-color;
   text-decoration: none;
-  cursor:          pointer;
+  cursor: pointer;
 
   &:hover {
     text-decoration: underline;
-    color:           $link-hover-color;
+    color: $link-hover-color;
   }
 }
 

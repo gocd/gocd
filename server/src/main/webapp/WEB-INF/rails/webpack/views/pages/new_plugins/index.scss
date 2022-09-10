@@ -18,34 +18,36 @@
 $collapse-icon-size: 25px;
 
 .plugin-header {
-  display:     flex;
+  display: flex;
   align-items: center;
 }
 
 .plugin-icon {
-  display:        none;
+  display: none;
   vertical-align: middle;
-  margin:         0 15px 0 -15px;
+  margin: 0 15px 0 -15px;
 
   img {
-    width:          $collapse-icon-size;
-    height:         $collapse-icon-size;
+    width: $collapse-icon-size;
+    height: $collapse-icon-size;
     vertical-align: middle;
   }
 
   @media (min-width: $screen-md) {
-    display:     flex;
+    display: flex;
     align-items: center;
   }
 }
 
 .plugin-name {
-  font-weight:  600;
-  font-size:    13px;
+  font-weight: 600;
+  font-size: 13px;
   margin-right: 50px;
+
   @media (min-width: $screen-md) {
     font-size: 12px;
   }
+
   @media (min-width: $screen-lg) {
     font-size: 15px;
   }
@@ -53,6 +55,7 @@ $collapse-icon-size: 25px;
 
 .unknown-plugin-icon {
   @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 25px);
+
   display: block;
 }
 
@@ -72,7 +75,7 @@ $collapse-icon-size: 25px;
 
 .deprecation-warning-tooltip-wrapper {
   position: static;
-  display:  inline-block;
+  display: inline-block;
 
   &:hover {
     .deprecation-warning-tooltip-content {
@@ -84,39 +87,39 @@ $collapse-icon-size: 25px;
 .deprecation-warning-icon {
   @include icon-before($type: $fa-var-info-circle, $color: darken($warning, 30%));
 
-  &:before {
+  &::before {
     font-size: 20px;
-    padding:   2px;
+    padding: 2px;
   }
 }
 
 .deprecation-warning-tooltip-content {
-  display:       none;
-  background:    $white;
-  line-height:   18px;
-  font-size:     12px;
-  position:      absolute;
-  margin-left:   -8px;
-  margin-top:    3px;
-  font-weight:   400;
+  display: none;
+  background: $white;
+  line-height: 18px;
+  font-size: 12px;
+  position: absolute;
+  margin-left: -8px;
+  margin-top: 3px;
+  font-weight: 400;
   border-radius: $global-border-radius;
-  padding:       10px 20px 0;
-  box-shadow:    0 2px 4px $box-shadow-color;
-  z-index:       map_get($zindex, submenu);
+  padding: 10px 20px 0;
+  box-shadow: 0 2px 4px $box-shadow-color;
+  z-index: map_get($zindex, submenu);
 
-  &:before {
-    content:          "";
-    position:         absolute;
-    width:            0;
-    height:           0;
-    margin-left:      -0.5em;
-    top:              0;
-    left:             17px;
-    box-sizing:       border-box;
-    border:           6px solid $black;
-    border-color:     $white $white transparent transparent;
+  &::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin-left: -0.5em;
+    top: 0;
+    left: 17px;
+    box-sizing: border-box;
+    border: 6px solid $black;
+    border-color: $white $white transparent transparent;
     transform-origin: 0 0;
-    transform:        rotate(-45deg);
-    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+    transform: rotate(-45deg);
+    box-shadow: 1px -1px 1px 0 $box-shadow-color;
   }
 }

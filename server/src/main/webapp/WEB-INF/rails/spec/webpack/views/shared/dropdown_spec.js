@@ -1,3 +1,5 @@
+// noinspection ES6UnusedImports
+
 /*
  * Copyright 2022 Thoughtworks, Inc.
  *
@@ -57,14 +59,14 @@ describe('Dropdown widget', () => {
 
   it('should open dropdown on click', () => {
     expect(helper.q('.c-dropdown')).not.toHaveClass('open');
-    helper.click('.c-dropdown_head');
+    helper.click('.c-dropdown-head');
     expect(helper.q('.c-dropdown')).toHaveClass('open');
   });
 
   it('should close dropdown when an item is selected', () => {
-    helper.click('.c-dropdown_head');
+    helper.click('.c-dropdown-head');
     expect(helper.q('.c-dropdown')).toHaveClass('open');
-    helper.click('.c-dropdown_item');
+    helper.click('.c-dropdown-item');
     expect(helper.q('.c-dropdown')).not.toHaveClass('open');
   });
 

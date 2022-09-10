@@ -19,7 +19,6 @@
 .section-heading {
   font-size: 24px;
   font-weight: 600;
-
   margin: 0;
   padding: 0;
 }
@@ -27,7 +26,6 @@
 .section-subheading {
   font-size: 20px;
   font-weight: 500;
-
   margin: 0;
   padding: 0;
 }
@@ -51,7 +49,8 @@
     max-width: calc(50% - #{$fillable-section-margin});
   }
 
-  input, select {
+  input,
+  select {
     font-size: inherit;
   }
 

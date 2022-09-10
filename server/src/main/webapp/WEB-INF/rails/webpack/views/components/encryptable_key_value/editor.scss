@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
- @import "../../global/common";
+@import "../../global/common";
 
- .all-key-vals {
+.all-key-vals {
   border-collapse: collapse;
 
   tbody {
@@ -38,7 +38,7 @@
 
   .default-headers {
     th {
-      padding: 0 0 10x;
+      padding: 0 0 10px;
       font-size: 14px;
       font-weight: 600;
     }

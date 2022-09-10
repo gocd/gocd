@@ -17,70 +17,76 @@
 
 .site-header {
   background: $site-header;
-  position:   fixed;
-  top:        0;
-  left:       0;
-  right:      0;
-  z-index:    map-get($zindex, site-header);
-  @media(min-width: $screen-md) {
-    display:     flex;
-    height:      40px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: map-get($zindex, site-header);
+
+  @media (min-width: $screen-md) {
+    display: flex;
+    height: 40px;
     align-items: center;
-    padding:     0 10px;
+    padding: 0 10px;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     padding: 0 30px;
   }
 }
 
 .main-navigation {
   @media (max-width: $screen-md-min) {
-    display:    none;
-    margin:     0;
-    position:   fixed;
-    right:      0;
-    bottom:     0;
-    top:        40px;
-    width:      100%;
+    display: none;
+    margin: 0;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    top: 40px;
+    width: 100%;
     background: $site-header;
-    height:     100vh;
-    padding:    0 20px 40px;
+    height: 100vh;
+    padding: 0 20px 40px;
     overflow-y: auto;
   }
 
-  @media(min-width: $screen-md) {
-    display:         flex !important; // sass-lint:disable-line no-important
+  @media (min-width: $screen-md) {
+    display: flex !important;
     justify-content: space-between;
-    flex-grow:       2;
+    flex-grow: 2;
   }
 }
 
 .gocd_logo {
-  height:     20px;
-  width:      40px;
-  display:    inline-block;
-  margin:     10px 0 10px 20px;
-  @media(min-width: $screen-md) {
+  height: 20px;
+  width: 40px;
+  display: inline-block;
+  margin: 10px 0 10px 20px;
+
+  @media (min-width: $screen-md) {
     margin: 10px 0 10px 0;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     margin-right: 10px;
   }
-  background: url('../../../../app/assets/images/go_logo.svg') no-repeat 0 0; // fixme
+
+  background: url("../../../../app/assets/images/go_logo.svg") no-repeat 0 0; // fixme
 }
 
 .site-navigation_left {
-  display:        flex;
+  display: flex;
   text-transform: uppercase;
-  flex-shrink:    0;
-  flex-grow:      0;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
-.site-header_left, .site-header_right {
-  @media(min-width: $screen-md) {
-    display:        flex;
+.site-header_left,
+.site-header_right {
+  @media (min-width: $screen-md) {
+    display: flex;
     flex-direction: row;
-    align-items:    center;
+    align-items: center;
   }
 }
 
@@ -89,68 +95,71 @@
 $bar-width: 20px;
 $bar-height: 3px;
 $bar-spacing: 7px;
+
 .navbtn {
-  @media(min-width: $screen-md) {
+  @media (min-width: $screen-md) {
     display: none;
   }
-  border:     none;
-  float:      right;
-  position:   absolute;
-  top:        11px;
-  right:      10px;
-  margin:     auto;
-  width:      $bar-width;
-  height:     $bar-height + $bar-spacing*2;
-  cursor:     pointer;
+
+  border: none;
+  float: right;
+  position: absolute;
+  top: 11px;
+  right: 10px;
+  margin: auto;
+  width: $bar-width;
+  height: $bar-height + ($bar-spacing * 2);
+  cursor: pointer;
   background: transparent;
 }
 
 // responsive menu
 
 .bar,
-.bar:after,
-.bar:before {
-  width:  $bar-width;
+.bar::after,
+.bar::before {
+  width: $bar-width;
   height: $bar-height;
 }
 
 .bar {
-  position:   relative;
-  transform:  translateY($bar-spacing);
+  position: relative;
+  transform: translateY($bar-spacing);
   background: $white-opaque;
   transition: all 0ms 300ms;
+
   &.animate {
     background: $white-transparent;
   }
 }
 
-.bar:before {
-  content:    "";
-  position:   absolute;
-  left:       0;
-  bottom:     $bar-spacing;
+.bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: $bar-spacing;
   background: $white-opaque;
   transition: bottom 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.bar:after {
-  content:    "";
-  position:   absolute;
-  left:       0;
-  top:        $bar-spacing;
+.bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: $bar-spacing;
   background: $white-opaque;
   transition: top 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.bar.animate:after {
-  top:        0;
-  transform:  rotate(45deg);
+.bar.animate::after {
+  top: 0;
+  transform: rotate(45deg);
   transition: top 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.bar.animate:before {
-  bottom:     0;
-  transform:  rotate(-45deg);
+.bar.animate::before {
+  bottom: 0;
+  transform: rotate(-45deg);
   transition: bottom 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -158,11 +167,13 @@ $bar-spacing: 7px;
   @include hover-effect-for-top-menu;
 
   line-height: 40px;
-  display:     block;
-  @media(min-width: $screen-md) {
+  display: block;
+
+  @media (min-width: $screen-md) {
     margin: 0 7px 0 0;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     margin: 0 10px 0 0;
   }
 }
@@ -170,31 +181,33 @@ $bar-spacing: 7px;
 // header right side navigation
 
 .user {
-  color:    $header-text-color;
+  color: $header-text-color;
   position: relative;
 
   &.is-drop-down {
-    &:before {
-      content:      "";
-      position:     absolute;
-      left:         50%;
-      top:          30px;
-      transform:    translateX(-50%);
-      width:        0;
-      height:       0;
-      border-left:  10px solid transparent;
+    &::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 30px;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
       border-right: 10px solid transparent;
-      border-top:   10px solid $site-header;
+      border-top: 10px solid $site-header;
     }
   }
+
   &:hover {
     .user_subnav {
       display: block;
       z-index: map_get($zindex, submenu);
     }
-    &:before {
-      top:        40px;
-      z-index:    map-get($zindex, menu);
+
+    &::before {
+      top: 40px;
+      z-index: map-get($zindex, menu);
       transition: all 0.1s ease-in-out;
     }
   }
@@ -202,22 +215,27 @@ $bar-spacing: 7px;
 
 .user_link {
   @include hover-effect-for-top-menu;
-  color:           $header-text-color;
+
+  color: $header-text-color;
   text-decoration: none;
-  padding:         0;
-  line-height:     40px;
-  display:         inline-block;
-  font-size:       13px;
-  @media(min-width: $screen-md) {
+  padding: 0;
+  line-height: 40px;
+  display: inline-block;
+  font-size: 13px;
+
+  @media (min-width: $screen-md) {
     padding: 0 7px;
   }
-  @media(min-width: $screen-lg) {
+
+  @media (min-width: $screen-lg) {
     padding: 0 10px;
   }
+
   .fa {
     margin: 0 3px;
-    color:  $icon-color;
-    @media(min-width: $screen-md) {
+    color: $icon-color;
+
+    @media (min-width: $screen-md) {
       margin: 0 5px;
     }
   }
@@ -225,41 +243,42 @@ $bar-spacing: 7px;
 
 .user_subnav {
   list-style-type: none;
-  margin:          0 20px;
-  padding:         0;
+  margin: 0 20px;
+  padding: 0;
 
-  @media(min-width: $screen-md) {
-    margin:     0 0 0 20px;
-    padding:    10px 20px;
-    display:    none;
-    position:   absolute;
-    top:        40px;
-    right:      0;
+  @media (min-width: $screen-md) {
+    margin: 0 0 0 20px;
+    padding: 10px 20px;
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: 0;
     background: $sub-navigation-bg;
     box-shadow: 0 3px 10px $box-shadow-color;
   }
 }
 
 .user_subnav_link {
-  color:           $header-text-color;
+  color: $header-text-color;
   text-decoration: none;
-  padding:         10px 0;
-  font-size:       13px;
-  text-align:      right;
-  display:         inline-block;
-  transition:      all 0.3s ease-in-out;
+  padding: 10px 0;
+  font-size: 13px;
+  text-align: right;
+  display: inline-block;
+  transition: all 0.3s ease-in-out;
+
   &:hover {
-    color:      $page-header-bg;
+    color: $page-header-bg;
     transition: all 0.3s ease-in-out;
   }
 }
 
 .caret_down_icon {
   @include icon-before($fa-var-caret-down);
+
   color: $icon-color;
 }
 
 .user_icon {
   @include icon-before($fa-var-user);
-
 }

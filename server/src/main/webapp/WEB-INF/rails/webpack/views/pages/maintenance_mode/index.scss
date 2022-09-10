@@ -16,72 +16,73 @@
 @import "../../global/common";
 
 .maintenance-mode-widget {
-  background:    $white;
-  border:        1px solid $border-color;
+  background: $white;
+  border: 1px solid $border-color;
   border-radius: 5px;
-  padding:       30px;
-  position:      relative;
-  top:           15px;
+  padding: 30px;
+  position: relative;
+  top: 15px;
 }
 
 .maintenance-mode-description {
-  font-size:     1rem;
+  font-size: 1rem;
   margin-bottom: 15px;
 }
 
 .maintenance-mode-info {
-  display:       block;
-  padding:       10px 20px;
-  border:        1px solid $border-color;
+  display: block;
+  padding: 10px 20px;
+  border: 1px solid $border-color;
   border-radius: $global-border-radius;
-  width:         100%;
-  box-sizing:    border-box;
+  width: 100%;
+  box-sizing: border-box;
+
   @media (min-width: $screen-xxl) {
     width: 55%;
   }
 }
 
 .running-system {
-  display:       flex;
-  font-size:     16px;
+  display: flex;
+  font-size: 16px;
   margin-bottom: 7px;
-  align-items:   center;
+  align-items: center;
 }
 
 .running-system-text {
-  font-size:    14px;
+  font-size: 14px;
   padding-left: 5px;
 }
 
 .updated-by {
-  font-size:      13px;
-  border-radius:  5px 5px 0 0;
-  font-style:     italic;
-  color:          $footer-fg;
-  display:        block;
-  border-bottom:  1px solid $border-color;
+  font-size: 13px;
+  border-radius: 5px 5px 0 0;
+  font-style: italic;
+  color: $footer-fg;
+  display: block;
+  border-bottom: 1px solid $border-color;
   padding-bottom: 5px;
-  margin-bottom:  10px;
+  margin-bottom: 10px;
 }
 
 .switch-wrapper {
-  display:     flex;
+  display: flex;
   align-items: center;
-  margin-top:  3px;
+  margin-top: 3px;
 }
 
 .maintenance-mode-label {
-  font-size:    20px;
-  font-weight:  600;
+  font-size: 20px;
+  font-weight: 600;
   margin-right: 13px;
-  display:      inline-block;
+  display: inline-block;
 }
 
 .maintenance-mode-state-message {
-  font-size:   14px;
+  font-size: 14px;
   font-weight: 600;
   margin-left: 10px;
-  color:       lighten($text-color, 40%);
+  color: lighten($text-color, 40%);
 }
 
 .in-progress-subsystems {
@@ -89,28 +90,29 @@
 }
 
 .running-sub-system {
-  margin:  20px 0;
+  margin: 20px 0;
   padding: 0;
 }
 
 .gocd-sub-system-info {
   padding: 0;
+
   li {
-    font-size:     16px;
+    font-size: 16px;
     margin-bottom: 10px;
   }
 }
 
 .panel {
   border-radius: 3px;
-  border:        1px solid $border-color;
-  margin:        20px 0;
+  border: 1px solid $border-color;
+  margin: 20px 0;
 }
 
 .panel-header {
   border-bottom: 1px solid $border-color;
-  padding:       10px 20px;
-  margin:        0;
+  padding: 10px 20px;
+  margin: 0;
 }
 
 .panel-body {
@@ -119,11 +121,11 @@
 
 .running-system-header {
   padding: 20px 0 10px 0;
-  margin:  0;
+  margin: 0;
 }
 
 .scheduled-stages-title-wrapper {
-  display:     flex;
+  display: flex;
   align-items: center;
 }
 

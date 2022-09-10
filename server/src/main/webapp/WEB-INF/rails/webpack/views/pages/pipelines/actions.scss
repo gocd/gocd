@@ -19,6 +19,7 @@
 @import "../../components/buttons/index";
 @import "../../components/buttons/wizard_buttons";
 
+// stylelint-disable scss/at-extend-no-missing-placeholder
 .actions {
   @extend .fillable;
 
@@ -26,6 +27,7 @@
     white-space: nowrap;
   }
 }
+// stylelint-enable scss/at-extend-no-missing-placeholder
 
 .btn-secondary {
   &:disabled {

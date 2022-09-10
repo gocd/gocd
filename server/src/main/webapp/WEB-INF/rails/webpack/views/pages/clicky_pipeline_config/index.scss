@@ -20,33 +20,33 @@
 }
 
 .navigation {
-  display:       flex;
-  min-width:     200px;
+  display: flex;
+  min-width: 200px;
   border-radius: $global-border-radius;
-  background:    $white;
-  padding:       8px 16px;
-  margin-right:  16px;
-  width:         200px;
+  background: $white;
+  padding: 8px 16px;
+  margin-right: 16px;
+  width: 200px;
 }
 
 .entity-config-container {
-  display:        flex;
-  border-radius:  $global-border-radius;
-  background:     $white;
-  flex-grow:      1;
+  display: flex;
+  border-radius: $global-border-radius;
+  background: $white;
+  flex-grow: 1;
   flex-direction: column;
 }
 
 .steps {
   font-weight: 600;
-  padding:     8px 16px;
-  word-break:  break-all;
-  word-wrap:   break-word;
-  font-size:   16px;
+  padding: 8px 16px;
+  word-break: break-all;
+  word-wrap: break-word;
+  font-size: 16px;
 
   a {
     text-decoration: none;
-    cursor:          pointer;
+    cursor: pointer;
 
     &:hover {
       text-decoration: none;
@@ -69,25 +69,25 @@
 }
 
 .radio-label-with-inline-textfield {
-  display:        flex;
+  display: flex;
   flex-direction: row;
 
   span {
-    display:      flex;
+    display: flex;
     margin-right: 5px;
   }
 
   input {
     margin-left: 5px;
-    width:       50px;
+    width: 50px;
   }
 }
 
 .help {
-  color:         $go-disabled;
-  display:       block;
+  color: $go-disabled;
+  display: block;
   margin-bottom: 5px;
-  font-style:    italic;
+  font-style: italic;
 }
 
 .button-container {
@@ -105,7 +105,7 @@
 .icon-check {
   @include icon-before($type: $fa-var-check, $color: $go-green);
 
-  &:before {
+  &::before {
     margin-left: -10px;
   }
 }
@@ -113,7 +113,7 @@
 .icon-error {
   @include icon-before($type: $fa-var-exclamation-circle, $color: $go-danger);
 
-  &:before {
+  &::before {
     margin-left: -10px;
   }
 }

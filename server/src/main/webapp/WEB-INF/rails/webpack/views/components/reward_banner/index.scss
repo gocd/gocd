@@ -17,28 +17,31 @@ $reward-banner-bg: #00c853;
 $reward-banner-hover-bg: #14e069;
 $reward-banner-text-color: #333;
 $reward-banner-border: #999;
-$reward-banner-after-bg: rgba(220, 220, 220, 0.7);
+$reward-banner-after-bg: rgba(220, 220, 220, 70%);
 
-@-webkit-keyframes slideFromUnder {
+@-webkit-keyframes slide-from-under {
   from {
     height: 0;
   }
+
   to {
     height: 40px;
   }
 }
-@keyframes slideFromUnder {
+
+@keyframes slide-from-under {
   from {
     height: 0;
   }
+
   to {
     height: 40px;
   }
 }
 
 .reward-banner {
-  -webkit-animation: slideFromUnder 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
-  animation: slideFromUnder 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
+  -webkit-animation: slide-from-under 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
+  animation: slide-from-under 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
   position: relative;
   box-sizing: border-box;
   overflow: hidden;
@@ -65,7 +68,7 @@ $reward-banner-after-bg: rgba(220, 220, 220, 0.7);
     background-color: $reward-banner-hover-bg;
   }
 
-  &:before {
+  &::before {
     line-height: normal;
     padding: 2px 4px;
     margin-right: 4.5ex;
@@ -77,7 +80,7 @@ $reward-banner-after-bg: rgba(220, 220, 220, 0.7);
     font-weight: normal;
   }
 
-  &:after {
+  &::after {
     line-height: normal;
     content: "esc";
     font-size: 12px;

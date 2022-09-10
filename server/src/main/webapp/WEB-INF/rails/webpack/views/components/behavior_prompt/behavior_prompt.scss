@@ -32,7 +32,7 @@ $behavior-prompt-z-index: 100;
   border-radius: 8px 2px 2px 8px;
 
   &.arrow-right {
-    &:after {
+    &::after {
       position: absolute;
       content: "";
 
@@ -51,7 +51,6 @@ $behavior-prompt-z-index: 100;
       // found empirically; too lazy to calculate. good enough.
       right: -14.3px;
       top: 4.5px;
-
       background: $behavior-prompt-bg;
       border-radius: 4px;
       transform: rotate(45deg);

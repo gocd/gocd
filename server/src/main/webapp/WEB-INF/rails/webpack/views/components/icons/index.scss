@@ -15,41 +15,41 @@
  */
 @import "../../global/common";
 
-$global-icon-size:        16px;
+$global-icon-size: 16px;
 $btn-group-border-radius: $global-border-radius;
-
 $console-icon-background: #474747;
 $console-icon-color: #fff;
 
 .btn-icon {
-  border:        1px solid $border-color;
+  border: 1px solid $border-color;
   border-radius: $global-border-radius;
-  cursor:        pointer;
-  font-size:     $global-icon-size;
-  padding:       0 10px;
-  height:        $form-element-height;
-  flex:          0 1 auto;
-  color:         $icon-color;
-  transition:    $transition;
-  background:    $icon-bg;
+  cursor: pointer;
+  font-size: $global-icon-size;
+  padding: 0 10px;
+  height: $form-element-height;
+  flex: 0 1 auto;
+  color: $icon-color;
+  transition: $transition;
+  background: $icon-bg;
 
   &:hover {
-    color:      lighten($icon-color, 100%);
+    color: lighten($icon-color, 100%);
     transition: $transition;
     background: $icon-color;
   }
 
-  &:focus, &:active {
+  &:focus,
+  &:active {
     outline: 0;
   }
 }
 
 .disabled {
   opacity: 0.75;
-  cursor:  not-allowed;
+  cursor: not-allowed;
 
   &:hover {
-    color:      $icon-color;
+    color: $icon-color;
     background: $icon-bg;
   }
 }
@@ -101,6 +101,7 @@ $console-icon-color: #fff;
 
 .spinner {
   @include icon-before($type: $fa-var-spinner);
+
   animation: spin 1500ms linear infinite;
 }
 
@@ -108,6 +109,7 @@ $console-icon-color: #fff;
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -123,6 +125,7 @@ $console-icon-color: #fff;
 
 .minus {
   @include icon-before($type: $fa-var-minus);
+
   font-size: 7px;
 }
 
@@ -201,19 +204,19 @@ $console-icon-color: #fff;
 .console-log {
   @include icon-before($type: $fa-var-terminal);
 
-  &:before {
-    border:        1px solid $console-icon-background;
-    padding:       3px;
+  &::before {
+    border: 1px solid $console-icon-background;
+    padding: 3px;
     border-radius: 3px;
-    background:    $console-icon-background;
-    color:         $console-icon-color;
-    font-weight:   800;
+    background: $console-icon-background;
+    color: $console-icon-color;
+    font-weight: 800;
   }
 
-  &:hover:before {
+  &:hover::before {
     transition: 0.4s;
     background: $console-icon-color;
-    color:      $console-icon-background;
+    color: $console-icon-background;
   }
 }
 
@@ -222,17 +225,17 @@ $console-icon-color: #fff;
 }
 
 .icon-group {
-  border:        1px solid $border-color;
+  border: 1px solid $border-color;
   border-radius: $btn-group-border-radius;
-  display:       inline-flex;
+  display: inline-flex;
 
   .btn-icon {
-    border:        none;
-    border-left:   1px solid $border-color;
+    border: none;
+    border-left: 1px solid $border-color;
     border-radius: 0;
 
     &:first-child {
-      border-left:   none;
+      border-left: none;
       border-radius: $btn-group-border-radius 0 0 $btn-group-border-radius;
     }
 

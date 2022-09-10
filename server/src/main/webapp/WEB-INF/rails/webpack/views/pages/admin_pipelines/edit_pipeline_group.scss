@@ -17,14 +17,15 @@
 
 .icon-delete {
   @include icon-before($type: $fa-var-times);
-  border:  none;
+
+  border: none;
   display: inline;
-  cursor:  pointer;
-  width:   22px;
-  height:  22px;
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
   padding: 0;
 
-  &:before {
+  &::before {
     margin: 0;
   }
 
@@ -46,7 +47,7 @@
 }
 
 .cancel-button-wrapper {
-  display:       flex;
+  display: flex;
   margin-bottom: 10px;
 }
 
@@ -56,5 +57,5 @@
 
 .errors {
   padding: 0;
-  margin:  5px;
+  margin: 5px;
 }

@@ -21,32 +21,32 @@ $border-color: #ccc;
 .search-box-wrapper {
   @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) ;
 
-  display:  inline-block;
+  display: inline-block;
   position: relative;
 
-  &:before {
-    position:  absolute;
-    left:      10px;
-    color:     $icon-color;
-    top:       8px;
+  &::before {
+    position: absolute;
+    left: 10px;
+    color: $icon-color;
+    top: 8px;
     font-size: 14px;
   }
 }
 
 .search-box-input {
-  height:             40px;
-  line-height:        40px;
-  padding:            0 10px 0 40px;
-  margin:             0;
-  border:             1px solid $border-color;
+  height: 40px;
+  line-height: 40px;
+  padding: 0 10px 0 40px;
+  margin: 0;
+  border: 1px solid $border-color;
   -webkit-appearance: none;
-  box-shadow:         none;
-  border-radius:      3px;
-  background:         $white-opaque;
+  box-shadow: none;
+  border-radius: 3px;
+  background: $white-opaque;
 
   &::placeholder {
-    color:     $icon-color;
+    color: $icon-color;
     font-size: 12px;
-    opacity:   0.8;
+    opacity: 0.8;
   }
 }

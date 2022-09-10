@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-$button_color: #2d6ca2;
+$button-color: #2d6ca2;
+
 .wrapper {
-  display:    inline-block;
-  max-width:  300px;
-  min-width:  250px;
+  display: inline-block;
+  max-width: 300px;
+  min-width: 250px;
   word-break: break-all;
 }
 
 .ellipsis-action-button {
-  color:        $button_color;
+  color: $button-color;
   padding-left: 10px;
-  cursor:       pointer;
+  cursor: pointer;
 }
 
 .fix-ellipsized {
-  overflow:      hidden;
-  white-space:   nowrap;
+  overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
-

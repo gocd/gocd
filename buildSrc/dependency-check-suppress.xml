@@ -55,6 +55,9 @@
 
     <cve>CVE-2022-38750</cve>
     <vulnerabilityName>CVE-2022-38750</vulnerabilityName>
+
+    <cve>CVE-2022-38751</cve>
+    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
   </suppress>
   <suppress until="2022-11-01Z">
     <notes><![CDATA[
@@ -66,9 +69,6 @@
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
     <cve>CVE-2022-38749</cve>
     <vulnerabilityName>CVE-2022-38749</vulnerabilityName>
-
-    <cve>CVE-2022-38751</cve>
-    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
 
     <cve>CVE-2022-38752</cve>
     <vulnerabilityName>CVE-2022-38752</vulnerabilityName>

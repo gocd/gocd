@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ntkme/sass-embedded-host-ruby.git
-  revision: 4724a844b7cd29ffde084e9c94d93f60f6badc89
+  revision: 0d103fd1936aedc405d963da078ec7f2b313a1ac
   ref: main
   specs:
     sass-embedded (1.54.9)

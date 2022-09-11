@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ntkme/sass-embedded-host-ruby.git
-  revision: 0d103fd1936aedc405d963da078ec7f2b313a1ac
+  revision: 6d0e9b8bab662e8258addcac475f379cf43ba881
   ref: main
   specs:
     sass-embedded (1.54.9)
@@ -200,7 +200,7 @@ GEM
       tilt
     spoon (0.0.6)
       ffi
-    sprockets (3.7.2)
+    sprockets (4.1.1)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
     sprockets-rails (3.4.2)

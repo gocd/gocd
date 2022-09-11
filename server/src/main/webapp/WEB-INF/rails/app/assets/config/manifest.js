@@ -13,3 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+//= link_tree ../images
+
+//= link application.js
+//= link lib/d3-3.1.5.min.js
+
+// Used by legacy templates `_header.ftl`
+//= link application.css
+//= link patterns/application.css
+//= link css/application.css
+//= link vm/application.css
+
+//= link frameworks.css
+//= link new-theme.css
+
+//= link single_page_apps/agents.css
+//= link single_page_apps/analytics.css
+//= link single_page_apps/new_dashboard.css

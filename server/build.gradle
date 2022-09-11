@@ -686,15 +686,26 @@ task configureWar {
       into '/'
       exclude('WEB-INF/web.xml')
       exclude("**/rails/.tool-versions")
+
+      // Unrelated Rails/Ruby stuff
       exclude("**/rails/*.log")
       exclude("**/rails/log/")
       exclude("**/rails/logs/")
-      exclude("**/rails/node_modules/")
       exclude("**/rails/spec/")
       exclude("**/rails/tmp/")
-      exclude("**/rails/app/assets/")
+
+      // Vendored pieces that are compiled and incorporated into `public` as necessary by Rails/Sprockets or Webpack
+      exclude("**/rails/node_modules/")
+      exclude("**/rails/node-vendor/")
+      exclude("**/rails/vendor/")
+
+      // Rails/Sprockets-compiled or Webpacked assets
+      exclude("**/rails/app/assets/images/")
+      exclude("**/rails/app/assets/javascripts/")
+      exclude("**/rails/app/assets/*stylesheets/")
       exclude("**/rails/webpack/")
 
+      // Unnecessary Gems and related cruft
       exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bin/")
       exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/bundler/")
       exclude("**/rails/gems/jruby/${project.bundledGemRubyVersion}/cache/")

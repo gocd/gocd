@@ -203,6 +203,7 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
   def publicAssetsDir = file("${project.railsRoot}/public/assets")
 
   inputs.dir(file("${project.railsRoot}/config"))
+  inputs.dir(file("${project.railsRoot}/app/assets/config"))
   inputs.dir(file("${project.railsRoot}/app/assets/javascripts"))
   inputs.dir(file("${project.railsRoot}/vendor/assets/javascripts"))
 

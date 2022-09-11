@@ -16,7 +16,7 @@
 
 @import "../pipelines/vals";
 @import "../../components/buttons/index";
-@import "~prismjs/themes/prism"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
+@import "prismjs/themes/prism";
 
 $syntax-bg: #282923;
 $error-container-width: 450px;

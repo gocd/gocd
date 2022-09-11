@@ -125,7 +125,7 @@
 }
 
 .icon-remove {
-  @include icon-before($type: $fa-var-trash, $color: $icon-color);
+  @include icon-before($type: $fa-var-trash-can, $color: $icon-color);
 
   &::before {
     margin: 5px 10px 5px -5px;

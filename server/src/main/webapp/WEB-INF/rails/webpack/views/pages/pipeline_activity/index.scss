@@ -24,6 +24,7 @@ $stage-status-unknown: #fafafa;
 $build-details-z-index: 5;
 $modification-text-color: #ff6;
 $dropdown-background-color: #333;
+$icon-size: 10px;
 $disabled-icon-color: #e0e0e0;
 $stage-status-bar-z-index: 2;
 $stage-action-icon-z-index: 1;
@@ -190,26 +191,26 @@ $stage-action-icon-z-index: 1;
 }
 
 .cancelled {
-  @include icon-before($fa-var-ban, 12px, 0);
+  @include icon-before($fa-var-ban, $icon-size, 1px);
 
   color: $black;
   background: transparent url("../../../../app/assets/images/building.png") repeat-x;
 }
 
 .failed {
-  @include icon-before($fa-var-info-circle, 12px, 0);
+  @include icon-before($fa-var-exclamation-circle, $icon-size, 1px);
 
   background: $failed;
 }
 
 .passed {
-  @include icon-before($fa-var-check, 12px, 0);
+  @include icon-before($fa-var-check, $icon-size, 1px);
 
   background: $passed;
 }
 
 .waiting {
-  @include icon-before($fa-var-spinner, 12px, 0);
+  @include icon-before($fa-var-spinner, $icon-size, 1px);
 
   color: $black;
   background: transparent url("../../../../app/assets/images/building.png") repeat-x;

@@ -76,7 +76,7 @@ $draggable-row-color: #e2f7fa;
 }
 
 .sort-button-asc {
-  @include icon-before($fa-var-sort-asc);
+  @include icon-before($fa-var-sort-up);
 
   margin-left: 2px;
   cursor: pointer;
@@ -84,7 +84,7 @@ $draggable-row-color: #e2f7fa;
 }
 
 .sort-button-desc {
-  @include icon-before($fa-var-sort-desc);
+  @include icon-before($fa-var-sort-down);
 
   margin-left: 2px;
   cursor: pointer;

@@ -94,11 +94,25 @@ p {
   margin: 0 0 20px 0;
 }
 
-@include font-face($font-family: "FontAwesome",
-$file-path: "~font-awesome/fonts/fontawesome-webfont",
-$file-formats: ("woff2", "woff")) {
-  font-weight: normal;
+$fa-font-path: "@fortawesome/fontawesome-free/webfonts";
+$fa-style-family-brands: "#{str-slice($fa-style-family, 1, -5)} Brands";
+
+@include font-face(
+  $font-family: $fa-style-family,
+  $file-path: "#{$fa-font-path}/fa-solid-900",
+  $file-formats: ("woff2"),
+) {
   font-style: normal;
+  font-weight: 900;
+}
+
+@include font-face(
+  $font-family: $fa-style-family-brands,
+  $file-path: "#{$fa-font-path}/fa-brands-400",
+  $file-formats: ("woff2"),
+) {
+  font-style: normal;
+  font-weight: 400;
 }
 
 // stylelint-disable value-keyword-case

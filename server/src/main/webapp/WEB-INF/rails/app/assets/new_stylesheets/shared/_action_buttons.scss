@@ -58,7 +58,7 @@ $btn-border: $border-grey;
 }
 
 .edit-button {
-  @include icon-before($type: pencil-square-o, $color: $go-icon-color);
+  @include icon-before($type: pencil, $color: $go-icon-color);
 
   &:not(.disabled) {
     &:hover {
@@ -76,7 +76,7 @@ $btn-border: $border-grey;
 }
 
 .delete-button {
-  @include icon-before($type: trash, $color: $go-icon-color);
+  @include icon-before($type: trash-can, $color: $go-icon-color);
 
   &:not(.disabled) {
     &:hover {

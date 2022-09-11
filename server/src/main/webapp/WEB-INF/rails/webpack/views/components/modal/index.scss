@@ -99,7 +99,7 @@ $spinner-wrapper-height: 200px;
 }
 
 .close-icon {
-  @include icon-before($type: $fa-var-close);
+  @include icon-before($type: $fa-var-xmark);
 }
 
 .overlay-fixed-height {

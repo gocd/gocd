@@ -92,99 +92,6 @@ h4 {
   font-size: 18px;
 }
 
-.environment-listview {
-  border: 1px solid #ececec;
-  margin: 0 15px;
-  border-radius: 3px;
-  background: #fff;
-}
-
-.environment-listview .environment-header {
-  display: flex;
-  height: 30px;
-  cursor: pointer;
-  padding: 10px 50px 10px 20px;
-  overflow: hidden;
-
-  &::after {
-    content: "\f105";
-    font-family: FontAwesome;
-    position: absolute;
-    right: 35px;
-    font-size: 30px;
-    font-weight: 400;
-    color: #ccc;
-  }
-
-  h2.entity_title {
-    font-size: 14px;
-    font-weight: 600;
-    color: black;
-    line-height: 30px;
-    min-width: 325px;
-    max-width: 325px;
-    padding: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-
-    &.disabled {
-      color: #999;
-      font-style: italic;
-    }
-  }
-
-  .key-value-pair {
-    padding-left: 15px;
-    line-height: 30px;
-    min-width: 250px;
-    max-width: 250px;
-
-    .key {
-      min-width: auto;
-    }
-  }
-}
-
-.environment-listview .environment-body {
-  border-top: 1px solid #ececec;
-  padding: 15px;
-  display: none;
-
-  h3 {
-    margin: 10px 0 20px;
-    border-bottom: 1px dotted #ccc;
-    padding-bottom: 10px;
-  }
-
-  .added_item ul {
-    margin-left: 23px;
-
-    li {
-      margin-top: 10px;
-      font-size: rem-calc(13px);
-    }
-  }
-}
-
-.environment-listview.expanded {
-  box-shadow: 0 3px 11px 0 rgba(0, 0, 0, 15%);
-
-  .environment-body {
-    display: block;
-  }
-
-  .environment-header::after {
-    content: "\f107";
-  }
-}
-
-.environment_show {
-  .row {
-    margin-top: 15px;
-  }
-}
-
 .yui-t7 #yui-main .yui-b {
   background: transparent;
 }
@@ -2088,12 +1995,6 @@ code,
 
 .content_wrapper_outer {
   clear: both;
-}
-
-.edit_icon_disabled,
-.lock_icon_disabled,
-.view_icon_disabled {
-  margin-top: 3px;
 }
 
 #links {

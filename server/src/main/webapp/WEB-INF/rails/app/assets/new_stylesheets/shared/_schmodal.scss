@@ -132,7 +132,7 @@ $overlay-border-radius: 3px;
 }
 
 .close-icon {
-  @include icon-before($type: close);
+  @include icon-before($type: xmark);
 }
 
 .overlay-content {

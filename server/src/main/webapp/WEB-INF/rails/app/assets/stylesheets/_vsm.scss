@@ -332,7 +332,7 @@ $btn-default: #d6d5d5;
 }
 
 .analytics-close {
-  @include icon-before("close", $margin: 10, $size: 20px);
+  @include icon-before("times", $margin: 10, $size: 20px);
 
   width: 20px;
   background: transparent;
@@ -401,7 +401,7 @@ $btn-default: #d6d5d5;
 }
 
 .icon_vsm_analytics {
-  @include icon-before($type: bar-chart);
+  @include icon-before($type: chart-bar);
 
   padding: 0;
   font-size: 15px;

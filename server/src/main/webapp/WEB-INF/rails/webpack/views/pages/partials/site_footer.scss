@@ -94,12 +94,12 @@ $maintenance-mode-banner-message-font-size: 17px;
   text-decoration: none;
   margin: 0 3px;
 
-  @mixin footer-icon($icon) {
-    @include icon-before($type: $icon, $color: $icon-color, $size: 16px, $line-height: 1.5rem);
+  @mixin footer-icon($icon, $font: "font-awesome") {
+    @include icon-before($type: $icon, $color: $icon-color, $size: 16px, $line-height: 1.5rem, $font: $font);
   }
 
   &.github {
-    @include footer-icon($icon: $fa-var-github);
+    @include footer-icon($icon: $fa-var-github, $font: "font-awesome-brands");
   }
 
   &.forums {
@@ -115,7 +115,7 @@ $maintenance-mode-banner-message-font-size: 17px;
   }
 
   &.cctray {
-    @include footer-icon($icon: $fa-var-feed);
+    @include footer-icon($icon: $fa-var-rss);
   }
 
   &.api {

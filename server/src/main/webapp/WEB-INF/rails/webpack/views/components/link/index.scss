@@ -27,5 +27,5 @@
 }
 
 .external-icon {
-  @include icon-after($type: $fa-var-external-link);
+  @include icon-after($type: $fa-var-external-link-alt);
 }

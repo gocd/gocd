@@ -183,7 +183,7 @@ $dropdown-button-content-z-index: 5;
 }
 
 .agent-analytics a {
-  @include icon-before($type: $fa-var-bar-chart);
+  @include icon-before($type: $fa-var-chart-bar);
 
   padding: 0;
   font-size: 14px;

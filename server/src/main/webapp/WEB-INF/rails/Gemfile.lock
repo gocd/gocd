@@ -97,6 +97,7 @@ GEM
     globalid (1.0.0)
       activesupport (>= 5.0)
     google-protobuf (3.21.5-java)
+    google-protobuf (3.21.5-x86_64-linux)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
@@ -111,8 +112,11 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.16.3)
+    nio4r (2.5.8)
     nio4r (2.5.8-java)
     nokogiri (1.13.8-java)
+      racc (~> 1.4)
+    nokogiri (1.13.8-x86_64-linux)
       racc (~> 1.4)
     pry (0.14.1-java)
       coderay (~> 1.1)
@@ -122,6 +126,7 @@ GEM
       pry (>= 0.13, < 0.15)
       ruby-debug-base (>= 0.10.4, < 0.12)
     public_suffix (5.0.0)
+    racc (1.6.0)
     racc (1.6.0-java)
     rack (2.2.4)
     rack-test (2.0.2)
@@ -164,7 +169,7 @@ GEM
       rspec-mocks (~> 3.11.0)
     rspec-core (3.11.0)
       rspec-support (~> 3.11.0)
-    rspec-expectations (3.11.0)
+    rspec-expectations (3.11.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-instafail (1.0.0)
@@ -180,7 +185,7 @@ GEM
       rspec-expectations (~> 3.11)
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
-    rspec-support (3.11.0)
+    rspec-support (3.11.1)
     rspec_junit_formatter (0.5.1)
       rspec-core (>= 2, < 4, != 2.12.0)
     ruby-debug-base (0.11.0-java)
@@ -210,6 +215,8 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2022.3)
       tzinfo (>= 1.0.0)
+    websocket-driver (0.7.5)
+      websocket-extensions (>= 0.1.0)
     websocket-driver (0.7.5-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -220,6 +227,7 @@ GEM
 PLATFORMS
   java
   universal-java-17
+  x86_64-linux
 
 DEPENDENCIES
   capybara

@@ -1,2 +1,2 @@
 # Configuration for https://github.com/asdf-vm/asdf as an alternative to jabba, rvm, nvm etc
-ruby jruby-9.3.7.0
+ruby jruby-9.3.8.0

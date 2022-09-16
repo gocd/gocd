@@ -1,29 +1,31 @@
 source 'https://rubygems.org'
 ruby '2.6.8'
 
-gem 'rails'
+platforms :jruby do
+  gem 'rails'
 
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+  # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+  gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-group :assets do
-  gem 'sassc-rails'
-  gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
-  gem 'sassc-embedded'
-  gem 'sass-embedded', github: 'ntkme/sass-embedded-host-ruby', ref: 'main'
-  gem 'js-routes'
-  gem 'ts_routes'
-end
+  group :assets do
+    gem 'sassc-rails'
+    gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
+    gem 'sassc-embedded'
+    gem 'sass-embedded', github: 'ntkme/sass-embedded-host-ruby', ref: 'main'
+    gem 'js-routes'
+    gem 'ts_routes'
+  end
 
-group :development, :test do
-  # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
-  gem 'pry-debugger-jruby', platforms: :jruby
-end
+  group :development, :test do
+    # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
+    gem 'pry-debugger-jruby'
+  end
 
-group :test do
-  gem 'capybara'
-  gem 'rspec-rails'
-  gem 'rspec-instafail', require: false
-  gem 'rspec_junit_formatter'
-  gem 'rails-controller-testing'
+  group :test do
+    gem 'capybara'
+    gem 'rspec-rails'
+    gem 'rspec-instafail', require: false
+    gem 'rspec_junit_formatter'
+    gem 'rails-controller-testing'
+  end
 end

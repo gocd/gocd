@@ -41,6 +41,14 @@
     <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
     <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
+  <suppress until="2022-10-01Z">
+    <notes><![CDATA[
+   This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.31 according to devs and NIST NVD,
+   raised at https://github.com/OSSIndex/vulns/issues/327
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
+  </suppress>
   <suppress until="2022-11-01Z">
     <notes><![CDATA[
    Temporary suppression as there is no available fix, and in some cases the developers do not agree that there are vulnerabilities. See

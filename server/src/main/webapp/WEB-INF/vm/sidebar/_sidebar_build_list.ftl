@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,44 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-#macro( messages $id $messageList $headerTag $headerId)
-    #if ($messageList.size() > 0)
-        <$headerTag id="$id-header">Messages ($messageList.size())</$headerTag>
-        <p class="messages" id="$id">
-            #foreach( $message in $messageList )
-                <span class="$message.level">$message</span><br/>
-            #end
-        </p>
-    #end
-#end
+ -->
 <div id="build_history_holder" class="sidebar-container">
     <h4 class="entity_title dropdown-arrow-icon" data-toggle='dropdown'>Job History</h4>
     <div id="buildlist-container" class="round-content">
-        #if($presenter.recent25.size() == 0)
+        <#if presenter.recent25?size == 0 >
             <p class="text-only">No jobs found.</p>
-        #end
+        </#if>
         <ul class="buildlist dropdown-menu">
-            #foreach( $listPresenter in $presenter.recent25 )
-            <li id="build_list_${velocityCount}" #if($listPresenter.isSame($presenter.id)) class="current" #end >
-                <a href="$req.getContextPath()/tab/build/detail/${listPresenter.buildLocator}">
-                    #if($listPresenter.copy)
+            <#list presenter.recent25 as listPresenter>
+            <li id="build_list_${listPresenter?counter}" <#if listPresenter.isSame(presenter.id)> class="current" </#if> >
+                <a href="${req.getContextPath()}/tab/build/detail/${listPresenter.buildLocator}">
+                    <#if listPresenter.copy>
                     <div class="color_code_small copied_job"></div>
-                    #else
+                    <#else>
                     <div class="color_code_small"></div>
-                    #end
-                <strong>${listPresenter.buildLocatorForDisplay}</strong>
-                <div class="time_ago" data="${listPresenter.scheduledTime}"></div>
-
+                    </#if>
+                    <strong>${listPresenter.buildLocatorForDisplay}</strong>
+                    <div class="time_ago" data="${r'${listPresenter.scheduledTime}'}"></div>
                 </a>
             </li>
-            #end
+            </#list>
         </ul>
     </div>
     <script type="text/javascript">
-    #foreach( $listPresenter in $presenter.recent25 )
-        json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${velocityCount}, "$req.getContextPath()/$concatenatedStageBarCancelledIconFilePath");
-    #end
+        <#list presenter.recent25 as listPresenter>
+        json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${listPresenter?counter}, "${req.getContextPath()}/${concatenatedStageBarCancelledIconFilePath}");
+        </#list>
 
       jQuery(function() {
           jQuery(".buildlist .time_ago").each(function(idx, timeSpan) {

@@ -148,7 +148,7 @@
   <context:component-scan base-package="com.thoughtworks.go.server.newsecurity"/>
   <context:component-scan base-package="com.thoughtworks.go.server.security"/>
 
-  <import resource="velocity-config.xml"/>
+  <import resource="freemarker-config.xml"/>
   <import resource="applicationContext-plugin-infra.xml"/>
 
   <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->

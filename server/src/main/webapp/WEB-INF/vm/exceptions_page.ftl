@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
-## layout level variable
-    #set ($title = 'Exception Detail - Cruise')
-    #parse("shared/_header.vm")
-
-    #parse("shared/_flash_message.vm")
+ -->
+<#assign title = 'Exception Detail - GoCD'>
+<#include "shared/_header.ftl">
+<#include "shared/_flash_message.ftl">
     <div id="yui-main">
         <div class="yui-b"></div>
     </div>
-    #set($msg = $esc.html($esc.javascript("$errorMessage")))
-    #set($customErrorMessage = "#if($errorMessage) [$msg]#end")
     <script type="text/javascript">
-        $('trans_content').update("Sorry, an unexpected error occurred$customErrorMessage. :( Please check the server logs for more information.");
+        $('trans_content').update("Sorry, an unexpected error occurred<#if errorMessage??> [${errorMessage?js_string?html}]</#if>. :( Please check the server logs for more information.");
         var transMessage = new TransMessage('trans_message', document.body,
                 {type: TransMessage.TYPE_ERROR, offsetTop: 200, autoHide: false});
     </script>

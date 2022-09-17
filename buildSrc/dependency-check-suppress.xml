@@ -90,33 +90,6 @@
 
   <suppress>
     <notes><![CDATA[
-    It is not possible to upload/modify Velocity Templates within GoCD, so GoCD does not appear to be vulnerable to this
-    vulnerability. See https://nvd.nist.gov/vuln/detail/CVE-2020-13936
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.apache\.velocity/velocity@.*$</packageUrl>
-    <cve>CVE-2020-13936</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    The Velocity Tools/Velocity Tools View are versioned separately to the Engine, so it is not correct to have Engine CVEs
-    reported against the tools jar.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
-    <cpe>cpe:/a:apache:velocity_engine</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    The vulnerability in Velocity Tools View is in the VelocityViewServlet per https://nvd.nist.gov/vuln/detail/CVE-2020-13959
-    which we do not use - we use Spring's WebMVC VelocityView implementation, so we are not vulnerable to this issue.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/velocity\-tools/velocity\-tools\-view@.*$</packageUrl>
-    <cve>CVE-2020-13959</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
     https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
     ]]></notes>

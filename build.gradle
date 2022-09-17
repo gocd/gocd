@@ -211,11 +211,6 @@ allprojects {
 
   repositories {
     mavenCentral()
-    maven {
-      // Only for velocity-tools-view 1.4
-      url 'https://repo1.maven.org/maven2'
-      metadataSources { artifact() }
-    }
   }
 
   if (project.name == 'build-platform') {
@@ -767,13 +762,11 @@ task newSPA {
     String modelsBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/models/${spaName}"
     String pagesBase = "${project(':server').webAppDir}/WEB-INF/rails/webpack/views/pages"
     String widgetBase = "${pagesBase}/${spaName}"
-    String vmBase = "spark/spark-spa/src/main/resources/velocity/${spaName}"
     String mountPoint = "${project(':server').webAppDir}/WEB-INF/rails/webpack/single_page_apps"
 
-    project.delete(modelsBase, widgetBase, vmBase)
+    project.delete(modelsBase, widgetBase)
     project.mkdir(modelsBase)
     project.mkdir(widgetBase)
-    project.mkdir(vmBase)
 
     String licenseHeader =
       """

@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
+ -->
 <textarea rows="0" cols="0" id="tab-content-of-materials-template" style="display: none;">
     {for revision in revisions}
     <div class="material_revision">
         <div class="material">
-            <span class="revision_scmtype">${%revision.scmType%}</span>
-            <span class="revision_location">{if revision.materialName}${%revision.materialName.concat(' - ')%} {/if}${%revision.location%}</span>
+            <span class="revision_scmtype">${r"${%revision.scmType%}"}</span>
+            <span class="revision_location">{if revision.materialName}${r"${%revision.materialName.concat(' - ')%}"} {/if}${r"${%revision.location%}"}</span>
             <br/>
             {if revision.scmType=='Dependency'}
             {var modification = revision.modifications[0]}
-            <div class="dependency_revision_highlight-${%revision.changed%}">
+            <div class="dependency_revision_highlight-${r"${%revision.changed%}"}">
                 <span class="revision_revision">
-                    <a href="$req.getContextPath()/${% revision.revision_href %}">${% revision.revision %}</a>
+                    <a href="${req.getContextPath()}/${r"${% revision.revision_href %}"}">${r"${% revision.revision %}"}</a>
                 </span>
-                <span>${%revision.action%}</span>
+                <span>${r"${%revision.action%}"}</span>
                 on
-                <span>${%revision.date%}</span>
+                <span>${r"${%revision.date%}"}</span>
             </div>
             {/if}
         </div>
@@ -38,25 +38,25 @@
             {var comment = modification.comment}
             <tbody>
             <tr>
-                <th colspan="2" class="highlight-${%revision.changed%}">
+                <th colspan="2" class="highlight-${r"${%revision.changed%}"}">
 
-                    <span class="normal revision_information">Revision: ${%modification.revision%}, modified by ${%modification.user.escapeHTML()%} on ${%modification.date%} </span>
+                    <span class="normal revision_information">Revision: ${r"${%modification.revision%}"}, modified by ${r"${%modification.user.escapeHTML()%}"} on ${r"${%modification.date%}"} </span>
                     <br/>
 
                     <span title="Comment" class="comment">
 
                         {if revision.scmType == 'Package' }
-                            #parse('shared/_package_material_revision_comment.vm')
+                            <#include '../shared/_package_material_revision_comment.ftl'>
                         {else}
-                            "${%comment.replace(/\n/g,"<br>")%}"
+                            <#noparse>"${%comment.replace(/\n/g,"<br>")%}"</#noparse>
                         {/if}
                     </span>
                 </th>
             </tr>
             {for file in modification.modifiedFiles}
             <tr class="{if file_index%2==0} even {else} odd {/if}">
-                <td title="${%file.action%}" class="${%file.action%}">
-                        <span class="modified_file">${%file.fileName%}</span>
+                <td title="${r"${%file.action%}"}" class="${r"${%file.action%}"}">
+                        <span class="modified_file">${r"${%file.fileName%}"}</span>
                 </td>
             </tr>
             {/for}

@@ -1,4 +1,4 @@
-#*
+<#--
  * Copyright 2022 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *#
+ -->
+<div id="trans_message" style="position:absolute;display:none">
+    <b class="rtop" style="display:block;background-color: transparent;">
+       <b class="r1"></b>
+       <b class="r2"></b>
+       <b class="r3"></b>
+       <b class="r4"></b>
+    </b>
+    <div class="transparent_message" id="trans_content"></div>
+    <b class="rbottom" style="display:block;background-color: transparent;">
+        <b class="r4"></b>
+        <b class="r3"></b>
+        <b class="r2"></b>
+        <b class="r1"></b>
+    </b>    
 </div>
-
-
-        </div>
-        <!-- end content -->
-
-    </div></div></div><!-- end of body_bg, body_bg_highlight, body_wrapper-->
-<div id="app-footer"></div>
-           <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
-    </body>
-</html>

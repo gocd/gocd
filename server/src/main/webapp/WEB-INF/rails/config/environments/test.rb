@@ -56,7 +56,7 @@ Rails.application.configure do
 end
 
 # Override load_context of Spring for rspec.
-import org.springframework.context.support.ClassPathXmlApplicationContext
+java_import org.springframework.context.support.ClassPathXmlApplicationContext
 
 def Spring.load_context
   ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", '..', '..', 'resources', "applicationContext*.xml"))].map { |path| "/#{File.basename(path)}" }

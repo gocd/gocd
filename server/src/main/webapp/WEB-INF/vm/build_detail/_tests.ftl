@@ -16,7 +16,7 @@
 <div id="tab-content-of-tests" class="widget" ${tests_extra_attrs}>
     <div class="files">
         <#if presenter.hasTests()>
-            <iframe sandbox="allow-scripts" src="${req.getContextPath()}/${presenter.indexPageURL?c}" width="95%" height="500" frameborder="0"></iframe>
+            <iframe sandbox="allow-scripts" src="${req.getContextPath()}/${presenter.indexPageURL}" width="95%" height="500" frameborder="0"></iframe>
         <#else>
             <#include "_test_output_config.ftl">
         </#if>

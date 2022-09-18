@@ -20,18 +20,18 @@
     <ul class="entity_title">
       <li class="name">
         <span class="label">Pipeline</span>
-        <a href="${req.getContextPath()}/pipeline/activity/${presenter.pipelineName?c}"
+        <a href="${req.getContextPath()}/pipeline/activity/${presenter.pipelineName}"
            title="View this pipeline's activity">${presenter.pipelineName}</a>
       </li>
       <li class="pipeline_label">
         <span class="label">Instance</span>
         <span class="run_no">${presenter.pipelineLabel}</span>
-        <a href="${req.getContextPath()}/pipelines/value_stream_map/${presenter.pipelineName?c}/${presenter.pipelineCounter?c}"
+        <a href="${req.getContextPath()}/pipelines/value_stream_map/${presenter.pipelineName}/${presenter.pipelineCounter?c}"
            title="View this stage's jobs summary">VSM</a>
       </li>
       <li class="stage_name">
         <span class="label">Stage</span>
-        <a href="${req.getContextPath()}/pipelines/${presenter.stageLocator?c}"
+        <a href="${req.getContextPath()}/pipelines/${presenter.stageLocator}"
            title="View this stage's details">${presenter.stageName} / ${presenter.stageCounter}</a>
       </li>
       <li class='last'>
@@ -40,7 +40,7 @@
     </ul>
       <#if userHasAdministratorRights || userHasGroupAdministratorRights >
         <div class="job_detail_setting">
-            <a href="${req.getContextPath()}/admin/pipelines/${presenter.pipelineName?c}/general"
+            <a href="${req.getContextPath()}/admin/pipelines/${presenter.pipelineName}/general"
                class="icon16 setting"></a>
         </div>
       </#if>

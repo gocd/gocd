@@ -28,13 +28,8 @@
     <span>Not yet assigned</span>
   {/if}
   <#if doesUserHaveViewAccessToStatusReportPage?? && doesUserHaveViewAccessToStatusReportPage>
-    {if build.build_assigned_date != -1}
-    <a href="${req.getContextPath()}/admin/status_reports/${r'${% elasticAgentPluginId %}'}/agent/${r'${% elasticAgentId %}'}?job_id=${r'${% build.id %}'}"
+    <a href="${req.getContextPath()}/admin/status_reports/${elasticAgentPluginId}/agent/${elasticAgentId!'unassigned'}?job_id=${r'${% build.id %}'}"
        class="btn-primary btn-small status-report-btn-small">Check Agent Status</a>
-    {else}
-    <a href="${req.getContextPath()}/admin/status_reports/${r'${% elasticAgentPluginId %}'}/agent/unassigned?job_id=${r'${% build.id %}'}"
-       class="btn-primary btn-small status-report-btn-small">Check Agent Status</a>
-    {/if}
   </#if>
 </li>
   <li><span class="header">Completed on: </span><span id="build_completed_date">${r'${% build.build_completed_date %}'}</span></li>

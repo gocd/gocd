@@ -29,7 +29,7 @@
                     <div class="color_code_small"></div>
                     </#if>
                     <strong>${listPresenter.buildLocatorForDisplay}</strong>
-                    <div class="time_ago" data="${r'${listPresenter.scheduledTime}'}"></div>
+                    <div class="time_ago" data="${listPresenter.scheduledTime}"></div>
                 </a>
             </li>
             </#list>

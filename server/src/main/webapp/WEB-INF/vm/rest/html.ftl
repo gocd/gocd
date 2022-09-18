@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  -->
+<#-- @ftlvariable name="jobIdentifier" type="com.thoughtworks.go.domain.JobIdentifier" -->
 <#assign title = "Artifacts for ${jobIdentifier.pipelineName} > ${jobIdentifier.pipelineLabel} > ${jobIdentifier.stageName} > ${jobIdentifier.stageCounter} > ${jobIdentifier.buildName}">
 <#include "../shared/_header.ftl">
 

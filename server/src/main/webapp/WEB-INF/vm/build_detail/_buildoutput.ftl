@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
+<#-- @ftlvariable name="buildoutput_extra_attrs" type="java.lang.String" -->
 <div id="tab-content-of-console" class="ansi-color-toggle" ${buildoutput_extra_attrs}>
     <#include "_build_output_raw.ftl">
 </div>

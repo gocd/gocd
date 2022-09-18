@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
+<#-- @ftlvariable name="errorMessage" type="java.lang.String" -->
 <#assign title = 'Exception Detail - GoCD'>
 <#include "shared/_header.ftl">
 <#include "shared/_flash_message.ftl">

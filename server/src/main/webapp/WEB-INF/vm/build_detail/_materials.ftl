@@ -15,7 +15,7 @@
  -->
 <div id="tab-content-of-materials" class="widget" ${modification_extra_attrs}>
     <script type="text/javascript">
-        var json = ${presenter.getMaterialRevisionsJson()};
+        var json = ${presenter.getMaterialRevisionsJson()?c};
     </script>
     <script type="text/javascript">
         Event.observe(window, 'load', function(){

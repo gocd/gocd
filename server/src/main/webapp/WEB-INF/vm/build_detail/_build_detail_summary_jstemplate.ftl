@@ -29,10 +29,10 @@
   {/if}
   <#if doesUserHaveViewAccessToStatusReportPage?? && doesUserHaveViewAccessToStatusReportPage>
     {if build.build_assigned_date != -1}
-    <a href="${req.getContextPath()}/admin/status_reports/${elasticAgentPluginId}/agent/${elasticAgentId}?job_id=${build.id}"
+    <a href="${req.getContextPath()}/admin/status_reports/${elasticAgentPluginId?c}/agent/${elasticAgentId?c}?job_id=${build.id?c}"
        class="btn-primary btn-small status-report-btn-small">Check Agent Status</a>
     {else}
-    <a href="${req.getContextPath()}/admin/status_reports/${elasticAgentPluginId}/agent/unassigned?job_id=${build.id}"
+    <a href="${req.getContextPath()}/admin/status_reports/${elasticAgentPluginId?c}/agent/unassigned?job_id=${build.id?c}"
        class="btn-primary btn-small status-report-btn-small">Check Agent Status</a>
     {/if}
   </#if>

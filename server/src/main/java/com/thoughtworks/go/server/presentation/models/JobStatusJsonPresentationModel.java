@@ -141,7 +141,7 @@ public class JobStatusJsonPresentationModel {
     }
 
 
-    private long getScheduledTime() {
+    public long getScheduledTime() {
         Date date = instance.getScheduledDate();
         if (date != null) {
             return date.getTime();

@@ -35,14 +35,14 @@
           <div id="build-status-panel" class="bd-container rounded-corner-for-pipeline">
             <div class="maincol build_detail">
                 <#include "../shared/_flash_message.ftl">
-                <#assign jobConfigName = "${presenter.buildName}">
+                <#assign jobConfigName = "${presenter.buildName?c}">
               <div id="build_detail_summary_container" class="build_detail_summary">
                 <ul id="build-detail-summary" class="summary">
                   <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">Loading...</span></li>
                   <li><span class="header">Agent: </span><span id="agent_name">Loading...</span></li>
                   <li><span class="header">Completed on: </span><span id="build_completed_date">Loading...</span></li>
                   <li><span class="header">Build cause: </span><span
-                    id="stage-${presenter.id}-buildCause">${presenter.buildCauseMessage?html}</span></li>
+                    id="stage-${presenter.id?c}-buildCause">${presenter.buildCauseMessage?html}</span></li>
                   <li class="timer_area">
                     <div class="progress-info">
                       <div id="${presenter.buildName}_progress_bar" class="progress-bar" style="display: none;">
@@ -58,7 +58,7 @@
                 <div class="clear"></div>
               </div>
 
-              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-pipeline-counter="${presenter.pipelineCounter}" data-pipeline-label="${presenter.pipelineLabel}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter}" data-job="${presenter.id}" data-build="${presenter.buildName}" data-result="$presenter.result" data-websocket="${websocketEnabled?string("enabled", "disabled")}">
+              <div class="job_details_content" data-pipeline="${presenter.pipelineName?c}" data-pipeline-counter="${presenter.pipelineCounter?c}" data-pipeline-label="${presenter.pipelineLabel?c}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter?c}" data-job="${presenter.id?c}" data-build="${presenter.buildName}" data-result="${presenter.result?c}" data-websocket="${websocketEnabled?string("enabled", "disabled")}">
                 <div class="sub_tabs_container">
                   <ul>
                     <li class="current_tab" id="build_console">

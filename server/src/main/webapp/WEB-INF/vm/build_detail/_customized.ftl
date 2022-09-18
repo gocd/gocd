@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
+<#-- @ftlvariable name="customized_name" type="java.lang.String" -->
+<#-- @ftlvariable name="customized_path" type="java.lang.String" -->
 <div id="tab-content-of-${customized_name?lower_case}" style='display:none'>
 </div>
 <script>

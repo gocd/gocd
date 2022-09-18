@@ -35,7 +35,7 @@
           <div id="build-status-panel" class="bd-container rounded-corner-for-pipeline">
             <div class="maincol build_detail">
                 <#include "../shared/_flash_message.ftl">
-                <#assign jobConfigName = "${presenter.buildName?c}">
+                <#assign jobConfigName = "${presenter.buildName}">
               <div id="build_detail_summary_container" class="build_detail_summary">
                 <ul id="build-detail-summary" class="summary">
                   <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">Loading...</span></li>
@@ -58,7 +58,7 @@
                 <div class="clear"></div>
               </div>
 
-              <div class="job_details_content" data-pipeline="${presenter.pipelineName?c}" data-pipeline-counter="${presenter.pipelineCounter?c}" data-pipeline-label="${presenter.pipelineLabel?c}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter?c}" data-job="${presenter.id?c}" data-build="${presenter.buildName}" data-result="${presenter.result?c}" data-websocket="${websocketEnabled?string("enabled", "disabled")}">
+              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-pipeline-counter="${presenter.pipelineCounter?c}" data-pipeline-label="${presenter.pipelineLabel}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter}" data-job="${presenter.id?c}" data-build="${presenter.buildName}" data-result="${presenter.result}" data-websocket="${websocketEnabled?string("enabled", "disabled")}">
                 <div class="sub_tabs_container">
                   <ul>
                     <li class="current_tab" id="build_console">

@@ -22,7 +22,7 @@
         <ul class="buildlist dropdown-menu">
             <#list presenter.recent25 as listPresenter>
             <li id="build_list_${listPresenter?counter}" <#if listPresenter.isSame(presenter.id)> class="current" </#if> >
-                <a href="${req.getContextPath()}/tab/build/detail/${listPresenter.buildLocator?c}">
+                <a href="${req.getContextPath()}/tab/build/detail/${listPresenter.buildLocator}">
                     <#if listPresenter.copy>
                     <div class="color_code_small copied_job"></div>
                     <#else>
@@ -37,7 +37,7 @@
     </div>
     <script type="text/javascript">
         <#list presenter.recent25 as listPresenter>
-        json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${listPresenter?counter}, "${req.getContextPath()}/${concatenatedStageBarCancelledIconFilePath?c}");
+        json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${listPresenter?counter}, "${req.getContextPath()}/${concatenatedStageBarCancelledIconFilePath}");
         </#list>
 
       jQuery(function() {

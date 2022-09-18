@@ -13,11 +13,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 -->
-<div class="console-area" data-console-url="${presenter.consoleoutLocator?c}" >
+<div class="console-area" data-console-url="${presenter.consoleoutLocator}" >
 <div class="console-action-bar">
     <div>
         <a class="auto-scroll" title="Scroll to bottom">Scroll to end of logs</a>
-        <a href="${req.getContextPath()}/files/${presenter.consoleoutLocator?c}">Raw output</a>
+        <a href="${req.getContextPath()}/files/${presenter.consoleoutLocator}">Raw output</a>
         <a class='toggle-timestamps' href="#"><i class="fa fa-clock-o"></i> Timestamps</a>
         <a class='toggle-folding' href="#" data-collapsed="true"></a>
         <a id="full-screen">

@@ -21,8 +21,3 @@ subprojects {
 }
 
 assemble.dependsOn(subprojects.tasks*.getByName('assemble'))
-
-
-// git add .
-// git commit -m ''
-// git push

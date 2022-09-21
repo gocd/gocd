@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ntkme/sass-embedded-host-ruby.git
-  revision: 0d103fd1936aedc405d963da078ec7f2b313a1ac
+  revision: 6d0e9b8bab662e8258addcac475f379cf43ba881
   ref: main
   specs:
     sass-embedded (1.54.9)
@@ -97,7 +97,6 @@ GEM
     globalid (1.0.0)
       activesupport (>= 5.0)
     google-protobuf (3.21.6-java)
-    google-protobuf (3.21.6-x86_64-linux)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
@@ -112,11 +111,8 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.16.3)
-    nio4r (2.5.8)
     nio4r (2.5.8-java)
     nokogiri (1.13.8-java)
-      racc (~> 1.4)
-    nokogiri (1.13.8-x86_64-linux)
       racc (~> 1.4)
     pry (0.14.1-java)
       coderay (~> 1.1)
@@ -126,7 +122,6 @@ GEM
       pry (>= 0.13, < 0.15)
       ruby-debug-base (>= 0.10.4, < 0.12)
     public_suffix (5.0.0)
-    racc (1.6.0)
     racc (1.6.0-java)
     rack (2.2.4)
     rack-test (2.0.2)
@@ -200,7 +195,7 @@ GEM
       tilt
     spoon (0.0.6)
       ffi
-    sprockets (3.7.2)
+    sprockets (4.1.1)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
     sprockets-rails (3.4.2)
@@ -215,8 +210,6 @@ GEM
       concurrent-ruby (~> 1.0)
     tzinfo-data (1.2022.3)
       tzinfo (>= 1.0.0)
-    websocket-driver (0.7.5)
-      websocket-extensions (>= 0.1.0)
     websocket-driver (0.7.5-java)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)

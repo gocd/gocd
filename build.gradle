@@ -34,7 +34,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:7.2.0'
+    classpath 'org.owasp:dependency-check-gradle:7.2.1'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.42.0'
     classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1'
     classpath 'com.github.jk1:gradle-license-report:2.1'

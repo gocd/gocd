@@ -9,9 +9,11 @@ platforms :jruby do
 
   group :assets do
     gem 'sassc-rails'
+    # Switch sassc to be able to use sass-embedded (and dart-sass) rather than libsass.
+    # See https://github.com/sass/sassc-ruby/pull/233
     gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
     gem 'sassc-embedded'
-    gem 'sass-embedded', github: 'ntkme/sass-embedded-host-ruby', ref: 'main'
+
     gem 'js-routes'
     gem 'ts_routes'
   end

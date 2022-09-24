@@ -129,12 +129,6 @@ class LicenseReport {
           }
 
           renderModuleData(markup, counter.incrementAndGet(), openJdkLicense().moduleName, openJdkLicense())
-
-          div(class: "footer") {
-            span("This report was generated at ")
-            span(class: "timestamp", new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC")))
-            span(".")
-          }
         }
       }
     }

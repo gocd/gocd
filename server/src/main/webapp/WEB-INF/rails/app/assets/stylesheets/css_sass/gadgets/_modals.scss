@@ -18,19 +18,6 @@
  * Modalbox.css
  *
  * This is a combination of the original modal box plugin and our pattern overrides.
- * This is a combination of the original modal box plugin and our pattern overrides.
- * TODO: put original plugin css into a file under stylesheets/plugins and then strip out the below to only be our
- * specific overrides.
-**/
-
-/**
- * TABLE OF CONTENTS
- *
- * =! NEEDS MIGRATING
-**/
-
-/**
- * =! NEEDS MIGRATING
 **/
 .ui-widget-overlay,
 #MB_overlay {
@@ -159,15 +146,10 @@
 }
 
 #MB_content .sub_tab_container,
-#MB_content .form_content,
-#MB_content .new_form_content {
+#MB_content .form_content {
   height: 360px;
   overflow: auto;
   padding: 15px;
-}
-
-#MB_content .new_form_content {
-  background-color: #f6f6f6;
 }
 
 #MB_content .content_wrapper_inner {

@@ -200,11 +200,6 @@ a.link_as_button {
   float: left;
 }
 
-.pipeline_bundle div.pipeline button.submit,
-.pipeline_bundle div.pipeline a.link_as_button {
-
-}
-
 button.submit,
 a.link_as_button {
   color: #fff;
@@ -275,34 +270,6 @@ button.primary:hover,
 a.primary_link_as_button:hover,
 a.primary:hover {
   background-color: #52b3e3;
-}
-
-/* add special stuffs when they are in the edit panel */
-
-.edit_panel button.submit,
-.edit_panel a.link_as_button .edit_panel button.submit:hover,
-.edit_panel a.link_as_button:hover {
-  -moz-box-shadow: inset 0 0 2px #444;
-}
-
-#agents_form .edit_panel .new_agent {
-  float: right;
-  margin-right: 0;
-}
-
-#agents_form .edit_panel .new_agent span {
-  padding-left: 16px;
-  background-image: image_url("g9/icons/icon_plus.png");
-  background-position: 1px 1px;
-  background-repeat: no-repeat;
-}
-
-#agents_form .edit_panel .new_agent span {
-  text-transform: uppercase;
-}
-
-#agents_form .edit_panel a:hover {
-  text-decoration: none;
 }
 
 * html button.submit {
@@ -487,30 +454,6 @@ a.xlink_as_button {
   color: #fff;
 }
 
-/**
- * =Ported over from structure.css
- * NOTE: this looks like it's only being used currently by .vm files, so moving here
-**/
-#warn-container #warn-box,
-#error-container #error-box,
-#global-error-container #global-error-box,
-#global-warning-container #global-warning-box,
-#info-container #info-box,
-#success-container #success-box {
-  padding: 10px;
-  padding-left: 36px;
-  background: transparent image_url("g9/backgrounds/overlay_gradient_48px.png") 0 0 repeat-x;
-}
-
-#warn-container #warn-box a,
-#error-container #error-box a,
-#global-error-container #global-error-box a,
-#global-warning-container #global-warning-box a,
-#info-container #info-box a,
-#success-container #success-box a {
-  color: #87bdff;
-}
-
 #content_titlebar .help {
   text-indent: -10000px;
   background: transparent image_url("buttons_sprites.png") no-repeat -320px top;
@@ -524,8 +467,7 @@ a.xlink_as_button {
 .yui-b .Job h2.entity_title,
 .job_details h1.entity_title,
 #admin-page .Administration h2.entity_title,
-.Server h2.entity_title,
-#my-cruise-page .Preferences h2.entity_title {
+.Server h2.entity_title {
   font-weight: 400;
   line-height: 24px;
   color: #fff;
@@ -618,21 +560,6 @@ a.xlink_as_button {
   color: #666;
 }
 
-.smartfill_content {
-  background-color: #fff;
-}
-
-.smartfill_content li {
-  display: block;
-  cursor: pointer;
-  padding: 0.25em;
-  background-color: #fff;
-}
-
-.smartfill_content li.selected {
-  background-color: #ff9;
-}
-
 .enhanced_dropdown {
   background-color: #fff;
   float: left;
@@ -640,23 +567,7 @@ a.xlink_as_button {
   position: absolute;
   top: auto;
   left: auto;
-
-  /* max-height: 20em; */
-
-  /* width: 22em; */
   border: 1px solid #8d8d8d;
-}
-
-.enhanced_dropdown .edit_panel {
-  max-height: 16em;
-  overflow-y: auto;
-  border-bottom: 2px solid #000;
-  padding: 0.5em;
-}
-
-.enhanced_dropdown .add_panel {
-  padding: 1em 1em 0.5em 1em;
-  border: 1px solid #d4d4d4;
 }
 
 .enhanced_dropdown .scrollable_panel input {
@@ -705,8 +616,6 @@ a.xlink_as_button {
   border: 0;
   background-color: #fff;
   padding: 15px;
-
-  /*    min-width: 1000px; */
 }
 
 /*
@@ -878,7 +787,6 @@ table {
   .content_wrapper_outer,
   .content_wrapper_inner,
   .pipelines,
-  .pipeline_bundle,
   .entity_status_wrapper {
     display: inline-block;
     height: 1%;
@@ -901,7 +809,6 @@ table {
 * + html .content_wrapper_outer,
 * + html .content_wrapper_inner,
 * + html .pipelines,
-.pipeline_bundle,
 * + html .entity_status_wrapper {
   display: inline-block;
   height: 1%;

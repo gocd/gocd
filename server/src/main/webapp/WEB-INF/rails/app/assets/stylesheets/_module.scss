@@ -50,195 +50,6 @@
   clear: both;
 }
 
-.agent_counts {
-}
-
-.list_aggregation {
-  float: left;
-  font-size: 12px;
-
-  /* margin-left: 15px; */
-  margin-bottom: 10px;
-}
-
-* + html .list_aggregation {
-  margin-top: 8px;
-}
-
-.list_aggregation li {
-  padding: 10px 10px 0 0;
-  margin-right: 1.25em;
-  color: #666;
-  display: inline;
-  float: none;
-}
-
-/*
-* Agents Form
-*/
-#agents_form input.show_panel {
-  background: image_url("down_arrow.png") 97% 50% #e4e4e4 no-repeat;
-  padding-right: 0.6667em;
-  margin-left: 2em;
-}
-
-/*
-* Pipeline Navigator
-*/
-
-/*
- * Edit panel for agents page
- */
-
-.templates .edit_panel,
-#agents_form .edit_panel {
-  padding: 0 0;
-  margin-bottom: 10px;
-  border: 0;
-  margin-left: -5px;
-}
-
-#templates_form .enhanced_dropdown,
-#agents_form .enhanced_dropdown {
-  max-width: 320px;
-}
-
-input.new_role,
-input.new_resource {
-  float: left;
-  margin-left: 10px;
-  width: 120px;
-}
-
-#agents_form .edit_panel .new_agent {
-  float: right;
-}
-
-/*
- * Agents Table
- */
-.agents_table tr.agent_instance td.location {
-  width: 10%;
-}
-
-.agents_table tr.agent_instance td.ip_address {
-  max-width: 110px;
-}
-
-.agents_table tr.agent_instance td.resources,
-.agents_table tr.agent_instance th.resources {
-  width: 20%;
-  line-height: 20px;
-}
-
-.agents_table tr.agent_instance td.environments,
-.agents_table tr.agent_instance th.environments {
-  width: 20%;
-}
-
-.agents_table tr.Building,
-.agents_table tr.Building td span {
-  text-align: left;
-}
-
-.agents_table tr.Building td,
-.agents_table tr.Active td,
-.agents_table tr.Cancelled td {
-  background-image: none;
-  background-color: #fae48e;
-}
-
-.agents_table tr.Missing td.status,
-.agents_table tr.Lost-Contact td.status,
-.agents_table tr.Lost-contact td.status,
-.agents_table tr.Lostcontact td.status,
-.agents_table tr.Lost td.status, {
-  background: image_url("g9/icons/icon_question_16.png") no-repeat 5px 50%;
-  padding-left: 25px;
-}
-
-/*
- * Pipeline Container: contains groups of pipelines, like Pipeline Groups, Environments, etc.
- */
-#pipeline_groups_container {
-  clear: both;
-}
-
-.pipeline_bundle {
-  overflow: hidden;
-  min-width: 87.5em;
-}
-
-.pipeline_bundle .divider {
-  width: 1px;
-  height: 10em;
-  float: left;
-}
-
-.pipeline_bundle div.pipeline .pipeline_instance {
-  /*    border-top: 1px dotted #ccc; */
-  padding: 10px 0 0 0;
-}
-
-.pipeline_bundle .pipeline .alert {
-  margin: 0.25em;
-}
-
-.pipeline_bundle .pipeline .status,
-.pipeline_bundle .pipeline .stages {
-  clear: both;
-}
-
-.pipeline_bundle .pipeline .warn_message {
-  background: image_url("g9/icons/icon_error_16.png") no-repeat scroll 0 50% transparent;
-  float: right;
-  font-weight: normal;
-  padding: 3px 0 3px 20px;
-  font-size: 11px;
-}
-
-.pipeline_bundle .pipeline .status .label {
-  font-size: 11px;
-  margin: 3px 10px 4px 0;
-}
-
-.pipeline_bundle .pipeline .status .changes_button_wrapper {
-  padding-top: 4px;
-  padding-left: 5px;
-}
-
-.pipeline_bundle .pipeline .status .pipeline_instance_details {
-  margin-top: 10px;
-  clear: both;
-}
-
-.pipeline_bundle .pipeline .previously {
-
-}
-
-#pipelines .pipeline_bundle .pipeline .previously_wrapper {
-  margin: 10px 0;
-  min-height: 22px;
-}
-
-* + html #pipelines .pipeline_bundle .pipeline .previously_wrapper {
-  height: 1.5em;
-}
-
-.pipeline_bundle .pipeline .previously .label {
-  float: left;
-}
-
-.pipeline_bundle .pipeline .previously a {
-  float: left;
-  margin-left: 0.25em;
-}
-
-.pipeline_grouping_wrapper {
-  float: left;
-  min-width: 87.5em;
-}
-
 .compare_pipeline {
   font-size: 1.1em;
 }
@@ -263,16 +74,6 @@ input.new_resource {
 
 .compare_pipeline.dashboard {
   font-size: 12px;
-}
-
-input.compare_pipeline_input {
-  background: image_url("g9/icon_search.png") transparent no-repeat right;
-  width: 338px;
-  padding: 4px 8px 4px 4px;
-}
-
-input.compare_pipeline_input.ac_loading {
-  background-image: image_url("g9/icons/spinny_white_16.gif");
 }
 
 .compare_pipeline label {
@@ -310,94 +111,6 @@ input.compare_pipeline_input.ac_loading {
   border-right: 1px solid gray;
 }
 
-* + html .pipeline_grouping_wrapper {
-  width: 87.5em;
-}
-
-#pipelines .pipeline_bundle .operate,
-.pipeline .operate {
-  float: left;
-}
-
-.pipeline_bundle .pipeline_operations {
-  clear: both;
-  padding-top: 10px;
-  margin-top: 10px;
-  border-top: 1px solid #ccc;
-}
-
-/*
-.pipeline_bundle .pipeline_operations .trigger_with_options_wrapper button {
-    border-right: 1px solid #DDD;
-    border-left: 1px solid #DDD;
-}
-.pipeline_bundle .pipeline_operations .pause_wrapper button,
-.pipeline_bundle .pipeline_operations .unpause_wrapper button{
-    -moz-border-radius-topright: 4px;
-    -moz-border-radius-bottomright: 4px;
-    -webkit-border-top-right-radius: 4px;
-    -webkit-border-bottom-right-radius: 4px;
-    border-right-top-radius: 4px;
-    border-right-bottom-radius: 4px;
-    -moz-box-shadow: 0;
-}
-.pipeline_bundle .pipeline_operations .trigger_wrapper button{
-    -moz-border-radius-topleft: 4px;
-    -moz-border-radius-bottomleft: 4px;
-    -webkit-border-top-left-radius: 4px;
-    -webkit-border-bottom-left-radius: 4px;
-    border-left-top-radius: 4px;
-    border-left-bottom-radius: 4px;
-    -moz-box-shadow: 0;
-}
-
-*/
-.pipeline_bundle .pause_description {
-  font-size: 11px;
-  margin-top: 5px;
-}
-
-/* remove button appearance from the  changes button */
-.pipeline_bundle .pipeline_instance .changes_button_wrapper button,
-.non_passing_tests .changes_button_wrapper button {
-  border: 0;
-  padding: 3px 0;
-  background: none;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-.pipeline_bundle .pipeline_instance .changes_button_wrapper a,
-.non_passing_tests .changes_button_wrapper button span,
-.non_passing_tests .changes_button_wrapper a {
-  padding-right: 16px;
-  background: image_url("g9/icons/arrow_open.png") right no-repeat;
-  font-size: 12px !important;
-  color: #1f66bd;
-}
-
-.pipeline_bundle .pipeline_instance .changes_button_wrapper button span:hover {
-  color: #1f66bd;
-}
-
-.non_passing_tests .changes_button_wrapper button.submit:hover span {
-  color: #1f66bd;
-}
-
-.non_passing_tests .changes_button_wrapper button.submit:hover {
-  background: none;
-}
-
-.pipeline_bundle .pipeline_instance .changes_button_wrapper button span img,
-.non_passing_tests .changes_button_wrapper button span img {
-  display: none;
-}
-
-.checkbox_label_box {
-  padding: 15px;
-}
-
 /**
  * Stage Editor
  */
@@ -425,10 +138,6 @@ input.compare_pipeline_input.ac_loading {
   width: 15px;
   height: 15px;
   background-color: white;
-}
-
-span.contextual_help.stage_approval {
-  padding-top: 8px;
 }
 
 .stage_approval_container {
@@ -483,67 +192,9 @@ span.contextual_help.stage_approval {
 /*
 * Environments
 */
-.show_environment .added_item {
-  float: left;
-  width: 31.5%;
-}
-
-.show_environment .added_item ul {
-  float: none;
-  margin-left: 10px;
-}
-
-.show_environment .added_item li {
-  float: none;
-  list-style: disc;
-  margin-top: 5px;
-  font-size: 12px;
-}
-
-.show_environment h3 {
-  text-transform: uppercase;
-  font-weight: bold;
-}
-
-.show_environment h3 a {
-  text-transform: none;
-}
-
-.show_environment .added_pipelines,
-.show_environment .added_agents {
-  border-right: 1px solid #ccc;
-  margin-right: 1.5%;
-  margin-bottom: 10px;
-  min-height: 100px;
-}
-
-.show_environment button {
-  background-color: #444;
-  min-width: 0;
-  margin-left: 12px;
-}
-
-.show_environment button:hover {
-  margin-left: 12px;
-}
 
 .environments {
   clear: both;
-}
-
-.environments .unused_feature p {
-  font-size: 12px;
-  margin-bottom: 12px;
-}
-
-.environments .add_new_environment {
-  float: right;
-  margin-left: 13px;
-  padding: 2px;
-}
-
-.environments .add_new_environment a {
-  font-weight: normal;
 }
 
 /* define the layout for the env variables rows */
@@ -554,78 +205,6 @@ span.contextual_help.stage_approval {
   width: 250px;
   margin-bottom: 5px;
   font-size: larger;
-}
-
-.artifacts_plan_section input.form_input,
-.environment_variables_section input.form_input {
-  margin-right: 5px;
-  -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 20%) inset;
-  float: left;
-}
-
-.environment_variables_section .equals_sign {
-  margin-right: 10px;
-  margin-left: 4px;
-  float: left;
-  padding-top: 5px;
-}
-
-.artifacts_plan_section .fieldWithErrors,
-.environment_variables_section .fieldWithErrors,
-.artifacts_plan_section .field_with_errors,
-.environment_variables_section .field_with_errors {
-  display: inline;
-  padding: 0;
-}
-
-.artifacts_plan_section .fieldWithErrors input,
-.environment_variables_section .fieldWithErrors input,
-.artifacts_plan_section .field_with_errors input,
-.environment_variables_section .field_with_errors input {
-  border: 1px solid red;
-  padding: 4px;
-  margin: 1px;
-}
-
-.artifacts_plan_section .form_error,
-.environment_variables_section .form_error {
-  display: block;
-  float: none;
-  width: 250px;
-  margin-left: 0;
-  padding-left: 0;
-}
-
-.environment_variables_section li,
-.artifacts_plan_section li {
-  padding: 4px 0;
-  clear: left;
-}
-
-.user_permissions_section {
-
-}
-
-.user_permissions_section .icon_remove,
-.user_permissions_section .user_role_name {
-  margin: 3px;
-}
-
-.stage_permissions .users,
-.inherited_permissions .users {
-  border-bottom: 1px dotted #ccc;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-}
-
-.stage_permissions span {
-  margin-bottom: 10px;
-}
-
-.wizard_error_message {
-  float: left;
-  padding: 4px;
-  color: #900;
 }
 
 a.add_item {
@@ -641,48 +220,12 @@ a.add_item {
   clear: both;
 }
 
-.environment_variables_section input.environment_variable_name {
-  width: 250px;
-}
-
-.environment_variables_section .icon_remove {
-  float: right;
-}
-
-.environment_variables_section .link_as_button {
-  float: none;
-}
-
-.environment_variables_section .new_variables {
-  margin-top: 0.5em;
-  margin-bottom: 15px;
-}
-
 .environment .pipeline .deploy {
   margin-top: 10px;
 }
 
 .environment .pipeline .deploy form {
   float: left;
-}
-
-.environment .pipeline .deployed_revisions form {
-  display: inline;
-}
-
-.environment .pipeline .deployed_revisions {
-  padding-top: 5px;
-  clear: both;
-}
-
-.environment .pipeline div.has_new_materials {
-  background: image_url("g9/icons/icon_info_16.png") no-repeat 0 2px;
-  padding-left: 20px;
-  padding-bottom: 2px;
-}
-
-.environment .pipeline div.has_new_materials table {
-  margin-left: -20px;
 }
 
 .pipeline_selector {
@@ -693,136 +236,13 @@ a.add_item {
   cursor: pointer;
 }
 
-#pipelines_form .input {
-  margin-bottom: 10px;
-  margin-left: 14px;
-  margin-top: 10px;
-}
-
-.available_pipelines {
-  margin-left: 14px;
-}
-
-.unavailable_pipelines label {
-  padding-top: 5px;
-  margin-left: 14px;
-  color: #999;
-}
-
-/*
-.environment_variables_section {
-    max-height:27em;
-    margin-top:10px;
-    overflow-y:auto;
-    overflow-x:hidden;
-    width:780px;
-}
-*/
-
-/* compare pipeline page */
-
-.autocomplete .pipeline_details,
-.autocomplete .pipeline_counter,
-.autocomplete .pipeline_details .revision_details {
-  display: block;
-  padding-left: 10px;
-}
-
-.autocomplete .pipeline_details .revisions_details {
-  font-size: 11px;
-  line-height: 1.6em;
-}
-
-.autocomplete .pipeline_details .revisions_details .modifications {
-  padding-top: 5px;
-}
-
-.pipeline_details .stage_graphic {
-  padding-bottom: 10px;
-  font-size: 11px;
-}
-
 #comparison .pipeline {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-.autocomplete .pipeline_details .revisions_details div label {
-  font-weight: bolder;
-  display: inline;
-  color: gray;
-}
-
-.autocomplete .pipeline_details label {
-  font-weight: bolder;
-  color: gray;
-  padding-top: 15px;
-  font-size: 11px;
-}
-
-.autocomplete .pipeline_counter {
-  margin-bottom: -5px;
-}
-
-.autocomplete .pipeline_counter h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: bold;
-}
-
-.autocomplete .triggered_by {
-  margin: 10px 0;
-  float: left;
-}
-
-.autocomplete tr.first td {
-  border-top: 1px dotted #ccc;
-}
-
-.autocomplete table {
-  clear: left;
-  width: 100%;
-}
-
-.autocomplete td {
-  font-size: 11px;
-  font-weight: normal;
-  padding: 4px;
-  vertical-align: top;
-}
-
-.autocomplete td.label {
-  font-weight: bold;
-  color: #111;
-}
-
-.compared_to {
-  float: left;
-  font-size: 11px;
-  font-style: italic;
-  margin: 1em;
-  padding-left: 10px;
-  padding-right: 25px;
-}
-
-.comparison .ac_results li {
-  cursor: pointer;
-}
-
-/*
-* Wizard form styling
-*/
-.wizard_form .section_title {
-  font-size: 18px;
-  font-weight: 300;
-  margin-bottom: 15px;
-}
-
 /*
  Hidereveal
-
- To implement this ...
-
 */
 .hidereveal_collapsed .hidereveal_content {
   display: none;
@@ -843,101 +263,6 @@ a.add_item {
 a.hidereveal_expander,
 a.hidereveal_collapsed {
   color: #333;
-}
-
-/*
- Compare Pipelines page
-*/
-
-.stage_bar_pipeline_counter {
-  display: inline;
-  float: left;
-  line-height: 1.167em;
-  padding: 0.7em 0.5em;
-  font-size: larger;
-  font-weight: bold;
-}
-
-.pipeline .stages_with_pipeline_counter.stages {
-  width: 98%;
-  float: right;
-}
-
-.material_revision_diff .revision,
-.material_revision_diff .modified_by {
-  width: 20%;
-}
-
-.material_revision_diff .dmr.revision,
-.material_revision_diff .dmr.label {
-  width: 33%;
-}
-
-.material_revision_diff .material_title {
-  padding-top: 1.2em;
-  padding-bottom: 0.4em;
-}
-
-.ac_results .ac_over {
-  background: #d2ebf0;
-}
-
-.ac_results .highlight {
-  background: #ff9;
-}
-
-.ac_results .no_results {
-  font-style: italic;
-}
-
-/*
- environment material revision section
-*/
-
-.environment .pipeline .deployed_revisions table.materials {
-  margin-top: 10px;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-.environment .pipeline .deployed_revisions .materials th {
-  color: #333;
-  font-weight: normal;
-}
-
-.environment .pipeline .deployed_revisions .materials th,
-.environment .pipeline .deployed_revisions .materials td {
-  padding: 4px 5px;
-  font-size: 10.5px;
-  border-bottom: 1px solid #ddd;
-  word-break: break-all;
-  word-wrap: break-word;
-  -ms-word-wrap: break-word;
-  border-bottom: 1px solid #ddd;
-}
-
-.environment .pipeline .deployed_revisions .materials tr.revision-row td {
-  background-color: #deeef2;
-  border-bottom: 1px solid #b6d7de;
-}
-
-.environment .pipeline .deployed_revisions .materials tr.revision-row td.revision_number {
-  font-style: italic;
-  font-weight: bold;
-}
-
-.environment .pipeline .deployed_revisions .materials th.noshow,
-.environment .pipeline .deployed_revisions .materials td.noshow {
-  display: none;
-}
-
-.environment .pipeline .deployed_revisions .hidereveal_expander {
-  display: inline;
-}
-
-.environment .pipeline .deployed_revisions .materials td {
-  vertical-align: top;
 }
 
 /*
@@ -1016,157 +341,6 @@ a#show_other_stage_runs {
   float: right;
 }
 
-/** Test Failures Widget **/
-
-.non_passing_tests .block_to_hide_or_reveal_by_above_pipeline_bar {
-  margin-left: 15px;
-  border-left: 5px solid #ccc;
-  padding-left: 15px;
-}
-
-.non_passing_tests h3 {
-  font-size: 18px;
-  margin-bottom: 15px;
-}
-
-.non_passing_tests h3 .counts {
-  float: right;
-  font-size: 12px;
-  padding-right: 10px;
-}
-
-.non_passing_tests span.total,
-.non_passing_tests span.failures,
-.non_passing_tests span.errors {
-  padding: 2px 0;
-}
-
-.non_passing_tests span.total,
-.non_passing_tests span.failures {
-  margin-right: 5px;
-  padding-right: 10px;
-  border-right: 1px solid #ccc;
-}
-
-.non_passing_tests span.failures {
-  background: image_url("g9/icons/icon_failure_16.png") no-repeat 0 1px;
-  padding-left: 20px;
-  border: 0;
-}
-
-.non_passing_tests span.errors {
-  background: image_url("g9/icons/icon_error_16.png") no-repeat 0 1px !important;
-  padding-left: 20px;
-}
-
-.non_passing_tests .failing_pipeline {
-  float: none;
-  margin-bottom: 15px;
-}
-
-.non_passing_tests .header .title {
-  float: left;
-}
-
-.non_passing_tests .header .counts {
-  float: right;
-}
-
-.non_passing_tests .pipeline_bar {
-  background: #ccc image_url("g9/backgrounds/overlay_gradient_36px.png") repeat-x;
-  padding: 10px;
-  margin-bottom: 10px;
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border-radius: 6px;
-}
-
-.non_passing_tests .pipeline_bar,
-.non_passing_tests .pipeline_bar .secondary {
-  color: #333;
-  margin-right: 1em;
-}
-
-.non_passing_tests .pipeline_bar .pipeline_label {
-  font-weight: bold;
-}
-
-.non_passing_tests .pipeline_bar .color_code,
-.non_passing_tests .pipeline_bar .failing_since_label {
-  float: left;
-}
-
-.non_passing_tests .pipeline_bar .pipeline_details {
-  margin-left: 20px;
-  display: block;
-  margin-top: -2px;
-}
-
-.non_passing_tests .pipeline_bar .secondary {
-  font-size: 12px;
-}
-
-.message .secondary {
-  font-size: 12px !important;
-  margin-left: 5px;
-}
-
-.non_passing_tests .pipeline_bar .counts {
-  float: right;
-}
-
-.non_passing_tests .users {
-  font-size: 12px;
-  margin: 0 0 10px 10px;
-  font-weight: bold;
-}
-
-.non_passing_tests .test_suite {
-
-}
-
-.non_passing_tests .suite {
-  padding: 10px 0 5px 0;
-  margin-top: 10px;
-  font-size: 12px;
-  font-weight: bold;
-  border-top: 1px dotted #ccc;
-}
-
-.non_passing_tests .suite .suite_name {
-  font-weight: normal;
-}
-
-.non_passing_tests .test_suite .test_case .alt_row {
-  background-color: #a5a5a5;
-}
-
-.non_passing_tests .test_suite .test_case .test_status {
-
-}
-
-.non_passing_tests .test_suite .test_case .test_status div {
-  width: 16px;
-  height: 16px;
-  padding: 2px 0 2px 10px;
-}
-
-.non_passing_tests .test_suite td {
-  padding: 2px 0;
-}
-
-.non_passing_tests .test_suite .test_case .test_status div.Failure {
-  background: image_url("g9/icons/icon_failure_16.png") no-repeat 2px 2px;
-}
-
-.non_passing_tests .test_suite .test_case .test_status div.Error {
-  background: image_url("g9/icons/icon_error_16.png") no-repeat 2px 2px;
-}
-
-.non_passing_tests ol {
-
-}
-
 /**
  * Jobs
  */
@@ -1229,15 +403,6 @@ a#show_other_stage_runs {
 .overview_widget .job .elapsed_time {
   white-space: nowrap;
   clear: both;
-}
-
-.chart_information {
-  background: image_url("g9/icons/icon_info_16.png") no-repeat scroll 0 0;
-  font-size: 12px;
-  background-position: 10px 9px !important;
-  background-repeat: no-repeat;
-  margin: 10px 0 10px 0 !important;
-  padding: 10px 10px 10px 36px !important;
 }
 
 /*
@@ -1331,10 +496,6 @@ a#show_other_stage_runs {
   padding-left: 28px; /* padding-right: 1em; */
 }
 
-.inline_changes_link {
-  display: inline;
-}
-
 /*
  * Changes popup
  */
@@ -1361,187 +522,10 @@ a#show_other_stage_runs {
   z-index: 100;
 }
 
-.change_materials {
-
-}
-
-.change_materials .materials,
-.change_materials .variables {
-  font-size: 11px;
-}
-
-.change_materials .material_summaries {
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  -moz-box-shadow: inset 0 0 8px #ddd;
-  -webkit-box-shadow: inset 0 0 8px #ddd;
-  box-shadow: inset 0 0 8px #ddd;
-  background-color: #eee;
-  border: 1px solid #ccc;
-  margin: 0;
-  padding: 10px;
-  float: left;
-  width: 30%;
-  clear: both;
-}
-
-.change_materials .material_summary .revision_number {
-  float: left;
-  margin-right: 1em;
-}
-
-.change_materials .material_summary .updated {
-  font-weight: bold;
-  font-style: italic;
-}
-
 .sub_tabs_container li.updated a,
 .sub_tabs_container li.updated a:hover {
   font-weight: bold;
   font-style: italic;
-}
-
-.change_materials .material_summary {
-  clear: left;
-  margin: 3px 0 3px -1px;
-  padding: 5px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  border-radius: 3px;
-  border: 1px solid transparent;
-  cursor: pointer;
-}
-
-.change_materials .material_summary:hover {
-  background-color: #c3e1f2;
-  border: 1px solid #ccc;
-}
-
-.change_materials .material_summaries .selected,
-.change_materials .material_summaries .selected:hover {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  -moz-box-shadow: inset 0 0 3px #ccc;
-  -webkit-box-shadow: inset 0 0 3px #ccc;
-  box-shadow: inset 0 0 3px #ccc;
-}
-
-.change_materials .material_summary .material_name {
-  margin-left: 10em;
-}
-
-.change_materials .materials .content_wrapper_outer {
-  float: right;
-  width: 64%;
-  overflow: hidden;
-}
-
-.change_materials .material_details {
-  background-color: #fff;
-}
-
-.material_details {
-  padding: 0;
-}
-
-* + html .change_materials .material_details {
-  width: 61.5%;
-}
-
-.change_materials dl dt,
-.change_materials dl dd {
-  padding: 5px;
-}
-
-.change_materials dl dt {
-  float: left;
-  font-weight: bold;
-}
-
-.change_materials dl dd {
-  margin-left: 11em;
-}
-
-.material_details dd {
-  min-height: 15px;
-}
-
-.change_materials dl dd input {
-  width: 9em;
-}
-
-.change_materials .smartfill_content {
-  float: left;
-  -moz-box-shadow: 2px 2px 4px #ccc;
-  border: 1px solid #ccc;
-}
-
-* + html .change_materials .smartfill_content {
-  width: 28em;
-}
-
-.change_materials .smartfill_content li {
-  border-bottom: 1px dotted #ccc;
-  clear: left;
-  width: 28em;
-}
-
-.change_materials .smartfill_content .revision,
-.change_materials .smartfill_content .user {
-  float: left;
-}
-
-.change_materials .smartfill_content .revision {
-  padding-right: 0.25em;
-  min-width: 2em;
-  border-right: 1px dotted #000;
-}
-
-.change_materials .smartfill_content .user {
-  white-space: nowrap;
-  padding: 0 0.25em;
-}
-
-.change_materials .smartfill_content .date {
-  min-width: 5em;
-  float: right;
-  white-space: nowrap;
-  padding-left: 0.25em;
-  border-left: 1px dotted #000;
-}
-
-.change_materials .smartfill_content .comment {
-  font-style: italic;
-  padding: 0 0 0.25em 1em;
-  clear: both;
-}
-
-.change_materials .variables .content_wrapper_outer {
-  margin: 0;
-}
-
-.change_materials .variables .content_wrapper_inner {
-  padding: 0;
-}
-
-.change_materials .variables .variable {
-  clear: both;
-}
-
-.change_materials .variables label,
-.change_materials .secure_variables label {
-  width: 25em;
-  text-align: right;
-  float: left;
-  margin-right: 1em;
-  line-height: 1.75em;
-  clear: both;
-  margin-bottom: 0.5em;
-}
-
-.change_materials .variables .MB_focusable {
-  float: left;
 }
 
 .spinny {
@@ -1631,17 +615,8 @@ input.small_text_field {
  */
 
 /* buttons */
-#pipeline_edit_form .form_buttons .submit,
-#stage_edit_form .form_buttons .submit,
-#job_edit_form .form_buttons .submit,
-#template_edit_form .form_buttons .submit,
 #group_edit_form .form_buttons .submit,
-#pipeline_edit_form .form_buttons .reset_button,
-#stage_edit_form .form_buttons .reset_button,
-#job_edit_form .form_buttons .reset_button,
-#template_edit_form .form_buttons .reset_button,
 #group_edit_form .form_buttons .reset_button,
-#stage_permissions_edit_form .form_buttons .reset_button,
 #pipeline_snippet_view #view_group .link_as_button,
 #pipeline_snippet_edit #edit_group .form_buttons .link_as_button {
   min-width: 120px;
@@ -1654,31 +629,8 @@ input.small_text_field {
   padding: 7px 10px;
 }
 
-#pipeline_edit_form .form_buttons .reset_button,
-#stage_edit_form .form_buttons .reset_button,
-#job_edit_form .form_buttons .reset_button,
-#template_edit_form .form_buttons .reset_button,
-#group_edit_form .form_buttons .reset_button,
-#stage_permissions_edit_form .form_buttons .reset_button {
+#group_edit_form .form_buttons .reset_button {
   height: auto;
-}
-
-.treeview .template .template_name {
-  background: image_url("g9/icons/icon_pipeline_template_16.png") no-repeat 0 2px transparent;
-  padding: 5px 22px;
-  margin: 0 5px;
-  position: relative;
-  font-size: 11px;
-}
-
-.treeview .edit_template {
-  color: #1f66bd;
-  word-break: break-all;
-  font-size: 11px;
-}
-
-.has_tree_view #form_parent {
-  overflow-y: auto;
 }
 
 .template_form_error {
@@ -1692,12 +644,6 @@ li.template_form_error {
   padding-top: 0;
   display: list-item;
   float: none;
-}
-
-/*  global errors - clicky admin */
-.admin_workspace .errors h3 {
-  font-size: 12px;
-  display: block;
 }
 
 #MB_content .errors {
@@ -1789,7 +735,6 @@ li.template_form_error {
 .stage li#stage a,
 .jobs li#jobs a,
 .stage_variables li#stage_variables a,
-.stage_permissions li#stage_permissions a,
 .settings li#settings a,
 .tasks li#tasks a,
 .artifacts li#artifacts a,
@@ -1850,91 +795,6 @@ li.template_form_error {
   padding: 15px;
 }
 
-/***
- * Admin - Pipeline Groups
- */
-
-.group_pipelines .group_name {
-  float: left;
-}
-
-.group_pipelines .group_name_edit {
-  float: left;
-  margin-left: 20px;
-  margin-top: 8px;
-}
-
-.group_name_delete {
-  float: left;
-  margin-left: 10px;
-  margin-top: 8px;
-}
-
-.group_pipelines .list_table {
-  clear: left;
-}
-
-.no_pipeline_in_group {
-  clear: both;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-}
-
-.group_pipelines .for_down_arrow {
-  background: image_url("g9/icons/arrow_open.png") no-repeat scroll right center transparent;
-  padding: 4px;
-}
-
-.group_permissions_table {
-  width: inherit;
-  margin-bottom: 10px;
-}
-
-.group_permissions_table th {
-  width: 50px;
-}
-
-.group_permissions_table th.remove {
-  width: 18px;
-  vertical-align: middle;
-}
-
-.export_pipeline_config.loading {
-  @include icon-after($type: spinner);
-
-  color: $disabled-icon-color;
-
-  &::after {
-    @include animation(spin 2s linear infinite);
-
-    color: $icon-txt;
-  }
-
-  .for_down_arrow {
-    display: none;
-  }
-}
-
-/***
- * Admin - Templates
- */
-
-body.admin_templates .pipeline_header h3.entity_title {
-  background-image: image_url("g9/icons/icon_pipeline_template_24.png");
-  background-position: -12px -10px;
-}
-
-/* Admin - Materials */
-
-.change_materials #check_connection {
-  float: left;
-}
-
-.change_materials #vcsconnection-message {
-  width: 500px;
-}
-
 /* clicky admin - job tabs */
 
 .tabs thead tr th.path,
@@ -1951,11 +811,6 @@ body.admin_templates .pipeline_header h3.entity_title {
   margin-bottom: 5px;
   font-size: larger;
   float: left;
-}
-
-#job_edit_form .before_tip {
-  float: left;
-  margin-top: 4px;
 }
 
 label.label_with_help {
@@ -1978,27 +833,7 @@ label.label_with_help {
 
 /* new admin stuff */
 
-.environment_variables_section #add_variables {
-  float: none;
-  margin: 0;
-}
-
 .form_body_text {
-  font-size: 12px;
-}
-
-.checkbox_row input.stage_security_mode {
-  margin-bottom: 10px;
-  vertical-align: middle !important;
-  margin-right: 0;
-}
-
-.checkbox_row .checkbox_label_wrapper {
-  float: left;
-  font-size: 12px;
-}
-
-.checkbox_row .checkbox_label {
   font-size: 12px;
 }
 
@@ -2008,77 +843,6 @@ label.label_with_help {
 
 td.align_top {
   vertical-align: top;
-}
-
-.inherited_permissions div.users {
-  padding-bottom: 10px;
-}
-
-/* move this to the left because of add link */
-#new_material_popup {
-  margin-left: 20px;
-}
-
-li.menu_item_last_with_border {
-  border-top: 1px solid #ccc;
-}
-
-#group_summary h1,
-#template_summary h1 {
-  background-color: transparent;
-  color: #3f2559;
-  font-size: 21px;
-  font-weight: 300;
-  margin-bottom: 10px;
-  padding-bottom: 0;
-}
-
-#admin_pipeline_groups .content_wrapper_inner h1,
-#admin_templates .content_wrapper_inner h1,
-#oauth_page .content_wrapper_inner h1 {
-  font-weight: 300;
-  margin-bottom: 14px;
-}
-
-#group_summary h1 strong,
-#template_summary h1 strong {
-  float: left;
-}
-
-#group_summary .list_aggregation li,
-#template_summary .list_aggregation li {
-  color: #666;
-  font-weight: 300;
-}
-
-#group_summary .list_aggregation,
-#template_summary .list_aggregation {
-  margin-top: 0;
-}
-
-#search_users_table {
-  height: 341px;
-  overflow-y: auto;
-  overflow-x: auto;
-}
-
-.user_search_box {
-  padding-top: 15px;
-  padding-left: 15px;
-}
-
-.add_new_group,
-.add_new_users,
-.add_new_template {
-  float: right;
-}
-
-.isFixed .add_new_users {
-  margin-right: 20px;
-}
-
-.clear-float {
-  clear: both;
 }
 
 li.task_property span.name {
@@ -2098,120 +862,6 @@ li.task_property {
   float: right;
 }
 
-/*
-* oauth_user_tokens
-*/
-
-#oauth_page .page_header {
-  background: none;
-  margin-bottom: 5px;
-  overflow: hidden;
-  padding-top: 5px;
-}
-
-#oauth_page .page_header .entity_title {
-  margin-bottom: 0;
-}
-
-/*
-*  Modal box
-*/
-
-#add_error_message p {
-  background: #ff9 image_url("g9/icons/icon_info_16.png") no-repeat scroll 10px 50%;
-  font-size: 12px;
-  padding: 10px 10px 10px 36px;
-}
-
-#oauth_page h2 {
-  font-size: 18px;
-  margin: 10px 0 5px;
-}
-
-#oauth_page .oauth_config_info {
-  margin-bottom: 20px !important;
-}
-
-#oauth_page .info-box {
-  background: #ddebf3 image_url("g9/icons/icon_info_16.png") no-repeat scroll 0 0;
-  -moz-border-radius-bottomleft: 5px;
-  -moz-border-radius-bottomright: 5px;
-  -moz-border-radius-topleft: 5px;
-  -moz-border-radius-topright: 5px;
-  background-position: 10px 9px !important;
-  background-repeat: no-repeat;
-  border: 1px solid rgba(0, 0, 0, 10%);
-  color: #333;
-  padding: 10px 10px 10px 36px !important;
-}
-
-#oauth_page .table_actions {
-  margin-top: 10px;
-}
-
-#oauth_page a.delete_link {
-  background: transparent image_url("g9/icons/icon_close_small.png") no-repeat scroll 0 0;
-  display: block;
-  height: 14px;
-  padding: 0;
-  width: 14px;
-}
-
-#oauth_page a.delete_link:hover {
-  background: transparent image_url("g9/icons/icon_close_hover_small.png") repeat scroll 0 0;
-}
-
-#oauth_page a.delete_link span {
-  display: none;
-}
-
-#oauth_page .oauth_config_info span {
-  font-weight: bold;
-}
-
-#oauth_page .oauth_config_info span.redirect-uri {
-  font-weight: normal;
-}
-
-#oauth_page .notes {
-  color: #999;
-  font-style: italic;
-}
-
-/* gadget pages */
-
-#oauth_page .certificate_details {
-  margin: 24px 0;
-  padding-top: 12px;
-  border-top: 1px solid #ccc;
-}
-
-#oauth_page .certificate_details h4 {
-  clear: left;
-  margin-top: 6px;
-  margin-bottom: 0.5em;
-}
-
-#oauth_page .certificate_details dt {
-  float: left;
-  clear: left;
-  margin-bottom: 0.5em;
-}
-
-#oauth_page .certificate_details dd {
-  margin-left: 200px;
-  min-height: 1.167em;
-  margin-bottom: 0.5em;
-}
-
-#oauth_page .accept_certificate_wrapper .info-box {
-  background-image: none;
-  padding: 10px !important;
-}
-
-#oauth_page .accept_certificate {
-  display: inline;
-}
 
 /* artifacts wizard */
 
@@ -2235,22 +885,6 @@ li.task_property {
 
 .artifact select {
   margin-right: 10px;
-}
-
-.group_pipelines .group table {
-  width: 100%;
-}
-
-.group_pipelines .pipeline td.name {
-  width: 35%;
-}
-
-#admin_templates tr.pipeline td.name {
-  width: 50%;
-}
-
-.group_pipelines td .has_go_tip {
-  cursor: pointer;
 }
 
 /* Value Stream Map - styles */
@@ -2597,7 +1231,6 @@ li.task_property {
 .vsm-entity.material .icon {
   background: image_url("andare/ico-16x16.png") no-repeat scroll 0 0 transparent;
 
-  /* background: image_url("andare/vsm-entity-icons.png") no-repeat scroll 0 0 transparent; */
   padding-left: 20px;
 }
 
@@ -2798,7 +1431,6 @@ li.task_property {
   background-color: #eee;
 }
 
-/*  */
 #pre-loader-overlay {
   display: none;
 }
@@ -2896,11 +1528,6 @@ li.task_property {
   background-color: rgba(0, 0, 0, 1%);
 }
 
-/* .text-right{ */
-
-/* text-align: right; */
-
-/* } */
 .wraptext {
   white-space: pre-wrap !important;
 }
@@ -2914,24 +1541,11 @@ li.task_property {
 */
 ul.variables::after,
 .environments .stages::after,
-.change_materials .materials::after,
-.change_materials::after,
 .environment .pipeline .deploy::after,
 .page_title_bar .other_runs li::after,
 .overview_widget::after,
 .overview_widget .job_grouping::after,
-.pipeline_bundle::after,
-.stage_history .stage::after,
-.pipeline_bundle::after,
-.pipeline_bundle .pipeline .title::after,
-.pipeline_bundle .pipeline .pipeline_instance_details::after,
-.pipeline_bundle .pipeline .previously::after,
-#pipeline_visualization::after,
-#pipelines .pipelines_selector::after,
-#ajax_agents_header::after,
-.pipeline_bundle .pipeline_operations::after,
-.user_permissions_section::after,
-#oauth_page .certificate_details dl::after {
+.stage_history .stage::after {
   clear: both;
   content: ".";
   display: block;

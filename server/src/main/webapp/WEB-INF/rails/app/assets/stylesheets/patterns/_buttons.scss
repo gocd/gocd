@@ -221,11 +221,6 @@ a.link_as_button {
   float: left;
 }
 
-.pipeline_bundle div.pipeline button.submit,
-.pipeline_bundle div.pipeline a.link_as_button {
-
-}
-
 button.submit,
 a.link_as_button {
   color: #fff;
@@ -475,49 +470,6 @@ button.submit_hover span img {
   background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 -60px no-repeat transparent;
 }
 
-/* add special stuffs when they are in the edit panel */
-.edit_panel button.submit,
-.edit_panel a.link_as_button {
-  background: image_url("g9/backgrounds/overlay_gradient_button.png") repeat-x left bottom #f6f6f6;
-  -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 20%) inset;
-  -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 20%) inset;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 20%) inset;
-}
-
-.edit_panel button.submit:hover,
-.edit_panel a.link_as_button:hover {
-  background-color: #f6f6f6;
-  -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 60%) inset;
-  -webkit-box-shadow: 0 0 3px rgba(0, 0, 0, 60%) inset;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 60%) inset;
-}
-
-.edit_panel button span,
-.edit_panel a.link_as_button span,
-.edit_panel button:hover span,
-.edit_panel a.link_as_button:hover span,
-.edit_panel a.link_as_button_hover span {
-  color: #333;
-}
-
-#agents_form .edit_panel .download_agent {
-  float: right;
-  margin-right: 0;
-}
-
-* + html #agents_form .edit_panel .download_agent {
-  padding-top: 8px;
-  padding-bottom: 10px;
-}
-
-#agents_form .edit_panel .download_agent span {
-  text-transform: uppercase;
-}
-
-#agents_form .edit_panel a:hover {
-  text-decoration: none;
-}
-
 input[type="submit"] {
   min-width: 100px;
   box-sizing: border-box;
@@ -565,7 +517,3 @@ input[type="submit"][disabled="disabled"].primary:hover {
   background-color: #39c !important;
 }
 
-button.edit-environment {
-  float: right;
-  margin-right: 5px;
-}

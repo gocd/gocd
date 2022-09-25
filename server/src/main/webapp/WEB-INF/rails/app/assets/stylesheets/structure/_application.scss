@@ -20,28 +20,6 @@
  * application-wide style standards, mostly related to html elements but also layouts
  */
 
-/**
- * TABLE OF CONTENTS
- *
- * =BODY
- * =TITLES
- * =FORMS
- * =PRE/CODE
- * =LINKS
- * =LISTS
- * =PARAGRAPHS
- * =TABLES
- * =HELPER_CLASSES
- * =LAYOUTS
- * ==APPLICATION
- * ==IN PLAN
- * ==PARTIALS
- * ===PLAN_NAV
- * =FLOAT CLEARING
- * ==COMPLIANT FLOAT CLEARING
- * ==IE7 FLOAT CLEARING HACK STANDARDS
- */
-
 @import "css_sass/base/mixins";
 
 /**
@@ -51,10 +29,6 @@
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   line-height: 1;
 }
-
-/* html {
-  height: 100%;
-} */
 
 /**
  * =TITLES
@@ -80,22 +54,6 @@ h3 {
   font-size: 14px;
   margin-bottom: 0.5em;
 }
-
-/*
-h2 span {
-  font-weight:700;
-}
-.heading {
-  border-bottom:1px solid #CCCCCC;
-  margin:10px 0;
-  padding:0 0 10px;
-}
-.heading h1 {
-  border:0;
-  color:#E57700;
-  margin:0;
-  padding:0;
-} */
 
 /**
  * =FORMS
@@ -187,14 +145,6 @@ button[disabled] {
   opacity: 0.5;
 }
 
-.inline_checkbox_row {
-  display: inline-block;
-  margin-top: 10px;
-  margin-left: 5px;
-}
-.inline_checkbox_row input { float: left; margin: 0; margin-right: 3px; }
-.inline_checkbox_row label { white-space: nowrap; }
-
 /**
  * =LINKS
 **/
@@ -208,43 +158,6 @@ a:hover {
   color: #2980ec;
 }
 
-/*
-
-a.icon {
-  background-repeat: no-repeat;
-  background-position:  left center;
-  display: inline-block;
-  padding:  3px 3px 3px 21px;
-  line-height: 16px;
-  color: #333;
-  font-size: 12px;
-  height: auto;
-  width: auto;
-  margin-right: 10px;
-  zoom: 1;
-  *display: inline;
-  vertical-align: top;
-}
-a.delete_link {
-
-}
-a.edit_link {
-
-}
-a.add_link {
-
-}
-a.arrow_link {
-
-}
-a.delete_parent {
-  display: block;
-  height: 16px;
-  width: 16px;
-  cursor: pointer;
-}
-*/
-
 /**
  * =LISTS
 **/
@@ -257,17 +170,6 @@ li {
   float: left;
   list-style: none;
 }
-
-/**
- * =PARAGRAPHS
- */
-
-/*
-p {
-  line-height: 130%;
-  margin-bottom: 10px;
-}
-*/
 
 /**
  * =TABLES
@@ -284,23 +186,6 @@ table td {
   vertical-align: middle;
 }
 
-/*
-table {
-  width:100%;
-}
-th, td {
-  border-collapse:collapse;
-  border:1px solid #CCC;
-  color:#333333;
-  padding:8px 10px;
-  vertical-align:top;
-}
-th {
-  background-color:#EEEEEE;
-  font-weight:bold;
-}
-*/
-
 /**
  * =HELPER_CLASSES
 **/
@@ -308,67 +193,6 @@ th {
   display: none;
 }
 
-/**
- * =LAYOUTS
- */
-
-/**
- * ==APPLICATION
- */
-
-/*
-#header {
-  background: #FF7800;
-}
-#header_wrapper {
-  min-height: 61px;
-  padding: 10px 10px 0 10px;
-}
-#header .plan_header .logo {
-  display: block;
-  float: left;
-  height: 45px;
-  width: 135px;
-}
-#header .plan_header a.plan_name {
-  color: #FFF;
-  float: left;
-  font-size: 21px;
-  font-family: "Helvetica Neue";
-  font-weight: 300;
-  line-height: .75;
-  margin-top: 14px;
-}
-.content {
-  min-height: 400px;
-  padding: 15px;
-  background:none repeat scroll 0 0 #FFFFFF;
-}
-#ft {
-  padding: 10px;
-  font-size: 11px;
-  overflow: hidden;
-  border-top: 1px solid #CCC;
-  color: #666;
-}
-#ft a {
-  color: #333;
-}
-#ft #copyright {
-  float: left;
-}
-#ft #support {
-  float: right;
-}
-*/
-
-/**
- * ==PARTIALS
- */
-
-/**
- * ===???
- */
 
 /**
  * =FLOAT CLEARING
@@ -422,13 +246,6 @@ th {
   color: white;
 }
 
-#stage_job_form .form_item_block {
-  width: 720px;
-}
-
-#stage_job_form textarea {
-  width: 400px;
-}
 
 /* config changes */
 
@@ -457,32 +274,4 @@ th {
 .config-changes .remove pre {
   color: #b20000;
   background-color: #ffd4d4;
-}
-
-button.check_connection {
-  display: block;
-
-  + .connection_test_message {
-    margin: 8px;
-  }
-
-  + .connection_test_message pre {
-    width: 670px;
-    float: left;
-    white-space: pre-wrap; /* css-3 should we be so lucky... */
-    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-    white-space: -pre-wrap; /* Opera 4-6 ?? */
-    white-space: -o-pre-wrap; /* Opera 7 ?? */
-    word-wrap: break-word; /* Internet Explorer 5.5+ */
-    _white-space: pre; /* IE only hack to re-specify in addition to word-wrap  */
-  }
-}
-
-#plugin_settings_angular_plugin_settings {
-  textarea {
-    resize: both;
-    font-family: "courier new", monospace;
-    font-size: 14px;
-    line-height: 1.25em;
-  }
 }

@@ -202,7 +202,7 @@ GEM
       railties (>= 4.0)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2022.3)
+    tzinfo-data (1.2022.4)
       tzinfo (>= 1.0.0)
     websocket-driver (0.7.5-java)
       websocket-extensions (>= 0.1.0)

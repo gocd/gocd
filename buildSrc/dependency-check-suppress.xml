@@ -41,7 +41,7 @@
     <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
     <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
-  <suppress until="2022-10-01Z">
+  <suppress until="2022-11-01Z">
     <notes><![CDATA[
    This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.31 according to devs and NIST NVD,
    raised at https://github.com/OSSIndex/vulns/issues/327
@@ -51,19 +51,11 @@
   </suppress>
   <suppress until="2022-11-01Z">
     <notes><![CDATA[
-   Temporary suppression as it may be a false positive, or at least there is no available fix (may be addressed in 1.32
-   but requires a JRuby release to pull that version in). See https://bitbucket.org/snakeyaml/snakeyaml/issues/531/stackoverflow-oss-fuzz-47081
+   Temporary suppression as this is fixed in SnakeYAML 1.32 but JRuby needs to update to use it via its Psych
+    dependency (awaiting JRuby 9.3.9.0) https://bitbucket.org/snakeyaml/snakeyaml/issues/531/stackoverflow-oss-fuzz-47081
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
     <cve>CVE-2022-38752</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    Suppressing false positive - vulnerability is in Artemis, not the wider ActiveMQ, and NVD data has the wrong
-    affected versions anyway.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
-    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -72,6 +64,14 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
     <cve>CVE-2020-13697</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
+   body content to make it vulnerable to CVE-2022-21230.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
+    <cve>CVE-2022-21230</cve>
   </suppress>
 
   <suppress>
@@ -226,7 +226,7 @@
     <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
   </suppress>
 
-  <suppress until="2022-10-01Z">
+  <suppress until="2022-11-01Z">
     <notes><![CDATA[
     Time-limited suppression for https://nvd.nist.gov/vuln/detail/CVE-2021-29425. GoCD is not vulnerable as the use of
     FilenameUtils.normalize does not "use the result to construct a path value" as required by the defect. Neither does
@@ -249,15 +249,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
-   body content to make it vulnerable to CVE-2022-21230.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
-    <cve>CVE-2022-21230</cve>
   </suppress>
 
   <suppress>

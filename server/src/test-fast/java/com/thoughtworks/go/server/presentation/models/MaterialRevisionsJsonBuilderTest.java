@@ -15,8 +15,7 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.sdicons.json.model.JSONArray;
-import com.sdicons.json.model.JSONObject;
+import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -27,8 +26,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.DateUtils;
-import com.thoughtworks.go.util.JsonUtils;
-import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,10 +33,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class MaterialRevisionsJsonBuilderTest {
     private MaterialRevisions materialRevisions;
@@ -55,80 +52,79 @@ public class MaterialRevisionsJsonBuilderTest {
         builder = new MaterialRevisionsJsonBuilder(new TrackingTool());
     }
 
-    private JSONArray buildJson() {
+    private String buildJson() {
         materialRevisions.accept(builder);
         List json = builder.json();
-        return (JSONArray) JsonUtils.parseJsonValue(json);
+        return new Gson().toJson(json);
     }
 
     @Test
     public void shouldShowEachMaterialInJson() {
-        JSONArray revisions = buildJson();
-
-        assertThat(revisions.size(), is(1));
-        JSONObject jsonValue = (JSONObject) revisions.get(0);
-        assertThat(jsonValue.get("scmType").render(false), is("\"Subversion\""));
-        assertThat(jsonValue.get("location").render(false), is("\"http://url\""));
-        assertThat(jsonValue.get("folder").render(false), is("\"svn-folder\""));
-
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
-        String revision = materialRevision.getRevision().getRevision();
-        assertThat(jsonValue.get("revision").render(false), is("\"" + revision + "\""));
-        assertThat(jsonValue.get("action").render(false), is("\"Modified\""));
-        assertThat(jsonValue.get("user").render(false), is("\"" + ModificationsMother.MOD_USER_WITH_HTML_CHAR + "\""));
-        String date = DateUtils.formatISO8601(materialRevision.getDateOfLatestModification());
-        assertThat(jsonValue.get("date").render(false), is("\"" + date + "\""));
+        String expectedRevision = materialRevision.getRevision().getRevision();
+        String expectedDate = DateUtils.formatISO8601(materialRevision.getDateOfLatestModification());
+
+        String jsonRevisions = buildJson();
+        assertThatJson(jsonRevisions)
+            .isArray()
+            .ofLength(1);
+
+        assertThatJson(jsonRevisions)
+            .node("[0].scmType").isEqualTo("Subversion")
+            .node("[0].location").isEqualTo("http://url")
+            .node("[0].folder").isEqualTo("svn-folder")
+            .node("[0].revision").isStringEqualTo(expectedRevision)
+            .node("[0].user").isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR)
+            .node("[0].date").isEqualTo(expectedDate);
     }
 
     @Test
     public void shouldShowEmptyFolderInJson() {
         svnMaterial.setFolder(null);
-        JSONArray revisions = buildJson();
-        assertThat(revisions.size(), is(1));
-        JSONObject jsonValue = (JSONObject) revisions.get(0);
-        assertThat(jsonValue.get("folder").render(false), is("\"\""));
+
+        String jsonRevisions = buildJson();
+        assertThatJson(jsonRevisions)
+            .isArray()
+            .ofLength(1);
+
+        assertThatJson(jsonRevisions)
+            .node("[0].folder").isEqualTo("");
     }
 
     @Test
     public void shouldShowEachModificationInJson() {
-        JSONArray revisions = buildJson();
-        JSONObject revision = (JSONObject) revisions.get(0);
+        String jsonRevisions = buildJson();
+        assertThatJson(jsonRevisions)
+            .node("[0].modifications")
+            .isArray()
+            .ofLength(3);
 
-        JSONArray jsonArray = (JSONArray) revision.get("modifications");
-        assertThat(jsonArray.size(), is(3));
+        assertThatJson(jsonRevisions)
+            .node("[0].modifications[2].user").isEqualTo(ModificationsMother.MOD_USER)
+            .node("[0].modifications[2].comment").isEqualTo(ModificationsMother.MOD_COMMENT)
+            .node("[0].modifications[2].date").isEqualTo(DateUtils.formatISO8601(ModificationsMother.TWO_DAYS_AGO_CHECKIN))
+            .node("[0].modifications[2].modifiedFiles").isArray().ofLength(1);
 
-        JSONObject modification = (JSONObject) jsonArray.get(2);
-        assertAttributeInJson(modification, "user", ModificationsMother.MOD_USER);
-        assertAttributeInJson(modification, "comment", ModificationsMother.MOD_COMMENT);
-        assertAttributeInJson(modification, "date", DateUtils.formatISO8601(ModificationsMother.TWO_DAYS_AGO_CHECKIN));
-
-        JSONArray modifiedFiles = (JSONArray) modification.get("modifiedFiles");
-        assertThat(modifiedFiles.size(), is(1));
-
-        JSONObject file = (JSONObject) modifiedFiles.get(0);
-        assertAttributeInJson(file, "action", ModificationsMother.MOD_MODIFIED_ACTION.toString());
-        assertAttributeInJson(file, "fileName", ModificationsMother.MOD_FILE_BUILD_XML);
+        assertThatJson(jsonRevisions)
+            .node("[0].modifications[2].modifiedFiles[0].action").isEqualTo(ModificationsMother.MOD_MODIFIED_ACTION.toString())
+            .node("[0].modifications[2].modifiedFiles[0].fileName").isEqualTo(ModificationsMother.MOD_FILE_BUILD_XML);
     }
 
     @Test
-    public void shouldEscapeUsername() throws Exception {
-        JSONArray revisions = buildJson();
-        JSONObject revision = (JSONObject) revisions.get(0);
-        JSONArray jsonArray = (JSONArray) revision.get("modifications");
-        JSONObject modification = (JSONObject) jsonArray.get(0);
+    public void shouldEscapeUsername() {
+        String jsonRevisions = buildJson();
 
-        assertAttributeInJson(modification, "user", ModificationsMother.MOD_USER_WITH_HTML_CHAR);
-        assertAttributeInJson(modification, "comment", escapeHtml4(ModificationsMother.MOD_COMMENT_3));
+        assertThatJson(jsonRevisions)
+            .node("[0].modifications[0].user").isEqualTo(ModificationsMother.MOD_USER_WITH_HTML_CHAR)
+            .node("[0].modifications[0].comment").isEqualTo(escapeHtml4(ModificationsMother.MOD_COMMENT_3));
     }
 
     @Test
-    public void shouldContainModificationChanged() throws Exception {
+    public void shouldContainModificationChanged() {
         materialRevisions.getMaterialRevision(0).markAsChanged();
-        JSONArray revisions = buildJson();
-        JSONObject revision = (JSONObject) revisions.get(0);
-        JSONArray jsonArray = (JSONArray) revision.get("modifications");
 
-        assertAttributeInJson(revision, "changed", "true");
+        assertThatJson(buildJson())
+            .node("[0].changed").isStringEqualTo("true");
     }
 
     @Test
@@ -137,26 +133,20 @@ public class MaterialRevisionsJsonBuilderTest {
         MaterialRevisions revisions = new MaterialRevisions(new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), new Modification(new Date(), revision, "MOCK_LABEL-12", null)));
         MaterialRevisionsJsonBuilder jsonBuilder = new MaterialRevisionsJsonBuilder(new TrackingTool());
         revisions.accept(jsonBuilder);
-        JsonValue revisionsJson = JsonUtils.from(jsonBuilder.json());
-        assertThat(revisionsJson.getString(0, "revision_href"), is("pipelines/" + revision));
+        assertThatJson(jsonBuilder.json())
+            .node("[0].revision_href").isEqualTo("pipelines/" + revision);
     }
 
     @Test
-    public void shouldNotProcessPackageMaterialComment() throws Exception {
-        HashMap<String, String> map = new HashMap<>();
+    public void shouldNotProcessPackageMaterialComment() {
+        Map<String, String> map = new HashMap<>();
         map.put("TYPE", "PACKAGE_MATERIAL");
         map.put("TRACKBACK_URL", "google.com");
         map.put("COMMENT", "comment");
         String packageMaterialComment = JsonHelper.toJsonString(map);
         Modification modification = new Modification("user", packageMaterialComment, "some@com", new Date(), "1234");
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.packageMaterial(), modification));
-        JSONArray jsonArray = buildJson();
-        JSONObject modificationJson = (JSONObject) ((JSONArray) ((JSONObject) jsonArray.get(0)).get("modifications")).get(0);
-        assertThat(modificationJson.get("comment").render(false), is(JsonHelper.toJsonString(packageMaterialComment)));
+        assertThatJson(buildJson())
+            .node("[0].modifications[0].comment").isEqualTo(JsonHelper.toJsonString(packageMaterialComment));
     }
-
-    private void assertAttributeInJson(JSONObject jsonObject, String attributeName, String attributeValue) {
-        assertThat(jsonObject.get(attributeName).render(false), is("\"" + attributeValue + "\""));
-    }
-
 }

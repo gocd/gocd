@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SerializationTester;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -44,8 +43,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -260,10 +259,10 @@ public class SvnMaterialTest {
         Map<String, Object> json = new LinkedHashMap<>();
         material.toJson(json, revision);
 
-        JsonValue jsonValue = from(json);
-        assertThat(jsonValue.getString("scmType")).isEqualTo("Subversion");
-        assertThat(new File(jsonValue.getString("location"))).isEqualTo(new File(material.getUrl()));
-        assertThat(jsonValue.getString("action")).isEqualTo("Modified");
+        assertThatJson(json)
+            .node("scmType").isEqualTo("Subversion")
+            .node("location").isEqualTo(material.getUrl())
+            .node("action").isEqualTo("Modified");
     }
 
     @Test

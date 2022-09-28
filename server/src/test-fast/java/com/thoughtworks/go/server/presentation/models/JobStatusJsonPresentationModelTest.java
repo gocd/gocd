@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.util.JsonUtils;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +31,6 @@ import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 public class JobStatusJsonPresentationModelTest {
@@ -120,7 +117,7 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map json = presenter.toJsonHash();
 
-        assertThat(JsonUtils.from(json).getString("buildLocator"), is("cruise-%25/1/dev-%25/1/job-%25"));
+        assertThatJson(json).node("buildLocator").isEqualTo("cruise-%25/1/dev-%25/1/job-%25");
     }
 
     @Test
@@ -131,7 +128,7 @@ public class JobStatusJsonPresentationModelTest {
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map json = presenter.toJsonHash();
 
-        assertThat(JsonUtils.from(json).getString("buildLocatorForDisplay"), is("cruise-%/label-1/dev-%/1/job-%"));
+        assertThatJson(json).node("buildLocatorForDisplay").isEqualTo("cruise-%/label-1/dev-%/1/job-%");
     }
 
 }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.presentation.models;
 
 import com.google.gson.Gson;
-import com.sdicons.json.model.JSONInteger;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -27,8 +26,6 @@ import com.thoughtworks.go.server.presentation.PipelineHistoryGroupingUtil;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.JsonUtils;
-import com.thoughtworks.go.util.JsonValue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +37,8 @@ import java.util.Map;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfigWithStages;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class PipelineHistoryJsonPresentationModelTest {
     private PipelineConfig pipelineConfig;
@@ -58,12 +55,12 @@ public class PipelineHistoryJsonPresentationModelTest {
     @BeforeEach
     public void setUp() throws Exception {
         pipelineConfig = PipelineConfigMother.pipelineConfig("mingle", StageConfigMother.custom("dev", "defaultJob"),
-                StageConfigMother.manualStage("ft"));
+            StageConfigMother.manualStage("ft"));
         pipelinePauseInfo = PipelinePauseInfo.notPaused();
         presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
-                preparePipelineHistoryGroups(pipelineConfig),
-                pipelineConfig,
-                pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
+            preparePipelineHistoryGroups(pipelineConfig),
+            pipelineConfig,
+            pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
     }
 
     private Pagination pagination() {
@@ -72,13 +69,13 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     private PipelineHistoryGroups preparePipelineHistoryGroups(PipelineConfig pipelineConfig) {
         PipelineInstanceModels pipelineHistory = PipelineHistoryMother.pipelineHistory(pipelineConfig,
-                modificationDate);
+            modificationDate);
         return new PipelineHistoryGroupingUtil().createGroups(pipelineHistory);
     }
 
     private PipelineHistoryGroups preparePipelineHistoryGroupsWithErrorMessage(PipelineConfig pipelineConfig) {
         PipelineInstanceModels pipelineHistory = PipelineHistoryMother.pipelineHistoryWithErrorMessage(pipelineConfig,
-                modificationDate);
+            modificationDate);
         return new PipelineHistoryGroupingUtil().createGroups(pipelineHistory);
     }
 
@@ -88,135 +85,135 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     @Test
-    public void shouldContainPipelineConfig() throws Exception {
+    public void shouldContainPipelineConfig() {
         assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"groups\": [\n" +
-                "    {\n" +
-                "      \"config\": {\n" +
-                "        \"stages\": [\n" +
-                "          {\n" +
-                "            \"name\": \"dev\",\n" +
-                "            \"isAutoApproved\": \"true\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"name\": \"ft\",\n" +
-                "            \"isAutoApproved\": \"false\"\n" +
-                "          }\n" +
-                "        ]\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}");
+            "  \"groups\": [\n" +
+            "    {\n" +
+            "      \"config\": {\n" +
+            "        \"stages\": [\n" +
+            "          {\n" +
+            "            \"name\": \"dev\",\n" +
+            "            \"isAutoApproved\": \"true\"\n" +
+            "          },\n" +
+            "          {\n" +
+            "            \"name\": \"ft\",\n" +
+            "            \"isAutoApproved\": \"false\"\n" +
+            "          }\n" +
+            "        ]\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}");
     }
 
     @Test
-    public void shouldContainPipelineHistory() throws Exception {
+    public void shouldContainPipelineHistory() {
         Map json = presenter.toJson();
         assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"groups\": [\n" +
-                "    {\n" +
-                "      \"history\": [\n" +
-                "        {\n" +
-                "          \"pipelineId\": 1,\n" +
-                "          \"stages\": [\n" +
-                "            {\n" +
-                "              \"stageStatus\": \"Passed\",\n" +
-                "              \"stageName\": \"dev\",\n" +
-                "              \"stageId\": 0,\n" +
-                "              \"approvedBy\": \"changes\",\n" +
-                "              \"getCanRun\": \"false\",\n" +
-                "              \"scheduled\": \"true\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "              \"stageStatus\": \"Passed\",\n" +
-                "              \"stageName\": \"ft\",\n" +
-                "              \"stageId\": 0,\n" +
-                "              \"approvedBy\": \"lgao\",\n" +
-                "              \"getCanRun\": \"false\",\n" +
-                "              \"getCanCancel\": \"false\",\n" +
-                "              \"scheduled\": \"true\"\n" +
-                "            }\n" +
-                "          ]\n" +
-                "        }\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}");
+            "  \"groups\": [\n" +
+            "    {\n" +
+            "      \"history\": [\n" +
+            "        {\n" +
+            "          \"pipelineId\": 1,\n" +
+            "          \"stages\": [\n" +
+            "            {\n" +
+            "              \"stageStatus\": \"Passed\",\n" +
+            "              \"stageName\": \"dev\",\n" +
+            "              \"stageId\": 0,\n" +
+            "              \"approvedBy\": \"changes\",\n" +
+            "              \"getCanRun\": \"false\",\n" +
+            "              \"scheduled\": \"true\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"stageStatus\": \"Passed\",\n" +
+            "              \"stageName\": \"ft\",\n" +
+            "              \"stageId\": 0,\n" +
+            "              \"approvedBy\": \"lgao\",\n" +
+            "              \"getCanRun\": \"false\",\n" +
+            "              \"getCanCancel\": \"false\",\n" +
+            "              \"scheduled\": \"true\"\n" +
+            "            }\n" +
+            "          ]\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}");
     }
 
     @Test
     public void shouldContainPipelineHistoryWithErrorMessage() {
         presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
-                preparePipelineHistoryGroupsWithErrorMessage(pipelineConfig),
-                pipelineConfig,
-                pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
+            preparePipelineHistoryGroupsWithErrorMessage(pipelineConfig),
+            pipelineConfig,
+            pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
         Map json = presenter.toJson();
         assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
+            "  \"groups\": [\n" +
+            "    {\n" +
+            "      \"history\": [\n" +
+            "        {\n" +
+            "          \"pipelineId\": 1,\n" +
+            "          \"stages\": [\n" +
+            "            {\n" +
+            "              \"stageStatus\": \"Cancelled\",\n" +
+            "              \"stageName\": \"dev\",\n" +
+            "              \"stageId\": 0,\n" +
+            "              \"approvedBy\": \"changes\",\n" +
+            "              \"getCanRun\": \"true\",\n" +
+            "              \"scheduled\": \"true\"\n" +
+            "            },\n" +
+            "            {\n" +
+            "              \"stageStatus\": \"Unknown\",\n" +
+            "              \"stageName\": \"ft\",\n" +
+            "              \"stageId\": 0,\n" +
+            "              \"approvedBy\": \"\",\n" +
+            "              \"getCanRun\": \"false\",\n" +
+            "              \"errorMessage\":\"Cannot schedule ft as the previous stage dev has Cancelled!\",\n" +
+            "              \"getCanCancel\": \"false\",\n" +
+            "              \"scheduled\": \"false\"\n" +
+            "            }\n" +
+            "          ]\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}");
+    }
+
+    @Test
+    public void shouldContainPipelineHistoryComments() {
+        Map json = presenter.toJson();
+        assertThatJson(new Gson().toJson(json))
+            .when(IGNORING_EXTRA_FIELDS)
+            .isEqualTo("{\n" +
                 "  \"groups\": [\n" +
                 "    {\n" +
                 "      \"history\": [\n" +
                 "        {\n" +
                 "          \"pipelineId\": 1,\n" +
-                "          \"stages\": [\n" +
-                "            {\n" +
-                "              \"stageStatus\": \"Cancelled\",\n" +
-                "              \"stageName\": \"dev\",\n" +
-                "              \"stageId\": 0,\n" +
-                "              \"approvedBy\": \"changes\",\n" +
-                "              \"getCanRun\": \"true\",\n" +
-                "              \"scheduled\": \"true\"\n" +
-                "            },\n" +
-                "            {\n" +
-                "              \"stageStatus\": \"Unknown\",\n" +
-                "              \"stageName\": \"ft\",\n" +
-                "              \"stageId\": 0,\n" +
-                "              \"approvedBy\": \"\",\n" +
-                "              \"getCanRun\": \"false\",\n" +
-                "              \"errorMessage\":\"Cannot schedule ft as the previous stage dev has Cancelled!\",\n" +
-                "              \"getCanCancel\": \"false\",\n" +
-                "              \"scheduled\": \"false\"\n" +
-                "            }\n" +
-                "          ]\n" +
+                "          \"comment\": \"build comment\"\n" +
                 "        }\n" +
                 "      ]\n" +
                 "    }\n" +
                 "  ]\n" +
                 "}");
-    }
-
-    @Test
-    public void shouldContainPipelineHistoryComments() throws Exception {
-        Map json = presenter.toJson();
-        assertThatJson(new Gson().toJson(json))
-                .when(IGNORING_EXTRA_FIELDS)
-                .isEqualTo("{\n" +
-                        "  \"groups\": [\n" +
-                        "    {\n" +
-                        "      \"history\": [\n" +
-                        "        {\n" +
-                        "          \"pipelineId\": 1,\n" +
-                        "          \"comment\": \"build comment\"\n" +
-                        "        }\n" +
-                        "      ]\n" +
-                        "    }\n" +
-                        "  ]\n" +
-                        "}");
 
     }
 
     @Test
-    public void shouldContainPipelinePageInfo() throws Exception {
+    public void shouldContainPipelinePageInfo() {
         assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
-                "  \"pipelineName\": \"mingle\",\n" +
-                "  \"count\": 1,\n" +
-                "  \"canForce\": \"false\",\n" +
-                "  \"start\": 1,\n" +
-                "  \"perPage\": 10\n" +
-                "}");
+            "  \"pipelineName\": \"mingle\",\n" +
+            "  \"count\": 1,\n" +
+            "  \"canForce\": \"false\",\n" +
+            "  \"start\": 1,\n" +
+            "  \"perPage\": 10\n" +
+            "}");
     }
 
     @Test
-    public void needsApprovalInJsonShouldBeFalseWhenPipelineIsPaused() throws Exception {
+    public void needsApprovalInJsonShouldBeFalseWhenPipelineIsPaused() {
         pipelinePauseInfo.setPaused(true);
         HashMap<String, Object> map = new HashMap(presenter.toJson());
 
@@ -225,33 +222,28 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     @Test
-    public void shouldShowFirstStageApproverNameInBuildCauseBy() throws Exception {
-        Map jsonMap = presenter.toJson();
-        JsonValue jsonValue = JsonUtils.from(jsonMap);
-        String revision = jsonValue.getString("groups", 0, "history", 0, "buildCauseBy");
-        assertThat(revision, is("Triggered by " + GoConstants.DEFAULT_APPROVED_BY));
+    public void shouldShowFirstStageApproverNameInBuildCauseBy() {
+        assertThatJson(presenter.toJson())
+            .node("groups[0].history[0].buildCauseBy")
+            .isEqualTo("Triggered by " + GoConstants.DEFAULT_APPROVED_BY);
     }
 
     @Test
-    public void shouldContainMaterialRevisions() throws Exception {
-        Map jsonMap = presenter.toJson();
-        JsonValue jsonValue = JsonUtils.from(jsonMap);
-        JsonValue revision = jsonValue.getObject("groups", 0, "history", 0, "materialRevisions", 0);
-        assertThat(revision.getString("revision"), is("svn.100"));
-        assertThat(revision.getString("user"), is("user"));
-        assertThat(revision.getString("date"), is(DateUtils.formatISO8601(modificationDate)));
+    public void shouldContainMaterialRevisions() {
+        assertThatJson(presenter.toJson())
+            .node("groups[0].history[0].materialRevisions[0].revision").isEqualTo("svn.100")
+            .node("groups[0].history[0].materialRevisions[0].user").isEqualTo("user")
+            .node("groups[0].history[0].materialRevisions[0].date").isEqualTo(DateUtils.formatISO8601(modificationDate));
     }
 
     @Test
-    public void shouldContainPipelineCounterOrLabel() throws Exception {
-        Map jsonMap = presenter.toJson();
-        JsonValue jsonValue = JsonUtils.from(jsonMap);
-        JsonValue pipeline = jsonValue.getObject("groups", 0, "history", 0);
-        assertThat(pipeline.getString("counterOrLabel"), is("1"));
+    public void shouldContainPipelineCounterOrLabel() {
+        assertThatJson(presenter.toJson())
+            .node("groups[0].history[0].counterOrLabel").isStringEqualTo("1");
     }
 
     @Test
-    public void shouldContainPipelinePauseInfo() throws Exception {
+    public void shouldContainPipelinePauseInfo() {
         pipelinePauseInfo.setPaused(true);
         pipelinePauseInfo.setPauseCause("pauseCause");
         pipelinePauseInfo.setPauseBy("pauseBy");
@@ -268,7 +260,7 @@ public class PipelineHistoryJsonPresentationModelTest {
     }
 
     @Test
-    public void shouldCreateGroupForCurrentConfigIfItHasChanged() throws Exception {
+    public void shouldCreateGroupForCurrentConfigIfItHasChanged() {
         PipelineHistoryGroups historyGroups = preparePipelineHistoryGroups(pipelineConfig);
         PipelineConfig newConfig = createPipelineConfigWithStages("mingle", "stage1", "stage2");
         presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
@@ -311,28 +303,26 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldEncodeStageLocator() {
-        PipelineConfig pipelineConfig1 = PipelineConfigMother.createPipelineConfigWithStages("mingle-%", "stage1-%",
+        PipelineConfig pipelineConfig1 = createPipelineConfigWithStages("mingle-%", "stage1-%",
                 "stage2");
         PipelineHistoryJsonPresentationModel presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
                 preparePipelineHistoryGroups(pipelineConfig1),
                 pipelineConfig1,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        JsonValue json = JsonUtils.from(presenter.toJson());
-        String stageLocator = json.getString("groups", 0, "history", 0, "stages", 0, "stageLocator");
-        assertThat(stageLocator, is("mingle-%25/1/stage1-%25/1"));
+        assertThatJson(presenter.toJson())
+            .node("groups[0].history[0].stages[0].stageLocator").isEqualTo("mingle-%25/1/stage1-%25/1");
     }
 
     @Test
     public void shouldGetScheduleTimestamp() {
-        PipelineConfig pipelineConfig1 = PipelineConfigMother.createPipelineConfigWithStages("mingle-%", "stage1-%",
+        PipelineConfig pipelineConfig1 = createPipelineConfigWithStages("mingle-%", "stage1-%",
                 "stage2");
         PipelineHistoryJsonPresentationModel presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
                 preparePipelineHistoryGroups(pipelineConfig1),
                 pipelineConfig1,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        JsonValue json = JsonUtils.from(presenter.toJson());
-        long scheduledTimestamp = ((JSONInteger) json.getValue("groups", 0, "history", 0, "scheduled_timestamp")).getValue().longValue();
-        assertThat(scheduledTimestamp, is(modificationDate.getTime()));
+        assertThatJson(presenter.toJson())
+            .node("groups[0].history[0].scheduled_timestamp").isEqualTo(modificationDate.getTime());
     }
 
 }

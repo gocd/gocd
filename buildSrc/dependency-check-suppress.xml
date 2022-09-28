@@ -59,19 +59,19 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    Suppressing false positive - vulnerability is in Artemis, not the wider ActiveMQ, and NVD data has the wrong
-    affected versions anyway.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.apache\.activemq/activemq\-broker@.*$</packageUrl>
-    <vulnerabilityName>CVE-2015-3208</vulnerabilityName>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
     separately and which is not used within GoCD.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
     <cve>CVE-2020-13697</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
+   body content to make it vulnerable to CVE-2022-21230.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
+    <cve>CVE-2022-21230</cve>
   </suppress>
 
   <suppress>
@@ -249,15 +249,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
-   body content to make it vulnerable to CVE-2022-21230.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
-    <cve>CVE-2022-21230</cve>
   </suppress>
 
   <suppress>

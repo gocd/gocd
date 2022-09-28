@@ -25,7 +25,6 @@ configurations {
 dependencies {
   implementation project(':base')
   api project(':util')
-  api project.deps.jsontools
   api project.deps.springTest
   implementation project.deps.jetty
   implementation project.deps.jettyPlus

@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.*;
@@ -46,10 +45,11 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.*;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class HgMaterialTest {
@@ -243,10 +243,10 @@ public class HgMaterialTest {
             Map<String, Object> json = new LinkedHashMap<>();
             hgMaterial.toJson(json, new StringRevision("123"));
 
-            JsonValue jsonValue = from(json);
-            assertThat(jsonValue.getString("scmType")).isEqualTo("Mercurial");
-            assertThat(new File(jsonValue.getString("location"))).isEqualTo(new File(hgTestRepo.projectRepositoryUrl()));
-            assertThat(jsonValue.getString("action")).isEqualTo("Modified");
+            assertThatJson(json)
+                .node("scmType").isEqualTo("Mercurial")
+                .node("location").isEqualTo(hgTestRepo.projectRepositoryUrl())
+                .node("action").isEqualTo("Modified");
         }
 
         // #3103

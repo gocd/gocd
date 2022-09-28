@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +45,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.thoughtworks.go.util.JsonUtils.from;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.*;
@@ -110,12 +109,11 @@ public class JobControllerTest {
         verify(jobInstanceDao).mostRecentJobWithTransitions(job.getIdentifier());
         verify(stageService).getBuildDuration(pipelineName, stageName, newJob);
 
-        JsonValue json = from(((List) modelAndView.getModel().get("json")).get(0));
+        Object json1 = ((List) modelAndView.getModel().get("json")).get(0);
 
-        JsonValue buildingInfo = json.getObject("building_info");
-
-        assertThat(buildingInfo.getString("id")).isEqualTo("2");
-        assertThat(buildingInfo.getString("last_build_duration")).isEqualTo("5");
+        assertThatJson(json1)
+            .node("building_info.id").isStringEqualTo("2")
+            .node("building_info.last_build_duration").isStringEqualTo("5");
     }
 
     @Nested

@@ -21,15 +21,14 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.P4TestRepo;
-import com.thoughtworks.go.util.JsonValue;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.*;
 
-import static com.thoughtworks.go.util.JsonUtils.from;
 import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -235,10 +234,10 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         Map<String, Object> json = new LinkedHashMap<>();
         p4Material.toJson(json, new StringRevision("123"));
 
-        JsonValue jsonValue = from(json);
-        assertThat(jsonValue.getString("scmType")).isEqualTo("Perforce");
-        assertThat(jsonValue.getString("location")).isEqualTo(p4Material.getServerAndPort());
-        assertThat(jsonValue.getString("action")).isEqualTo("Modified");
+        assertThatJson(json)
+            .node("scmType").isEqualTo("Perforce")
+            .node("location").isEqualTo(p4Material.getServerAndPort())
+            .node("action").isEqualTo("Modified");
     }
 
     @Test

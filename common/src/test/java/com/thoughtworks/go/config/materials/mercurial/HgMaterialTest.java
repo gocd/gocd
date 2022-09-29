@@ -245,7 +245,7 @@ public class HgMaterialTest {
 
             assertThatJson(json)
                 .node("scmType").isEqualTo("Mercurial")
-                .node("location").isEqualTo(hgTestRepo.projectRepositoryUrl())
+                .node("location").isStringEqualTo(hgTestRepo.projectRepositoryUrl())
                 .node("action").isEqualTo("Modified");
         }
 

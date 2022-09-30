@@ -172,7 +172,7 @@ GEM
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
     rspec-support (3.11.1)
-    rspec_junit_formatter (0.5.1)
+    rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
     ruby-debug-base (0.11.0-java)
     sass-embedded (1.55.0)

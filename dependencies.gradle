@@ -55,7 +55,7 @@ final Map<String, String> libraries = [
   guava               : 'com.google.guava:guava:31.1-jre',
   h2                  : 'com.h2database:h2:1.4.200',
   hamcrest            : 'org.hamcrest:hamcrest:2.2',
-  hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
+  hibernate           : 'org.hibernate:hibernate-ehcache:5.6.12.Final',
   httpClientMock      : 'com.github.paweladamski:HttpClientMock:1.10.0',
   jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.13.4',
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',

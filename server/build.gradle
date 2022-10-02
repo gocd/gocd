@@ -226,7 +226,6 @@ dependencies {
   apiBase project(':api:api-base')
   allApis project(':api').subprojects
   spark project(':spark').subprojects
-  implementation project(':addon-api:database')
   implementation project(':config:config-api')
   implementation project(':config:config-server')
   implementation project(':plugin-infra:go-plugin-access')

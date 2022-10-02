@@ -16,7 +16,6 @@
 
 rootProject.name = 'gocd'
 
-include ':addon-api:database'
 include ':agent'
 include ':agent-bootstrapper'
 include ':agent-common'

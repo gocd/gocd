@@ -17,7 +17,6 @@
 description = 'GoCD Jetty9 Bootstrapper'
 
 dependencies {
-  implementation project(':addon-api:database')
   implementation project(':app-server')
   implementation project(':config:config-server')
   implementation project(':common')

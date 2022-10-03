@@ -137,7 +137,7 @@ class LicenseReport {
   private Map<String, Object> openJdkLicense() {
     [
       "moduleName": "net.adoptium:eclipse-temurin-jre",
-      "moduleVersion": "${project.packaging.adoptOpenjdk.featureVersion}",
+      "moduleVersion": "${project.packaging.adoptiumJdkVersion.feature}",
       "moduleUrls": [
         "https://adoptium.net/",
         "https://adoptium.net/about/"

@@ -1,8 +1,6 @@
-import com.thoughtworks.go.build.AdoptiumUrlHelper
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
-
 /*
  * Copyright 2022 Thoughtworks, Inc.
  *
@@ -24,30 +22,14 @@ private File destFile(String url) {
 }
 
 task downloadOsxJreChecksum(type: DownloadFile) {
-  def srcUrl = AdoptiumUrlHelper.sha256sumURL(
-    com.thoughtworks.go.build.OperatingSystem.mac,
-    project.packaging.adoptOpenjdk.featureVersion,
-    project.packaging.adoptOpenjdk.interimVersion,
-    project.packaging.adoptOpenjdk.updateVersion,
-    project.packaging.adoptOpenjdk.patchVersion,
-    project.packaging.adoptOpenjdk.buildVersion
-  )
-  src srcUrl
-  dest destFile(srcUrl)
+  src project.packaging.adoptiumJdkVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
+  dest destFile(src.toString())
 }
 
 task downloadOsxJre(type: DownloadFile) {
   dependsOn downloadOsxJreChecksum
-  def srcUrl = AdoptiumUrlHelper.downloadURL(
-    com.thoughtworks.go.build.OperatingSystem.mac,
-    project.packaging.adoptOpenjdk.featureVersion,
-    project.packaging.adoptOpenjdk.interimVersion,
-    project.packaging.adoptOpenjdk.updateVersion,
-    project.packaging.adoptOpenjdk.patchVersion,
-    project.packaging.adoptOpenjdk.buildVersion
-  )
-  src srcUrl
-  dest destFile(srcUrl)
+  src project.packaging.adoptiumJdkVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
+  dest destFile(src.toString())
   checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 

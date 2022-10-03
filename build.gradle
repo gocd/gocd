@@ -18,6 +18,7 @@
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
+import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.InstallerType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -166,13 +167,13 @@ project.ext.toolchains = [
 ]
 
 project.ext.packaging = [
-  adoptOpenjdk: [
-    featureVersion: 17,
-    interimVersion: 0, // set to `null` for the first release of a new featureVersion
-    updateVersion : 4, // set to `null` for the first release of a new featureVersion
-    patchVersion  : 1, // set to `null` for most releases. Patch releases are "exceptional".
-    buildVersion  : 1
-  ]
+  adoptiumJdkVersion: new AdoptiumVersion(
+    feature: 17,
+    interim: 0, // set to `null` for the first release of a new featureVersion
+    update : 4, // set to `null` for the first release of a new featureVersion
+    patch  : 1, // set to `null` for most releases. Patch releases are "exceptional".
+    build  : 1
+  )
 ]
 
 dependencyCheck {

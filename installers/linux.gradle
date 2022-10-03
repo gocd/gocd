@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import com.thoughtworks.go.build.AdoptiumUrlHelper
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.InstallerType
 import groovy.json.JsonOutput
@@ -105,31 +103,14 @@ private File destFile(String url) {
 }
 
 task downloadLinuxJreChecksum(type: DownloadFile) {
-  def srcUrl = AdoptiumUrlHelper.sha256sumURL(
-    com.thoughtworks.go.build.OperatingSystem.linux,
-    project.packaging.adoptOpenjdk.featureVersion,
-    project.packaging.adoptOpenjdk.interimVersion,
-    project.packaging.adoptOpenjdk.updateVersion,
-    project.packaging.adoptOpenjdk.patchVersion,
-    project.packaging.adoptOpenjdk.buildVersion
-  )
-  src srcUrl
-  dest destFile(srcUrl)
+  src project.packaging.adoptiumJdkVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.linux)
+  dest destFile(src.toString())
 }
 
 task downloadLinuxJre(type: DownloadFile) {
-
   dependsOn downloadLinuxJreChecksum
-  def srcUrl = AdoptiumUrlHelper.downloadURL(
-    com.thoughtworks.go.build.OperatingSystem.linux,
-    project.packaging.adoptOpenjdk.featureVersion,
-    project.packaging.adoptOpenjdk.interimVersion,
-    project.packaging.adoptOpenjdk.updateVersion,
-    project.packaging.adoptOpenjdk.patchVersion,
-    project.packaging.adoptOpenjdk.buildVersion
-  )
-  src srcUrl
-  dest destFile(srcUrl)
+  src project.packaging.adoptiumJdkVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.linux)
+  dest destFile(src.toString())
   checksum = { downloadLinuxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 

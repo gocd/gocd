@@ -1,3 +1,4 @@
+import com.thoughtworks.go.build.AdoptiumArch
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
@@ -21,28 +22,42 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
 }
 
-task downloadOsxJreChecksum(type: DownloadFile) {
+task downloadMacJreX64Checksum(type: DownloadFile) {
   src project.packaging.adoptiumJdkVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
   dest destFile(src.toString())
 }
 
-task downloadOsxJre(type: DownloadFile) {
-  dependsOn downloadOsxJreChecksum
+task downloadMacJreX64(type: DownloadFile) {
+  dependsOn downloadMacJreX64Checksum
   src project.packaging.adoptiumJdkVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
   dest destFile(src.toString())
-  checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
+  checksum = { downloadMacJreX64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
-def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask) {
+task downloadMacJreArm64Checksum(type: DownloadFile) {
+  src project.packaging.adoptiumJdkVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac, AdoptiumArch.aarch64)
+  dest destFile(src.toString())
+}
+
+task downloadMacJreArm64(type: DownloadFile) {
+  dependsOn downloadMacJreArm64Checksum
+  src project.packaging.adoptiumJdkVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac, AdoptiumArch.aarch64)
+  dest destFile(src.toString())
+  checksum = { downloadMacJreArm64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
+}
+
+def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask, AdoptiumArch arch) {
+  DownloadFile downloadTask = arch == AdoptiumArch.aarch64 ? downloadMacJreArm64 : downloadMacJreX64
+
   zipTask.with {
     group project.name
     description "Build the ${installerType.baseName} osx (zip) installer"
 
-    dependsOn downloadOsxJre
+    dependsOn downloadTask
     dependsOn genericZipTask
     destinationDirectory = file("${project.buildDir.path}/${project.distsDirName}/osx")
     archiveBaseName = installerType.baseName
-    archiveClassifier = 'osx'
+    archiveClassifier = arch == AdoptiumArch.aarch64 ? 'osx-aarch64' : 'osx'
 
     def genericZipTree = zipTree(genericZipTask.archiveFile)
 
@@ -54,9 +69,11 @@ def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
       exclude "${installerType.baseName}-${project.goVersion}/bin/*.bat"
     }
 
+    def wrapperArch = arch == AdoptiumArch.aarch64 ? 'arm-64' : 'universal-64'
+
     from(genericZipTree) {
-      include "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-macosx-*"
-      include "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-macosx-*"
+      include "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-macosx-${wrapperArch}"
+      include "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-macosx-${wrapperArch}*"
     }
 
     // include the wrapper.conf, but replace the java command
@@ -71,7 +88,7 @@ def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
     }
 
     // puts the content of the tar under `go-{agent,server}-XXX/jre`
-    from(tarTree(downloadOsxJre.outputs.files.singleFile)) {
+    from(tarTree(downloadTask.outputs.files.singleFile)) {
       eachFile { FileCopyDetails fcd ->
         List<String> segments = fcd.relativePath.segments
         segments.set(1, "jre")
@@ -82,12 +99,20 @@ def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
   }
 }
 
-task agentOSXZip(type: Zip) { Zip thisTask ->
-  configureOSXZip(thisTask, InstallerType.agent, agentGenericZip)
+task agentMacX64Zip(type: Zip) { Zip thisTask ->
+  configureMacZip(thisTask, InstallerType.agent, agentGenericZip, AdoptiumArch.x64)
 }
 
-task serverOSXZip(type: Zip) { Zip thisTask ->
-  configureOSXZip(thisTask, InstallerType.server, serverGenericZip)
+task serverMacX64Zip(type: Zip) { Zip thisTask ->
+  configureMacZip(thisTask, InstallerType.server, serverGenericZip, AdoptiumArch.x64)
 }
 
-assemble.dependsOn(":installers:agentOSXZip", ":installers:serverOSXZip")
+task agentMacArm64Zip(type: Zip) { Zip thisTask ->
+  configureMacZip(thisTask, InstallerType.agent, agentGenericZip, AdoptiumArch.aarch64)
+}
+
+task serverMacArm64Zip(type: Zip) { Zip thisTask ->
+  configureMacZip(thisTask, InstallerType.server, serverGenericZip, AdoptiumArch.aarch64)
+}
+
+assemble.dependsOn(":installers:agentMacX64Zip", ":installers:serverMacX64Zip", ":installers:agentMacArm64Zip", ":installers:serverMacArm64Zip")

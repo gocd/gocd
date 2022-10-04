@@ -243,6 +243,17 @@
     <cve>CVE-2021-29425</cve>
   </suppress>
 
+  <suppress until="2022-11-01Z">
+    <notes><![CDATA[
+   Time-limited suppression for https://nvd.nist.gov/vuln/detail/CVE-2022-42003 as there is no proper release with a fix
+    available (2.14.0+ at time of writing). Additionally GoCD and its dependencies do not enable UNWRAP_SINGLE_VALUE_ARRAYS
+    so do not appear vulnerable to this issue.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+    <cve>CVE-2022-42003</cve>
+    <vulnerabilityName>CVE-2022-42003</vulnerabilityName>
+  </suppress>
+
   <suppress>
     <notes><![CDATA[
     The Eclipse Angus Mail SMTP component is not the Eclipse IDE :-)

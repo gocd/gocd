@@ -53,24 +53,14 @@ class AdoptiumVersion {
     update == null ? '' : 'U'
   }
 
-  def toDownloadURLFor(OperatingSystem os, AdoptiumArch arch = AdoptiumArch.x64) {
+  def toDownloadURLFor(OperatingSystem os, Architecture arch = Architecture.x64) {
     "https://github.com/adoptium/temurin${feature}-binaries/releases/download/" +
       "jdk-${urlSafeDisplayVersion()}/" +
-      "OpenJDK${feature}${featureSuffix()}-jre_${arch.adoptiumAlias}_${os.adoptiumAlias()}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
+      "OpenJDK${feature}${featureSuffix()}-jre_${arch.adoptiumAlias}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
   }
 
-  def toSha256SumURLFor(OperatingSystem os, AdoptiumArch arch = AdoptiumArch.x64) {
+  def toSha256SumURLFor(OperatingSystem os, Architecture arch = Architecture.x64) {
     "${toDownloadURLFor(os, arch)}.sha256.txt"
   }
 }
 
-enum AdoptiumArch {
-  x64('x64'),
-  aarch64('aarch64')
-
-  String adoptiumAlias
-
-  AdoptiumArch(String adoptiumAlias) {
-    this.adoptiumAlias = adoptiumAlias
-  }
-}

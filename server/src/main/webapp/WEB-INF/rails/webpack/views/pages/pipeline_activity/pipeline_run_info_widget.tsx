@@ -79,8 +79,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>
       <td class={styles.left} data-test-id={"meta"}>
         <div class={classnames(styles.run, styles.header)}>
-          <span data-test-id={"counter"}>
-            {pipelineRunInfo.label().substr(0, 17)}
+          <span class={styles.label} data-test-id={"counter"}>
+            {pipelineRunInfo.label()}
           </span>
           <span data-test-id={"vsm"}>
             {PipelineRunWidget.getVSMLink(vnode, pipelineRunInfo)}

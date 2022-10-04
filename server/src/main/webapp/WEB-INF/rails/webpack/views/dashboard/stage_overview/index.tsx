@@ -94,30 +94,16 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     classNames.split(" ").filter(c => !!c).forEach(c => {vnode.dom.classList.add(c);});
 
     if (vnode.attrs.isDisplayedOnPipelineActivityPage) {
-      let top = 36;
-      let left = -6;
-
-      // for a user with no operate permission, the add comment feature is not available, making the stage overview mis-positioned,
-      // hence, position stage overview a little above for read only users.
-      if (!vnode.attrs.stageInstanceFromDashboard.canOperate) {
-        top = 27;
-      }
-
-      if (shouldAlignLeft) {
-        left = -655;
-      }
-
       // @ts-ignore
-      vnode.dom.style.top = `${top}px`;
+      vnode.dom.style.top = `-3px`;
       // @ts-ignore
-      vnode.dom.style.left = `${left}px`;
+      vnode.dom.style.left = `${shouldAlignLeft ? -655 : -6}px`;
       return;
     } else if (vnode.attrs.isDisplayedOnVSMPage) {
-      const left = vnode.attrs.leftPositionForVSMStageOverview!;
       // @ts-ignore
       vnode.dom.style.marginTop = `22px`;
       // @ts-ignore
-      vnode.dom.style.left = `${left}px`;
+      vnode.dom.style.left = `${vnode.attrs.leftPositionForVSMStageOverview!}px`;
       return;
     }
 

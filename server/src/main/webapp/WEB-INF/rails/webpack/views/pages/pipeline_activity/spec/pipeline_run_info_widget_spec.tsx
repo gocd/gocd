@@ -163,16 +163,6 @@ describe("PipelineRunInfoWidget", () => {
     expect(helper.byTestId("stage-status-integration", pipelineRunContainer)).toHaveClass(styles.building);
   });
 
-  it("should truncate stage counter when it has more than 17 chars", () => {
-    const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("unit")));
-    pipelineRunInfo.label("This is more then 17 letters as pipeline label");
-    mount(pipelineRunInfo);
-
-    const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
-    expect(helper.byTestId("counter", pipelineRunContainer)).toBeInDOM();
-    expect(helper.byTestId("counter", pipelineRunContainer)).toHaveText("This is more then");
-  });
-
   describe("Stage gate icons", () => {
 
     describe("Gate title", () => {

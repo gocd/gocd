@@ -24,6 +24,7 @@ import org.jdom2.output.XMLOutputter;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 public class XmlUtils {
@@ -46,7 +47,7 @@ public class XmlUtils {
     }
 
     public static Document buildXmlDocument(String xmlContent, URL resource) throws Exception {
-        return buildXmlDocument(new ByteArrayInputStream(xmlContent.getBytes()), new ValidatingSaxBuilder(resource));
+        return buildXmlDocument(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)), new ValidatingSaxBuilder(resource));
     }
 
     private static Document buildXmlDocument(InputStream inputStream, SAXBuilder builder) throws JDOMException, IOException {

@@ -108,7 +108,7 @@ public class MagicalGoConfigXmlLoader {
 
     public CruiseConfig deserializeConfig(String content) throws Exception {
         String md5 = md5Hex(content);
-        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
+        Element element = parseInputStream(new ByteArrayInputStream(content.getBytes(UTF_8)));
         LOGGER.debug("[Config Save] Updating config cache with new XML");
 
         CruiseConfig configForEdit = classParser(element, BasicCruiseConfig.class, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();

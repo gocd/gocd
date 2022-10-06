@@ -27,10 +27,7 @@ import com.thoughtworks.go.addon.businesscontinuity.standby.service.StandbyFileS
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,7 +85,7 @@ public class DashBoardController {
     private String renderAfterAuthentication(HttpServletRequest request, HttpServletResponse response, BiFunction<HttpServletRequest, HttpServletResponse, String> renderer) {
         if (!authToken.isValid()) {
             response.setStatus(422);
-            return "Please setup business continuity according to the documentation at https://extensions-docs.gocd.org/business-continuity/" + CurrentGoCDVersion.getInstance().goVersion();
+            return "Please setup business continuity according to the documentation at " + CurrentGoCDVersion.docsUrl("advanced_usage/business_continuity/initial_setup.html");
         }
         HttpSession session = request.getSession();
 

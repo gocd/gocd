@@ -97,16 +97,6 @@ docker run -v /path/to/script-dir:/docker-entrypoint.d ... gocd/${imageName}:v${
 
 > **Note:** Ensure that your scripts are executable `chmod a+x` — you can add as many scripts as you like, `bash` is available on the container. If your script uses other scripting language (perl, python), please ensure that the scripting language is installed in the container.
 
-## Installing addons
-
-All addons can be installed under `/godata`.
-
-```
-mkdir -p /path/to/godata/addons
-curl --location --fail https://example.com/addon.jar > /path/to/godata/addons/plugin.jar
-chown -R 1000 /path/to/godata/addons
-```
-
 ## Tweaking JVM options (memory, heap etc)
 
 JVM options can be tweaked using the environment variable `GOCD_SERVER_JVM_OPTS`.
@@ -121,9 +111,8 @@ The GoCD server runs as the `go` user, the location of the various directories i
 
 | Directory           | Description                                                                      |
 |---------------------|----------------------------------------------------------------------------------|
-| `/godata/addons`    | the directory where GoCD addons are stored                                       |
 | `/godata/artifacts` | the directory where GoCD artifacts are stored                                    |
-| `/godata/config`    | the directory where the GoCD configuration is store                              |
+| `/godata/config`    | the directory where the GoCD configuration is stored                             |
 | `/godata/db`        | the directory where the GoCD database and configuration change history is stored |
 | `/godata/logs`      | the directory where GoCD logs will be written out to                             |
 | `/godata/plugins`   | the directory containing GoCD plugins                                            |

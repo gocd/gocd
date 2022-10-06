@@ -95,7 +95,7 @@ The GoCD server runs as the `go` user, the location of the various directories i
 
 | Directory           | Description                                                                      |
 |---------------------|----------------------------------------------------------------------------------|
-| `/godata/config`    | the directory where the GoCD configuration is store                              |
+| `/godata/config`    | the directory where the GoCD configuration is stored                             |
 | `/godata/pipelines` | the directory where the agent will run builds                                    |
 | `/godata/logs`      | the directory where GoCD logs will be written out to                             |
 | `/home/go`          | the home directory for the GoCD server                                           |

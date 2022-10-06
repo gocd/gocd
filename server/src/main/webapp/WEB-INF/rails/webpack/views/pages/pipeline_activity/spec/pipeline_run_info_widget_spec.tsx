@@ -163,7 +163,7 @@ describe("PipelineRunInfoWidget", () => {
     expect(helper.byTestId("stage-status-integration", pipelineRunContainer)).toHaveClass(styles.building);
   });
 
-  it("should turncate stage counter when it has more than 17 chars", () => {
+  it("should truncate stage counter when it has more than 17 chars", () => {
     const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("unit")));
     pipelineRunInfo.label("This is more then 17 letters as pipeline label");
     mount(pipelineRunInfo);

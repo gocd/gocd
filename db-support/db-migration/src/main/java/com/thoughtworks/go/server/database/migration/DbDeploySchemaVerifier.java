@@ -40,7 +40,7 @@ public class DbDeploySchemaVerifier {
                 String tableName = result.getString("TABLE_NAME");
                 if (tableName.equalsIgnoreCase("changelog")) {
                     String msg = "It appears that you are upgrading your GoCD server and the current database is not compatible with GoCD 20.5.0 and above." +
-                            "Please see https://docs.gocd.org/20.5.0/installation/upgrade_to_gocd_20.5.0.html for instructions on upgrading this instance of GoCD.";
+                            "Please see https://docs.gocd.org/current/installation/upgrading_go/upgrade_to_gocd_20.5.0.html for instructions on upgrading this instance of GoCD.";
                     throwFormattedError(msg);
                     return;
                 }
@@ -52,7 +52,7 @@ public class DbDeploySchemaVerifier {
 
         if (new File(configDir, postgresPropertiesFile).exists()) {
             String msg = "It appears that your old PostgreSQL database addon configurations exists at 'postgresqldb.properties'. " +
-                    "Please see https://docs.gocd.org/20.5.0/installation/upgrade_to_gocd_20.5.0.html for instructions on upgrading this instance of GoCD. " +
+                    "Please see https://docs.gocd.org/current/installation/upgrading_go/upgrade_to_gocd_20.5.0.html for instructions on upgrading this instance of GoCD. " +
                     "Once you've upgraded, please remove the 'postgresqldb.properties' file and restart GoCD.";
 
             throwFormattedError(msg);

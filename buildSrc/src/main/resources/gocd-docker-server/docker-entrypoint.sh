@@ -34,7 +34,7 @@ fi
 if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
   VOLUME_DIR="/godata"
 
-  server_data_dirs=(artifacts config db logs plugins addons)
+  server_data_dirs=(artifacts config db logs plugins)
 
   yell "Creating directories and symlinks to hold GoCD configuration, data, and logs"
 

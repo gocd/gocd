@@ -17,6 +17,7 @@
 package com.thoughtworks.go.http.mocks;
 
 import org.assertj.core.api.AbstractObjectAssert;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpSession;
 import java.util.Objects;

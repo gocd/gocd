@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.server.view.velocity;
 
-import com.thoughtworks.go.http.mocks.MockServletContext;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.web.GoCDFreeMarkerView;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.nio.charset.StandardCharsets;

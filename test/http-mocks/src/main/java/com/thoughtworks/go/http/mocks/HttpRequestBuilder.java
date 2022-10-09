@@ -17,27 +17,34 @@
 package com.thoughtworks.go.http.mocks;
 
 import com.google.gson.Gson;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import java.nio.charset.Charset;
-import java.security.cert.X509Certificate;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpRequestBuilder {
 
-    private MockHttpServletRequest request;
     private static final Gson GSON = new Gson();
     private static final String CONTEXT_PATH = "/go";
 
+    private MockHttpServletRequest request;
+
     public HttpRequestBuilder() {
-        this.request = new MockHttpServletRequest();
+        this(new MockHttpServletRequest());
+    }
+
+    private HttpRequestBuilder(MockHttpServletRequest request) {
+        this.request = request;
     }
 
     public HttpRequestBuilder withPath(String path) {
@@ -57,32 +64,64 @@ public class HttpRequestBuilder {
         }
     }
 
+    public HttpRequestBuilder withPathSafe(String path) {
+        return withPath(StringUtils.isBlank(path) ? "/" : path);
+    }
+
+
     public MockHttpServletRequest build() {
         return request;
     }
 
+    private static HttpRequestBuilder create() {
+        return new HttpRequestBuilder();
+    }
+
+    private static HttpRequestBuilder createChunked() {
+        MockHttpServletRequest request = new MockHttpServletRequest() {
+            @Override
+            public int getContentLength() {
+                return 0;
+            }
+        };
+        request.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        return new HttpRequestBuilder(request);
+    }
+
     public static HttpRequestBuilder GET(String path) {
-        return new HttpRequestBuilder().withMethod("GET").withPath(StringUtils.isBlank(path) ? "/" : path);
+        return create().withMethod("GET").withPathSafe(path);
     }
 
     public static HttpRequestBuilder HEAD(String path) {
-        return new HttpRequestBuilder().withMethod("HEAD").withPath(StringUtils.isBlank(path) ? "/" : path);
-    }
-
-    public static HttpRequestBuilder PUT(String path) {
-        return new HttpRequestBuilder().withMethod("PUT").withPath(StringUtils.isBlank(path) ? "/" : path);
-    }
-
-    public static HttpRequestBuilder POST(String path) {
-        return new HttpRequestBuilder().withMethod("POST").withPath(StringUtils.isBlank(path) ? "/" : path);
-    }
-
-    public static HttpRequestBuilder PATCH(String path) {
-        return new HttpRequestBuilder().withMethod("PATCH").withPath(StringUtils.isBlank(path) ? "/" : path);
+        return create().withMethod("HEAD").withPathSafe(path);
     }
 
     public static HttpRequestBuilder DELETE(String path) {
-        return new HttpRequestBuilder().withMethod("DELETE").withPath(StringUtils.isBlank(path) ? "/" : path);
+        return create().withMethod("DELETE").withPathSafe(path);
+    }
+
+    public static HttpRequestBuilder PUT(String path) {
+        return create().withMethod("PUT").withPathSafe(path);
+    }
+
+    public static HttpRequestBuilder PUTChunked(String path) {
+        return createChunked().withMethod("PUT").withPathSafe(path);
+    }
+
+    public static HttpRequestBuilder POST(String path) {
+        return create().withMethod("POST").withPathSafe(path);
+    }
+
+    public static HttpRequestBuilder POSTChunked(String path) {
+        return createChunked().withMethod("POST").withPathSafe(path);
+    }
+
+    public static HttpRequestBuilder PATCH(String path) {
+        return create().withMethod("PATCH").withPathSafe(path);
+    }
+
+    public static HttpRequestBuilder PATCHChunked(String path) {
+        return createChunked().withMethod("PATCH").withPathSafe(path);
     }
 
     public HttpRequestBuilder withCookies(Cookie... cookies) {
@@ -119,36 +158,16 @@ public class HttpRequestBuilder {
         return withBody(body, UTF_8);
     }
 
-    public HttpRequestBuilder withChunkedBody(String body, Charset charset) {
-        request.addHeader("transfer-encoding", "chunked");
-        request.setContentChunked(body.getBytes(charset));
-        return this;
-    }
-
-    public HttpRequestBuilder withChunkedBody(String body) {
-        return withChunkedBody(body, UTF_8);
-    }
-
-    public HttpRequestBuilder withJsonBody(String body, Charset charset) {
-        return withBody(body, charset);
-    }
-
-    public HttpRequestBuilder withJsonBody(String body) {
-        return withBody(body, UTF_8);
-    }
-
     public HttpRequestBuilder withJsonBody(Object body) {
-        return withJsonBody(GSON.toJson(body));
+        return withBody(GSON.toJson(body));
     }
 
-    private static Map<String, List<String>> splitQuery(URIBuilder builder) {
-        Map<String, List<String>> params = new LinkedHashMap<>();
+    private static Map<String, String[]> splitQuery(URIBuilder builder) {
+        Map<String, String[]> params = new LinkedHashMap<>();
 
         for (NameValuePair nameValuePair : builder.getQueryParams()) {
-            if (!params.containsKey(nameValuePair.getName())) {
-                params.put(nameValuePair.getName(), new ArrayList<>());
-            }
-            params.get(nameValuePair.getName()).add(nameValuePair.getValue());
+            params.compute(nameValuePair.getName(),
+                (key, oldValue) -> oldValue == null ? new String[] {nameValuePair.getValue()} : ArrayUtils.add(oldValue, nameValuePair.getValue()));
         }
 
         return params;
@@ -164,40 +183,17 @@ public class HttpRequestBuilder {
         return this;
     }
 
-    public HttpRequestBuilder withAttribute(String name, Object value) {
-        request.setAttribute(name, value);
-        return this;
-    }
-
     public HttpRequestBuilder withBasicAuth(String username, String password) {
-        return withHeader("Authorization", "basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes(UTF_8)));
+        return withHeader(HttpHeaders.AUTHORIZATION, "basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes(UTF_8)));
     }
 
     public HttpRequestBuilder withBearerAuth(String token) {
-        return withHeader("Authorization", "bearer " + token);
-    }
-
-    public HttpRequestBuilder withFormData(String name, String value) {
-        final String existingContentType = request.getHeader("content-type");
-        if (existingContentType == null) {
-            withHeader("Content-Type", "application/x-www-form-urlencoded");
-        }
-
-        if (!request.getHeader("content-type").equals("application/x-www-form-urlencoded")) {
-            throw new IllegalStateException("Content-type has already been set to " + existingContentType);
-        }
-
-        request.setParameter(name, value);
-        return this;
+        return withHeader(HttpHeaders.AUTHORIZATION, "bearer " + token);
     }
 
     public HttpRequestBuilder withSession(HttpSession session) {
         request.setSession(session);
         return this;
-    }
-
-    public HttpRequestBuilder withX509(X509Certificate[] chain) {
-        return withAttribute("javax.servlet.request.X509Certificate", chain);
     }
 
     public HttpRequestBuilder withRequestedSessionId(String requestedSessionId) {
@@ -209,16 +205,7 @@ public class HttpRequestBuilder {
         return withRequestedSessionId(request.getSession(true).getId());
     }
 
-    public HttpRequestBuilder usingAjax(boolean isAjax) {
-        return !isAjax ? this : usingAjax();
-    }
-
     public HttpRequestBuilder usingAjax() {
         return withHeader("X-Requested-With", "XMLHttpRequest");
-    }
-
-    public HttpRequestBuilder withQueryString(String queryString) {
-        request.setQueryString(queryString);
-        return this;
     }
 }

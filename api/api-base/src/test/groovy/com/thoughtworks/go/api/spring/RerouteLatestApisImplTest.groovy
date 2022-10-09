@@ -18,7 +18,6 @@ package com.thoughtworks.go.api.spring
 import com.thoughtworks.go.api.ApiVersion
 import com.thoughtworks.go.config.exceptions.HttpException
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.spark.SparkController
 import com.thoughtworks.go.spark.mocks.TestApplication
@@ -33,6 +32,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 import org.springframework.context.ApplicationContext
+import org.springframework.mock.web.MockHttpServletResponse
 import spark.*
 import spark.servlet.SparkFilter
 

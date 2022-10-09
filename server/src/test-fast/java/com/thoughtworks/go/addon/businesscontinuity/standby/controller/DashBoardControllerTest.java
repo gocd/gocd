@@ -9,7 +9,6 @@ import com.thoughtworks.go.addon.businesscontinuity.standby.service.PrimaryServe
 import com.thoughtworks.go.addon.businesscontinuity.standby.service.PrimaryServerEndPoint;
 import com.thoughtworks.go.addon.businesscontinuity.standby.service.StandbyFileSyncService;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.service.RailsAssetsService;
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;

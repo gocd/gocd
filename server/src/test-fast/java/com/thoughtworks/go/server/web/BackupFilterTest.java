@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.web;
 
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +26,7 @@ import org.eclipse.jetty.server.HttpInput;
 import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

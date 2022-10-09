@@ -35,10 +35,8 @@ buildscript {
 
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:7.2.1'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.42.0'
     classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1'
     classpath 'com.github.jk1:gradle-license-report:2.1'
-    classpath "com.github.jruby-gradle:jruby-gradle-core-plugin:2.0.2"
   }
 }
 
@@ -269,7 +267,6 @@ subprojects {
     return
   }
   apply plugin: 'base'
-  apply plugin: 'com.github.ben-manes.versions'
 
   if (project.path != ':test:http-mocks') {
     apply plugin: "com.github.hierynomus.license"
@@ -390,19 +387,6 @@ subprojects {
   if (hasJavaSources) {
     apply plugin: 'java-library'
     apply plugin: 'pmd'
-
-    dependencyUpdates.resolutionStrategy {
-      componentSelection { rules ->
-        rules.all { ComponentSelection selection ->
-          boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'b', 'ea'].any { qualifier ->
-            selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-+]*/
-          }
-          if (rejected) {
-            selection.reject('Release candidate')
-          }
-        }
-      }
-    }
 
     buildDir = "${projectDir}/target"
 

@@ -39,10 +39,8 @@ buildscript {
     classpath project.deps.jgit
   }
 }
-apply plugin: 'com.github.jruby-gradle.core'
 
 repositories {
-  ruby.gems()
   maven { url 'https://jitpack.io' }
 }
 

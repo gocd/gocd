@@ -41,7 +41,7 @@ buildscript {
 }
 
 repositories {
-  maven { url 'https://jitpack.io' }
+  maven { url 'https://jitpack.io' } // Needed for spring-test-junit5
 }
 
 sourceSets {

@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.newsecurity.filters;
 
-import com.thoughtworks.go.http.mocks.MockFilterChain;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
@@ -25,6 +22,9 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;

@@ -16,12 +16,12 @@
 package com.thoughtworks.go.server.newsecurity.handlers.renderer;
 
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.server.newsecurity.models.ContentTypeAwareResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -19,12 +19,12 @@ import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.api.util.MessageJson
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import spark.HaltException
 import spark.Request
 import spark.RequestResponseFactory
@@ -151,8 +151,8 @@ class ApiControllerTest {
         def response = new MockHttpServletResponse()
         assertThatCode({
           MockHttpServletRequest request = HttpRequestBuilder
-            ."${method.toUpperCase()}"()
-            .withChunkedBody("foo")
+            ."${method.toUpperCase()}Chunked"()
+            .withBody("foo")
             .build()
 
           baseController.verifyContentType(
@@ -173,8 +173,8 @@ class ApiControllerTest {
         def response = new MockHttpServletResponse()
         assertThatCode({
           MockHttpServletRequest request = HttpRequestBuilder
-            ."${method.toUpperCase()}"()
-            .withChunkedBody("foo")
+            ."${method.toUpperCase()}Chunked"()
+            .withBody("foo")
             .withHeaders(['content-type': 'application/json'])
             .build()
 

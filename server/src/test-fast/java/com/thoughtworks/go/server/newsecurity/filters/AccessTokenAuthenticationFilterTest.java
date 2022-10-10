@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -34,6 +32,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.servlet.FilterChain;

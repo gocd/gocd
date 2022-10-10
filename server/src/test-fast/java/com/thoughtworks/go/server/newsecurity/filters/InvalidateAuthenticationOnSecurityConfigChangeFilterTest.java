@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -38,6 +36,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.servlet.FilterChain;

@@ -16,13 +16,13 @@
 package com.thoughtworks.go.server.newsecurity.handlers;
 
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
 import com.thoughtworks.go.server.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.IOException;
 

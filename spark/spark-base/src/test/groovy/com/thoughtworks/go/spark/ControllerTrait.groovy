@@ -18,9 +18,6 @@ package com.thoughtworks.go.spark
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse
-import com.thoughtworks.go.http.mocks.MockHttpSession
 import com.thoughtworks.go.server.cache.GoCache
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential
@@ -33,6 +30,9 @@ import com.thoughtworks.go.spark.mocks.TestRequestContext
 import com.thoughtworks.go.spark.mocks.TestSparkPreFilter
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.mock.web.MockHttpSession
 import spark.servlet.SparkFilter
 
 import javax.servlet.Filter
@@ -128,7 +128,7 @@ trait ControllerTrait<T extends SparkController> {
 
     if (requestBody != null) {
       if (requestBody instanceof String) {
-        httpRequestBuilder.withJsonBody((String) requestBody)
+        httpRequestBuilder.withBody((String) requestBody)
       } else {
         httpRequestBuilder.withJsonBody((Object) requestBody)
       }
@@ -146,7 +146,7 @@ trait ControllerTrait<T extends SparkController> {
     httpRequestBuilder.withSessionAttr(SessionUtils.AUTHENTICATION_TOKEN, newToken)
 
     request = httpRequestBuilder.build()
-    request.setParts(parts)
+    parts.forEach(part -> request.addPart(part))
 
     response = new MockHttpServletResponse()
 

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.newsecurity.filters;
 
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -27,6 +25,8 @@ import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.servlet.FilterChain;

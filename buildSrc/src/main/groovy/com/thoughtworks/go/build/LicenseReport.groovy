@@ -128,27 +128,11 @@ class LicenseReport {
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
           }
 
-          renderModuleData(markup, counter.incrementAndGet(), openJdkLicense().moduleName, openJdkLicense())
+          def jreLicense = project.packaging.adoptiumJavaVersion.toLicenseMetadata()
+          renderModuleData(markup, counter.incrementAndGet(), jreLicense.moduleName, jreLicense)
         }
       }
     }
-  }
-
-  private Map<String, Object> openJdkLicense() {
-    [
-      "moduleName": "net.adoptium:eclipse-temurin-jre",
-      "moduleVersion": "${project.packaging.adoptiumJdkVersion.feature}",
-      "moduleUrls": [
-        "https://adoptium.net/",
-        "https://adoptium.net/about/"
-      ],
-      "moduleLicenses": [
-        [
-          "moduleLicense": "GPLv2 with the Classpath Exception",
-          "moduleLicenseUrl": "https://openjdk.org/legal/gplv2+ce.html"
-        ]
-      ]
-    ]
   }
 
   private void renderModuleData(MarkupBuilder template, int counter, String moduleName, Map<String, Object> moduleLicenseData) {

@@ -54,7 +54,7 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = project.packaging.adoptiumJdkVersion.toDownloadURLFor(getOperatingSystem())
+    def downloadUrl = project.packaging.adoptiumJavaVersion.toDownloadURLFor(getOperatingSystem())
 
     return [
       "curl --fail --location --silent --show-error '${downloadUrl}' --output /tmp/jre.tar.gz",

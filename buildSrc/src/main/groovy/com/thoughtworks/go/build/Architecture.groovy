@@ -17,12 +17,13 @@
 package com.thoughtworks.go.build
 
 enum Architecture {
+  all('all'),
   x64('x64'),
   aarch64('aarch64')
 
-  final String adoptiumAlias
+  final String canonicalName
 
-  Architecture(String adoptiumAlias) {
-    this.adoptiumAlias = adoptiumAlias
+  Architecture(String canonicalName) {
+    this.canonicalName = canonicalName
   }
 }

@@ -1,7 +1,3 @@
-import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.DownloadFile
-import com.thoughtworks.go.build.InstallerType
-import org.apache.commons.codec.digest.DigestUtils
 /*
  * Copyright 2022 Thoughtworks, Inc.
  *
@@ -18,30 +14,36 @@ import org.apache.commons.codec.digest.DigestUtils
  * limitations under the License.
  */
 
+import com.thoughtworks.go.build.Architecture
+import com.thoughtworks.go.build.DownloadFile
+import com.thoughtworks.go.build.InstallerMetadataTask
+import com.thoughtworks.go.build.InstallerType
+import org.apache.commons.codec.digest.DigestUtils
+
 private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
 }
 
 task downloadMacJreX64Checksum(type: DownloadFile) {
-  src project.packaging.adoptiumJdkVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
+  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
   dest destFile(src.toString())
 }
 
 task downloadMacJreX64(type: DownloadFile) {
   dependsOn downloadMacJreX64Checksum
-  src project.packaging.adoptiumJdkVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
+  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
   dest destFile(src.toString())
   checksum = { downloadMacJreX64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 task downloadMacJreArm64Checksum(type: DownloadFile) {
-  src project.packaging.adoptiumJdkVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac, Architecture.aarch64)
+  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
 }
 
 task downloadMacJreArm64(type: DownloadFile) {
   dependsOn downloadMacJreArm64Checksum
-  src project.packaging.adoptiumJdkVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac, Architecture.aarch64)
+  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
   checksum = { downloadMacJreArm64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
@@ -97,6 +99,13 @@ def configureMacZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
       into("${installerType.baseName}-${project.goVersion}")
     }
   }
+
+  zipTask.finalizedBy(project.tasks.create("${zipTask.name}Metadata", InstallerMetadataTask.class) {
+    architecture = arch
+    adoptiumVersion = project.packaging.adoptiumJavaVersion
+    packageTask = zipTask
+    type = installerType
+  })
 }
 
 task agentMacX64Zip(type: Zip) { Zip thisTask ->

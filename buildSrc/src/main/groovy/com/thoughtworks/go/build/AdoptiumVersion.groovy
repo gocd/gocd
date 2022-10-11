@@ -18,12 +18,12 @@ package com.thoughtworks.go.build
 
 import java.nio.charset.StandardCharsets
 
-class AdoptiumVersion {
-  Integer feature // e.g 17
+class AdoptiumVersion implements Serializable {
+  int feature // e.g 17
   Integer interim // e.g null, or 0
   Integer update  // e.g null, or 4
   Integer patch   // e.g null, or 1
-  Integer build   // e.g 8
+  int build   // e.g 8
 
   // Examples
   // 17+35 (first release)
@@ -56,11 +56,40 @@ class AdoptiumVersion {
   def toDownloadURLFor(OperatingSystem os, Architecture arch = Architecture.x64) {
     "https://github.com/adoptium/temurin${feature}-binaries/releases/download/" +
       "jdk-${urlSafeDisplayVersion()}/" +
-      "OpenJDK${feature}${featureSuffix()}-jre_${arch.adoptiumAlias}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
+      "OpenJDK${feature}${featureSuffix()}-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
   }
 
   def toSha256SumURLFor(OperatingSystem os, Architecture arch = Architecture.x64) {
     "${toDownloadURLFor(os, arch)}.sha256.txt"
+  }
+
+  def toMetadata() {
+    [
+      included      : true,
+      featureVersion: feature,
+      fullVersion   : canonicalDisplayVersion(),
+    ]
+  }
+
+  def toLicenseMetadata() {
+    [
+      "moduleName": "net.adoptium:eclipse-temurin-jre",
+      "moduleVersion": canonicalDisplayVersion(),
+      "moduleUrls": [
+        "https://adoptium.net/",
+        "https://adoptium.net/about/"
+      ],
+      "moduleLicenses": [
+        [
+          "moduleLicense": "GPLv2 with the Classpath Exception",
+          "moduleLicenseUrl": "https://openjdk.org/legal/gplv2+ce.html"
+        ]
+      ]
+    ]
+  }
+
+  static def noneMetadata() {
+    [ included: false ]
   }
 }
 

@@ -80,7 +80,7 @@
     "css-loader": "^5.2.7",
     "eslint": "^8.24.0",
     "eslint-plugin-es5": "^1.5.0",
-    "eslint-plugin-react": "^7.31.8",
+    "eslint-plugin-react": "^7.31.10",
     "eslint-webpack-plugin": "^2",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6",

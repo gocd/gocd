@@ -44,7 +44,7 @@
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
     "prismjs": "^1.29.0",
-    "shell-quote": "^1.7.3",
+    "shell-quote": "^1.7.4",
     "shellwords-ts": "^3.0.0",
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",

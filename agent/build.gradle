@@ -164,7 +164,7 @@ task verifyJar(type: VerifyJarTask) {
       "j2objc-annotations-1.3.jar",
       "jackson-annotations-2.13.4.jar",
       "jackson-core-2.13.4.jar",
-      "jackson-databind-2.13.4.1.jar",
+      "jackson-databind-2.13.4.2.jar",
       "jakarta.activation-api-2.1.0.jar",
       "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
       "jakarta.servlet-api-${project.versions.servletApi}.jar",

@@ -300,7 +300,8 @@ dependencies {
   providedAtPackageTime project.deps.jettyWebsocket
 
   testImplementation(project.deps.dbunit) {
-    exclude(group: 'postgresql')
+    exclude(group: 'org.postgresql')
+    exclude(group: 'com.oracle.database.jdbc')
   }
   testImplementation project(path: ':common', configuration: 'testOutput')
   testImplementation project(path: ':config:config-server', configuration: 'testOutput')
@@ -873,7 +874,7 @@ task verifyWar(type: VerifyJarTask) {
         "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",
-        "mysql-connector-java-${project.versions.mysql}.jar",
+        "mysql-connector-j-${project.versions.mysql}.jar",
         "objenesis-${project.versions.objenesis}.jar",
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",

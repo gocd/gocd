@@ -1,8 +1,3 @@
-import groovy.xml.XmlUtil
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 /*
  * Copyright 2022 Thoughtworks, Inc.
  *
@@ -18,6 +13,12 @@ import java.util.regex.Pattern
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+import groovy.xml.XmlUtil
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 task releaseNotes {
   outputs.upToDateWhen { false }

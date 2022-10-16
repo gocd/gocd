@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-
-import com.thoughtworks.go.build.AdoptiumUrlHelper
+import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.DownloadFile
+import com.thoughtworks.go.build.InstallerMetadataTask
 import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -26,30 +26,14 @@ private File destFile(String url) {
 }
 
 task downloadWindowsJreChecksum(type: DownloadFile) {
-  def srcUrl = AdoptiumUrlHelper.sha256sumURL(
-    com.thoughtworks.go.build.OperatingSystem.windows,
-    project.packaging.adoptOpenjdk.featureVersion,
-    project.packaging.adoptOpenjdk.interimVersion,
-    project.packaging.adoptOpenjdk.updateVersion,
-    project.packaging.adoptOpenjdk.patchVersion,
-    project.packaging.adoptOpenjdk.buildVersion
-  )
-  src srcUrl
-  dest destFile(srcUrl)
+  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.windows)
+  dest destFile(src.toString())
 }
 
 task downloadWindowsJre(type: DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  def srcUrl = AdoptiumUrlHelper.downloadURL(
-    com.thoughtworks.go.build.OperatingSystem.windows,
-    project.packaging.adoptOpenjdk.featureVersion,
-    project.packaging.adoptOpenjdk.interimVersion,
-    project.packaging.adoptOpenjdk.updateVersion,
-    project.packaging.adoptOpenjdk.patchVersion,
-    project.packaging.adoptOpenjdk.buildVersion
-  )
-  src srcUrl
-  dest destFile(srcUrl)
+  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.windows)
+  dest destFile(src.toString())
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
@@ -126,9 +110,7 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
 
   project.mkdir(destDir)
 
-  def flavor = "64bit"
-
-  def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-${flavor}-setup.exe")
+  def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-64bit-setup.exe")
 
   // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
   def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padLeft(5, '0')}"
@@ -175,28 +157,41 @@ task agentWindows64bitExe { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${project.buildDir}/distributions/win")
+  outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
 
   doLast {
     project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
-  }
-
-  doLast {
     executeNSIS(installerType, buildRoot, destDir)
   }
+
+  finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
+    architecture = Architecture.x64
+    adoptiumVersion = project.packaging.adoptiumJavaVersion
+    packageTask = thisTask
+    type = installerType
+  })
 }
 
 task serverWindows64bitExe { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/win/BUILD_ROOT")
   def destDir = project.file("${project.buildDir}/distributions/win")
+  outputs.dir(destDir)
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
 
   doLast {
     executeNSIS(installerType, buildRoot, destDir)
   }
+
+  finalizedBy(project.tasks.create("${thisTask.name}Metadata", InstallerMetadataTask.class) {
+    architecture = Architecture.x64
+    adoptiumVersion = project.packaging.adoptiumJavaVersion
+    packageTask = thisTask
+    type = installerType
+  })
 }
 
 assemble.dependsOn(":installers:agentWindows64bitExe", ":installers:serverWindows64bitExe")

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.build.docker
 
-import com.thoughtworks.go.build.AdoptiumUrlHelper
+
 import com.thoughtworks.go.build.OperatingSystem
 import org.gradle.api.Project
 
@@ -54,13 +54,7 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = AdoptiumUrlHelper.downloadURL(
-      getOperatingSystem(),
-      project.packaging.adoptOpenjdk.featureVersion,
-      project.packaging.adoptOpenjdk.interimVersion,
-      project.packaging.adoptOpenjdk.updateVersion,
-      project.packaging.adoptOpenjdk.patchVersion,
-      project.packaging.adoptOpenjdk.buildVersion)
+    def downloadUrl = project.packaging.adoptiumJavaVersion.toDownloadURLFor(getOperatingSystem())
 
     return [
       "curl --fail --location --silent --show-error '${downloadUrl}' --output /tmp/jre.tar.gz",

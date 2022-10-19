@@ -39,11 +39,11 @@ class ValueStreamMapModel
         level.nodes = Array.new
         nodes.each do |node|
           node_type = node.getType().to_s
-          if (node_type == NODE_TYPE_FOR_MATERIAL)
+          if node_type == NODE_TYPE_FOR_MATERIAL
             level.nodes << VSMSCMDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map { |child| child.getId().toString() },
                                                          node.getParents().map { |parent| parent.getId().toString() }, node.getMaterialType().upcase,
                                                          node.getDepth(), node.getMaterialNames(), vsm_material_path_partial, node.getMaterialRevisions(), node.getViewType(), node.getMessageString())
-          elsif (node_type == NODE_TYPE_FOR_PIPELINE)
+          elsif node_type == NODE_TYPE_FOR_PIPELINE
             level.nodes << VSMPipelineDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map { |child| child.getId().toString() },
                                                               node.getParents().map { |parent| parent.getId().toString() }, node_type,
                                                               node.getDepth(), node.revisions(), node.getMessageString(), node.getViewType(),

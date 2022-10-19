@@ -26,15 +26,6 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-    Suppressing false positive caused by OWASP Dependency Check thinking shaded RubyGems are the same thing as
-    as JRuby or their related libraries independently. These are not the same things.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/rubygems/jruby\-(openssl|readline)@.*$</packageUrl>
-    <cpe>cpe:/a:jruby:jruby</cpe>
-    <cpe>cpe:/a:openssl:openssl</cpe>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
     Suppressing false positive caused by OWASP Dependency Check thinking jruby-rack is the same thing as
     as JRuby independently. These are not the same things.
     ]]></notes>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <%- unless (Rails.env.test?) %>
+  <%- unless Rails.env.test? %>
     <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/global", "single_page_apps/polyfill", "single_page_apps/show_stage_duration_graph_shim") %>
   <%- end %>
 </head>

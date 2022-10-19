@@ -104,7 +104,7 @@ module ApplicationHelper
     options.merge!(disabled: 'disabled') unless system_environment.isServerActive()
     options[:value] ||= name
     lambda_text, options_without_onclick = onclick_lambda(options)
-    if (options[:type] == "image")
+    if options[:type] == "image"
       button_body = image_button(name, options_without_onclick)
     else
       button_body = options[:type] == "select" ?
@@ -312,7 +312,7 @@ module ApplicationHelper
 
   def vsm_analytics_chart_info
     plugin_info = first_plugin_which_supports_vsm_analytics
-    if (plugin_info)
+    if plugin_info
       supported_analytics = plugin_info.getCapabilities().supportedVSMAnalytics().get(0)
       {
         "type" => 'vsm',

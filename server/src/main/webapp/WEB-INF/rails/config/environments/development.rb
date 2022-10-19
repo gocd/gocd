@@ -55,4 +55,7 @@ Rails.application.configure do
 
   config.sass.line_comments = false
   config.sass.inline_source_maps = true
+  # Workaround Sprockets encoding issue with config.assets.debug = true, either inline or non-inline sourcemaps
+  # and SCSS assets with Unicode chars in them.
+  Sprockets.register_mime_type 'application/css-sourcemap+json', extensions: ['.css.map'], charset: :unicode
 end

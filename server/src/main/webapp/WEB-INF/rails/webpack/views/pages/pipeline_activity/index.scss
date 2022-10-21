@@ -54,8 +54,8 @@ $stage-action-icon-z-index: 1;
     flex-direction: column;
     justify-content: center;
     width: 20%;
-    max-width: 200px;
-    min-width: 200px;
+    max-width: 325px;
+    min-width: 325px;
     margin-right: 16px;
     padding-bottom: 5px;
   }
@@ -96,6 +96,11 @@ $stage-action-icon-z-index: 1;
   justify-content: space-between;
   font-size: 16px;
 
+  .label {
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+
   a {
     font-size: 14px;
     text-decoration: none;
@@ -122,10 +127,11 @@ $stage-action-icon-z-index: 1;
 
 .stage-box-pipeline-activity {
   max-width: $stage-width + 50px;
-  height: 100%;
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: center;
+  padding-top: 36px;
+  padding-bottom: 36px;
 }
 
 .stage-status {
@@ -138,10 +144,10 @@ $stage-action-icon-z-index: 1;
 
 .stage-status-wrapper {
   display: flex;
-  height: 100%;
   position: relative;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
+  padding-top: 5px;
 }
 
 .disabled-icon {

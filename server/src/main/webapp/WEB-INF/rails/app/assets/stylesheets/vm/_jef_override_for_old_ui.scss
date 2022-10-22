@@ -43,22 +43,6 @@ a {
   padding-top: 91px;
 }
 
-/* fix typography */
-
-/*
- * fake to get the header inside the rounded white box
- */
-
-/*
- * Application Navigation
- */
-
-/* new page header */
-
-/*
- * kill rounded corner graphics and other cruft
- */
-
 .c1,
 .c2,
 .c3,
@@ -66,11 +50,7 @@ a {
   display: none !important;
 }
 
-.rounded-corner-grey-border,
-.rounded-corner-for-body,
 .rounded-corner-for-pipeline,
-.rounded-corner-for-pipe-conf,
-.rounded-corner-for-pipe-conf-stage,
 .rounded-corner-for-tab-container {
   margin: 0;
   border: 0;
@@ -96,17 +76,13 @@ a {
 }
 
 .admin-rounded-container, /* admin section; new class just for this baby */
-#yui-main .content_wrapper_inner,
-.my-cruise-rounded-container,
-#server-page .rounded-corner-for-pipeline {
+#yui-main .content_wrapper_inner {
   border: 0;
   background-color: #fff;
   padding: 0 15px 15px 15px;
 }
 
-.admin-rounded-container,
-.my-cruise-rounded-container,
-#server-page .rounded-corner-for-pipeline {
+.admin-rounded-container {
   padding-top: 15px;
 }
 
@@ -119,9 +95,7 @@ a {
 .wizard h1,
 .wizard h1 strong,
 #tab-content-of-source-xml h1,
-#tab-content-of-source-xml h1 span,
-#my-cruise-page .sub_tab_container_content .wizard h1,
-#server-page h1 {
+#tab-content-of-source-xml h1 span {
   background-color: transparent;
   color: #3f2559;
   font-weight: 300;
@@ -130,11 +104,6 @@ a {
   color: #3f2559;
   margin-bottom: 10px;
   padding-bottom: 0;
-}
-
-#my-cruise-page .sub_tab_container_content .wizard h1 strong {
-  font-weight: inherit;
-  font-size: inherit;
 }
 
 /*

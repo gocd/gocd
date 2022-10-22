@@ -18,9 +18,7 @@
 .page_header,
 .pipeline_history,
 .yui-b .Job,
-.yui-b .Server,
-#admin-page .Administration,
-#my-cruise-page .Preferences {
+.yui-b .Server {
   background: #f7f7f7;
 
   /* @include box-shadow(0,1px,1px,rgba(33, 33, 33, 0.1)); */
@@ -45,9 +43,7 @@
 
 .pipeline_history,
 .yui-b .Job,
-.yui-b .Server,
-#admin-page .Administration,
-#my-cruise-page .Preferences {
+.yui-b .Server {
   padding: 10px 15px;
   overflow: hidden;
 }
@@ -98,40 +94,6 @@ h1.entity_title {
   margin-top: 3px;
   padding-right: 15px;
   float: right;
-}
-
-.admin_pause_info_and_controls {
-  /* color: #FFF; */
-
-  margin-left: 15px;
-  margin-top: 3px;
-}
-
-.admin_pause_info_and_controls .pause_description {
-  font-size: 11px;
-}
-
-#pause_info_and_controls > .pause_message {
-  padding-left: 0;
-  width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#pause_info_and_controls > span {
-  float: left;
-  padding: 6px;
-}
-
-.admin_pause_info_and_controls .operate {
-  float: left;
-}
-
-.pause_reason input[type="text"] {
-  display: block;
-  margin-top: 10px;
-  width: 250px;
 }
 
 /*

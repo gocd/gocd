@@ -14,68 +14,7 @@
  * limitations under the License.
  */
 
-.new_form_content {
-  p.required {
-    margin-top: 30px;
-  }
-
-  .new_form_item {
-    margin-top: 10px;
-
-    .error_message { word-break: break-all; }
-    #check_package { margin-left: 0; }
-
-    .fieldWithErrors,
-    &.fieldWithErrors,
-    .field_with_errors,
-    &.field_with_errors {
-      input {
-        float: none;
-
-        &:focus {
-          float: none;
-        }
-      }
-    }
-
-    &.fieldWithErrors select,
-    &.field_with_errors select {
-      float: none;
-    }
-
-    .form_error {
-      display: inline-block;
-      float: none;
-      padding: 0;
-      margin: 7px;
-      margin-bottom: 10px;
-    }
-  }
-}
-
-.vtop {
-  input,
-  select {
-    vertical-align: top;
-  }
-}
-
-.new_form_control {
-  display: table-cell;
-}
-
-.new_form_label {
-  display: table-cell;
-  text-align: right;
-  padding-right: 10px;
-  width: 300px;
-}
-
 #MB_content {
-  .new_form_label {
-    width: 170px;
-  }
-
   .fieldset .form_item .form_item_block select {
     margin-bottom: 0;
   }
@@ -255,5 +194,3 @@
 select#select_template {
   float: left;
 }
-
-/* plugins */

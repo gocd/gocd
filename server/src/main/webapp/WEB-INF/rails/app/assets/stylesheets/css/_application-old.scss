@@ -16,38 +16,17 @@
 
 /* Main CSS File of Cruise */
 
-/* Gloabal declaration */
+/* Global declaration */
 body {
   font-family: Helvetica, sans-serif;
 }
 
 #yui-main .yui-b {
-  /* background: transparent image_url('bg_sidebar_seperator.png') repeat-y right top; */
   zoom: 1;
 }
 
 .yui-t7 #yui-main .yui-b {
   background: #fff;
-}
-
-/* #yui-main #page-title { */
-
-/* color: #4B220E; */
-
-/* font-weight: bold; */
-
-/* margin: 0.416em; */
-
-/* margin-left: 1em; */
-
-/* padding: 0; */
-
-/* font-size: 1.2em; */
-
-/* } */
-
-#page-title-clickable-area {
-  /* cursor: help; */
 }
 
 #yui-main #page-title .tips {
@@ -174,24 +153,6 @@ fieldset {
   top: 5px;
 }
 
-label.add-pipeline entity_title,
-.redundant-buttons {
-  display: none;
-}
-
-.add_pipeline_admin_contents {
-  padding-top: 15px;
-}
-
-#yui-main h1#add-pipeline-new {
-  display: block;
-  font-size: 21px;
-  margin: 0 0 10px 0;
-  padding: 0;
-  font-weight: 300;
-  color: #3f2559;
-}
-
 fieldset h2,
 fieldset h3 {
   display: block;
@@ -210,8 +171,6 @@ legend {
 label {
   display: block;
   padding-bottom: 0.2em;
-
-  /* color: #7c4e34; */
 }
 
 strong {
@@ -285,7 +244,6 @@ td {
 
 th,
 tbody td {
-  /* border-right: 1px dotted #BBBBBB; */
 }
 
 th.last,
@@ -318,9 +276,6 @@ tr.even{
 
 /* simple table class */
 table.simple {
-  /* background: #E0DFD5 image_url('simple-table-top-left.png') no-repeat scroll left top; */
-
-  /* zoom: 1; */
 }
 
 table.simple .table-top {
@@ -328,15 +283,12 @@ table.simple .table-top {
 }
 
 table.simple .table-top {
-  /* border-bottom: 1px dotted #BBBBBB; */
 }
 
 table.simple .table-top .last {
-  /* background: transparent image_url('simple-table-top-right.png') no-repeat scroll top right; */
 }
 
 table.simple td {
-  /* border: 1px dotted #BBBBBB; */
 }
 
 /* extra-simple */
@@ -376,27 +328,6 @@ a.collapse-all {
   float: right;
 }
 
-.action-bar a.expand-all,
-.action-bar a.collapse-all {
-  line-height: 1.2em;
-}
-
-.action-bar a.expand-all {
-  /* background: transparent image_url('icon_expand_all.png') no-repeat left 50%; */
-
-  /* padding-left: 22px; */
-
-  /* text-decoration: underline; */
-}
-
-.action-bar a.collapse-all {
-  /* background: transparent image_url('icon_collapse_all.png') no-repeat left 50%; */
-
-  /* padding-left: 22px; */
-
-  /* text-decoration: underline; */
-}
-
 a.save:hover,
 a.cancel:hover,
 a.expand-all:hover,
@@ -412,10 +343,6 @@ a.save {
 a.editor_cancel {
   margin-left: 0.5em;
 }
-
-/* no extra element clear float trick */
-.clear-float::after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
-* html .clear-float { height: 1%; }
 
 #doc3 {
   margin: 0;
@@ -655,11 +582,6 @@ button#signin2 span {
   top: 1px;
 }
 
-#tabs #cruise-header-tab-administration.disabled-when-no-admin-rights span,
-#tabs #cruise-header-tab-my-cruise.disabled-when-scecurity-disabled span {
-  color: #6b4830;
-}
-
 #tabs li a,
 #tabs li a:visited,
 #tabs li span {
@@ -736,14 +658,6 @@ button#signin2 span {
   background-image: image_url("icon-rss.png");
 }
 
-.item-list .add-pipeline a,
-.item-list .add-pipeline span {
-  padding-left: 32px;
-  background-image: image_url("icon-add-pipeline.gif");
-  background-repeat: no-repeat;
-  background-position: 5px 50%;
-}
-
 .item-list .disabled-when-no-admin-rights span,
 .item-list .disabled-when-scecurity-disabled span {
   color: #a99;
@@ -795,74 +709,6 @@ h2 button.collapse-or-expand-button {
   color: #dbd6d3;
 }
 
-/* action bar */
-.action-bar {
-  margin: 0.5em;
-}
-
-.action-bar .bd-c-wrapper,
-.dark-action-bar .bd-c-wrapper {
-  padding: 5px 10px;
-}
-
-.ie-margin-collapse-fix {
-  font-size: 1px;
-}
-
-.action-bar a {
-  line-height: 1.8em;
-  white-space: nowrap;
-}
-
-.dark-action-bar,
-#mailhost-configuration .form_buttons {
-  padding: 8px;
-  margin-bottom: 10px;
-  background-color: #999;
-  background-repeat: repeat-x;
-  background-position: center center;
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border-radius: 6px;
-  border: 0;
-  -moz-box-shadow: inset 0 0 4px #666;
-}
-
-.dark-action-bar button.submit,
-.dark-action-bar a.link_as_button,
-#mailhost-configuration .form_buttons button.submit {
-  min-width: 120px;
-}
-
-.dark-action-bar .ab-corner {
-  border-color: #fff;
-}
-
-.dark-action-bar .operations {
-
-}
-
-.dark-action-bar label {
-  font-size: 1.1em;
-  font-weight: bold;
-}
-
-.dark-action-bar label.add-pipeline {
-  /* background: transparent image_url('icon-add-pipeline.gif') no-repeat left 40%; */
-
-  /* padding-left: 25px; */
-}
-
-.dark-action-bar a,
-.dark-action-bar a:visited {
-  color: #7d4e34;
-}
-
-.dark-action-bar a:hover,
-.dark-action-bar a:active {
-  background-color: #e8dcd5;
-}
-
 a.has-icon,
 span.has-icon {
   padding: 4px 0 4px 25px;
@@ -875,9 +721,6 @@ span.has-icon {
 }
 
 #yui-main h1 {
-  /* padding: 0.416em 1em; */
-
-  /* margin: 0.416em 1em; */
   padding: 0;
   margin: 0;
   font-weight: bold;
@@ -890,86 +733,6 @@ span.has-icon {
   margin: 0.65em 1em;
   padding: 0;
   background: transparent;
-}
-
-/* float panel */
-.positioned-panel {
-  position: absolute;
-  background: #e1e6ce;
-  border: 4px solid #584538;
-  width: 48em;
-  z-index: 999;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  padding: 0.5em;
-}
-
-.positioned-panel .notes {
-  display: block;
-  font-size: 0.9em;
-  margin: 0.5em 0.3em;
-  color: #000;
-}
-
-.positioned-panel .error {
-  background: transparent image_url("icon-16-error.gif") no-repeat 5px 50%;
-  padding-left: 25px;
-  line-height: 25px;
-  color: #900;
-}
-
-.positioned-panel input {
-  margin: 0.3em;
-}
-
-.positioned-panel input.field {
-  border: 1px solid #8c8c71;
-  width: 47.6em;
-}
-
-.positioned-panel input:focus.field {
-  background: #ffc;
-}
-
-/* Flash message styles */
-#error-container,
-#global-error-container {
-  background: #666 image_url("g9/icons/icon_error_16.png") no-repeat scroll 10px 50%;
-  color: #fff;
-}
-
-#info-container {
-  background: #666 image_url("g9/icons/icon_info_16.png") no-repeat scroll 10px 50%;
-  color: #fff;
-}
-
-#warn-container,
-#global-warning-container {
-  background: #666 image_url("g9/icons/icon_warning_16.png") no-repeat scroll 10px 50%;
-  color: #fff;
-}
-
-#success-container {
-  background: #666 image_url("g9/icons/icon_pass_16.png") no-repeat scroll 10px 50%;
-  color: #fff;
-}
-
-#warn-container #warn-box,
-#error-container #error-box,
-#global-error-container #global-error-box,
-#global-warning-container #global-warning-box,
-#info-container #info-box,
-#success-container #success-box {
-  padding: 10px;
-  padding-left: 36px;
-  background: transparent image_url("g9/backgrounds/overlay_gradient_36px.png") repeat-x;
-}
-
-#error-box,
-#global-error-box,
-#global-warning-container {
-  list-style-type: none;
 }
 
 .collapsable-container .collapsable-header {
@@ -1068,10 +831,6 @@ span.has-icon {
   font-size: 11px;
 }
 
-a.obvious-link {
-  /* text-decoration: underline; */
-}
-
 /* what is this tips */
 #yui-main h1.what-is-this {
   color: #290d06;
@@ -1129,7 +888,6 @@ a:visited#link-to-this-page {
   padding-right: 5px;
   font-size: 11px;
 
-  /* text-decoration: underline; */
   float: right;
   color: white;
 }
@@ -1151,37 +909,4 @@ a:hover#link-to-this-page {
 
 #rest-output #artifacts {
   margin: 0;
-}
-
-/*
- * JMM - Old UI Hacks to match 2.0 visual design
- */
-
-/* Add New Pipeline Page */
-.add_new_pipeline{
-
-}
-
-.add_new_pipeline label {
-  font-size: 24px;
-  float: left;
-}
-
-.add_new_pipeline .operations{
-
-}
-
-.add_pipeline_admin_contents .content_wrapper_outer {
-  margin-bottom: 1em;
-}
-
-.add_pipeline_admin_contents h2 {
-  font-size: 16px;
-  font-weight: 500;
-  padding-bottom: 10px;
-  color: #000;
-}
-
-.add_pipeline_admin_contents a.link_as_button {
-  float: left;
 }

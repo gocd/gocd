@@ -15,20 +15,15 @@
  */
 package com.thoughtworks.go.server.service.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.management.*;
-import java.lang.reflect.Method;
 import java.util.*;
 
 @Component
 public class ThreadInformationProvider implements ServerInfoProvider {
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadInformationProvider.class.getName());
 
     @Autowired
     public ThreadInformationProvider(DaemonThreadStatsCollector daemonThreadStatsCollector) {
@@ -79,21 +74,21 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return json;
     }
 
-    private TreeMap<Long, Map<String, Object>> getThreadInformation(ThreadMXBean threadMXBean) {
-        TreeMap<Long, Map<String, Object>> traces = new TreeMap<>();
+    private Map<Long, Map<String, Object>> getThreadInformation(ThreadMXBean threadMXBean) {
+        Map<Long, Map<String, Object>> traces = new TreeMap<>();
         ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(true, true);
         for (ThreadInfo threadInfo : threadInfos) {
-            LinkedHashMap<String, Object> threadStackTrace = new LinkedHashMap<>();
+            Map<String, Object> threadStackTrace = new LinkedHashMap<>();
             threadStackTrace.put("Id", threadInfo.getThreadId());
             threadStackTrace.put("Name", threadInfo.getThreadName());
             threadStackTrace.put("State", threadInfo.getThreadState());
             threadStackTrace.put("UserTime(nanoseconds)", threadMXBean.getThreadUserTime(threadInfo.getThreadId()));
             threadStackTrace.put("CPUTime(nanoseconds)", threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
             threadStackTrace.put("DaemonThreadInfo", daemonThreadStatsCollector.statsFor(threadInfo.getThreadId()));
-            threadStackTrace.put("AllocatedMemory(Bytes)", getAllocatedMemory(threadMXBean, threadInfo));
-            LinkedHashMap<String, Object> lockMonitorInfo = new LinkedHashMap<>();
+            threadStackTrace.put("AllocatedMemory(Bytes)", getAllocatedMemory(threadInfo));
+            Map<String, Object> lockMonitorInfo = new LinkedHashMap<>();
             MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
-            ArrayList<Map<String, Object>> lockedMonitorsJson = new ArrayList<>();
+            List<Map<String, Object>> lockedMonitorsJson = new ArrayList<>();
 
             for (MonitorInfo lockedMonitor : lockedMonitors) {
                 LinkedHashMap<String, Object> lockedMonitorJson = new LinkedHashMap<>();
@@ -108,24 +103,24 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             lockMonitorInfo.put("Locked Synchronizers", asJSON(threadInfo.getLockedSynchronizers()));
             threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
 
-            LinkedHashMap<String, Object> blockedInfo = new LinkedHashMap<>();
+            Map<String, Object> blockedInfo = new LinkedHashMap<>();
             blockedInfo.put("Blocked Time(ms)", threadInfo.getBlockedTime());
             blockedInfo.put("Blocked Count", threadInfo.getBlockedCount());
             threadStackTrace.put("Blocked Info", blockedInfo);
 
-            LinkedHashMap<String, Object> timeInfo = new LinkedHashMap<>();
+            Map<String, Object> timeInfo = new LinkedHashMap<>();
             timeInfo.put("Waited Time(ms)", threadInfo.getWaitedTime());
             timeInfo.put("Waited Count", threadInfo.getWaitedCount());
             threadStackTrace.put("Time Info", timeInfo);
 
-            LinkedHashMap<String, Object> lockInfoMap = new LinkedHashMap<>();
+            Map<String, Object> lockInfoMap = new LinkedHashMap<>();
             LockInfo lockInfo = threadInfo.getLockInfo();
             lockInfoMap.put("Locked On", asJSON(lockInfo));
             lockInfoMap.put("Lock Owner Thread Id", threadInfo.getLockOwnerId());
             lockInfoMap.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
             threadStackTrace.put("Lock Info", lockInfoMap);
 
-            LinkedHashMap<String, Object> stateInfo = new LinkedHashMap<>();
+            Map<String, Object> stateInfo = new LinkedHashMap<>();
             stateInfo.put("Suspended", threadInfo.isSuspended());
             stateInfo.put("InNative", threadInfo.isInNative());
             threadStackTrace.put("State Info", stateInfo);
@@ -136,21 +131,14 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return traces;
     }
 
-    private long getAllocatedMemory(ThreadMXBean threadMXBean, ThreadInfo threadInfo) {
-        Method method = ReflectionUtils.findMethod(threadMXBean.getClass(), "getThreadAllocatedBytes", long.class);
-        if (method != null) {
-            try {
-                method.setAccessible(true);
-                return (long) method.invoke(threadMXBean, threadInfo.getThreadId());
-            } catch (Exception e) {
-                LOGGER.error("Error while capturing allocatedMemory for api/support : {}", e.getMessage());
-            }
-        }
-        return -1;
+    private long getAllocatedMemory(ThreadInfo threadInfo) {
+        return Optional.ofNullable(ManagementFactory.getPlatformMXBean(com.sun.management.ThreadMXBean.class))
+            .map(threadMXBean -> threadMXBean.getThreadAllocatedBytes(threadInfo.getThreadId()))
+            .orElse(-1L);
     }
 
     private Object asJSON(StackTraceElement[] stackTrace) {
-        ArrayList<String> strings = new ArrayList<>();
+        List<String> strings = new ArrayList<>();
 
         for (StackTraceElement o : stackTrace) {
             strings.add(o.toString());
@@ -159,8 +147,8 @@ public class ThreadInformationProvider implements ServerInfoProvider {
 
     }
 
-    private ArrayList<LinkedHashMap<String, Object>> asJSON(LockInfo[] lockInfos) {
-        ArrayList<LinkedHashMap<String, Object>> objects = new ArrayList<>();
+    private List<Map<String, Object>> asJSON(LockInfo[] lockInfos) {
+        List<Map<String, Object>> objects = new ArrayList<>();
 
         for (LockInfo lockInfo : lockInfos) {
             objects.add(asJSON(lockInfo));
@@ -168,8 +156,8 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return objects;
     }
 
-    private LinkedHashMap<String, Object> asJSON(LockInfo lockInfo) {
-        LinkedHashMap<String, Object> lockedOn = new LinkedHashMap<>();
+    private Map<String, Object> asJSON(LockInfo lockInfo) {
+        Map<String, Object> lockedOn = new LinkedHashMap<>();
         if (lockInfo != null) {
             lockedOn.put("Class", lockInfo.getClassName());
             lockedOn.put("IdentityHashCode", lockInfo.getIdentityHashCode());
@@ -180,7 +168,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
     @Override
     public Map<String, Object> asJson() {
         ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+        Map<String, Object> json = new LinkedHashMap<>();
         json.put("Thread Count", getThreadCount(threadMXBean));
         json.put("DeadLock Threads", getDeadLockThreadInformation(threadMXBean));
         json.put("Stack Trace", getThreadInformation(threadMXBean));

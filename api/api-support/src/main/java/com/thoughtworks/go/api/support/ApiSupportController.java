@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.api.support;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.api.ControllerMethods;
@@ -33,6 +35,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 import static com.thoughtworks.go.api.support.representers.ProcessListRepresenter.toJSON;
 import static spark.Spark.get;
@@ -42,7 +45,11 @@ import static spark.Spark.path;
 public class ApiSupportController implements SparkController, ControllerMethods, SparkSpringController {
     private ServerStatusService serverStatusService;
 
-    private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+    private Gson gson = new GsonBuilder()
+        .setPrettyPrinting()
+        .addSerializationExclusionStrategy(excludeLocks())
+        .serializeNulls()
+        .create();
 
     @Autowired
     public ApiSupportController(ServerStatusService serverStatusService) {
@@ -78,5 +85,20 @@ public class ApiSupportController implements SparkController, ControllerMethods,
         Collection<ProcessWrapper> processList = ProcessManager.getInstance().currentProcessListForDisplay();
         response.type("application/json");
         return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, processList));
+    }
+
+    private static ExclusionStrategy excludeLocks() {
+        return new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipField(FieldAttributes f) {
+                return false;
+            }
+
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                // Don't try to serialize locks which might be inside Hibernate clsses
+                return Lock.class.isAssignableFrom(clazz);
+            }
+        };
     }
 }

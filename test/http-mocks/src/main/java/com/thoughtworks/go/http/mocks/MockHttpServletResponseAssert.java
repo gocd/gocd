@@ -24,6 +24,7 @@ import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.error.ShouldContainCharSequence;
 import org.assertj.core.internal.Failures;
 import org.hamcrest.text.MatchesPattern;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
 

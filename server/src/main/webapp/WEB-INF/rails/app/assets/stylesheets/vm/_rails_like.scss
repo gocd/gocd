@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-.rounded-corner-for-body {
-  background: #fff;
-}
 
 #hd {
   background: #343226;
@@ -152,11 +149,6 @@ ul#tabs li.admin {
 #footer #copyright,
 #footer a,
 #footer li a {
-  color: #fff;
-}
-
-#tabs #cruise-header-tab-administration.disabled-when-no-admin-rights span,
-#tabs #cruise-header-tab-my-cruise.disabled-when-scecurity-disabled span {
   color: #fff;
 }
 

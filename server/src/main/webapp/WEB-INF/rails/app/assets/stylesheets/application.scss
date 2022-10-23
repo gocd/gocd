@@ -34,7 +34,6 @@
  *= require "./_structure"
  *= require "structure/_application"
  *= require "_module"
- *= require_tree ./plugins
  *= require_tree ./views
  *= require '_vsm'
  */

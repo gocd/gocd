@@ -31,35 +31,6 @@
 /**
  * =FORM_ERRORS
 **/
-.name_value_header_row {
-  padding-bottom: 5px;
-}
-
-.name_value_error_row {
-  padding-bottom: 6px;
-}
-
-.name_value_cell {
-  vertical-align: top;
-  padding-bottom: 5px;
-}
-
-.name_value_cell.cell_edit_reset_actions {
-  vertical-align: middle;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.name_value_cell.icon_remove_cell {
-  vertical-align: middle;
-}
-
-.name_value_error {
-  color: #a40000;
-  font-style: italic;
-  vertical-align: top;
-  width: 250px;
-}
 
 label.error {
   float: left;
@@ -123,11 +94,6 @@ input[type="text"].error,
   cursor: pointer;
 }
 
-.hilighted .selectors {
-  background-color: #ee9;
-  border-bottom: 1px solid #000;
-}
-
 .tristate_disabled_message {
   color: #f33;
 }
@@ -185,22 +151,6 @@ label.inline {
 
 .form_item_block:last-child {
   padding-bottom: 0;
-}
-
-.checkbox_row * {
-  vertical-align: middle;
-}
-
-.checkbox_row label.inline {
-  padding-left: 5px;
-}
-
-.checkbox_label_box label {
-  display: inline;
-}
-
-.checkbox_label_box {
-  padding: 0.5em 0 0.5em 0;
 }
 
 .fieldset,
@@ -268,33 +218,6 @@ fieldset {
   padding-bottom: 0;
   margin-bottom: 0;
   border: 0;
-}
-
-.material_options.form_item_block input[type="checkbox"],
-.material_options .fieldWithErrors input.form_input,
-.material_options .field_with_errors input.form_input {
-  float: left;
-}
-
-.material_options .form_error {
-  margin-top: 5px;
-  white-space: pre-wrap;
-}
-
-.checkbox_row * {
-  vertical-align: baseline !important;
-}
-
-.checkbox_row label {
-  display: inline;
-  margin: 0 10px 0 0;
-  color: #333;
-  font-weight: normal;
-}
-
-.material_options label {
-  float: left;
-  margin-top: 5px;
 }
 
 .form_item_block {

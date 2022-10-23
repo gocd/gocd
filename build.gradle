@@ -18,6 +18,7 @@
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
+import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.InstallerType
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -34,11 +35,9 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:7.2.1'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.42.0'
+    classpath 'org.owasp:dependency-check-gradle:7.3.0'
     classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1'
     classpath 'com.github.jk1:gradle-license-report:2.1'
-    classpath "com.github.jruby-gradle:jruby-gradle-core-plugin:2.0.2"
   }
 }
 
@@ -168,13 +167,13 @@ project.ext.toolchains = [
 ]
 
 project.ext.packaging = [
-  adoptOpenjdk: [
-    featureVersion: 17,
-    interimVersion: 0, // set to `null` for the first release of a new featureVersion
-    updateVersion : 4, // set to `null` for the first release of a new featureVersion
-    patchVersion  : 1, // set to `null` for most releases. Patch releases are "exceptional".
-    buildVersion  : 1
-  ]
+  adoptiumJavaVersion: new AdoptiumVersion(
+    feature: 17,
+    interim: 0, // set to `null` for the first release of a new featureVersion
+    update : 4, // set to `null` for the first release of a new featureVersion
+    patch  : 1, // set to `null` for most releases. Patch releases are "exceptional".
+    build  : 1
+  )
 ]
 
 dependencyCheck {
@@ -269,97 +268,93 @@ subprojects {
     return
   }
   apply plugin: 'base'
-  apply plugin: 'com.github.ben-manes.versions'
+  apply plugin: "com.github.hierynomus.license"
+  license {
+    skipExistingHeaders = false
+    strictCheck = true
+    ext.year = project.copyrightYear
+    exclude '**/*.erb'
+    exclude '**/*.ejs'
+    exclude '**/*.keep'
+    exclude '**/*.md'
+    exclude '**/*.jar'
+    exclude '**/*.json'
+    exclude '**/*.html'
+    exclude '**/*.zip'
+    exclude '**/*.png'
+    exclude '**/*.jpg'
+    exclude '**/*.jpeg'
+    exclude '**/*.gif'
+    exclude '**/*.woff'
+    exclude '**/*.woff2'
+    exclude '**/*.ttf'
+    exclude '**/*.eot'
+    exclude '**/*.svg'
+    exclude '**/*.json'
+    exclude '**/*.scss.d.ts'
+    exclude '**/.*.json'
+    exclude '**/hg.template'
+    exclude '**/available.toggles'
+    exclude '**/META-INF/services/*'
+    exclude '**/node_modules/**'
+    exclude '**/node-vendor/**'
+    exclude '**/vendor/**'
+    exclude '**/javascripts/lib/**'
+    exclude '**/gems/jruby/**'
+    exclude '**/tmp/**'
+    exclude '**/logs/**'
+    exclude '**/log/**'
+    exclude '**/reset-fonts-grids.scss'
+    exclude '**/JavaVersion.java'
+    exclude '**/robots.txt'
+    exclude '**/rails/bin/**'
 
-  if (project.path != ':test:http-mocks') {
-    apply plugin: "com.github.hierynomus.license"
-    license {
-      skipExistingHeaders = false
-      strictCheck = true
-      ext.year = project.copyrightYear
-      exclude '**/*.erb'
-      exclude '**/*.ejs'
-      exclude '**/*.keep'
-      exclude '**/*.md'
-      exclude '**/*.jar'
-      exclude '**/*.json'
-      exclude '**/*.html'
-      exclude '**/*.zip'
-      exclude '**/*.png'
-      exclude '**/*.jpg'
-      exclude '**/*.jpeg'
-      exclude '**/*.gif'
-      exclude '**/*.woff'
-      exclude '**/*.woff2'
-      exclude '**/*.ttf'
-      exclude '**/*.eot'
-      exclude '**/*.svg'
-      exclude '**/*.json'
-      exclude '**/*.scss.d.ts'
-      exclude '**/.*.json'
-      exclude '**/hg.template'
-      exclude '**/available.toggles'
-      exclude '**/META-INF/services/*'
-      exclude '**/node_modules/**'
-      exclude '**/node-vendor/**'
-      exclude '**/vendor/**'
-      exclude '**/javascripts/lib/**'
-      exclude '**/gems/jruby/**'
-      exclude '**/tmp/**'
-      exclude '**/logs/**'
-      exclude '**/log/**'
-      exclude '**/reset-fonts-grids.scss'
-      exclude '**/JavaVersion.java'
-      exclude '**/robots.txt'
-      exclude '**/rails/bin/**'
-
-      // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
-      exclude '**/freemarker_implicit.ftl'
-      header rootProject.file('buildSrc/Apache-2.0.txt')
-      headerDefinitions {
-        intellijStyleXML {
-          firstLine = "<!--"
-          beforeEachLine = '  ~ '
-          endLine = "  -->"
-          afterEachLine = ''
-          skipLinePattern = "^<\\?xml.*>\$"
-          firstLineDetectionPattern = "(\\s|\\t)*<!--.*\$"
-          lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
-          allowBlankLines = true
-          isMultiline = true
-          padLines = false
-        }
-
-        intellijStyleFTL {
-          firstLine = "<#--"
-          beforeEachLine = ' '
-          endLine = "  -->"
-          afterEachLine = ''
-          firstLineDetectionPattern = "(\\s|\\t)*<#--.*\$"
-          lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
-          allowBlankLines = true
-          isMultiline = true
-          padLines = false
-        }
+    // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
+    exclude '**/freemarker_implicit.ftl'
+    header rootProject.file('buildSrc/Apache-2.0.txt')
+    headerDefinitions {
+      intellijStyleXML {
+        firstLine = "<!--"
+        beforeEachLine = '  ~ '
+        endLine = "  -->"
+        afterEachLine = ''
+        skipLinePattern = "^<\\?xml.*>\$"
+        firstLineDetectionPattern = "(\\s|\\t)*<!--.*\$"
+        lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
+        allowBlankLines = true
+        isMultiline = true
+        padLines = false
       }
-      mapping {
-        java = 'SLASHSTAR_STYLE'
-        groovy = 'SLASHSTAR_STYLE'
-        scss = 'SLASHSTAR_STYLE'
-        sass = 'SLASHSTAR_STYLE'
-        css = 'SLASHSTAR_STYLE'
 
-        xml = 'intellijStyleXML'
-        xsl = 'intellijStyleXML'
-        xsd = 'intellijStyleXML'
-
-        ftl = 'intellijStyleFTL'
-        ftlh = 'intellijStyleFTL'
-        ts = 'SLASHSTAR_STYLE'
-        tsx = 'SLASHSTAR_STYLE'
-        msx = 'SLASHSTAR_STYLE'
-        js = 'SLASHSTAR_STYLE'
+      intellijStyleFTL {
+        firstLine = "<#--"
+        beforeEachLine = ' '
+        endLine = "  -->"
+        afterEachLine = ''
+        firstLineDetectionPattern = "(\\s|\\t)*<#--.*\$"
+        lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
+        allowBlankLines = true
+        isMultiline = true
+        padLines = false
       }
+    }
+    mapping {
+      java = 'SLASHSTAR_STYLE'
+      groovy = 'SLASHSTAR_STYLE'
+      scss = 'SLASHSTAR_STYLE'
+      sass = 'SLASHSTAR_STYLE'
+      css = 'SLASHSTAR_STYLE'
+
+      xml = 'intellijStyleXML'
+      xsl = 'intellijStyleXML'
+      xsd = 'intellijStyleXML'
+
+      ftl = 'intellijStyleFTL'
+      ftlh = 'intellijStyleFTL'
+      ts = 'SLASHSTAR_STYLE'
+      tsx = 'SLASHSTAR_STYLE'
+      msx = 'SLASHSTAR_STYLE'
+      js = 'SLASHSTAR_STYLE'
     }
   }
 
@@ -390,19 +385,6 @@ subprojects {
   if (hasJavaSources) {
     apply plugin: 'java-library'
     apply plugin: 'pmd'
-
-    dependencyUpdates.resolutionStrategy {
-      componentSelection { rules ->
-        rules.all { ComponentSelection selection ->
-          boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'b', 'ea'].any { qualifier ->
-            selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-+]*/
-          }
-          if (rejected) {
-            selection.reject('Release candidate')
-          }
-        }
-      }
-    }
 
     buildDir = "${projectDir}/target"
 

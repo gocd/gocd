@@ -46,7 +46,9 @@ export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBu
         {vnode.attrs.group.config().stages().map((stage, index) => {
           return <div class={classnames(styles.stageBoxPipelineActivity, styles.disabledIcon)}>
             {ShowForceBuildActionWidget.getStageApprovalIcon(index, stage)}
-            <span class={classnames(styles.stageStatus, styles.unknown)}/>
+            <div className={styles.stageStatusWrapper}>
+              <span class={classnames(styles.stageStatus, styles.unknown)}/>
+            </div>
           </div>;
         })}
       </td>

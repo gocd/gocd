@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.AccessToken
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
@@ -45,6 +44,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
+import org.springframework.mock.web.MockHttpServletResponse
 import spark.servlet.SparkFilter
 
 import javax.servlet.FilterConfig

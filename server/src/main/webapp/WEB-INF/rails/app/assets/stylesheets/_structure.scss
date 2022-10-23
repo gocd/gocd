@@ -67,35 +67,6 @@ body[dir="ltr"] {
   background-color: white;
 }
 
-/**
- * Oauth
- */
-#oauth_authorize_form label {
-  font-size: 12px;
-  vertical-align: middle;
-}
-
-#oauth_authorize_form input {
-  vertical-align: middle;
-}
-
-.error-box {
-  padding: 10px 10px 10px 36px !important;
-  margin: 15px;
-  color: #333;
-  background-position: 10px 9px !important;
-  background-repeat: no-repeat;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 10%);
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-}
-
-.error-box {
-  background: #ddebf3 image_url("g9/icons/icon_error_16.png") no-repeat;
-}
-
 /*
  * Misc Pipeline stuff?
  */
@@ -211,31 +182,9 @@ body[dir="ltr"] {
   background: image_url("g9/icons/bg_sprite_gateway_icons.png") -62px -2px no-repeat transparent;
 }
 
-/****
- * Icons
- */
-
-.tasks_list_table .icon_remove,
-.jobs_list_table .icon_remove {
-  margin-top: -13px;
-}
-
 /***
  * new structure styles from edit pipeline prototyp
  */
-
-.instructions {
-  margin-bottom: 10px;
-  color: #666;
-  font-style: italic;
-}
-
-.inline_instruction {
-  margin-bottom: 10px;
-  color: #666;
-  font-style: italic;
-  clear: left;
-}
 
 .task-type {
   margin-bottom: 10px;
@@ -252,18 +201,6 @@ body[dir="ltr"] {
 
 #MB_window {
   width: 760px !important;
-}
-
-/* sort list */
-
-.groups_table .add_link {
-  float: left;
-  display: inline;
-  padding: 2px 0 2px 20px;
-}
-
-.admin_workspace .sub_tabs_container {
-  clear: none;
 }
 
 div.clear {

@@ -13,7 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#stage_edit_form .checkbox_row .fieldWithErrors,
-#stage_edit_form .checkbox_row .field_with_errors {
-  display: inline;
+
+package com.thoughtworks.go.build
+
+enum Architecture {
+  all('all'),
+  x64('x64'),
+  aarch64('aarch64')
+
+  final String canonicalName
+
+  Architecture(String canonicalName) {
+    this.canonicalName = canonicalName
+  }
 }

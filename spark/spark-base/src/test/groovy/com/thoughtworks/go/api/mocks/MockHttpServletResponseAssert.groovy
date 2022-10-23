@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.api.mocks
 
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
+import org.springframework.mock.web.MockHttpServletResponse
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -36,14 +36,16 @@ class MockHttpServletResponseAssert extends com.thoughtworks.go.http.mocks.MockH
     return this
   }
 
-  MockHttpServletResponseAssert hasBodyWithJsonObject(Class representer, Object... representerArgs) throws UnsupportedEncodingException {
+  @SuppressWarnings('GroovyAssignabilityCheck')
+  MockHttpServletResponseAssert hasBodyWithJsonObject(Class representer, Object... representerArgs) {
     def expectedJson = toObjectString({ representer.toJSON(it, *representerArgs) })
 
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(expectedJson)
     return this
   }
 
-  MockHttpServletResponseAssert hasBodyWithJsonArray(Class representer, Object... representerArgs) throws UnsupportedEncodingException {
+  @SuppressWarnings('GroovyAssignabilityCheck')
+  MockHttpServletResponseAssert hasBodyWithJsonArray(Class representer, Object... representerArgs) {
     def expectedJson = toArrayString({ representer.toJSON(it, *representerArgs) })
 
     JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(expectedJson)

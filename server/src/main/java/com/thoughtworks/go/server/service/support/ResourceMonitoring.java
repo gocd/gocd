@@ -16,20 +16,15 @@
 package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
-import java.lang.reflect.Method;
 
 @Component
 public class ResourceMonitoring {
     private SystemEnvironment systemEnvironment;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceMonitoring.class.getName());
 
     @Autowired
     public ResourceMonitoring(SystemEnvironment systemEnvironment) {
@@ -41,38 +36,6 @@ public class ResourceMonitoring {
             ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
             if (threadMXBean.isThreadContentionMonitoringSupported()) {
                 threadMXBean.setThreadContentionMonitoringEnabled(true);
-            }
-            if (threadMXBean.isThreadCpuTimeSupported()) {
-                threadMXBean.setThreadCpuTimeEnabled(true);
-            }
-
-            if (isThreadAllocatedMemorySupported(threadMXBean)) {
-                setThreadAllocatedMemoryEnabled(threadMXBean);
-            }
-        }
-    }
-
-    private boolean isThreadAllocatedMemorySupported(ThreadMXBean threadMXBean) {
-        Method method = ReflectionUtils.findMethod(threadMXBean.getClass(), "isThreadAllocatedMemorySupported");
-        if (method != null) {
-            try {
-                method.setAccessible(true);
-                return (boolean) method.invoke(threadMXBean);
-            } catch (Exception e) {
-                LOGGER.error("Error on threadMXBean.isThreadAllocatedMemorySupported : {}", e.getMessage());
-            }
-        }
-        return false;
-    }
-
-    private void setThreadAllocatedMemoryEnabled(ThreadMXBean threadMXBean) {
-        Method method = ReflectionUtils.findMethod(threadMXBean.getClass(), "setThreadAllocatedMemoryEnabled", boolean.class);
-        if (method != null) {
-            try {
-                method.setAccessible(true);
-                method.invoke(threadMXBean, true);
-            } catch (Exception e) {
-                LOGGER.error("Error on threadMXBean.setThreadAllocatedMemoryEnabled : {}", e.getMessage());
             }
         }
     }

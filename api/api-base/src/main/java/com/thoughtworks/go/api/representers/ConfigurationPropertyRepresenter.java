@@ -45,7 +45,7 @@ public class ConfigurationPropertyRepresenter {
             writer.add("encrypted_value", configurationProperty.getEncryptedValue());
         }
         if (configurationProperty.hasErrors()) {
-            writer.addChild("errors", errorWriter -> new ErrorGetter(new LinkedHashMap<String, String>() {{
+            writer.addChild("errors", errorWriter -> new ErrorGetter(new LinkedHashMap<>() {{
                 put("encryptedValue", "encrypted_value");
                 put("configurationValue", "configuration_value");
                 put("configurationKey", "configuration_key");

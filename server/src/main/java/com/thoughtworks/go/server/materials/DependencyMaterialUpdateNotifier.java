@@ -113,7 +113,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
         final DependencyMaterialUpdateNotifier self = this;
 
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 self.scheduleRecentlyAddedMaterialsForUpdate();

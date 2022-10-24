@@ -54,7 +54,7 @@ public class PipelinesController implements SparkController {
     }
 
     public ModelAndView create(Request req, Response res) {
-        HashMap<Object, Object> object = new HashMap<Object, Object>() {{
+        HashMap<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Create a pipeline");
         }};
 

@@ -52,7 +52,7 @@ public class PackageRepositoriesController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<Object, Object>() {{
+        Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Package Repositories");
         }};
         return new ModelAndView(object, null);

@@ -36,7 +36,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
 
     @Autowired
     public ElasticAgentRequestProcessor(PluginRequestProcessorRegistry registry, AgentService agentService) {
-        this(registry, new HashMap<String, VersionableElasticAgentProcessor>() {{
+        this(registry, new HashMap<>() {{
             put("1.0", new ElasticAgentRequestProcessorV1(agentService));
         }});
     }

@@ -43,7 +43,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getImageResponseFromBody(responseBody);
@@ -53,7 +53,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public Capabilities getCapabilities(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
             public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getCapabilitiesFromResponseBody(responseBody);
@@ -63,7 +63,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public List<PluginConfiguration> getElasticProfileMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getElasticProfileMetadataResponseFromBody(responseBody);
@@ -73,7 +73,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public String getElasticProfileView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<>() {
             @Override
             public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getProfileViewResponseFromBody(responseBody);
@@ -88,7 +88,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public ValidationResult validateElasticProfile(final String pluginId, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.validateElasticProfileRequestBody(configuration);
@@ -133,7 +133,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.shouldAssignWorkRequestBody(agent, environment, configuration, identifier);
@@ -148,7 +148,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public String getPluginStatusReport(String pluginId, List<Map<String, String>> clusterProfiles) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<>() {
             @Override
             public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getStatusReportView(responseBody);
@@ -158,7 +158,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
 
     @Override
     public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId, Map<String, String> clusterProfile) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AGENT_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AGENT_STATUS_REPORT, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getAgentStatusReportRequestBody(identifier, elasticAgentId);

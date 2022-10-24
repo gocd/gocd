@@ -263,7 +263,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
         final MaterialUpdateService self = this;
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 self.onConfigChange(goConfigService.getCurrentConfig());

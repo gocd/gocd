@@ -56,7 +56,7 @@ public class AnalyticsExtension extends AbstractExtension {
     }
 
     public Capabilities getCapabilities(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
             public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
@@ -65,7 +65,7 @@ public class AnalyticsExtension extends AbstractExtension {
     }
 
     public AnalyticsData getAnalytics(String pluginId, String type, String metricId, Map params) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<AnalyticsData>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ANALYTICS, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getAnalyticsRequestBody(type, metricId, params);
@@ -81,7 +81,7 @@ public class AnalyticsExtension extends AbstractExtension {
     }
 
     public Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, AnalyticsPluginConstants.REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+        return pluginRequestHelper.submitRequest(pluginId, AnalyticsPluginConstants.REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getImageFromResponseBody(responseBody);
@@ -90,7 +90,7 @@ public class AnalyticsExtension extends AbstractExtension {
     }
 
     public String getStaticAssets(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_STATIC_ASSETS, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_STATIC_ASSETS, new DefaultPluginInteractionCallback<>() {
             @Override
             public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getStaticAssetsFromResponseBody(responseBody);

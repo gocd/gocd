@@ -109,7 +109,7 @@ public enum JavaVersion {
     }
 
     private static List<Integer> convertToNumber(String value, String[] versionStrs) {
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
         for (String s : versionStrs) {
             assertTrue(value, !isNumberStartingWithZero(s));
             try {

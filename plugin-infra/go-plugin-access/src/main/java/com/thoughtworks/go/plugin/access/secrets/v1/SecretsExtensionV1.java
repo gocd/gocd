@@ -46,75 +46,75 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
     @Override
     public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, SecretsPluginConstants.REQUEST_GET_PLUGIN_ICON,
-                new DefaultPluginInteractionCallback<Image>() {
-                    @Override
-                    public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String,
-                            String> responseHeaders, String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.getImageFromResponseBody(responseBody);
-                    }
-                });
+            new DefaultPluginInteractionCallback<>() {
+                @Override
+                public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String,
+                    String> responseHeaders, String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.getImageFromResponseBody(responseBody);
+                }
+            });
     }
 
     @Override
     public List<PluginConfiguration> getSecretsConfigMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_SECRETS_CONFIG_METADATA,
-                new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
-                    @Override
-                    public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders,
-                                                               String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.getSecretsConfigMetadataFromResponse(responseBody);
-                    }
-                });
+            new DefaultPluginInteractionCallback<>() {
+                @Override
+                public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders,
+                                                           String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.getSecretsConfigMetadataFromResponse(responseBody);
+                }
+            });
     }
 
     @Override
     public String getSecretsConfigView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_SECRETS_CONFIG_VIEW,
-                new DefaultPluginInteractionCallback<String>() {
-                    @Override
-                    public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.getSecretsConfigViewFromResponse(responseBody);
-                    }
-                });
+            new DefaultPluginInteractionCallback<>() {
+                @Override
+                public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.getSecretsConfigViewFromResponse(responseBody);
+                }
+            });
     }
 
     @Override
     public ValidationResult validateSecretsConfig(String pluginId, final Map<String, String> configuration) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_SECRETS_CONFIG,
-                new DefaultPluginInteractionCallback<ValidationResult>() {
-                    @Override
-                    public String requestBody(String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.validatePluginConfigurationRequestBody(configuration);
-                    }
+            new DefaultPluginInteractionCallback<>() {
+                @Override
+                public String requestBody(String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.validatePluginConfigurationRequestBody(configuration);
+                }
 
-                    @Override
-                    public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders,
-                                                      String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.getSecretsConfigValidationResultFromResponse(responseBody);
-                    }
-                });
+                @Override
+                public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders,
+                                                  String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.getSecretsConfigValidationResultFromResponse(responseBody);
+                }
+            });
     }
 
     @Override
     public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, Set<String> keys) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_LOOKUP_SECRETS,
-                new DefaultPluginInteractionCallback<List<Secret>>() {
-                    @Override
-                    public String requestBody(String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.lookupSecretsRequestBody(keys, secretConfig.getConfiguration().getConfigurationAsMap(true));
-                    }
+            new DefaultPluginInteractionCallback<>() {
+                @Override
+                public String requestBody(String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.lookupSecretsRequestBody(keys, secretConfig.getConfiguration().getConfigurationAsMap(true));
+                }
 
-                    @Override
-                    public List<Secret> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.getSecretsFromResponse(responseBody);
-                    }
+                @Override
+                public List<Secret> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                    return secretsMessageConverterV1.getSecretsFromResponse(responseBody);
+                }
 
-                    @Override
-                    public void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion) {
-                        String errorMessage = secretsMessageConverterV1.getErrorMessageFromResponse(responseBody);
-                        throw new SecretResolutionFailureException(
-                                format("Error looking up secrets, plugin returned error code '%s' with response: '%s'", responseCode, errorMessage));
-                    }
-                });
+                @Override
+                public void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion) {
+                    String errorMessage = secretsMessageConverterV1.getErrorMessageFromResponse(responseBody);
+                    throw new SecretResolutionFailureException(
+                        format("Error looking up secrets, plugin returned error code '%s' with response: '%s'", responseCode, errorMessage));
+                }
+            });
     }
 }

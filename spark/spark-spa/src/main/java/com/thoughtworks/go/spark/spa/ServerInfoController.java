@@ -65,7 +65,7 @@ public class ServerInfoController implements SparkController {
         meta.put("usable_space_in_artifacts_repository", artifactsDirHolder.getArtifactsDir().getUsableSpace());
         meta.put("pipeline_count", pipelineConfigService.totalPipelinesCount());
 
-        Map<Object, Object> object = new HashMap<Object, Object>() {{
+        Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Server Details");
             put("meta", meta);
         }};

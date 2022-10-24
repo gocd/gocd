@@ -59,7 +59,7 @@ public class NewPreferencesController implements SparkController {
         Map<String, Object> meta = ImmutableMap.<String, Object>builder()
                 .put("smtp_configured", goConfigService.isSmtpEnabled())
                 .build();
-        Map<Object, Object> object = new HashMap<Object, Object>() {{
+        Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Preferences");
             put("meta", meta);
         }};

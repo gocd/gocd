@@ -55,7 +55,7 @@ public class InvalidConfigMessageRemover implements ConfigChangedListener {
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
         final InvalidConfigMessageRemover invalidConfigMessageRemover = this;
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig entity) {
                 invalidConfigMessageRemover.onConfigChange(null);

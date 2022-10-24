@@ -278,7 +278,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     public List<DependencyMaterial> getDependencyMaterials() {
-        List<DependencyMaterial> mats = new ArrayList<DependencyMaterial>();
+        List<DependencyMaterial> mats = new ArrayList<>();
         for (MaterialRevision materialRevision : this) {
             Material material = materialRevision.getMaterial();
             if (material instanceof DependencyMaterial) {

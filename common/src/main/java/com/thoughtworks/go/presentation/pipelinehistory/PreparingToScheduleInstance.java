@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.Date;
-
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Revision;
+
+import java.util.Date;
 
 /**
  * @understands a pipeline that is preparing to schedule
@@ -61,7 +61,7 @@ public class PreparingToScheduleInstance extends PipelineInstanceModel {
         return String.format("Preparing to schedule (%s/%s)", 0, numberOfStages());
     }
 
-    private class PreparingToScheduleRevision implements Revision {
+    private static class PreparingToScheduleRevision implements Revision {
         public static final String PREPARING = "Preparing to schedule...";
 
         @Override

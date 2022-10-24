@@ -107,18 +107,6 @@ public class GoCache {
         return ehCache.getKeys();
     }
 
-    /**
-     * SHOULD ONLY BE USED IN AN AFTER-COMMIT CALLBACK. In all other cases you should be using put() which ensures that
-     * no transaction is active at the moment before putting the value. This ensures that you don't end up having data
-     * in cache which is invalid because the transaction has rolled back.
-     *
-     * @param key
-     * @param value
-     */
-    public void putInAfterCommit(String key, Object value) {
-        put(key, value, new InTransactionBodyPredicate());
-    }
-
     private void logUnsavedPersistentObjectInteraction(Object value, String message) {
         if (value instanceof PersistentObject) {
             for (Class<? extends PersistentObject> nullObjectClass : nullObjectClasses) {
@@ -273,13 +261,6 @@ public class GoCache {
         @Override
         public boolean isTrue() {
             return transactionSynchronizationManager.isActualTransactionActive();
-        }
-    }
-
-    private class InTransactionBodyPredicate implements Predicate {
-        @Override
-        public boolean isTrue() {
-            return transactionSynchronizationManager.isTransactionBodyExecuting();
         }
     }
 }

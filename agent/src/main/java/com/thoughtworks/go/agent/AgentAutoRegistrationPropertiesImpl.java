@@ -135,8 +135,8 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         return new StringReader(FileUtils.readFileToString(configFile, UTF_8));
     }
 
-    private class FilteringOutputWriterFactory extends PropertiesConfiguration.DefaultIOFactory {
-        class FilteringPropertiesWriter extends PropertiesConfiguration.PropertiesWriter {
+    private static class FilteringOutputWriterFactory extends PropertiesConfiguration.DefaultIOFactory {
+        static class FilteringPropertiesWriter extends PropertiesConfiguration.PropertiesWriter {
             FilteringPropertiesWriter(Writer writer, ListDelimiterHandler delHandler) {
                 super(writer, delHandler);
             }

@@ -202,7 +202,7 @@ public class UserService {
     }
 
     private Set<String> allAdmins() {
-        return allUsersForDisplay().stream().filter(userModel -> userModel.isAdmin()).map(userModel -> userModel.getUser().getName()).collect(Collectors.toSet());
+        return allUsersForDisplay().stream().filter(UserModel::isAdmin).map(userModel -> userModel.getUser().getName()).collect(Collectors.toSet());
     }
 
     public Set<String> allUsernames() {

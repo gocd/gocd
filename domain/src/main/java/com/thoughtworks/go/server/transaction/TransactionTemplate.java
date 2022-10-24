@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.transaction;
 public class TransactionTemplate {
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
-    private static final ThreadLocal<TransactionContext> txnCtx = ThreadLocal.withInitial(() -> new TransactionContext());
+    private static final ThreadLocal<TransactionContext> txnCtx = ThreadLocal.withInitial(TransactionContext::new);
 
     public TransactionTemplate(org.springframework.transaction.support.TransactionTemplate transactionTemplate) {
         this.transactionTemplate = transactionTemplate;

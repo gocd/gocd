@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
@@ -37,7 +37,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -157,15 +156,10 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                 return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;
             }
 
-            pipelineState = (PipelineState) transactionTemplate.execute(new TransactionCallback() {
-                @Override
-                public Object doInTransaction(TransactionStatus transactionStatus) {
-                    return sessionFactory.getCurrentSession()
-                            .createCriteria(PipelineState.class)
-                            .add(Restrictions.eq("pipelineName", pipelineName))
-                            .setCacheable(false).uniqueResult();
-                }
-            });
+            pipelineState = (PipelineState) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
+                    .createCriteria(PipelineState.class)
+                    .add(Restrictions.eq("pipelineName", pipelineName))
+                    .setCacheable(false).uniqueResult());
 
             if (pipelineState != null && pipelineState.isLocked()) {
                 StageIdentifier lockedBy = (StageIdentifier) getSqlMapClientTemplate().queryForObject("lockedPipeline", pipelineState.getLockedByPipelineId());
@@ -181,16 +175,13 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
     }
 
     public List<String> lockedPipelines() {
-        return (List<String>) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                PropertyProjection pipelineName = Projections.property("pipelineName");
-                Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PipelineState.class).setProjection(pipelineName).add(
-                        Restrictions.eq("locked", true));
-                criteria.setCacheable(false);
-                List<String> list = criteria.list();
-                return list;
-            }
+        return transactionTemplate.execute(status -> {
+            PropertyProjection pipelineName = Projections.property("pipelineName");
+            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(PipelineState.class).setProjection(pipelineName).add(
+                    Restrictions.eq("locked", true));
+            criteria.setCacheable(false);
+            List<String> list = criteria.list();
+            return list;
         });
     }
 }

@@ -90,11 +90,4 @@ public class EnvironmentsRepresenter {
             linksWriter.addAbsoluteLink("doc", apiDocsUrl("#get-configuration"));
         });
     }
-
-    static class EnvironmentConfigComparator implements Comparator<EnvironmentConfig> {
-        @Override
-        public int compare(EnvironmentConfig o1, EnvironmentConfig o2) {
-            return o1.name().compareTo(o2.name());
-        }
-    }
 }

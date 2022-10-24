@@ -21,18 +21,16 @@ import com.thoughtworks.go.config.update.CreateOrUpdateDefaultJobTimeoutCommand;
 import com.thoughtworks.go.config.update.UpdateArtifactConfigCommand;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.web.BaseUrlProvider;
 import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 

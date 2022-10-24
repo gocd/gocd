@@ -50,7 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
+import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

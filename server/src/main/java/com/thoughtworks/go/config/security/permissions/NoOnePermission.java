@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config.security.permissions;
 
-import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.config.security.users.Users;
 

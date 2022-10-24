@@ -23,8 +23,6 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 
-import java.util.Collection;
-
 public class InternalPipelineGroupsRepresenter {
     public static void toJSON(OutputWriter outputWriter, PipelineGroupsViewModel pipelineGroupsViewModel) {
         outputWriter.

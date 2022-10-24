@@ -16,7 +16,6 @@
 package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;

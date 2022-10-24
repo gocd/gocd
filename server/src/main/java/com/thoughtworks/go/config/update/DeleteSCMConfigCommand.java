@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.toStringList;
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;

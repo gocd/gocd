@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.validation;
 
-import com.thoughtworks.go.config.CruiseConfig;
+package com.thoughtworks.go.server.service;
 
-public class DoNothingValidator implements ConfigUpdateValidator {
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import lombok.experimental.UtilityClass;
+
+import static java.lang.String.format;
+
+@UtilityClass
+class HistoryUtil {
+    private static final String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
+
+    static boolean validateCursor(Long cursor, String key) {
+        if (cursor == 0) return false;
+        if (cursor < 0) {
+            throw new BadRequestException(format(BAD_CURSOR_MSG, key));
+        }
         return true;
     }
 }

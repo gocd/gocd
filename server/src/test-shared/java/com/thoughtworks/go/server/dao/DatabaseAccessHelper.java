@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ManualBuild;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.PipelineService;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
@@ -83,7 +82,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     private AgentDao agentDao;
     private PipelineTimeline pipelineTimeline;
     private TransactionTemplate transactionTemplate;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
 
     public static final String AGENT_UUID = "123456789-123";
     private DataSource dataSource;
@@ -132,7 +130,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                                 SessionFactory sessionFactory,
                                 PipelineTimeline pipelineTimeline,
                                 TransactionTemplate transactionTemplate,
-                                TransactionSynchronizationManager transactionSynchronizationManager,
                                 GoCache goCache,
                                 PipelineService pipelineService, InstanceFactory instanceFactory,
                                 JobAgentMetadataDao jobAgentMetadataDao,
@@ -143,7 +140,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         this.jobInstanceDao = jobInstanceDao;
         this.pipelineTimeline = pipelineTimeline;
         this.transactionTemplate = transactionTemplate;
-        this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.goCache = goCache;
         this.pipelineService = pipelineService;
         this.instanceFactory = instanceFactory;

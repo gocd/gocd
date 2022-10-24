@@ -65,7 +65,7 @@ public class AgentRepresenter {
         }
 
         if (!agentInstance.errors().isEmpty()) {
-            Map<String, String> fieldMapping = new HashMap<String, String>() {{
+            Map<String, String> fieldMapping = new HashMap<>() {{
                 put("ipAddress", "ip_address");
                 put("elasticAgentId", "elastic_agent_id");
                 put("elasticPluginId", "elastic_plugin_id");

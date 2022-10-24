@@ -141,7 +141,7 @@ public class CcTrayActivityListener implements Initializer, JobStatusListener, S
     }
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(final PipelineConfig pipelineConfig) {
                 processor.add(new Action() {

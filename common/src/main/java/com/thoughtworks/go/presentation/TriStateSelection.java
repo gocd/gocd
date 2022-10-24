@@ -58,7 +58,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     public static List<TriStateSelection> forAgentsResources(Set<ResourceConfig> resourceConfigs, Agents agents) {
-        return convert(resourceConfigs, agents, new Assigner<ResourceConfig, Agent>() {
+        return convert(resourceConfigs, agents, new Assigner<>() {
             @Override
             public boolean shouldAssociate(Agent agent, ResourceConfig resourceConfig) {
                 return agent.getResourcesAsList().contains(resourceConfig.getName());
@@ -77,7 +77,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     public static List<TriStateSelection> forRoles(Set<Role> allRoles, List<String> users) {
-        return convert(allRoles, users, new Assigner<Role, String>() {
+        return convert(allRoles, users, new Assigner<>() {
             @Override
             public boolean shouldAssociate(String user, Role role) {
                 return role.hasMember(new CaseInsensitiveString(user));
@@ -96,7 +96,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     public static TriStateSelection forSystemAdmin(final AdminsConfig adminsConfig, final Set<Role> allRoles, final UserRoleMatcher userRoleMatcher, List<String> users) {
-        return convert(new HashSet<>(Arrays.asList(Admin.GO_SYSTEM_ADMIN)), users, new Assigner<String, String>() {
+        return convert(new HashSet<>(Arrays.asList(Admin.GO_SYSTEM_ADMIN)), users, new Assigner<>() {
             @Override
             public boolean shouldAssociate(String userName, String ignore) {
                 return adminsConfig.hasUser(new CaseInsensitiveString(userName), userRoleMatcher);
@@ -115,7 +115,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
                         roles.add(role);
                     }
                 }
-                return ! adminsConfig.isAdminRole(roles);
+                return !adminsConfig.isAdminRole(roles);
             }
         }).get(0);
     }

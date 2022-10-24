@@ -54,7 +54,7 @@ public class SecretConfigDeleteCommand extends SecretConfigCommand {
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         if (usageInformation != null && !usageInformation.isEmpty()) {
-            List<String> pipelineNames = usageInformation.stream().map(usage -> usage.getPipelineName()).collect(Collectors.toList());
+            List<String> pipelineNames = usageInformation.stream().map(SecretConfigUsage::getPipelineName).collect(Collectors.toList());
             String message = cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), pipelineNames);
             result.unprocessableEntity(message);
             throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.thoughtworks.go.spark.spa;
+
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -21,8 +22,10 @@ import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import static spark.Spark.*;
 
 public class ServerConfigurationController implements SparkController {
@@ -46,7 +49,7 @@ public class ServerConfigurationController implements SparkController {
     });
   }
   public ModelAndView index(Request request, Response response) {
-      Map<Object, Object> object = new HashMap<Object, Object>() {{
+      Map<Object, Object> object = new HashMap<>() {{
           put("viewTitle", "ServerConfiguration");
       }};
       return new ModelAndView(object, null);

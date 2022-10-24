@@ -15,6 +15,7 @@
  */
 
 package com.thoughtworks.go.spark.spa;
+
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -22,8 +23,10 @@ import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import static spark.Spark.*;
 
 public class PluggableScmsController implements SparkController {
@@ -47,7 +50,7 @@ public class PluggableScmsController implements SparkController {
     });
   }
   public ModelAndView index(Request request, Response response) {
-      Map<Object, Object> object = new HashMap<Object, Object>() {{
+      Map<Object, Object> object = new HashMap<>() {{
           put("viewTitle", "Pluggable SCMs");
       }};
       return new ModelAndView(object, null);

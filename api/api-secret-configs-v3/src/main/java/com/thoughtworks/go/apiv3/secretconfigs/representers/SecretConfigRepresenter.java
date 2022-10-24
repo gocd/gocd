@@ -54,7 +54,7 @@ public class SecretConfigRepresenter {
 
     public static SecretConfig fromJSON(JsonReader jsonReader) {
         SecretConfig secretConfig = new SecretConfig(jsonReader.getString("id"), jsonReader.getString("plugin_id"));
-        jsonReader.optString("description").ifPresent(description -> secretConfig.setDescription(description));
+        jsonReader.optString("description").ifPresent(secretConfig::setDescription);
         secretConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
 
         jsonReader.readArrayIfPresent("rules", array -> {

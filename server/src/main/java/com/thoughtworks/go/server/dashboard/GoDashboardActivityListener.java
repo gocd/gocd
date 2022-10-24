@@ -109,7 +109,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     }
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(final PipelineConfig pipelineConfig) {
                 processor.add(new Action() {
@@ -128,7 +128,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     }
 
     protected EntityConfigChangedListener<PipelineConfigs> pipelineGroupsChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfigs>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(final PipelineConfigs pipelineConfigs) {
                 processor.add(new Action() {
@@ -147,7 +147,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
     }
 
     protected EntityConfigChangedListener<PipelineTemplateConfig> templateConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineTemplateConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(final PipelineTemplateConfig templateConfig) {
                 processor.add(new Action() {

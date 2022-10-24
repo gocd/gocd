@@ -89,7 +89,7 @@ public class TimerScheduler implements ConfigChangedListener {
     }
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 unscheduleJob(CaseInsensitiveString.str(pipelineConfig.name()));

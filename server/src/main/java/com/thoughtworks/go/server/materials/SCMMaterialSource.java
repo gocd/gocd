@@ -28,8 +28,8 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.slf4j.Logger;
 import org.joda.time.DateTimeUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -100,7 +100,7 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
         final SCMMaterialSource self = this;
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 self.onConfigChange(null);

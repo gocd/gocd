@@ -83,7 +83,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     }
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 synchronized (pipelines) {
@@ -98,7 +98,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
 
     protected EntityConfigChangedListener<ConfigRepoConfig> configRepoConfigChangedListener() {
         final Consumer<CruiseConfig> configChangeConsumer = this::onConfigChange;
-        return new EntityConfigChangedListener<ConfigRepoConfig>() {
+        return new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(ConfigRepoConfig configRepoConfig) {
                 configChangeConsumer.accept(goConfigService.cruiseConfig());

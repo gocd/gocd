@@ -39,7 +39,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskConfig config() {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<>() {
             @Override
             public TaskConfig onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertJsonToTaskConfig(responseBody);
@@ -54,7 +54,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskView view() {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<TaskView>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<>() {
 
 
             @Override
@@ -66,7 +66,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public ValidationResult validate(final TaskConfig configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertTaskConfigToJson(configuration);

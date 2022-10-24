@@ -69,7 +69,7 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new DefaultPluginInteractionCallback<List<String>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_NOTIFICATIONS_INTERESTED_IN, new DefaultPluginInteractionCallback<>() {
 
 
             @Override
@@ -80,7 +80,7 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     public <T> Result notify(String pluginId, final String requestName, final T data) {
-        return pluginRequestHelper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Result>() {
+        return pluginRequestHelper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotify(data);

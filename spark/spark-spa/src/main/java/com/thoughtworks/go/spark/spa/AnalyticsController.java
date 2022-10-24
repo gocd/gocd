@@ -79,12 +79,12 @@ public class AnalyticsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<String, String> locals = new HashMap<String, String>() {{
+        HashMap<String, String> locals = new HashMap<>() {{
             List<String> pipelines = new ArrayList<>();
             pipelineConfigService.viewableGroupsFor(SessionUtils.currentUsername()).forEach(
-                    (PipelineConfigs config) -> config.getPipelines().forEach(
-                            (p) -> pipelines.add(p.name().toString())
-                    )
+                (PipelineConfigs config) -> config.getPipelines().forEach(
+                    (p) -> pipelines.add(p.name().toString())
+                )
             );
             put("viewTitle", "Analytics");
             put("pipelines", GSON.toJson(pipelines));

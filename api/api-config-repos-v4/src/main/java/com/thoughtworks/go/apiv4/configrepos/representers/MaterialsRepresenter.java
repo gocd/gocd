@@ -64,7 +64,7 @@ public class MaterialsRepresenter {
         }
     }
 
-    private static final Map<String, String> ERROR_MAPPING = Collections.unmodifiableMap(new HashMap<String, String>() {
+    private static final Map<String, String> ERROR_MAPPING = Collections.unmodifiableMap(new HashMap<>() {
         {
             put("materialName", "name");
             put("folder", "destination");

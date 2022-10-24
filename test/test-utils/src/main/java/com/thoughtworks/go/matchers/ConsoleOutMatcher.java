@@ -28,7 +28,7 @@ import static java.lang.String.format;
 public class ConsoleOutMatcher {
 
     public static TypeSafeMatcher<String> printedEnvVariable(final String key, final Object value) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
             public String set;
             public String override;
@@ -49,7 +49,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedPreparingInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
             public String stdout;
 
@@ -68,7 +68,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedBuildingInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
             public String stdout;
 
@@ -87,7 +87,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedUploadingInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
             public String stdout;
 
@@ -106,7 +106,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedJobCompletedInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
             public String stdout;
 
@@ -120,13 +120,13 @@ public class ConsoleOutMatcher {
             @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]"
-                        + " but was " + consoleOut);
+                    + " but was " + consoleOut);
             }
         };
     }
 
     public static TypeSafeMatcher<String> printedJobCanceledInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
             public String stdout;
 
@@ -140,13 +140,13 @@ public class ConsoleOutMatcher {
             @Override
             public void describeTo(Description description) {
                 description.appendText("expected console to contain [" + stdout + "]"
-                        + " but was " + consoleOut);
+                    + " but was " + consoleOut);
             }
         };
     }
 
     public static TypeSafeMatcher<String> printedBuildFailed() {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             private String consoleOut;
 
             @Override
@@ -163,7 +163,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<List> containsState(final Object jobState) {
-        return new TypeSafeMatcher<List>() {
+        return new TypeSafeMatcher<>() {
             private List states;
 
             @Override
@@ -180,7 +180,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<List> containsResult(final Object jobResult) {
-        return new TypeSafeMatcher<List>() {
+        return new TypeSafeMatcher<>() {
             private List results;
 
             @Override
@@ -197,7 +197,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedUploadingFailure(final File file) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             public String consoleOut;
             public String message;
 
@@ -216,7 +216,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedRuleDoesNotMatchFailure(final String root, final String rule) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             public String consoleOut;
             public String message;
 
@@ -242,7 +242,7 @@ public class ConsoleOutMatcher {
 
     public static TypeSafeMatcher<String> printedExcRunIfInfo(final String command, final String args,
                                                               final String status) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             public String consoleOut;
             public String message;
 
@@ -267,7 +267,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedAppsMissingInfoOnUnix(final String app) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             public String consoleOut;
             public String message;
 
@@ -286,7 +286,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<String> printedAppsMissingInfoOnWindows(final String app) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             public String consoleOut;
             public String message;
 
@@ -305,7 +305,7 @@ public class ConsoleOutMatcher {
     }
 
     public static TypeSafeMatcher<List<UploadEntry>> uploadFileToDestination(final File file, final String dest) {
-        return new TypeSafeMatcher<List<UploadEntry>>() {
+        return new TypeSafeMatcher<>() {
             private List<UploadEntry> entries;
             private UploadEntry uploadEntry;
 

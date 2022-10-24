@@ -51,7 +51,7 @@ public class PipelinesAsCodeController implements SparkController {
     }
 
     public ModelAndView asCode(Request req, Response res) {
-        HashMap<Object, Object> object = new HashMap<Object, Object>() {{
+        HashMap<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "New Pipeline as Code");
         }};
 

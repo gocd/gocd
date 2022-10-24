@@ -51,7 +51,7 @@ public class SecretConfigsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<Object, Object>() {{
+        Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Secret Management");
         }};
         return new ModelAndView(object, null);

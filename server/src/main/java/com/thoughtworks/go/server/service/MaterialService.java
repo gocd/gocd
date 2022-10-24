@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 import static java.util.stream.Collectors.toMap;
@@ -171,7 +172,7 @@ public class MaterialService {
         List<Modification> modifications = materialRepository.getLatestModificationForEachMaterial();
         return modifications
                 .stream()
-                .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), mod -> mod));
+                .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), Function.identity()));
     }
 
     public PipelineRunIdInfo getLatestAndOldestModification(MaterialConfig materialConfig, String pattern) {

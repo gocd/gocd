@@ -61,7 +61,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilities(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.authorization.Capabilities>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
             public com.thoughtworks.go.plugin.domain.authorization.Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
@@ -70,7 +70,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     List<PluginConfiguration> getAuthConfigMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_METADATA, new DefaultPluginInteractionCallback<>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigMetadataResponseFromBody(responseBody);
@@ -79,7 +79,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     String getAuthConfigView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_VIEW, new DefaultPluginInteractionCallback<>() {
             @Override
             public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationViewFromResponseBody(responseBody);
@@ -88,7 +88,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public ValidationResult validateAuthConfig(final String pluginId, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_AUTH_CONFIG, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_AUTH_CONFIG, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).validatePluginConfigurationRequestBody(configuration);
@@ -102,7 +102,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public VerifyConnectionResponse verifyConnection(final String pluginId, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VERIFY_CONNECTION, new DefaultPluginInteractionCallback<VerifyConnectionResponse>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VERIFY_CONNECTION, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).verifyConnectionRequestBody(configuration);
@@ -117,7 +117,7 @@ public class AuthorizationExtension extends AbstractExtension {
 
     public AuthenticationResponse authenticateUser(String pluginId, final String username, final String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> pluginRoleConfigs) {
         errorOutIfEmpty(authConfigs, pluginId);
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, password, authConfigs, pluginRoleConfigs);
@@ -131,7 +131,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public List<PluginConfiguration> getRoleConfigurationMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_METADATA, new DefaultPluginInteractionCallback<>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getRoleConfigMetadataResponseFromBody(responseBody);
@@ -140,7 +140,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public String getRoleConfigurationView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_VIEW, new DefaultPluginInteractionCallback<>() {
             @Override
             public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getRoleConfigurationViewFromResponseBody(responseBody);
@@ -149,7 +149,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public ValidationResult validateRoleConfiguration(final String pluginId, final Map<String, String> roleConfiguration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_ROLE_CONFIG, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_ROLE_CONFIG, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).validatePluginConfigurationRequestBody(roleConfiguration);
@@ -163,7 +163,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public List<User> searchUsers(String pluginId, final String searchTerm, List<SecurityAuthConfig> authConfigs) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SEARCH_USERS, new DefaultPluginInteractionCallback<List<User>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_SEARCH_USERS, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).searchUsersRequestBody(searchTerm, authConfigs);
@@ -177,7 +177,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
@@ -186,7 +186,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public Map<String, String> fetchAccessToken(String pluginId, Map<String, String> requestHeaders, final Map<String, String> requestParams, List<SecurityAuthConfig> authConfigs) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_ACCESS_TOKEN, new DefaultPluginInteractionCallback<Map<String, String>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_ACCESS_TOKEN, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).grantAccessRequestBody(authConfigs);
@@ -214,7 +214,7 @@ public class AuthorizationExtension extends AbstractExtension {
             throw new MissingAuthConfigsException(format("Request '%s' requires an AuthConfig. Make sure Authconfig is configured for the plugin '%s'.", REQUEST_GET_USER_ROLES, pluginId));
         }
 
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<List<String>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getUserRolesRequestBody(username, authConfig, roleConfigs);
@@ -234,7 +234,7 @@ public class AuthorizationExtension extends AbstractExtension {
 
     public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {
         try {
-            return pluginRequestHelper.submitRequest(pluginId, IS_VALID_USER, new DefaultPluginInteractionCallback<Boolean>() {
+            return pluginRequestHelper.submitRequest(pluginId, IS_VALID_USER, new DefaultPluginInteractionCallback<>() {
                 @Override
                 public String requestBody(String resolvedExtensionVersion) {
                     return getMessageConverter(resolvedExtensionVersion).isValidUserRequestBody(username, authConfig);
@@ -257,7 +257,7 @@ public class AuthorizationExtension extends AbstractExtension {
     public AuthenticationResponse authenticateUser(String pluginId, Map<String, String> credentials, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
         errorOutIfEmpty(authConfigs, pluginId);
 
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(credentials, authConfigs, roleConfigs);
@@ -277,7 +277,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public String getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_URL, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_URL, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).authorizationServerUrlRequestBody(pluginId, authConfigs, siteUrl);

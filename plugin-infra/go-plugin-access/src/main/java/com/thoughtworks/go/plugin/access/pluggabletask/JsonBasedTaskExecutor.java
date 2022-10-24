@@ -38,7 +38,7 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
 
     @Override
     public ExecutionResult execute(final TaskConfig config, final TaskExecutionContext taskExecutionContext) {
-        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.EXECUTION_REQUEST, new DefaultPluginInteractionCallback<ExecutionResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.EXECUTION_REQUEST, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).getTaskExecutionBody(config, taskExecutionContext);

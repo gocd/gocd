@@ -40,11 +40,11 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
     private enum ProcessType {
         FETCH, PUBLISH
     }
-    private static final Map<LogLevel, String> FETCH_ARTIFACT_LOG_LEVEL_TAG = new HashMap<LogLevel, String>() {{
+    private static final Map<LogLevel, String> FETCH_ARTIFACT_LOG_LEVEL_TAG = new HashMap<>() {{
         put(LogLevel.INFO, TaggedStreamConsumer.OUT);
         put(LogLevel.ERROR, TaggedStreamConsumer.ERR);
     }};
-    private static final Map<LogLevel, String> PUBLISH_ARTIFACT_LOG_LEVEL_TAG = new HashMap<LogLevel, String>() {{
+    private static final Map<LogLevel, String> PUBLISH_ARTIFACT_LOG_LEVEL_TAG = new HashMap<>() {{
         put(LogLevel.INFO, TaggedStreamConsumer.PUBLISH);
         put(LogLevel.ERROR, TaggedStreamConsumer.PUBLISH_ERR);
     }};

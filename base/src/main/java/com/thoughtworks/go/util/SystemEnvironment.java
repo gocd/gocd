@@ -201,9 +201,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
-        Map<String, String> map = new HashMap<String, String>() {{
+        Map<String, String> map = new HashMap<>() {{
             put("GIT_ALLOW_PROTOCOL", System.getenv("GIT_ALLOW_PROTOCOL") == null ?
-                    "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL"));
+                "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL"));
         }};
         GIT_ALLOW_PROTOCOL = Collections.unmodifiableMap(map);
     }

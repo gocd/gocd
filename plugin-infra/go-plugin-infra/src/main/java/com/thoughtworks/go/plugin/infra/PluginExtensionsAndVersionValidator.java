@@ -15,13 +15,6 @@
  */
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.lang.String.format;
-
 public interface PluginExtensionsAndVersionValidator extends PluginPostLoadHook {
 }
 

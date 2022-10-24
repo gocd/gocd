@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service.materials;
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;

@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
@@ -30,7 +29,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import java.util.List;
 
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;

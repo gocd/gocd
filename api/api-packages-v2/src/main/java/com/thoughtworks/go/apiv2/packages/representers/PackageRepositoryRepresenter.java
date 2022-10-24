@@ -20,8 +20,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.function.Consumer;
-
 public class PackageRepositoryRepresenter {
     public static void toJSON(OutputWriter outputWriter, PackageRepository packageRepository) {
         outputWriter.addLinks(linkWriter -> {

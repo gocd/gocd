@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.osgi.framework.Bundle;
 
 import java.util.List;

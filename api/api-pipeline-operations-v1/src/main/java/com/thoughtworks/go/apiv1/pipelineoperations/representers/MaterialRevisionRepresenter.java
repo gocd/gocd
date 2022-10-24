@@ -15,9 +15,7 @@
  */
 package com.thoughtworks.go.apiv1.pipelineoperations.representers;
 
-import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.server.domain.MaterialForScheduling;
 
 public class MaterialRevisionRepresenter {

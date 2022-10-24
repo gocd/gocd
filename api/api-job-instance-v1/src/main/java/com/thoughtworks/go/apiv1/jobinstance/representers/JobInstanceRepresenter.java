@@ -18,8 +18,6 @@ package com.thoughtworks.go.apiv1.jobinstance.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.JobInstance;
 
-import static java.util.Collections.emptyList;
-
 public class JobInstanceRepresenter {
     public static void toJSON(OutputWriter outputWriter, JobInstance jobInstance) {
         outputWriter.add("name", jobInstance.getName());

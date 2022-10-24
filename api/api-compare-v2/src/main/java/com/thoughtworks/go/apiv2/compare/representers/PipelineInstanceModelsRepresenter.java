@@ -16,7 +16,6 @@
 package com.thoughtworks.go.apiv2.compare.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 
 import static java.util.Collections.emptyList;

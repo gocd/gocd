@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.thoughtworks.go.remote.Serialization;
 import com.thoughtworks.go.remote.request.AgentRequest;
 import com.thoughtworks.go.remote.request.GetWorkRequest;
-import com.thoughtworks.go.remote.work.Work;
 
 public class GetWorkRequestRepresenter {
     private static final Gson gson = Serialization.instance();

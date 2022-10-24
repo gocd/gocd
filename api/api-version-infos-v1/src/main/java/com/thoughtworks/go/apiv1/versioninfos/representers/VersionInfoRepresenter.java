@@ -20,15 +20,11 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 

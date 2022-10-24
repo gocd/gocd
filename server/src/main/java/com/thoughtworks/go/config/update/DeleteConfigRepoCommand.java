@@ -17,14 +17,11 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
     private ConfigRepoConfig preprocessedConfigRepo;

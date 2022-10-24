@@ -34,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<ElasticProfile> {

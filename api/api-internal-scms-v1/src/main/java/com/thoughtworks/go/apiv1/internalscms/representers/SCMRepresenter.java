@@ -23,7 +23,6 @@ import com.thoughtworks.go.api.representers.PluginConfigurationRepresenter;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
 

@@ -21,10 +21,8 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
-import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static java.util.stream.Collectors.*;

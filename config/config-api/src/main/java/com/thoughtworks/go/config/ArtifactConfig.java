@@ -20,7 +20,6 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 @Getter
 @Setter

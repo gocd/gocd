@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.internalscms.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class VerifyConnectionResultRepresenter {

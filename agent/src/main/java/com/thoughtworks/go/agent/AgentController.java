@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static com.thoughtworks.go.util.SystemUtil.getClientIp;
 
 public abstract class AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentController.class);

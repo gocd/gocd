@@ -34,21 +34,14 @@
     <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
 
-  <suppress until="2022-11-01Z">
+  <suppress>
     <notes><![CDATA[
-   This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.31 according to devs and NIST NVD,
-   raised at https://github.com/OSSIndex/vulns/issues/327
+   This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.32 according to devs and NIST NVD,
+   raised, but which OSSIndex folks do not consider "fully fixed". See https://github.com/OSSIndex/vulns/issues/328
+   Regardless, GoCD is not affected as `allowRecurseKeys` is not enabled by GoCD or its dependencies.
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-    <vulnerabilityName>CVE-2022-38751</vulnerabilityName>
-  </suppress>
-  <suppress until="2022-11-01Z">
-    <notes><![CDATA[
-   Temporary suppression as this is fixed in SnakeYAML 1.32 but JRuby needs to update to use it via its Psych
-    dependency (awaiting JRuby 9.3.9.0) https://bitbucket.org/snakeyaml/snakeyaml/issues/531/stackoverflow-oss-fuzz-47081
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-    <cve>CVE-2022-38752</cve>
+    <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
   </suppress>
 
   <suppress>

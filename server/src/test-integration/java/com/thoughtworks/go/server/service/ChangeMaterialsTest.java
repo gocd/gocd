@@ -53,6 +53,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 })
 public class ChangeMaterialsTest {
 
+    @TempDir
+    private static Path tempDir;
+
     @Autowired
     private ScheduleService scheduleService;
     @Autowired
@@ -81,7 +84,7 @@ public class ChangeMaterialsTest {
 
 
     @BeforeAll
-    public static void startP4Server(@TempDir Path tempDir) throws Exception {
+    public static void startP4Server() throws Exception {
         p4TestRepo = P4TestRepo.createP4TestRepo(tempDir, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
         p4TestRepo.onSetup();
     }

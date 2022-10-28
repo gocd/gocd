@@ -167,14 +167,13 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
   ext.licenseReportFile = project.file("${project.buildDir}/reports/yarn-license/license-report.json")
   outputs.dir(ext.licenseReportFile.parentFile)
 
-  workingDir = project.railsRoot
-  destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
-
-  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
-
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/vendor/assets"))
   source(project.file("${project.railsRoot}/config"))
+
+  workingDir = project.railsRoot
+  destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
+  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
 }
 
 task compileAssetsWebpackProd(type: YarnRunTask) {

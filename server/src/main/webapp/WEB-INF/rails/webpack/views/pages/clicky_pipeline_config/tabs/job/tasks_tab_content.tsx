@@ -290,8 +290,10 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
 export class TasksTabContent extends TabContent<Job> {
   private readonly pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos());
+  private readonly autoSuggestions: Stream<any>     = Stream();
+
+  private entityPath: PipelineConfigRouteParams | undefined;
   private originalTasks: string[] | undefined;
-  private autoSuggestions: Stream<any>              = Stream();
   private entityReOrderHandler: EntityReOrderHandler | undefined;
 
   constructor() {
@@ -312,6 +314,8 @@ export class TasksTabContent extends TabContent<Job> {
           reset: () => any): m.Children {
 
     const selectedJob = this.selectedEntity(pipelineConfig, routeParams);
+    const entityChanged = !_.isEqual(routeParams, this.entityPath);
+    this.entityPath = routeParams;
 
     const onReset = () => {
       this.entityReOrderHandler = undefined;
@@ -326,7 +330,7 @@ export class TasksTabContent extends TabContent<Job> {
       this.originalTasks = selectedJob.tasks().map(t => t.toJSON());
     }
 
-    if (!this.autoSuggestions()) {
+    if (!this.autoSuggestions() || entityChanged) {
       this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!, !this.isPipelineConfigView());
     }
 

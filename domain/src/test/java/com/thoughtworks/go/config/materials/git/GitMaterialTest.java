@@ -44,7 +44,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,9 +67,13 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(SystemStubsExtension.class)
 public class GitMaterialTest {
     public static final GitVersion GIT_VERSION_1_9 = GitVersion.parse("git version 1.9.0");
     public static final GitVersion GIT_VERSION_1_5 = GitVersion.parse("git version 1.5.4.3");
+
+    @SystemStub
+    SystemProperties systemProperties;
 
     @TempDir
     Path tempDir;
@@ -77,6 +85,7 @@ public class GitMaterialTest {
     @BeforeEach
     void setUp() {
         outputStreamConsumer = inMemoryConsumer();
+        systemProperties.set(GitCommand.GIT_SUBMODULE_ALLOW_FILE_PROTOCOL, "Y");
     }
 
     @Nested

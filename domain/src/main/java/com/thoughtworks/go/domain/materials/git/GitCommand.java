@@ -45,12 +45,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 public class GitCommand extends SCMCommand {
+    public static final String GIT_CLEAN_KEEP_IGNORED_FILES_FLAG = "toggle.agent.git.clean.keep.ignored.files";
+    public static final String GIT_SUBMODULE_ALLOW_FILE_PROTOCOL = "toggle.agent.git.submodule.allow.file.protocol";
+
     private static final Logger LOG = LoggerFactory.getLogger(GitCommand.class);
 
     private static final Pattern GIT_SUBMODULE_STATUS_PATTERN = Pattern.compile("^.[0-9a-fA-F]{40} (.+?)( \\(.+\\))?$");
     private static final Pattern GIT_SUBMODULE_URL_PATTERN = Pattern.compile("^submodule\\.(.+)\\.url (.+)$");
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
-    private static final String GIT_CLEAN_KEEP_IGNORED_FILES_FLAG = "toggle.agent.git.clean.keep.ignored.files";
 
     private final File workingDir;
     private final List<SecretString> secrets;
@@ -300,11 +302,10 @@ public class GitCommand extends SCMCommand {
 
     @TestOnly
     public void submoduleAdd(String repoUrl, String submoduleNameToPutInGitSubmodules, String folder) {
-        String[] addSubmoduleWithSameNameArgs = new String[]{"submodule", "add", "--", repoUrl, folder};
-        String[] changeSubmoduleNameInGitModules = new String[]{"config", "--file", ".gitmodules", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
-        String[] addGitModules = new String[]{"add", ".gitmodules"};
+        List<String> changeSubmoduleNameInGitModules = List.of("config", "--file", ".gitmodules", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules);
+        List<String> addGitModules = List.of("add", ".gitmodules");
 
-        runOrBomb(gitWd().withArgs(addSubmoduleWithSameNameArgs));
+        runOrBomb(gitWd().withArgs(gitSubmoduleConfigArgs()).withArgs("submodule", "add", "--", repoUrl, folder));
         runOrBomb(gitWd().withArgs(changeSubmoduleNameInGitModules));
         runOrBomb(gitWd().withArgs(addGitModules));
     }
@@ -459,6 +460,14 @@ public class GitCommand extends SCMCommand {
         }
     }
 
+    private List<String> gitSubmoduleConfigArgs() {
+        if ("Y".equalsIgnoreCase(System.getProperty(GIT_SUBMODULE_ALLOW_FILE_PROTOCOL))) {
+            return List.of("-c", "protocol.file.allow=always");
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     private void printSubmoduleStatus(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Git sub-module status");
         CommandLine gitCmd = gitWd().withArgs("submodule", "status");
@@ -490,7 +499,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private void updateSubmodule() {
-        CommandLine updateCmd = gitWd().withArgs("submodule", "update");
+        CommandLine updateCmd = gitWd().withArgs(gitSubmoduleConfigArgs()).withArgs("submodule", "update");
         runOrBomb(updateCmd);
     }
 
@@ -509,11 +518,8 @@ public class GitCommand extends SCMCommand {
     }
 
     private boolean updateSubmoduleWithDepth(int depth) {
-        List<String> updateArgs = new ArrayList<>(asList("submodule", "update"));
-        updateArgs.add("--depth=" + depth);
-        CommandLine commandLine = gitWd().withArgs(updateArgs);
         try {
-            runOrBomb(commandLine);
+            runOrBomb(gitWd().withArgs(gitSubmoduleConfigArgs()).withArgs("submodule", "update", "--depth=" + depth));
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
             return false;

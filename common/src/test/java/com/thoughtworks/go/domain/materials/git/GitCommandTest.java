@@ -235,6 +235,7 @@ public class GitCommandTest {
                 fail(outputStreamConsumer.getAllOutput());
             }
             gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, tempDir);
+            systemProperties.set(GitCommand.GIT_SUBMODULE_ALLOW_FILE_PROTOCOL, "Y");
         }
 
         @AfterEach

@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.helper.FilterMother;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -37,6 +38,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -50,10 +54,14 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(SystemStubsExtension.class)
 public class MaterialExpansionServiceTest {
 
     private static SvnTestRepoWithExternal svnRepo;
     private MaterialExpansionService materialExpansionService;
+
+    @SystemStub
+    SystemProperties systemProperties;
     @Mock
     private GoCache goCache;
     @Mock
@@ -150,6 +158,7 @@ public class MaterialExpansionServiceTest {
 
     @Test
     public void shouldNotExpandGitSubmodulesIntoMultipleMaterialsWhenExpandingGitMaterialForScheduling(@TempDir Path tempDir) throws Exception {
+        systemProperties.set(GitCommand.GIT_SUBMODULE_ALLOW_FILE_PROTOCOL, "Y");
         GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(tempDir);
         submoduleRepos.addSubmodule("submodule-1", "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());

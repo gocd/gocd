@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "license": "Apache-2.0",
   "scripts": {
-    "webpack-watch": "webpack --config webpack/config/webpack.config.ts --color --mode=development --watch",
-    "webpack-dev": "webpack --config webpack/config/webpack.config.ts --color --mode=development",
-    "webpack-prod": "webpack --config webpack/config/webpack.config.ts --color --mode=production",
+    "webpack-watch": "NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack/config/webpack.config.ts --color --mode=development --watch",
+    "webpack-dev": "NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack/config/webpack.config.ts --color --mode=development",
+    "webpack-prod": "NODE_OPTIONS=--openssl-legacy-provider webpack --config webpack/config/webpack.config.ts --color --mode=production",
     "jasmine-ci": "karma start --single-run",
     "jasmine-server": "karma start",
     "jasmine-old-ci": "jasmine-browser-runner runSpecs --config=spec/javascripts/support/jasmine-browser.js",

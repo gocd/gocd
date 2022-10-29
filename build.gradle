@@ -169,10 +169,10 @@ project.ext.toolchains = [
 project.ext.packaging = [
   adoptiumJavaVersion: new AdoptiumVersion(
     feature: 17,
-    interim: 0, // set to `null` for the first release of a new featureVersion
-    update : 4, // set to `null` for the first release of a new featureVersion
-    patch  : 1, // set to `null` for most releases. Patch releases are "exceptional".
-    build  : 1
+    interim: 0,    // set to `null` for the first release of a new featureVersion
+    update : 5,    // set to `null` for the first release of a new featureVersion
+    patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
+    build  : 8
   )
 ]
 

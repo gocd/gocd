@@ -39,7 +39,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -500,7 +499,7 @@ class BuildWorkTest {
     }
 
     @Test
-    @Disabled(value = "As of Oct 2022 nant currently cant be downloaded for installation")
+    @EnabledOnOs(OS.WINDOWS)
     void nantTest() throws Exception {
         buildWork = getWork(NANT, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));

@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -38,13 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class P4MaterialTest extends P4MaterialTestBase {
-
-    @Override
-    protected P4TestRepo createTestRepo() throws Exception {
-        P4TestRepo repo = P4TestRepo.createP4TestRepo(tempDir, clientFolder);
-        repo.onSetup();
-        return repo;
-    }
 
     @Test
     void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() throws IOException {
@@ -76,6 +68,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
     @Test
     void shouldGenerateTheSameP4ClientValueForCommandAndEnvironment() throws Exception {
+        File workingDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
 
         P4Material p4Material = new P4Material("server:10", "out-of-the-window");
         ReflectionUtil.setField(p4Material, "folder", "crapy_dir");

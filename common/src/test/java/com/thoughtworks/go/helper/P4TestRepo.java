@@ -28,7 +28,6 @@ import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -74,9 +73,10 @@ public class P4TestRepo extends TestRepo {
     }
 
     @Override
-    public void onSetup() throws Exception {
+    public P4TestRepo onSetup() {
         p4dProcess = startP4dInRepo(tempRepo);
         waitForP4dToStartup();
+        return this;
     }
 
     @Override
@@ -84,10 +84,6 @@ public class P4TestRepo extends TestRepo {
         return createMaterial();
     }
 
-    private void waitForP4dToStartup() {
-        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "info").withEncoding(UTF_8);
-        command.waitForSuccess(60 * 1000);
-    }
 
     @Override
     public void tearDown() {
@@ -126,16 +122,19 @@ public class P4TestRepo extends TestRepo {
         return createMaterial().latestModification(workingDir, new TestSubprocessExecutionContext());
     }
 
-    public void stop() {
-        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "admin", "stop").withEncoding(UTF_8);
-        ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        command.run(outputStreamConsumer, null);
-    }
-
     private ProcessWrapper startP4dInRepo(File tempRepo) {
         CommandLine command = createCommandLine("p4d").withArgs("-C0", "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port)).withEncoding(UTF_8);
-        ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        return command.execute(outputStreamConsumer, new EnvironmentVariableContext(), null);
+        return command.execute(inMemoryConsumer(), new EnvironmentVariableContext(), null);
+    }
+
+    private void waitForP4dToStartup() {
+        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "info").withEncoding(UTF_8);
+        command.waitForSuccess(60 * 1000);
+    }
+
+    public void stopP4d() {
+        CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "admin", "stop").withEncoding(UTF_8);
+        command.run(inMemoryConsumer(), null);
     }
 
     public String serverAndPort() {

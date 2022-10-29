@@ -48,8 +48,8 @@ public abstract class TestRepo {
 
     public abstract List<Modification> latestModification() throws IOException;
 
-    public void onSetup() throws Exception {
-
+    public TestRepo onSetup() {
+        return null;
     }
 
     public abstract Material material();

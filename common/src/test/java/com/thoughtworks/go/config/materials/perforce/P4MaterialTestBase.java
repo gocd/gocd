@@ -112,7 +112,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
                     .hasSize(2);
             assertThat(outputconsumer.getStdOut()).contains("Working directory has changed. Deleting and re-creating it.");
         } finally {
-            secondTestRepo.stop();
+            secondTestRepo.stopP4d();
             secondTestRepo.tearDown();
         }
     }

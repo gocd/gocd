@@ -27,28 +27,28 @@ import java.io.File;
 import java.nio.file.Path;
 
 public abstract class PerforceFixture {
+    public static final String DEFAULT_CLIENT_NAME = "p4test_1";
+
     protected P4Client p4;
     protected File clientFolder;
-    public static final String DEFAULT_CLIENT_NAME = "p4test_1";
     protected P4Fixture p4Fixture;
     protected InMemoryStreamConsumer outputconsumer;
 
     @TempDir
     protected Path tempDir;
 
-    protected File workingDir;
-
     @BeforeEach
     public void setUp() throws Exception {
         p4Fixture = new P4Fixture();
         clientFolder = TempDirUtils.createTempDirectoryIn(tempDir, "p4Client").toFile();
-        p4Fixture.setRepo(createTestRepo());
+        p4Fixture.setRepo(createTestRepo().onSetup());
         outputconsumer = ProcessOutputStreamConsumer.inMemoryConsumer();
         p4 = p4Fixture.createClient();
-        workingDir = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
     }
 
-    protected abstract P4TestRepo createTestRepo() throws Exception;
+    protected P4TestRepo createTestRepo() throws Exception {
+        return P4TestRepo.createP4TestRepo(tempDir, clientFolder);
+    }
 
     @AfterEach
     public void stopP4Server() {

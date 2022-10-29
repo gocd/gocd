@@ -21,8 +21,8 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.materials.perforce.PerforceFixture;
 import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -30,8 +30,10 @@ import com.thoughtworks.go.server.messaging.StubScheduleCheckCompletedListener;
 import com.thoughtworks.go.server.scheduling.ScheduleCheckCompletedTopic;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.TempDirUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +54,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         "classpath:/spring-all-servlet.xml",
 })
 public class ChangeMaterialsTest {
-
-    @TempDir
-    private static Path tempDir;
+    private static final String DEV_STAGE = "dev";
+    private static final String FT_STAGE = "ft";
+    private static final String PIPELINE_NAME = "mingle";
 
     @Autowired
     private ScheduleService scheduleService;
@@ -73,27 +75,12 @@ public class ChangeMaterialsTest {
     private GoConfigFileHelper cruiseConfig;
 
     private PipelineConfig mingle;
-    private static final String DEV_STAGE = "dev";
-    private static final String FT_STAGE = "ft";
+
     private Pipeline pipeline;
     private HgTestRepo hgTestRepo;
-    private static P4TestRepo p4TestRepo;
-    private static final String PIPELINE_NAME = "mingle";
+
     private Username username;
     private StubScheduleCheckCompletedListener listener;
-
-
-    @BeforeAll
-    public static void startP4Server() throws Exception {
-        p4TestRepo = P4TestRepo.createP4TestRepo(tempDir, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
-        p4TestRepo.onSetup();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        p4TestRepo.stop();
-        p4TestRepo.tearDown();
-    }
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -147,19 +134,28 @@ public class ChangeMaterialsTest {
         assertEquals(hgTestRepo.latestModifications().get(0).getModifiedTime(), materialRevisions.getDateOfLatestModification());
     }
 
-    @Test
-    public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
-        String p4view = "//depot/... //localhost/...";
-        cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4TestRepo.materialConfig(p4view));
-        mingle = goConfigDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
+    @Nested
+    @ContextConfiguration(locations = { // Duplicated from parent, as SpringExtension for Spring 4 doesn't handle this properly
+        "classpath:/applicationContext-global.xml",
+        "classpath:/applicationContext-dataLocalAccess.xml",
+        "classpath:/testPropertyConfigurer.xml",
+        "classpath:/spring-all-servlet.xml",
+    })
+    class Perforce extends PerforceFixture {
 
-        assertThat(mingle.materialConfigs().get(0), is(instanceOf(P4MaterialConfig.class)));
+        @Test
+        public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
+            cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4Fixture.materialConfig("//depot/... //localhost/..."));
+            mingle = goConfigDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));
 
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(PIPELINE_NAME, username);
+            assertThat(mingle.materialConfigs().get(0), is(instanceOf(P4MaterialConfig.class)));
 
-        scheduleService.autoSchedulePipelinesFromRequestBuffer();
-        Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
-        assertThat(mostRecent.getMaterials().first(), is(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().first())));
+            scheduleHelper.manuallySchedulePipelineWithRealMaterials(PIPELINE_NAME, username);
+
+            scheduleService.autoSchedulePipelinesFromRequestBuffer();
+            Pipeline mostRecent = pipelineService.mostRecentFullPipelineByName(PIPELINE_NAME);
+            assertThat(mostRecent.getMaterials().first(), is(new MaterialConfigConverter().toMaterial(mingle.materialConfigs().first())));
+        }
     }
 
 }

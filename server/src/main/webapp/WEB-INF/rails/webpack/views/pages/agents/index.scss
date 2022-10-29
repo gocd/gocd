@@ -87,16 +87,23 @@ $dropdown-button-content-z-index: 5;
     height: 100%;
   }
 
+  table tbody tr {
+    height: 30px;
+  }
+
   table tbody td {
     padding: 0;
     display: table-cell;
     vertical-align: middle;
-    height: 24px;
+    height: inherit;
   }
 
   table tbody .table-cell {
     padding: 10px;
-    height: 100%;
+    height: inherit;
+    line-height: 100%;
+    overflow: hidden;
+    word-break: break-word;
   }
 }
 

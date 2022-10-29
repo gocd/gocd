@@ -18,16 +18,31 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.nio.file.Path;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+@ExtendWith(SystemStubsExtension.class)
 public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDatabaseUpdater {
+
+    @SystemStub
+    static SystemProperties systemProperties;
+
+    @BeforeAll
+    public static void setUpAll() {
+        systemProperties.set(GitCommand.GIT_SUBMODULE_ALLOW_FILE_PROTOCOL, "Y");
+    }
 
     @Override
     protected Material material() {

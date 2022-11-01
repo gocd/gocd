@@ -24,7 +24,16 @@ class DistroVersion implements Serializable {
   List<String> installPrerequisitesCommands = []
 
   boolean isAboutToEol() {
-    return eolDate.before(new Date() + 95)
+    return eolDate.before(new Date() + 180)
+  }
+
+  boolean isEol() {
+    return eolDate.before(new Date())
+  }
+
+  boolean isPastEolGracePeriod() {
+    // Allow a 30 day grace period after EOL where we can keep building
+    return eolDate.before(new Date() - 30)
   }
 
   boolean lessThan(int target) {

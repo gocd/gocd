@@ -183,8 +183,6 @@ GEM
     sass-embedded (1.55.0)
       google-protobuf (~> 3.19)
       rake (>= 10.0.0)
-    sass-embedded (1.55.0-x86_64-linux-gnu)
-      google-protobuf (~> 3.19)
     sassc-embedded (1.54.0)
       sass-embedded (~> 1.54)
       sassc (~> 2.0)
@@ -218,7 +216,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.6.3)
+    zeitwerk (2.6.4)
 
 PLATFORMS
   java

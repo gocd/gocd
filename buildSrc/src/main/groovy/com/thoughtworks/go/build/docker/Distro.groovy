@@ -108,7 +108,10 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
-      def commands = ['yum update -y']
+      def commands = [
+        'yum update -y',
+        'yum upgrade -y',
+      ]
 
       String git = gitPackageFor(v)
       commands.add(
@@ -160,6 +163,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         'apt-get update',
+        'apt-get upgrade -y',
         'apt-get install -y git subversion mercurial openssh-client bash unzip curl ca-certificates locales procps sysvinit-utils coreutils',
         'apt-get clean all',
         'rm -rf /var/lib/apt/lists/*',

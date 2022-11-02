@@ -109,22 +109,23 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       def commands = [
-        'yum update -y',
-        'yum upgrade -y',
+        'dnf update -y',
+        'dnf upgrade -y',
       ]
 
       String git = gitPackageFor(v)
-      commands.add(
-        "yum install -y ${git} mercurial subversion openssh-clients bash unzip procps" +
+      commands += "dnf install -y ${git} mercurial subversion openssh-clients bash unzip procps" +
           (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
           (v.lessThan(9) ? ' curl' : ' curl-minimal')
-      )
 
       if (v.lessThan(8)) {
-        commands.add("cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh")
+        commands += "cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh"
       }
 
-      commands.add('yum clean all')
+      commands += [
+        'dnf clean all',
+        'rm -rf /var/cache/dnf'
+      ]
 
       return commands
     }
@@ -151,9 +152,9 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
-        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en']),
-        new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en epel-release']),
+        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'), installPrerequisitesCommands: ['dnf install --assumeyes centos-release-scl-rh']),
+        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['dnf install --assumeyes glibc-langpack-en']),
+        new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['dnf install --assumeyes glibc-langpack-en epel-release']),
       ]
     }
   },

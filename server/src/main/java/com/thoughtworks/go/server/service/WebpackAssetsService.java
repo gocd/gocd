@@ -100,7 +100,7 @@ public class WebpackAssetsService implements ServletContextAware {
         File manifestFile = new File(servletContext.getRealPath(servletContext.getInitParameter("rails.root") + "/public/assets/webpack/manifest.json"));
 
         if (!manifestFile.exists()) {
-            throw new RuntimeException("Could not load compiled manifest from 'webpack/manifest.json' - have you run `rake webpack:compile`?");
+            throw new RuntimeException("Could not load compiled manifest from 'webpack/manifest.json' - have you run `./gradlew prepare` OR `./gradlew compileAssetsWebpackDev` since last clean?");
         }
 
         Gson gson = new Gson();

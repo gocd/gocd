@@ -144,10 +144,10 @@ public class WebpackAssetsServiceTest {
     }
 
     @Test
-    public void shouldBlowUpIfManifestIsNotFound() throws IOException {
+    public void shouldBlowUpIfManifestIsNotFound() {
         assertThatThrownBy(() -> webpackAssetsService.getAssetPaths("junk"))
                 .isExactlyInstanceOf(RuntimeException.class)
-                .hasMessage("Could not load compiled manifest from 'webpack/manifest.json' - have you run `rake webpack:compile`?");
+                .hasMessageContaining("Could not load compiled manifest from 'webpack/manifest.json' - have you run");
     }
 
     @Test

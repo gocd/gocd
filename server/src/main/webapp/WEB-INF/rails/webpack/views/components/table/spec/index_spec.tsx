@@ -16,6 +16,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {asSelector} from "../../../../helpers/css_proxies";
 import {SortOrder, Table, TableSortHandler} from "../index";
 import styles from "../index.scss";
 
@@ -23,6 +24,7 @@ describe("TableComponent", () => {
   const helper  = new TestHelper();
   const headers = ["Col1", "Col2", <label>Col3</label>];
   const data    = [[1, 2, "something"], [true, "two", null]];
+  const sel = asSelector(styles);
 
   afterEach(helper.unmount.bind(helper));
 
@@ -57,8 +59,8 @@ describe("TableComponent", () => {
       const testData = getTestData();
       mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(helper.qa(`.${styles.sortButton}`)).toHaveLength(1);
-      expect(helper.q(`.${styles.sortButton}`).parentElement).toHaveText("Col-1");
+      expect(helper.qa(sel.sortButton)).toHaveLength(1);
+      expect(helper.q(sel.sortButton).parentElement).toHaveText("Col-1");
     });
 
     it("should call handler to sort data", () => {
@@ -67,7 +69,7 @@ describe("TableComponent", () => {
 
       expect(helper.textAllByTestId("table-row")).toEqual(initialOrderOfData);
 
-      helper.click(`.${styles.sortableColumn}`);
+      helper.click(sel.sortableColumn);
 
       expect(helper.textAllByTestId("table-row")).toEqual(ascendingOrder);
     });
@@ -78,11 +80,11 @@ describe("TableComponent", () => {
 
       expect(helper.textAllByTestId("table-row")).toEqual(initialOrderOfData);
 
-      helper.click(`.${styles.sortableColumn}`);
+      helper.click(sel.sortableColumn);
 
       expect(helper.textAllByTestId("table-row")).toEqual(ascendingOrder);
 
-      helper.click(`.${styles.sortableColumn}`);
+      helper.click(sel.sortableColumn);
 
       expect(helper.textAllByTestId("table-row")).toEqual(descendingOrder);
     });
@@ -90,17 +92,17 @@ describe("TableComponent", () => {
     it("should highlight current sorted column", () => {
       const testData = getTestData();
       mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0, 1]));
-      expect(helper.q(`.${styles.sortButton}`)).toHaveClass(styles.inActive);
+      expect(helper.q(sel.sortButton)).toHaveClass(styles.inActive);
 
-      helper.click(`.${styles.sortableColumn}`);
+      helper.click(sel.sortableColumn);
 
-      expect(helper.qa(`.${styles.sortButton}`).item(0)).not.toHaveClass(styles.inActive);
-      expect(helper.qa(`.${styles.sortButton}`).item(1)).toHaveClass(styles.inActive);
+      expect(helper.qa(sel.sortButton).item(0)).not.toHaveClass(styles.inActive);
+      expect(helper.qa(sel.sortButton).item(1)).toHaveClass(styles.inActive);
 
-      helper.click(helper.qa(`.${styles.sortableColumn}`).item(1));
+      helper.click(helper.qa(sel.sortableColumn).item(1));
 
-      expect(helper.qa(`.${styles.sortButton}`).item(0)).toHaveClass(styles.inActive);
-      expect(helper.qa(`.${styles.sortButton}`).item(1)).not.toHaveClass(styles.inActive);
+      expect(helper.qa(sel.sortButton).item(0)).toHaveClass(styles.inActive);
+      expect(helper.qa(sel.sortButton).item(1)).not.toHaveClass(styles.inActive);
     });
   });
 
@@ -108,17 +110,17 @@ describe("TableComponent", () => {
     it("should have a drag icon for each row if draggable to set to true", () => {
       mount(headers, getTestData()(), undefined, true);
 
-      expect(helper.q(`.${styles.draggable}`)).toBeInDOM();
+      expect(helper.q(sel.draggable)).toBeInDOM();
 
-      expect(helper.q(`.${styles.dragIcon}`)).toBeInDOM();
-      expect(helper.qa(`.${styles.dragIcon}`).length).toBe(3);
+      expect(helper.q(sel.dragIcon)).toBeInDOM();
+      expect(helper.qa(sel.dragIcon).length).toBe(3);
     });
 
     it("should not have a drag icon for each row if draggable is set to false", () => {
       mount(headers, getTestData()(), undefined, false);
 
-      expect(helper.q(`.${styles.draggable}`)).toBeFalsy();
-      expect(helper.q(`.${styles.dragIcon}`)).toBeFalsy();
+      expect(helper.q(sel.draggable)).toBeFalsy();
+      expect(helper.q(sel.dragIcon)).toBeFalsy();
     });
 
     it("should give a callback on dragover", () => {
@@ -146,7 +148,7 @@ describe("TableComponent", () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(0, 1);
-      expect(helper.q(`.${styles.draggableOver}`)).toBeInDOM();
+      expect(helper.q(sel.draggableOver)).toBeInDOM();
 
       rowFirst.dispatchEvent(new DragEvent("dragend"));
       m.redraw.sync();

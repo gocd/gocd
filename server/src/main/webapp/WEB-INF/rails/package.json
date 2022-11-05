@@ -132,6 +132,7 @@
   },
   "resolutions": {
     "**/chokidar/**/glob-parent": ">=6.0.2",
-    "html-webpack-plugin/**/ansi-regex": "^5.0.1"
+    "html-webpack-plugin/**/ansi-regex": "^5.0.1",
+    "**/loader-utils": "^2.0.3"
   }
 }

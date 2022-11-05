@@ -62,6 +62,7 @@ resources-generated/
 
 go.feature.toggles
 /build/
+node_modules/
 agent-bootstrapper/.tmp.file.list
 agent-bootstrapper/logs/
 agent-bootstrapper/out/

@@ -19,8 +19,9 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import headerStyles from "views/components/header_panel/index.scss";
+import {asSelector} from "../../../helpers/css_proxies";
 
-const headerSelector = `.${headerStyles.pageHeader}`;
+const headerSelector = asSelector(headerStyles).pageHeader;
 
 interface Attrs {
   id: string;

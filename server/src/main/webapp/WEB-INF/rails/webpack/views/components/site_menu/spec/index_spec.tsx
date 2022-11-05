@@ -17,11 +17,13 @@ import m from "mithril";
 import {Attrs, SiteMenu} from "views/components/site_menu/index";
 import styles from "views/components/site_menu/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {asSelector} from "../../../../helpers/css_proxies";
 
 describe("Site Menu", () => {
 
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
+  const sel = asSelector(styles);
 
   it("should display the menus for an admin", () => {
     mount({
@@ -63,8 +65,8 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/roles")).toHaveText("Role configuration");
     expect(findMenuItem("/go/admin/admin_access_tokens")).toHaveText("Access Tokens Management");
     expect(findMenuItem("/go/admin/scms")).toHaveText("Pluggable SCMs");
-    expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(5);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(18);
+    expect(helper.qa(`a${sel.siteNavLink}`)).toHaveLength(5);
+    expect(helper.qa(`a${sel.siteSubNavLink}`)).toHaveLength(18);
   });
 
   it("should display the menus for users who can view templates", () => {
@@ -103,8 +105,8 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
     expect(findMenuItem("/go/admin/scms")).toBeFalsy();
-    expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(5);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(4);
+    expect(helper.qa(`a${sel.siteNavLink}`)).toHaveLength(5);
+    expect(helper.qa(`a${sel.siteSubNavLink}`)).toHaveLength(4);
   });
 
   it("should display the menus for Group Admins", () => {
@@ -143,8 +145,8 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
     expect(findMenuItem("/go/admin/scms")).toHaveText("Pluggable SCMs");
-    expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(5);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(9);
+    expect(helper.qa(`a${sel.siteNavLink}`)).toHaveLength(5);
+    expect(helper.qa(`a${sel.siteSubNavLink}`)).toHaveLength(9);
   });
 
   it("should not show analytics when the attribute is passed as false", () => {
@@ -193,7 +195,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
     expect(findMenuItem("/go/admin/scms")).toBeFalsy();
 
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(3);
+    expect(helper.qa(`a${sel.siteSubNavLink}`)).toHaveLength(3);
   });
 
   function mount(menuAttrs: Attrs) {

@@ -60,7 +60,7 @@ export function remapCss<T extends {}>(obj: T, transform: (key: KeysOf<T>) => ma
  * console.log(sel.myClass);    // ".my-class"
  */
 export function asSelector<T extends {}>(obj: T): T {
-  return remapCss<T>(obj, (key: keyof T) => `.${obj[key]}`);
+  return remapCss<T>(obj, (key: keyof T) => `.${CSS.escape(obj[key] as string)}`);
 }
 
 /**

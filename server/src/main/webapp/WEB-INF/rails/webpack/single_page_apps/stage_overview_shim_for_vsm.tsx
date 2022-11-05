@@ -57,7 +57,7 @@ $(() => {
       };
 
       // @ts-ignore
-      const totalWidth = new Array(...document.querySelector(`#${pipelineName}`).classList).indexOf("current") !== -1 ? 237 : 192;
+      const totalWidth = new Array(...document.querySelector(`#${CSS.escape(pipelineName)}`).classList).indexOf("current") !== -1 ? 237 : 192;
       const spaceBetweenStages = 4;
       const initialLeftPosition = -36;
 

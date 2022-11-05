@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 import classnames from "classnames";
-import { writeText } from "clipboard-polyfill";
-import { RestyleAttrs, RestyleViewComponent } from "jsx/mithril-component";
+import {writeText} from "clipboard-polyfill";
+import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import { asPromise } from "models/base/accessor";
-import { EventAware } from "models/mixins/event_aware";
+import {asPromise} from "models/base/accessor";
+import {EventAware} from "models/mixins/event_aware";
+import {asSelector} from "../../../helpers/css_proxies";
 import * as defaultStyles from "./index.scss";
 
 type Styles = typeof defaultStyles;
@@ -198,7 +199,7 @@ export class CopySnippet extends RestyleViewComponent<Styles, Attrs> {
   indicate = false;
 
   oncreate(vnode: m.VnodeDOM<Attrs>) {
-    vnode.dom.querySelector(`.${this.css.snippet}`)!.addEventListener("click", (e) => {
+    vnode.dom.querySelector(`${asSelector(this.css).snippet}`)!.addEventListener("click", (e) => {
       const range = document.createRange();
       range.selectNodeContents(e.currentTarget as Node);
 

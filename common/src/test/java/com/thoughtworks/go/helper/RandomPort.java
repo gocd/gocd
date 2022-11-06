@@ -44,19 +44,10 @@ public class RandomPort {
     }
 
     private boolean isAvailable(int port) {
-        Socket socket = null;
-        try {
-            socket = new Socket("127.0.0.1", port);
+        try (Socket ignored = new Socket("127.0.0.1", port)) {
             return false;
         } catch (IOException e) {
             return true;
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 
@@ -83,26 +74,8 @@ public class RandomPort {
             }
             try {
                 Thread.sleep(100L);
-            } catch (InterruptedException e) {
-
-            }
-        }
-    }
-
-    public static void waitForPortToBeFree(int port, long timeout) {
-        instance().waitForPortFreePort(port, timeout);
-    }
-
-    private void waitForPortFreePort(int port, long timeout) {
-        long start = System.currentTimeMillis();
-        while (!isAvailable(port)) {
-            if ((System.currentTimeMillis() - start) > timeout) {
-                throw new RuntimeException("Timed out");
-            }
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-
+            } catch (InterruptedException ignore) {
+                Thread.currentThread().interrupt();
             }
         }
     }

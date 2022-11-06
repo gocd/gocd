@@ -36,16 +36,6 @@
 
   <suppress>
     <notes><![CDATA[
-   This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.32 according to devs and NIST NVD,
-   raised, but which OSSIndex folks do not consider "fully fixed". See https://github.com/OSSIndex/vulns/issues/328
-   Regardless, GoCD is not affected as `allowRecurseKeys` is not enabled by GoCD or its dependencies.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-    <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
     separately and which is not used within GoCD.
     ]]></notes>

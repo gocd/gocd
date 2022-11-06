@@ -34,6 +34,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class SvnRemoteRepository {
+    private static final String HOST = "127.0.0.1";
+    
     public SvnTestRepo repo;
     public ProcessWrapper processWrapper;
     public InMemoryStreamConsumer consumer;
@@ -50,10 +52,12 @@ public class SvnRemoteRepository {
 
         port = RandomPort.find(toString());
         CommandLine svnserve = CommandLine.createCommandLine("svnserve")
-                .withArgs("-d", "--foreground", "--listen-port", Integer.toString(port), "-r", repo.projectRepositoryRoot().getCanonicalPath())
-                .withEncoding(StandardCharsets.UTF_8);
+            .withArgs("-d", "--foreground")
+            .withArgs("--listen-host", HOST, "--listen-port", Integer.toString(port))
+            .withArgs("-r", repo.projectRepositoryRoot().getCanonicalPath())
+            .withEncoding(StandardCharsets.UTF_8);
         consumer = inMemoryConsumer();
-        processWrapper = svnserve.execute(consumer, new EnvironmentVariableContext(),null);
+        processWrapper = svnserve.execute(consumer, new EnvironmentVariableContext(), null);
 
         RandomPort.waitForPort(port);
 
@@ -76,16 +80,17 @@ public class SvnRemoteRepository {
     private void enableAuthentication() throws IOException {
         File confFile = new File(repo.projectRepositoryRoot(), "conf/svnserve.conf");
         String passwd = "[general]\n"
-                + "anon-access = none\n"
-                + "auth-access = read\n"
-                + "auth-access = write\n"
-                + "password-db = passwd\n";
+            + "anon-access = none\n"
+            + "auth-access = read\n"
+            + "auth-access = write\n"
+            + "password-db = passwd\n";
         FileUtils.writeStringToFile(confFile, passwd, UTF_8);
     }
 
     public void stop() throws Exception {
         if (processWrapper != null) {
             Process process = (Process) ReflectionUtil.getField(processWrapper, "process");
+            process.descendants().forEach(ProcessHandle::destroy);
             process.destroy();
             processWrapper.waitForExit();
             processWrapper = null;
@@ -93,6 +98,6 @@ public class SvnRemoteRepository {
     }
 
     public String getUrl() {
-        return "svn://127.0.0.1:" + port;
+        return String.format("svn://%s:%d", HOST, port);
     }
 }

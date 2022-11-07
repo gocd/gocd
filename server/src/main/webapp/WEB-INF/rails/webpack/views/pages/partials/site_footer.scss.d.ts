@@ -18,5 +18,4 @@ export const social: string;
 export const sourceRoot: string;
 export const sources: string;
 export const sourcesContent: string;
-export const twitter: string;
 export const version: string;

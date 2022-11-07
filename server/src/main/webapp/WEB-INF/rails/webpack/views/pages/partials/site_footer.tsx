@@ -48,7 +48,6 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       </div>
       <div class={styles.right}>
         <div class={styles.social}>
-          <a href="https://twitter.com/goforcd" title="twitter" rel="noopener noreferrer" class={styles.twitter} target="_blank"/>
           <a href="https://github.com/gocd/gocd" title="github" rel="noopener noreferrer" class={styles.github} target="_blank"/>
           <a href="https://groups.google.com/d/forum/go-cd" rel="noopener noreferrer" title="forums" class={styles.forums} target="_blank"/>
           <a href={docsUrl()} title="documentation" class={styles.documentation}

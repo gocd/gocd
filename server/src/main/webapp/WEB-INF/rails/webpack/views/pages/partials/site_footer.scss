@@ -98,10 +98,6 @@ $maintenance-mode-banner-message-font-size: 17px;
     @include icon-before($type: $icon, $color: $icon-color, $size: 16px, $line-height: 1.5rem);
   }
 
-  &.twitter {
-    @include footer-icon($icon: $fa-var-twitter);
-  }
-
   &.github {
     @include footer-icon($icon: $fa-var-github);
   }

@@ -16,7 +16,7 @@
 @import "../../global/common";
 
 $indent-width: 15px;
-$under-label-indent-width: (2 * $indent-width) / 3;
+$under-label-indent-width: calc((2 * $indent-width) / 3);
 $tree-connector-color: #ddd;
 $tick-width: $under-label-indent-width;
 $selected-color: #d2ebf0;

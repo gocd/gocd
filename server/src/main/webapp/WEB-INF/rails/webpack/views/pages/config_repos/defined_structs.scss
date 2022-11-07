@@ -20,7 +20,7 @@
 $inline-radius: 4px;
 $inline-spacing: 20px;
 $arrow-size: 6px;
-$arrow-horiz: ($arrow-size + $inline-spacing) / 2;
+$arrow-horiz: calc(($arrow-size + $inline-spacing) / 2);
 $stage-color: #4ad9d9;
 $fg-color: #023550;
 $label-color-group: #dee;

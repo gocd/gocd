@@ -17,17 +17,12 @@ package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.command.CommandLine;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
-import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -36,66 +31,33 @@ public class CommandBuilderScriptRunnerTest extends AbstractCommandBuilderScript
 
     @Nested
     @EnabledOnOs(OS.WINDOWS)
-    class WindowsCorrectedQuotingStrategy {
+    class Windows {
         @ParameterizedTest
         @ValueSource(strings = {DIR_WINDOWS, DIR_WINDOWS_QUOTED, DIR_PROGRAM_FILES_QUOTED})
         void commandInSpacePathCanRunArgsWithSpacesAndQuotes(String attribArg) throws Exception {
-            doPossiblyQuotedArgsTest(executableWithPathSpaces(ATTRIB).toString(), attribArg);
+            assertThatExecutableOutputIncludesArgs(executableWithPathSpaces(ATTRIB_WINDOWS).toString(), attribArg);
         }
 
         @Test
         void commandInSpacePathCanRunMultipleArgsInclSpaces() throws Exception {
             List<String> paths = createTestFoldersIn();
             String[] pathsAsStrings = paths.stream().map(s -> '"' + s + '"').toArray(String[]::new);
-            doPossiblyQuotedArgsTest(executableWithPathSpaces(TAR).toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
+            assertThatExecutableOutputIncludesArgs(executableWithPathSpaces(TAR_WINDOWS).toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
         }
 
         @ParameterizedTest
         @ValueSource(strings = {DIR_WINDOWS, DIR_WINDOWS_QUOTED, DIR_PROGRAM_FILES_QUOTED})
         void commandInNormalPathCanRunArgsWithSpacesAndQuotes(String attribArg) throws Exception {
-            doPossiblyQuotedArgsTest(ATTRIB.toString(), attribArg);
+            assertThatExecutableOutputIncludesArgs(ATTRIB_WINDOWS.toString(), attribArg);
         }
 
         @Test
         void commandInNormalPathCanRunMultipleArgsInclSpaces() throws Exception {
             List<String> paths = createTestFoldersIn();
             String[] pathsAsStrings = paths.stream().map(s -> '"' + s + '"').toArray(String[]::new);
-            doPossiblyQuotedArgsTest(TAR.toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
+            assertThatExecutableOutputIncludesArgs(TAR_WINDOWS.toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
         }
     }
-
-    @Nested
-    @EnabledOnOs(OS.WINDOWS)
-    @ExtendWith(SystemStubsExtension.class)
-    class WindowsLegacyQuotingStrategy {
-        @SystemStub
-        SystemProperties props;
-
-        @BeforeEach
-        void enableLegacyWindowsProps() {
-            props.set(BaseCommandBuilder.QUOTE_ALL_WINDOWS_ARGS, "N");
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {DIR_WINDOWS})
-        void commandInSpacePathCanRunArgsWithoutSpacesOrQuotes(String attribArg) throws Exception {
-            doPossiblyQuotedArgsTest(executableWithPathSpaces(ATTRIB).toString(), attribArg);
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {DIR_WINDOWS, DIR_WINDOWS_QUOTED, DIR_PROGRAM_FILES_QUOTED})
-        void commandInNormalPathCanRunArgsWithSpacesAndQuotes(String attribArg) throws Exception {
-            doPossiblyQuotedArgsTest(ATTRIB.toString(), attribArg);
-        }
-
-        @Test
-        void commandInNormalPathCanRunMultipleArgsInclSpaces() throws Exception {
-            List<String> paths = createTestFoldersIn();
-            String[] pathsAsStrings = paths.stream().map(s -> '"' + s + '"').toArray(String[]::new);
-            doPossiblyQuotedArgsTest(TAR.toString(), new String[] { "-cvf", "test.tar"}, pathsAsStrings);
-        }
-    }
-
 
     @Override
     CommandLine commandFor(String executableLocation, String... executableArgs) {

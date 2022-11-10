@@ -28,11 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class BaseCommandBuilder extends Builder {
-    static final String QUOTE_ALL_WINDOWS_ARGS = "toggle.agent.windows.command.quote.all.args";
     private static final Logger LOG = LoggerFactory.getLogger(BaseCommandBuilder.class);
 
     protected String command;
@@ -92,10 +89,10 @@ public abstract class BaseCommandBuilder extends Builder {
         if (SystemUtils.IS_OS_WINDOWS) {
             return CommandLine.createCommandLine("cmd")
                     .withWorkingDir(workingDir)
-                    .withArgs(windowsCmdArgsStart())
+                    .withArgs("/s", "/c", "\"")
                     .withArg(translateToWindowsPath(this.command))
                     .withArgs(argList())
-                    .withArgs(windowsCmdArgsEnd());
+                    .withArg("\"");
         } else {
             return CommandLine.createCommandLine(this.command)
                     .withWorkingDir(workingDir)
@@ -120,22 +117,6 @@ public abstract class BaseCommandBuilder extends Builder {
                 ", workingDir=" + workingDir +
                 ", errorString='" + errorString + '\'' +
                 "} " + super.toString();
-    }
-
-    private List<String> windowsCmdArgsStart() {
-        return shouldQuoteAllWindowsArgs()
-                ? List.of("/s", "/c", "\"")
-                : List.of("/c");
-    }
-
-    private List<String> windowsCmdArgsEnd() {
-        return shouldQuoteAllWindowsArgs()
-                ? List.of("\"")
-                : Collections.emptyList();
-    }
-
-    private boolean shouldQuoteAllWindowsArgs() {
-        return "Y".equalsIgnoreCase(System.getProperty(QUOTE_ALL_WINDOWS_ARGS, "Y"));
     }
 
     private String translateToWindowsPath(String command) {

@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractCommandBuilderScriptRunnerTest {
 
-    static final Path ATTRIB = Path.of("C:\\Windows\\system32\\attrib.exe");
-    static final Path TAR = Path.of("C:\\Windows\\system32\\tar.exe");
+    static final Path ATTRIB_WINDOWS = Path.of("C:\\Windows\\system32\\attrib.exe");
+    static final Path TAR_WINDOWS = Path.of("C:\\Windows\\system32\\tar.exe");
 
 
     static final String DIR_WINDOWS = "C:\\Windows";
@@ -56,11 +56,19 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
         return paths;
     }
 
-    protected void doPossiblyQuotedArgsTest(String executableLocation, String... executableArgs) throws CheckedCommandLineException {
-        doPossiblyQuotedArgsTest(executableLocation, new String[0], executableArgs);
+    protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String... executableArgs) throws CheckedCommandLineException {
+        assertThatExecutableOutputIncludesArgs(executableLocation, new String[0], executableArgs);
     }
 
-    protected void doPossiblyQuotedArgsTest(String executableLocation, String[] executableFlags, String... executableArgs) throws CheckedCommandLineException {
+    /**
+     * Executes the passed executable with the passed args, validating that the executable can be found invoked on the
+     * filesystem, and that the args were interpreted correctly, by assuming the executable will print the raw args
+     * somewhere in its output.
+     * <p/>
+     * Will likely only work correctly with certain executables or shell built-ins, such as `attrib`, `ls`, `dir`, `tar`
+     * etc that print their args in the output and can validate that the args were interpreted successfully.
+     */
+    protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String[] executableFlags, String... executableArgs) throws CheckedCommandLineException {
         ExecScript script = new ExecScript("");
         InMemoryConsumer output = new InMemoryConsumer();
         commandFor(executableLocation, ArrayUtils.addAll(executableFlags, executableArgs))

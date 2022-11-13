@@ -117,17 +117,17 @@ class SystemEnvironmentTest {
     @Test
     void shouldCacheArtifactDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
     }
 
     @Test
     void shouldClearCachedValuesOnSettingNewProperty() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(100L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(100L);
         systemEnvironment.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(50L);
+        assertThat(systemEnvironment.getArtifactRepositoryFullLimit()).isEqualTo(50L);
     }
 
     @Test

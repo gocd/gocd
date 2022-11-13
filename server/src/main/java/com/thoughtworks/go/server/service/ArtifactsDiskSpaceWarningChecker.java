@@ -38,7 +38,7 @@ public class ArtifactsDiskSpaceWarningChecker extends DiskSpaceChecker {
 
     @Override
     protected long limitInMb() {
-        return systemEnvironment.getArtifactReposiotryWarningLimit();
+        return systemEnvironment.getArtifactRepositoryWarningLimit();
     }
 
     @Override

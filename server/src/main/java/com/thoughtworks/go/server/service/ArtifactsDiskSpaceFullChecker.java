@@ -46,6 +46,6 @@ public class ArtifactsDiskSpaceFullChecker extends DiskSpaceChecker {
 
     @Override
     protected long limitInMb() {
-        return systemEnvironment.getArtifactReposiotryFullLimit();
+        return systemEnvironment.getArtifactRepositoryFullLimit();
     }
 }

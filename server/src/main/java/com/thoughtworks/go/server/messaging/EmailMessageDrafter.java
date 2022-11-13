@@ -62,15 +62,15 @@ public class EmailMessageDrafter {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         return new SendEmailMessage(
                 "Low artifacts disk space warning message from Go Server at " + ipAddress, String.format(
-                        LOW_ARTIFACTS_DISK_SPACE_EMAIL, ipAddress, systemEnvironment.getArtifactReposiotryWarningLimit(),
+                        LOW_ARTIFACTS_DISK_SPACE_EMAIL, ipAddress, systemEnvironment.getArtifactRepositoryWarningLimit(),
                         targetFolder,
-                        systemEnvironment.getArtifactReposiotryFullLimit()), adminMail);
+                        systemEnvironment.getArtifactRepositoryFullLimit()), adminMail);
     }
 
     public static SendEmailMessage noArtifactsDiskSpaceMessage(SystemEnvironment systemEnvironment, String adminMail,
                                                                String targetFolder) {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-        long size = systemEnvironment.getArtifactReposiotryFullLimit();
+        long size = systemEnvironment.getArtifactRepositoryFullLimit();
         return new SendEmailMessage(
                 "No artifacts disk space error message from Go Server at " + ipAddress, String.format(
                         NO_ARTIFACTS_DISK_SPACE_EMAIL, ipAddress, size, targetFolder), adminMail);

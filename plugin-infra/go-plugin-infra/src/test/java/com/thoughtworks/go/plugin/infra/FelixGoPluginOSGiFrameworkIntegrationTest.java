@@ -41,9 +41,10 @@ import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FelixGoPluginOSGiFrameworkIntegrationTest {
+    private static final String PLUGIN_ID = "testplugin.descriptorValidator";
     private FelixGoPluginOSGiFramework pluginOSGiFramework;
     private File descriptorBundleDir;
     private File errorGeneratingDescriptorBundleDir;
@@ -51,16 +52,13 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
     private File validMultipleExtensionPluginBundleDir;
     private File pluginToTestClassloadPluginBundleDir;
     private DefaultPluginRegistry registry;
-    private SystemEnvironment systemEnvironment;
-    private static final String PLUGIN_ID = "testplugin.descriptorValidator";
     private FileHelper temporaryFolder;
 
     @BeforeEach
     void setUp(@TempDir File rootDir) throws Exception {
         temporaryFolder = new FileHelper(rootDir);
         registry = new DefaultPluginRegistry();
-        systemEnvironment = new SystemEnvironment();
-        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
+        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
                 HashMap<String, String> config = super.generateOSGiFrameworkConfig();
@@ -107,20 +105,16 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
         ServiceReference<?>[] allServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), null);
         assertThat(allServiceReferences.length).isEqualTo(1);
 
-        try {
-            GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
-            service.pluginIdentifier();
-            assertThat(getIntField(service, "loadCalled")).as("@Load should have been called").isEqualTo(1);
-        } catch (Exception e) {
-            fail(String.format("pluginIdentifier should have been called. Exception: %s", e.getMessage()));
-        }
+        GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
+        service.pluginIdentifier();
+        assertThat(getIntField(service, "loadCalled")).as("@Load should have been called").isEqualTo(1);
     }
 
     private GoPluginDescriptor getPluginDescriptor(String pluginId, File descriptorBundleDir) {
         return GoPluginDescriptor.builder().id(pluginId)
-                .bundleLocation(descriptorBundleDir)
-                .isBundledPlugin(true)
-                .build();
+            .bundleLocation(descriptorBundleDir)
+            .isBundledPlugin(true)
+            .build();
     }
 
     @Test
@@ -136,12 +130,8 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
         ServiceReference<?>[] allServiceReferences = context.getServiceReferences(GoPlugin.class.getCanonicalName(), filterByPluginID);
         assertThat(allServiceReferences.length).isEqualTo(1);
 
-        try {
-            GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
-            service.pluginIdentifier();
-        } catch (Exception e) {
-            fail(String.format("pluginIdentifier should have been called. Exception: %s", e.getMessage()));
-        }
+        GoPlugin service = (GoPlugin) context.getService(allServiceReferences[0]);
+        service.pluginIdentifier();
     }
 
     @Test
@@ -158,13 +148,8 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
             return null;
         };
 
-        try {
-            pluginOSGiFramework.doOn(GoPlugin.class, PLUGIN_ID, "extension-1", action);
-            fail("Should Throw An Exception");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            assertThat(ex.getCause() instanceof AbstractMethodError).isTrue();
-        }
+        assertThatThrownBy(() -> pluginOSGiFramework.doOn(GoPlugin.class, PLUGIN_ID, "extension-1", action))
+            .hasCauseInstanceOf(AbstractMethodError.class);
     }
 
     @Test
@@ -237,7 +222,6 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     void shouldSetCurrentThreadContextClassLoaderToBundleClassLoaderToAvoidDependenciesFromApplicationClassloaderMessingAroundWithThePluginBehavior() {
-        systemEnvironment.setProperty("gocd.plugins.classloader.old", "false");
         final GoPluginDescriptor goPluginDescriptor = getPluginDescriptor("plugin.to.test.classloader", pluginToTestClassloadPluginBundleDir);
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(goPluginDescriptor);
         registry.loadPlugin(bundleDescriptor);
@@ -248,23 +232,6 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
             assertThat(pluginDescriptor).isEqualTo(goPluginDescriptor);
             assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName()).isEqualTo(BundleClassLoader.class.getCanonicalName());
             plugin.pluginIdentifier();
-            return null;
-        };
-        pluginOSGiFramework.doOn(GoPlugin.class, "plugin.to.test.classloader", "notification", action);
-    }
-
-    @Test
-    void shouldUseOldClassLoaderBehaviourWhenSystemPropertyIsSet() {
-        systemEnvironment.setProperty("gocd.plugins.classloader.old", "true");
-        final GoPluginDescriptor goPluginDescriptor = getPluginDescriptor("plugin.to.test.classloader", pluginToTestClassloadPluginBundleDir);
-        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(goPluginDescriptor);
-        registry.loadPlugin(descriptor);
-        Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
-        assertThat(bundle.getState()).isEqualTo(Bundle.ACTIVE);
-
-        ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor).isEqualTo(goPluginDescriptor);
-            assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName()).isNotEqualTo(BundleClassLoader.class.getCanonicalName());
             return null;
         };
         pluginOSGiFramework.doOn(GoPlugin.class, "plugin.to.test.classloader", "notification", action);

@@ -60,7 +60,6 @@ class DefaultPluginManagerIntegrationTest {
         FileHelper temporaryFolder = new FileHelper(rootDir);
         bundleDir = temporaryFolder.newFolder("bundleDir");
 
-        System.clearProperty("gocd.plugins.classloader.old");
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
         System.setProperty(PLUGIN_WORK_DIR.propertyName(), bundleDir.getAbsolutePath());
     }
@@ -78,7 +77,6 @@ class DefaultPluginManagerIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        System.clearProperty("gocd.plugins.classloader.old");
         System.clearProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName());
         System.clearProperty(PLUGIN_WORK_DIR.propertyName());
         pluginManager.stopInfrastructure();

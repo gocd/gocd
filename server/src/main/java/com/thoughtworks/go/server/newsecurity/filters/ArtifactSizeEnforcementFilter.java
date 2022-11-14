@@ -64,7 +64,7 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
         if (lastOperationTime.pastWaitingPeriod()) {
             synchronized (this) {
                 if (lastOperationTime.pastWaitingPeriod()) {
-                    totalAvailableSpace = artifactsDirHolder.getArtifactsDir().getUsableSpace() - systemEnvironment.getArtifactReposiotryFullLimit() * GoConstants.MEGA_BYTE;
+                    totalAvailableSpace = artifactsDirHolder.getArtifactsDir().getUsableSpace() - systemEnvironment.getArtifactRepositoryFullLimit() * GoConstants.MEGA_BYTE;
                     lastOperationTime.refresh();
                 }
             }

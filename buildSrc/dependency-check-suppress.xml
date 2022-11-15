@@ -34,7 +34,7 @@
     <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
 
-  <suppress until="2013-01-01Z">
+  <suppress until="2023-01-01Z">
     <notes><![CDATA[
    This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.32 according to devs.
    See https://bitbucket.org/snakeyaml/snakeyaml/issues/543/stackoverflow-oss-fuzz-50355

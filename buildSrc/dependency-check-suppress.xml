@@ -34,6 +34,16 @@
     <cpe>cpe:/a:jruby:jruby</cpe>
   </suppress>
 
+  <suppress until="2013-01-01Z">
+    <notes><![CDATA[
+   This is a false positive from OSSIndex which is already fixed in SnakeYAML 1.32 according to devs.
+   See https://bitbucket.org/snakeyaml/snakeyaml/issues/543/stackoverflow-oss-fuzz-50355
+   Regardless, GoCD is not affected as `allowRecursiveKeys` is not enabled by GoCD or its dependencies.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+    <vulnerabilityName>CVE-2022-41854</vulnerabilityName>
+  </suppress>
+
   <suppress>
     <notes><![CDATA[
     https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged

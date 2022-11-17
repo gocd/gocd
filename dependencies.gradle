@@ -96,7 +96,7 @@ final Map<String, String> libraries = [
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
   systemStubs         : 'uk.org.webcompere:system-stubs-jupiter:2.0.1',
-  testcontainersBom   : 'org.testcontainers:testcontainers-bom:1.17.5',
+  testcontainersBom   : 'org.testcontainers:testcontainers-bom:1.17.6',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   tokenBucket         : 'org.isomorphism:token-bucket:1.7',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',

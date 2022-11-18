@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    faraday (2.6.0)
+    faraday (2.7.0)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.1)

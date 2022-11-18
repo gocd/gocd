@@ -122,7 +122,7 @@ public class LogConfigurator {
             configurator.doConfigure(resource);
         } catch (JoranException ignore) {
         }
-        StatusPrinter.printInCaseOfErrorsOrWarnings((Context) loggerFactory);
+        StatusPrinter.printIfErrorsOccured((Context) loggerFactory);
     }
 
     private void configureWith(File logbackFile) {

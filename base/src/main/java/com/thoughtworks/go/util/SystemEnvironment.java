@@ -18,7 +18,6 @@ package com.thoughtworks.go.util;
 import ch.qos.logback.classic.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -35,8 +34,6 @@ import static java.util.concurrent.TimeUnit.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SystemEnvironment.class);
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
@@ -406,7 +403,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             try (InputStream is = getClass().getResourceAsStream(CRUISE_PROPERTIES)) {
                 properties.load(is);
             } catch (Exception e) {
-                LOG.error("Unable to load newProperties file {}", CRUISE_PROPERTIES);
+                // Deliberately avoiding initializing the logger during class load to allow for manual
+                // logger configuration during startup
+                LoggerFactory.getLogger(SystemEnvironment.class).error("Unable to load newProperties file {}", CRUISE_PROPERTIES);
             }
         }
         return properties;

@@ -17,9 +17,6 @@ package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.config.CruiseConfig;
 
-/**
- *
- */
 public interface GoConfigValidator {
     void validate(CruiseConfig cruiseConfig) throws Exception;
 }

@@ -25,9 +25,14 @@ dependencies {
     exclude(module: 'jzlib')
   }
   implementation project.deps.slf4j
-  implementation project.deps.jaxen
+  implementation project.deps.jdom
+  if (project.deps.jdom) {
+    // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
+    implementation project.deps.jaxen
+  }
   compileOnly project.deps.jetBrainsAnnotations
   providedAtPackageTime(project.deps.bouncyCastle)
+
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api
@@ -35,7 +40,6 @@ dependencies {
   testImplementation project.deps.xmlUnit
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockitoJunit5
-
 }
 
 test {

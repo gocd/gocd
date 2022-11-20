@@ -260,6 +260,12 @@ dependencies {
 
   implementation project.deps.activeMQ
 
+  implementation project.deps.jdom
+  if (project.deps.jdom) {
+    // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
+    api project.deps.jaxen
+  }
+
   implementation project.deps.jruby
   implementation project.deps.rack
 

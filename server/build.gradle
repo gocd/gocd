@@ -249,8 +249,6 @@ dependencies {
     exclude(module: 'ehcache-core')
   }
 
-  implementation project.deps.commonsFileUpload
-
   implementation project.deps.javaAssist
   implementation project.deps.mybatis
   implementation project.deps.mybatisSpring
@@ -807,7 +805,6 @@ task verifyWar(type: VerifyJarTask) {
         "commons-collections-${project.versions.commonsCollections}.jar",
         "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp2-${project.versions.commonsDbcp}.jar",
-        "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-text-${project.versions.commonsText}.jar",

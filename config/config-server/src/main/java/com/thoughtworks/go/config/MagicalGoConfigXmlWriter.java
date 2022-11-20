@@ -44,7 +44,7 @@ import static java.text.MessageFormat.format;
 public class MagicalGoConfigXmlWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlWriter.class);
     public static final String XML_NS = "http://www.w3.org/2001/XMLSchema-instance";
-    private ConfigCache configCache;
+    private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
     public MagicalGoConfigXmlWriter(ConfigCache configCache, ConfigElementImplementationRegistry registry) {
@@ -361,8 +361,8 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static class ExplicitCollectionXmlFieldWithValue extends XmlFieldWithValue<Collection> {
-        public ExplicitCollectionXmlFieldWithValue(Class oringinalClass, Field field, Collection value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-            super(oringinalClass, field, value, configCache, registry);
+        public ExplicitCollectionXmlFieldWithValue(Class originalClass, Field field, Collection value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+            super(originalClass, field, value, configCache, registry);
         }
 
         @Override

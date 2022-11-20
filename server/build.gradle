@@ -249,7 +249,7 @@ dependencies {
     exclude(module: 'ehcache-core')
   }
 
-  implementation project.deps.javaAssist
+  implementation project.deps.javassist
   implementation project.deps.mybatis
   implementation project.deps.mybatisSpring
   implementation project.deps.ehcache
@@ -853,7 +853,7 @@ task verifyWar(type: VerifyJarTask) {
         "jakarta.mail-api-${project.versions.mail}.jar",
         "jakarta.servlet-api-${project.versions.servletApi}.jar",
         "jakarta.xml.bind-api-4.0.0.jar",
-        "javassist-${project.versions.javaAssist}.jar",
+        "javassist-${project.versions.javassist}.jar",
         "javax.inject-1.jar",
         "jaxb-core-${project.versions.jaxb}.jar",
         "jaxb-runtime-${project.versions.jaxb}.jar",

@@ -23,12 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
-* @understands: StubGoCache
-*/
 public class StubGoCache extends GoCache {
 
-    private Map<String, Object> map;
+    private final Map<String, Object> map;
 
     public StubGoCache(final TestTransactionSynchronizationManager transactionSynchronizationManager) {
         super(null, transactionSynchronizationManager);

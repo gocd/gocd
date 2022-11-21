@@ -28,21 +28,13 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
@@ -66,7 +58,7 @@ public class GoCacheTest {
 
     @AfterEach
     public void tearDown() {
-        cacheManager.removeAllCaches();
+        goCache.destroy();
     }
 
     @AfterAll
@@ -154,7 +146,7 @@ public class GoCacheTest {
     }
 
     @Test
-    public void shouldNotRunOutOfMemoryOnKeyPuts() throws IOException {
+    public void shouldNotRunOutOfMemoryOnKeyPuts() {
         for (Long n = 0L; n < 100000; n++) {
             String key = "key" + n;
             Object value = largeObject();

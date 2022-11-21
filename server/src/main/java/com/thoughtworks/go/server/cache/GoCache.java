@@ -29,24 +29,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import javax.annotation.PreDestroy;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * @understands storing and retrieving objects from an underlying LRU cache
+ * understands storing and retrieving objects from an underlying LRU cache
  */
 public class GoCache {
+    public static final String SUB_KEY_DELIMITER = "!_#$#_!";
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoCache.class);
     private final ThreadLocal<Boolean> doNotServeForTransaction = new ThreadLocal<>();
 
-    public static final String SUB_KEY_DELIMITER = "!_#$#_!";
-
-    private Ehcache ehCache;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoCache.class);
-    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private final Ehcache ehCache;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
 
     private final Set<Class<? extends PersistentObject>> nullObjectClasses;
 
@@ -64,6 +64,12 @@ public class GoCache {
         this.nullObjectClasses = new HashSet<>();
         nullObjectClasses.add(NullUser.class);
         registerAsCacheEvictionListener();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        Optional.ofNullable(ehCache.getCacheManager())
+            .ifPresent(cm -> cm.removeCache(ehCache.getName()));
     }
 
     public void removeListener(CacheEventListener cacheEventListener) {

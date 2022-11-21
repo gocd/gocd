@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 
@@ -45,8 +44,8 @@ public class PackageMaterialUpdater implements MaterialUpdater {
     public void insertLatestOrNewModifications(final Material material, MaterialInstance materialInstance, File folder, Modifications list) {
         final PackageMaterialInstance packageMaterialInstance = (PackageMaterialInstance) materialInstance;
 
-        if(packageMaterialInstance.shouldUpgradeTo((PackageMaterialInstance) material.createMaterialInstance())) {
-            transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        if (packageMaterialInstance.shouldUpgradeTo((PackageMaterialInstance) material.createMaterialInstance())) {
+            transactionTemplate.execute(transactionStatus -> {
                 PackageMaterialInstance materialInstance1 = (PackageMaterialInstance) materialRepository.find(packageMaterialInstance.getId());
                 materialInstance1.upgradeTo((PackageMaterialInstance) material.createMaterialInstance());
                 materialRepository.saveOrUpdate(materialInstance1);

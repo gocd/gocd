@@ -36,7 +36,6 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 import java.util.List;
@@ -110,7 +109,7 @@ public class PluggableSCMMaterialPoller implements MaterialPoller<PluggableSCMMa
     }
 
     private void updateAdditionalData(final long materialId, final Map<String, String> materialData) {
-        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        transactionTemplate.execute(transactionStatus -> {
             MaterialInstance materialInstance = materialRepository.find(materialId);
             String additionalData = (materialData == null || materialData.isEmpty()) ? null : JsonHelper.toJsonString(materialData);
             materialInstance.setAdditionalData(additionalData);

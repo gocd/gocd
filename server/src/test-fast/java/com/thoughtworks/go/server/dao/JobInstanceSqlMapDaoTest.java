@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
-import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -48,7 +47,6 @@ class JobInstanceSqlMapDaoTest {
     private Cache cache;
     @Mock
     private TransactionSynchronizationManager transactionSynchronizationManager;
-    private GoCache goCache;
     @Mock
     private TransactionTemplate transactionTemplate;
     @Mock
@@ -63,15 +61,14 @@ class JobInstanceSqlMapDaoTest {
     private SystemEnvironment systemEnvironment;
     @Mock
     private SqlMapClientTemplate template;
-    @Mock
-    private ClusterProfilesService clusterProfileService;
+
 
     @BeforeEach
     void setUp() {
-        goCache = new StubGoCache(new TestTransactionSynchronizationManager());
+        GoCache goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
                 cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
-                artifactPlanRepository, clusterProfileService, jobAgentMetadataDao);
+                artifactPlanRepository, jobAgentMetadataDao);
         jobInstanceSqlMapDao.setSqlMapClientTemplate(template);
     }
 
@@ -113,7 +110,7 @@ class JobInstanceSqlMapDaoTest {
             String stageName = "stage-name";
             int pipelineCounter = 1;
             String stageCounter = "1";
-            Map attrs = m(
+            Map<String, String> attrs = m(
                     "pipelineName", pipelineName,
                     "pipelineCounter", 1,
                     "stageName", stageName,

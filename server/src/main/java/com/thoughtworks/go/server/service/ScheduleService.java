@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -213,7 +212,7 @@ public class ScheduleService {
     }
 
     public Stage scheduleStage(final Pipeline pipeline, final String stageName, final String username, final StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
-        return (Stage) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             String pipelineName = pipeline.getName();
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));

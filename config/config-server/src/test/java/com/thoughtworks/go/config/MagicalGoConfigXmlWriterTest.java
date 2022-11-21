@@ -39,7 +39,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.IOUtils;
@@ -70,7 +69,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class MagicalGoConfigXmlWriterTest {
     private ByteArrayOutputStream output;
     private MagicalGoConfigXmlWriter xmlWriter;
-    public SystemEnvironment systemEnvironment;
     private MagicalGoConfigXmlLoader xmlLoader;
     private CruiseConfig cruiseConfig;
 
@@ -122,7 +120,7 @@ public class MagicalGoConfigXmlWriterTest {
             xmlWriter.write(merged, output, true);
         } catch (GoConfigInvalidException ex) {
             // ok
-            assertThat(ex.getMessage(), is("Attempted to save merged configuration with patials"));
+            assertThat(ex.getMessage(), is("Attempted to save merged configuration with partials"));
             return;
         }
         fail("should have thrown when saving merged configuration");
@@ -742,9 +740,9 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldSerialize_CaseInsensitiveString_whenUsedInConfigAttributeValue() {//for instance FetchTask uses PathFromAncestor which has CaseInsensitiveString
         CruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("uppest", "upper", "downer", "downest");
         cruiseConfig.initializeServer();
-        setDepedencyOn(cruiseConfig, "upper", "uppest", "stage");
-        setDepedencyOn(cruiseConfig, "downer", "upper", "stage");
-        setDepedencyOn(cruiseConfig, "downest", "downer", "stage");
+        setDependencyOn(cruiseConfig, "upper", "uppest", "stage");
+        setDependencyOn(cruiseConfig, "downer", "upper", "stage");
+        setDependencyOn(cruiseConfig, "downest", "downer", "stage");
         PipelineConfig downest = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("downest"));
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("uppest/upper/downer"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest");
         downest.add(com.thoughtworks.go.helper.StageConfigMother.stageConfig("stage-2", new JobConfigs(new JobConfig(new CaseInsensitiveString("downloader"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(fetchTask)))));
@@ -1122,7 +1120,7 @@ public class MagicalGoConfigXmlWriterTest {
         return property;
     }
 
-    private void setDepedencyOn(CruiseConfig cruiseConfig, String toPipeline, String upstreamPipeline, String upstreamStage) {
+    private void setDependencyOn(CruiseConfig cruiseConfig, String toPipeline, String upstreamPipeline, String upstreamStage) {
         PipelineConfig targetPipeline = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(toPipeline));
         targetPipeline.materialConfigs().clear();
         targetPipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString(upstreamStage)));

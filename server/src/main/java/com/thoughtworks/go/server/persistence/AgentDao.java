@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -133,7 +132,7 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public List<Agent> getAllAgents() {
-        return ((List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        return ((List<Agent>) transactionTemplate.execute(transactionStatus -> {
             try {
                 Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where deleted = false");
                 query.setCacheable(true);
@@ -148,7 +147,7 @@ public class AgentDao extends HibernateDaoSupport {
     public List<Agent> getAgentsByUUIDs(List<String> uuids) {
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
-            List<Agent> agents = (List<Agent>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            List<Agent> agents = (List<Agent>) transactionTemplate.execute(transactionStatus -> {
                 Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid in :uuids and deleted = false");
                 query.setCacheable(true);
                 query.setParameterList("uuids", uuids);
@@ -163,7 +162,7 @@ public class AgentDao extends HibernateDaoSupport {
         List<String> uuids = singletonList(uuid);
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
-            Agent agent = (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            Agent agent = (Agent) transactionTemplate.execute(transactionStatus -> {
                 Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid and deleted = false");
                 query.setCacheable(true);
                 query.setParameter("uuid", uuid);
@@ -178,7 +177,7 @@ public class AgentDao extends HibernateDaoSupport {
         List<String> uuids = singletonList(uuid);
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
-            Agent agent = (Agent) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            Agent agent = (Agent) transactionTemplate.execute(transactionStatus -> {
                 Query query = sessionFactory.getCurrentSession().createQuery("FROM Agent where uuid = :uuid");
                 query.setCacheable(true);
                 query.setParameter("uuid", uuid);

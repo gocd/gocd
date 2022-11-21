@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -124,7 +123,7 @@ public class PipelineScheduleQueue {
     }
 
     public Pipeline createPipeline(final BuildCause buildCause, final PipelineConfig pipelineConfig, final SchedulingContext context, final String md5, final Clock clock) {
-        return (Pipeline) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             Pipeline pipeline = null;
 
             if (shouldCancel(buildCause, pipelineConfig.name())) {

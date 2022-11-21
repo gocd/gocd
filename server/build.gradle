@@ -249,7 +249,11 @@ dependencies {
     exclude(module: 'ehcache-core')
   }
 
-  implementation project.deps.javassist
+  if (project.deps.hibernate) {
+    // Required by Hibernate 3.6 but Hibernate declares as an 'optional' dependency.
+    // Remove for later Hibernate versions where it is declared as compulsory, so we can use a validated version
+    implementation project.deps.javassist
+  }
   implementation project.deps.mybatis
   implementation project.deps.mybatisSpring
   implementation project.deps.ehcache
@@ -276,6 +280,10 @@ dependencies {
     exclude(group: 'org.springframework')
   }
   implementation(project.deps.springSecurity)
+  if (project.deps.springWeb) {
+    // used by CommonsMultipartResolver
+    implementation project.deps.commonsFileUpload
+  }
   implementation project.deps.aspectj
   implementation project.deps.aspectjWeaver
   implementation project.deps.urlrewrite
@@ -811,6 +819,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-collections-${project.versions.commonsCollections}.jar",
         "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp2-${project.versions.commonsDbcp}.jar",
+        "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-text-${project.versions.commonsText}.jar",

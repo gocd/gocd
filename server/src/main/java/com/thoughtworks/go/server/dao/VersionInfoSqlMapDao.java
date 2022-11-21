@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 @Component
@@ -52,7 +51,7 @@ public class VersionInfoSqlMapDao extends HibernateDaoSupport implements Version
 
     @Override
     public VersionInfo findByComponentName(final String name) {
-        return (VersionInfo) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession()
+        return (VersionInfo) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
                 .createCriteria(VersionInfo.class)
                 .add(Restrictions.eq("componentName", name))
                 .setCacheable(true).uniqueResult());

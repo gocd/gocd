@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
@@ -98,7 +97,7 @@ public class PipelineTimeline {
         acquireAllWriteLocks();
         try {
             final long maximumIdBeforeUpdate = maximumId;
-            transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            transactionTemplate.execute(transactionStatus -> {
                 final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                     @Override

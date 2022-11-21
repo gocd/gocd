@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 
@@ -46,7 +45,7 @@ public class PluggableSCMMaterialUpdater implements MaterialUpdater {
 
         final PluggableSCMMaterialInstance latestMaterialInstance = (PluggableSCMMaterialInstance) material.createMaterialInstance();
         if (currentMaterialInstance.shouldUpgradeTo(latestMaterialInstance)) {
-            transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            transactionTemplate.execute(transactionStatus -> {
                 PluggableSCMMaterialInstance materialInstance1 = (PluggableSCMMaterialInstance) materialRepository.find(currentMaterialInstance.getId());
                 materialInstance1.upgradeTo(latestMaterialInstance);
                 materialRepository.saveOrUpdate(materialInstance1);

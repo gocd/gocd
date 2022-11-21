@@ -26,7 +26,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.Collection;
@@ -60,9 +59,12 @@ public class EnvironmentVariableSqlMapDao implements EnvironmentVariableDao {
 
     @Override
     public EnvironmentVariables load(final Long entityId, final EnvironmentVariableType type) {
-        List<EnvironmentVariable> result = (List<EnvironmentVariable>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Criteria criteria = sessionFactory.getCurrentSession().createCriteria(EnvironmentVariable.class).add(Restrictions.eq("entityId", entityId)).add(
-                    Restrictions.eq("entityType", type.toString())).addOrder(Order.asc("id"));
+        @SuppressWarnings("unchecked") List<EnvironmentVariable> result = (List<EnvironmentVariable>) transactionTemplate.execute(transactionStatus -> {
+            Criteria criteria = sessionFactory.getCurrentSession()
+                .createCriteria(EnvironmentVariable.class)
+                .add(Restrictions.eq("entityId", entityId))
+                .add(Restrictions.eq("entityType", type.toString()))
+                .addOrder(Order.asc("id"));
             criteria.setCacheable(true);
             return criteria.list();
         });

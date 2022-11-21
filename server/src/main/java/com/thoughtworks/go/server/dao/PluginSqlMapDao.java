@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.List;
@@ -75,7 +74,7 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
                 return plugin;
             }
 
-            plugin = (Plugin) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession()
+            plugin = (Plugin) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
                     .createCriteria(Plugin.class)
                     .add(Restrictions.eq("pluginId", pluginId))
                     .setCacheable(true).uniqueResult());
@@ -94,9 +93,10 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
     }
 
     // used in tests
+    @SuppressWarnings("unchecked")
     @Override
     public List<Plugin> getAllPlugins() {
-        return (List<Plugin>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        return (List<Plugin>) transactionTemplate.execute(transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM " + Plugin.class.getSimpleName());
             query.setCacheable(true);
             return query.list();

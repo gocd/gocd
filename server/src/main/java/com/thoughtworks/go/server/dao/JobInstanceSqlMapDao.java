@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
-import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -58,15 +57,14 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private static final Logger LOG = LoggerFactory.getLogger(JobInstanceSqlMapDao.class);
     private final LazyCache latestCompletedCache;
     private final CacheKeyGenerator cacheKeyGenerator;
-    private Cache cache;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    private TransactionTemplate transactionTemplate;
-    private EnvironmentVariableDao environmentVariableDao;
-    private JobAgentMetadataDao jobAgentMetadataDao;
-    private Cloner cloner = ClonerFactory.instance();
-    private ResourceRepository resourceRepository;
-    private ArtifactPlanRepository artifactPlanRepository;
-    private final ClusterProfilesService clusterProfilesService;
+    private final Cache cache;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
+    private final TransactionTemplate transactionTemplate;
+    private final EnvironmentVariableDao environmentVariableDao;
+    private final JobAgentMetadataDao jobAgentMetadataDao;
+    private final Cloner cloner = ClonerFactory.instance();
+    private final ResourceRepository resourceRepository;
+    private final ArtifactPlanRepository artifactPlanRepository;
 
     @Autowired
     public JobInstanceSqlMapDao(EnvironmentVariableDao environmentVariableDao,
@@ -79,7 +77,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 Database database,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
-                                ClusterProfilesService clusterProfilesService,
                                 JobAgentMetadataDao jobAgentMetadataDao) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.environmentVariableDao = environmentVariableDao;
@@ -88,7 +85,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.resourceRepository = resourceRepository;
         this.artifactPlanRepository = artifactPlanRepository;
-        this.clusterProfilesService = clusterProfilesService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         this.latestCompletedCache = new LazyCache(createCacheIfRequired(getClass().getName()), transactionSynchronizationManager);
@@ -169,7 +165,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                 activeJob = (ActiveJob) goCache.get(activeJobKey);
                 if (activeJob == null) {
                     activeJob = _getActiveJob(activeJobId);
-                    if (activeJob != null) { // could have changed to not active and consquently no match found
+                    if (activeJob != null) { // could have changed to not active and consequently no match found
                         cacheActiveJob(activeJob);
                     }
                 }
@@ -178,6 +174,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return activeJob;//TODO: clone it, caller may mutate
     }
 
+    @SuppressWarnings("unchecked")
     private List<Long> getActiveJobIds() {
         String idsCacheKey = cacheKeyForActiveJobIds();
         List<Long> activeJobIds = (List<Long>) goCache.get(idsCacheKey);
@@ -285,7 +282,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             synchronized (key) {
                 jobIdentifier = (JobIdentifier) goCache.get(key);
                 if (jobIdentifier == null) {
-                    Map params = arguments("pipelineName", stageIdentifier.getPipelineName()).
+                    Map<String, Object> params = arguments("pipelineName", stageIdentifier.getPipelineName()).
                             and("pipelineCounter", stageIdentifier.getPipelineCounter()).
                             and("stageName", stageIdentifier.getStageName()).
                             and("stageCounter", Integer.parseInt(stageIdentifier.getStageCounter())).
@@ -313,18 +310,20 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return buildingJobs(getActiveJobIds());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<JobInstance> getRunningJobs() {
         return getSqlMapClientTemplate().queryForList("getRunningJobs");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<JobInstance> completedJobsOnAgent(String uuid,
                                                   JobInstanceService.JobHistoryColumns jobHistoryColumns,
                                                   SortOrder order,
                                                   int offset,
                                                   int limit) {
-        Map params = arguments("uuid", uuid).
+        Map<String, Object> params = arguments("uuid", uuid).
                 and("offset", offset).
                 and("limit", limit).
                 and("column", jobHistoryColumns.getColumnName()).
@@ -355,7 +354,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstance updateAssignedInfo(final JobInstance jobInstance) {
-        return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             getSqlMapClientTemplate().update("updateAssignedInfo", jobInstance);
             updateStateAndResult(jobInstance);
             return jobInstance;
@@ -364,7 +363,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstance updateStateAndResult(final JobInstance jobInstance) {
-        return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCommit() {
@@ -430,7 +429,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     }
 
     private void updateResult(JobInstance job) {
-        transactionTemplate.execute((TransactionCallback) status -> {
+        transactionTemplate.execute(status -> {
             latestCompletedCache.flushOnCommit();
             getSqlMapClientTemplate().update("updateResult", job);
             return null;
@@ -439,7 +438,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public void ignore(JobInstance job) {
-        transactionTemplate.execute((TransactionCallback) status -> {
+        transactionTemplate.execute(status -> {
             latestCompletedCache.flushOnCommit();
             getSqlMapClientTemplate().update("ignoreBuildById", job.getId());
             return null;
@@ -452,12 +451,12 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count) {
         String cacheKey = cacheKeyForLatestCompletedJobs(pipelineName, stageName, jobConfigName, count);
         return latestCompletedCache.get(cacheKey, () -> {
-            Map params = new HashMap();
+            Map<String, Object> params = new HashMap<>();
             params.put("pipelineName", pipelineName);
             params.put("stageName", stageName);
             params.put("jobConfigName", jobConfigName);
             params.put("count", count);
-            List<JobInstance> results =
+            @SuppressWarnings("unchecked") List<JobInstance> results =
                     (List<JobInstance>) getSqlMapClientTemplate().queryForList("latestCompletedJobs", params);
 
             return new JobInstances(results);
@@ -492,14 +491,14 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                            int offset) {
         String cacheKey = cacheKeyForFindJobHistoryPage(pipelineName, stageName, jobConfigName, count, offset);
         return latestCompletedCache.get(cacheKey, () -> {
-            Map params = new HashMap();
+            Map<String, Object> params = new HashMap<>();
             params.put("pipelineName", pipelineName);
             params.put("stageName", stageName);
             params.put("jobConfigName", jobConfigName);
             params.put("count", count);
             params.put("offset", offset);
 
-            List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
+            @SuppressWarnings("unchecked") List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("findJobHistoryPage", params);
 
             return new JobInstances(results);
         });
@@ -509,7 +508,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public JobInstance findJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter) {
         String cacheKey = cacheKeyForFindJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter);
         return latestCompletedCache.get(cacheKey, () -> {
-            Map params = new HashMap();
+            Map<String, Object> params = new HashMap<>();
             params.put("pipelineName", pipelineName);
             params.put("stageName", stageName);
             params.put("jobName", jobName);
@@ -538,7 +537,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public List<JobPlan> orderedScheduledBuilds() {
-        List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
+        @SuppressWarnings("unchecked") List<Long> jobIds = (List<Long>) getSqlMapClientTemplate().queryForList("scheduledPlanIds");
 
         List<JobPlan> plans = new ArrayList<>();
         for (Long jobId : jobIds) {
@@ -587,7 +586,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstances findHungJobs(List<String> liveAgentIdList) {
-        List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs",
+        @SuppressWarnings("unchecked") List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs",
                 arguments("liveAgentIdList", liveAgentIdList).asMap());
         return new JobInstances(list);
     }
@@ -646,7 +645,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, Integer pageSize) {
         String cacheKey = cacheKeyForFindDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, feedModifier.suffix(), cursor, pageSize);
         return latestCompletedCache.get(cacheKey, () -> {
-            Map params = new HashMap();
+            Map<String, Object> params = new HashMap<>();
             params.put("pipelineName", pipelineName);
             params.put("stageName", stageName);
             params.put("jobConfigName", jobConfigName);
@@ -654,7 +653,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             params.put("count", pageSize);
             params.put("suffix", feedModifier.suffix());
 
-            List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("getJobHistoryViaCursor", params);
+            @SuppressWarnings("unchecked") List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("getJobHistoryViaCursor", params);
 
             return new JobInstances(results);
         });

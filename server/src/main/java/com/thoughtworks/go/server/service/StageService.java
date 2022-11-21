@@ -58,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -258,7 +257,7 @@ public class StageService implements StageFinder {
     }
 
     public Stage save(final Pipeline pipeline, final Stage stage) {
-        return (Stage) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             stage.building();
             final Stage savedStage = persistStage(pipeline, stage);
             persistJobs(savedStage);

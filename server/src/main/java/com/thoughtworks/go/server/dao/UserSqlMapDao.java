@@ -35,7 +35,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -82,7 +81,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public User findUser(final String userName) {
-        return (User) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        return transactionTemplate.execute(transactionStatus -> {
             User user = (User) sessionFactory.getCurrentSession()
                     .createCriteria(User.class)
                     .add(Restrictions.eq("name", userName))
@@ -93,7 +92,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public Users findNotificationSubscribingUsers() {
-        return (Users) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        return transactionTemplate.execute(transactionStatus -> {
             Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
             criteria.setCacheable(true);
             criteria.add(Restrictions.isNotEmpty("notificationFilters"));
@@ -102,9 +101,10 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Users allUsers() {
-        return new Users((List<User>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        return new Users((List<User>) transactionTemplate.execute(transactionStatus -> {
             Query query = sessionFactory.getCurrentSession().createQuery("FROM User");
             query.setCacheable(true);
             return query.list();
@@ -165,12 +165,12 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public User load(final long id) {
-        return (User) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(User.class, id));
+        return (User) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession().get(User.class, id));
     }
 
     @Override
     public boolean deleteUser(final String username, String byWhom) {
-        return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             User user = findUser(username);
             if (user instanceof NullUser) {
                 throw new RecordNotFoundException(EntityType.User, username);
@@ -186,7 +186,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
     @Override
     public boolean deleteUsers(List<String> userNames, String byWhom) {
-        return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             String queryString = "delete from User where name in (:userNames)";
             Query query = sessionFactory.getCurrentSession().createQuery(queryString);
             query.setParameterList("userNames", userNames);

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.transaction;
 
 public class TransactionTemplate {
-    private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
+    private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
     private static final ThreadLocal<TransactionContext> txnCtx = ThreadLocal.withInitial(TransactionContext::new);
 
@@ -37,7 +37,7 @@ public class TransactionTemplate {
 
     public Object executeWithExceptionHandling(final TransactionCallback action) throws Exception {
         try {
-            return transactionTemplate.execute((org.springframework.transaction.support.TransactionCallback) status -> {
+            return transactionTemplate.execute(status -> {
                 txnCtx().transactionPushed();
                 try {
                     return action.doWithExceptionHandling(status);
@@ -67,7 +67,7 @@ public class TransactionTemplate {
         return txnCtx.get();
     }
 
-    public static interface TransactionSurrounding<T extends Exception> {
+    public interface TransactionSurrounding<T extends Exception> {
         Object surrounding() throws T;
     }
 }

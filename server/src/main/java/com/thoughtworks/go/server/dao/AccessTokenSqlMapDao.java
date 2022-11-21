@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.Timestamp;
@@ -61,9 +60,10 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<AccessToken> findAllTokensForUser(String username, AccessTokenFilter filter) {
-        return (List<AccessToken>) transactionTemplate.execute((TransactionCallback) transactionStatus ->
+        return (List<AccessToken>) transactionTemplate.execute(transactionStatus ->
         {
             Criteria criteria = sessionFactory
                     .getCurrentSession()
@@ -95,7 +95,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
 
     @Override
     public AccessToken findAccessTokenBySaltId(String saltId) {
-        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
+        return (AccessToken) transactionTemplate.execute(transactionStatus ->
                 sessionFactory.getCurrentSession()
                         .createCriteria(AccessToken.class)
                         .add(Restrictions.eq("saltId", saltId))
@@ -120,7 +120,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
 
     @Override
     public AccessToken loadForAdminUser(final long id) {
-        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
+        return (AccessToken) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
     }
 
     @Override

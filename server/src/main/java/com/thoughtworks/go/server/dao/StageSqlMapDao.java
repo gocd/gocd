@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.sql.Timestamp;
@@ -65,12 +64,12 @@ import static java.lang.String.format;
 public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, StageStatusListener, JobStatusListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlSessionDaoSupport.class);
     private final CacheKeyGenerator cacheKeyGenerator;
-    private TransactionTemplate transactionTemplate;
-    private JobInstanceSqlMapDao buildInstanceDao;
-    private Cache cache;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    private Cloner cloner = ClonerFactory.instance();
-    private DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
+    private final TransactionTemplate transactionTemplate;
+    private final JobInstanceSqlMapDao buildInstanceDao;
+    private final Cache cache;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
+    private final Cloner cloner = ClonerFactory.instance();
+    private final DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
 
     @Autowired
     public StageSqlMapDao(JobInstanceSqlMapDao buildInstanceDao,
@@ -91,7 +90,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     @Override
     public Stage save(final Pipeline pipeline, final Stage stage) {
-        return (Stage) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCommit() {
@@ -727,14 +726,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             throw new DataRetrievalFailureException("Unable to load related stage data for buildId " + buildId);
         }
         return stage;
-    }
-
-    public void setBuildInstanceDao(JobInstanceSqlMapDao buildInstanceDao) {
-        this.buildInstanceDao = buildInstanceDao;
-    }
-
-    public void setCache(Cache cache) {
-        this.cache = cache;
     }
 
     @Override

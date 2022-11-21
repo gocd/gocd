@@ -15,11 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -29,7 +24,11 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
+
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ConfigDbStateRepository extends HibernateDaoSupport {
@@ -45,7 +44,7 @@ public class ConfigDbStateRepository extends HibernateDaoSupport {
     }
 
     public void flushConfigState() {
-        transactionTemplate.execute((TransactionCallback) status -> flushArtifactCleanupProhibitions());
+        transactionTemplate.execute(status -> flushArtifactCleanupProhibitions());
     }
 
     private Object flushArtifactCleanupProhibitions() {

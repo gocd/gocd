@@ -22,13 +22,12 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 @Component
 public class JobAgentMetadataSqlMapDao implements JobAgentMetadataDao {
-    private SessionFactory sessionFactory;
-    private TransactionTemplate transactionTemplate;
+    private final SessionFactory sessionFactory;
+    private final TransactionTemplate transactionTemplate;
 
     @Autowired
     public JobAgentMetadataSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
@@ -48,7 +47,7 @@ public class JobAgentMetadataSqlMapDao implements JobAgentMetadataDao {
 
     @Override
     public JobAgentMetadata load(final Long jobId) {
-        return (JobAgentMetadata) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession()
+        return (JobAgentMetadata) transactionTemplate.execute(transactionStatus -> sessionFactory.getCurrentSession()
                 .createCriteria(JobAgentMetadata.class)
                 .add(Restrictions.eq("jobId", jobId))
                 .setCacheable(true).uniqueResult());

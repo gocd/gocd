@@ -38,7 +38,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
 import java.util.List;
@@ -85,7 +84,7 @@ public class PipelineService implements UpstreamPipelineResolver {
     public Pipeline save(final Pipeline pipeline) {
         String mutexPipelineName = PipelinePauseService.mutexForPausePipeline(pipeline.getName());
         synchronized (mutexPipelineName) {
-            return (Pipeline) transactionTemplate.execute((TransactionCallback) status -> {
+            return transactionTemplate.execute(status -> {
                 if (pipeline instanceof NullPipeline) {
                     return pipeline;
                 }

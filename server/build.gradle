@@ -249,7 +249,11 @@ dependencies {
     exclude(module: 'ehcache-core')
   }
 
-  implementation project.deps.javassist
+  if (project.deps.hibernate) {
+    // Required by Hibernate 3.6 but Hibernate declares as an 'optional' dependency.
+    // Remove for later Hibernate versions where it is declared as compulsory, so we can use a validated version
+    implementation project.deps.javassist
+  }
   implementation project.deps.mybatis
   implementation project.deps.mybatisSpring
   implementation project.deps.ehcache

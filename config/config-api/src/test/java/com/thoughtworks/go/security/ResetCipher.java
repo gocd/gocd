@@ -40,12 +40,12 @@ public class ResetCipher implements BeforeEachCallback, AfterEachCallback, Param
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
+    public void beforeEach(ExtensionContext context) {
         removeCachedKey();
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws Exception {
+    public void afterEach(ExtensionContext context) {
         removeCachedKey();
     }
 

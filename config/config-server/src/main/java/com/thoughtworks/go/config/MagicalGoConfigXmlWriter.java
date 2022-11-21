@@ -70,7 +70,7 @@ public class MagicalGoConfigXmlWriter {
         LOGGER.debug("[Serializing Config] Starting to write. Validation skipped? {}", skipPreprocessingAndValidation);
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, registry);
         if (!configForEdit.getOrigin().isLocal()) {
-            throw new GoConfigInvalidException(configForEdit, "Attempted to save merged configuration with patials");
+            throw new GoConfigInvalidException(configForEdit, "Attempted to save merged configuration with partials");
         }
         if (!skipPreprocessingAndValidation) {
             loader.preprocessAndValidate(configForEdit);
@@ -109,15 +109,15 @@ public class MagicalGoConfigXmlWriter {
 
     public String toXmlPartial(Object domainObject) {
         bombIf(!isAnnotationPresent(domainObject.getClass(), ConfigTag.class), "Object " + domainObject + " does not have a ConfigTag");
-        Element element = elementFor(domainObject.getClass(), configCache);
+        Element element = elementFor(domainObject.getClass());
         write(domainObject, element, configCache, registry);
         if (isAnnotationPresent(domainObject.getClass(), ConfigCollection.class) && domainObject instanceof Collection) {
-            for (Object item : (Collection) domainObject) {
+            for (Object item : (Collection<?>) domainObject) {
                 if (isAnnotationPresent(item.getClass(), ConfigCollection.class) && item instanceof Collection) {
-                    new ExplicitCollectionXmlFieldWithValue(domainObject.getClass(), null, (Collection) item, configCache, registry).populate(element);
+                    new ExplicitCollectionXmlFieldWithValue(domainObject.getClass(), null, (Collection<?>) item, configCache, registry).populate(element);
                     continue;
                 }
-                Element childElement = elementFor(item.getClass(), configCache);
+                Element childElement = elementFor(item.getClass());
                 element.addContent(childElement);
                 write(item, childElement, configCache, registry);
             }
@@ -140,7 +140,7 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static void write(Object o, Element element, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-        for (XmlFieldWithValue xmlFieldWithValue : allFields(o, configCache, registry)) {
+        for (XmlFieldWithValue<?> xmlFieldWithValue : allFields(o, configCache, registry)) {
             if (xmlFieldWithValue.isDefault() && !xmlFieldWithValue.alwaysWrite()) {
                 continue;
             }
@@ -148,17 +148,17 @@ public class MagicalGoConfigXmlWriter {
         }
     }
 
-    private static List<XmlFieldWithValue> allFields(Object o, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-        List<XmlFieldWithValue> list = new ArrayList<>();
-        Class originalClass = o.getClass();
+    private static List<XmlFieldWithValue<?>> allFields(Object o, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+        List<XmlFieldWithValue<?>> list = new ArrayList<>();
+        Class<?> originalClass = o.getClass();
         for (GoConfigFieldWriter field : allFieldsWithInherited(originalClass, o, configCache, registry)) {
             Field configField = field.getConfigField();
             if (field.isImplicitCollection()) {
                 list.add(new ImplicitCollectionXmlFieldWithValue(originalClass, configField,
-                        (Collection) field.getValue(), configCache, registry));
+                        (Collection<?>) field.getValue(), configCache, registry));
             } else if (field.isConfigCollection()) {
                 list.add(new ExplicitCollectionXmlFieldWithValue(originalClass, configField,
-                        (Collection) field.getValue(), configCache, registry));
+                        (Collection<?>) field.getValue(), configCache, registry));
             } else if (field.isSubtag()) {
                 list.add(new SubTagXmlFieldWithValue(originalClass, configField, field.getValue(), configCache, registry));
             } else if (field.isAttribute()) {
@@ -171,18 +171,18 @@ public class MagicalGoConfigXmlWriter {
         return list;
     }
 
-    private static List<GoConfigFieldWriter> allFieldsWithInherited(Class aClass, Object o, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+    private static List<GoConfigFieldWriter> allFieldsWithInherited(Class<?> aClass, Object o, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
         return new GoConfigClassWriter(aClass, configCache, registry).getAllFields(o);
     }
 
     private abstract static class XmlFieldWithValue<T> {
         protected final Field field;
-        protected final Class originalClass;
+        protected final Class<?> originalClass;
         protected final T value;
         protected final ConfigCache configCache;
         protected final ConfigElementImplementationRegistry registry;
 
-        private XmlFieldWithValue(Class originalClass, Field field, T value, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
+        private XmlFieldWithValue(Class<?> originalClass, Field field, T value, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
             this.originalClass = originalClass;
             this.value = value;
             this.field = field;
@@ -222,11 +222,11 @@ public class MagicalGoConfigXmlWriter {
             return valueString;
         }
 
-        private Field getField(Class clazz, ConfigAttributeValue attributeValue) throws NoSuchFieldException {
+        private Field getField(Class<?> clazz, ConfigAttributeValue attributeValue) throws NoSuchFieldException {
             try {
                 return clazz.getDeclaredField(attributeValue.fieldName());
             } catch (NoSuchFieldException e) {
-                Class klass = clazz.getSuperclass();
+                Class<?> klass = clazz.getSuperclass();
                 if (klass == null) {
                     throw e;
                 }
@@ -235,7 +235,7 @@ public class MagicalGoConfigXmlWriter {
         }
     }
 
-    private static Element elementFor(Class<?> aClass, ConfigCache configCache) {
+    private static Element elementFor(Class<?> aClass) {
         final AttributeAwareConfigTag attributeAwareConfigTag = annotationFor(aClass, AttributeAwareConfigTag.class);
 
         if (attributeAwareConfigTag != null) {
@@ -252,13 +252,13 @@ public class MagicalGoConfigXmlWriter {
 
     private static class SubTagXmlFieldWithValue extends XmlFieldWithValue<Object> {
 
-        public SubTagXmlFieldWithValue(Class oringinalClass, Field field, Object value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-            super(oringinalClass, field, value, configCache, registry);
+        public SubTagXmlFieldWithValue(Class<?> originalClass, Field field, Object value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+            super(originalClass, field, value, configCache, registry);
         }
 
         @Override
         public void populate(Element parent) {
-            Element child = elementFor(value.getClass(), configCache);
+            Element child = elementFor(value.getClass());
             parent.addContent(child);
             write(value, child, configCache, registry);
         }
@@ -271,8 +271,8 @@ public class MagicalGoConfigXmlWriter {
 
     private static class AttributeXmlFieldWithValue extends XmlFieldWithValue<Object> {
 
-        public AttributeXmlFieldWithValue(Class oringinalClass, Field field, Object current, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-            super(oringinalClass, field, current, configCache, registry);
+        public AttributeXmlFieldWithValue(Class<?> originalClass, Field field, Object current, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+            super(originalClass, field, current, configCache, registry);
         }
 
         @Override
@@ -296,10 +296,10 @@ public class MagicalGoConfigXmlWriter {
         }
     }
 
-    private static class ImplicitCollectionXmlFieldWithValue extends XmlFieldWithValue<Collection> {
+    private static class ImplicitCollectionXmlFieldWithValue extends XmlFieldWithValue<Collection<?>> {
         public ImplicitCollectionXmlFieldWithValue(
-                Class oringinalClass, Field field, Collection value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-            super(oringinalClass, field, value, configCache, registry);
+                Class<?> originalClass, Field field, Collection<?> value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+            super(originalClass, field, value, configCache, registry);
         }
 
         @Override
@@ -314,13 +314,13 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static class CollectionXmlFieldWithValue {
-        private final Collection value;
+        private final Collection<?> value;
         private final Element parent;
-        private final Class originalClass;
+        private final Class<?> originalClass;
         private final ConfigCache configCache;
         private final ConfigElementImplementationRegistry registry;
 
-        public CollectionXmlFieldWithValue(Collection value, Element parent, Class originalClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+        public CollectionXmlFieldWithValue(Collection<?> value, Element parent, Class<?> originalClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
             this.value = value;
             this.parent = parent;
             this.originalClass = originalClass;
@@ -329,8 +329,8 @@ public class MagicalGoConfigXmlWriter {
         }
 
         public void populate() {
-            Collection defaultCollection = generateDefaultCollection();
-            for (XmlFieldWithValue xmlFieldWithValue : allFields(value, configCache, registry)) {
+            Collection<?> defaultCollection = generateDefaultCollection();
+            for (XmlFieldWithValue<?> xmlFieldWithValue : allFields(value, configCache, registry)) {
                 if (!xmlFieldWithValue.isDefault()) {
                     xmlFieldWithValue.populate(parent);
                 }
@@ -341,16 +341,16 @@ public class MagicalGoConfigXmlWriter {
                     continue;
                 }
                 if (item.getClass().isAnnotationPresent(ConfigCollection.class) && item instanceof Collection) {
-                    new ExplicitCollectionXmlFieldWithValue(originalClass, null, (Collection) item, configCache, registry).populate(parent);
+                    new ExplicitCollectionXmlFieldWithValue(originalClass, null, (Collection<?>) item, configCache, registry).populate(parent);
                     continue;
                 }
-                Element childElement = elementFor(item.getClass(), configCache);
+                Element childElement = elementFor(item.getClass());
                 parent.addContent(childElement);
                 write(item, childElement, configCache, registry);
             }
         }
 
-        protected Collection generateDefaultCollection() {
+        protected Collection<?> generateDefaultCollection() {
             Class<? extends Collection> clazz = value.getClass();
             try {
                 return clazz.getDeclaredConstructor().newInstance();
@@ -360,14 +360,14 @@ public class MagicalGoConfigXmlWriter {
         }
     }
 
-    private static class ExplicitCollectionXmlFieldWithValue extends XmlFieldWithValue<Collection> {
-        public ExplicitCollectionXmlFieldWithValue(Class originalClass, Field field, Collection value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+    private static class ExplicitCollectionXmlFieldWithValue extends XmlFieldWithValue<Collection<?>> {
+        public ExplicitCollectionXmlFieldWithValue(Class<?> originalClass, Field field, Collection<?> value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
             super(originalClass, field, value, configCache, registry);
         }
 
         @Override
         public void populate(Element parent) {
-            Element containerElement = elementFor(value.getClass(), configCache);
+            Element containerElement = elementFor(value.getClass());
             new CollectionXmlFieldWithValue(value, containerElement, originalClass, configCache, registry).populate();
             parent.addContent(containerElement);
         }
@@ -379,10 +379,10 @@ public class MagicalGoConfigXmlWriter {
     }
 
     private static class ValueXmlFieldWithValue extends XmlFieldWithValue<Object> {
-        private boolean requireCdata;
+        private final boolean requireCdata;
 
-        public ValueXmlFieldWithValue(Field field, Object value, Class oringinalClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-            super(oringinalClass, field, value, configCache, registry);
+        public ValueXmlFieldWithValue(Field field, Object value, Class<?> originalClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+            super(originalClass, field, value, configCache, registry);
             ConfigValue configValue = field.getAnnotation(ConfigValue.class);
             requireCdata = configValue.requireCdata();
         }

@@ -93,8 +93,8 @@ public class MySQLBackupProcessor implements BackupProcessor {
         argv.add(connectionUrlInstance.getDatabase());
 
         ProcessExecutor processExecutor = new ProcessExecutor();
-        processExecutor.redirectOutputAlsoTo(Slf4jStream.of(getClass()).asDebug());
-        processExecutor.redirectErrorAlsoTo(Slf4jStream.of(getClass()).asDebug());
+        processExecutor.redirectOutputAlsoTo(Slf4jStream.of(getClass()).asInfo());
+        processExecutor.redirectErrorAlsoTo(Slf4jStream.of(getClass()).asWarn());
         processExecutor.environment(env);
         processExecutor.command(argv);
         return processExecutor;

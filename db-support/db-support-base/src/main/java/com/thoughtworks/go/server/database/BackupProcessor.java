@@ -23,4 +23,12 @@ public interface BackupProcessor {
     void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) throws Exception;
 
     boolean accepts(String url);
+
+    default void throwBackupError(String command, int errorCode) {
+        throwBackupError(command, errorCode, null);
+    }
+
+    default void throwBackupError(String command, int errorCode, Throwable cause) {
+        throw new RuntimeException(String.format("There was an error backing up the database using `%s`. The `%s` process failed with code %s. Please see the server logs for more detail.", command, command, errorCode), cause);
+    }
 }

@@ -17,7 +17,7 @@
 require 'rails_helper'
 require_relative 'layout_html_examples'
 
-describe "layouts/pipelines.html.eb" do
+describe "layouts/pipelines.html.erb" do
   include GoUtil
   include StageModelMother
 
@@ -39,7 +39,7 @@ describe "layouts/pipelines.html.eb" do
     @request.path_parameters[:pipeline_counter] = '1'
 
     @pim = PipelineHistoryMother.singlePipeline("pipeline-name", @stages)
-    assign(:pipeline,@pim)
+    assign(:pipeline, @pim)
     params[:pipeline_name] = "cruise"
     params[:pipeline_counter] = "1"
     @request.path_parameters.reverse_merge!(params)
@@ -50,11 +50,10 @@ describe "layouts/pipelines.html.eb" do
     view.extend StagesHelper
 
     in_params :action => 'overview', :controller => "stages"
-    allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-0', :stage_counter => "1", :action => 'overview').and_return("url_to_0")
-    allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-1', :stage_counter => "1", :action => 'overview').and_return("url_to_1")
-    allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name => "cruise", :pipeline_counter => 1,
-                                                :stage_name => 'dev', :stage_counter => "1", :action => 'overview').and_return("url_to_historical_stage")
-    allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"pipeline-name", :pipeline_counter=>1, :stage_name=>"stage-1", :stage_counter=>"1").and_return("url_to_pipeline")
+    allow(view).to receive(:stage_detail_tab_path_for).with({ :pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-0', :stage_counter => "1", :action => 'overview' }).and_return("url_to_0")
+    allow(view).to receive(:stage_detail_tab_path_for).with({ :pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-1', :stage_counter => "1", :action => 'overview' }).and_return("url_to_1")
+    allow(view).to receive(:stage_detail_tab_path_for).with({ :pipeline_name => "cruise", :pipeline_counter => 1, :stage_name => 'dev', :stage_counter => "1", :action => 'overview' }).and_return("url_to_historical_stage")
+    allow(view).to receive(:stage_detail_tab_path_for).with({ :pipeline_name => "pipeline-name", :pipeline_counter => 1, :stage_name => "stage-1", :stage_counter => "1" }).and_return("url_to_pipeline")
     allow(view).to receive(:stage_history_path).and_return("historical_stage_page_number")
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:admin_config_change_path)
@@ -68,25 +67,25 @@ describe "layouts/pipelines.html.eb" do
       allow(stage_summary_model).to receive(:getStage).and_return(@stage)
       allow(stage_summary_model).to receive(:getName).and_return('stage-0')
       allow(stage_summary_model).to receive(:getState).and_return(nil)
-      assign(:stage,stage_summary_model)
-      assign(:current_config_version,'current_config_version')
-      assign(:stage,stage_summary_model)
+      assign(:stage, stage_summary_model)
+      assign(:current_config_version, 'current_config_version')
+      assign(:stage, stage_summary_model)
     end
 
     it "should display message indicating that config is out of date and any actions performed on this page will use the latest config" do
       allow(@stage).to receive(:getConfigVersion).and_return('stage_config_version')
       allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with("current_config_version", "stage_config_version").and_return(true)
-      render :inline => '<div>content</div>', :layout=>@layout_name
+      render :inline => '<div>content</div>', :layout => @layout_name
       Capybara.string(response.body).find("div.config_changed_info.notification").tap do |div|
-        expect(div).to have_selector("p.information", :text=>"Configuration has since been updated and any operations performed will use the current configuration")
+        expect(div).to have_selector("p.information", :text => "Configuration has since been updated and any operations performed will use the current configuration")
       end
     end
 
     it "should not display message indicating that config is out of date and any actions performed on this page will use the latest config when configuration has not changed since" do
       allow(@stage).to receive(:getConfigVersion).and_return('current_config_version')
       allow(view).to receive(:is_config_used_to_run_this_stage_out_of_sync_with_current?).with("current_config_version", "current_config_version").and_return(false)
-      render :inline => '<div>content</div>', :layout=>@layout_name
-      expect(response.body).to_not have_selector(".notification.config_changed_info p", :text=>"Configuration has since been updated and any operations performed will use the current configuration")
+      render :inline => '<div>content</div>', :layout => @layout_name
+      expect(response.body).to_not have_selector(".notification.config_changed_info p", :text => "Configuration has since been updated and any operations performed will use the current configuration")
     end
   end
 
@@ -102,30 +101,30 @@ describe "layouts/pipelines.html.eb" do
     describe "other_stage_runs" do
 
       it "should add javascript to initialize other stage runs microcontent" do
-        assign(:show_stage_status_bar,true)
-        assign(:stage_history_page,last_stage_history_page(1))
-        assign(:stage,stage_with_three_runs)
+        assign(:show_stage_status_bar, true)
+        assign(:stage_history_page, last_stage_history_page(1))
+        assign(:stage, stage_with_three_runs)
         allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path")
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector("script[type='text/javascript']", :text=>/new\sMicroContentPopup\(\$\('other_stage_runs'\),\snew\sMicroContentPopup\.NoOpHandler\(\)\)/, :visible=>false)
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector("script[type='text/javascript']", :text => /new\sMicroContentPopup\(\$\('other_stage_runs'\),\snew\sMicroContentPopup\.NoOpHandler\(\)\)/, :visible => false)
       end
     end
 
     it "should display pipline name and label" do
-      render :inline => '<div>content</div>', :layout=>@layout_name
-      expect(response.body).to have_selector(".entity_status_wrapper .entity_title .name a[href='/pipeline/activity/pipeline-name']", :text=>"pipeline-name")
-      expect(response.body).to have_selector(".entity_status_wrapper .entity_title li", :text=>"1")
-      expect(response.body).to have_selector(".entity_status_wrapper .entity_title .last h1", :text=>"stage-0")
+      render :inline => '<div>content</div>', :layout => @layout_name
+      expect(response.body).to have_selector(".entity_status_wrapper .entity_title .name a[href='/pipeline/activity/pipeline-name']", :text => "pipeline-name")
+      expect(response.body).to have_selector(".entity_status_wrapper .entity_title li", :text => "1")
+      expect(response.body).to have_selector(".entity_status_wrapper .entity_title .last h1", :text => "stage-0")
     end
 
     it "should show the rss feed link" do
-      render :inline => '<div>content</div>', :layout=>@layout_name
+      render :inline => '<div>content</div>', :layout => @layout_name
       expect(response.body).to have_selector("a[href='/api/pipelines/pipeline-name/stages.xml'] .feed")
     end
 
     it "should display stage links" do
       params[:stage_name] = "stage-1"
-      render :inline => '<div>content</div>', :layout=>@layout_name
+      render :inline => '<div>content</div>', :layout => @layout_name
       expect(response.body).to have_selector(".pipeline .stages .stage a.stage_bar[title='stage-0 (Cancelled)'][href='url_to_0']")
       expect(response.body).to have_selector(".pipeline .stages .selected a.stage_bar[title='stage-1 (Cancelled)'][href='url_to_1']")
     end
@@ -139,7 +138,7 @@ describe "layouts/pipelines.html.eb" do
       allow(view).to receive(:stage_detail_tab_path_for).with(:stage_name => 'stage-0', :stage_counter => "1", :action => 'overview').and_return("url_to_0")
       allow(view).to receive(:stage_detail_tab_path_for).with(:stage_name => 'stage-1', :stage_counter => "1", :action => 'overview').and_return("url_to_1")
 
-      render :inline => '<div>content</div>', :layout=>@layout_name
+      render :inline => '<div>content</div>', :layout => @layout_name
 
       expect(response.body).to have_selector(".pipeline .stages .stage_bar[title='stage-0 (Cancelled)'][href=url_to_0]")
       expect(response.body).to have_selector(".pipeline .stages .selected .stage_bar[title='stage-1 (Cancelled)'][href=url_to_1]")
@@ -147,7 +146,7 @@ describe "layouts/pipelines.html.eb" do
     end
 
     it "should not show rerun link when user does not have operate permission" do
-      render :inline => '<div>content</div>', :layout=>@layout_name
+      render :inline => '<div>content</div>', :layout => @layout_name
       expect(response.body).to_not have_selector("#stage_bar_1 .operate a")
     end
 
@@ -168,19 +167,19 @@ describe "layouts/pipelines.html.eb" do
       end
 
       it "should show rerun when scheduled and can run" do
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector("#stage_bar_0 .action_rerun a", :text=>"")
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector("#stage_bar_0 .action_rerun a", :text => "")
       end
 
       it "should show trigger when not scheduled but can run" do
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector("a#stage_bar_trigger_blah-stage", :text=>"")
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector("a#stage_bar_trigger_blah-stage", :text => "")
       end
 
       it "should show up only when can run" do
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to_not have_selector("#stage_bar_1 .operate a", :text=>/Trigger/)
-        expect(response.body).to_not have_selector("#stage_bar_1 .operate a", :text=>/Return/)
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to_not have_selector("#stage_bar_1 .operate a", :text => /Trigger/)
+        expect(response.body).to_not have_selector("#stage_bar_1 .operate a", :text => /Return/)
       end
     end
 
@@ -195,56 +194,56 @@ describe "layouts/pipelines.html.eb" do
       end
 
       it "should show up" do
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector("#stage_bar_0 .action_cancel a", :text=>"")
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector("#stage_bar_0 .action_cancel a", :text => "")
       end
 
       it "should not show up when stage is not running" do
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to_not have_selector("#stage_bar_1 .operate a", :text=>/Cancel/)
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to_not have_selector("#stage_bar_1 .operate a", :text => /Cancel/)
       end
     end
 
     describe "lock link" do
 
       it "should show unlock action if the current pipeline is the locked one" do
-        assign(:pipeline,@pim)
-        assign(:lockedPipeline,@pim.latestStage().getIdentifier())
+        assign(:pipeline, @pim)
+        assign(:lockedPipeline, @pim.latestStage().getIdentifier())
         @pim.setCanUnlock(true)
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector(".locked .locked_instance a", :text=>"Click to unlock")
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector(".locked .locked_instance a", :text => "Click to unlock")
       end
 
       it "should show LOCKED if the current pipeline is the locked one and cannot be unlocked" do
-        assign(:pipeline,@pim)
-        assign(:lockedPipeline,@pim.latestStage().getIdentifier())
+        assign(:pipeline, @pim)
+        assign(:lockedPipeline, @pim.latestStage().getIdentifier())
         @pim.setCanUnlock(false)
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector(".locked .locked_instance span", :text=>"LOCKED")
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector(".locked .locked_instance span", :text => "LOCKED")
       end
 
       it "should show UNLOCKED if the current pipeline is lockable but no instance is currently locked" do
-        assign(:pipeline,@pim)
-        assign(:lockedPipeline,nil)
+        assign(:pipeline, @pim)
+        assign(:lockedPipeline, nil)
         @pim.setIsLockable(true)
-        render :inline => '<div>content</div>', :layout=>@layout_name
+        render :inline => '<div>content</div>', :layout => @layout_name
         expect(response.body).to_not have_selector(".locked")
-        expect(response.body).to have_selector(".locked_instance span", :text=>"UNLOCKED")
+        expect(response.body).to have_selector(".locked_instance span", :text => "UNLOCKED")
       end
 
       it "should show link to locked pipeline if current one is not locked" do
-        assign(:pipeline,@pim)
-        assign(:lockedPipeline,StageIdentifier.new("blah", 1, "cool-bug", "stage", "2"))
+        assign(:pipeline, @pim)
+        assign(:lockedPipeline, StageIdentifier.new("blah", 1, "cool-bug", "stage", "2"))
         @pim.setCanUnlock(true)
 
-        allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"blah", :pipeline_counter=>1, :stage_name=>"stage", :stage_counter=>"2").and_return("pipeline2")
+        allow(view).to receive(:stage_detail_tab_path_for).with({ :pipeline_name => "blah", :pipeline_counter => 1, :stage_name => "stage", :stage_counter => "2" }).and_return("pipeline2")
 
-        render :inline => '<div>content</div>', :layout=>@layout_name
-        expect(response.body).to have_selector(".locked .locked_instance a[href='pipeline2']", :text=>"Locked by cool-bug")
+        render :inline => '<div>content</div>', :layout => @layout_name
+        expect(response.body).to have_selector(".locked .locked_instance a[href='pipeline2']", :text => "Locked by cool-bug")
       end
 
       it "should not show link when no instance is locked" do
-        render :inline => '<div>content</div>', :layout=>@layout_name
+        render :inline => '<div>content</div>', :layout => @layout_name
         expect(response.body).to_not have_selector(".locked .locked_instance")
       end
 
@@ -255,7 +254,7 @@ describe "layouts/pipelines.html.eb" do
         allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path")
         in_params(:action => "stats")
 
-        render :inline => '<div>content</div>', :layout=>@layout_name
+        render :inline => '<div>content</div>', :layout => @layout_name
 
         Capybara.string(response.body).find("div.rail").tap do |div|
           expect(div).to_not have_selector("div#stage_history")

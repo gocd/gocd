@@ -98,7 +98,7 @@ describe ApplicationHelper do
     end
 
     it "should include locals by default" do
-      expect(self).to receive(:render).with(:locals => {:scope => {}}).and_return "foo"
+      expect(self).to receive(:render).with({ :locals => {:scope => {}} }).and_return "foo"
       json = JSON.parse("{\"result\":" + render_json() + "}")
       expect(json["result"]).to eq("foo")
     end

@@ -24,7 +24,7 @@ describe "admin/configuration/edit.html.erb" do
   end
 
   it "should render heading" do
-    assign(:go_config, GoConfig.new({"content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({ "content" => 'current-content', "md5" => 'current-md5', "location" => "path_to_config_xml" }))
 
     render
 
@@ -37,7 +37,7 @@ describe "admin/configuration/edit.html.erb" do
 
   it "should render edit" do
     assign(:render_config_via_ajax, true)
-    assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({ "content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml" }))
     date = java.util.Date.new(1366866649)
     difference = "#{time_ago_in_words(date.to_string)} #{'ago'}"
     cruise_config_revision = double("cruise config revision")
@@ -51,7 +51,7 @@ describe "admin/configuration/edit.html.erb" do
       div.find("div#tab-content-of-source-xml").tap do |tab|
         tab.find(".admin_holder").tap do |admin|
           admin.find("form#config_editor_form[method='post'][action='config_update_path']").tap do |config_editor|
-            expect(config_editor).to have_selector("input[name='_method'][value='put']", {visible: :hidden})
+            expect(config_editor).to have_selector("input[name='_method'][value='put']", visible: :hidden)
             config_editor.find("div.form_heading").tap do |form_heading|
               expect(form_heading).to have_selector("div.config_change_timestamp", :text => "Last modified: #{difference} by Ali")
               expect(form_heading).to have_selector("div.config_change_timestamp[title='Last modified: #{difference} by Ali']")
@@ -71,7 +71,7 @@ describe "admin/configuration/edit.html.erb" do
   end
 
   it "should show global errors in case of config save failure" do
-    assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
+    assign(:go_config, GoConfig.new({ "content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml" }))
     assign(:errors, ['some error that has happened', 'more lines'])
 
     render

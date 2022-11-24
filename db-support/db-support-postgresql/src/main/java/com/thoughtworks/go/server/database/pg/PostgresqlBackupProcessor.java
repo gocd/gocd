@@ -22,32 +22,33 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tools.ant.types.Commandline;
 import org.postgresql.Driver;
 import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessInitException;
 import org.zeroturnaround.exec.ProcessResult;
 import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Properties;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Slf4j
 public class PostgresqlBackupProcessor implements BackupProcessor {
 
+    private static final String COMMAND = "pg_dump";
+
     @Override
     public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) throws Exception {
-        ProcessResult processResult = createProcessExecutor(targetDir, dbProperties).execute();
+        try {
+            ProcessResult processResult = createProcessExecutor(targetDir, dbProperties).execute();
 
-        if (processResult.getExitValue() == 0) {
-            log.info("PostgreSQL backup finished successfully.");
-        } else {
-            log.warn("There was an error backing up the database using `pg_dump`. The `pg_dump` process exited with status code {}.", processResult.getExitValue());
-            throw new RuntimeException("There was an error backing up the database using `pg_dump`. The `pg_dump` process exited with status code " + processResult.getExitValue() +
-                    ". Please see the server logs for more errors.");
-
+            if (processResult.getExitValue() == 0) {
+                log.info("PostgreSQL backup finished successfully.");
+            } else {
+                throwBackupError(COMMAND, processResult.getExitValue());
+            }
+        } catch (ProcessInitException e) {
+            throwBackupError(COMMAND, e.getErrorCode(), e.getCause());
         }
     }
 
@@ -60,8 +61,7 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
         Properties connectionProperties = dbProperties.connectionProperties();
         Properties pgProperties = Driver.parseURL(dbProperties.url(), connectionProperties);
 
-        ArrayList<String> argv = new ArrayList<>();
-        LinkedHashMap<String, String> env = new LinkedHashMap<>();
+        Map<String, String> env = new LinkedHashMap<>();
         if (isNotBlank(dbProperties.password())) {
             env.put("PGPASSWORD", dbProperties.password());
         }
@@ -69,8 +69,10 @@ public class PostgresqlBackupProcessor implements BackupProcessor {
         // override with any user specified environment
         env.putAll(dbProperties.extraBackupEnv());
 
+        List<String> argv = new ArrayList<>();
+        argv.add(COMMAND);
+
         String dbName = pgProperties.getProperty("PGDBNAME");
-        argv.add("pg_dump");
         argv.add("--host=" + pgProperties.getProperty("PGHOST"));
         argv.add("--port=" + pgProperties.getProperty("PGPORT"));
         argv.add("--dbname=" + dbName);

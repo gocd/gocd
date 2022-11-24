@@ -23,15 +23,14 @@ import com.thoughtworks.go.server.database.DbProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tools.ant.types.Commandline;
 import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessInitException;
 import org.zeroturnaround.exec.ProcessResult;
 import org.zeroturnaround.exec.stream.slf4j.Slf4jStream;
 
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -39,16 +38,20 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @Slf4j
 public class MySQLBackupProcessor implements BackupProcessor {
 
+    private static final String COMMAND = "mysqldump";
+
     @Override
     public void backup(File targetDir, DataSource dataSource, DbProperties dbProperties) throws InterruptedException, TimeoutException, IOException {
-        ProcessResult processResult = createProcessExecutor(targetDir, dbProperties).execute();
+        try {
+            ProcessResult processResult = createProcessExecutor(targetDir, dbProperties).execute();
 
-        if (processResult.getExitValue() == 0) {
-            log.info("MySQL backup finished successfully.");
-        } else {
-            log.warn("There was an error backing up the database using `mysqldump`. The `mysqldump` process exited with status code {}.", processResult.getExitValue());
-            throw new RuntimeException("There was an error backing up the database using `mysqldump`. The `mysqldump` process exited with status code " + processResult.getExitValue() +
-                    ". Please see the server logs for more errors");
+            if (processResult.getExitValue() == 0) {
+                log.info("MySQL backup finished successfully.");
+            } else {
+                throwBackupError(COMMAND, processResult.getExitValue());
+            }
+        } catch (ProcessInitException e) {
+            throwBackupError(COMMAND, e.getErrorCode(), e.getCause());
         }
     }
 
@@ -60,16 +63,15 @@ public class MySQLBackupProcessor implements BackupProcessor {
     private ProcessExecutor createProcessExecutor(File targetDir, DbProperties dbProperties) {
         ConnectionUrl connectionUrlInstance = ConnectionUrl.getConnectionUrlInstance(dbProperties.url(), dbProperties.connectionProperties());
 
-        LinkedHashMap<String, String> env = new LinkedHashMap<>();
+        Map<String, String> env = new LinkedHashMap<>();
         if (isNotBlank(dbProperties.password())) {
             env.put("MYSQL_PWD", dbProperties.password());
         }
         // override with any user specified environment
         env.putAll(dbProperties.extraBackupEnv());
 
-        ArrayList<String> argv = new ArrayList<>();
-        argv.add("mysqldump");
-
+        List<String> argv = new ArrayList<>();
+        argv.add(COMMAND);
 
         String dbName = connectionUrlInstance.getDatabase();
         HostInfo mainHost = connectionUrlInstance.getMainHost();
@@ -87,7 +89,7 @@ public class MySQLBackupProcessor implements BackupProcessor {
             Collections.addAll(argv, Commandline.translateCommandline(dbProperties.extraBackupCommandArgs()));
         }
 
-        argv.add("--result-file=" + new File(targetDir, "db." + dbName).toString());
+        argv.add("--result-file=" + new File(targetDir, "db." + dbName));
         argv.add(connectionUrlInstance.getDatabase());
 
         ProcessExecutor processExecutor = new ProcessExecutor();

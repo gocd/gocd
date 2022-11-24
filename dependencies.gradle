@@ -85,7 +85,7 @@ final Map<String, String> libraries = [
   nanohttpd           : 'org.nanohttpd:nanohttpd:2.3.1',
   objenesis           : 'org.objenesis:objenesis:3.3',
   oscache             : 'opensymphony:oscache:2.4.1',
-  postgresql          : 'org.postgresql:postgresql:42.5.0',
+  postgresql          : 'org.postgresql:postgresql:42.5.1',
   quartz              : 'org.quartz-scheduler:quartz:2.3.2',
   rack                : 'org.jruby.rack:jruby-rack:1.1.22',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',

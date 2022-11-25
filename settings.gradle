@@ -16,6 +16,8 @@
 
 rootProject.name = 'gocd'
 
+enableFeaturePreview('GROOVY_COMPILATION_AVOIDANCE')
+
 include ':agent'
 include ':agent-bootstrapper'
 include ':agent-common'

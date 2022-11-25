@@ -503,7 +503,6 @@ subprojects {
 
   tasks.withType(GroovyCompile).configureEach {
     options.incremental = true
-    options.incrementalAfterFailure = true
   }
 
   tasks.withType(JavaCompile) { compileTask ->

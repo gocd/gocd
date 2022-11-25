@@ -538,8 +538,6 @@ subprojects {
 
   tasks.withType(Test) { Test testTask ->
     dependsOn 'jar'
-    // run tests even when inputs have not changed
-//    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {

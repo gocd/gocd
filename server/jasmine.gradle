@@ -166,8 +166,8 @@ task jasmineOld(type: YarnRunTask) {
   yarnCommand = ['jasmine-old-ci']
 
   doFirst {
-    environmentPath = ([ driverImpl().ext.outputDir ] + environmentPath).join(File.pathSeparator)
-    browserExecutable(environmentPath)
+    additionalPath = driverImpl().ext.outputDir
+    browserExecutable(additionalPath)
   }
 }
 
@@ -196,7 +196,7 @@ task jasmineOldServer(type: YarnRunTask) {
   yarnCommand = ['jasmine-old-server']
 
   doFirst {
-    environmentPath = ([ driverImpl().ext.outputDir ] + environmentPath).join(File.pathSeparator)
-    browserExecutable(environmentPath)
+    additionalPath = driverImpl().ext.outputDir
+    browserExecutable(additionalPath)
   }
 }

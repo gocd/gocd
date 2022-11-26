@@ -22,6 +22,8 @@ import org.gradle.api.tasks.*
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.process.ExecSpec
 
+import static com.thoughtworks.go.build.OperatingSystemHelper.normalizeEnvironmentPath
+
 @CacheableTask
 class YarnRunTask extends DefaultTask {
   private File workingDir
@@ -29,12 +31,10 @@ class YarnRunTask extends DefaultTask {
   private List<String> yarnCommand = new ArrayList<>()
   private List<Object> sourceFiles = new ArrayList<Object>()
   private File destinationDir
-  private String environmentPath
+  private String additionalPath
 
   YarnRunTask() {
     inputs.property('os', OperatingSystem.current().toString())
-    environmentPath = System.getenv('PATH')
-
     project.afterEvaluate({
       source(project.file("${getWorkingDir()}/package.json"))
       source(project.file("${getWorkingDir()}/yarn.lock"))
@@ -59,12 +59,9 @@ class YarnRunTask extends DefaultTask {
   }
 
   @Input
-  String getEnvironmentPath() {
-    return environmentPath
-  }
-
-  void setEnvironmentPath(String environmentPath) {
-    this.environmentPath = environmentPath
+  @Optional
+  String getAdditionalPath() {
+    return additionalPath
   }
 
   @InputFiles
@@ -91,8 +88,8 @@ class YarnRunTask extends DefaultTask {
     this.destinationDir = destinationDir
   }
 
-  void setEnvironment(Map<String, ?> environmentVariables) {
-    this.environment = new HashMap(environmentVariables)
+  void setAdditionalPath(String additionalPath) {
+    this.additionalPath = additionalPath
   }
 
   @TaskAction
@@ -102,7 +99,10 @@ class YarnRunTask extends DefaultTask {
     }
 
     project.exec { ExecSpec execSpec ->
-      execSpec.environment("PATH", environmentPath)
+      if (additionalPath) {
+        execSpec.environment = normalizeEnvironmentPath(execSpec.environment)
+        execSpec.environment("PATH", ([additionalPath] + execSpec.environment["PATH"].toString()).join(File.pathSeparator))
+      }
       execSpec.environment("FORCE_COLOR", "true")
       execSpec.standardOutput = System.out
       execSpec.errorOutput = System.err

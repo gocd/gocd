@@ -503,7 +503,6 @@ subprojects {
 
   tasks.withType(GroovyCompile).configureEach {
     options.incremental = true
-    options.incrementalAfterFailure = true
   }
 
   tasks.withType(JavaCompile) { compileTask ->
@@ -539,8 +538,6 @@ subprojects {
 
   tasks.withType(Test) { Test testTask ->
     dependsOn 'jar'
-    // run tests even when inputs have not changed
-//    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
     javaLauncher = javaToolchains.launcherFor {

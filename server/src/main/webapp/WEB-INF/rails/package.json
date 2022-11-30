@@ -71,7 +71,7 @@
     "@types/shell-quote": "^1.7.0",
     "@types/underscore.string": "^0.0.38",
     "@types/url-parse": "^1.4.8",
-    "@types/uuid": "^8.3.4",
+    "@types/uuid": "^9.0.0",
     "@types/webpack": "^4.41.32",
     "add-matchers": "^0.6.2",
     "babel-loader": "^8.3.0",

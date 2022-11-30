@@ -207,6 +207,17 @@
 
   <suppress>
     <notes><![CDATA[
+   There is no fixed/patched version of this library, however GoCD does not appear to be vulnerable as decode-uri-component
+   is only used as a transitive dependency of webpack#micromatch#snapdragon#source-map-resolve#decode-uri-component which
+   is used during dev-time during webpack.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:npm/decode\-uri\-component@.*$</packageUrl>
+    <vulnerabilityName>CVE-2022-38900</vulnerabilityName>
+    <vulnerabilityName>1085054</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

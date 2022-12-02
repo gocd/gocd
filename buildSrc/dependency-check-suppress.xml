@@ -176,6 +176,7 @@
     <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
     <cve>CVE-2021-42392</cve>
     <cve>CVE-2022-23221</cve>
+    <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
   </suppress>
 

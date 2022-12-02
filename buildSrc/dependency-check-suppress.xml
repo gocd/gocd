@@ -176,6 +176,7 @@
     <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
     <cve>CVE-2021-42392</cve>
     <cve>CVE-2022-23221</cve>
+    <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
   </suppress>
 
@@ -203,17 +204,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   There is no fixed/patched version of this library, however GoCD does not appear to be vulnerable as decode-uri-component
-   is only used as a transitive dependency of webpack#micromatch#snapdragon#source-map-resolve#decode-uri-component which
-   is used during dev-time during webpack.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:npm/decode\-uri\-component@.*$</packageUrl>
-    <vulnerabilityName>CVE-2022-38900</vulnerabilityName>
-    <vulnerabilityName>1085054</vulnerabilityName>
   </suppress>
 
   <suppress>

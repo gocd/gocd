@@ -46,7 +46,7 @@
                     <span title="Comment" class="comment">
 
                         {if revision.scmType == 'Package' }
-                            <#include '../shared/_package_material_revision_comment.ftl'>
+                            <#include '../shared/_package_material_revision_comment.ftlh'>
                         {else}
                             <#noparse>"${%comment.replace(/\n/g,"<br>")%}"</#noparse>
                         {/if}

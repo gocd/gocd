@@ -25,12 +25,17 @@
             </list>
         </property>
         <property name="defaultEncoding" value="utf-8"/>
+        <property name="freemarkerSettings">
+          <props>
+            <prop key="recognizeStandardFileExtensions">true</prop>
+          </props>
+        </property>
     </bean>
 
     <bean id="freeMarkerViewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
         <property name="cache" value="true"/>
         <property name="prefix" value=""/>
-        <property name="suffix" value=".ftl"/>
+        <property name="suffix" value=".ftlh"/>
         <property name="exposeSessionAttributes" value="true"/>
         <property name="exposeSpringMacroHelpers" value="true"/>
         <property name="requestContextAttribute" value="req"/>

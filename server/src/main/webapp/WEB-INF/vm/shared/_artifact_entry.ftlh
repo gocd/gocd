@@ -13,15 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
-<#-- @ftlvariable name="modification_extra_attrs" type="java.lang.String" -->
-<div id="tab-content-of-materials" class="widget" ${modification_extra_attrs}>
-    <script type="text/javascript">
-        var json = ${presenter.getMaterialRevisionsJson()};
-    </script>
-    <script type="text/javascript">
-        Event.observe(window, 'load', function(){
-            $('tab-content-of-materials').innerHTML = $('tab-content-of-materials-template').value.process({revisions:json});
-        });
-    </script>
-    <#include '_material_revisions_jstemplate.ftl'>
-</div>
+${presenter.renderArtifactFiles(req.getContextPath())?no_esc}

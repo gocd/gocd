@@ -16,7 +16,7 @@
  -->
 <#-- @ftlvariable name="jobIdentifier" type="com.thoughtworks.go.domain.JobIdentifier" -->
 <#assign title = "Artifacts for ${jobIdentifier.pipelineName} > ${jobIdentifier.pipelineLabel} > ${jobIdentifier.stageName} > ${jobIdentifier.stageCounter} > ${jobIdentifier.buildName}">
-<#include "../shared/_header.ftl">
+<#include "../shared/_header.ftlh">
 
 <div id="yui-main">
     <div class="yui-b">
@@ -26,10 +26,10 @@
                 <h2>${title}</h2>
 
                 <div id="artifacts" class="container-in-body">
-                    <#include "../shared/_artifacts.ftl">
+                    <#include "../shared/_artifacts.ftlh">
                 </div>
             </div>
         </div>
 
-<#include "../shared/_footer.ftl">
+<#include "../shared/_footer.ftlh">
 

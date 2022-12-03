@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
-<#-- @ftlvariable name="tests_extra_attrs" type="java.lang.String" -->
-<div id="tab-content-of-tests" class="widget" ${tests_extra_attrs}>
-    <div class="files">
-        <#if presenter.hasTests()>
-            <iframe sandbox="allow-scripts" src="${req.getContextPath()}/${presenter.indexPageURL}" width="95%" height="500" frameborder="0"></iframe>
-        <#else>
-            <#include "_test_output_config.ftl">
-        </#if>
-    </div>
-</div>
+<#include '_artifact_entry.ftlh'>
+
+<script type="text/javascript">
+    try{
+        BuildDetail.collapseAll();
+    } catch(e) {}
+</script>

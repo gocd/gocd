@@ -19,7 +19,7 @@
 //= link application.js
 //= link lib/d3-3.1.5.min.js
 
-// Used by legacy templates `_header.ftl`
+// Used by legacy templates `_header.ftlh`
 //= link application.css
 //= link patterns/application.css
 //= link css/application.css

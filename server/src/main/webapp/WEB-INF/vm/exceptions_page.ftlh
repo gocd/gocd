@@ -15,15 +15,14 @@
  -->
 <#-- @ftlvariable name="errorMessage" type="java.lang.String" -->
 <#assign title = 'Exception Detail - GoCD'>
-<#include "shared/_header.ftl">
-<#include "shared/_flash_message.ftl">
+<#include "shared/_header.ftlh">
+<#include "shared/_flash_message.ftlh">
     <div id="yui-main">
         <div class="yui-b"></div>
     </div>
     <script type="text/javascript">
-        $('trans_content').update("Sorry, an unexpected error occurred<#if errorMessage??> [${errorMessage?js_string?html}]</#if>. :( Please check the server logs for more information.");
-        var transMessage = new TransMessage('trans_message', document.body,
-                {type: TransMessage.TYPE_ERROR, offsetTop: 200, autoHide: false});
+        $('trans_content').update("Sorry, an unexpected error occurred<#if errorMessage??> [${errorMessage?js_string?no_esc}]</#if>. :( Please check the server logs for more information.");
+        var transMessage = new TransMessage('trans_message', document.body, {type: TransMessage.TYPE_ERROR, offsetTop: 200, autoHide: false});
     </script>
 
 </body>

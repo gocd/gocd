@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.view.velocity;
+package com.thoughtworks.go.server.view.freemarker;
 
 import com.thoughtworks.go.server.service.*;
+import org.jsoup.parser.Parser;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AbstractFreemarkerTemplateTest {
     protected TestFreeMarkerView view;
+    protected final Parser parser = Parser.htmlParser().setTrackErrors(100);
+
     @Mock
     private RailsAssetsService railsAssetsService;
     @Mock
@@ -50,5 +55,11 @@ public class AbstractFreemarkerTemplateTest {
         lenient().doReturn(webpackAssetsService).when(view).webpackAssetsService();
         lenient().doReturn(securityService).when(view).getSecurityService();
         lenient().doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
+    }
+
+    @AfterEach
+    public void checkParseErrors() {
+        assertThat(parser.isTrackErrors()).isTrue();
+        assertThat(parser.getErrors()).isEmpty();
     }
 }

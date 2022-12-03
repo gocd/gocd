@@ -33,7 +33,7 @@
   </#if>
 </li>
   <li><span class="header">Completed on: </span><span id="build_completed_date">${r'${% build.build_completed_date %}'}</span></li>
-<li><span class="header">Build cause: </span><span id="stage-${r'${% build.id %}'}-buildCause">${presenter.buildCauseMessage?html?html}</span></li>
+<li><span class="header">Build cause: </span><span id="stage-${r'${% build.id %}'}-buildCause"><#noautoesc>${presenter.buildCauseMessage?html?html}</#noautoesc></span></li>
   {if build.current_status.toLowerCase() == 'passed' ||  build.current_status.toLowerCase() == 'failed'}
 <li><span class="header">Duration: </span><span>${r"${% moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() %}"}</span></li>
 {/if}

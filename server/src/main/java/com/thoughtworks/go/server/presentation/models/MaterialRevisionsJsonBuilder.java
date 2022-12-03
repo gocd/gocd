@@ -33,10 +33,10 @@ import static com.thoughtworks.go.util.DateUtils.formatISO8601;
 import static java.lang.String.valueOf;
 
 public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
-    private List materials = new ArrayList();
+    private final List<Object> materials = new ArrayList<>();
     private Map<String, Object> materialJson;
-    private List modificationsJson;
-    private List modifiedFilesJson;
+    private List<Object> modificationsJson;
+    private List<Object> modifiedFilesJson;
     private boolean includeModifiedFiles = true;
     private final CommentRenderer commentRenderer;
     private MaterialRevision revision;
@@ -48,9 +48,9 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
     @Override
     public void visit(MaterialRevision revision) {
         this.revision = revision;
-        modificationsJson = new ArrayList();
+        modificationsJson = new ArrayList<>();
 
-        materialJson = new LinkedHashMap();
+        materialJson = new LinkedHashMap<>();
         materialJson.put("revision", revision.getRevision().getRevision());
         materialJson.put("revision_href", revision.getRevision().getRevisionUrl());
         materialJson.put("user", revision.buildCausedBy());
@@ -68,7 +68,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
 
     @Override
     public void visit(Modification modification) {
-        modifiedFilesJson = new ArrayList();
+        modifiedFilesJson = new ArrayList<>();
 
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("user", modification.getUserDisplayName());
@@ -97,7 +97,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         modifiedFilesJson.add(jsonMap);
     }
 
-    public List json() {
+    public List<Object> json() {
         return materials;
     }
 

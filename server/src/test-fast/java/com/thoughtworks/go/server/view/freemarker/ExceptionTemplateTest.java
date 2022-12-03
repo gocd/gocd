@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.view.velocity;
+package com.thoughtworks.go.server.view.freemarker;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +21,10 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExceptionTemplateTest extends AbstractFreemarkerTemplateTest {
-    public static final String TEMPLATE_PATH = "exceptions_page.ftl";
+    public static final String TEMPLATE_PATH = "exceptions_page.ftlh";
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -38,12 +37,21 @@ public class ExceptionTemplateTest extends AbstractFreemarkerTemplateTest {
         data.put("errorMessage", "ERROR MESSAGE");
 
         String output = view.render(data);
-        assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred [ERROR MESSAGE]. :( Please check the server logs for more information.\");"));
+        assertThat(output).contains("$('trans_content').update(\"Sorry, an unexpected error occurred [ERROR MESSAGE]. :( Please check the server logs for more information.\");");
+    }
+
+    @Test
+    public void shouldHaveErrorMessageAlongWithCustomMessageEscapedCorrectly() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("errorMessage", "<Error> you shouldn't \"expect\"");
+
+        String output = view.render(data);
+        assertThat(output).contains("$('trans_content').update(\"Sorry, an unexpected error occurred [<Error> you shouldn\\'t \\\"expect\\\"]. :( Please check the server logs for more information.\");");
     }
 
     @Test
     public void shouldHaveTheGenericMessageInOutputOfTemplateWhenCustomErrorMessageIsNotProvided() {
         String output = view.render(new HashMap<>());
-        assertThat(output, containsString("$('trans_content').update(\"Sorry, an unexpected error occurred. :( Please check the server logs for more information.\");"));
+        assertThat(output).contains("$('trans_content').update(\"Sorry, an unexpected error occurred. :( Please check the server logs for more information.\");");
     }
 }

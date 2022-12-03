@@ -375,7 +375,7 @@ Graph_Renderer = function (container) {
                 + '<div class="usercomment wraptext">' + parseComment(instance.comment) + '</div>'
                 + '<div class="author">'
                 + '<p>' + _.escape(instance.user) + ' </p>'
-                + '<p>' + instance.modified_time + '</p>'
+                + '<p>' + _.escape(instance.modified_time) + '</p>'
                 + '</div>'
                 + '</li>';
     }
@@ -387,10 +387,10 @@ Graph_Renderer = function (container) {
             var package_comment = comment_map['COMMENT'];
             var trackback_url = comment_map['TRACKBACK_URL'];
             if (typeof package_comment !== "undefined" || package_comment != null) {
-                comment_markup = package_comment + "<br/>";
+                comment_markup = _.escape(package_comment) + "<br/>";
             }
             if (typeof trackback_url !== "undefined" || trackback_url != null) {
-                return comment_markup + "Trackback: " + "<a href=" + trackback_url + ">" + trackback_url + "</a>";
+                return comment_markup + "Trackback: " + "<a href=" + _.escape(trackback_url) + ">" + _.escape(trackback_url) + "</a>";
             }
             return comment_markup + "Trackback: " + "Not Provided";
         }
@@ -404,10 +404,10 @@ Graph_Renderer = function (container) {
             var package_comment = comment_map['COMMENT'];
             var trackback_url = comment_map['TRACKBACK_URL'];
             if (typeof package_comment !== "undefined" || package_comment != null) {
-                comment_tooltip = package_comment + "\n";
+                comment_tooltip = _.escape(package_comment) + "\n";
             }
             if (typeof trackback_url !== "undefined" || trackback_url != null) {
-                return comment_tooltip + "Trackback: " + trackback_url;
+                return comment_tooltip + "Trackback: " + _.escape(trackback_url);
             }
             return comment_tooltip + "Trackback: " + "Not Provided";
         }
@@ -460,7 +460,7 @@ Graph_Renderer = function (container) {
         var gui = '';
         gui += '<h3 title="' + node.name + '" class="restricted">' + node.name + '</h3>';
         if (node.message) {
-            gui += '<div class="message restricted"><span>' + node.message + '</span></div>';
+            gui += '<div class="message restricted"><span>' + _.escape(node.message) + '</span></div>';
         }
         gui += '<div class="actions restricted">';
         gui += '<button class="pin" title="Keep dependencies highlighted" /></div>';
@@ -470,7 +470,7 @@ Graph_Renderer = function (container) {
     function renderWarning(node) {
         var gui = '';
         if (node.message) {
-            gui += '<div class="warning"><span>' + node.message + '</span></div>';
+            gui += '<div class="warning"><span>' + _.escape(node.message) + '</span></div>';
         }
         return gui;
     }
@@ -479,7 +479,7 @@ Graph_Renderer = function (container) {
         var gui = '';
         gui += '<h3 title="' + node.name + '" class="deleted">' + node.name + '</h3>';
         if (node.message) {
-            gui += '<div class="message deleted"><span>' + node.message + '</span></div>';
+            gui += '<div class="message deleted"><span>' + _.escape(node.message) + '</span></div>';
         }
         gui += '<div class="actions deleted"><button class="pin" title="Keep dependencies highlighted" /></div>';
         return gui;
@@ -491,10 +491,10 @@ Graph_Renderer = function (container) {
         gui += '<li class="instance">';
         if (instance.label != '') {
             if (isCurrent) {
-                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance: ' + instance.label + '</span></h4>';
+                gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span></h4>';
             }
             else {
-                gui += '<h4 title="' + instance.label + '"><span class="pipeline_run_label">Instance: ' + instance.label + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">' + 'VSM' + '</a></span></h4>';
+                gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">' + 'VSM' + '</a></span></h4>';
             }
         }
         if(instance.locator.trim() != "") {

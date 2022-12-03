@@ -208,6 +208,17 @@
 
   <suppress>
     <notes><![CDATA[
+   https://nvd.nist.gov/vuln/detail/CVE-2022-1471 appears to be a dubious vulnerability and not mitigatable. To our
+   knowledge GoCD and its dependencies does not use SnakeYaml in a vulnerable way here, so suppressing this as a false
+   positive.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+    <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
+    <cve>CVE-2022-1471</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

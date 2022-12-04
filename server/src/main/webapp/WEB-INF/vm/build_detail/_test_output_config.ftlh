@@ -17,17 +17,19 @@
 <p>No test output found. Make sure your job configuration includes a test artifact.</p><br/>
 <p>For example:</p><br/>
 <pre>
+<#noautoesc>
 &lt;job name="example"&gt;
-  ${tab} &lt;resources&gt;
-  ${tab}${tab} &lt;resource&gt;java&lt;/resource&gt;
-  ${tab} &lt;/resources&gt;
-  <strong class='code'>${tab} &lt;artifacts&gt;
-  ${tab}${tab} &lt;test src="target/reports" /&gt;
-  ${tab} &lt;/artifacts&gt;</strong>
-  ${tab} &lt;tasks&gt;
-  ${tab}${tab} &lt;ant target="unit_tests" /&gt;
-  ${tab} &lt;/tasks&gt;
+${tab}&lt;resources&gt;
+${tab}${tab}&lt;resource&gt;java&lt;/resource&gt;
+${tab}&lt;/resources&gt;
+<strong class='code'>${tab}&lt;artifacts&gt;
+${tab}${tab}&lt;test src="target/reports" /&gt;
+${tab}&lt;/artifacts&gt;</strong>
+${tab}&lt;tasks&gt;
+${tab}${tab}&lt;ant target="unit_tests" /&gt;
+${tab}&lt;/tasks&gt;
 &lt;/job&gt;
+</#noautoesc>
 </pre>
 <br/>
 <p><a href="${currentGoCDVersion.docsUrl('/configuration/managing_artifacts_and_reports.html')}" target='_blank' class="obvious_link">Help Topic: Managing Artifacts and Reports</a></p>

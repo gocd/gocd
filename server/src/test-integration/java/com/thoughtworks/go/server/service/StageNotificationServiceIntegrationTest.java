@@ -41,7 +41,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
-import java.sql.SQLException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -74,7 +73,7 @@ public class StageNotificationServiceIntegrationTest {
     private StageNotificationService stageNotificationService;
 
     private StageNotificationListener stageNotificationListener;
-    private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic;
+    private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
     private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
     private StageService stageService;
 
@@ -82,7 +81,7 @@ public class StageNotificationServiceIntegrationTest {
     public void setUp(@TempDir Path tempDir) throws Exception {
 
         stageService = mock(StageService.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService,inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
+        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
         stageNotificationListener = new StageNotificationListener(stageNotificationService, goConfigService, stageResultTopic);
 
         dbHelper.onSetUp();
@@ -93,9 +92,6 @@ public class StageNotificationServiceIntegrationTest {
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineFixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         configFileHelper.enableSecurity();
-
-        inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
-        stageNotificationService.setEmailNotificationTopic(inMemoryEmailNotificationTopic);
     }
 
     @AfterEach
@@ -112,7 +108,7 @@ public class StageNotificationServiceIntegrationTest {
     }
 
     @Test
-    public void shouldOnlySendEmailToMatchedUser() throws SQLException {
+    public void shouldOnlySendEmailToMatchedUser() {
         String jezMail = prepareOneMatchedUser();
         String chrisMail = prepareOneNotMatchedUser();
 
@@ -139,7 +135,7 @@ public class StageNotificationServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailWithCancelledInfo() throws SQLException {
+    public void shouldSendEmailWithCancelledInfo() {
         String jezMail = prepareOneMatchedUser();
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         Stage ftStage = mockStageServiceWithStage(pipeline);
@@ -164,7 +160,7 @@ public class StageNotificationServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailWithLink() throws SQLException {
+    public void shouldSendEmailWithLink() {
         String jezMail = prepareOneMatchedUser();
 
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
@@ -181,7 +177,7 @@ public class StageNotificationServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailWhenStageBreaks() throws SQLException {
+    public void shouldSendEmailWhenStageBreaks() {
         String jezMail = prepareOneMatchedUser(StageEvent.Breaks);
 
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
@@ -197,7 +193,7 @@ public class StageNotificationServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailWhenStageFixed() throws SQLException {
+    public void shouldSendEmailWhenStageFixed() {
         String jezMail = prepareOneMatchedUser(StageEvent.Fixed);
 
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesCompleted(JobResult.Failed);
@@ -212,7 +208,7 @@ public class StageNotificationServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSendEmailWhenStageContinueFail() throws SQLException {
+    public void shouldSendEmailWhenStageContinueFail() {
         String jezMail = prepareOneMatchedUser(StageEvent.Fails);
 
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesCompleted(JobResult.Failed);

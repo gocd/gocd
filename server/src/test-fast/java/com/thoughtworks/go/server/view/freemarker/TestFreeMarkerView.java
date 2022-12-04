@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.view.velocity;
+package com.thoughtworks.go.server.view.freemarker;
 
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.server.web.GoCDFreeMarkerView;
@@ -24,6 +24,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Properties;
 
 class TestFreeMarkerView extends GoCDFreeMarkerView {
 
@@ -33,6 +34,10 @@ class TestFreeMarkerView extends GoCDFreeMarkerView {
         FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
         configurer.setDefaultEncoding(StandardCharsets.UTF_8.name());
         configurer.setTemplateLoaderPath("file:src/main/webapp/WEB-INF/vm");
+
+        Properties settings = new Properties();
+        settings.put("recognizeStandardFileExtensions", "true");
+        configurer.setFreemarkerSettings(settings);
 
         setConfiguration(configurer.createConfiguration());
         setServletContext(new MockServletContext());

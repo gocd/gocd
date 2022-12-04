@@ -37,7 +37,7 @@
     </div>
     <script type="text/javascript">
         <#list presenter.recent25 as listPresenter>
-        json_to_css.update_build_list(eval(${listPresenter.toJsonString()}), ${listPresenter?counter}, "${req.getContextPath()}/${concatenatedStageBarCancelledIconFilePath}");
+        json_to_css.update_build_list(eval(${listPresenter.toJsonString()?no_esc}), ${listPresenter?counter}, "${req.getContextPath()}/${concatenatedStageBarCancelledIconFilePath}");
         </#list>
 
       jQuery(function() {

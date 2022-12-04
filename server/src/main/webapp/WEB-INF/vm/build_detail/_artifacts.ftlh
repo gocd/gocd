@@ -13,7 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
-<#-- @ftlvariable name="buildoutput_extra_attrs" type="java.lang.String" -->
-<div id="tab-content-of-console" class="ansi-color-toggle" ${buildoutput_extra_attrs}>
-    <#include "_build_output_raw.ftl">
+<#-- @ftlvariable name="artifacts_extra_attrs" type="java.lang.String" -->
+<div class="widget container-in-body" id="tab-content-of-artifacts" ${artifacts_extra_attrs}>
+    <#if presenter.artifactFiles??>
+        <#if presenter.artifactFiles?size > 0>
+          <div class="artifacts-operations-container">
+            <a class="collapse-all" onclick="BuildDetail.expandAll()">(+) Expand All</a> <a class="expand-all" onclick="BuildDetail.collapseAll()">(-) Collapse All</a>
+          </div>
+        </#if>
+    </#if>
+  <div class="files">
+      <#include "../shared/_artifacts.ftlh">
+  </div>
 </div>

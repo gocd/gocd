@@ -40,10 +40,10 @@ public class StageNotificationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageNotificationService.class);
     private final PipelineService pipelineService;
     private final UserService userService;
-    private EmailNotificationTopic emailNotificationTopic;
+    private final EmailNotificationTopic emailNotificationTopic;
     private final SystemEnvironment systemEnvironment;
-    private StageService stageService;
-    private ServerConfigService serverConfigService;
+    private final StageService stageService;
+    private final ServerConfigService serverConfigService;
     protected static final String MATERIAL_SECTION_HEADER = "-- CHECK-INS --";
 
     @Autowired
@@ -82,11 +82,6 @@ public class StageNotificationService {
             }
         }
         LOGGER.debug("Finished processing notification titled [{}]", subject);
-    }
-
-    //only for test
-    void setEmailNotificationTopic(EmailNotificationTopic emailNotificationTopic) {
-        this.emailNotificationTopic = emailNotificationTopic;
     }
 
     private class EmailBodyGenerator implements ModificationVisitor {

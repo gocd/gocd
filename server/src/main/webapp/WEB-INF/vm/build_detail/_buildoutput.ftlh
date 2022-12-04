@@ -13,10 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
-<#include '_artifact_entry.ftl'>
-
-<script type="text/javascript">
-    try{
-        BuildDetail.collapseAll();
-    } catch(e) {}
-</script>
+<#-- @ftlvariable name="buildoutput_extra_attrs" type="java.lang.String" -->
+<div id="tab-content-of-console" class="ansi-color-toggle" ${buildoutput_extra_attrs}>
+    <#include "_build_output_raw.ftlh">
+</div>

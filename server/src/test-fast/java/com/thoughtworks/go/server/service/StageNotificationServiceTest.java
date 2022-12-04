@@ -28,15 +28,14 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class StageNotificationServiceTest {
@@ -64,7 +63,7 @@ public class StageNotificationServiceTest {
     }
 
     @Test
-    public void shouldSendEmailWithModificationInfo() throws SQLException {
+    public void shouldSendEmailWithModificationInfo() {
         String jezMail = prepareOneMatchedUser();
         final Date date = new Date();
         stubPipelineAndStage(date);
@@ -82,7 +81,7 @@ public class StageNotificationServiceTest {
     }
 
     @Test
-    public void shouldNotComputeFailedTestSuitesWhenThereAreNoSubscribers() throws Exception {
+    public void shouldNotComputeFailedTestSuitesWhenThereAreNoSubscribers() {
         when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));

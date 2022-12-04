@@ -16,9 +16,10 @@
 package com.thoughtworks.go.server.messaging;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class InMemoryEmailNotificationTopic extends EmailNotificationTopic {
-    private ArrayList<SendEmailMessage> messages = new ArrayList<>();
+    private final List<SendEmailMessage> messages = new ArrayList<>();
 
     public InMemoryEmailNotificationTopic() {
         super(null);

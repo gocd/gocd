@@ -158,7 +158,7 @@ task verifyJar(type: VerifyJarTask) {
       "gson-${project.versions.gson}.jar",
       "guava-${project.versions.guava}.jar",
       "httpclient-${project.versions.apacheHttpComponents}.jar",
-      "httpcore-4.4.13.jar",
+      "httpcore-4.4.16.jar",
       "httpmime-${project.versions.apacheHttpComponents}.jar",
       "istack-commons-runtime-4.1.1.jar",
       "j2objc-annotations-1.3.jar",

@@ -371,7 +371,7 @@ Graph_Renderer = function (container) {
     function renderScmInstance(instance) {
 
         return '<li class="instance">'
-                + '<div title="' + instance.revision + '" class="revision"><span>Revision: </span>' + '<a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
+                + '<div title="' + instance.revision + '" class="revision"><span>Revision: </span><a href="' + instance.locator + '">' + instance.revision + '</a>' + ' </div>'
                 + '<div class="usercomment wraptext">' + parseComment(instance.comment) + '</div>'
                 + '<div class="author">'
                 + '<p>' + _.escape(instance.user) + ' </p>'
@@ -390,9 +390,9 @@ Graph_Renderer = function (container) {
                 comment_markup = _.escape(package_comment) + "<br/>";
             }
             if (typeof trackback_url !== "undefined" || trackback_url != null) {
-                return comment_markup + "Trackback: " + "<a href=" + _.escape(trackback_url) + ">" + _.escape(trackback_url) + "</a>";
+                return comment_markup + 'Trackback: <a href="' + encodeURI(trackback_url) + '">' + _.escape(trackback_url) + '</a>';
             }
-            return comment_markup + "Trackback: " + "Not Provided";
+            return comment_markup + 'Trackback: Not Provided';
         }
         return _.escape(comment);
     }
@@ -407,9 +407,9 @@ Graph_Renderer = function (container) {
                 comment_tooltip = _.escape(package_comment) + "\n";
             }
             if (typeof trackback_url !== "undefined" || trackback_url != null) {
-                return comment_tooltip + "Trackback: " + _.escape(trackback_url);
+                return comment_tooltip + 'Trackback: ' + _.escape(trackback_url);
             }
-            return comment_tooltip + "Trackback: " + "Not Provided";
+            return comment_tooltip + 'Trackback: Not Provided';
         }
         return _.escape(comment);
     }
@@ -494,7 +494,7 @@ Graph_Renderer = function (container) {
                 gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span></h4>';
             }
             else {
-                gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">' + 'VSM' + '</a></span></h4>';
+                gui += '<h4 title="' + _.escape(instance.label) + '"><span class="pipeline_run_label">Instance: ' + _.escape(instance.label) + '</span><span class="vsm_link_wrapper"><a href="' + instance.locator + '">VSM</a></span></h4>';
             }
         }
         if(instance.locator.trim() != "") {

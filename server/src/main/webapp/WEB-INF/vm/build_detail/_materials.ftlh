@@ -23,5 +23,5 @@
             $('tab-content-of-materials').innerHTML = $('tab-content-of-materials-template').value.process({revisions:json});
         });
     </script>
-    <#include '_material_revisions_jstemplate.ftl'>
+    <#include '_material_revisions_jstemplate.ftlh'>
 </div>

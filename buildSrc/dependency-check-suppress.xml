@@ -199,6 +199,14 @@
 
   <suppress>
     <notes><![CDATA[
+   Suppress false positive matches for commons-net across almost all other commons-* libraries.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/.*/(.*commons-[^n].*|jcl-over-slf4j)@.*$</packageUrl>
+    <cpe>cpe:/a:apache:commons_net</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     False positive CPE match - the Eclipse Angus Mail SMTP component is not the Eclipse IDE :-)
     See https://github.com/jeremylong/DependencyCheck/issues/4653
     ]]></notes>

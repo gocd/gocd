@@ -82,6 +82,8 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.1.10)
     crass (1.0.6)
+    date (3.3.1)
+    date (3.3.1-java)
     diff-lcs (1.5.0)
     erubi (1.11.0)
     ffi (1.15.5-java)
@@ -106,7 +108,8 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.16.3)
-    net-imap (0.3.1)
+    net-imap (0.3.2)
+      date
       net-protocol
     net-pop (0.1.2)
       net-protocol

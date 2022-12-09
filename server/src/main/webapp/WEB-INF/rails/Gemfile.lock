@@ -127,7 +127,7 @@ GEM
     pry-debugger-jruby (2.1.0-java)
       pry (>= 0.13, < 0.15)
       ruby-debug-base (>= 0.10.4, < 0.12)
-    public_suffix (5.0.0)
+    public_suffix (5.0.1)
     racc (1.6.1)
     racc (1.6.1-java)
     rack (2.2.4)

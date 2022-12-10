@@ -865,6 +865,7 @@ task verifyWar(type: VerifyJarTask) {
         "jsr305-3.0.2.jar",
         "jta-1.1.jar",
         "liquibase-core-${project.versions.liquibase}.jar",
+        "liquibase-slf4j-${project.versions.liquibaseSlf4j}.jar",
         "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",

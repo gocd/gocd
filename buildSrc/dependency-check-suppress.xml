@@ -36,16 +36,6 @@
 
   <suppress>
     <notes><![CDATA[
-    Hibernate Commons Annotations is a different project, versioned separately to the core "Hibernate ORM", so CVEs against this are misleading
-    and false positives. We will still seem them reported against other Hibernate dependencies, however.
-    See https://github.com/jeremylong/DependencyCheck/issues/4651
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.hibernate/hibernate\-commons\-annotations@.*$</packageUrl>
-    <cpe>cpe:/a:hibernate:hibernate_orm</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
     https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
     ]]></notes>
@@ -195,23 +185,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
     <cve>CVE-2021-29425</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-   Suppress false positive matches for commons-net across almost all other commons-* libraries.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/.*/(.*commons-[^n].*|jcl-over-slf4j)@.*$</packageUrl>
-    <cpe>cpe:/a:apache:commons_net</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    False positive CPE match - the Eclipse Angus Mail SMTP component is not the Eclipse IDE :-)
-    See https://github.com/jeremylong/DependencyCheck/issues/4653
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/smtp@.*$</packageUrl>
-    <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
   </suppress>
 
   <suppress>

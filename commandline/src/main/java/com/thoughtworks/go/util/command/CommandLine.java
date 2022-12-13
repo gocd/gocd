@@ -327,7 +327,13 @@ public class CommandLine {
         ProcessWrapper process;
         int exitCode;
 
-        SafeOutputStreamConsumer streamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(outputStreamConsumer, errorStreamConsumer));
+        SafeOutputStreamConsumer streamConsumer =
+            new SafeOutputStreamConsumer(
+                new BoundedOutputStreamConsumer(
+                    new ProcessOutputStreamConsumer(outputStreamConsumer, errorStreamConsumer),
+                    new SystemEnvironment().get(SystemEnvironment.CONSOLE_LOG_MAX_LINE_LENGTH)
+                )
+        );
         streamConsumer.addArguments(getArguments());
         streamConsumer.addSecrets(environmentVariableContext.secrets());
         try {

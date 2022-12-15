@@ -250,6 +250,7 @@ DEPENDENCIES
   sassc!
   sassc-embedded
   sassc-rails
+  sprockets-rails
   ts_routes
   tzinfo-data
 

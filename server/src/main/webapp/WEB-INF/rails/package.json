@@ -30,7 +30,7 @@
     "classnames": "^2.3.2",
     "clipboard-polyfill": "^3.0.3",
     "core-js": "^3.26.1",
-    "filesize": "^9.0.11",
+    "filesize": "^10.0.6",
     "font-awesome": "^4.7.0",
     "foundation-sites": "=6.3.0",
     "hack-font": "^3.3.0",

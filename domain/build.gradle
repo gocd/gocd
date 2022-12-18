@@ -23,6 +23,9 @@ dependencies {
   implementation project(':config:config-api')
   implementation project(':commandline')
   implementation project(':plugin-infra:plugin-metadata-store')
+  implementation(project.deps.apacheAnt)  {
+    transitive = false
+  }
   implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsCollections4
   implementation project.deps.commonsText

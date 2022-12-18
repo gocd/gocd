@@ -20,9 +20,6 @@ dependencies {
   providedAtPackageTime project.deps.bouncyCastle
   providedAtPackageTime project.deps.bouncyCastlePkix
 
-  api(project.deps.apacheAnt)  {
-    transitive = false
-  }
   api project.deps.commonsIO
   api project.deps.commonsLang3
   api project.deps.commonsCodec

@@ -27,7 +27,7 @@ jar {
     )
   }
 
-  from(project.configurations.compileClasspath) {
+  from(project.configurations.runtimeClasspath) {
     into "lib"
   }
 }

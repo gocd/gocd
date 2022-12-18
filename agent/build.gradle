@@ -110,7 +110,7 @@ task fatJar(type: Jar) {
     attributes 'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.agent.AgentProcessParentImpl'
   }
 
-  from(configurations.compileClasspath + project.configurations.packagingOnly + jar.archiveFile) {
+  from(configurations.runtimeClasspath + project.configurations.packagingOnly + jar.archiveFile) {
     into "lib/"
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
   }
@@ -126,6 +126,7 @@ task verifyJar(type: VerifyJarTask) {
     "lib": [
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
+      "angus-activation-1.0.0.jar",
       "animal-sniffer-annotations-1.9.jar",
       "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",

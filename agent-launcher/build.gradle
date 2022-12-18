@@ -46,7 +46,7 @@ task fatJar(type: Jar) {
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
   }
 
-  from(configurations.compileClasspath + configurations.packagingOnly + jar.archiveFile) { into "libs/" }
+  from(configurations.runtimeClasspath + configurations.packagingOnly + jar.archiveFile) { into "libs/" }
 }
 
 task verifyJar(type: VerifyJarTask) {
@@ -55,7 +55,6 @@ task verifyJar(type: VerifyJarTask) {
       "libs": [
           "agent-common-${project.version}.jar",
           "agent-launcher-${project.version}-classes.jar",
-          "ant-${project.versions.apacheAnt}.jar",
           "base-${project.version}.jar",
           "bcpkix-jdk18on-${project.versions.bouncyCastle}.jar",
           "bcprov-jdk18on-${project.versions.bouncyCastle}.jar",

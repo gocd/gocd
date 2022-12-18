@@ -39,11 +39,8 @@ import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsPublisherTest {
@@ -100,11 +97,9 @@ public class ArtifactsPublisherTest {
         prepareTestFolder(workingFolder, "test2");
 
         publisher.setShouldFail(true);
-        try {
-            artifactsPublisher.publishArtifacts(artifactPlans, env);
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Failed to upload [test1, test2]"));
-        }
+
+        assertThatThrownBy(() -> artifactsPublisher.publishArtifacts(artifactPlans, env))
+            .hasMessageContaining("Failed to upload [test1, test2]");
     }
 
     @Test
@@ -121,13 +116,7 @@ public class ArtifactsPublisherTest {
 
         new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder).publishArtifacts(artifactPlans, env);
 
-        Map<File, String> expectedFiles = new HashMap<File, String>() {
-            {
-                put(src1, "dest");
-                put(src2, "test");
-            }
-        };
-        assertThat(publisher.publishedFiles(), is(expectedFiles));
+        assertThat(publisher.publishedFiles()).containsExactlyEntriesOf(Map.of(src1, "dest", src2, "test"));
     }
 
     @Test
@@ -141,18 +130,11 @@ public class ArtifactsPublisherTest {
 
         artifactsPublisher.publishArtifacts(artifactPlans, env);
 
-        Map<File, String> expectedFiles = new HashMap<File, String>() {
-            {
-                put(testFile1, "dest");
-                put(testFile2, "dest");
-                put(testFile3, "dest");
-            }
-        };
-        assertThat(publisher.publishedFiles(), is(expectedFiles));
+        assertThat(publisher.publishedFiles()).containsExactlyInAnyOrderEntriesOf(Map.of(testFile1, "dest", testFile2, "dest", testFile3, "dest"));
     }
 
     @Test
-    public void shouldPublishPluggableArtifactsAndUploadMetadataFileToServer() throws IOException {
+    public void shouldPublishPluggableArtifactsAndUploadMetadataFileToServer() {
         final ArtifactStore s3ArtifactStore = new ArtifactStore("s3", "cd.go.s3", create("access_key", false, "some-key"));
         final ArtifactStore dockerArtifactStore = new ArtifactStore("docker", "cd.go.docker", create("registry-url", false, "docker.io"));
         final ArtifactStores artifactStores = new ArtifactStores(s3ArtifactStore, dockerArtifactStore);
@@ -167,7 +149,7 @@ public class ArtifactsPublisherTest {
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
                 .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env);
 
-        assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles()), containsInAnyOrder("cd.go.s3.json", "cd.go.docker.json"));
+        assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles())).containsExactlyInAnyOrder("cd.go.s3.json", "cd.go.docker.json");
     }
 
     @Test
@@ -178,15 +160,10 @@ public class ArtifactsPublisherTest {
 
         when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env))).thenThrow(new RuntimeException("something"));
 
-        try {
-            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                    .publishArtifacts(Arrays.asList(artifactPlan), env);
-            fail("Should throw error for pluggable artifact [installers].");
-        } catch (Exception e) {
-            assertThat(publisher.publishedFiles().size(), is(0));
-            assertThat(e.getMessage(), containsString("[go] Uploading finished. Failed to upload [installers]."));
-        }
-
+        assertThatThrownBy(() -> new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+                    .publishArtifacts(List.of(artifactPlan), env))
+            .hasMessageContaining("[go] Uploading finished. Failed to upload [installers].");
+        assertThat(publisher.publishedFiles().size()).isEqualTo(0);
     }
 
     @Test
@@ -200,16 +177,16 @@ public class ArtifactsPublisherTest {
         when(artifactExtension.publishArtifact(eq("cd.go.s3"), eq(artifactPlan), eq(artifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("Foo", "Bar")));
 
-        workingFolder.setWritable(false);
+        assertThat(workingFolder.setWritable(false)).isTrue();
 
         assertThatThrownBy(() -> new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(Arrays.asList(artifactPlan), env))
+                .publishArtifacts(List.of(artifactPlan), env))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("[go] Could not create pluggable artifact metadata folder");
     }
 
     @Test
-    public void shouldContinueWithOtherPluginWhenPublishArtifactCallFailsForOnePlugin() throws IOException {
+    public void shouldContinueWithOtherPluginWhenPublishArtifactCallFailsForOnePlugin() {
         final ArtifactStore s3ArtifactStore = new ArtifactStore("s3", "cd.go.s3", create("access_key", false, "some-key"));
         final ArtifactStore dockerArtifactStore = new ArtifactStore("docker", "cd.go.docker", create("registry-url", false, "docker.io"));
         final ArtifactStores artifactStores = new ArtifactStores(s3ArtifactStore, dockerArtifactStore);
@@ -220,15 +197,12 @@ public class ArtifactsPublisherTest {
                 .thenThrow(new RuntimeException("Interaction with plugin `cd.go.s3` failed."));
         when(artifactExtension.publishArtifact(eq("cd.go.docker"), eq(dockerArtifactPlan), eq(dockerArtifactStore), anyString(), eq(env)))
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("tag", "10.12.0")));
-        try {
-            new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                    .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env);
-            fail("Should throw error for pluggable artifact [installers].");
-        } catch (Exception e) {
-            assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles()), containsInAnyOrder("cd.go.docker.json"));
-            assertThat(publisher.getMessage(), containsString("[go] Interaction with plugin `cd.go.s3` failed"));
-            assertThat(e.getMessage(), containsString("[go] Uploading finished. Failed to upload [installers]."));
-        }
+
+        assertThatThrownBy(() -> new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
+                    .publishArtifacts(Arrays.asList(s3ArtifactPlan, dockerArtifactPlan), env))
+            .hasMessageContaining("[go] Uploading finished. Failed to upload [installers].");
+            assertThat(uploadedPluggableMetadataFiles(publisher.publishedFiles())).containsExactly("cd.go.docker.json");
+            assertThat(publisher.getMessage()).contains("[go] Interaction with plugin `cd.go.s3` failed");
     }
 
     private Set<String> uploadedPluggableMetadataFiles(Map<File, String> actual) {
@@ -290,10 +264,10 @@ public class ArtifactsPublisherTest {
 
         final GoPublisher publisher = mock(GoPublisher.class);
 
-        assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
+        assertThat(workingFolder.list()).containsExactlyInAnyOrder("testreports.xml", "installer.zip", "cruise-output");
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
                 .publishArtifacts(artifactPlans, env);
-        assertThat(Arrays.asList(workingFolder.list()), containsInAnyOrder("testreports.xml", "installer.zip", "cruise-output"));
+        assertThat(workingFolder.list()).containsExactlyInAnyOrder("testreports.xml", "installer.zip", "cruise-output");
     }
 
     @Test
@@ -306,7 +280,7 @@ public class ArtifactsPublisherTest {
                 .thenReturn(new PublishArtifactResponse(Collections.singletonMap("src", "s3://dist")));
 
         new ArtifactsPublisher(publisher, artifactExtension, artifactStores, registry, workingFolder)
-                .publishArtifacts(Arrays.asList(s3ArtifactPlan), env);
+                .publishArtifacts(List.of(s3ArtifactPlan), env);
 
         InOrder inOrder = inOrder(registry, artifactExtension);
         inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), any(ArtifactRequestProcessor.class));

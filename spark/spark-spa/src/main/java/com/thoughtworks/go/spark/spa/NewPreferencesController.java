@@ -26,7 +26,6 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -59,10 +58,10 @@ public class NewPreferencesController implements SparkController {
         Map<String, Object> meta = ImmutableMap.<String, Object>builder()
                 .put("smtp_configured", goConfigService.isSmtpEnabled())
                 .build();
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Preferences");
-            put("meta", meta);
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Preferences",
+            "meta", meta
+        );
         return new ModelAndView(object, null);
     }
 }

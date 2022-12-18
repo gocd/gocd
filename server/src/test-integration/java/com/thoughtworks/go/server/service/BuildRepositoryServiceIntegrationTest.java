@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +50,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
 
@@ -409,33 +407,27 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     private Pipeline schedulePipeline(final PipelineConfig pipeline) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                MaterialRevisions materialRevisions = new MaterialRevisions();
-                for (Material material : new MaterialConfigConverter().toMaterials(pipeline.materialConfigs())) {
-                    materialRevisions.addRevision(material, new Modification("user", "comment", null, new Date(), ModificationsMother.nextRevision()));
-                }
-                materialRepository.save(materialRevisions);
-                Pipeline scheduledPipeline = instanceFactory.createPipelineInstance(pipeline, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                        new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
-                pipelineService.save(scheduledPipeline);
-                return scheduledPipeline;
+        return (Pipeline) transactionTemplate.execute((TransactionCallback) status -> {
+            MaterialRevisions materialRevisions = new MaterialRevisions();
+            for (Material material : new MaterialConfigConverter().toMaterials(pipeline.materialConfigs())) {
+                materialRevisions.addRevision(material, new Modification("user", "comment", null, new Date(), ModificationsMother.nextRevision()));
             }
+            materialRepository.save(materialRevisions);
+            Pipeline scheduledPipeline = instanceFactory.createPipelineInstance(pipeline, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
+                    new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            pipelineService.save(scheduledPipeline);
+            return scheduledPipeline;
         });
     }
 
     private Stage createNewPipelineWithFirstStageFailed() throws Exception {
-        return (Stage) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
-                materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());
-                pipelineService.save(forcedPipeline);
-                Stage stage = forcedPipeline.getFirstStage();
-                dbHelper.failStage(stage);
-                return stage;
-            }
+        return (Stage) transactionTemplate.execute((TransactionCallback) status -> {
+            Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());
+            pipelineService.save(forcedPipeline);
+            Stage stage = forcedPipeline.getFirstStage();
+            dbHelper.failStage(stage);
+            return stage;
         });
     }
 

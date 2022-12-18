@@ -32,9 +32,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +56,7 @@ public class CcTrayBreakersCalculatorTest {
         Set<String> actualBreakers = status.calculateFor(failedStage());
 
 
-        assertThat(actualBreakers, is(s("user1", "user2")));
+        assertThat(actualBreakers, is(Set.of("user1", "user2")));
     }
 
     @Test
@@ -78,7 +77,7 @@ public class CcTrayBreakersCalculatorTest {
         Set<String> actualBreakers = status.calculateFor(failedStage());
 
 
-        assertThat(actualBreakers, is(s("user1", "user2")));
+        assertThat(actualBreakers, is(Set.of("user1", "user2")));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class CcTrayBreakersCalculatorTest {
         Set<String> actualBreakers = status.calculateFor(failedStage());
 
 
-        assertThat(actualBreakers, is(s("user1", "user2", "user3")));
+        assertThat(actualBreakers, is(Set.of("user1", "user2", "user3")));
     }
 
     @Test
@@ -119,7 +118,7 @@ public class CcTrayBreakersCalculatorTest {
         Set<String> actualBreakers = status.calculateFor(failedStage());
 
 
-        assertThat(actualBreakers, is(s("user1")));
+        assertThat(actualBreakers, is(Set.of("user1")));
     }
 
     @Test

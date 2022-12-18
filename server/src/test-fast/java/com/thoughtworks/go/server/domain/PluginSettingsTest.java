@@ -34,12 +34,11 @@ import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,7 +68,7 @@ public class PluginSettingsTest {
 
         pluginSettings.populateErrorMessageFor("key-1", "e1");
 
-        assertThat(pluginSettings.getErrorFor("key-1"), is(Arrays.asList("e1")));
+        assertThat(pluginSettings.getErrorFor("key-1"), is(List.of("e1")));
     }
 
     @Test
@@ -145,7 +144,7 @@ public class PluginSettingsTest {
         when(pluginInfo.isSecure(secureKey)).thenReturn(true);
 
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey),new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher") )));
+        pluginSettings.addConfigurations(pluginInfo, List.of(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher"))));
         pluginSettings.validateTree();
 
         assertThat(pluginSettings.hasErrors(), is(true));
@@ -159,7 +158,7 @@ public class PluginSettingsTest {
         when(pluginInfo.isSecure(secureKey)).thenReturn(true);
 
         PluginSettings pluginSettings = new PluginSettings(PLUGIN_ID);
-        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey),new EncryptedConfigurationValue(new GoCipher().encrypt("secure")) )));
+        pluginSettings.addConfigurations(pluginInfo, List.of(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue(new GoCipher().encrypt("secure")))));
         pluginSettings.validateTree();
 
         assertThat(pluginSettings.hasErrors(), is(false));

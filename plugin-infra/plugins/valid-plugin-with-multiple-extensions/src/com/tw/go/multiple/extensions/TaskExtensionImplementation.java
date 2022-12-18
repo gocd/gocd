@@ -53,6 +53,6 @@ public class TaskExtensionImplementation implements GoPlugin {
         System.setProperty("valid-plugin-with-multiple-extensions.task_extension.plugin_identifier.count", String.valueOf(++numberOfCallsToPluginIdentifier));
         System.setProperty("valid-plugin-with-multiple-extensions.task_extension.plugin_identifier.value", String.valueOf(System.currentTimeMillis()));
 
-        return new GoPluginIdentifier("task", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("task", List.of("1.0"));
     }
 }

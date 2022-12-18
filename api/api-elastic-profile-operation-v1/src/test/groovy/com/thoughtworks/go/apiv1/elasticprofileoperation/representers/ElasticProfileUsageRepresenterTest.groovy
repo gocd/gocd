@@ -24,7 +24,7 @@ class ElasticProfileUsageRepresenterTest {
 
   @Test
   void 'should serialize to json'() {
-    def elasticProfileUsages = Arrays.asList(
+    def elasticProfileUsages = List.of(
       new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr", "gocd"),
       new ElasticProfileUsage("LinuxPR", "build", "tests", "linux-pr", "gocd"),
 

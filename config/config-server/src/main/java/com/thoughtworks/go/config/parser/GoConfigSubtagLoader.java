@@ -15,31 +15,30 @@
  */
 package com.thoughtworks.go.config.parser;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.ConfigCache;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.ConfigInterface;
 import com.thoughtworks.go.config.ConfigSubtag;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ConfigUtil;
 import org.jdom2.Element;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class GoConfigSubtagLoader {
-    private static Map<Field, ConfigSubtag> isSubTags = new HashMap<>();
+    private static final Map<Field, ConfigSubtag> isSubTags = new HashMap<>();
 
     private final ConfigUtil configUtil = new ConfigUtil("magic");
     private final Element e;
     private final Field field;
-    private ConfigCache configCache;
+    private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
     private final ConfigReferenceElements configReferenceElements;
 
@@ -51,8 +50,7 @@ public class GoConfigSubtagLoader {
         if (!isSubTags.containsKey(field)) {
             isSubTags.put(field, field.getAnnotation(ConfigSubtag.class));
         }
-        ConfigSubtag configSubtag = isSubTags.get(field);
-        return configSubtag;
+        return isSubTags.get(field);
     }
 
     public static GoConfigSubtagLoader subtagParser(Element e, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry,
@@ -72,7 +70,7 @@ public class GoConfigSubtagLoader {
         Class<?> type = findTypeOfField();
         if (type == null) { return null; }
 
-        ConfigTag tag = GoConfigClassLoader.configTag(type, configCache);
+        ConfigTag tag = GoConfigClassLoader.configTag(type);
         if (configUtil.optionalAndMissingTag(e, tag, findSubTag(field).optional())) {
             return null;
         }
@@ -83,7 +81,7 @@ public class GoConfigSubtagLoader {
     private Class<?> findTypeOfField() {
         Class<?> type = field.getType();
         if (isInterface(type)) {
-            for (Element subElement : (List<Element>) e.getChildren()) {
+            for (Element subElement : e.getChildren()) {
                 Class<?> concreteType = findConcreteTypeFrom(subElement, type);
                 if (concreteType != null) {
                     return concreteType;
@@ -99,7 +97,7 @@ public class GoConfigSubtagLoader {
 
     private Class<?> findConcreteTypeFrom(Element element, Class<?> interfaceType) {
         for (Class<?> implementation : registry.implementersOf(interfaceType)) {
-            if (GoConfigClassLoader.compare(element, implementation, configCache)) {
+            if (GoConfigClassLoader.compare(element, implementation)) {
                 return implementation;
             }
         }

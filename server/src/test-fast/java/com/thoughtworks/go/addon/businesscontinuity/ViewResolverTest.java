@@ -16,7 +16,7 @@ class ViewResolverTest {
     @Test
     void shouldResolveView() {
         String template = "<html><head><link href=\"<<<key1>>>\\<<<key2>>>\"/></head></html>";
-        HashMap<String, String> modelMap = new HashMap<String, String>();
+        HashMap<String, String> modelMap = new HashMap<>();
         modelMap.put("key1", "value1");
         modelMap.put("key2", "value2");
 

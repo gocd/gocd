@@ -21,13 +21,11 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -43,7 +41,7 @@ public class PluginRequestHelperTest {
     @BeforeEach
     void setup() {
         pluginManager = mock(PluginManager.class);
-        helper = new PluginRequestHelper(pluginManager, asList("1.0"), extensionName);
+        helper = new PluginRequestHelper(pluginManager, List.of("1.0"), extensionName);
         isSuccessInvoked = new boolean[]{false};
         response = mock(GoPluginApiResponse.class);
         when(pluginManager.isPluginOfType(extensionName, pluginId)).thenReturn(true);
@@ -55,7 +53,7 @@ public class PluginRequestHelperTest {
         when(response.responseBody()).thenReturn("junk");
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
         try {
-            helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
+            helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
                 @Override
                 public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                     isSuccessInvoked[0] = true;
@@ -75,7 +73,7 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
-        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
+        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
             @Override
             public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
@@ -91,7 +89,7 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.VALIDATION_ERROR);
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
-        assertThatThrownBy(() -> helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
+        assertThatThrownBy(() -> helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
             @Override
             public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
@@ -106,16 +104,13 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
         final GoPluginApiRequest[] generatedRequest = {null};
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
-                return response;
-            }
+        doAnswer(invocationOnMock -> {
+            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
 
 
-        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
+        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return requestBody;
@@ -133,16 +128,13 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
         final GoPluginApiRequest[] generatedRequest = {null};
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
-                return response;
-            }
+        doAnswer(invocationOnMock -> {
+            generatedRequest[0] = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
 
 
-        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
+        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return requestBody;
@@ -191,7 +183,7 @@ public class PluginRequestHelperTest {
         }).when(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
 
 
-        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
+        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return requestBody;

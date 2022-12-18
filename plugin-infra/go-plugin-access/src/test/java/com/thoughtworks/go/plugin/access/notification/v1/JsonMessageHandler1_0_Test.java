@@ -31,12 +31,10 @@ import org.junit.jupiter.api.Test;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.notification.v1.StageConverter.DATE_PATTERN;
-import static java.util.Arrays.asList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,7 +54,7 @@ public class JsonMessageHandler1_0_Test {
         String responseBody = "{notifications=[\"pipeline-status\",\"stage-status\"]}";
         List<String> notificationsInterestedIn = messageHandler.responseMessageForNotificationsInterestedIn(responseBody);
 
-        assertThat(notificationsInterestedIn, is(Arrays.asList("pipeline-status", "stage-status")));
+        assertThat(notificationsInterestedIn, is(List.of("pipeline-status", "stage-status")));
     }
 
     @Test
@@ -70,7 +68,7 @@ public class JsonMessageHandler1_0_Test {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForNotify(responseBody);
 
-        assertSuccessResult(result, asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -78,7 +76,7 @@ public class JsonMessageHandler1_0_Test {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForNotify(responseBody);
 
-        assertFailureResult(result, asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test

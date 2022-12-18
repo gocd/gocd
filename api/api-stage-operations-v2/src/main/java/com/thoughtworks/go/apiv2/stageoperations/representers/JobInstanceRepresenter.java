@@ -37,7 +37,7 @@ public class JobInstanceRepresenter {
         else {
             jsonWriter.add("original_job_id", jobInstance.getOriginalJobId());
         }
-        jsonWriter.addWithDefaultIfBlank("agent_uuid", jobInstance.getAgentUuid(), (String) null);
+        jsonWriter.addWithDefaultIfBlank("agent_uuid", jobInstance.getAgentUuid(), null);
         jsonWriter.add("pipeline_name", (String) null);
         jsonWriter.add("pipeline_counter", (String) null);
         jsonWriter.add("stage_name", (String) null);

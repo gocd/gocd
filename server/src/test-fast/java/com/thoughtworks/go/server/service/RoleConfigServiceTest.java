@@ -26,13 +26,12 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -141,9 +140,9 @@ public class RoleConfigServiceTest {
     public void bulkUpdate_shouldUpdateGoCDRoles() {
         Username currentUser = new Username("current_user");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> usersToAdd = Arrays.asList("user1", "user2");
-        List<String> usersToRemove = Arrays.asList("user3", "user4");
-        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(Collections.singletonList(
+        List<String> usersToAdd = List.of("user1", "user2");
+        List<String> usersToRemove = List.of("user3", "user4");
+        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(List.of(
                 new GoCDRolesBulkUpdateRequest.Operation("role1", usersToAdd, usersToRemove)));
         RolesConfigBulkUpdateCommand command = new RolesConfigBulkUpdateCommand(request, currentUser,
                 configService, result);
@@ -156,9 +155,9 @@ public class RoleConfigServiceTest {
     @Test
     public void bulkUpdate_shouldHandleInvalidConfigException() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> usersToAdd = Arrays.asList("user1", "user2");
-        List<String> usersToRemove = Arrays.asList("user3", "user4");
-        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(Collections.singletonList(
+        List<String> usersToAdd = List.of("user1", "user2");
+        List<String> usersToRemove = List.of("user3", "user4");
+        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(List.of(
                 new GoCDRolesBulkUpdateRequest.Operation("role1", usersToAdd, usersToRemove)));
 
         cruiseConfig.server().security().getRoles().addError("role1", "some error");
@@ -174,7 +173,7 @@ public class RoleConfigServiceTest {
     @Test
     public void bulkUpdate_shouldHandleOtherExceptions() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(Collections.singletonList(
+        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(List.of(
                 new GoCDRolesBulkUpdateRequest.Operation("role1", Collections.emptyList(), Collections.emptyList())));
 
         doThrow(new RuntimeException()).when(configService).updateConfig(any(), any());
@@ -221,7 +220,7 @@ public class RoleConfigServiceTest {
 
         when(configService.serverConfig()).thenReturn(serverConfig);
 
-        HashMap<Username, RolesConfig> userToRolesMap = roleConfigService.getRolesForUser(Arrays.asList(bob, john));
+        HashMap<Username, RolesConfig> userToRolesMap = roleConfigService.getRolesForUser(List.of(bob, john));
 
         assertThat(userToRolesMap.size(), is(2));
 

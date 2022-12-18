@@ -18,12 +18,7 @@ package com.thoughtworks.go.config.pluggabletask;
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.OnCancelConfig;
 import com.thoughtworks.go.domain.TaskProperty;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
@@ -33,22 +28,18 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.DataStructureUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PluggableTaskTest {
     @Test
@@ -56,8 +47,8 @@ public class PluggableTaskTest {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-id", "13.4");
 
         GoCipher cipher = new GoCipher();
-        List<String> keys = Arrays.asList("Avengers 1", "Avengers 2", "Avengers 3", "Avengers 4");
-        List<String> values = Arrays.asList("Iron man", "Hulk", "Thor", "Captain America");
+        List<String> keys = List.of("Avengers 1", "Avengers 2", "Avengers 3", "Avengers 4");
+        List<String> values = List.of("Iron man", "Hulk", "Thor", "Captain America");
 
         Configuration configuration = new Configuration(
                 new ConfigurationProperty(new ConfigurationKey(keys.get(0)), new ConfigurationValue(values.get(0))),
@@ -206,7 +197,7 @@ public class PluggableTaskTest {
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1", "Key2", "value2");
 
         TaskConfig taskConfig = new TaskConfig();
         TaskProperty property1 = new TaskProperty("KEY1", "value1");
@@ -229,7 +220,7 @@ public class PluggableTaskTest {
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1");
 
         TaskConfig taskConfig = new TaskConfig();
         taskConfig.addProperty("KEY1").with(Property.SECURE, true);
@@ -250,7 +241,7 @@ public class PluggableTaskTest {
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1");
 
         TaskConfig taskConfig = new TaskConfig();
         TaskProperty property1 = new TaskProperty("KEY1", "value1");
@@ -273,7 +264,7 @@ public class PluggableTaskTest {
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1", "Key2", "value2");
 
         TaskConfig taskConfig = new TaskConfig();
         TaskProperty property1 = new TaskProperty("KEY1", "value1");
@@ -294,7 +285,7 @@ public class PluggableTaskTest {
         PluggableTaskConfigStore.store().setPreferenceFor("abc.def", taskPreference);
 
         PluggableTask task = new PluggableTask(new PluginConfiguration("abc.def", "1"), configuration);
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1", "Key2", "value2");
 
         TaskConfig taskConfig = new TaskConfig();
         TaskProperty property1 = new TaskProperty("KEY1", "value1");
@@ -312,7 +303,7 @@ public class PluggableTaskTest {
 
     @Test
     public void shouldAddConfigurationProperties() {
-        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"), new ConfigurationProperty());
+        List<ConfigurationProperty> configurationProperties = List.of(ConfigurationPropertyMother.create("key", "value", "encValue"), new ConfigurationProperty());
         PluginConfiguration pluginConfiguration = new PluginConfiguration("github.pr", "1.1");
         TaskPreference taskPreference = mock(TaskPreference.class);
         TaskConfig taskConfig = new TaskConfig();
@@ -333,7 +324,7 @@ public class PluggableTaskTest {
 
     @Test
     public void shouldAddConfigurationPropertiesForAInvalidPlugin() {
-        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"));
+        List<ConfigurationProperty> configurationProperties = List.of(ConfigurationPropertyMother.create("key", "value", "encValue"));
         PluginConfiguration pluginConfiguration = new PluginConfiguration("does_not_exist", "1.1");
 
         Configuration configuration = new Configuration();
@@ -373,7 +364,7 @@ public class PluggableTaskTest {
 
     @Test
     public void shouldBeAbleToGetTaskConfigRepresentation() {
-        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("source", false, "src_dir"),
+        List<ConfigurationProperty> configurationProperties = List.of(ConfigurationPropertyMother.create("source", false, "src_dir"),
                 ConfigurationPropertyMother.create("destination", false, "des_dir"));
 
         Configuration configuration = new Configuration();

@@ -30,16 +30,12 @@ import java.util.function.Consumer;
 public class StageRepresenter {
 
     public static void toJSONArray(OutputListWriter stagesWriter, Collection<StageConfig> config) {
-        config.forEach(stage -> {
-            stagesWriter.addChild(stageWriter -> toJSON(stageWriter, stage));
-        });
+        config.forEach(stage -> stagesWriter.addChild(stageWriter -> toJSON(stageWriter, stage)));
     }
 
     public static void toJSON(OutputWriter jsonWriter, StageConfig stageConfig) {
         if (!stageConfig.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(new HashMap<>()).toJSON(errorWriter, stageConfig);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(errorWriter, stageConfig));
         }
 
         jsonWriter.addIfNotNull("name", stageConfig.name());
@@ -53,11 +49,7 @@ public class StageRepresenter {
     }
 
     private static Consumer<OutputListWriter> getJobs(StageConfig stageConfig) {
-        return jobsWriter -> {
-            stageConfig.getJobs().forEach(job -> {
-                jobsWriter.addChild(jobWriter -> JobRepresenter.toJSON(jobWriter, job));
-            });
-        };
+        return jobsWriter -> stageConfig.getJobs().forEach(job -> jobsWriter.addChild(jobWriter -> JobRepresenter.toJSON(jobWriter, job)));
     }
 
     public static StageConfig fromJSON(JsonReader jsonReader) {
@@ -68,19 +60,13 @@ public class StageRepresenter {
         jsonReader.optBoolean("never_cleanup_artifacts").ifPresent(stageConfig::setArtifactCleanupProhibited);
         stageConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         setJobs(jsonReader, stageConfig);
-        jsonReader.optJsonObject("approval").ifPresent(approvalReader -> {
-            stageConfig.setApproval(ApprovalRepresenter.fromJSON(approvalReader));
-        });
+        jsonReader.optJsonObject("approval").ifPresent(approvalReader -> stageConfig.setApproval(ApprovalRepresenter.fromJSON(approvalReader)));
         return stageConfig;
     }
 
     private static void setJobs(JsonReader jsonReader, StageConfig stageConfig) {
         JobConfigs allJobs = new JobConfigs();
-        jsonReader.readArrayIfPresent("jobs", jobs -> {
-            jobs.forEach(job -> {
-                allJobs.addJobWithoutValidityAssertion(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("jobs", jobs -> jobs.forEach(job -> allJobs.addJobWithoutValidityAssertion(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject())))));
 
         stageConfig.setJobs(allJobs);
     }

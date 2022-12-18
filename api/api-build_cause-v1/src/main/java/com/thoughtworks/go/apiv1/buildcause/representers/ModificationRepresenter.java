@@ -24,9 +24,7 @@ public class ModificationRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, Modification model, Material material) {
         jsonOutputWriter
-            .addLinks(linksWriter -> {
-                linksWriter.addLink("vsm", Routes.MaterialConfig.vsm(material.getFingerprint(), model.getRevision()));
-            })
+            .addLinks(linksWriter -> linksWriter.addLink("vsm", Routes.MaterialConfig.vsm(material.getFingerprint(), model.getRevision())))
             .addIfNotNull("user_name", model.getUserName())
             .addIfNotNull("email_address", model.getEmailAddress())
             .addIfNotNull("revision", model.getRevision())

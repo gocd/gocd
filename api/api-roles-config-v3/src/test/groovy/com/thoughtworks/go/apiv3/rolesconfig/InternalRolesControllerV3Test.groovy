@@ -41,7 +41,6 @@ import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git
-import static java.util.Arrays.asList
 import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -95,7 +94,7 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
         def pluginRoleConfig = new PluginRoleConfig('foo', 'ldap')
         expectedRoles = new RolesConfig([gocdRoleConfig, pluginRoleConfig])
         configRepo = ConfigRepoConfig.createConfigRepoConfig(git("https://foo.git", "master"), "json-config-repo-plugin", "repo-1");
-        envNames = asList("env1", "env2")
+        envNames = List.of("env1", "env2")
         def elasticProfile1 = new ElasticProfile("elastic_profile1", "cluster_profile")
         def elasticProfile2 = new ElasticProfile("elastic_profile2", "cluster_profile")
         def clusterProfile = new ClusterProfile("cluster_profile", "ecs.plugin")

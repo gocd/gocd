@@ -30,7 +30,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.*;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -225,7 +225,7 @@ public class GoCacheTest {
         goCache.put("foo", "1");
         goCache.put("bar", "2");
         goCache.put("baz", "3");
-        goCache.removeAll(Arrays.asList("foo", "bar"));
+        goCache.removeAll(List.of("foo", "bar"));
         assertThat(goCache.get("foo"), is(nullValue()));
         assertThat(goCache.get("bar"), is(nullValue()));
         assertThat(goCache.get("baz"), is("3"));

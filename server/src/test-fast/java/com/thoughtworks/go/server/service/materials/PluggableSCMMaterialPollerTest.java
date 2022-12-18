@@ -46,7 +46,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.util.*;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -124,7 +123,7 @@ class PluggableSCMMaterialPollerTest {
         String dataKey = "revision_data";
         String dataValue = "revision_value";
         data.put(dataKey, dataValue);
-        List<ModifiedFile> modifiedFiles = new ArrayList<>(asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        List<ModifiedFile> modifiedFiles = new ArrayList<>(List.of(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
         SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", data, modifiedFiles);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
         when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(materialPollResult);
@@ -140,7 +139,7 @@ class PluggableSCMMaterialPollerTest {
         com.thoughtworks.go.domain.materials.ModifiedFile f1 = new com.thoughtworks.go.domain.materials.ModifiedFile("f1", null, com.thoughtworks.go.domain.materials.ModifiedAction.added);
         com.thoughtworks.go.domain.materials.ModifiedFile f2 = new com.thoughtworks.go.domain.materials.ModifiedFile("f2", null, com.thoughtworks.go.domain.materials.ModifiedAction.modified);
         com.thoughtworks.go.domain.materials.ModifiedFile f3 = new com.thoughtworks.go.domain.materials.ModifiedFile("f3", null, com.thoughtworks.go.domain.materials.ModifiedAction.deleted);
-        assertThat(new HashSet(modifications.get(0).getModifiedFiles())).isEqualTo(new HashSet(asList(f1, f2, f3)));
+        assertThat(new HashSet(modifications.get(0).getModifiedFiles())).isEqualTo(new HashSet(List.of(f1, f2, f3)));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
         assertThat(materialData.getValue().size()).isEqualTo(1);
         assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
@@ -152,7 +151,7 @@ class PluggableSCMMaterialPollerTest {
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", timestamp);
         ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
         SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", null, null, null);
-        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(latestRevision));
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, List.of(latestRevision));
         when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(materialPollResult);
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
@@ -196,7 +195,7 @@ class PluggableSCMMaterialPollerTest {
         data.put(dataKey, dataValue);
         SCMRevision latestRevision = new SCMRevision("rev-123", timestamp, "user", "comment-123", data, null);
 
-        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(latestRevision));
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, List.of(latestRevision));
         when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(materialPollResult);
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);

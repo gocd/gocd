@@ -26,7 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -67,7 +66,7 @@ class SecretConfigServiceTest {
 
 
             secretParam = new SecretParam("ForDeploy", "username");
-            allPipelineConfigs = Arrays.asList(
+            allPipelineConfigs = List.of(
                     templateBasedPipelineWithSecretParams("docker-template", secretParam, "P1", "S1", "Job1", "Job2"),
                     pipelineWithSecretParams(new SecretParam("ForTestEnv", "password"), "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
@@ -95,7 +94,7 @@ class SecretConfigServiceTest {
         @Test
         void shouldReturnEmptyUsagesWhenNoneOfTheJobMatchesConfigId() {
             SecretParam secretParam = new SecretParam("ForDeploy", "username");
-            final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
+            final List<PipelineConfig> allPipelineConfigs = List.of(
                     templateBasedPipelineWithSecretParams("docker-template", secretParam, "P1", "S1", "Job1", "Job2"),
                     pipelineWithSecretParams(secretParam, "ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
@@ -122,7 +121,7 @@ class SecretConfigServiceTest {
             materialConfig.setPassword("{{SECRET:[ForDeploy][placeholder]}}");
             pipelineConfig.addMaterialConfig(materialConfig);
 
-            when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig));
+            when(goConfigService.getAllPipelineConfigs()).thenReturn(List.of(pipelineConfig));
 
             final Collection<SecretConfigUsage> pipelinesUsingSecretParams = secretConfigService.getUsageInformation("ForDeploy");
 

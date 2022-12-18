@@ -53,7 +53,7 @@ trait ControllerTrait<T extends SparkController> {
   MockHttpSession session = new MockHttpSession()
   HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder().withSession(session)
   Part part = mock(Part)
-  Collection<Part> parts = Collections.singletonList(part)
+  Collection<Part> parts = List.of(part)
 
   void get(String path) {
     sendRequest('get', path, [:], null)

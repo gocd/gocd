@@ -19,10 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.List;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
@@ -46,7 +45,7 @@ class DefaultPluginRegistryTest {
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
         registry.loadPlugin(descriptor);
 
-        registry.markPluginInvalid(descriptor.bundleSymbolicName(), singletonList(message));
+        registry.markPluginInvalid(descriptor.bundleSymbolicName(), List.of(message));
 
         GoPluginDescriptor loadedDescriptor1 = registry.plugins().get(0);
         assertThat(loadedDescriptor1.isInvalid()).isTrue();
@@ -73,14 +72,14 @@ class DefaultPluginRegistryTest {
 
     @Test
     void testThrowExceptionWhenBundleSymbolicNameNotFound() {
-        assertThatCode(() -> registry.markPluginInvalid("invalid-bundle-symbolic-name", singletonList("some message")))
+        assertThatCode(() -> registry.markPluginInvalid("invalid-bundle-symbolic-name", List.of("some message")))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Invalid bundle symbolic name 'invalid-bundle-symbolic-name'");
     }
 
     @Test
     void shouldThrowExceptionWhenBundleSymbolicNameIsNull() {
-        assertThatCode(() -> registry.markPluginInvalid(null, singletonList("some message")))
+        assertThatCode(() -> registry.markPluginInvalid(null, List.of("some message")))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Invalid bundle symbolic name 'null'");
     }
@@ -259,10 +258,10 @@ class DefaultPluginRegistryTest {
     @Test
     void shouldGetPluginIDForAGivenBundleExtensionClass() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
-        pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
+        pluginDescriptor1.addExtensionClasses(List.of("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
 
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
-        pluginDescriptor2.addExtensionClasses(singletonList("com.path.to.ExtensionClass3"));
+        pluginDescriptor2.addExtensionClasses(List.of("com.path.to.ExtensionClass3"));
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
@@ -288,16 +287,16 @@ class DefaultPluginRegistryTest {
     @Test
     void shouldProvideAllRegisteredExtensionsAcrossPluginsInABundle() {
         final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.builder().id("plugin.1").build();
-        pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
+        pluginDescriptor1.addExtensionClasses(List.of("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
 
         final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.builder().id("plugin.2").build();
-        pluginDescriptor2.addExtensionClasses(singletonList("com.path.to.ExtensionClass3"));
+        pluginDescriptor2.addExtensionClasses(List.of("com.path.to.ExtensionClass3"));
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
         registry.loadPlugin(bundleDescriptor);
 
-        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName())).isEqualTo(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2", "com.path.to.ExtensionClass3"));
+        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName())).isEqualTo(List.of("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2", "com.path.to.ExtensionClass3"));
     }
 
     @Test

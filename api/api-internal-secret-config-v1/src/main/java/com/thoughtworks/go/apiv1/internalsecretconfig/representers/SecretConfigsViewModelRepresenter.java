@@ -23,12 +23,10 @@ public class SecretConfigsViewModelRepresenter {
     public static void toJSON(OutputWriter outputWriter, SecretConfigsViewModel configsViewModel) {
         outputWriter
                 .addChild("_embedded",
-                        embeddedWriter -> {
-                            embeddedWriter.addChildList("secret_configs",
-                                    configsWriter -> configsViewModel.getSecretConfigs().forEach(
-                                            config -> configsWriter.addChild(
-                                                    configWriter -> SecretConfigRepresenter.toJSON(configWriter, config))));
-                        })
+                        embeddedWriter -> embeddedWriter.addChildList("secret_configs",
+                                configsWriter -> configsViewModel.getSecretConfigs().forEach(
+                                        config -> configsWriter.addChild(
+                                                configWriter -> SecretConfigRepresenter.toJSON(configWriter, config)))))
                 .addChildList("auto_completion", (suggestionWriter) -> configsViewModel.getAutoSuggestions()
                         .forEach((key, value) -> suggestionWriter.addChild(childWriter -> childWriter
                                 .add("key", key)

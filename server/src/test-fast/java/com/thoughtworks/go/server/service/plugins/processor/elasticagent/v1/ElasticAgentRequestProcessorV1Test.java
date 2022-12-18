@@ -31,9 +31,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.util.List;
+
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.mockito.Mockito.*;
 
@@ -60,7 +60,7 @@ public class ElasticAgentRequestProcessorV1Test {
     public void shouldProcessListAgentRequest() throws Exception {
         LinkedMultiValueMap<String, ElasticAgentMetadata> allAgents = new LinkedMultiValueMap<>();
         ElasticAgentMetadata agent = new ElasticAgentMetadata("foo", "bar", "cd.go.example.plugin", AgentRuntimeStatus.Building, AgentConfigStatus.Disabled);
-        allAgents.put("cd.go.example.plugin", asList(agent));
+        allAgents.put("cd.go.example.plugin", List.of(agent));
 
         when(agentService.allElasticAgents()).thenReturn(allAgents);
         when(request.api()).thenReturn(REQUEST_SERVER_LIST_AGENTS);
@@ -81,7 +81,7 @@ public class ElasticAgentRequestProcessorV1Test {
         processor.process(pluginDescriptor, request);
 
         verify(agentService, times(1)).findElasticAgent("foo", "cd.go.example.plugin");
-        verify(agentService).disableAgents(singletonList(agentInstance.getUuid()));
+        verify(agentService).disableAgents(List.of(agentInstance.getUuid()));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class ElasticAgentRequestProcessorV1Test {
         processor.process(pluginDescriptor, request);
 
         verify(agentService, times(1)).findElasticAgent("foo", "cd.go.example.plugin");
-        verify(agentService, times(1)).deleteAgentsWithoutValidations(eq(singletonList(agentInstance.getUuid())));
+        verify(agentService, times(1)).deleteAgentsWithoutValidations(eq(List.of(agentInstance.getUuid())));
     }
 
     @Test

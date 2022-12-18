@@ -28,7 +28,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.spy;
@@ -242,6 +241,6 @@ class GoPluginBundleDescriptorBuilderTest {
                 .pluginJarFileLocation(pluginJarFileLocation)
                 .isBundledPlugin(true)
                 .build();
-        return new GoPluginBundleDescriptor(goPluginDescriptor).markAsInvalid(singletonList(message), null).descriptors().get(0);
+        return new GoPluginBundleDescriptor(goPluginDescriptor).markAsInvalid(List.of(message), null).descriptors().get(0);
     }
 }

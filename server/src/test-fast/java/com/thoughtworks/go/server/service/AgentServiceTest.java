@@ -72,10 +72,8 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static com.thoughtworks.go.util.Timeout.THIRTY_SECONDS;
 import static com.thoughtworks.go.util.TriState.*;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Arrays.sort;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -159,28 +157,28 @@ class AgentServiceTest {
             @Test
             void shouldReturnTrueIfOnlyResourcesToAddListIsNotEmpty() {
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(singletonList("r1"), emptyList(), null, emptyList(), unsetState);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(List.of("r1"), emptyList(), null, emptyList(), unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnTrueIfOnlyResourcesToRemoveListIsNotEmpty() {
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), singletonList("r1"), null, emptyList(), unsetState);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), List.of("r1"), null, emptyList(), unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnTrueIfOnlyEnvsToAddListIsNotEmpty() {
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, singletonList("env1"), emptyList(), unsetState);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, List.of("env1"), emptyList(), unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
             @Test
             void shouldReturnTrueIfOnlyEnvsToRemoveListIsNotEmpty() {
                 TriState unsetState = UNSET;
-                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyStrList, singletonList("env1"), unsetState);
+                boolean anyOpsPerformed = agentService.isAnyOperationPerformedOnBulkAgents(emptyList(), null, emptyStrList, List.of("env1"), unsetState);
                 assertThat(anyOpsPerformed, is(true));
             }
 
@@ -226,7 +224,7 @@ class AgentServiceTest {
                 when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
 
                 AgentService agentServiceSpy = Mockito.spy(agentService);
-                assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(asList("uuid1", "uuid2"), asList("R1", "R2"), emptyStrList, asList("test", "prod"), emptyStrList, TRUE, environmentConfigService));
+                assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(List.of("uuid1", "uuid2"), List.of("R1", "R2"), emptyStrList, List.of("test", "prod"), emptyStrList, TRUE, environmentConfigService));
 
                 verify(agentDao).bulkUpdateAgents(anyList());
                 verify(agentServiceSpy).updateIdsAndGenerateCookiesForPendingAgents(anyList(), eq(TRUE));
@@ -247,7 +245,7 @@ class AgentServiceTest {
                 when(agentInstances.findAgent("uuid")).thenReturn(pending);
                 when(agentInstances.findAgent("UUID2")).thenReturn(fromConfigFile);
 
-                List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
+                List<String> uuids = List.of(pending.getUuid(), fromConfigFile.getUuid());
                 AgentService agentServiceSpy = Mockito.spy(agentService);
                 assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
 
@@ -257,29 +255,29 @@ class AgentServiceTest {
 
             @Test
             void shouldThrow400BadRequestWhenNoOperationIsSpecifiedToBePerformedOnAgents() {
-                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(singletonList("uuid"), emptyStrList, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
+                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(List.of("uuid"), emptyStrList, emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
                 verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Bad Request. No operation is specified in the request to be performed on agents."));
             }
 
             @Test
             void shouldThrow400IfAgentDoesNotExist() {
-                List<String> uuids = singletonList("uuid1");
+                List<String> uuids = List.of("uuid1");
 
                 when(agentInstances.filterBy(uuids, Null)).thenReturn(uuids);
 
-                RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
+                RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
                 verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Agents with uuids [uuid1] were not found!"));
             }
 
             @Test
             void shouldThrow400IfResourcesForAnElasticAgentAreUpdated() {
-                List<String> uuids = singletonList("uuid1");
+                List<String> uuids = List.of("uuid1");
 
                 when(agentInstances.filterBy(uuids, Elastic)).thenReturn(uuids);
 
-                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
+                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
                 verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Resources on elastic agents with uuids [uuid1] can not be updated."));
@@ -287,9 +285,9 @@ class AgentServiceTest {
 
             @Test
             void shouldThrow422IfResourceNamesAreInvalid() {
-                List<String> uuids = singletonList("uuid1");
+                List<String> uuids = List.of("uuid1");
 
-                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
+                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("foo%"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
                 verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Validations failed for bulk update of agents. Error(s): {resources=[Resource name 'foo%' is not valid. Valid names much match '^[-\\w\\s|.]*$']}"));
@@ -297,11 +295,11 @@ class AgentServiceTest {
 
             @Test
             void shouldThrow400IfOperationsArePerformedOnAPendingAgentWithoutUpdatingTheState() {
-                List<String> uuids = singletonList("uuid1");
+                List<String> uuids = List.of("uuid1");
 
                 when(agentInstances.filterBy(uuids, AgentInstance.FilterBy.Pending)).thenReturn(uuids);
 
-                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, singletonList("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
+                BadRequestException e = assertThrows(BadRequestException.class, () -> agentService.bulkUpdateAgentAttributes(uuids, List.of("resource"), emptyStrList, emptyStrList, emptyStrList, UNSET, environmentConfigService));
 
                 verifyNoInteractions(agentDao);
                 assertThat(e.getMessage(), is("Pending agents [uuid1] must be explicitly enabled or disabled when performing any operations on them."));
@@ -310,8 +308,8 @@ class AgentServiceTest {
             @Test
             void shouldNotAddEnvsWhichAreAssociatedWithTheAgentFromConfigRepo() {
                 String uuid = "uuid";
-                List<String> uuids = singletonList(uuid);
-                List<Agent> agents = singletonList(agent);
+                List<String> uuids = List.of(uuid);
+                List<Agent> agents = Arrays.asList(agent);
                 AgentInstance agentInstance = mock(AgentInstance.class);
 
                 when(agentDao.getAgentsByUUIDs(uuids)).thenReturn(agents);
@@ -328,7 +326,7 @@ class AgentServiceTest {
 
                 AgentService agentServiceSpy = Mockito.spy(agentService);
 
-                assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, asList("env1", configEnvName), emptyStrList, TRUE, environmentConfigService));
+                assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, List.of("env1", configEnvName), emptyStrList, TRUE, environmentConfigService));
                 verify(agentDao).getAgentsByUUIDs(uuids);
                 ArgumentCaptor<List<Agent>> argumentCaptor = ArgumentCaptor.forClass(List.class);
                 verify(agentDao).bulkUpdateAgents(argumentCaptor.capture());
@@ -346,11 +344,11 @@ class AgentServiceTest {
                 when(uuidGenerator.randomUuid()).thenReturn(cookie);
 
                 assertAllAgentsCookieIs(null, pendingAgent, disabledAgent, buildingAgent);
-                agentService.updateIdsAndGenerateCookiesForPendingAgents(asList(buildingAgent, pendingAgent, disabledAgent), UNSET);
+                agentService.updateIdsAndGenerateCookiesForPendingAgents(List.of(buildingAgent, pendingAgent, disabledAgent), UNSET);
                 assertAllAgentsCookieIs(null, pendingAgent, disabledAgent, buildingAgent);
 
                 assertAllAgentsCookieIs(null, pendingAgent, disabledAgent, buildingAgent);
-                agentService.updateIdsAndGenerateCookiesForPendingAgents(asList(buildingAgent, pendingAgent, disabledAgent), TRUE);
+                agentService.updateIdsAndGenerateCookiesForPendingAgents(List.of(buildingAgent, pendingAgent, disabledAgent), TRUE);
                 assertAllAgentsCookieIs(cookie, pendingAgent);
                 assertAllAgentsCookieIs(null, disabledAgent, buildingAgent);
 
@@ -651,7 +649,7 @@ class AgentServiceTest {
 
         @Test
         void shouldDisableAgentsWhenCalledWithNonEmptyListOfUUIDs() {
-            List<String> uuids = asList("uuid1", "uuid2");
+            List<String> uuids = List.of("uuid1", "uuid2");
             agentService.disableAgents(uuids);
             verify(agentDao).disableAgents(uuids);
         }
@@ -682,7 +680,7 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(singletonList(uuid)));
+                RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> agentService.deleteAgents(List.of(uuid)));
                 assertThat(e.getMessage(), is("Agent with uuid '1234' was not found!"));
             }
 
@@ -703,7 +701,7 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(singletonList(uuid)));
+                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(uuid)));
                 assertThat(e.getMessage(), is("Failed to delete an agent, as it is not in a disabled state or is still building."));
             }
 
@@ -733,7 +731,7 @@ class AgentServiceTest {
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(asList(uuid1, uuid2)));
+                UnprocessableEntityException e = assertThrows(UnprocessableEntityException.class, () -> agentService.deleteAgents(List.of(uuid1, uuid2)));
                 assertThat(e.getMessage(), is("Could not delete any agents, as one or more agents might not be disabled or are still building."));
             }
         }
@@ -754,13 +752,13 @@ class AgentServiceTest {
                 when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
                 when(mockAgent.isNull()).thenReturn(false);
                 when(mockAgentInstance.getAgent().getUuid()).thenReturn(uuid);
-                doNothing().when(agentDao).bulkSoftDelete(singletonList(uuid));
+                doNothing().when(agentDao).bulkSoftDelete(List.of(uuid));
 
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                         agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
 
-                assertDoesNotThrow(() -> agentService.deleteAgents(singletonList(uuid)));
-                verify(agentDao).bulkSoftDelete(singletonList(uuid));
+                assertDoesNotThrow(() -> agentService.deleteAgents(List.of(uuid)));
+                verify(agentDao).bulkSoftDelete(List.of(uuid));
             }
 
             @Test
@@ -801,7 +799,7 @@ class AgentServiceTest {
                 serverHealthService = mock(ServerHealthService.class);
                 AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances, agentDao, uuidGenerator, serverHealthService, null);
 
-                assertDoesNotThrow(() -> agentService.deleteAgents(asList(uuid1, uuid2)));
+                assertDoesNotThrow(() -> agentService.deleteAgents(List.of(uuid1, uuid2)));
             }
         }
     }
@@ -953,11 +951,11 @@ class AgentServiceTest {
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
 
-            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid1")));
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, List.of(uuid, "uuid1")));
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
-            List<Agent> agents = asList(agentConfigForUUID1, agent);
+            List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
             verify(agentDao).bulkUpdateAgents(argument.capture());
             assertEquals(agents.size(), argument.getValue().size());
@@ -988,7 +986,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstances.findAgent("uuid2")).thenReturn(mock(AgentInstance.class));
 
-            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid2")));
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, List.of(uuid, "uuid2")));
             verify(agentDao).bulkUpdateAgents(anyList());
         }
 
@@ -1018,7 +1016,7 @@ class AgentServiceTest {
 
             assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyList()));
 
-            List<Agent> agents = asList(agentConfigForUUID1, agent);
+            List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
@@ -1118,11 +1116,11 @@ class AgentServiceTest {
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
 
-            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid1"), Collections.emptyList()));
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, List.of(uuid, "uuid1"), Collections.emptyList()));
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
-            List<Agent> agents = asList(agentConfigForUUID1, agent);
+            List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
             verify(agentDao).bulkUpdateAgents(argument.capture());
             assertEquals(agents.size(), argument.getValue().size());
@@ -1153,7 +1151,7 @@ class AgentServiceTest {
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstances.findAgent("uuid2")).thenReturn(mock(AgentInstance.class));
 
-            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, asList(uuid, "uuid2")));
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, List.of(uuid, "uuid2")));
             verify(agentDao).bulkUpdateAgents(anyList());
         }
 
@@ -1181,9 +1179,9 @@ class AgentServiceTest {
             when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
             when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
 
-            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyList(), Arrays.asList(agent.getUuid(), "uuid1")));
+            assertDoesNotThrow(() -> agentService.updateAgentsAssociationOfEnvironment(testEnv, emptyList(), List.of(agent.getUuid(), "uuid1")));
 
-            List<Agent> agents = asList(agentConfigForUUID1, agent);
+            List<Agent> agents = List.of(agentConfigForUUID1, agent);
 
             ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
@@ -1269,7 +1267,7 @@ class AgentServiceTest {
             AgentService agentServiceSpy = Mockito.spy(agentService);
             doNothing().when(agentServiceSpy).entityDeleted(anyString());
 
-            List<String> deletedUUIDs = asList("uuid1", "uuid2");
+            List<String> deletedUUIDs = List.of("uuid1", "uuid2");
             agentServiceSpy.bulkEntitiesDeleted(deletedUUIDs);
 
             deletedUUIDs.forEach(uuid -> verify(agentServiceSpy).entityDeleted(uuid));
@@ -1363,7 +1361,7 @@ class AgentServiceTest {
             AgentInstance agentInstance2 = AgentInstanceMother.building();
             AgentInstance agentInstance3 = AgentInstanceMother.pending();
 
-            List<AgentInstance> agentInstanceList = asList(agentInstance1, agentInstance2, agentInstance3);
+            List<AgentInstance> agentInstanceList = List.of(agentInstance1, agentInstance2, agentInstance3);
             when(agentInstances.spliterator()).thenReturn(agentInstanceList.spliterator());
 
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
@@ -1380,7 +1378,7 @@ class AgentServiceTest {
         @Test
         void getAllRegisteredAgentUUIDsShouldReturnEmptyListOfUUIDsIfThereAreNoRegisteredAgentInstancesInCache() {
             AgentInstance notRegisteredAgentInstance = AgentInstanceMother.pending();
-            when(agentInstances.spliterator()).thenReturn(singletonList(notRegisteredAgentInstance).spliterator());
+            when(agentInstances.spliterator()).thenReturn(List.of(notRegisteredAgentInstance).spliterator());
             List<String> allAgentUUIDs = agentService.getAllRegisteredAgentUUIDs();
             assertTrue(allAgentUUIDs.isEmpty());
         }
@@ -1396,9 +1394,9 @@ class AgentServiceTest {
             AgentInstance agentInstance1 = building();
             agentInstance1.getAgent().setResources("d,e,a");
 
-            when(agentInstances.spliterator()).thenReturn(asList(agentInstance, agentInstance1).spliterator());
+            when(agentInstances.spliterator()).thenReturn(List.of(agentInstance, agentInstance1).spliterator());
 
-            assertEquals(asList("a", "b", "c", "d", "e"), agentService.getListOfResourcesAcrossAgents());
+            assertEquals(List.of("a", "b", "c", "d", "e"), agentService.getListOfResourcesAcrossAgents());
         }
 
         @Test
@@ -1412,9 +1410,9 @@ class AgentServiceTest {
             AgentInstance agentInstance2 = AgentInstanceMother.pending();
             agentInstance2.getAgent().setResources(null);
 
-            when(agentInstances.spliterator()).thenReturn(asList(agentInstance, agentInstance1, agentInstance2).spliterator());
+            when(agentInstances.spliterator()).thenReturn(List.of(agentInstance, agentInstance1, agentInstance2).spliterator());
 
-            assertEquals(asList("a", "b", "c"), agentService.getListOfResourcesAcrossAgents());
+            assertEquals(List.of("a", "b", "c"), agentService.getListOfResourcesAcrossAgents());
         }
     }
 
@@ -1432,8 +1430,8 @@ class AgentServiceTest {
             AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300l, "linux");
             AgentInstance instance3 = createFromLiveAgent(runtimeInfo3, sysEnv, null);
 
-            List<String> uuids = asList("uuid-1", "uuid-3");
-            when(agentInstances.filter(uuids)).thenReturn(asList(instance1, instance3));
+            List<String> uuids = List.of("uuid-1", "uuid-3");
+            when(agentInstances.filter(uuids)).thenReturn(List.of(instance1, instance3));
 
             AgentsViewModel agentsViewModel = agentService.filterAgentsViewModel(uuids);
             AgentViewModel view1 = new AgentViewModel(instance1);
@@ -1486,7 +1484,7 @@ class AgentServiceTest {
     class DeleteAgentsWithoutValidations {
         @Test
         void shouldDeleteAgentsWithoutAnyValidation() {
-            List<String> uuids = asList("a1", "a2");
+            List<String> uuids = List.of("a1", "a2");
 
             agentService.deleteAgentsWithoutValidations(uuids);
 
@@ -1507,7 +1505,7 @@ class AgentServiceTest {
         void shouldAddWarningIfAgentIsStuckInCancel() {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
-            when(agentInstances.agentsStuckInCancel()).thenReturn(singletonList(agentInstance));
+            when(agentInstances.agentsStuckInCancel()).thenReturn(List.of(agentInstance));
             when(agentInstance.cancelledAt()).thenReturn(new Date(Instant.now().minus(20, ChronoUnit.MINUTES).toEpochMilli()));
             when(agentInstance.getHostname()).thenReturn("test_agent");
 

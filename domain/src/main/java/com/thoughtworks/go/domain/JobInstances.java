@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -27,9 +30,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public JobInstances(Collection<? extends JobInstance> jobInstances) {
-        for (JobInstance instance : jobInstances) {
-            add(instance);
-        }
+        this.addAll(jobInstances);
     }
 
     public JobInstances(JobInstance... jobInstance) {

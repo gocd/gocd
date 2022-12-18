@@ -35,9 +35,7 @@ public class GoCDRoleConfigRepresenter {
         if (jsonReader == null) {
             return model;
         }
-        jsonReader.readArrayIfPresent("users", users -> {
-            users.forEach(user -> model.addUser(new RoleUser(user.getAsString())));
-        });
+        jsonReader.readArrayIfPresent("users", users -> users.forEach(user -> model.addUser(new RoleUser(user.getAsString()))));
         return model;
     }
 

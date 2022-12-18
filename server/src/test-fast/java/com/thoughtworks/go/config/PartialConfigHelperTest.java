@@ -33,7 +33,6 @@ import static com.thoughtworks.go.config.remote.ConfigRepoConfig.createConfigRep
 import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.PartialConfigMother.withPipeline;
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PartialConfigHelperTest {
@@ -67,15 +66,15 @@ class PartialConfigHelperTest {
 
     @Test
     void isEquivalent_CollectionPartialConfig_returnsTrueWhenGivenEquivalentCollections() {
-        List<PartialConfig> a = asList(git("1"), svn("1"));
-        List<PartialConfig> b = asList(git("1"), svn("1"));
+        List<PartialConfig> a = List.of(git("1"), svn("1"));
+        List<PartialConfig> b = List.of(git("1"), svn("1"));
         assertTrue(helper.isEquivalent(a, b));
     }
 
     @Test
     void isEquivalent_CollectionPartialConfig_returnsTrueWhenGivenDifferentCollections() {
-        List<PartialConfig> a = asList(git("1"), svn("1"));
-        List<PartialConfig> b = asList(git("2"), svn("2"));
+        List<PartialConfig> a = List.of(git("1"), svn("1"));
+        List<PartialConfig> b = List.of(git("2"), svn("2"));
         assertFalse(helper.isEquivalent(a, b));
         assertFalse(helper.isEquivalent(a, Collections.emptyList()));
     }
@@ -97,7 +96,7 @@ class PartialConfigHelperTest {
         PartialConfig partialConfig = withPipeline("p", new RepoConfigOrigin(repo, "git"));
         partialConfig.getGroups().get(0).get(0).first().getJobs().add(invalidJob);
 
-        List<PartialConfig> a = asList(partialConfig, git("git"));
+        List<PartialConfig> a = List.of(partialConfig, git("git"));
         List<PartialConfig> b = Collections.emptyList();
 
         final Boolean result = assertDoesNotThrow(() -> helper.isEquivalent(a, b));

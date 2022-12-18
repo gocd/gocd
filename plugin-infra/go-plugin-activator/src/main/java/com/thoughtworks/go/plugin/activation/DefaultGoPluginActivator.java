@@ -418,7 +418,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             errors.add("Unable to find extension type from plugin identifier in class " + serviceImplementation.getClass().getCanonicalName() + ".\nError: \"" + e.getMessage() + "\".\nA valid plugin identifier looks like this:\n" +
                     "  @Override\n" +
                     "  public GoPluginIdentifier pluginIdentifier() {\n" +
-                    "      return new GoPluginIdentifier(\"extension-type\", Collections.singletonList(\"1.0\"));\n" +
+                    "      return new GoPluginIdentifier(\"extension-type\", List.of(\"1.0\"));\n" +
                     "  }\n");
         }
         return null;

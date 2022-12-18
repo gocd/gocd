@@ -37,13 +37,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
@@ -82,7 +82,7 @@ public class MaterialCheckerTest {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         Modification previous = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1/stage-name/0");
         MaterialRevision previousRevision = revisions(dependencyMaterial, previous).getMaterialRevision(0);
-        when(materialRepository.findModificationsSince(dependencyMaterial, previousRevision)).thenReturn(Arrays.asList(new Modification(new Date(), "pipeline-name/2/stage-name/0", "MOCK_LABEL-12", null)));
+        when(materialRepository.findModificationsSince(dependencyMaterial, previousRevision)).thenReturn(List.of(new Modification(new Date(), "pipeline-name/2/stage-name/0", "MOCK_LABEL-12", null)));
 
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(materialRevisions, new Materials(dependencyMaterial), new MaterialRevisions(previousRevision), new MaterialRevisions()/*will not be used, as no new material has been introduced*/);
 

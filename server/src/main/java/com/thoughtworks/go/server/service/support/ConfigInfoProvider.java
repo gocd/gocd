@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static java.util.Collections.singletonMap;
-
 @Component
 public class ConfigInfoProvider implements ServerInfoProvider {
     private final AgentService agentService;
@@ -83,7 +81,7 @@ public class ConfigInfoProvider implements ServerInfoProvider {
         for (AuthorizationPluginInfo pluginInfo : authorizationMetadataStore.allPluginInfos()) {
             final String pluginName = pluginInfo.getDescriptor().about().name();
             final boolean hashAuthConfig = !goConfigService.security().securityAuthConfigs().findByPluginId(pluginInfo.getDescriptor().id()).isEmpty();
-            pluginsConfigured.add(singletonMap(pluginName, hashAuthConfig));
+            pluginsConfigured.add(Map.of(pluginName, hashAuthConfig));
         }
 
         return security;

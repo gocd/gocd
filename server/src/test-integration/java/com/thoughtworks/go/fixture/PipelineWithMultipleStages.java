@@ -35,7 +35,7 @@ public class PipelineWithMultipleStages extends PipelineWithTwoStages implements
 
     public PipelineWithMultipleStages(int stagesSize, MaterialRepository materialRepository, final TransactionTemplate transactionTemplate, Path tempDir) {
         super(materialRepository, transactionTemplate, tempDir);
-        bombIf(stagesSize < 2, "Illegal stagesSize: " + stagesSize + ", at lease 2");
+        bombIf(stagesSize < 2, () -> "Illegal stagesSize: " + stagesSize + ", at lease 2");
         this.stagesSize = stagesSize;
         this.stageNames = new String[stagesSize];
         this.stageNames[0] = devStage;
@@ -77,6 +77,6 @@ public class PipelineWithMultipleStages extends PipelineWithTwoStages implements
     }
 
     private void ensureValidIndex(int index) {
-        bombIf(index < 1 || index > stagesSize, "Illegal index: " + index + ", valid range: 1->" + stagesSize);
+        bombIf(index < 1 || index > stagesSize, () -> "Illegal index: " + index + ", valid range: 1->" + stagesSize);
     }
 }

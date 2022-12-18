@@ -53,7 +53,7 @@ public class AnalyticsExtensionImplementation implements GoPlugin {
         System.setProperty("valid-plugin-with-multiple-extensions.analytics_extension.plugin_identifier.count", String.valueOf(++numberOfCallsToPluginIdentifier));
         System.setProperty("valid-plugin-with-multiple-extensions.analytics_extension.plugin_identifier.value", String.valueOf(System.currentTimeMillis()));
 
-        return new GoPluginIdentifier("analytics", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("analytics", List.of("1.0"));
     }
 }
 

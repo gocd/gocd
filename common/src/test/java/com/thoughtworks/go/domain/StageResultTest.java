@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItems;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class StageResultTest {
@@ -59,7 +58,7 @@ public class StageResultTest {
     @Test
     public void shouldMakeSureThatAnyChangeToThisEnumIsReflectedInQueriesInStagesXML() throws Exception {
         assertThat(StageResult.values().length, is(4));
-        List<StageResult> actualStageResults = Arrays.asList(StageResult.values());
+        List<StageResult> actualStageResults = List.of(StageResult.values());
 
         List<String> names = new ArrayList<>();
         for (StageResult stageResult : actualStageResults) {

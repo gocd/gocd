@@ -15,17 +15,16 @@
  */
 package com.thoughtworks.go.domain;
 
-import static java.util.Arrays.asList;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.hamcrest.Matcher;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class StageStateTest {
     private Set<StageState> testedStates;
@@ -101,14 +100,14 @@ public class StageStateTest {
 
 
     private void shouldCoverAllResults() {
-        Set<StageResult> missingResults = new HashSet<>(asList(StageResult.values()));
+        Set<StageResult> missingResults = new HashSet<>(Set.of(StageResult.values()));
         missingResults.removeAll(testedResults);
         assertThat("Update all tests when you add a new StageResult (missing " + missingResults + ")",
                 missingResults.isEmpty(), is(true));
     }
 
     private void shouldCoverAllStates() {
-        Set<StageState> missingStates = new HashSet<>(asList(StageState.values()));
+        Set<StageState> missingStates = new HashSet<>(Set.of(StageState.values()));
         missingStates.removeAll(testedStates);
         assertThat("Update all tests when you add a new StageState (missing " + missingStates + ")",
                 missingStates.isEmpty(), is(true));

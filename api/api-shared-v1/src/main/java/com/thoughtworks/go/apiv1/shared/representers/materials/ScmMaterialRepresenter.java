@@ -37,9 +37,7 @@ public class ScmMaterialRepresenter {
     public static void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
         jsonReader.readStringIfPresent("destination", scmMaterialConfig::setFolder);
         jsonReader.optBoolean("invert_filter").ifPresent(scmMaterialConfig::setInvertFilter);
-        jsonReader.optJsonObject("filter").ifPresent(filterReader -> {
-            scmMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader));
-        });
+        jsonReader.optJsonObject("filter").ifPresent(filterReader -> scmMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader)));
         jsonReader.readCaseInsensitiveStringIfPresent("name", scmMaterialConfig::setName);
         jsonReader.optBoolean("auto_update").ifPresent(scmMaterialConfig::setAutoUpdate);
     }

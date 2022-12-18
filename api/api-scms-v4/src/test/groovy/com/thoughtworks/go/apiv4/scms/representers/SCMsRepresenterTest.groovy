@@ -36,7 +36,7 @@ class SCMsRepresenterTest {
       ConfigurationPropertyMother.create("key2", true, "secret"),
     ))
 
-    String actualJson = toObjectString({ SCMsRepresenter.toJSON(it, Arrays.asList(scm)) })
+    String actualJson = toObjectString({ SCMsRepresenter.toJSON(it, List.of(scm)) })
 
     assertThatJson(actualJson).isEqualTo([
       "_links"   : [

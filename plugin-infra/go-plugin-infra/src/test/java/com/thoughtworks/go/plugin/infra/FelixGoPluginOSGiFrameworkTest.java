@@ -39,8 +39,6 @@ import org.osgi.framework.launch.Framework;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -221,12 +219,12 @@ class FelixGoPluginOSGiFrameworkTest {
             final GoPluginIdentifier firstPluginIdentifier = mock(GoPluginIdentifier.class);
             when(firstService.pluginIdentifier()).thenReturn(firstPluginIdentifier);
             when(firstPluginIdentifier.getExtension()).thenReturn("elastic-agent");
-            when(firstPluginIdentifier.getSupportedExtensionVersions()).thenReturn(asList("1.0", "2.0"));
+            when(firstPluginIdentifier.getSupportedExtensionVersions()).thenReturn(List.of("1.0", "2.0"));
 
             final GoPluginIdentifier secondPluginIdentifier = mock(GoPluginIdentifier.class);
             when(secondService.pluginIdentifier()).thenReturn(secondPluginIdentifier);
             when(secondPluginIdentifier.getExtension()).thenReturn("authorization");
-            when(secondPluginIdentifier.getSupportedExtensionVersions()).thenReturn(singletonList("1.0"));
+            when(secondPluginIdentifier.getSupportedExtensionVersions()).thenReturn(List.of("1.0"));
 
             registerService("plugin-one", firstService, secondService);
             spy.start();
@@ -234,8 +232,8 @@ class FelixGoPluginOSGiFrameworkTest {
             final Map<String, List<String>> info = spy.getExtensionsInfoFromThePlugin("plugin-one");
 
             assertThat(info).hasSize(2)
-                    .containsEntry("elastic-agent", asList("1.0", "2.0"))
-                    .containsEntry("authorization", singletonList("1.0"));
+                    .containsEntry("elastic-agent", List.of("1.0", "2.0"))
+                    .containsEntry("authorization", List.of("1.0"));
         }
     }
 
@@ -275,8 +273,8 @@ class FelixGoPluginOSGiFrameworkTest {
         lenient().when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
 
         String propertyFormat = String.format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginID, Constants.BUNDLE_CATEGORY, extension);
-        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(singletonList(reference));
-        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(singletonList(reference));
+        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(List.of(reference));
+        lenient().when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(List.of(reference));
     }
 
     private void registerService(String pluginID, GoPlugin... someInterfaces) throws InvalidSyntaxException {

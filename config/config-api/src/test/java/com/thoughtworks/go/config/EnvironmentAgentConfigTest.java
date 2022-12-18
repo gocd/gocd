@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.thoughtworks.go.config.EnvironmentAgentConfig.UUID;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +30,7 @@ class EnvironmentAgentConfigTest {
         String uuidThatWillBeValidated = "uuid2";
         EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
 
-        Set<String> setOfUUIDs = new HashSet<>(asList("uuid1", uuidThatWillBeValidated, "uuid3"));
+        Set<String> setOfUUIDs = Set.of("uuid1", uuidThatWillBeValidated, "uuid3");
         boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), setOfUUIDs);
 
         assertTrue(isPresent);
@@ -42,7 +41,7 @@ class EnvironmentAgentConfigTest {
         String uuidThatWillBeValidated = null;
         EnvironmentAgentConfig envAgentConf = new EnvironmentAgentConfig(uuidThatWillBeValidated);
 
-        Set<String> setOfUUIDs = new HashSet<>(asList("uuid1", "uuid2", "uuid3"));
+        Set<String> setOfUUIDs = new HashSet<>(Set.of("uuid1", "uuid2", "uuid3"));
         boolean isPresent = envAgentConf.validateUuidPresent(new CaseInsensitiveString("env1"), setOfUUIDs);
         assertFalse(isPresent);
         assertEquals("Environment 'env1' has an invalid agent uuid 'null'", envAgentConf.errors().on(UUID));

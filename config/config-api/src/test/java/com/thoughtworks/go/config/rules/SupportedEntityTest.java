@@ -75,6 +75,7 @@ class SupportedEntityTest {
         List<String> entities = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT);
 
         assertThat(entities).hasSize(2).contains(PIPELINE_GROUP.getType(), ENVIRONMENT.getType());
+        //noinspection DataFlowIssue
         assertThatCode(() -> entities.add("foo"))
                 .isInstanceOf(UnsupportedOperationException.class);
     }

@@ -57,8 +57,8 @@ import static com.thoughtworks.go.helper.FilterMother.filterFor;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MagicalMaterialAndMaterialConfigConversionTest {
@@ -133,7 +133,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AssignableTypeFilter(MaterialConfig.class));
         Set<BeanDefinition> candidateComponents = provider.findCandidateComponents("com/thoughtworks");
-        List<Class> reflectionsSubTypesOf = candidateComponents.stream().map(beanDefinition -> beanDefinition.getBeanClassName()).map(s -> {
+        List<Class> reflectionsSubTypesOf = candidateComponents.stream().map(BeanDefinition::getBeanClassName).map(s -> {
             try {
                 return Class.forName(s);
             } catch (ClassNotFoundException e) {

@@ -26,13 +26,17 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.InsecureEnvironmentVariables.EMPTY_ENV_VARS;
 import static com.thoughtworks.go.domain.label.PipelineLabel.defaultLabel;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PipelineLabelTest {
     private final String testingTemplate = "testing." + PipelineLabel.COUNT_TEMPLATE + ".label";
@@ -283,27 +287,27 @@ public class PipelineLabelTest {
 
     @Test
     public void PipelineLabelTemplateMigration_shouldMigrateColonToUnderscoreForPackageMaterial() {
-        List<List<String>> expectations = Arrays.asList(
-                Arrays.asList("${COUNT}", "${COUNT}"),
-                Arrays.asList("something-${COUNT}", "something-${COUNT}"),
-                Arrays.asList("begin-${COUNT}-end", "begin-${COUNT}-end"),
+        List<List<String>> expectations = List.of(
+                List.of("${COUNT}", "${COUNT}"),
+                List.of("something-${COUNT}", "something-${COUNT}"),
+                List.of("begin-${COUNT}-end", "begin-${COUNT}-end"),
 
-                Arrays.asList("${repo:package}", "${repo_package}"),
-                Arrays.asList("start-${repo:package}-end", "start-${repo_package}-end"),
+                List.of("${repo:package}", "${repo_package}"),
+                List.of("start-${repo:package}-end", "start-${repo_package}-end"),
 
-                Arrays.asList("release:v1-${repo:package}", "release:v1-${repo_package}"),
-                Arrays.asList("release:v1-${repo:package}:${svn}", "release:v1-${repo_package}:${svn}"),
-                Arrays.asList("release:v1-${repo:package}:${github[:7]}:${svn}", "release:v1-${repo_package}:${github[:7]}:${svn}"),
-                Arrays.asList("release:v1-${repo:package[:5]}:${github[:7]}:${svn}", "release:v1-${repo_package[:5]}:${github[:7]}:${svn}"),
-                Arrays.asList("start-release:v1-${repo:package}:${github[:7]}:${svn}-end", "start-release:v1-${repo_package}:${github[:7]}:${svn}-end"),
+                List.of("release:v1-${repo:package}", "release:v1-${repo_package}"),
+                List.of("release:v1-${repo:package}:${svn}", "release:v1-${repo_package}:${svn}"),
+                List.of("release:v1-${repo:package}:${github[:7]}:${svn}", "release:v1-${repo_package}:${github[:7]}:${svn}"),
+                List.of("release:v1-${repo:package[:5]}:${github[:7]}:${svn}", "release:v1-${repo_package[:5]}:${github[:7]}:${svn}"),
+                List.of("start-release:v1-${repo:package}:${github[:7]}:${svn}-end", "start-release:v1-${repo_package}:${github[:7]}:${svn}-end"),
 
-                Arrays.asList("${env:var}", "${env:var}"),
-                Arrays.asList("${env:my:fancy:env}", "${env:my:fancy:env}"),
+                List.of("${env:var}", "${env:var}"),
+                List.of("${env:my:fancy:env}", "${env:my:fancy:env}"),
 
-                Arrays.asList("${repo:package[:5]}-${env:var}", "${repo_package[:5]}-${env:var}"),
+                List.of("${repo:package[:5]}-${env:var}", "${repo_package[:5]}-${env:var}"),
 
-                Arrays.asList("#{my.fancy.param}", "#{my.fancy.param}"),
-                Arrays.asList("#{my:fancy:param}", "#{my:fancy:param}")
+                List.of("#{my.fancy.param}", "#{my.fancy.param}"),
+                List.of("#{my:fancy:param}", "#{my:fancy:param}")
         );
 
         expectations.forEach((exp) -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.get(0)), is(exp.get(1))));

@@ -18,7 +18,10 @@ package com.thoughtworks.go.server.domain.user;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.server.domain.user.FilterValidator.*;
@@ -35,21 +38,21 @@ class FiltersTest {
     void validatesNameFormatOnConstruction() {
         DashboardFilter a = namedIncludes("¯\\_(ツ)_/¯");
 
-        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(a)));
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(a)));
         assertEquals(MSG_NAME_FORMAT, e.getMessage());
 
         DashboardFilter b = namedIncludes(" filter");
 
-        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(b)));
+        e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(b)));
         assertEquals(MSG_NO_LEADING_TRAILING_SPACES, e.getMessage());
 
         DashboardFilter c = namedIncludes("filter ");
 
-        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(c)));
+        e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(c)));
         assertEquals(MSG_NO_LEADING_TRAILING_SPACES, e.getMessage());
 
         DashboardFilter d = namedIncludes(NAME_TOO_LONG);
-        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(d)));
+        e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(d)));
         assertEquals(MSG_MAX_LENGTH, e.getMessage());
     }
 
@@ -84,17 +87,17 @@ class FiltersTest {
     void validatesNamePresenceOnConstruction() {
         DashboardFilter a = namedIncludes("");
 
-        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(a)));
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(a)));
         assertEquals(MSG_MISSING_NAME, e.getMessage());
 
         DashboardFilter b = namedIncludes(" ");
 
-        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(b)));
+        e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(b)));
         assertEquals(MSG_MISSING_NAME, e.getMessage());
 
         DashboardFilter c = namedIncludes(null);
 
-        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(c)));
+        e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(c)));
         assertEquals(MSG_MISSING_NAME, e.getMessage());
     }
 
@@ -124,7 +127,7 @@ class FiltersTest {
         DashboardFilter a = namedIncludes("one");
         DashboardFilter b = namedExcludes("one");
 
-        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Arrays.asList(a, b)));
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(List.of(a, b)));
         assertEquals("Duplicate filter name: one", e.getMessage());
     }
 
@@ -150,7 +153,7 @@ class FiltersTest {
 
     @Test
     void validatesPresenceOfAtLeastOneFilterOnConstruction() {
-        assertDoesNotThrow(() -> new Filters(Collections.singletonList(namedIncludes("foo", "p1"))));
+        assertDoesNotThrow(() -> new Filters(List.of(namedIncludes("foo", "p1"))));
 
         Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.emptyList()));
         assertEquals(MSG_NO_DEFAULT_FILTER, e.getMessage());

@@ -21,16 +21,17 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class StageConfigTest {
@@ -38,9 +39,9 @@ public class StageConfigTest {
     @Test
     public void shouldSetPrimitiveAttributes() throws Exception{
         StageConfig config = new StageConfig();
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.NAME, "foo_bar"));
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.FETCH_MATERIALS, "0"));
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.CLEAN_WORKING_DIR, "1"));
+        config.setConfigAttributes(Map.of(StageConfig.NAME, "foo_bar"));
+        config.setConfigAttributes(Map.of(StageConfig.FETCH_MATERIALS, "0"));
+        config.setConfigAttributes(Map.of(StageConfig.CLEAN_WORKING_DIR, "1"));
         assertThat(config.name(), is(new CaseInsensitiveString("foo_bar")));
         assertThat(config.isFetchMaterials(), is(false));
         assertThat(config.isCleanWorkingDir(), is(true));
@@ -50,11 +51,11 @@ public class StageConfigTest {
     public void shouldSetArtifactCleanupOptOutAttribute() throws Exception{
         StageConfig config = new StageConfig();
         assertThat(config.isArtifactCleanupProhibited(), is(false));
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "1"));
+        config.setConfigAttributes(Map.of(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "1"));
         assertThat(config.isArtifactCleanupProhibited(), is(true));
         config.setConfigAttributes(new HashMap());
         assertThat(config.isArtifactCleanupProhibited(), is(true));
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "0"));
+        config.setConfigAttributes(Map.of(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "0"));
         assertThat(config.isArtifactCleanupProhibited(), is(false));
     }
 
@@ -143,12 +144,12 @@ public class StageConfigTest {
     @Test
     public void shouldSetApprovalFromConfigAttrs() throws Exception{
         StageConfig config = new StageConfig();
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.APPROVAL, Collections.singletonMap(Approval.TYPE, Approval.MANUAL)));
+        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.MANUAL)));
         assertThat(config.getApproval().getType(), is(Approval.MANUAL));
         config.setConfigAttributes(new HashMap());
         assertThat(config.getApproval().getType(), is(Approval.MANUAL));
 
-        config.setConfigAttributes(Collections.singletonMap(StageConfig.APPROVAL, Collections.singletonMap(Approval.TYPE, Approval.SUCCESS)));
+        config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.SUCCESS)));
         assertThat(config.getApproval().getType(), is(Approval.SUCCESS));
         config.setConfigAttributes(new HashMap());
         assertThat(config.getApproval().getType(), is(Approval.SUCCESS));
@@ -157,7 +158,7 @@ public class StageConfigTest {
     @Test
     public void shouldPickupJobConfigDetailsFromAttributeMap() throws Exception{
         StageConfig config = new StageConfig();
-        Map stageAttrs = m(StageConfig.JOBS, a(m(JobConfig.NAME, "con-job"), m(JobConfig.NAME, "boring-job")));
+        Map stageAttrs = Map.of(StageConfig.JOBS, List.of(Map.of(JobConfig.NAME, "con-job"), Map.of(JobConfig.NAME, "boring-job")));
         config.setConfigAttributes(stageAttrs);
         assertThat(config.getJobs().get(0).name(), is(new CaseInsensitiveString("con-job")));
         assertThat(config.getJobs().get(1).name(), is(new CaseInsensitiveString("boring-job")));
@@ -233,8 +234,8 @@ public class StageConfigTest {
         StageConfigMother.addApprovalWithUsers(stage, "user1", "user2");
         StageConfigMother.addApprovalWithRoles(stage, "role1", "role2");
 
-        assertThat(stage.getOperateUsers(), is(Arrays.asList(new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))));
-        assertThat(stage.getOperateRoles(), is(Arrays.asList(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")))));
+        assertThat(stage.getOperateUsers(), is(List.of(new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))));
+        assertThat(stage.getOperateRoles(), is(List.of(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")))));
     }
 
     @Test

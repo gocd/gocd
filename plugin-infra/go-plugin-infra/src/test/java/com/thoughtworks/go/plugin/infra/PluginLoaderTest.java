@@ -26,8 +26,6 @@ import org.osgi.framework.Bundle;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +48,7 @@ class PluginLoaderTest {
         GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).then(invocation -> {
-            goPluginBundleDescriptor.markAsInvalid(singletonList("Ouch!"), null);
+            goPluginBundleDescriptor.markAsInvalid(List.of("Ouch!"), null);
             goPluginBundleDescriptor.setBundle(mock(Bundle.class));
             return goPluginBundleDescriptor.bundle();
         });
@@ -121,7 +119,7 @@ class PluginLoaderTest {
         GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder().id("plugin1").build());
 
         when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).then(invocation -> {
-            goPluginBundleDescriptor.markAsInvalid(singletonList("Ouch!"), null);
+            goPluginBundleDescriptor.markAsInvalid(List.of("Ouch!"), null);
             goPluginBundleDescriptor.setBundle(mock(Bundle.class));
             return goPluginBundleDescriptor.bundle();
         });
@@ -146,7 +144,7 @@ class PluginLoaderTest {
                 .hasMessageContaining("Failed to load plugin");
 
         assertThat(pluginDescriptor.isInvalid()).isTrue();
-        assertThat(pluginDescriptor.getStatus().getMessages()).isEqualTo(singletonList("Ouch!"));
+        assertThat(pluginDescriptor.getStatus().getMessages()).isEqualTo(List.of("Ouch!"));
         verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginBundleDescriptor);
     }
 
@@ -210,7 +208,7 @@ class PluginLoaderTest {
             GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
             when(pluginDescriptor.id()).thenReturn("some-id");
 
-            final Map<String, List<String>> extensionsInfo = singletonMap("elastic-agent", singletonList("1.0"));
+            final Map<String, List<String>> extensionsInfo = Map.of("elastic-agent", List.of("1.0"));
             when(pluginOSGiFramework.getExtensionsInfoFromThePlugin("some-id")).thenReturn(extensionsInfo);
 
 

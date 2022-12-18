@@ -47,9 +47,7 @@ public class ConfigRepoConfigRepresenterV4 {
         repo.setRepo(material);
 
         repo.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArrayHandlingEncryption(jsonReader, "configuration"));
-        jsonReader.readArrayIfPresent("rules", array -> {
-            repo.setRules(RulesRepresenter.fromJSON(array));
-        });
+        jsonReader.readArrayIfPresent("rules", array -> repo.setRules(RulesRepresenter.fromJSON(array)));
         return repo;
     }
 

@@ -29,13 +29,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
@@ -206,7 +205,7 @@ public class TemplateConfigServiceTest {
         when(goConfigService.getAllPipelineConfigsForEditForUser(user)).thenReturn(cruiseConfig.allPipelines());
 
         List<PipelineConfig> pipelineConfigs = service.allPipelinesNotUsingTemplates(user, new HttpLocalizedOperationResult());
-        assertThat(pipelineConfigs, is(Arrays.asList(pipelineWithoutTemplateOne, pipelineWithoutTemplateTwo)));
+        assertThat(pipelineConfigs, is(List.of(pipelineWithoutTemplateOne, pipelineWithoutTemplateTwo)));
     }
 
     @Test

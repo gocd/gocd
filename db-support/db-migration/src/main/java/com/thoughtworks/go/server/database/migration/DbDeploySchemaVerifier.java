@@ -23,7 +23,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
@@ -61,7 +60,7 @@ public class DbDeploySchemaVerifier {
     }
 
     private void throwFormattedError(String msg) {
-        List<String> messages = Arrays.asList(repeat("*", "", 72), msg, repeat("*", "", 72));
+        List<String> messages = List.of(repeat("*", "", 72), msg, repeat("*", "", 72));
 
         for (String message : messages) {
             System.err.println(message);

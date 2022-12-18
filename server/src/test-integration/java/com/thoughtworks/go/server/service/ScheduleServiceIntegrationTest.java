@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobStatusListener;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
@@ -213,7 +212,7 @@ public class ScheduleServiceIntegrationTest {
         configHelper.addPipeline(pipelineName, firstStageName);
         configHelper.addStageToPipeline(pipelineName, "twist");
         configHelper.lockPipeline(pipelineName);
-        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, new ArrayList<>(Arrays.asList(firstStageName, secondStageName)), new ArrayList<>(Arrays.asList(JOB_NAME, "twist")));
+        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, new ArrayList<>(List.of(firstStageName, secondStageName)), new ArrayList<>(List.of(JOB_NAME, "twist")));
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -236,7 +235,7 @@ public class ScheduleServiceIntegrationTest {
         configHelper.addPipeline(pipelineName, firstStageName);
         configHelper.addStageToPipeline(pipelineName, "twist");
         configHelper.lockPipeline(pipelineName);
-        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, new ArrayList<>(Arrays.asList(firstStageName, secondStageName)), new ArrayList<>(Arrays.asList(JOB_NAME, "twist")));
+        final Pipeline pipeline = PipelineMother.completedPipelineWithStagesAndBuilds(pipelineName, new ArrayList<>(List.of(firstStageName, secondStageName)), new ArrayList<>(List.of(JOB_NAME, "twist")));
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -350,9 +349,9 @@ public class ScheduleServiceIntegrationTest {
         String stage = "s1";
         String job = "j1";
         PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stage, job);
-        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1", "V1"))));
-        configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K2", "V2"))));
-        configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K3", "V3"))));
+        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1", "V1"))));
+        configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K2", "V2"))));
+        configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K3", "V3"))));
         Pipeline pipeline = runAndPass(pipelineConfig, 1);
         long jobId = pipeline.getFirstStage().getFirstJob().getId();
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
@@ -368,9 +367,9 @@ public class ScheduleServiceIntegrationTest {
         jobPlan = jobInstanceDao.loadPlan(jobId);
         assertThat(jobPlan.getVariables().size(), is(0));
 
-        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));//add
+        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));//add
         configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig()); //delete
-        configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K3", "V3_updated")))); //edit
+        configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K3", "V3_updated")))); //edit
 
         pipeline = runAndPass(pipelineConfig, 2);
         jobId = pipeline.getFirstStage().getFirstJob().getId();
@@ -386,9 +385,9 @@ public class ScheduleServiceIntegrationTest {
         String stage = "s1";
         String job = "j1";
         PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stage, job);
-        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1", "V1"))));
-        configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K2", "V2"))));
-        configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K3", "V3"))));
+        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1", "V1"))));
+        configHelper.addEnvironmentVariableToStage(pipelineName, stage, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K2", "V2"))));
+        configHelper.addEnvironmentVariableToJob(pipelineName, stage, job, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K3", "V3"))));
         Pipeline pipeline = runAndPass(pipelineConfig, 1);
         long jobId = pipeline.getFirstStage().getFirstJob().getId();
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
@@ -403,8 +402,8 @@ public class ScheduleServiceIntegrationTest {
         jobPlan = jobInstanceDao.loadPlan(jobId);
         assertThat(jobPlan.getVariables().size(), is(0));
 
-        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
-        Stage rerunStage = scheduleService.rerunJobs(pipeline.getFirstStage(), Arrays.asList(job), new HttpOperationResult());
+        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
+        Stage rerunStage = scheduleService.rerunJobs(pipeline.getFirstStage(), List.of(job), new HttpOperationResult());
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
         assertThat(rerunStage.getFirstJob().getPlan().getVariables(),
                 hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
@@ -416,9 +415,9 @@ public class ScheduleServiceIntegrationTest {
         String stageName = "s1";
         String jobName = "j1";
         PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineName, stageName, jobName);
-        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1", "V1"))));
-        configHelper.addEnvironmentVariableToStage(pipelineName, stageName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K2", "V2"))));
-        configHelper.addEnvironmentVariableToJob(pipelineName, stageName, jobName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K3", "V3"))));
+        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1", "V1"))));
+        configHelper.addEnvironmentVariableToStage(pipelineName, stageName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K2", "V2"))));
+        configHelper.addEnvironmentVariableToJob(pipelineName, stageName, jobName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K3", "V3"))));
         Pipeline pipeline = runAndPass(pipelineConfig, 1);
         long jobId = pipeline.getFirstStage().getFirstJob().getId();
         JobPlan jobPlan = jobInstanceDao.loadPlan(jobId);
@@ -433,7 +432,7 @@ public class ScheduleServiceIntegrationTest {
         jobPlan = jobInstanceDao.loadPlan(jobId);
         assertThat(jobPlan.getVariables().size(), is(0));
 
-        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
+        configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
         Stage rerunStage = scheduleService.rerunStage(pipelineConfig.name().toString(), 1, stageName);
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
         assertThat(rerunStage.getFirstJob().getPlan().getVariables(), hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
@@ -446,11 +445,8 @@ public class ScheduleServiceIntegrationTest {
         String secondStage = "secondStage";
         PipelineConfig pipelineConfig = configHelper.addPipeline(PipelineConfigMother.createPipelineConfigWithStages(pipelineName, firstStage, secondStage));
         Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), new TimeProvider());
-        stageService.addStageStatusListener(new StageStatusListener() {
-            @Override
-            public void stageStatusChanged(Stage stage) {
-                throw new LinkageError("some nasty linkage error");
-            }
+        stageService.addStageStatusListener(stage -> {
+            throw new LinkageError("some nasty linkage error");
         });
         JobInstance job = pipeline.getFirstStage().getFirstJob();
         JobIdentifier jobIdentifier = job.getIdentifier();
@@ -515,7 +511,7 @@ public class ScheduleServiceIntegrationTest {
         PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineToBeAdded);
 
         //trigger the pipeline
-        Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), "Bob", new TimeProvider(), Collections.singletonMap("elastic_agent_profile", elasticAgentProfile), Collections.singletonMap("cluster_profile", clusterProfile));
+        Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), "Bob", new TimeProvider(), Map.of("elastic_agent_profile", elasticAgentProfile), Map.of("cluster_profile", clusterProfile));
 
         buildAssignmentService.onTimer();
 
@@ -561,7 +557,7 @@ public class ScheduleServiceIntegrationTest {
         assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile(), is(clusterProfile));
         assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile(), is(elasticAgentProfile));
 
-        elasticAgentPluginService.createAgentsFor(Collections.emptyList(), Collections.singletonList(jobInstanceDao.loadPlan(newlyScheduledBuildId)));
+        elasticAgentPluginService.createAgentsFor(Collections.emptyList(), List.of(jobInstanceDao.loadPlan(newlyScheduledBuildId)));
 
         //verify create agent request was sent to the plugin
         CreateAgentMessage message = new CreateAgentMessage(ephemeralAutoRegisterKey, null, elasticAgentProfile, clusterProfile, jobPlanOfRescheduledInstance.getIdentifier());

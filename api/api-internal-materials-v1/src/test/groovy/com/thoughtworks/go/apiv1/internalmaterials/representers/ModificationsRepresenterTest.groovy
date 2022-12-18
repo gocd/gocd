@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static java.util.Arrays.asList
 import static java.util.Collections.emptyList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -61,7 +60,7 @@ class ModificationsRepresenterTest {
     mod.id = 1
 
     def actualJson = toObjectString({
-      ModificationsRepresenter.toJSON(it, asList(mod), new PipelineRunIdInfo(1, 1), "fingerprint", "", 10)
+      ModificationsRepresenter.toJSON(it, List.of(mod), new PipelineRunIdInfo(1, 1), "fingerprint", "", 10)
     })
 
     def expectedJson = [

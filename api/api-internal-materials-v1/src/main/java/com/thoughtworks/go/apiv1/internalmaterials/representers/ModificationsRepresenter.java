@@ -51,8 +51,6 @@ public class ModificationsRepresenter {
                 });
             }
         }
-        outputWriter.addChildList("modifications", childWriter -> {
-            modifications.forEach((mod) -> childWriter.addChild(writer -> ModificationRepresenter.toJSON(writer, mod)));
-        });
+        outputWriter.addChildList("modifications", childWriter -> modifications.forEach((mod) -> childWriter.addChild(writer -> ModificationRepresenter.toJSON(writer, mod))));
     }
 }

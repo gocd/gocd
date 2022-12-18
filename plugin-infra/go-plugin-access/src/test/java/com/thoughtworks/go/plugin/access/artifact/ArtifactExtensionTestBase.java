@@ -32,8 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
@@ -41,7 +41,8 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public abstract class ArtifactExtensionTestBase {
@@ -119,7 +120,7 @@ public abstract class ArtifactExtensionTestBase {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        ValidationResult validationResult = artifactExtension.validateArtifactStoreConfig(PLUGIN_ID, Collections.singletonMap("ACCESS_KEY", ""));
+        ValidationResult validationResult = artifactExtension.validateArtifactStoreConfig(PLUGIN_ID, Map.of("ACCESS_KEY", ""));
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
@@ -175,7 +176,7 @@ public abstract class ArtifactExtensionTestBase {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(PLUGIN_ID, Collections.singletonMap("Filename", ""));
+        ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(PLUGIN_ID, Map.of("Filename", ""));
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 
@@ -272,7 +273,7 @@ public abstract class ArtifactExtensionTestBase {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(PLUGIN_ID, Collections.singletonMap("Filename", ""));
+        ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(PLUGIN_ID, Map.of("Filename", ""));
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
 

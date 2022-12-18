@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Iterator;
 
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class GoConfigGraphWalkerTest {
@@ -52,7 +52,7 @@ public class GoConfigGraphWalkerTest {
 
     private PipelineConfig mockPipelineConfig() {
         PipelineConfig pipe = mock(PipelineConfig.class);
-        when(pipe.iterator()).thenReturn(new Iterator<StageConfig>() {
+        when(pipe.iterator()).thenReturn(new Iterator<>() {
             @Override
             public boolean hasNext() {
                 return false;
@@ -76,12 +76,7 @@ public class GoConfigGraphWalkerTest {
     {
         PipelineConfig pipe = mockPipelineConfig();
         BasicPipelineConfigs basicPipelines = new BasicPipelineConfigs(pipe);
-        new GoConfigGraphWalker(basicPipelines).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
-            }
-        });
+        new GoConfigGraphWalker(basicPipelines).walk(Validatable::validate);
         verify(pipe, atLeastOnce()).validate(any(ValidationContext.class));
     }
 
@@ -90,12 +85,7 @@ public class GoConfigGraphWalkerTest {
     {
         PipelineConfig pipe = mockPipelineConfig();
         MergePipelineConfigs mergePipelines = new MergePipelineConfigs(new BasicPipelineConfigs(pipe));
-        new GoConfigGraphWalker(mergePipelines).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
-            }
-        });
+        new GoConfigGraphWalker(mergePipelines).walk(Validatable::validate);
         verify(pipe, atLeastOnce()).validate(any(ValidationContext.class));
     }
 
@@ -104,12 +94,7 @@ public class GoConfigGraphWalkerTest {
         PackageRepository repository = mock(PackageRepository.class);
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setRepository(repository);
-        new GoConfigGraphWalker(packageDefinition).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(ctx);
-            }
-        });
+        new GoConfigGraphWalker(packageDefinition).walk(Validatable::validate);
         verify(repository, never()).validate(any(ValidationContext.class));
     }
 
@@ -129,12 +114,7 @@ public class GoConfigGraphWalkerTest {
 
         final ConfigSaveValidationContext context = new ConfigSaveValidationContext(config);
 
-        new GoConfigGraphWalker(packageMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(context);
-            }
-        });
+        new GoConfigGraphWalker(packageMaterialConfig).walk((validatable, ctx) -> validatable.validate(context));
         verify(packageDefinition, never()).validate(any(ValidationContext.class));
     }
 
@@ -148,12 +128,7 @@ public class GoConfigGraphWalkerTest {
         BasicCruiseConfig config = new BasicCruiseConfig();
         config.getSCMs().add(scmConfig);
         final ConfigSaveValidationContext context = new ConfigSaveValidationContext(config);
-        new GoConfigGraphWalker(pluggableSCMMaterialConfig).walk(new GoConfigGraphWalker.Handler() {
-            @Override
-            public void handle(Validatable validatable, ValidationContext ctx) {
-                validatable.validate(context);
-            }
-        });
+        new GoConfigGraphWalker(pluggableSCMMaterialConfig).walk((validatable, ctx) -> validatable.validate(context));
         verify(scmConfig, never()).validate(any(ValidationContext.class));
     }
 }

@@ -29,10 +29,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -76,7 +77,7 @@ public class AdminsConfigServiceTest {
 
         Username user = new Username("user");
 
-        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), emptyList(), singletonList("newRole1"), emptyList(), "md5");
+        adminsConfigService.bulkUpdate(user, List.of("newUser1"), emptyList(), List.of("newRole1"), emptyList(), "md5");
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -99,7 +100,7 @@ public class AdminsConfigServiceTest {
 
         Username user = new Username("user");
 
-        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("adminUser1"), emptyList(), singletonList("adminRole1"), "md5");
+        adminsConfigService.bulkUpdate(user, emptyList(), List.of("adminUser1"), emptyList(), List.of("adminRole1"), "md5");
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -123,7 +124,7 @@ public class AdminsConfigServiceTest {
         Username user = new Username("user");
 
         BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), emptyList(),
-                singletonList("someOtherRole"), "md5");
+                List.of("someOtherRole"), "md5");
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
@@ -145,7 +146,7 @@ public class AdminsConfigServiceTest {
 
         Username user = new Username("user");
 
-        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), singletonList("someOtherUser"),
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), List.of("someOtherUser"),
                 emptyList(), emptyList(), "md5");
 
         assertThat(result.isSuccessful(), is(false));
@@ -174,7 +175,7 @@ public class AdminsConfigServiceTest {
         doThrow(new GoConfigInvalidException(cruiseConfig, "Validation Failed."))
                 .when(goConfigService).updateConfig(any(AdminsConfigUpdateCommand.class), eq(user));
 
-        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), singletonList("roleToRemove"),
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), List.of("roleToRemove"),
                 emptyList(), "md5");
 
         assertThat(result.isSuccessful(), is(false));

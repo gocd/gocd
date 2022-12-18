@@ -52,13 +52,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.helper.MaterialsMother.*;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -89,8 +86,8 @@ class SecretParamResolverTest {
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig())
                     .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password"))))
-                    .thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                    .thenReturn(List.of(new Secret("password", "some-password")));
 
             secretParamResolver.resolve(gitMaterial);
 
@@ -124,8 +121,8 @@ class SecretParamResolverTest {
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig())
                     .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password"))))
-                    .thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                    .thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(material.getSecretParams().get(0).isUnresolved()).isTrue();
 
@@ -159,12 +156,12 @@ class SecretParamResolverTest {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][password]}}");
             SCM scm = new SCM("scm-id", "scm-name");
-            scm.getConfiguration().addAll(asList(k1, k2));
+            scm.getConfiguration().addAll(List.of(k1, k2));
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password"))))
-                    .thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                    .thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(scm.getSecretParams().get(0).isUnresolved()).isTrue();
 
@@ -180,7 +177,7 @@ class SecretParamResolverTest {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
             SCM scm = new SCM("scm-id", "scm-name");
-            scm.getConfiguration().addAll(asList(k1, k2));
+            scm.getConfiguration().addAll(List.of(k1, k2));
 
 
             doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(scm);
@@ -204,8 +201,8 @@ class SecretParamResolverTest {
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig())
                     .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password"))))
-                    .thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                    .thenReturn(List.of(new Secret("password", "some-password")));
 
             secretParamResolver.resolve(buildAssigment);
 
@@ -255,8 +252,8 @@ class SecretParamResolverTest {
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig())
                     .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password"))))
-                    .thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password")))
+                    .thenReturn(List.of(new Secret("password", "some-password")));
 
             secretParamResolver.resolve(environmentConfig);
 
@@ -290,10 +287,10 @@ class SecretParamResolverTest {
         final SecretConfig fileBasedSecretConfig = new SecretConfig("secret_config_id_1", "cd.go.file");
         final SecretConfig awsBasedSecretConfig = new SecretConfig("secret_config_id_2", "cd.go.aws");
         when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(fileBasedSecretConfig, awsBasedSecretConfig));
-        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, new HashSet<>(asList("username", "password"))))
-                .thenReturn(asList(new Secret("username", "some-username"), new Secret("password", "some-password")));
-        when(secretsExtension.lookupSecrets(awsBasedSecretConfig.getPluginId(), awsBasedSecretConfig, new HashSet<>(asList("access_key", "secret_key"))))
-                .thenReturn(asList(new Secret("access_key", "ABCDEFGHIJ1D"), new Secret("secret_key", "xyzdfjsdlwdoasd;q")));
+        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, Set.of("username", "password")))
+                .thenReturn(List.of(new Secret("username", "some-username"), new Secret("password", "some-password")));
+        when(secretsExtension.lookupSecrets(awsBasedSecretConfig.getPluginId(), awsBasedSecretConfig, Set.of("access_key", "secret_key")))
+                .thenReturn(List.of(new Secret("access_key", "ABCDEFGHIJ1D"), new Secret("secret_key", "xyzdfjsdlwdoasd;q")));
 
 
         assertThat(allSecretParams).hasSize(4);
@@ -320,8 +317,8 @@ class SecretParamResolverTest {
 
         final SecretConfig fileBasedSecretConfig = new SecretConfig("secret_config_id_1", "cd.go.file");
         when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(fileBasedSecretConfig));
-        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, singleton("username")))
-                .thenReturn(singletonList(new Secret("username", "some-username")));
+        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, Set.of("username")))
+                .thenReturn(List.of(new Secret("username", "some-username")));
 
         secretParamResolver.resolve(allSecretParams);
 
@@ -341,10 +338,10 @@ class SecretParamResolverTest {
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("token")))).thenReturn(singletonList(new Secret("token", "some-token")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("token"))).thenReturn(List.of(new Secret("token", "some-token")));
 
-            secretParamResolver.resolve(asList(gitMaterial, pluggableSCMMaterial));
+            secretParamResolver.resolve(List.of(gitMaterial, pluggableSCMMaterial));
 
             verify(rulesService).validateSecretConfigReferences(gitMaterial);
             verify(rulesService).validateSecretConfigReferences(pluggableSCMMaterial);
@@ -365,11 +362,11 @@ class SecretParamResolverTest {
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("token")))).thenReturn(singletonList(new Secret("token", "some-token")));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("package_token")))).thenReturn(singletonList(new Secret("package_token", "some-package-token")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("token"))).thenReturn(List.of(new Secret("token", "some-token")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("package_token"))).thenReturn(List.of(new Secret("package_token", "some-package-token")));
 
-            secretParamResolver.resolve(asList(gitMaterial, dependencyMaterial, packageMaterial, pluggableSCMMaterial));
+            secretParamResolver.resolve(List.of(gitMaterial, dependencyMaterial, packageMaterial, pluggableSCMMaterial));
 
             verify(rulesService).validateSecretConfigReferences(gitMaterial);
             verify(rulesService).validateSecretConfigReferences(pluggableSCMMaterial);
@@ -388,7 +385,7 @@ class SecretParamResolverTest {
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
 
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(material.getSecretParams().get(0).isUnresolved()).isTrue();
 
@@ -424,7 +421,7 @@ class SecretParamResolverTest {
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(repository.getSecretParams().get(0).isUnresolved()).isTrue();
 
@@ -463,7 +460,7 @@ class SecretParamResolverTest {
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(packageDefinition.getSecretParams().get(0).isUnresolved()).isTrue();
 
@@ -502,7 +499,7 @@ class SecretParamResolverTest {
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(clusterProfile.getSecretParams().get(0).isUnresolved()).isTrue();
 
@@ -539,7 +536,7 @@ class SecretParamResolverTest {
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
-            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, Set.of("password"))).thenReturn(List.of(new Secret("password", "some-password")));
 
             assertThat(elasticProfile.getSecretParams().get(0).isUnresolved()).isTrue();
 

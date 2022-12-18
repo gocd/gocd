@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import spark.Route;
 import spark.route.HttpMethod;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.api.ApiVersion.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -40,7 +40,7 @@ class RouteTogglesTest {
 
     @Test
     void matches() {
-        final RouteToggles rts = new RouteToggles(Arrays.asList(
+        final RouteToggles rts = new RouteToggles(List.of(
                 desc("/foo/bar", v5, "one"),
                 desc("/foo/baz", v5, "two"),
                 desc("/ping", v2, "ping")
@@ -69,7 +69,7 @@ class RouteTogglesTest {
 
     @Test
     void matchesCanHandleExactPaths() {
-        final RouteToggles rts = new RouteToggles(Arrays.asList(
+        final RouteToggles rts = new RouteToggles(List.of(
                 exact("/foo", v5, "a"),
                 exact("/foo/bar", v5, "b"),
                 desc("/foo/bar/baz/quu", v5, "c")
@@ -102,7 +102,7 @@ class RouteTogglesTest {
         when(features.isToggleOn("two")).thenReturn(false);
         when(features.isToggleOn("three")).thenReturn(true);
 
-        RouteToggles rts = new RouteToggles(Arrays.asList(
+        RouteToggles rts = new RouteToggles(List.of(
                 desc("/foo/bar", v5, "one"),
                 desc("/foo/baz", v5, "two")
         ), features);
@@ -111,7 +111,7 @@ class RouteTogglesTest {
         assertFalse(rts.isToggledOn(entry("/foo/baz", v5)));
 
         // two rules that match are AND'ed together in case you need a compound condition
-        rts = new RouteToggles(Arrays.asList(
+        rts = new RouteToggles(List.of(
                 desc("/foo/bar", v5, "one"),
                 desc("/foo/bar", v5, "two")
         ), features);
@@ -119,7 +119,7 @@ class RouteTogglesTest {
         assertFalse(rts.isToggledOn(entry("/foo/bar", v5)));
 
         // fine when both toggle keys are true, of course
-        rts = new RouteToggles(Arrays.asList(
+        rts = new RouteToggles(List.of(
                 desc("/foo/bar", v5, "one"),
                 desc("/foo/bar", v5, "three")
         ), features);
@@ -127,7 +127,7 @@ class RouteTogglesTest {
         assertTrue(rts.isToggledOn(entry("/foo/bar", v5)));
 
         // using exact and desc together allow fine-grained toggling control
-        rts = new RouteToggles(Arrays.asList(
+        rts = new RouteToggles(List.of(
                 desc("/foo", v5, "one"),
                 exact("/foo/bar/baz", v5, "two")
         ), features);

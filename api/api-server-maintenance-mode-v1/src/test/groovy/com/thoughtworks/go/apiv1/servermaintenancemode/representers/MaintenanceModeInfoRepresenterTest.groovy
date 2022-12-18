@@ -70,8 +70,8 @@ class MaintenanceModeInfoRepresenterTest {
     def scheduled = JobInstanceMother.scheduled("up42_job_1")
     def building = JobInstanceMother.building("up42_job_2")
 
-    def buildingJobs = Arrays.asList(building)
-    def scheduledJobs = Arrays.asList(scheduled)
+    def buildingJobs = List.of(building)
+    def scheduledJobs = List.of(scheduled)
 
     def actualJson = toObjectString({
       MaintenanceModeInfoRepresenter.toJSON(it, maintenanceModeService.get(), true, runningMDUs, buildingJobs, scheduledJobs)

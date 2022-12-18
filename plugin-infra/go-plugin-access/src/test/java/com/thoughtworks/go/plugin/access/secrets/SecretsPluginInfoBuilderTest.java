@@ -21,11 +21,10 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +60,7 @@ public class SecretsPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithSecuritySettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("username", new Metadata(true, false)),
                 new PluginConfiguration("password", new Metadata(true, true))
         );

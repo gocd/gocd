@@ -39,9 +39,7 @@ public class JobPlanXmlRepresenter implements XmlRepresentable {
     public Document toXml(XmlWriterContext ctx) {
         DocumentBuilder builder = DocumentBuilder.withRoot("scheduledJobs");
 
-        jobPlans.forEach(waitingJobPlan -> {
-            builder.node("job", jb -> populateJob(jb, ctx, waitingJobPlan));
-        });
+        jobPlans.forEach(waitingJobPlan -> builder.node("job", jb -> populateJob(jb, ctx, waitingJobPlan)));
 
         return builder.build();
     }
@@ -58,17 +56,13 @@ public class JobPlanXmlRepresenter implements XmlRepresentable {
         }
 
         if (!jobPlan.getResources().isEmpty()) {
-            builder.node("resources", rb -> jobPlan.getResources().forEach(resource -> {
-                rb.cdataNode("resource", resource.getName());
-            }));
+            builder.node("resources", rb -> jobPlan.getResources().forEach(resource -> rb.cdataNode("resource", resource.getName())));
         }
 
         if (!jobPlan.getVariables().isEmpty()) {
-            builder.node("environmentVariables", eb -> jobPlan.getVariables().forEach(variable -> {
-                eb.node("variable", vb -> vb
-                    .attr("name", variable.getName())
-                    .text(variable.getDisplayValue()));
-            }));
+            builder.node("environmentVariables", eb -> jobPlan.getVariables().forEach(variable -> eb.node("variable", vb -> vb
+                .attr("name", variable.getName())
+                .text(variable.getDisplayValue()))));
         }
     }
 

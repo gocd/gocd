@@ -34,7 +34,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -106,14 +105,14 @@ public class PluggableArtifactConfigTest {
         artifactConfig.validate(validationContext);
         Configuration configuration = artifactConfig.getConfiguration();
 
-        assertThat(configuration.get(0).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
-        assertThat(configuration.get(1).errors().getAllOn("configurationKey"), is(Arrays.asList("Duplicate key 'Foo' found for Pluggable Artifact")));
+        assertThat(configuration.get(0).errors().getAllOn("configurationKey"), is(List.of("Duplicate key 'Foo' found for Pluggable Artifact")));
+        assertThat(configuration.get(1).errors().getAllOn("configurationKey"), is(List.of("Duplicate key 'Foo' found for Pluggable Artifact")));
     }
 
     @Test
     public void validate_shouldValidateUniquenessOnId() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
-        final List<ArtifactTypeConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactTypeConfig> artifactConfigConfigs = List.of(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID");
         newConfig.validateUniqueness(artifactConfigConfigs);
@@ -128,7 +127,7 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldValidateArtifactPropertiesConfig() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "Store-ID", create("Foo", false, "Bar"));
-        final List<ArtifactTypeConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactTypeConfig> artifactConfigConfigs = List.of(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "Store-ID", create("Foo", false, "Bar"));
         newConfig.validateUniqueness(artifactConfigConfigs);
@@ -143,7 +142,7 @@ public class PluggableArtifactConfigTest {
     @Test
     public void validate_shouldNotErrorWhenArtifactPropertiesConfigurationIsSameForDifferentStores() {
         final PluggableArtifactConfig existingConfig = new PluggableArtifactConfig("id1", "storeId1", create("Foo", false, "Bar"));
-        final List<ArtifactTypeConfig> artifactConfigConfigs = Arrays.asList(existingConfig);
+        final List<ArtifactTypeConfig> artifactConfigConfigs = List.of(existingConfig);
 
         final PluggableArtifactConfig newConfig = new PluggableArtifactConfig("id2", "storeId2", create("Foo", false, "Bar"));
         newConfig.validateUniqueness(artifactConfigConfigs);
@@ -172,7 +171,7 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
-        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("\"Id\" is required for PluggableArtifact", "Invalid pluggable artifact id name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(artifactConfig.errors().getAllOn("id"), is(List.of("\"Id\" is required for PluggableArtifact", "Invalid pluggable artifact id name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test
@@ -193,7 +192,7 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
-        assertThat(artifactConfig.errors().getAllOn("storeId"), is(Arrays.asList("\"Store id\" is required for PluggableArtifact")));
+        assertThat(artifactConfig.errors().getAllOn("storeId"), is(List.of("\"Store id\" is required for PluggableArtifact")));
     }
 
     @Test
@@ -204,7 +203,7 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
-        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("Invalid pluggable artifact id name 'asf@%'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(artifactConfig.errors().getAllOn("id"), is(List.of("Invalid pluggable artifact id name 'asf@%'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test

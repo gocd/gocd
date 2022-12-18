@@ -26,12 +26,11 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,17 +63,17 @@ public class PackageMaterialPluginInfoBuilderTest {
 
         PackageMaterialPluginInfo pluginInfo = new PackageMaterialPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        List<PluginConfiguration> packageSettings = Arrays.asList(
+        List<PluginConfiguration> packageSettings = List.of(
                 new PluginConfiguration("username", new PackageMaterialMetadata(true, false, false, "foo", 1)),
                 new PluginConfiguration("password", new PackageMaterialMetadata(true, true, true, "", 2))
         );
 
-        List<PluginConfiguration> repoSettings = Arrays.asList(
+        List<PluginConfiguration> repoSettings = List.of(
                 new PluginConfiguration("foo", new PackageMaterialMetadata(true, false, true, "", 1)),
                 new PluginConfiguration("bar", new PackageMaterialMetadata(true, true, true, "", 2))
         );
 
-        List<PluginConfiguration> pluginSettings = Arrays.asList(new PluginConfiguration("k1", new Metadata(true, false)));
+        List<PluginConfiguration> pluginSettings = List.of(new PluginConfiguration("k1", new Metadata(true, false)));
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("package-repository"));

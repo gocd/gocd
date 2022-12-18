@@ -27,15 +27,9 @@ public class MergedEnvironmentRepresenter {
     public static void toJSON(OutputWriter outputWriter, EnvironmentConfig environmentConfig) {
         outputWriter.add("name", environmentConfig.name());
         addOrigin(outputWriter, environmentConfig.getOrigin());
-        outputWriter.addChildList("pipelines", outputListWriter -> {
-            environmentConfig.getPipelines().forEach(pipeline -> outputListWriter.addChild(writer -> EnvironmentPipelineRepresenter.toJSON(writer, pipeline, environmentConfig)));
-        });
-        outputWriter.addChildList("agents", outputListWriter -> {
-            environmentConfig.getAgents().forEach(agent -> outputListWriter.addChild(writer -> EnvironmentAgentRepresenter.toJSON(writer, agent, environmentConfig)));
-        });
-        outputWriter.addChildList("environment_variables", outputListWriter -> {
-            environmentConfig.getVariables().forEach(envVar -> outputListWriter.addChild(writer -> EnvironmentEnvironmentVariableRepresenter.toJSON(writer, envVar, environmentConfig)));
-        });
+        outputWriter.addChildList("pipelines", outputListWriter -> environmentConfig.getPipelines().forEach(pipeline -> outputListWriter.addChild(writer -> EnvironmentPipelineRepresenter.toJSON(writer, pipeline, environmentConfig))));
+        outputWriter.addChildList("agents", outputListWriter -> environmentConfig.getAgents().forEach(agent -> outputListWriter.addChild(writer -> EnvironmentAgentRepresenter.toJSON(writer, agent, environmentConfig))));
+        outputWriter.addChildList("environment_variables", outputListWriter -> environmentConfig.getVariables().forEach(envVar -> outputListWriter.addChild(writer -> EnvironmentEnvironmentVariableRepresenter.toJSON(writer, envVar, environmentConfig))));
     }
 
     private static void addOrigin(OutputWriter outputWriter, ConfigOrigin origin) {

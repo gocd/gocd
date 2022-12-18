@@ -40,9 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.function.Predicate;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -169,7 +167,7 @@ public class PluggableScmServiceTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         Result resultFromPlugin = new Result();
-        resultFromPlugin.withSuccessMessages(singletonList("message"));
+        resultFromPlugin.withSuccessMessages(List.of("message"));
 
         when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(resultFromPlugin);
 
@@ -344,7 +342,7 @@ public class PluggableScmServiceTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1", "{{SECRET:[secret_config_id][value]}}"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         Result resultFromPlugin = new Result();
-        resultFromPlugin.withSuccessMessages(singletonList("message"));
+        resultFromPlugin.withSuccessMessages(List.of("message"));
 
         ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
         when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), captor.capture())).thenReturn(resultFromPlugin);
@@ -361,11 +359,6 @@ public class PluggableScmServiceTest {
     }
 
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {
-        return validationErrors.stream().filter(new Predicate<ValidationError>() {
-            @Override
-            public boolean test(ValidationError item) {
-                return item.getKey().equals(key);
-            }
-        }).findFirst().orElse(null);
+        return validationErrors.stream().filter(item -> item.getKey().equals(key)).findFirst().orElse(null);
     }
 }

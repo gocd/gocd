@@ -136,11 +136,8 @@ public class JobAssignmentIntegrationTest {
     }
 
     private AgentStatusChangeListener agentStatusChangeListener() {
-        return new AgentStatusChangeListener() {
-            @Override
-            public void onAgentStatusChange(AgentInstance agentInstance) {
+        return agentInstance -> {
 
-            }
         };
     }
 

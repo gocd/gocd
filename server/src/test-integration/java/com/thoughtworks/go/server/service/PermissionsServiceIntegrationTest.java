@@ -34,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,11 +93,11 @@ public class PermissionsServiceIntegrationTest {
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("environment"));
+        Map<String, Object> permissions = permissionsService.getPermissions(List.of("environment"));
 
         Map<String, Object> expectedEnvs = new LinkedHashMap<>();
-        expectedEnvs.put("view", Arrays.asList("prod", "dev1", "dev2"));
-        expectedEnvs.put("administer", Arrays.asList("dev1", "dev2"));
+        expectedEnvs.put("view", List.of("prod", "dev1", "dev2"));
+        expectedEnvs.put("administer", List.of("dev1", "dev2"));
 
         assertThat(permissions.get("environment")).isEqualTo(expectedEnvs);
     }
@@ -110,16 +110,16 @@ public class PermissionsServiceIntegrationTest {
 
             ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("git-url"), "pluginid", "repo1");
             ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("git-url2"), "pluginid", "repo2");
-            cruiseConfig.getConfigRepos().addAll(Arrays.asList(repo1, repo2));
+            cruiseConfig.getConfigRepos().addAll(List.of(repo1, repo2));
 
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("config_repo"));
+        Map<String, Object> permissions = permissionsService.getPermissions(List.of("config_repo"));
 
         Map<String, Object> expectedCR = new LinkedHashMap<>();
-        expectedCR.put("view", Arrays.asList("repo1", "repo2"));
-        expectedCR.put("administer", Arrays.asList("repo2"));
+        expectedCR.put("view", List.of("repo1", "repo2"));
+        expectedCR.put("administer", List.of("repo2"));
 
         assertThat(permissions.get("config_repo")).isEqualTo(expectedCR);
     }
@@ -132,15 +132,15 @@ public class PermissionsServiceIntegrationTest {
 
             ClusterProfile devCluster = new ClusterProfile("dev-cluster", "ecs");
             ClusterProfile prodCluster = new ClusterProfile("prod-cluster", "ecs");
-            cruiseConfig.getElasticConfig().getClusterProfiles().addAll(Arrays.asList(devCluster, prodCluster));
+            cruiseConfig.getElasticConfig().getClusterProfiles().addAll(List.of(devCluster, prodCluster));
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("cluster_profile"));
+        Map<String, Object> permissions = permissionsService.getPermissions(List.of("cluster_profile"));
 
         Map<String, Object> expectedClusterProfiles = new LinkedHashMap<>();
-        expectedClusterProfiles.put("view", Arrays.asList("dev-cluster", "prod-cluster"));
-        expectedClusterProfiles.put("administer", Arrays.asList("dev-cluster"));
+        expectedClusterProfiles.put("view", List.of("dev-cluster", "prod-cluster"));
+        expectedClusterProfiles.put("administer", List.of("dev-cluster"));
 
         assertThat(permissions.get("cluster_profile")).isEqualTo(expectedClusterProfiles);
     }
@@ -153,20 +153,20 @@ public class PermissionsServiceIntegrationTest {
 
             ClusterProfile devCluster = new ClusterProfile("dev-cluster", "ecs");
             ClusterProfile prodCluster = new ClusterProfile("prod-cluster", "ecs");
-            cruiseConfig.getElasticConfig().getClusterProfiles().addAll(Arrays.asList(devCluster, prodCluster));
+            cruiseConfig.getElasticConfig().getClusterProfiles().addAll(List.of(devCluster, prodCluster));
 
             ElasticProfile buildAgent = new ElasticProfile("build-agent", "dev-cluster");
             ElasticProfile deployAgent = new ElasticProfile("deploy-agent", "prod-cluster");
-            cruiseConfig.getElasticConfig().getProfiles().addAll(Arrays.asList(buildAgent, deployAgent));
+            cruiseConfig.getElasticConfig().getProfiles().addAll(List.of(buildAgent, deployAgent));
 
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("elastic_agent_profile"));
+        Map<String, Object> permissions = permissionsService.getPermissions(List.of("elastic_agent_profile"));
 
         Map<String, Object> expectedElasticProfiles = new LinkedHashMap<>();
-        expectedElasticProfiles.put("view", Arrays.asList("build-agent", "deploy-agent"));
-        expectedElasticProfiles.put("administer", Arrays.asList("build-agent"));
+        expectedElasticProfiles.put("view", List.of("build-agent", "deploy-agent"));
+        expectedElasticProfiles.put("administer", List.of("build-agent"));
 
         assertThat(permissions.get("elastic_agent_profile")).isEqualTo(expectedElasticProfiles);
     }

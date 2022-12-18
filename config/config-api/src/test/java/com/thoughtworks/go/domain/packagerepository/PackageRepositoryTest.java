@@ -30,12 +30,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration.SECURE;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageRepositoryTest extends PackageMaterialTestBase {
@@ -248,7 +248,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
     void shouldValidateIfNameIsMissing() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
-        assertThat(packageRepository.errors().getAllOn("name")).isEqualTo(asList("Please provide name"));
+        assertThat(packageRepository.errors().getAllOn("name")).isEqualTo(List.of("Please provide name"));
     }
 
     @Test
@@ -329,7 +329,7 @@ class PackageRepositoryTest extends PackageMaterialTestBase {
         PackageRepository packageRepository = PackageRepositoryMother.create("repo-id1", "packageRepository", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", packageRepository);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", packageRepository);
-        packageRepository.getPackages().addAll(asList(packageDefinitionOne, packageDefinitionTwo));
+        packageRepository.getPackages().addAll(List.of(packageDefinitionOne, packageDefinitionTwo));
 
         Map attributes = new HashMap();
         attributes.put("packageId", "pid1");

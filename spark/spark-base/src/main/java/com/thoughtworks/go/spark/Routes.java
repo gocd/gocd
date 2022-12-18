@@ -18,7 +18,8 @@ package com.thoughtworks.go.spark;
 import com.google.common.net.UrlEscapers;
 import org.apache.commons.text.StringSubstitutor;
 
-import static com.google.common.collect.ImmutableMap.of;
+import java.util.Map;
+
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -154,7 +155,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#materials");
 
         public static String vsm(String materialFingerprint, String revision) {
-            return StringSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", of(
+            return StringSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", Map.of(
                     "material_fingerprint", materialFingerprint,
                     "revision", revision));
         }
@@ -284,7 +285,7 @@ public class Routes {
     public static class PipelineInstance {
         public static String vsm(String pipelineName, int pipelineCounter) {
             return StringSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
-                    of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
+                    Map.of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
         }
 
         public static final String BASE = "/api/pipelines";
@@ -318,13 +319,11 @@ public class Routes {
         public static final String TRIGGER_FAILED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/run-failed-jobs";
         public static final String TRIGGER_SELECTED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/run-selected-jobs";
         public static final String CANCEL_STAGE_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/cancel";
-        public static final String INSTANCE_BY_COUNTER = "/:pipeline_name/:stage_name/instance/:pipeline_counter/:stage_counter";
         public static final String INSTANCE_V2 = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter";
         public static final String STAGE_HISTORY = "/:pipeline_name/:stage_name/history";
-        public static final String STAGE_HISTORY_OFFSET = "/:pipeline_name/:stage_name/history/:offset";
 
         public static String self(String pipelineName, String pipelineCounter, String stageName, String stageCounter) {
-            return StringSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
+            return StringSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", Map.of(
                     "pipeline_name", pipelineName,
                     "pipeline_counter", pipelineCounter,
                     "stage_name", stageName,
@@ -335,7 +334,7 @@ public class Routes {
                                             int pipelineCounter,
                                             String stageName,
                                             int stageCounter) {
-            return StringSubstitutor.replace("/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
+            return StringSubstitutor.replace("/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", Map.of(
                     "pipeline_name", pipelineName,
                     "pipeline_counter", pipelineCounter,
                     "stage_name", stageName,
@@ -380,7 +379,7 @@ public class Routes {
         public static final String BASE = "/api/users/";
 
         public static String self(String loginName) {
-            return StringSubstitutor.replace(BASE + "${loginName}", of("loginName", loginName));
+            return StringSubstitutor.replace(BASE + "${loginName}", Map.of("loginName", loginName));
         }
 
         public static String find() {
@@ -393,7 +392,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#user-search");
 
         public static String self(String searchTerm) {
-            return StringSubstitutor.replace(BASE + "?q=${searchTerm}", of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
+            return StringSubstitutor.replace(BASE + "?q=${searchTerm}", Map.of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
         }
 
         public static String find() {
@@ -631,104 +630,104 @@ public class Routes {
         }
     }
 
-    public class ServerHealthMessages {
+    public static class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
     }
 
-    public class MaterialSearch {
+    public static class MaterialSearch {
         public static final String BASE = "/api/internal/material_search";
     }
 
-    public class DependencyMaterialAutocomplete {
+    public static class DependencyMaterialAutocomplete {
         public static final String BASE = "/api/internal/dependency_material/autocomplete_suggestions";
     }
 
-    public class RolesSPA {
+    public static class RolesSPA {
         public static final String BASE = "/admin/security/roles";
     }
 
-    public class PipelineSelection {
+    public static class PipelineSelection {
         public static final String BASE = "/api/internal/pipeline_selection";
         public static final String PIPELINES_DATA = "/pipelines_data";
     }
 
-    public class BuildCause {
+    public static class BuildCause {
         public static final String BASE = "/api/internal/build_cause";
         public static final String PATH = "/:pipeline_name/:pipeline_counter";
     }
 
-    public class AgentsSPA {
+    public static class AgentsSPA {
         public static final String BASE = "/agents";
         public static final String AGENT_UUID = "/:uuid";
     }
 
-    public class AnalyticsSPA {
+    public static class AnalyticsSPA {
         public static final String BASE = "/analytics";
         public static final String SHOW_PATH = ":plugin_id/:type/:id";
     }
 
-    public class ElasticAgentConfigSPA {
+    public static class ElasticAgentConfigSPA {
         public static final String BASE = "/admin/elastic_agent_configurations";
     }
 
-    public class NewDashboardSPA {
+    public static class NewDashboardSPA {
         public static final String BASE = "/dashboard";
     }
 
-    public class PluginsSPA {
+    public static class PluginsSPA {
         public static final String BASE = "/admin/plugins";
     }
 
-    public class BackupsSPA {
+    public static class BackupsSPA {
         public static final String BASE = "/admin/backup";
     }
 
-    public class ServerHealth {
+    public static class ServerHealth {
         public static final String BASE = "/api/v1/health";
     }
 
-    public class KitchenSink {
+    public static class KitchenSink {
         public static final String SPA_BASE = "/kitchen-sink";
     }
 
-    public class AuthConfigs {
+    public static class AuthConfigs {
         public static final String SPA_BASE = "/admin/security/auth_configs";
     }
 
-    public class ArtifactStores {
+    public static class ArtifactStores {
         public static final String SPA_BASE = "/admin/artifact_stores";
     }
 
-    public class AccessTokens {
+    public static class AccessTokens {
         public static final String SPA_BASE = "/access_tokens";
     }
 
-    public class AdminAccessTokens {
+    public static class AdminAccessTokens {
         public static final String SPA_BASE = "/admin/admin_access_tokens";
     }
 
-    public class CCTray {
+    public static class CCTray {
         public static final String BASE = "/cctray.xml";
     }
 
-    public class LoginPage {
+    public static class LoginPage {
         public static final String SPA_BASE = "/auth/login";
     }
 
-    public class LogoutPage {
+    public static class LogoutPage {
         public static final String SPA_BASE = "/auth/logout";
     }
 
-    public class Support {
+    public static class Support {
         public static final String BASE = "/api/support";
         public static final String PROCESS_LIST = "/process_list";
     }
 
-    public class ClusterProfiles {
+    public static class ClusterProfiles {
         public static final String SPA_BASE = "/admin/cluster_profiles";
     }
 
-    public class ServerInfo {
+    public static class ServerInfo {
         public static final String SPA_BASE = "/about";
     }
 
@@ -737,32 +736,32 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#backup-config");
     }
 
-    public class InternalPipelineStructure {
+    public static class InternalPipelineStructure {
         public static final String BASE = "/api/internal/pipeline_structure";
     }
 
-    public class InternalPipelineGroups {
+    public static class InternalPipelineGroups {
         public static final String BASE = "/api/internal/pipeline_groups";
     }
 
-    public class NewEnvironments {
+    public static class NewEnvironments {
         public static final String SPA_BASE = "/admin/new-environments";
     }
 
-    public class FeatureToggle {
+    public static class FeatureToggle {
         public static final String FEATURE_TOGGLE_KEY = "/:toggle_key";
         public static final String BASE = "/api/admin/feature_toggles";
     }
 
-    public class ServerSiteUrlsConfig {
+    public static class ServerSiteUrlsConfig {
         public static final String BASE = "/api/admin/config/server/site_urls";
     }
 
-    public class DefaultJobTimeout {
+    public static class DefaultJobTimeout {
         public static final String BASE = "/api/admin/config/server/default_job_timeout";
     }
 
-    public class ArtifactConfig {
+    public static class ArtifactConfig {
         public static final String BASE = "/api/admin/config/server/artifact_config";
     }
 
@@ -806,11 +805,11 @@ public class Routes {
         public static final String SPA_BASE = "/admin/pipelines";
     }
 
-    public class ServerConfiguration {
+    public static class ServerConfiguration {
         public static final String SPA_BASE = "/admin/server_configuration";
     }
 
-    public class AdminTemplates {
+    public static class AdminTemplates {
         public static final String SPA_BASE = "/admin/templates";
         public static final String NAME = "/:template_name";
     }
@@ -820,7 +819,7 @@ public class Routes {
         public static final String JOB_RUN_HISTORY = "/job_run_history";
         public static final String BASE = AgentsAPI.BASE + AgentsAPI.UUID + JOB_RUN_HISTORY;
 
-        public static final String forAgent(String uuid) {
+        public static String forAgent(String uuid) {
             return BASE.replace(":uuid", uuid);
         }
     }
@@ -840,11 +839,11 @@ public class Routes {
         }
     }
 
-    public class InternalMaterialTest {
+    public static class InternalMaterialTest {
         public static final String BASE = "/api/admin/internal/material_test";
     }
 
-    public class StatusReports {
+    public static class StatusReports {
         public static final String SPA_BASE = "/admin/status_reports";
     }
 
@@ -886,7 +885,7 @@ public class Routes {
         public static final String COMPARE = "/:pipeline_name/:from_counter/with/:to_counter";
 
         public static String compare(String pipelineName, String fromCounter, String toCounter) {
-            return StringSubstitutor.replace("/go/compare/${pipeline_name}/${from_counter}/with/${to_counter}", of(
+            return StringSubstitutor.replace("/go/compare/${pipeline_name}/${from_counter}/with/${to_counter}", Map.of(
                     "pipeline_name", pipelineName,
                     "from_counter", fromCounter,
                     "to_counter", toCounter
@@ -899,18 +898,18 @@ public class Routes {
         public static final String DOC = apiDocsUrl("permissions");
     }
 
-    public class InternalDependencyPipelines {
+    public static class InternalDependencyPipelines {
         public static final String BASE = "/api/internal/pipelines/:pipeline_name/:stage_name/upstream";
     }
 
-    public class VersionInfos {
+    public static class VersionInfos {
         public static final String BASE = "/api/version_infos";
         public static final String STALE = "/stale";
         public static final String LATEST_VERSION = "/latest_version";
         public static final String GO_SERVER = "/go_server";
     }
 
-    public class MaterialsSPA {
+    public static class MaterialsSPA {
         public static final String BASE = "/materials";
     }
 
@@ -948,11 +947,11 @@ public class Routes {
         }
     }
 
-    public class Preferences {
+    public static class Preferences {
         public static final String SPA_BASE = "/preferences/notifications";
     }
 
-    public class InternalAgent {
+    public static class InternalAgent {
         public static final String BASE = "/remoting/api/agent";
         public static final String PING = "/ping";
         public static final String REPORT_CURRENT_STATUS = "/report_current_status";

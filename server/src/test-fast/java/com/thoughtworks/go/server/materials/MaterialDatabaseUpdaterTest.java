@@ -34,9 +34,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,11 +63,11 @@ public class MaterialDatabaseUpdaterTest {
     }
 
     @Test
-    public void shouldThrowExceptionWithLongDescriptionOfMaterialWhenUpdateFails() throws Exception {
+    public void shouldThrowExceptionWithLongDescriptionOfMaterialWhenUpdateFails() {
         Material material = new GitMaterial("url", "branch");
         Exception exception = new RuntimeException("failed");
         String message = "Modification check failed for material: " + material.getLongDescription() + "\nAffected pipelines are blah.";
-        when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("blah")));
+        when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(List.of(new CaseInsensitiveString("blah")));
         ServerHealthState error = ServerHealthState.errorWithHtml(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
         when(materialRepository.findMaterialInstance(material)).thenThrow(exception);
         try {
@@ -79,7 +80,7 @@ public class MaterialDatabaseUpdaterTest {
     }
 
     @Test
-    public void shouldGetCorrectUpdaterForMaterials() throws Exception {
+    public void shouldGetCorrectUpdaterForMaterials() {
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.dependencyMaterial()), is(dependencyMaterialUpdater));
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.svnMaterial()), is(scmMaterialUpdater));
         assertThat(materialDatabaseUpdater.updater(MaterialsMother.packageMaterial()), is(packageMaterialUpdater));
@@ -87,7 +88,7 @@ public class MaterialDatabaseUpdaterTest {
     }
 
     @Test
-    public void shouldFailWithAReasonableMessageWhenExceptionMessageIsNull() throws Exception {
+    public void shouldFailWithAReasonableMessageWhenExceptionMessageIsNull() {
         Material material = new GitMaterial("url", "branch");
         Exception exceptionWithNullMessage = new RuntimeException(null, new RuntimeException("Inner exception has non-null message"));
         String message = "Modification check failed for material: " + material.getLongDescription() + "\nNo pipelines are affected by this material, perhaps this material is unused.";

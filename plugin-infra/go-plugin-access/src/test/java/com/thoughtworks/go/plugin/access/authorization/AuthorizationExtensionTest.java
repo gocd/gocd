@@ -41,7 +41,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,7 +68,7 @@ public class AuthorizationExtensionTest {
 
     @BeforeEach
     void setUp() {
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, List.of("1.0", "2.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AUTHORIZATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         authorizationExtension = new AuthorizationExtension(pluginManager, extensionsRegistry);
@@ -246,7 +245,7 @@ public class AuthorizationExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         final PluginRoleConfig roleConfig = new PluginRoleConfig("foo", "ldap", create("memberOf", false, "ou=some-value"));
-        final List<PluginRoleConfig> pluginRoleConfigs = Collections.singletonList(roleConfig);
+        final List<PluginRoleConfig> pluginRoleConfigs = List.of(roleConfig);
 
         final SecurityAuthConfigs authConfigs = new SecurityAuthConfigs();
         authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", create("url", false, "some-url")));
@@ -318,7 +317,7 @@ public class AuthorizationExtensionTest {
         String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar"))));
+        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob", List.of(new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar"))));
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users).hasSize(1)
@@ -343,7 +342,7 @@ public class AuthorizationExtensionTest {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, Collections.singletonList(authConfig), "http://go.site.url");
+        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, List.of(authConfig), "http://go.site.url");
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
         assertThat(authorizationServerRedirectUrl).isEqualTo("url_to_authorization_server");
@@ -354,7 +353,7 @@ public class AuthorizationExtensionTest {
     class AuthorizationExtension_v2 {
         @BeforeEach
         void setup() {
-            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, List.of("1.0", "2.0"))).thenReturn("2.0");
         }
 
         @Test

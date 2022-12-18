@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 
-import static java.util.Arrays.asList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 @ConfigTag("admins")
 @ConfigCollection(Admin.class)
@@ -34,7 +33,7 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
     }
 
     public AdminsConfig(Admin... admins) {
-        addAll(asList(admins));
+        addAll(Arrays.asList(admins));
     }
 
     public AdminsConfig(Set<Admin> admins) {

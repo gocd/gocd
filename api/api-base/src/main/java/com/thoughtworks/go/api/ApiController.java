@@ -31,7 +31,9 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonContentTypeExpected;
@@ -41,7 +43,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     protected static final String DEFAULT_PAGE_SIZE = "10";
     protected String BAD_PAGE_SIZE_MSG = "The query parameter 'page_size', if specified must be a number between 10 and 100.";
     protected String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
-    private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
+    private static final Set<String> UPDATE_HTTP_METHODS = Set.of("PUT", "POST", "PATCH");
 
     /**
      * all controllers are singletons, so instance loggers are ok

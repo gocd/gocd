@@ -66,9 +66,7 @@ import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMater
 import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
 import static com.thoughtworks.go.server.materials.BackOffResult.DENY;
 import static com.thoughtworks.go.server.materials.BackOffResult.PERMIT;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -127,8 +125,8 @@ public class MaterialUpdateServiceTest {
         service.registerMaterialUpdateCompleteListener(scmMaterialSource);
         service.registerMaterialUpdateCompleteListener(dependencyMaterialUpdateNotifier);
 
-        HashSet<MaterialConfig> materialConfigs = new HashSet(Collections.singleton(MATERIAL_CONFIG));
-        HashSet<Material> materials = new HashSet(Collections.singleton(svnMaterial));
+        HashSet<MaterialConfig> materialConfigs = new HashSet(Set.of(MATERIAL_CONFIG));
+        HashSet<Material> materials = new HashSet(Set.of(svnMaterial));
         lenient().when(goConfigService.getSchedulableMaterials()).thenReturn(materialConfigs);
         lenient().when(materialConfigConverter.toMaterials(materialConfigs)).thenReturn(materials);
         username = new Username(new CaseInsensitiveString("loser"));
@@ -150,7 +148,7 @@ public class MaterialUpdateServiceTest {
     class onTimer {
         @Test
         void shouldSendMaterialUpdateMessageForAllSchedulableMaterials() {
-            when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial)));
+            when(scmMaterialSource.materialsForUpdate()).thenReturn(Set.of(svnMaterial));
             when(exponentialBackoffService.shouldBackOff(any())).thenReturn(PERMIT);
 
             service.onTimer();
@@ -171,7 +169,7 @@ public class MaterialUpdateServiceTest {
         void shouldNotUpdateMaterialsWhichNeedsToBeBackedOffDueToFailures() {
             GitMaterial gitMaterial = gitMaterial("test");
 
-            when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial, gitMaterial)));
+            when(scmMaterialSource.materialsForUpdate()).thenReturn(Set.of(svnMaterial, gitMaterial));
             when(exponentialBackoffService.shouldBackOff(svnMaterial)).thenReturn(DENY);
             when(exponentialBackoffService.shouldBackOff(gitMaterial)).thenReturn(PERMIT);
 
@@ -215,7 +213,7 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldAllowConcurrentUpdatesForNonAutoUpdateMaterials() throws Exception {
+        void shouldAllowConcurrentUpdatesForNonAutoUpdateMaterials() {
             ScmMaterial material = mock(ScmMaterial.class);
             when(material.isAutoUpdate()).thenReturn(false);
             MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
@@ -229,7 +227,7 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldNotAllowConcurrentUpdatesForAutoUpdateConfigMaterials() throws Exception {
+        void shouldNotAllowConcurrentUpdatesForAutoUpdateConfigMaterials() {
             ScmMaterial material = mock(ScmMaterial.class);
             when(material.isAutoUpdate()).thenReturn(true);
             when(material.getFingerprint()).thenReturn("fingerprint");
@@ -245,7 +243,7 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldNotAllowConcurrentUpdatesForAutoUpdateMaterials() throws Exception {
+        void shouldNotAllowConcurrentUpdatesForAutoUpdateMaterials() {
             ScmMaterial material = mock(ScmMaterial.class);
             when(material.isAutoUpdate()).thenReturn(true);
             MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
@@ -259,7 +257,7 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
+        void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() {
             ScmMaterial material = mock(ScmMaterial.class);
             lenient().when(material.isAutoUpdate()).thenReturn(true);
             MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
@@ -272,7 +270,7 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() throws Exception {
+        void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() {
             ScmMaterial material = mock(ScmMaterial.class);
             lenient().when(material.isAutoUpdate()).thenReturn(false);
             MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
@@ -291,7 +289,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
             when(goConfigService.isUserAdmin(username)).thenReturn(false);
-            service.notifyMaterialsForUpdate(username, new HashMap(), result);
+            service.notifyMaterialsForUpdate(username, Map.of(), result);
 
             HttpLocalizedOperationResult forbiddenResult = new HttpLocalizedOperationResult();
             forbiddenResult.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
@@ -304,7 +302,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
             when(goConfigService.isUserAdmin(username)).thenReturn(true);
-            service.notifyMaterialsForUpdate(username, new HashMap(), result);
+            service.notifyMaterialsForUpdate(username, Map.of(), result);
 
             HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
             badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
@@ -318,7 +316,7 @@ public class MaterialUpdateServiceTest {
         void shouldReturn400WhenTypeIsInvalid_WhenInvokingPostCommitHookMaterialUpdate() {
             when(goConfigService.isUserAdmin(username)).thenReturn(true);
             when(postCommitHookMaterialType.toType("some_invalid_type")).thenReturn(invalidMaterialType);
-            final HashMap params = new HashMap();
+            Map<String, String> params = new HashMap<>();
             params.put(MaterialUpdateService.TYPE, "some_invalid_type");
             service.notifyMaterialsForUpdate(username, params, result);
 
@@ -344,9 +342,9 @@ public class MaterialUpdateServiceTest {
             CruiseConfig config = mock(BasicCruiseConfig.class);
             when(goConfigService.currentCruiseConfig()).thenReturn(config);
 
-            when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<Material>());
+            when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<>());
 
-            final HashMap params = new HashMap();
+            Map<String, String> params = new HashMap<>();
             params.put(MaterialUpdateService.TYPE, "type");
 
             service.notifyMaterialsForUpdate(username, params, result);
@@ -361,7 +359,7 @@ public class MaterialUpdateServiceTest {
 
         @Test
         void shouldReturnImplementerOfSvnPostCommitHookAndPerformMaterialUpdate_WhenInvokingPostCommitHookMaterialUpdate() {
-            final HashMap params = new HashMap();
+            Map<String, String> params = new HashMap<>();
             params.put(MaterialUpdateService.TYPE, "svn");
             when(goConfigService.isUserAdmin(username)).thenReturn(true);
             final CruiseConfig cruiseConfig = new BasicCruiseConfig(PipelineConfigMother.createGroup("groupName", "pipeline1", "pipeline2"));
@@ -369,7 +367,7 @@ public class MaterialUpdateServiceTest {
             when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
             final Material svnMaterial = mock(Material.class);
-            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(asList(svnMaterial)));
+            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(List.of(svnMaterial)));
             when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
 
             service.notifyMaterialsForUpdate(username, params, result);
@@ -385,7 +383,7 @@ public class MaterialUpdateServiceTest {
 
         @Test
         void shouldResolveSecretParamsOnlyForSvnMaterials() {
-            final Map params = new HashMap();
+            Map<String, String> params = new HashMap<>();
             params.put(MaterialUpdateService.TYPE, "svn");
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
             final SvnMaterial svnMaterial = new SvnMaterial("http://url.com", "bob", "{{SECRET:[config_id][username]}}", false);
@@ -476,7 +474,7 @@ public class MaterialUpdateServiceTest {
 
     @Test
     void shouldRemoveFromInProgressOnMaterialUpdateSkippedMessage() {
-        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial)));
+        when(scmMaterialSource.materialsForUpdate()).thenReturn(Set.of(svnMaterial));
         when(exponentialBackoffService.shouldBackOff(any())).thenReturn(PERMIT);
         service.onTimer();
 
@@ -529,7 +527,7 @@ public class MaterialUpdateServiceTest {
             when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
             when(materialConfigConverter.toMaterials(anySet())).thenReturn(allUniquePostCommitSchedulableMaterials);
 
-            boolean materialUpdated = service.updateGitMaterial("master", emptyList(), singletonList("scm-name"));
+            boolean materialUpdated = service.updateGitMaterial("master", emptyList(), List.of("scm-name"));
 
             assertThat(materialUpdated).isTrue();
             verify(mduPerformanceLogger).materialSentToUpdateQueue(pluggableSCMMaterial);

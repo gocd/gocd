@@ -22,11 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Date;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CcTrayCacheTest {
     private CcTrayCache cache;
@@ -56,7 +55,7 @@ public class CcTrayCacheTest {
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping", "last-build-status", "last-build-label", new Date(), "web-url");
 
-        cache.putAll(asList(status1, status2, status3));
+        cache.putAll(List.of(status1, status2, status3));
 
         assertThat(cache.get("item1"), is(status1));
         assertThat(cache.get("item2"), is(status2));
@@ -88,7 +87,7 @@ public class CcTrayCacheTest {
         cache.put(status2);
         cache.put(firstStatusOfItem3);
 
-        cache.putAll(asList(nextStatusOfItem1, status2, nextStatusOfItem3));
+        cache.putAll(List.of(nextStatusOfItem1, status2, nextStatusOfItem3));
 
         assertThat(cache.get("item1"), is(nextStatusOfItem1));
         assertThat(cache.get("item2"), is(status2));
@@ -107,7 +106,7 @@ public class CcTrayCacheTest {
         cache.put(status2);
         cache.put(status3);
 
-        cache.replaceAllEntriesInCacheWith(asList(status3, status4, status5));
+        cache.replaceAllEntriesInCacheWith(List.of(status3, status4, status5));
 
         assertThat(cache.get("item1"), is(nullValue()));
         assertThat(cache.get("item2"), is(nullValue()));
@@ -122,7 +121,7 @@ public class CcTrayCacheTest {
         ProjectStatus status2 = new ProjectStatus("item2", "Sleeping 2", "last-build-status 2", "last-build-label 2", new Date(), "web-url 2");
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
 
-        cache.replaceAllEntriesInCacheWith(asList(status1, status2, status3));
+        cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
 
         assertThat(allProjects.get(0), is(status1));
@@ -137,7 +136,7 @@ public class CcTrayCacheTest {
         ProjectStatus status3 = new ProjectStatus("item3", "Sleeping 3", "last-build-status 3", "last-build-label 3", new Date(), "web-url 3");
         ProjectStatus status2_changed = new ProjectStatus("item2", "CHANGED Sleeping 2C", "last-build-status 2C", "last-build-label 2C", new Date(), "web-url 2C");
 
-        cache.replaceAllEntriesInCacheWith(asList(status1, status2, status3));
+        cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
         assertThat(allProjects.get(1), is(status2));
 
@@ -159,11 +158,11 @@ public class CcTrayCacheTest {
         ProjectStatus status1_changed = new ProjectStatus("item1", "CHANGED Sleeping 1C", "last-build-status 1C", "last-build-label 1C", new Date(), "web-url 1C");
         ProjectStatus status2_changed = new ProjectStatus("item2", "CHANGED Sleeping 2C", "last-build-status 2C", "last-build-label 2C", new Date(), "web-url 2C");
 
-        cache.replaceAllEntriesInCacheWith(asList(status1, status2, status3));
+        cache.replaceAllEntriesInCacheWith(List.of(status1, status2, status3));
         cache.allEntriesInOrder();
 
 
-        cache.putAll(asList(status2_changed, status1_changed));
+        cache.putAll(List.of(status2_changed, status1_changed));
         List<ProjectStatus> allProjects = cache.allEntriesInOrder();
 
 

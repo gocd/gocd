@@ -109,11 +109,9 @@ public class AgentXmlToDBMigration {
     private static void logAgentInfo() {
         LOGGER.info("Migrating {} agents from config to db.", agentList.size());
         StringBuilder logBuilder = new StringBuilder();
-        agentList.forEach(agent -> {
-            logBuilder
-                    .append(agent.toString())
-                    .append('\n');
-        });
+        agentList.forEach(agent -> logBuilder
+                .append(agent.toString())
+                .append('\n'));
         LOGGER.info(logBuilder.toString());
     }
 

@@ -24,8 +24,8 @@ import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AdminsConfigRepresenter {
@@ -40,7 +40,7 @@ public class AdminsConfigRepresenter {
         jsonWriter.addChildList("roles", rolesAsString(admin.getRoles()));
         jsonWriter.addChildList("users", userAsString(admin.getUsers()));
         if (admin.hasErrors()) {
-            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(Collections.singletonMap("SystemAdmin", "system_admin"))
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(Map.of("SystemAdmin", "system_admin"))
                     .toJSON(errorWriter, admin));
         }
     }
@@ -48,13 +48,9 @@ public class AdminsConfigRepresenter {
     public static AdminsConfig fromJSON(JsonReader jsonReader) {
         AdminsConfig adminsConfig = new AdminsConfig();
 
-        jsonReader.readArrayIfPresent("users", users -> {
-            users.forEach(user -> adminsConfig.add(new AdminUser(new CaseInsensitiveString(user.getAsString()))));
-        });
+        jsonReader.readArrayIfPresent("users", users -> users.forEach(user -> adminsConfig.add(new AdminUser(new CaseInsensitiveString(user.getAsString())))));
 
-        jsonReader.readArrayIfPresent("roles", roles -> {
-            roles.forEach(role -> adminsConfig.add(new AdminRole(new CaseInsensitiveString(role.getAsString()))));
-        });
+        jsonReader.readArrayIfPresent("roles", roles -> roles.forEach(role -> adminsConfig.add(new AdminRole(new CaseInsensitiveString(role.getAsString())))));
 
         return adminsConfig;
     }

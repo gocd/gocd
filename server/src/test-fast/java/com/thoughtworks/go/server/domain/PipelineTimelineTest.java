@@ -26,12 +26,14 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -60,11 +62,11 @@ public class PipelineTimelineTest {
     public void setUp() throws Exception {
         now = new DateTime();
         pipelineRepository = mock(PipelineRepository.class);
-        materials = Arrays.asList("first", "second", "third", "fourth");
-        first = PipelineMaterialModificationMother.modification(1, materials, Arrays.asList(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
-        second = PipelineMaterialModificationMother.modification(2, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
-        third = PipelineMaterialModificationMother.modification(3, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 3, "333", "pipeline");
-        fourth = PipelineMaterialModificationMother.modification(4, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 4, "444", "pipeline");
+        materials = List.of("first", "second", "third", "fourth");
+        first = PipelineMaterialModificationMother.modification(1, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
+        second = PipelineMaterialModificationMother.modification(2, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
+        third = PipelineMaterialModificationMother.modification(3, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 3, "333", "pipeline");
+        fourth = PipelineMaterialModificationMother.modification(4, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 4, "444", "pipeline");
         pipelineName = "pipeline";
         transactionTemplate = mock(TransactionTemplate.class);
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -125,9 +127,9 @@ public class PipelineTimelineTest {
     }
 
     @Test public void shouldPopuplateTheBeforeAndAfterNodesForAGivenPipelineDuringAddition() throws Exception {
-        PipelineTimelineEntry anotherPipeline1 = PipelineMaterialModificationMother.modification("another", 4, materials, Arrays.asList(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123");
-        PipelineTimelineEntry anotherPipeline2 = PipelineMaterialModificationMother.modification("another", 5, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
-        PipelineTimelineEntry anotherPipeline3 = PipelineMaterialModificationMother.modification("another", 6, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
+        PipelineTimelineEntry anotherPipeline1 = PipelineMaterialModificationMother.modification("another", 4, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123");
+        PipelineTimelineEntry anotherPipeline2 = PipelineMaterialModificationMother.modification("another", 5, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
+        PipelineTimelineEntry anotherPipeline3 = PipelineMaterialModificationMother.modification("another", 6, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
 
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
@@ -160,13 +162,10 @@ public class PipelineTimelineTest {
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         final List<PipelineTimelineEntry>[] entries = new List[1];
         entries[0] = new ArrayList<>();
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
-            @Override
-            public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
-                assertThat(timeline.contains(newlyAddedEntry), is(true));
-                assertThat(timeline.containsAll(entries[0]), is(true));
-                entries[0].add(newlyAddedEntry);
-            }
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
+            assertThat(timeline1.contains(newlyAddedEntry), is(true));
+            assertThat(timeline1.containsAll(entries[0]), is(true));
+            entries[0].add(newlyAddedEntry);
         });
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
 
@@ -180,11 +179,8 @@ public class PipelineTimelineTest {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         TimelineUpdateListener anotherListener = mock(TimelineUpdateListener.class);
-        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, new TimelineUpdateListener() {
-            @Override
-            public void added(PipelineTimelineEntry newlyAddedEntry, TreeSet<PipelineTimelineEntry> timeline) {
-                throw new RuntimeException();
-            }
+        final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
+            throw new RuntimeException();
         }, anotherListener);
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
         try {
@@ -202,7 +198,7 @@ public class PipelineTimelineTest {
 
         timeline.updateTimelineOnInit();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         verifyNoMoreInteractions(transactionSynchronizationManager);
         verifyNoMoreInteractions(transactionTemplate);
         assertThat(timeline.maximumId(), is(2L));
@@ -218,7 +214,7 @@ public class PipelineTimelineTest {
 
         timeline.update();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         assertThat(timeline.maximumId(), is(2L));
     }
 
@@ -231,7 +227,7 @@ public class PipelineTimelineTest {
 
         timeline.update();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, List.of(entries));
         assertThat(timeline.maximumId(), is(-1L));
     }
 
@@ -264,43 +260,34 @@ public class PipelineTimelineTest {
     private void stubPipelineRepository(final PipelineTimeline timeline, boolean restub, final PipelineTimelineEntry... entries) {
         repositoryEntries = entries;
         if (restub) {
-            doAnswer(new Answer<Object>() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    for (PipelineTimelineEntry entry : repositoryEntries) {
-                        timeline.add(entry);
-                    }
-                    ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(Arrays.asList(repositoryEntries));
-                    return Arrays.asList(repositoryEntries);
+            doAnswer((Answer<Object>) invocationOnMock -> {
+                for (PipelineTimelineEntry entry : repositoryEntries) {
+                    timeline.add(entry);
                 }
+                ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(List.of(repositoryEntries));
+                return List.of(repositoryEntries);
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());
         }
     }
 
     private void stubTransactionSynchronization() {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            transactionSynchronization = (TransactionSynchronization) invocationOnMock.getArguments()[0];
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
     }
 
     private void setupTransactionTemplateStub(final int status, final boolean restub) throws Exception {
         this.txnStatus = status;
         if (restub) {
-            when(transactionTemplate.execute(Mockito.any(TransactionCallback.class))).thenAnswer(new Answer<Object>() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
-                    callback.doInTransaction(null);
-                    if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
-                        transactionSynchronization.afterCommit();
-                    }
-                    transactionSynchronization.afterCompletion(txnStatus);
-                    return null;
+            when(transactionTemplate.execute(Mockito.any(TransactionCallback.class))).thenAnswer(invocationOnMock -> {
+                TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
+                callback.doInTransaction(null);
+                if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
+                    transactionSynchronization.afterCommit();
                 }
+                transactionSynchronization.afterCompletion(txnStatus);
+                return null;
             });
         }
     }

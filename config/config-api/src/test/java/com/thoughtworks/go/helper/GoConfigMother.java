@@ -39,11 +39,11 @@ import com.thoughtworks.go.util.ClonerFactory;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static java.util.Arrays.asList;
 
 public class GoConfigMother {
     public static final Cloner CLONER = cloner();
@@ -170,7 +170,7 @@ public class GoConfigMother {
 
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans(buildNames));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), PipelineLabel.COUNT_TEMPLATE, cronSpec, shouldTriggerOnlyOnMaterialChanges, materialConfigs,
-                asList(stageConfig));
+                List.of(stageConfig));
         pipelineConfig.setOrigin(new FileConfigOrigin());
         cruiseConfig.addPipeline(groupName, pipelineConfig);
         return pipelineConfig;
@@ -302,7 +302,7 @@ public class GoConfigMother {
     public static PipelineConfig createPipelineConfigWithMaterialConfig(String pipelineName, MaterialConfig... materialConfigs) {
         CruiseConfig config = new BasicCruiseConfig();
         MaterialConfigs toAdd = new MaterialConfigs();
-        toAdd.addAll(Arrays.asList(materialConfigs));
+        toAdd.addAll(List.of(materialConfigs));
         return new GoConfigMother().addPipeline(config, pipelineName, "stage", toAdd, "job");
     }
 

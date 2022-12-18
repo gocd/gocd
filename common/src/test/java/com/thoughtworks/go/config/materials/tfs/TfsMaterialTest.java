@@ -45,7 +45,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.materials.AbstractMaterial.SQL_CRITERIA_TYPE;
 import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -103,7 +102,7 @@ public class TfsMaterialTest {
     @Test
     void shouldInjectAllRelevantAttributesInSqlCriteriaMap() {
         TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
-        assertThat(tfsMaterial.getSqlCriteria()).isEqualTo(m(
+        assertThat(tfsMaterial.getSqlCriteria()).isEqualTo(Map.of(
                 SQL_CRITERIA_TYPE, (Object) "TfsMaterial",
                 "url", "my-url",
                 "username", "loser",
@@ -113,7 +112,7 @@ public class TfsMaterialTest {
     @Test
     void shouldInjectAllRelevantAttributesInAttributeMap() {
         TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
-        assertThat(tfsMaterial.getAttributesForXml()).isEqualTo(m(
+        assertThat(tfsMaterial.getAttributesForXml()).isEqualTo(Map.of(
                 AbstractMaterial.SQL_CRITERIA_TYPE, (Object) "TfsMaterial",
                 "url", "my-url",
                 "username", "loser",

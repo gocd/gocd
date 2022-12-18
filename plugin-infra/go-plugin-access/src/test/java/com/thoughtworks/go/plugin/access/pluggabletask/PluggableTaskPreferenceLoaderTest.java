@@ -24,11 +24,9 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class PluggableTaskPreferenceLoaderTest {
@@ -67,13 +65,10 @@ public class PluggableTaskPreferenceLoaderTest {
         final TaskExtension taskExtension = mock(TaskExtension.class);
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(true);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            action.execute(task, descriptor);
+            return null;
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);
@@ -116,13 +111,10 @@ public class PluggableTaskPreferenceLoaderTest {
         final TaskExtension taskExtension = mock(TaskExtension.class);
         when(taskExtension.canHandlePlugin(pluginId)).thenReturn(false);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            final Action<Task> action = (Action<Task>) invocationOnMock.getArguments()[1];
+            action.execute(task, descriptor);
+            return null;
         }).when(taskExtension).doOnTask(eq(pluginId), any(Action.class));
 
         PluggableTaskPreferenceLoader pluggableTaskPreferenceLoader = new PluggableTaskPreferenceLoader(pluginManager, taskExtension);

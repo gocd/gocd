@@ -34,12 +34,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElasticProfileTest {
 
@@ -119,7 +120,7 @@ public class ElasticProfileTest {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"));
 
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
-        profile.addConfigurations(Arrays.asList(property));
+        profile.addConfigurations(List.of(property));
 
         assertThat(profile.size(), is(1));
         assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"))));
@@ -130,7 +131,7 @@ public class ElasticProfileTest {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"));
 
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
-        profile.addConfigurations(Arrays.asList(property));
+        profile.addConfigurations(List.of(property));
 
         assertThat(profile.size(), is(1));
         assertThat(profile, contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"))));
@@ -142,7 +143,7 @@ public class ElasticProfileTest {
 
         store.setPluginInfo(pluginInfo);
         ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
-        profile.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+        profile.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(profile.size(), is(1));
         assertFalse(profile.first().isSecure());
@@ -151,7 +152,7 @@ public class ElasticProfileTest {
 
     @Test
     public void shouldEncryptSecureConfigurations() {
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor(pluginId), profileSettings, profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);

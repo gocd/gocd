@@ -15,17 +15,16 @@
  */
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.plugin.api.task.Console;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -33,8 +32,8 @@ public class PluggableTaskEnvVarsTest {
 
     private EnvironmentVariableContext context;
     private PluggableTaskEnvVars envVars;
-    private List<String> keys = Arrays.asList("Social Net 1", "Social Net 2", "Social Net 3");
-    private List<String> values = Arrays.asList("Twitter", "Facebook", "Mega Upload");
+    private List<String> keys = List.of("Social Net 1", "Social Net 2", "Social Net 3");
+    private List<String> values = List.of("Twitter", "Facebook", "Mega Upload");
 
     @BeforeEach
     public void setUp() throws Exception {

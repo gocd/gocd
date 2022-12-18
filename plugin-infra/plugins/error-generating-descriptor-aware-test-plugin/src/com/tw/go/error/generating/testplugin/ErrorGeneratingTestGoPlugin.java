@@ -25,7 +25,7 @@ import java.util.Collections;
 public class ErrorGeneratingTestGoPlugin implements GoPlugin {
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("extension-1", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("extension-1", List.of("1.0"));
     }
 
     /* This should fail with an AbstractMethodError if you call something on it, which doesn't exist. */

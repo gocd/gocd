@@ -52,7 +52,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
@@ -284,7 +283,7 @@ public class PipelineScheduleQueueIntegrationTest {
     }
 
     private TypeSafeMatcher<CaseInsensitiveString> scheduledOn(final PipelineScheduleQueue queue) {
-        return new TypeSafeMatcher<CaseInsensitiveString>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(CaseInsensitiveString item) {
                 return queue.toBeScheduled().containsKey(item);
@@ -362,7 +361,7 @@ public class PipelineScheduleQueueIntegrationTest {
         saveRev(cause);
 
         Agent agentConfigWithUuid1 = new Agent("uuid1", "localhost", "127.0.0.1", "cookie1");
-        configFileEditor.addEnvironments(Arrays.asList("env"));
+        configFileEditor.addEnvironments(List.of("env"));
         agentConfigWithUuid1.setEnvironments("env");
         agentService.saveOrUpdate(agentConfigWithUuid1);
         Agent agentConfigWithUuid2 = new Agent("uuid2", "localhost", "127.0.0.1", "cookie2");
@@ -415,7 +414,7 @@ public class PipelineScheduleQueueIntegrationTest {
         saveRev(cause);
         queue.schedule(new CaseInsensitiveString(fixture.pipelineName), cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
-        assertThat(pipeline.scheduleTimeVariables(), is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("blahVariable", "blahOverride")))));
+        assertThat(pipeline.scheduleTimeVariables(), is(new EnvironmentVariables(List.of(new EnvironmentVariable("blahVariable", "blahOverride")))));
     }
 
     @Test

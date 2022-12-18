@@ -28,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -155,7 +154,7 @@ class SvnMaterialConfigTest {
 
         @Test
         void shouldEnsureDestFilePathIsValid() {
-            svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "../a"));
+            svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "../a"));
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");

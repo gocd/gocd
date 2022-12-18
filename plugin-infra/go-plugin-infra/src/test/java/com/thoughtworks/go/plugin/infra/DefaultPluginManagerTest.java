@@ -34,9 +34,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
@@ -47,7 +45,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -142,12 +139,9 @@ class DefaultPluginManagerTest {
         ArgumentCaptor<PluginAwareDefaultGoApplicationAccessor> captor = ArgumentCaptor.forClass(PluginAwareDefaultGoApplicationAccessor.class);
         doNothing().when(goPlugin).initializeGoApplicationAccessor(captor.capture());
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) {
-                ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[3];
-                return action.execute(goPlugin, descriptor);
-            }
+        doAnswer(invocationOnMock -> {
+            ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[3];
+            return action.execute(goPlugin, descriptor);
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq("plugin-id"), eq(extensionType), any(ActionWithReturn.class));
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
@@ -162,7 +156,7 @@ class DefaultPluginManagerTest {
     void shouldSayPluginIsOfGivenExtensionTypeWhenReferenceIsFound() {
         String pluginId = "plugin-id";
         String extensionType = "sample-extension";
-        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier(extensionType, asList("1.0"));
+        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier(extensionType, List.of("1.0"));
         final GoPlugin goPlugin = mock(GoPlugin.class);
         final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
         when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginId, extensionType)).thenReturn(true);
@@ -198,10 +192,10 @@ class DefaultPluginManagerTest {
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, extensionType, true);
-        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier(extensionType, asList("1.0", "2.0")));
+        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier(extensionType, List.of("1.0", "2.0")));
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
-        assertThat(pluginManager.resolveExtensionVersion(pluginId, extensionType, asList("1.0", "2.0", "3.0"))).isEqualTo("2.0");
+        assertThat(pluginManager.resolveExtensionVersion(pluginId, extensionType, List.of("1.0", "2.0", "3.0"))).isEqualTo("2.0");
     }
 
     @Test
@@ -211,11 +205,11 @@ class DefaultPluginManagerTest {
         GoPlugin goPlugin = mock(GoPlugin.class);
         GoPlugginOSGiFrameworkStub osGiFrameworkStub = new GoPlugginOSGiFrameworkStub(goPlugin);
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, extensionType, true);
-        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier(extensionType, asList("1.0", "2.0")));
+        when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier(extensionType, List.of("1.0", "2.0")));
 
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         try {
-            pluginManager.resolveExtensionVersion(pluginId, extensionType, asList("3.0", "4.0"));
+            pluginManager.resolveExtensionVersion(pluginId, extensionType, List.of("3.0", "4.0"));
             fail("should have thrown exception for not finding matching extension version");
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("Could not find matching extension version between Plugin[plugin-id] and Go");

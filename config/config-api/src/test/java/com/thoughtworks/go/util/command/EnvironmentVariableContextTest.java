@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
@@ -51,9 +52,9 @@ public class EnvironmentVariableContextTest {
     public void shouldReportWhenAVariableIsSet() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
-        List<String> repo = context.report(Collections.<String>emptyList());
-        assertThat(repo.size(), is(1));
-        assertThat(repo.get(0),
+        List<String> report = context.report(Collections.emptyList());
+        assertThat(report.size(), is(1));
+        assertThat(report.get(0),
                 is("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
     }
 
@@ -62,7 +63,7 @@ public class EnvironmentVariableContextTest {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, false);
         context.setProperty(PROPERTY_NAME, NEW_VALUE, false);
-        List<String> report = context.report(Collections.<String>emptyList());
+        List<String> report = context.report(Collections.emptyList());
         assertThat(report.size(), is(2));
         assertThat(report.get(0), is("[go] setting environment variable 'PROPERTY_NAME' to value 'property value'"));
         assertThat(report.get(1), is("[go] overriding environment variable 'PROPERTY_NAME' with value 'new value'"));
@@ -73,7 +74,7 @@ public class EnvironmentVariableContextTest {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
         context.setProperty(PROPERTY_NAME, NEW_VALUE, true);
-        List<String> report = context.report(Collections.<String>emptyList());
+        List<String> report = context.report(Collections.emptyList());
         assertThat(report.size(), is(2));
         assertThat(report.get(0), is(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
         assertThat(report.get(1), is(String.format("[go] overriding environment variable 'PROPERTY_NAME' with value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
@@ -83,16 +84,16 @@ public class EnvironmentVariableContextTest {
     public void shouldReportSecureVariableAsMaskedValue() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty(PROPERTY_NAME, PROPERTY_VALUE, true);
-        List<String> repot = context.report(Collections.<String>emptyList());
-        assertThat(repot.size(), is(1));
-        assertThat(repot.get(0), is(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
+        List<String> report = context.report(Collections.emptyList());
+        assertThat(report.size(), is(1));
+        assertThat(report.get(0), is(String.format("[go] setting environment variable 'PROPERTY_NAME' to value '%s'", EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE)));
     }
 
     @Test
     public void testReportOverrideForProcessEnvironmentVariables() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         context.setProperty("PATH", "/foo", false);
-        List<String> report = context.report(Collections.singleton("PATH"));
+        List<String> report = context.report(Set.of("PATH"));
         assertThat(report.size(), is(1));
         assertThat(report.get(0), is("[go] overriding environment variable 'PATH' with value '/foo'"));
     }

@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -34,12 +33,12 @@ class EnvironmentAgentsConfigTest {
         EnvironmentAgentConfig envAgentConfig1 = new EnvironmentAgentConfig("uuid1");
         EnvironmentAgentConfig envAgentConfig2 = new EnvironmentAgentConfig("uuid2");
         EnvironmentAgentConfig envAgentConfig3 = new EnvironmentAgentConfig("uuid3");
-        envAgentsConfig.addAll(asList(envAgentConfig1, envAgentConfig2, envAgentConfig3));
+        envAgentsConfig.addAll(List.of(envAgentConfig1, envAgentConfig2, envAgentConfig3));
 
         List<String> uuids = envAgentsConfig.getUuids();
 
         assertThat(uuids.size(), is(3));
-        assertThat(uuids.containsAll(asList("uuid1", "uuid2", "uuid3")), is(true));
+        assertThat(uuids.containsAll(List.of("uuid1", "uuid2", "uuid3")), is(true));
     }
 
     @Test
@@ -56,11 +55,11 @@ class EnvironmentAgentsConfigTest {
         Map<String, String> map2 = new HashMap<>();
         map2.put("uuid", "agent-2");
 
-        List<Map> mapList = new ArrayList<>(asList(map1, map2));
+        List<Map> mapList = new ArrayList<>(List.of(map1, map2));
         envAgentsConfig.setConfigAttributes(mapList);
 
         assertThat(envAgentsConfig.size(), is(2));
-        assertThat(envAgentsConfig.getUuids(), is(asList("agent-1", "agent-2")));
+        assertThat(envAgentsConfig.getUuids(), is(List.of("agent-1", "agent-2")));
     }
 
     @Test

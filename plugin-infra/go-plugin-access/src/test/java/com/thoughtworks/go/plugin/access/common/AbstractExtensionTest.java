@@ -29,8 +29,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +49,7 @@ public class AbstractExtensionTest {
     ExtensionsRegistry extensionsRegistry;
 
     private String extensionName;
-    private static List<String> goSupportedVersions = Arrays.asList("1.0", "2.0");
+    private static List<String> goSupportedVersions = List.of("1.0", "2.0");
     private String pluginId;
 
     private static class TestExtension extends AbstractExtension {
@@ -79,7 +77,7 @@ public class AbstractExtensionTest {
     @Test
     public void shouldNotifySettingsChangeForPluginWhichSupportsNotification() throws Exception {
         String supportedVersion = "2.0";
-        Map<String, String> settings = Collections.singletonMap("foo", "bar");
+        Map<String, String> settings = Map.of("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler2_0());
@@ -95,7 +93,7 @@ public class AbstractExtensionTest {
     @Test
     public void shouldIgnoreSettingsChangeNotificationIfPluginDoesNotSupportsNotification() throws Exception {
         String supportedVersion = "1.0";
-        Map<String, String> settings = Collections.singletonMap("foo", "bar");
+        Map<String, String> settings = Map.of("foo", "bar");
 
         extension.registerHandler(supportedVersion, new PluginSettingsJsonMessageHandler1_0());
         when(pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions)).thenReturn(supportedVersion);

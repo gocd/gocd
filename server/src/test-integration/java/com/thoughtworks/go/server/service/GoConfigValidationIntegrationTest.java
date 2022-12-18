@@ -34,8 +34,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.fail;
 
 
@@ -115,14 +115,11 @@ public class GoConfigValidationIntegrationTest {
     }
 
     private void addApproverToStage(final String userName) {
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineConfig pConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
-                StageConfig stage = pConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
-                stage.getApproval().addAdmin(new AdminUser(new CaseInsensitiveString(userName)));
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            PipelineConfig pConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(PIPELINE_FOO));
+            StageConfig stage = pConfig.getStage(new CaseInsensitiveString(STAGE_BAR));
+            stage.getApproval().addAdmin(new AdminUser(new CaseInsensitiveString(userName)));
+            return cruiseConfig;
         });
     }
 

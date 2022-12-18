@@ -38,6 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +50,6 @@ import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -123,7 +123,7 @@ class AgentInstancesTest {
         void shouldFindPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
-            List<Agent> pendingAgents = agentInstances.filterPendingAgents(asList(idle.getUuid(),
+            List<Agent> pendingAgents = agentInstances.filterPendingAgents(List.of(idle.getUuid(),
                     pending.getUuid(),
                     building.getUuid(),
                     disabled.getUuid()));
@@ -144,7 +144,7 @@ class AgentInstancesTest {
         @Test
         void shouldReturnEmptyListWhenNullOrEmptyUUIDsAreSpecifiedAsElementsInTheListOfUUIDsInFilterPendingAgents() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
-            List<Agent> pendingAgents = agentInstances.filterPendingAgents(asList(null, null, "  "));
+            List<Agent> pendingAgents = agentInstances.filterPendingAgents(Arrays.asList(null, null, "  "));
             assertThat(pendingAgents.size(), is(0));
         }
 
@@ -152,7 +152,7 @@ class AgentInstancesTest {
         void shouldFindPendingAgentUUIDs() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
-            List<String> pendingAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), building.getUuid(), disabled.getUuid()), Pending);
+            List<String> pendingAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), building.getUuid(), disabled.getUuid()), Pending);
             assertThat(pendingAgentUUIDs.size(), is(1));
             assertThat(pendingAgentUUIDs.get(0), is(pending.getUuid()));
         }
@@ -162,7 +162,7 @@ class AgentInstancesTest {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
             agentInstances.add(nullInstance);
 
-            List<String> nullAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), nullInstance.getUuid()), Null);
+            List<String> nullAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), nullInstance.getUuid()), Null);
             assertThat(nullAgentUUIDs.size(), is(1));
             assertThat(nullAgentUUIDs.get(0), is(nullInstance.getUuid()));
         }
@@ -221,7 +221,7 @@ class AgentInstancesTest {
             instances.add(instance2);
             instances.add(instance3);
 
-            List<String> uuids = asList("uuid-1", "uuid-3");
+            List<String> uuids = List.of("uuid-1", "uuid-3");
             List<AgentInstance> filteredInstances = instances.filter(uuids);
 
             assertThat(filteredInstances, hasItems(instance1, instance3));
@@ -354,7 +354,7 @@ class AgentInstancesTest {
         void shouldFindElasticAgentUUIDs() {
             AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
 
-            List<String> nullAgentUUIDs = agentInstances.filterBy(asList(idle.getUuid(), pending.getUuid(), elastic.getUuid()), Elastic);
+            List<String> nullAgentUUIDs = agentInstances.filterBy(List.of(idle.getUuid(), pending.getUuid(), elastic.getUuid()), Elastic);
             assertThat(nullAgentUUIDs.size(), is(1));
             assertThat(nullAgentUUIDs.get(0), is(elastic.getUuid()));
         }

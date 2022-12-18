@@ -77,7 +77,7 @@ public class BuildWorkArtifactFetchingTest {
 
     @Test
     public void shouldFailTheJobWhenFetchingArtifactFails() throws Exception {
-        buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
+        buildWork = BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub();
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), null, null, null, null, null));
 
@@ -91,7 +91,7 @@ public class BuildWorkArtifactFetchingTest {
 
     @Test
     public void shouldTransitIntoFailedStatusWhenFetchingArtifactFailed() throws Exception {
-        buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
+        buildWork = BuildWorkTest.getWork(WITH_FETCH_FILE, PIPELINE_NAME);
         com.thoughtworks.go.remote.work.FailedToDownloadPublisherStub stubPublisher = new FailedToDownloadPublisherStub();
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubPublisher, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), null, null, null, null, null));
 
@@ -103,7 +103,7 @@ public class BuildWorkArtifactFetchingTest {
 
     @Test
     public void shouldFetchFolder() throws Exception {
-        buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
+        buildWork = BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), null, null, null, null, null));

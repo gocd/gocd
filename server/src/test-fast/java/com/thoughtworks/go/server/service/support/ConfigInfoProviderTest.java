@@ -36,11 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,8 +89,8 @@ public class ConfigInfoProviderTest {
 
         final List<Map<String, Boolean>> plugins = (List<Map<String, Boolean>>) security.get("Plugins");
         assertThat(plugins, containsInAnyOrder(
-                singletonMap("Password File Authentication Plugin for GoCD", true),
-                singletonMap("LDAP Authentication Plugin for GoCD", false)
+                Map.of("Password File Authentication Plugin for GoCD", true),
+                Map.of("LDAP Authentication Plugin for GoCD", false)
         ));
     }
 

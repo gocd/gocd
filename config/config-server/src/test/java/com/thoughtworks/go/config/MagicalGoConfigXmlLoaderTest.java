@@ -36,11 +36,13 @@ import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.Deny;
 import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.config.validation.ArtifactDirValidator;
-import com.thoughtworks.go.config.validation.GoConfigValidator;
 import com.thoughtworks.go.config.validation.ServerIdImmutabilityValidator;
 import com.thoughtworks.go.config.validation.TokenGenerationKeyImmutabilityValidator;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.config.Arguments;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -90,7 +92,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.PipelineConfig.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -101,7 +102,6 @@ import static com.thoughtworks.go.plugin.api.config.Property.*;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.*;
 
 
@@ -143,9 +143,9 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(stage1.allBuildPlans().size()).isEqualTo(1);
         assertThat(stage1.requiresApproval()).as("Should require approval").isTrue();
         AdminsConfig admins = stage1.getApproval().getAuthConfig();
-        assertThat(admins).contains((Admin) new AdminRole(new CaseInsensitiveString("admin")));
-        assertThat(admins).contains((Admin) new AdminRole(new CaseInsensitiveString("qa_lead")));
-        assertThat(admins).contains((Admin) new AdminUser(new CaseInsensitiveString("jez")));
+        assertThat(admins).contains(new AdminRole(new CaseInsensitiveString("admin")));
+        assertThat(admins).contains(new AdminRole(new CaseInsensitiveString("qa_lead")));
+        assertThat(admins).contains(new AdminUser(new CaseInsensitiveString("jez")));
 
         StageConfig stage2 = pipelineConfig1.get(1);
         assertThat(stage2.requiresApproval()).as("Should not require approval").isFalse();
@@ -287,12 +287,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldSetConfigOriginInCruiseConfig_AfterLoadingConfigFile() throws Exception {
-        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(CONFIG, new MagicalGoConfigXmlLoader.Callback() {
-            @Override
-            public void call(CruiseConfig cruiseConfig) {
-                cruiseConfig.setPartials(asList(new PartialConfig()));
-            }
-        });
+        GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(CONFIG, cruiseConfig -> cruiseConfig.setPartials(List.of(new PartialConfig())));
         assertThat(goConfigHolder.config.getOrigin()).isEqualTo(new MergeConfigOrigin());
         assertThat(goConfigHolder.configForEdit.getOrigin()).isEqualTo(new FileConfigOrigin());
     }
@@ -1416,7 +1411,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "</cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.schemaVersion()).isEqualTo(CONFIG_SCHEMA_VERSION);
-        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), asList(new RoleConfig(new CaseInsensitiveString("bar"))))).isTrue();
+        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), List.of(new RoleConfig(new CaseInsensitiveString("bar"))))).isTrue();
     }
 
     @Test
@@ -3245,12 +3240,12 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(task.getTypeForDisplay()).isEqualTo("Pluggable Task");
         final Configuration configuration = task.getConfiguration();
         assertThat(configuration.listOfConfigKeys().size()).isEqualTo(3);
-        assertThat(configuration.listOfConfigKeys()).isEqualTo(asList("url", "username", "password"));
+        assertThat(configuration.listOfConfigKeys()).isEqualTo(List.of("url", "username", "password"));
         Collection<String> values = CollectionUtils.collect(configuration.listOfConfigKeys(), o -> {
             ConfigurationProperty property = configuration.getProperty(o);
             return property.getConfigurationValue().getValue();
         });
-        assertThat(new ArrayList<>(values)).isEqualTo(asList("http://fake-go-server", "godev", "password"));
+        assertThat(new ArrayList<>(values)).isEqualTo(List.of("http://fake-go-server", "godev", "password"));
     }
 
     @Test
@@ -3750,12 +3745,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     private String configWithTokenGenerationKey(final String key) {
-        final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) MagicalGoConfigXmlLoader.VALIDATORS.stream().filter(new Predicate<GoConfigValidator>() {
-            @Override
-            public boolean test(GoConfigValidator goConfigValidator) {
-                return goConfigValidator instanceof ServerIdImmutabilityValidator;
-            }
-        }).findFirst().orElse(null);
+        final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) MagicalGoConfigXmlLoader.VALIDATORS.stream().filter(goConfigValidator -> goConfigValidator instanceof ServerIdImmutabilityValidator).findFirst().orElse(null);
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruise schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
                 "<server serverId=\"" + serverIdImmutabilityValidator.getServerId() + "\" tokenGenerationKey=\"" + key + "\"/>" +
                 "<pipelines>\n" +
@@ -4212,9 +4202,9 @@ public class MagicalGoConfigXmlLoaderTest {
         PluginConfiguration registryUrl = new PluginConfiguration("RegistryURL", new Metadata(true, false));
         PluginConfiguration username = new PluginConfiguration("Username", new Metadata(false, false));
         PluginConfiguration password = new PluginConfiguration("Password", new Metadata(false, true));
-        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList(registryUrl, username, password));
-        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(buildFile, image, tag));
-        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(fetchProperty, fetchTag));
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(List.of(registryUrl, username, password));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(List.of(buildFile, image, tag));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(List.of(fetchProperty, fetchTag));
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
 

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 abstract class AbstractDirectiveTest {
@@ -32,7 +31,7 @@ abstract class AbstractDirectiveTest {
         void shouldAddErrorIfActionIsNotSet() {
             Directive directive = getDirective(null, "pipeline_group", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(1);
             assertThat(directive.errors().get("action"))
@@ -44,7 +43,7 @@ abstract class AbstractDirectiveTest {
         void shouldAddErrorIfActionIsSetToOtherThanAllowedActions() {
             Directive directive = getDirective("invalid", "pipeline_group", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(1);
 
@@ -57,7 +56,7 @@ abstract class AbstractDirectiveTest {
         void shouldAllowActionToHaveWildcard() {
             Directive directive = getDirective("*", "pipeline_group", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(0);
         }
@@ -66,7 +65,7 @@ abstract class AbstractDirectiveTest {
         void shouldAddErrorIfTypeIsNotSet() {
             Directive directive = getDirective("refer", null, "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(1);
             assertThat(directive.errors().get("type"))
@@ -78,7 +77,7 @@ abstract class AbstractDirectiveTest {
         void shouldAddErrorIfTypeIsSetToOtherThanAllowedActions() {
             Directive directive = getDirective("refer", "invalid", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(1);
 
@@ -91,7 +90,7 @@ abstract class AbstractDirectiveTest {
         void shouldAllowTypeToHaveWildcard() {
             Directive directive = getDirective("refer", "*", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(0);
         }
@@ -100,7 +99,7 @@ abstract class AbstractDirectiveTest {
         void shouldAddErrorIfResourceIsBlank() {
             Directive directive = getDirective("refer", "*", "");
 
-            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+            directive.validate(rulesValidationContext(List.of("refer"), List.of("pipeline_group")));
 
             assertThat(directive.errors().get("resource"))
                     .hasSize(1)

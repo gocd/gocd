@@ -47,7 +47,7 @@ public class Filters {
     }
 
     public static Filters single(DashboardFilter filter) {
-        return new Filters(Collections.singletonList(filter));
+        return new Filters(List.of(filter));
     }
 
     public static Filters defaults() {

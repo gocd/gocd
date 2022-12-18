@@ -42,9 +42,9 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def pipelineName = "up42"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
-    ModelAndView modalAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, response)
 
-    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+    Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
     assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pipelineName", pipelineName)
@@ -56,9 +56,9 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
     when(goConfigService.isPipelineEditable(pipelineName)).thenReturn(true);
-    ModelAndView modalAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, response)
 
-    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+    Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
     assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("isEditableFromUI", true)
@@ -70,9 +70,9 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
     when(securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName)).thenReturn(true);
-    ModelAndView modalAndView = controller.index(request, response)
+    ModelAndView modelAndView = controller.index(request, response)
 
-    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+    Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
     assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("canOperatePipeline", true)

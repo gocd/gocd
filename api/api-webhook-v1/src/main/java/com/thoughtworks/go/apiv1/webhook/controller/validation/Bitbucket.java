@@ -23,11 +23,10 @@ import java.security.MessageDigest;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Bitbucket implements ValidateAuth.Provider {
-    public static final Set<String> PUSH = singleton("repo:push");
+    public static final Set<String> PUSH = Set.of("repo:push");
     public static final Set<String> PR = Set.of("pullrequest:created", "pullrequest:fulfilled", "pullrequest:rejected");
 
     @Override

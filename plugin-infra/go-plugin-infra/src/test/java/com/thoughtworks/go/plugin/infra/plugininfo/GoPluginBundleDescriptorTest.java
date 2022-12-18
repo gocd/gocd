@@ -17,9 +17,8 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GoPluginBundleDescriptorTest {
@@ -32,7 +31,7 @@ class GoPluginBundleDescriptorTest {
 
         assertThat(bundleDescriptor.isInvalid()).isFalse();
 
-        pluginDescriptor1.markAsInvalid(singletonList("Ouch!"), null);
+        pluginDescriptor1.markAsInvalid(List.of("Ouch!"), null);
 
         assertThat(bundleDescriptor.isInvalid()).isTrue();
     }
@@ -44,10 +43,10 @@ class GoPluginBundleDescriptorTest {
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        pluginDescriptor1.markAsInvalid(singletonList("Ouch!"), null);
-        pluginDescriptor2.markAsInvalid(singletonList("Second one is bad too!"), null);
+        pluginDescriptor1.markAsInvalid(List.of("Ouch!"), null);
+        pluginDescriptor2.markAsInvalid(List.of("Second one is bad too!"), null);
 
         /* Overwrites previous message. */
-        assertThat(bundleDescriptor.getMessages()).isEqualTo(Arrays.asList("Second one is bad too!", "Second one is bad too!"));
+        assertThat(bundleDescriptor.getMessages()).isEqualTo(List.of("Second one is bad too!", "Second one is bad too!"));
     }
 }

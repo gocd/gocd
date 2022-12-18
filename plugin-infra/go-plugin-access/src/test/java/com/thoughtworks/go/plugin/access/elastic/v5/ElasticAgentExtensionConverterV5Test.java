@@ -36,13 +36,17 @@ import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElasticAgentExtensionConverterV5Test {
     private JobIdentifier jobIdentifier;
@@ -50,7 +54,7 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @BeforeEach
     public void setUp() throws Exception {
-        clusterProfile = Collections.singletonMap("key", "value");
+        clusterProfile = Map.of("key", "value");
         jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
         jobIdentifier.setBuildId(100L);
     }
@@ -175,7 +179,7 @@ public class ElasticAgentExtensionConverterV5Test {
         HashMap<String, String> clusterProfileConfiguration2 = new HashMap<>();
         clusterProfileConfiguration2.put("property_name_1", "property_value_1");
         clusterProfileConfiguration2.put("property_name_2", "property_value_2");
-        String actual = new ElasticAgentExtensionConverterV5().serverPingRequestBody(Arrays.asList(clusterProfileConfiguration1, clusterProfileConfiguration2));
+        String actual = new ElasticAgentExtensionConverterV5().serverPingRequestBody(List.of(clusterProfileConfiguration1, clusterProfileConfiguration2));
 
         String expected = "{" +
                 "  \"all_cluster_profile_properties\":[" +
@@ -230,7 +234,7 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldJSONizeClusterStatusReportRequestBody() throws Exception {
-        String actual = new ElasticAgentExtensionConverterV5().getClusterStatusReportRequestBody(Collections.singletonMap("key1", "value1"));
+        String actual = new ElasticAgentExtensionConverterV5().getClusterStatusReportRequestBody(Map.of("key1", "value1"));
         String expected = "{" +
                 "   \"cluster_profile_properties\":{" +
                 "       \"key1\":\"value1\"" +
@@ -429,8 +433,8 @@ public class ElasticAgentExtensionConverterV5Test {
                 "}\n";
 
         ElasticAgentMetadataStore store = ElasticAgentMetadataStore.instance();
-        PluggableInstanceSettings elasticAgentProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("some_key", new Metadata(true, true))));
-        PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("some_key2", new Metadata(true, true))));
+        PluggableInstanceSettings elasticAgentProfileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("some_key", new Metadata(true, true))));
+        PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("some_key2", new Metadata(true, true))));
         store.setPluginInfo(new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), elasticAgentProfileSettings, clusterProfileSettings, null, null, null));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentExtensionConverterV5().getElasticAgentInformationFromResponseBody(responseBody);
@@ -485,7 +489,7 @@ public class ElasticAgentExtensionConverterV5Test {
     public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsCreated() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.CREATED;
         Map<String, String> oldClusterProfile = null;
-        Map<String, String> newClusterProfile = Collections.singletonMap("key1", "key2");
+        Map<String, String> newClusterProfile = Map.of("key1", "key2");
 
         String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
 
@@ -500,8 +504,8 @@ public class ElasticAgentExtensionConverterV5Test {
     @Test
     public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsUpdated() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.UPDATED;
-        Map<String, String> oldClusterProfile = Collections.singletonMap("old_key1", "old_key2");
-        Map<String, String> newClusterProfile = Collections.singletonMap("key1", "key2");
+        Map<String, String> oldClusterProfile = Map.of("old_key1", "old_key2");
+        Map<String, String> newClusterProfile = Map.of("key1", "key2");
 
         String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
 
@@ -519,7 +523,7 @@ public class ElasticAgentExtensionConverterV5Test {
     @Test
     public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsDeleted() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.DELETED;
-        Map<String, String> oldClusterProfile = Collections.singletonMap("key1", "key2");
+        Map<String, String> oldClusterProfile = Map.of("key1", "key2");
         Map<String, String> newClusterProfile = null;
 
         String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);

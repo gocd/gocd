@@ -26,16 +26,13 @@ import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ArtifactMessageConverterV1Test {
@@ -91,7 +88,7 @@ public class ArtifactMessageConverterV1Test {
     public void validateConfigurationRequestBody_shouldSerializeConfigurationToJson() {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
 
-        final String requestBody = converter.validateConfigurationRequestBody(Collections.singletonMap("Foo", "Bar"));
+        final String requestBody = converter.validateConfigurationRequestBody(Map.of("Foo", "Bar"));
 
         assertThatJson("{\"Foo\":\"Bar\"}").isEqualTo(requestBody);
     }
@@ -114,7 +111,7 @@ public class ArtifactMessageConverterV1Test {
     public void fetchArtifactMessage_shouldSerializeToJson() {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
-        final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
+        final Map<String, Object> metadata = Map.of("Version", "10.12.0");
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
 
         final String fetchArtifactMessage = converter.fetchArtifactMessage(artifactStore, pluggableArtifactTask.getConfiguration(), metadata, "/temp");

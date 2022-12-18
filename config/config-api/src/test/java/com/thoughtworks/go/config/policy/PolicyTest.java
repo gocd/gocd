@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -48,7 +47,7 @@ class PolicyTest {
             final Allow invalidDirective = new Allow(null, "environment", null);
             final Policy policy = new Policy(invalidDirective);
 
-            policy.validateTree(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            policy.validateTree(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(policy.hasErrors()).isTrue();
         }
@@ -59,7 +58,7 @@ class PolicyTest {
                     new Allow("view", "environment", "env1"),
                     new Deny("view", "environment", "env2"));
 
-            policy.validateTree(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            policy.validateTree(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(policy.hasErrors()).isFalse();
         }

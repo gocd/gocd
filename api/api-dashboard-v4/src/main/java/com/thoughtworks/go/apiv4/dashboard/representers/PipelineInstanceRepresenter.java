@@ -34,9 +34,7 @@ public class PipelineInstanceRepresenter {
                 .add("counter", model.getCounter())
                 .add("triggered_by", model.getApprovedByForDisplay())
                 .add("scheduled_at", model.getScheduledDate())
-                .addChild("_embedded", childWriter -> {
-                    childWriter.addChildList("stages", getStages(model, goDashboardPipeline, username));
-                });
+                .addChild("_embedded", childWriter -> childWriter.addChildList("stages", getStages(model, goDashboardPipeline, username)));
     }
 
     private static Consumer<OutputLinkWriter> addLinks(PipelineInstanceModel model) {
@@ -44,12 +42,6 @@ public class PipelineInstanceRepresenter {
     }
 
     private static Consumer<OutputListWriter> getStages(PipelineInstanceModel model, GoDashboardPipeline goDashboardPipeline, Username username) {
-        return writer -> {
-            model.getStageHistory().forEach(stage -> {
-                writer.addChild(childWriter -> {
-                    StageRepresenter.toJSON(childWriter, goDashboardPipeline, stage, username, model.getName(), String.valueOf(model.getCounter()));
-                });
-            });
-        };
+        return writer -> model.getStageHistory().forEach(stage -> writer.addChild(childWriter -> StageRepresenter.toJSON(childWriter, goDashboardPipeline, stage, username, model.getName(), String.valueOf(model.getCounter()))));
     }
 }

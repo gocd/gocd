@@ -36,30 +36,26 @@ public class MaterialWithModificationsRepresenter {
             outputWriter.addChildList("materials", Collections.emptyList());
             return;
         }
-        outputWriter.addChildList("materials", materialWriter -> {
-            modificationsMap.forEach((material, info) -> materialWriter.addChild(childWriter -> {
-                childWriter.addChild("config", MaterialsRepresenter.toJSON(material))
-                        .add("can_trigger_update", info.isHasOperatePermission())
-                        .add("material_update_in_progress", info.isUpdateInProgress())
-                        .addIfNotNull("material_update_start_time", info.getUpdateStartTime());
-                if (info.getModification() == null) {
-                    childWriter.renderNull("modification");
-                } else {
-                    childWriter.addChild("modification", modWriter -> ModificationRepresenter.toJSON(modWriter, info.getModification()));
-                }
-                renderLogs(childWriter, info.getLogs());
-            }));
-        });
+        outputWriter.addChildList("materials", materialWriter -> modificationsMap.forEach((material, info) -> materialWriter.addChild(childWriter -> {
+            childWriter.addChild("config", MaterialsRepresenter.toJSON(material))
+                    .add("can_trigger_update", info.isHasOperatePermission())
+                    .add("material_update_in_progress", info.isUpdateInProgress())
+                    .addIfNotNull("material_update_start_time", info.getUpdateStartTime());
+            if (info.getModification() == null) {
+                childWriter.renderNull("modification");
+            } else {
+                childWriter.addChild("modification", modWriter -> ModificationRepresenter.toJSON(modWriter, info.getModification()));
+            }
+            renderLogs(childWriter, info.getLogs());
+        })));
     }
 
     private static void renderLogs(OutputWriter outputWriter, List<ServerHealthState> logs) {
         outputWriter.addChildList("messages", writer -> {
             for (ServerHealthState log : logs) {
-                writer.addChild(childWriter -> {
-                    childWriter.add("level", log.getLogLevel().name())
-                            .add("message", log.getMessage())
-                            .add("description", log.getDescription());
-                });
+                writer.addChild(childWriter -> childWriter.add("level", log.getLogLevel().name())
+                        .add("message", log.getMessage())
+                        .add("description", log.getDescription()));
             }
         });
     }

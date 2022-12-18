@@ -45,8 +45,6 @@ import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
-import com.thoughtworks.go.server.messaging.GoMessageListener;
-import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
@@ -70,7 +68,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -80,7 +77,6 @@ import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -294,7 +290,7 @@ public class StageServiceIntegrationTest {
         for (int i = 1; i < stages.length; i++) {
             DefaultSchedulingContext ctx = new DefaultSchedulingContext("anonumous");
             StageConfig stageCfg = pipelineConfig.first();
-            stages[i] = i%2 == 0 ? instanceFactory.createStageInstance(stageCfg, ctx, md5, new TimeProvider()) : instanceFactory.createStageForRerunOfJobs(stages[i - 1], a("unit", "blah"), ctx,
+            stages[i] = i%2 == 0 ? instanceFactory.createStageInstance(stageCfg, ctx, md5, new TimeProvider()) : instanceFactory.createStageForRerunOfJobs(stages[i - 1], List.of("unit", "blah"), ctx,
                     stageCfg, new TimeProvider(), "md5");
             stageService.save(savedPipeline, stages[i]);
         }
@@ -409,14 +405,11 @@ public class StageServiceIntegrationTest {
     }
 
     @Test public void shouldNotCancelAlreadyCompletedBuild() {
-        jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
-            @Override
-            public void onMessage(JobResultMessage message) {
-                JobIdentifier jobIdentifier = message.getJobIdentifier();
-                JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
-                receivedState = instance.getState();
-                receivedResult = instance.getResult();
-            }
+        jobResultTopic.addListener(message -> {
+            JobIdentifier jobIdentifier = message.getJobIdentifier();
+            JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
+            receivedState = instance.getState();
+            receivedResult = instance.getResult();
         });
         JobInstanceMother.completed(job, Passed, new Date());
         jobInstanceDao.updateStateAndResult(job);
@@ -596,7 +589,7 @@ public class StageServiceIntegrationTest {
         StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
         assertThat(stages.size(), is(1));
 
-        scheduleService.rerunJobs(pipeline.getFirstStage(), Arrays.asList(CaseInsensitiveString.str(pipelineConfig.first().getJobs().first().name())), new HttpOperationResult());
+        scheduleService.rerunJobs(pipeline.getFirstStage(), List.of(CaseInsensitiveString.str(pipelineConfig.first().getJobs().first().name())), new HttpOperationResult());
         stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
 
         assertThat(stages.size(), is(1)); //should not retrieve stages with rerun jobs
@@ -646,11 +639,11 @@ public class StageServiceIntegrationTest {
         FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(0),
-                Arrays.asList(new Author("svn 3 guy", "svn.3@gmail.com"),
+                List.of(new Author("svn 3 guy", "svn.3@gmail.com"),
                         new Author("p4 2 guy", "p4.2@gmail.com")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(1),
-                Arrays.asList(new Author("svn 1 guy", "svn.1@gmail.com"),
+                List.of(new Author("svn 1 guy", "svn.1@gmail.com"),
                         new Author("svn 2 guy", "svn.2@gmail.com"),
                         new Author("p4 1 guy", "p4.1@gmail.com")));
     }
@@ -738,13 +731,13 @@ public class StageServiceIntegrationTest {
     private void assertStageEntryAuthor(FeedEntries feed) {
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(0),
-                Arrays.asList(new Author("hg 3 guy", "hg.3@gmail.com"),
+                List.of(new Author("hg 3 guy", "hg.3@gmail.com"),
                         new Author("git 2&3 guy", "git.2.and.3@gmail.com"),
                         new Author("svn 3 guy", "svn.3@gmail.com"),
                         new Author("p4 2 guy", "p4.2@gmail.com")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(1),
-                Arrays.asList(new Author("hg 1 guy", "hg.1@gmail.com"),
+                List.of(new Author("hg 1 guy", "hg.1@gmail.com"),
                         new Author("hg 2 guy", null),
                         new Author("git 1 guy", "git.1@gmail.com"),
                         new Author("svn 1 guy", "svn.1@gmail.com"),

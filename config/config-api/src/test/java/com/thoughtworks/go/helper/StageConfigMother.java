@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.util.ReflectionUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -40,11 +40,11 @@ public class StageConfigMother {
 
     public static StageConfig twoBuildPlansWithResourcesAndMaterials(String stageName) {
         JobConfig windoze = new JobConfig(
-                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
+                new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs(List.of(new TestArtifactConfig("junit", "junit")))
         );
         windoze.addTask(new AntTask());
         JobConfig linux = new JobConfig(
-                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactTypeConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
+                new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactTypeConfigs(List.of(new TestArtifactConfig("junit", "junit")))
         );
         linux.addTask(new AntTask());
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);

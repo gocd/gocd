@@ -28,23 +28,21 @@ import java.util.stream.Collectors;
 
 public class RouteEntryRepresenter {
     public static void toJSON(OutputListWriter writer, List<RouteEntry> routes) {
-        routes.forEach(entry -> {
-            writer.addChild(entryWriter -> {
-                entryWriter
-                        .add("method", entry.getHttpMethod().name())
-                        .add("path", entry.getPath())
-                        .add("version", entry.getAcceptedType())
-                        .addChildList("path_params", getParams(entry));
+        routes.forEach(entry -> writer.addChild(entryWriter -> {
+            entryWriter
+                    .add("method", entry.getHttpMethod().name())
+                    .add("path", entry.getPath())
+                    .add("version", entry.getAcceptedType())
+                    .addChildList("path_params", getParams(entry));
 
-                Class<?> routeHandlerClass = ((RouteImpl) entry.getTarget()).delegate().getClass();
+            Class<?> routeHandlerClass = ((RouteImpl) entry.getTarget()).delegate().getClass();
 
-                // Generally routes are lambdas nested within a controller class, so we can find the controller
-                // by looking for the nest host of the route
-                Class<?> controllerClass = routeHandlerClass.getNestHost();
-                DeprecatedAPI deprecatedAPI = controllerClass.getAnnotation(DeprecatedAPI.class);
-                addDeprecatedApiInfo(entryWriter, deprecatedAPI);
-            });
-        });
+            // Generally routes are lambdas nested within a controller class, so we can find the controller
+            // by looking for the nest host of the route
+            Class<?> controllerClass = routeHandlerClass.getNestHost();
+            DeprecatedAPI deprecatedAPI = controllerClass.getAnnotation(DeprecatedAPI.class);
+            addDeprecatedApiInfo(entryWriter, deprecatedAPI);
+        }));
     }
 
     private static void addDeprecatedApiInfo(OutputWriter entryWriter, DeprecatedAPI deprecatedAPI) {
@@ -63,9 +61,7 @@ public class RouteEntryRepresenter {
     }
 
     private static void addNonDeprecatedApiInfo(OutputWriter entryWriter) {
-        entryWriter.addChild("deprecation_info", deprecationWriter -> {
-            deprecationWriter.add("is_deprecated", false);
-        });
+        entryWriter.addChild("deprecation_info", deprecationWriter -> deprecationWriter.add("is_deprecated", false));
     }
 
     public static List<String> getParams(RouteEntry entry) {

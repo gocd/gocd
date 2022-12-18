@@ -66,6 +66,6 @@ public class DescriptorPlugin implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("notification", Collections.singletonList("2.0"));
+        return new GoPluginIdentifier("notification", List.of("2.0"));
     }
 }

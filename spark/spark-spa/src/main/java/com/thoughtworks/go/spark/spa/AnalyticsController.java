@@ -79,16 +79,17 @@ public class AnalyticsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<String, String> locals = new HashMap<>() {{
-            List<String> pipelines = new ArrayList<>();
-            pipelineConfigService.viewableGroupsFor(SessionUtils.currentUsername()).forEach(
-                (PipelineConfigs config) -> config.getPipelines().forEach(
-                    (p) -> pipelines.add(p.name().toString())
-                )
-            );
-            put("viewTitle", "Analytics");
-            put("pipelines", GSON.toJson(pipelines));
-        }};
+        List<String> pipelines = new ArrayList<>();
+        pipelineConfigService.viewableGroupsFor(SessionUtils.currentUsername())
+            .forEach(
+            (PipelineConfigs config) -> config.getPipelines().forEach(
+                (p) -> pipelines.add(p.name().toString())
+            ));
+
+        Map<String, String> locals = Map.of(
+            "viewTitle", "Analytics",
+            "pipelines", GSON.toJson(pipelines)
+        );
         return new ModelAndView(locals, "analytics/index.ftlh");
     }
 
@@ -152,9 +153,7 @@ public class AnalyticsController implements SparkController {
      */
     private Map<String, String> getQueryParams(Request request) {
         final Map<String, String> queryParams = new HashMap<>();
-        request.queryMap().toMap().forEach((k, v) -> {
-            queryParams.put(k, v[0]);
-        });
+        request.queryMap().toMap().forEach((k, v) -> queryParams.put(k, v[0]));
         return queryParams;
     }
 }

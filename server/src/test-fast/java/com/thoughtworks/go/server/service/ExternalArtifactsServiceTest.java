@@ -29,11 +29,11 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -119,7 +119,7 @@ public class ExternalArtifactsServiceTest {
         verifyNoInteractions(artifactExtension);
 
         assertTrue(pluggableArtifactConfig.hasErrors());
-        assertThat(pluggableArtifactConfig.errors().getAllOn("pluginId"), is(Arrays.asList("Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.")));
+        assertThat(pluggableArtifactConfig.errors().getAllOn("pluginId"), is(List.of("Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.")));
     }
 
     @Test

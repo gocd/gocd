@@ -23,12 +23,11 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MessageHandlerForServerHealthRequestProcessorV1Test {
     private MessageHandlerForServerHealthRequestProcessorV1 processor;
@@ -40,10 +39,10 @@ public class MessageHandlerForServerHealthRequestProcessorV1Test {
 
     @Test
     public void shouldDeserializeProperMessage() {
-        Map<String, Object> message1 = m("type", "warning", "message", "message 1");
-        Map<String, Object> message2 = m("type", "error", "message", "message 2");
-        Map<String, Object> message3 = m("type", "misspelled-type", "message", "message 3");
-        String input = new Gson().toJson(a(message1, message2, message3));
+        Map<String, Object> message1 = Map.of("type", "warning", "message", "message 1");
+        Map<String, Object> message2 = Map.of("type", "error", "message", "message 2");
+        Map<String, Object> message3 = Map.of("type", "misspelled-type", "message", "message 3");
+        String input = new Gson().toJson(List.of(message1, message2, message3));
 
         List<PluginHealthMessage> messages = processor.deserializeServerHealthMessages(input);
 

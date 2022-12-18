@@ -62,12 +62,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -202,7 +202,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
     }
 
     private long rerunJob(String jobName, PipelineConfig pipelineConfig, Pipeline previousSuccessfulBuildWithOlderPackageConfig) {
-        Stage stage = instanceFactory.createStageForRerunOfJobs(previousSuccessfulBuildWithOlderPackageConfig.getFirstStage(), asList(jobName), new DefaultSchedulingContext(), pipelineConfig.getFirstStageConfig(), new TimeProvider(), configHelper.getGoConfigDao().md5OfConfigFile());
+        Stage stage = instanceFactory.createStageForRerunOfJobs(previousSuccessfulBuildWithOlderPackageConfig.getFirstStage(), List.of(jobName), new DefaultSchedulingContext(), pipelineConfig.getFirstStageConfig(), new TimeProvider(), configHelper.getGoConfigDao().md5OfConfigFile());
         stage = stageService.save(previousSuccessfulBuildWithOlderPackageConfig, stage);
         return stage.getFirstJob().getId();
     }
@@ -255,7 +255,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         pipelineConfig.materialConfigs().clear();
         SvnMaterialConfig onDirOne = MaterialConfigsMother.svnMaterialConfig("google.com", "dirOne", "loser", "boozer", false, "**/*.html");
         final P4MaterialConfig onDirTwo = MaterialConfigsMother.p4MaterialConfig("host:987654321", "zoozer", "secret", "through-the-window", true);
-        onDirTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "dirTwo"));
+        onDirTwo.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "dirTwo"));
         pipelineConfig.addMaterialConfig(onDirOne);
         pipelineConfig.addMaterialConfig(onDirTwo);
 
@@ -310,7 +310,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterialConfig materialConfig = svnRepo.materialConfig();
-        materialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
+        materialConfig.setConfigAttributes(Map.of(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
         materialConfig.setPassword("boozer");
         pipelineConfig.addMaterialConfig(materialConfig);
         configHelper.addPipeline(pipelineConfig);

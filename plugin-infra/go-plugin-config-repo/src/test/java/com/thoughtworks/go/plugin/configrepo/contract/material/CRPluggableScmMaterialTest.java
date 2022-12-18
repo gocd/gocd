@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,8 +39,8 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
     public CRPluggableScmMaterialTest()
     {
         pluggableGit = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", null, false);
-        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("mydir"), false);
-        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("dir1", "dir2"), false);
+        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", List.of("mydir"), false);
+        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", List.of("dir1", "dir2"), false);
 
         simplePluggableGit = new CRPluggableScmMaterial();
         simplePluggableGit.setScmId("mygit-id");
@@ -87,7 +87,7 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
     @Test
     public void isWhiteList_shouldBeTrueInPresenceOfIncludesFilter() {
         CRPluggableScmMaterial pluggableScmMaterial = new CRPluggableScmMaterial("myPluggableGit", "someScmGitRepositoryId",
-                "destinationDir", Arrays.asList("mydir"), true);
+                "destinationDir", List.of("mydir"), true);
 
         assertTrue(pluggableScmMaterial.isWhitelist());
     }

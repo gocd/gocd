@@ -81,12 +81,12 @@ import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -140,7 +140,7 @@ public class MaterialServiceTest {
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(goConfigService.materialForPipelineWithFingerprint("pipeline", "sha")).thenReturn(materialConfig);
 
-        List<MatchedRevision> expected = asList(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
+        List<MatchedRevision> expected = List.of(new MatchedRevision("23", "revision", "revision", "user", new DateTime(2009, 10, 10, 12, 0, 0, 0).toDate(), "comment"));
         when(materialRepository.findRevisionsMatching(materialConfig, "23")).thenReturn(expected);
         assertThat(materialService.searchRevisions("pipeline", "sha", "23", pavan, operationResult), is(expected));
     }
@@ -373,7 +373,7 @@ public class MaterialServiceTest {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
         MaterialInstance materialInstance = pluggableSCMMaterial.createMaterialInstance();
         when(materialRepository.findMaterialInstance(any(Material.class))).thenReturn(materialInstance);
-        MaterialPollResult materialPollResult = new MaterialPollResult(null, asList(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
+        MaterialPollResult materialPollResult = new MaterialPollResult(null, List.of(new SCMRevision("new-revision-456", new Date(), "user", "comment", null, null)));
         when(scmExtension.latestModificationSince(any(String.class), any(SCMPropertyConfiguration.class), any(Map.class), any(String.class),
                 any(SCMRevision.class))).thenReturn(materialPollResult);
 

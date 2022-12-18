@@ -15,17 +15,15 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import jakarta.xml.bind.JAXBException;
 import org.junit.jupiter.api.Test;
 
-import jakarta.xml.bind.JAXBException;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptorParser.parseXML;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoPluginBundleDescriptorParserTest {
@@ -38,14 +36,14 @@ class GoPluginBundleDescriptorParserTest {
         final GoPluginDescriptor pluginDescriptor1 = bundle.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor1, "testplugin.multipluginbundle.plugin1",
                 "Plugin 1", "1.0.0", "19.5",
-                "Example plugin 1", "GoCD Team", "https://gocd.org", asList("Linux", "Windows"),
-                asList("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
+                "Example plugin 1", "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"),
+                List.of("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
 
         final GoPluginDescriptor pluginDescriptor2 = bundle.descriptors().get(1);
         assertPluginDescriptor(pluginDescriptor2, "testplugin.multipluginbundle.plugin2",
                 "Plugin 2", "2.0.0", "19.5",
-                "Example plugin 2", "Some other org", "www.example.com", singletonList("Linux"),
-                asList("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
+                "Example plugin 2", "Some other org", "www.example.com", List.of("Linux"),
+                List.of("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
     }
 
     @Test

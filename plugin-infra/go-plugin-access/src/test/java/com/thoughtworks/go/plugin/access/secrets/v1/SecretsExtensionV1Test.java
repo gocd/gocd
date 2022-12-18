@@ -28,7 +28,6 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,13 +36,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_EXTENSION;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -55,18 +53,17 @@ public class SecretsExtensionV1Test {
     @Mock
     private PluginManager pluginManager;
     protected ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
-    private PluginRequestHelper pluginRequestHelper;
-    private String PLUGIN_ID = "cd.go.example.secrets_plugin";
+    private final String PLUGIN_ID = "cd.go.example.secrets_plugin";
     private SecretsExtensionV1 secretsExtensionV1;
 
     @BeforeEach
     void setUp() {
-        this.pluginRequestHelper = new PluginRequestHelper(pluginManager, asList("1.0"), SECRETS_EXTENSION);
+        PluginRequestHelper pluginRequestHelper = new PluginRequestHelper(pluginManager, List.of("1.0"), SECRETS_EXTENSION);
         this.requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         this.secretsExtensionV1 = new SecretsExtensionV1(pluginRequestHelper);
 
         when(pluginManager.isPluginOfType(SECRETS_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, List.of("1.0"))).thenReturn("1.0");
     }
 
     @Test
@@ -111,7 +108,7 @@ public class SecretsExtensionV1Test {
         String responseBody = "[{\"message\":\"Vault Url cannot be blank.\",\"key\":\"Url\"},{\"message\":\"Path cannot be blank.\",\"key\":\"Path\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SECRETS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final ValidationResult result = secretsExtensionV1.validateSecretsConfig(PLUGIN_ID, singletonMap("username", "some_name"));
+        final ValidationResult result = secretsExtensionV1.validateSecretsConfig(PLUGIN_ID, Map.of("username", "some_name"));
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.getErrors()).contains(new ValidationError("Url", "Vault Url cannot be blank."), new ValidationError("Path", "Path cannot be blank."));
@@ -130,7 +127,7 @@ public class SecretsExtensionV1Test {
             secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
             secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_SECRET_KEY", true, "some-secret-value"));
 
-            List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2")));
+            List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new LinkedHashSet<>(List.of("key1", "key2")));
 
             assertThat(secrets.size()).isEqualTo(2);
             assertThat(secrets).contains(new Secret("key1", "secret1"), new Secret("key2", "secret2"));
@@ -146,7 +143,7 @@ public class SecretsExtensionV1Test {
             final SecretConfig secretConfig = new SecretConfig();
             secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
 
-            assertThatCode(() -> secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2"))))
+            assertThatCode(() -> secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new LinkedHashSet<>(List.of("key1", "key2"))))
                     .isInstanceOf(SecretResolutionFailureException.class)
                     .hasMessage("Error looking up secrets, plugin returned error code '500' with response: 'Error looking up for keys 'key1''");
         }
@@ -157,6 +154,6 @@ public class SecretsExtensionV1Test {
         assertThat(request.requestName()).isEqualTo(requestName);
         assertThat(request.extensionVersion()).isEqualTo("1.0");
         assertThat(request.extension()).isEqualTo(SECRETS_EXTENSION);
-        assertThatJson(requestBody).isEqualTo(request.requestBody());
+        assertThatJson(request.requestBody()).isEqualTo(requestBody);
     }
 }

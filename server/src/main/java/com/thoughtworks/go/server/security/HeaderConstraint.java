@@ -18,11 +18,10 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 
 public class HeaderConstraint {
-    private static final List<String> HEADERS = Arrays.asList("Confirm", "X-GoCD-Confirm");
+    private static final List<String> HEADERS = List.of("Confirm", "X-GoCD-Confirm");
     private SystemEnvironment systemEnvironment;
 
     public HeaderConstraint(SystemEnvironment systemEnvironment) {

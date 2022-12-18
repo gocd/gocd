@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -48,8 +48,8 @@ class ConfigurationTest {
 
         Configuration config = new Configuration(property1, property2);
 
-        assertThat(config.forDisplay(asList(property1))).isEqualTo("[key1=value1]");
-        assertThat(config.forDisplay(asList(property1, property2))).isEqualTo("[key1=value1, key2=value2]");
+        assertThat(config.forDisplay(List.of(property1))).isEqualTo("[key1=value1]");
+        assertThat(config.forDisplay(List.of(property1, property2))).isEqualTo("[key1=value1, key2=value2]");
     }
 
     @Test
@@ -60,7 +60,7 @@ class ConfigurationTest {
 
         Configuration config = new Configuration(property1, property2, property3);
 
-        assertThat(config.forDisplay(asList(property1, property2, property3))).isEqualTo("[key1=value1, key2=value2]");
+        assertThat(config.forDisplay(List.of(property1, property2, property3))).isEqualTo("[key1=value1, key2=value2]");
     }
 
     @Test
@@ -68,7 +68,7 @@ class ConfigurationTest {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, null);
         ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, null);
         Configuration config = new Configuration(property1, property2);
-        assertThat(config.listOfConfigKeys()).isEqualTo(asList("key1", "key2"));
+        assertThat(config.listOfConfigKeys()).isEqualTo(List.of("key1", "key2"));
     }
 
     @Test
@@ -156,8 +156,8 @@ class ConfigurationTest {
         configurationProperty.addError("key", "invalid key");
         Configuration configuration = new Configuration(configurationProperty);
         Map<String, Map<String, String>> configWithErrorsAsMap = configuration.getConfigWithErrorsAsMap();
-        HashMap<Object, Object> expectedMap = new HashMap<>();
-        HashMap<Object, Object> errorsMap = new HashMap<>();
+        Map<Object, Object> expectedMap = new HashMap<>();
+        Map<Object, Object> errorsMap = new HashMap<>();
         errorsMap.put("value", "value");
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.add("key", "invalid key");
@@ -176,7 +176,7 @@ class ConfigurationTest {
         configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
         Configuration configuration = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3);
         Map<String, Map<String, Object>> metadataAndValuesAsMap = configuration.getPropertyMetadataAndValuesAsMap();
-        HashMap<Object, Object> expectedMap = new HashMap<>();
+        Map<Object, Object> expectedMap = new HashMap<>();
         expectedMap.put("property1", buildPropertyMap(false, "value", "value"));
         expectedMap.put("property2", buildPropertyMap(false, null, null));
         expectedMap.put("property3", buildPropertyMap(true, password, "****"));

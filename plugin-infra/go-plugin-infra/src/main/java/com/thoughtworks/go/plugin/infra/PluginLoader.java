@@ -27,11 +27,11 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 
 /**
  * This knows what needs to be done when a plugin is loaded (and unloaded).
@@ -101,7 +101,7 @@ public class PluginLoader {
             for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
                 final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
                 if (result.isAFailure()) {
-                    pluginBundleDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
+                    pluginBundleDescriptor.markAsInvalid(Collections.singletonList(result.getMessage()), null);
                     LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
                     return;
                 }
@@ -109,9 +109,7 @@ public class PluginLoader {
         }
 
         if (!pluginBundleDescriptor.isInvalid()) {
-            IterableUtils.forEach(pluginBundleDescriptor.descriptors(), descriptor -> {
-                IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(descriptor));
-            });
+            IterableUtils.forEach(pluginBundleDescriptor.descriptors(), descriptor -> IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(descriptor)));
         }
     }
 

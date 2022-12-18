@@ -22,13 +22,7 @@ import java.util.List;
 
 public class MergedEnvironmentsRepresenter {
     public static void toJSON(OutputWriter outputWriter, List<EnvironmentConfig> allMergedEnvironments) {
-        outputWriter.addChild("_embedded", embeddedWriter -> {
-            embeddedWriter.addChildList("environments", outputListWriter -> {
-                allMergedEnvironments.forEach(environmentConfig -> {
-                    outputListWriter.addChild(childWriter -> MergedEnvironmentRepresenter.toJSON(childWriter, environmentConfig));
-                });
-            });
-        });
+        outputWriter.addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("environments", outputListWriter -> allMergedEnvironments.forEach(environmentConfig -> outputListWriter.addChild(childWriter -> MergedEnvironmentRepresenter.toJSON(childWriter, environmentConfig)))));
 
     }
 }

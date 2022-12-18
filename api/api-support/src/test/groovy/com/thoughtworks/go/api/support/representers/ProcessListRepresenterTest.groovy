@@ -41,7 +41,7 @@ class ProcessListRepresenterTest {
     def processTwo = mockProcess("git", "20/12/19 - 12:23:15:634", 3)
 
     def json = toObjectString({
-      ProcessListRepresenter.toJSON(it, Arrays.asList(processOne, processTwo))
+      ProcessListRepresenter.toJSON(it, List.of(processOne, processTwo))
     })
 
     def expected = [

@@ -26,12 +26,11 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +42,7 @@ public class SCMXmlViewModelTest {
         Date checkinDate = new Date(System.currentTimeMillis());
         String revision = "revision-1";
         Modification modification = new Modification(userName, comment, null, checkinDate, revision);
-        modification.setModifiedFiles(new ArrayList<>(asList(new ModifiedFile("f1", null, ModifiedAction.added), new ModifiedFile("f2", null, ModifiedAction.deleted))));
+        modification.setModifiedFiles(List.of(new ModifiedFile("f1", null, ModifiedAction.added), new ModifiedFile("f2", null, ModifiedAction.deleted)));
         Modifications modifications = new Modifications(modification);
 
         XmlWriterContext writerContext = mock(XmlWriterContext.class);
@@ -59,10 +58,10 @@ public class SCMXmlViewModelTest {
         assertThat(changeSet.element("revision").getText(), is(revision));
         assertThat(changeSet.element("checkinTime").getText(), is(DateUtils.formatISO8601(checkinDate)));
         assertThat(changeSet.element("message").getText(), is(comment));
-        Element file1 = (Element) changeSet.elements("file").get(0);
+        Element file1 = changeSet.elements("file").get(0);
         assertThat(file1.attributeValue("name"), is("f1"));
         assertThat(file1.attributeValue("action"), is("added"));
-        Element file2 = (Element) changeSet.elements("file").get(1);
+        Element file2 = changeSet.elements("file").get(1);
         assertThat(file2.attributeValue("name"), is("f2"));
         assertThat(file2.attributeValue("action"), is("deleted"));
     }

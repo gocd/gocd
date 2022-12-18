@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -147,7 +146,7 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(secondUser);
         userDao.saveOrUpdate(thirdUser);
 
-        userDao.disableUsers(Arrays.asList("first", "second"));
+        userDao.disableUsers(List.of("first", "second"));
         assertThat(userDao.findUser(firstUser.getName()).isEnabled(), is(false));
         assertThat(userDao.findUser(secondUser.getName()).isEnabled(), is(false));
         assertThat(userDao.findUser(thirdUser.getName()).isEnabled(), is(true));
@@ -226,7 +225,7 @@ public class UserSqlMapDaoIntegrationTest {
         User user = anUser();
         NotificationFilter filter1 = new NotificationFilter("PipelineName", "StageName", StageEvent.Fixed, false);
         NotificationFilter filter2 = new NotificationFilter("PipelineName", "StageName", StageEvent.Fails, false);
-        user.setNotificationFilters(Arrays.asList(filter1, filter2));
+        user.setNotificationFilters(List.of(filter1, filter2));
 
         userDao.saveOrUpdate(user);
 
@@ -246,9 +245,9 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(loser);
         userDao.saveOrUpdate(boozer);
         assertThat(userDao.enabledUserCount(), is(3L));
-        userDao.disableUsers(Arrays.asList("loser"));
+        userDao.disableUsers(List.of("loser"));
         assertThat(userDao.enabledUserCount(), is(2L));
-        userDao.enableUsers(Arrays.asList("loser"));
+        userDao.enableUsers(List.of("loser"));
         assertThat(userDao.enabledUserCount(), is(3L));
     }
 
@@ -264,9 +263,9 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(foo);
         userDao.saveOrUpdate(user);
         assertThat(userDao.enabledUserCount(), is(2L));
-        userDao.enableUsers(Arrays.asList(loser.getName()));
+        userDao.enableUsers(List.of(loser.getName()));
         assertThat(userDao.enabledUserCount(), is(3L));
-        userDao.disableUsers(Arrays.asList(user.getName()));
+        userDao.disableUsers(List.of(user.getName()));
         assertThat(userDao.enabledUserCount(), is(2L));
         userDao.saveOrUpdate(new User("bozer", "Bozer", "bozer@emai.com"));
         assertThat(userDao.enabledUserCount(), is(3L));
@@ -329,7 +328,7 @@ public class UserSqlMapDaoIntegrationTest {
         subscribedUsers.sort(Comparator.comparing(User::getName));
 
         assertThat(subscribedUsers.size(), is(3));
-        assertThat(subscribedUsers.containsAll(Arrays.asList(user1, user2, user3)), is(true));
+        assertThat(subscribedUsers.containsAll(List.of(user1, user2, user3)), is(true));
 
         assertThat(subscribedUsers.get(0).getNotificationFilters().size(), is(1));
         assertThat(subscribedUsers.get(1).getNotificationFilters().size(), is(3));
@@ -424,7 +423,7 @@ public class UserSqlMapDaoIntegrationTest {
         User joan = new User("joan");
         joan.disable();
 
-        List<String> userNames = Arrays.asList("john", "joan");
+        List<String> userNames = List.of("john", "joan");
 
         userDao.saveOrUpdate(john);
         userDao.saveOrUpdate(joan);

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * This was copied from the ExecBuilder class in ccmain. Look for references there.
@@ -69,7 +70,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
     @Override
     public String describe() {
         if (null != argList && !argList.isEmpty()) {
-            return CommandUtils.shellJoin((String[]) ArrayUtils.add(argList.toStringArray(), 0, command));
+            return CommandUtils.shellJoin(ArrayUtils.insert(0, argList.toStringArray(), command));
         }
 
         if (null != args && !"".equals(args)) {
@@ -225,7 +226,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
 
         ExecTask execTask = (ExecTask) o;
 
-        if (timeout != execTask.timeout) {
+        if (!Objects.equals(timeout, execTask.timeout)) {
             return false;
         }
         if (args != null ? !args.equals(execTask.args) : execTask.args != null) {

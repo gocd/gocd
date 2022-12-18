@@ -31,7 +31,7 @@ import java.math.BigInteger;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.security.SecureRandom;
-import java.util.Collections;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 
@@ -101,7 +101,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     }
 
     private void recordCleanup() {
-        LauncherTempFileHandler.writeToFile(Collections.singletonList(inUseLauncher.getName()), true);
+        LauncherTempFileHandler.writeToFile(List.of(inUseLauncher.getName()), true);
     }
 
     private boolean tempFilesExist() {
@@ -121,7 +121,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         urlClassLoader.close();
         urlClassLoader = null;
         recordCleanup();

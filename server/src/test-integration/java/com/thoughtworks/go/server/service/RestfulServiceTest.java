@@ -36,8 +36,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
+import java.util.List;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -78,7 +78,7 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldShouldTranslateLatestPipelineLabel() throws Exception {
+    public void shouldShouldTranslateLatestPipelineLabel() {
         fixture.createdPipelineWithAllStagesPassed();
         Pipeline latestPipleine = fixture.createdPipelineWithAllStagesPassed();
         final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipleine.getName(), JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
@@ -87,7 +87,7 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldTranslateLatestToRealPipelineLabel() throws Exception {
+    public void shouldTranslateLatestToRealPipelineLabel() {
         fixture.createdPipelineWithAllStagesPassed();
         Pipeline latestPipleine = fixture.createdPipelineWithAllStagesPassed();
         JobIdentifier jobIdentifier = restfulService.findJob(latestPipleine.getName(), JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
@@ -96,7 +96,7 @@ public class RestfulServiceTest {
 
 
     @Test
-    public void shouldTranslateLatestToRealStageCounter() throws Exception {
+    public void shouldTranslateLatestToRealStageCounter() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
@@ -104,14 +104,14 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldTranslateEmtpyToLatestStageCounter() throws Exception {
+    public void shouldTranslateEmtpyToLatestStageCounter() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         assertThat(Integer.valueOf(jobIdentifier.getStageCounter()), is(pipeline.getStages().byName(fixture.devStage).getCounter()));
     }
 
     @Test
-    public void canSupportQueryingUsingPipelineNameWithDifferentCase() throws Exception {
+    public void canSupportQueryingUsingPipelineNameWithDifferentCase() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName().toUpperCase(), JobIdentifier.LATEST, fixture.devStage, "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
@@ -120,7 +120,7 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void canSupportQueryingUsingStageNameWithDifferentCase() throws Exception {
+    public void canSupportQueryingUsingStageNameWithDifferentCase() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
         JobIdentifier jobIdentifier = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(), fixture.devStage.toUpperCase(), "", PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
@@ -129,7 +129,7 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldFindJobByPipelineCounter() throws Exception {
+    public void shouldFindJobByPipelineCounter() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getStages().byName(fixture.devStage);
         JobInstance job = stage.getJobInstances().first();
@@ -140,11 +140,11 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldFindOriginalWhenJobCopiedForRerun() throws Exception {
+    public void shouldFindOriginalWhenJobCopiedForRerun() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getStages().byName(fixture.devStage);
         JobInstance job = stage.findJob(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        Stage rerunStage = instanceFactory.createStageForRerunOfJobs(stage, a(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB),
+        Stage rerunStage = instanceFactory.createStageForRerunOfJobs(stage, List.of(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB),
                 new DefaultSchedulingContext("loser", new Agents()),
                 fixture.pipelineConfig().getStage(
                         new CaseInsensitiveString(fixture.devStage)), new TimeProvider(), "md5");
@@ -170,7 +170,7 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldReturnJobWithJobIdWhenSpecifyPipelineCounter() throws Exception {
+    public void shouldReturnJobWithJobIdWhenSpecifyPipelineCounter() {
         configHelper.setPipelineLabelTemplate(fixture.pipelineName, "label-${COUNT}");
         Pipeline oldPipeline = fixture.createdPipelineWithAllStagesPassed();
         fixture.createdPipelineWithAllStagesPassed();
@@ -184,7 +184,7 @@ public class RestfulServiceTest {
     }
 
     @Test
-    public void shouldReturnJobWithLabelWhenSpecifyPipelineLabel() throws Exception {
+    public void shouldReturnJobWithLabelWhenSpecifyPipelineLabel() {
         configHelper.setPipelineLabelTemplate(fixture.pipelineName, "label-${COUNT}");
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage stage = pipeline.getStages().byName(fixture.devStage);

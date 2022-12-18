@@ -35,14 +35,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -123,7 +121,7 @@ class PipelineSqlMapDaoTest {
         PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), timeProvider);
         ArrayList list1 = new ArrayList();
         ArrayList list2 = new ArrayList();
-        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo((String) null);
+        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(null);
         Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
                 YESTERDAY_CHECKIN, ModificationsMother.nextRevision());
         list1.add(modification1);
@@ -137,7 +135,7 @@ class PipelineSqlMapDaoTest {
     @Test
     void loadHistoryByIds_shouldLoadHistoryByIdWhenOnlyASingleIdIsNeedeSoThatItUsesTheExistingCacheForEnvironmentsPage() throws Exception {
         SqlMapClientTemplate mockTemplate = mock(SqlMapClientTemplate.class);
-        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(2L));
+        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(List.of(2L));
         pipelineSqlMapDao.setSqlMapClientTemplate(mockTemplate);
         pipelineSqlMapDao.loadHistory("pipelineName", 1, 0);
         verify(mockTemplate, never()).queryForList(eq("getPipelineHistoryByName"), any());
@@ -165,9 +163,9 @@ class PipelineSqlMapDaoTest {
         PipelineInstanceModel pimForP1_2 = pimFor(p1, 2);
 
         when(configFileDao.load()).thenReturn(GoConfigMother.configWithPipelines(p1, p2));
-        when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(asList(pimForP1_1, pimForP1_2, pimFor(p2, 1), pimFor(p2, 2)));
-        when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", m("id", pimForP1_1.getId()))).thenReturn(pimForP1_1);
-        when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", m("id", pimForP1_2.getId()))).thenReturn(pimForP1_2);
+        when(sqlMapClientTemplate.queryForList("allActivePipelines")).thenReturn(List.of(pimForP1_1, pimForP1_2, pimFor(p2, 1), pimFor(p2, 2)));
+        when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", Map.of("id", pimForP1_1.getId()))).thenReturn(pimForP1_1);
+        when(sqlMapClientTemplate.queryForObject("getPipelineHistoryById", Map.of("id", pimForP1_2.getId()))).thenReturn(pimForP1_2);
 
         PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(p1));
 
@@ -180,8 +178,8 @@ class PipelineSqlMapDaoTest {
         assertThat(pimForP1_2.getCounter()).isEqualTo(2);
 
         verify(sqlMapClientTemplate).queryForList("allActivePipelines");
-        verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", m("id", pimForP1_1.getId()));
-        verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", m("id", pimForP1_2.getId()));
+        verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", Map.of("id", pimForP1_1.getId()));
+        verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", Map.of("id", pimForP1_2.getId()));
         verifyNoMoreInteractions(sqlMapClientTemplate); /* Should not have loaded history for the other pipeline. */
     }
 

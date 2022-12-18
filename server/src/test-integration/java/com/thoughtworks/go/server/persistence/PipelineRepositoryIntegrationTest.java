@@ -47,7 +47,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.*;
@@ -55,7 +54,6 @@ import java.util.*;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -186,14 +184,14 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(2));
         assertThat(entries.size(), is(2));
         assertThat(entries, hasItem(expected(firstId,
-                Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
         assertThat(entries, hasItem(expected(secondId,
-                Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(firstId,
-                Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(secondId,
-                Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
         assertThat(pipelineTimeline.maximumId(), is(secondId));
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
@@ -202,7 +200,7 @@ public class PipelineRepositoryIntegrationTest {
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(3));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(thirdId,
-                Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(10).toDate(), "1234", hgmaterial.getFingerprint(), 12))), 3)));
+                Map.of(hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(10).toDate(), "1234", hgmaterial.getFingerprint(), 12))), 3)));
         assertThat(pipelineTimeline.maximumId(), is(thirdId));
 
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder(), is(1.0));
@@ -273,14 +271,14 @@ public class PipelineRepositoryIntegrationTest {
         Collection<PipelineTimelineEntry> modifications = pipelineTimeline.getEntriesFor(PIPELINE_NAME);
         assertThat(modifications.size(), is(2));
 
-        assertThat(modifications, hasItem(expected(first, new HashMap<String, List<PipelineTimelineEntry.Revision>>() {{
-            put(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 8)));
-            put(svnMaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(6).toDate(), "456", svnMaterial.getFingerprint(), 12)));
-        }}, 1)));
-        assertThat(modifications, hasItem(expected(second, new HashMap<String, List<PipelineTimelineEntry.Revision>>() {{
-            put(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(3).toDate(), "234", hgmaterial.getFingerprint(), 9)));
-            put(svnMaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(5).toDate(), "345", svnMaterial.getFingerprint(), 10)));
-        }}, 2)));
+        assertThat(modifications, hasItem(expected(first, Map.of(
+            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 8)),
+            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(6).toDate(), "456", svnMaterial.getFingerprint(), 12))
+        ), 1)));
+        assertThat(modifications, hasItem(expected(second, Map.of(
+            hgmaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(3).toDate(), "234", hgmaterial.getFingerprint(), 9)),
+            svnMaterial.getFingerprint(), List.of(new PipelineTimelineEntry.Revision(date.plusDays(5).toDate(), "345", svnMaterial.getFingerprint(), 10))
+        ), 2)));
     }
 
     private PipelineTimelineEntry expected(long first, Map<String, List<PipelineTimelineEntry.Revision>> map, int counter) {
@@ -296,17 +294,14 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     private long save(final PipelineConfig pipelineConfig, final int counter, final double naturalOrder, final MaterialRevision... materialRevisions) {
-        return (Long) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                MaterialRevisions revisions = new MaterialRevisions(materialRevisions);
-                materialRepository.save(revisions);
+        return (Long) transactionTemplate.execute((TransactionCallback) status -> {
+            MaterialRevisions revisions = new MaterialRevisions(materialRevisions);
+            materialRepository.save(revisions);
 
-                Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createWithModifications(revisions, "me"), new DefaultSchedulingContext(), "md5-test", new TimeProvider());
-                instance.setCounter(counter);
-                instance.setNaturalOrder(naturalOrder);
-                return pipelineSqlMapDao.save(instance).getId();
-            }
+            Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, BuildCause.createWithModifications(revisions, "me"), new DefaultSchedulingContext(), "md5-test", new TimeProvider());
+            instance.setCounter(counter);
+            instance.setNaturalOrder(naturalOrder);
+            return pipelineSqlMapDao.save(instance).getId();
         });
     }
 
@@ -327,7 +322,7 @@ public class PipelineRepositoryIntegrationTest {
     public void shouldSaveSelectedPipelinesWithUserId() {
         User user = createUser();
 
-        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
+        List<String> unSelected = List.of("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(excludes(unSelected, user.getId()));
         assertThat(pipelineRepository.findPipelineSelectionsById(id).userId(), is(user.getId()));
     }
@@ -336,7 +331,7 @@ public class PipelineRepositoryIntegrationTest {
     public void shouldSaveSelectedPipelinesWithBlacklistPreferenceFalse() {
         User user = createUser();
 
-        List<String> selected = Arrays.asList("pipeline1", "pipeline2");
+        List<String> selected = List.of("pipeline1", "pipeline2");
         final PipelineSelections included = includes(selected, user.getId());
         long id = pipelineRepository.saveSelectedPipelines(included);
         assertEquals(included, pipelineRepository.findPipelineSelectionsById(id));
@@ -346,7 +341,7 @@ public class PipelineRepositoryIntegrationTest {
     public void shouldSaveSelectedPipelinesWithBlacklistPreferenceTrue() {
         User user = createUser();
 
-        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
+        List<String> unSelected = List.of("pipeline1", "pipeline2");
         final PipelineSelections excluded = excludes(unSelected, user.getId());
         long id = pipelineRepository.saveSelectedPipelines(excluded);
         assertEquals(excluded, pipelineRepository.findPipelineSelectionsById(id));
@@ -356,7 +351,7 @@ public class PipelineRepositoryIntegrationTest {
     public void shouldFindSelectedPipelinesByUserId() {
         User user = createUser();
 
-        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
+        List<String> unSelected = List.of("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(excludes(unSelected, user.getId()));
         assertThat(pipelineRepository.findPipelineSelectionsByUserId(user.getId()).getId(), is(id));
     }
@@ -390,13 +385,13 @@ public class PipelineRepositoryIntegrationTest {
 
     private PipelineSelections excludes(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new ExcludesFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
+        Filters filters = new Filters(List.of(new ExcludesFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 
     private PipelineSelections includes(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new IncludesFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
+        Filters filters = new Filters(List.of(new IncludesFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 }

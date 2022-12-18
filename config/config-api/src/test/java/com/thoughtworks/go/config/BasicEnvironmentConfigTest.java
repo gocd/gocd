@@ -27,16 +27,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.thoughtworks.go.config.ConfigSaveValidationContext.forChain;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -68,7 +67,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
-    void shouldSetOriginSetOriginForEnvConfigAndEnvVariables(){
+    void shouldSetOriginSetOriginForEnvConfigAndEnvVariables() {
         environmentConfig.addEnvironmentVariable("var1", "value1");
         environmentConfig.addEnvironmentVariable("var2", "value2");
 
@@ -81,7 +80,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
-    void shouldSetOriginSetOriginToNullForEnvConfigAndEnvVariables(){
+    void shouldSetOriginSetOriginToNullForEnvConfigAndEnvVariables() {
         environmentConfig.addEnvironmentVariable("var1", "value1");
         environmentConfig.addEnvironmentVariable("var2", "value2");
 
@@ -125,39 +124,39 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
     @Test
     void shouldUpdateName() {
-        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
+        environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.NAME_FIELD, "PROD"));
         assertThat(environmentConfig.name()).isEqualTo(new CaseInsensitiveString("PROD"));
     }
 
     @Nested
     class Validate {
         @Test
-        void shouldReturnTrueIfAssociatedAgentUUIDsAreFromSpecifiedSetOfUUIDs(){
+        void shouldReturnTrueIfAssociatedAgentUUIDsAreFromSpecifiedSetOfUUIDs() {
             environmentConfig.addAgent("uuid1");
             environmentConfig.addAgent("uuid2");
             environmentConfig.addAgent("uuid3");
 
-            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid3", "uuid4")));
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(Set.of("uuid1", "uuid2", "uuid3", "uuid4"));
             assertThat(result).isTrue();
         }
 
         @Test
-        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDs(){
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDs() {
             environmentConfig.addAgent("uuid1");
             environmentConfig.addAgent("uuid2");
             environmentConfig.addAgent("uuid3");
 
-            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid4")));
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(Set.of("uuid1", "uuid2", "uuid4"));
             assertThat(result).isFalse();
         }
 
         @Test
-        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDsBecauseSpecifiedSetIsEmpty(){
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDsBecauseSpecifiedSetIsEmpty() {
             environmentConfig.addAgent("uuid1");
             environmentConfig.addAgent("uuid2");
             environmentConfig.addAgent("uuid3");
 
-            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(emptyList()));
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(Set.of());
             assertThat(result).isFalse();
         }
 
@@ -212,7 +211,7 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         environmentConfig.addPipeline(pipeline1);
         environmentConfig.addPipeline(pipeline2);
-        assertThat(environmentConfig.getPipelineNames()).isEqualTo(asList(pipeline1, pipeline2));
+        assertThat(environmentConfig.getPipelineNames()).isEqualTo(List.of(pipeline1, pipeline2));
     }
 
     @Test
@@ -373,8 +372,8 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(p1);
         environmentConfig.addPipeline(p2);
 
-        assertThatCode(() -> environmentConfig.validateContainsOnlyPipelines(asList(p1, p2)))
-                .doesNotThrowAnyException();
+        assertThatCode(() -> environmentConfig.validateContainsOnlyPipelines(List.of(p1, p2)))
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -386,9 +385,9 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
         environmentConfig.addPipeline(p1);
         environmentConfig.addPipeline(p2);
 
-        assertThatCode(() -> environmentConfig.validateContainsOnlyPipelines(asList(p1, p3)))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Environment 'UAT' refers to an unknown pipeline 'pipeline-2'.");
+        assertThatCode(() -> environmentConfig.validateContainsOnlyPipelines(List.of(p1, p3)))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Environment 'UAT' refers to an unknown pipeline 'pipeline-2'.");
     }
 
     @Test

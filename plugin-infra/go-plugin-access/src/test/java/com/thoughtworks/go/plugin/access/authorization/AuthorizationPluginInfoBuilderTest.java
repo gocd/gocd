@@ -23,12 +23,11 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AuthorizationPluginInfoBuilderTest {
@@ -44,7 +43,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithAuthSettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("username", new Metadata(true, false)),
                 new PluginConfiguration("password", new Metadata(true, true))
         );
@@ -60,7 +59,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithRoleSettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("group", new Metadata(true, false)),
                 new PluginConfiguration("something_secure", new Metadata(true, true))
         );

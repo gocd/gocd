@@ -36,7 +36,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -137,7 +136,7 @@ public class JobStatusCacheTest {
     public void shouldSkipNeverRunJobsWhenTryingToDealWithOtherJobs() {
         StageDao dao = mock(StageDao.class);
         JobInstance random = jobInstance("random");
-        when(dao.mostRecentJobsForStage("cruise", "dev")).thenReturn(Arrays.asList(random));
+        when(dao.mostRecentJobsForStage("cruise", "dev")).thenReturn(List.of(random));
 
         JobStatusCache cache = new JobStatusCache(dao);
         assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));

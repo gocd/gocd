@@ -45,9 +45,7 @@ public class VersionControllerV1 extends ApiController implements SparkSpringCon
 
     @Override
     public void setupRoutes() {
-        path(controllerBasePath(), () -> {
-            Spark.get("", mimeType, this::show);
-        });
+        path(controllerBasePath(), () -> Spark.get("", mimeType, this::show));
     }
 
     public String show(Request req, Response res) throws IOException {

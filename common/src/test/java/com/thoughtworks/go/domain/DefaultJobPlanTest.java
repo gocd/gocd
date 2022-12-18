@@ -23,7 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.util.SerializationTester.objectSerializeAndDeserialize;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +50,9 @@ class DefaultJobPlanTest {
 
     @Test
     void shouldRespectTriggerVariablesOverConfigVariables() {
-        final EnvironmentVariables environmentVariables = new EnvironmentVariables(Arrays.asList(
+        final EnvironmentVariables environmentVariables = new EnvironmentVariables(List.of(
                 new EnvironmentVariable("blah", "value"), new EnvironmentVariable("foo", "bar")));
-        final EnvironmentVariables triggerEnvironmentVariables = new EnvironmentVariables(Arrays.asList(
+        final EnvironmentVariables triggerEnvironmentVariables = new EnvironmentVariables(List.of(
                 new EnvironmentVariable("blah", "override"), new EnvironmentVariable("another", "anotherValue")));
 
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),

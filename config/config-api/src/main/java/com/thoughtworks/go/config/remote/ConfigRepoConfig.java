@@ -36,7 +36,6 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.AUTO_UPDATE;
 import static com.thoughtworks.go.config.rules.SupportedEntity.*;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 
 /**
@@ -50,7 +49,7 @@ import static java.util.Objects.isNull;
 @ConfigTag("config-repo")
 @NoArgsConstructor
 public class ConfigRepoConfig extends RuleAwarePluginProfile {
-    private List<String> allowedActions = singletonList("refer");
+    private List<String> allowedActions = List.of("refer");
     private List<String> allowedTypes = unmodifiableListOf(PIPELINE, PIPELINE_GROUP, ENVIRONMENT);
     // defines source of configuration. Any will fit
     @ConfigSubtag(optional = false)

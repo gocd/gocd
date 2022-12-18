@@ -22,7 +22,7 @@ import org.hamcrest.TypeSafeMatcher;
 
 public class PipelineScheduleQueueMatcher {
     public static Matcher<Integer> numberOfScheduledPipelinesIsAtLeast(final PipelineScheduleQueue pipelineScheduleQueue) {
-        return new TypeSafeMatcher<Integer>() {
+        return new TypeSafeMatcher<>() {
             private int actualCount;
             public int expectedCount;
 

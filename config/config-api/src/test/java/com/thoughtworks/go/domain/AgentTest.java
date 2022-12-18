@@ -19,10 +19,11 @@ import com.thoughtworks.go.config.Agent;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.thoughtworks.go.config.JobConfig.RESOURCES;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,8 +32,8 @@ class AgentTest {
     @Test
     void shouldCopyAllFieldsFromAnotherAgentObjectUsingCopyConstructor() {
         Agent origAgent = new Agent("uuid", "host", "127.0.0.1", "cookie");
-        origAgent.addResources(asList("Resource1", "Resource2"));
-        origAgent.addEnvironments(asList("dev", "test"));
+        origAgent.addResources(List.of("Resource1", "Resource2"));
+        origAgent.addEnvironments(List.of("dev", "test"));
 
         Agent copiedAgent = new Agent(origAgent);
         assertEquals(origAgent, copiedAgent);
@@ -169,10 +170,10 @@ class AgentTest {
             void shouldAddResourcesWithValidListOfResourceNames() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-                agent.addResources(asList("r1", "r2"));
+                agent.addResources(List.of("r1", "r2"));
                 assertThat(agent.getResources(), is("r1,r2"));
 
-                agent.addResources(asList("r3"));
+                agent.addResources(List.of("r3"));
                 assertThat(agent.getResources(), is("r1,r2,r3"));
             }
 
@@ -187,28 +188,28 @@ class AgentTest {
             void shouldAddResourcesWithListOfResourceNamesContainingLeadingTrailingSpaces() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-                agent.addResources(asList("r1", "r2"));
+                agent.addResources(List.of("r1", "r2"));
                 assertThat(agent.getResources(), is("r1,r2"));
 
-                agent.addResources(asList("  r3", "r4  ", "  r5  ", "r6", "   ", " "));
+                agent.addResources(List.of("  r3", "r4  ", "  r5  ", "r6", "   ", " "));
                 assertThat(agent.getResources(), is("r1,r2,r3,r4,r5,r6"));
             }
         }
 
         @Nested
-        class RemoveResources{
+        class RemoveResources {
             @Test
             void shouldRemoveResourcesFromExistingResources() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.setResources("r1,r2");
-                agent.removeResources(asList("r1", "r3"));
+                agent.removeResources(List.of("r1", "r3"));
                 assertThat(agent.getResources(), is("r2"));
             }
 
             @Test
             void shouldDoNothingWhenListOfResourcesToRemoveDoesNotExist() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.removeResources(asList("r1", "r2"));
+                agent.removeResources(List.of("r1", "r2"));
                 assertNull(agent.getResources());
             }
 
@@ -229,16 +230,16 @@ class AgentTest {
             @Test
             void shouldTrimEachResourceNameInTheListOfResourcesToRemove() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setResourcesFromList(asList("r1","r2", "r3"));
-                agent.removeResources(asList("  r1 ","r2 ", " r3"));
+                agent.setResourcesFromList(List.of("r1", "r2", "r3"));
+                agent.removeResources(List.of("  r1 ", "r2 ", " r3"));
                 assertNull(agent.getResources());
             }
 
             @Test
             void shouldNotConsiderNullOrEmptyResourceNamesInTheListOfResourcesToRemove() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setResourcesFromList(asList("r1","r2", "r3"));
-                agent.removeResources(asList(null," ", ""));
+                agent.setResourcesFromList(List.of("r1", "r2", "r3"));
+                agent.removeResources(Arrays.asList(null, " ", ""));
                 assertThat(agent.getResources(), is("r1,r2,r3"));
             }
         }
@@ -323,10 +324,10 @@ class AgentTest {
             @Test
             void shouldSetEnvironmentsWithValidListOfEnvironmentNames() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setEnvironmentsFrom(asList("env1","env2","env3"));
+                agent.setEnvironmentsFrom(List.of("env1", "env2", "env3"));
                 assertThat(agent.getEnvironments(), is("env1,env2,env3"));
 
-                agent.setEnvironmentsFrom(asList("env4","env5"));
+                agent.setEnvironmentsFrom(List.of("env4", "env5"));
                 assertThat(agent.getEnvironments(), is("env4,env5"));
             }
 
@@ -336,10 +337,10 @@ class AgentTest {
                 agent.setEnvironmentsFrom(emptyList());
                 assertThat(agent.getEnvironments(), is(nullValue()));
 
-                agent.setEnvironmentsFrom(asList("      "," ","  ","","","  "));
+                agent.setEnvironmentsFrom(List.of("      ", " ", "  ", "", "", "  "));
                 assertThat(agent.getEnvironments(), is(nullValue()));
 
-                agent.setEnvironmentsFrom(singletonList("      , ,  ,,,  "));
+                agent.setEnvironmentsFrom(List.of("      , ,  ,,,  "));
                 assertThat(agent.getEnvironments(), is(", ,  ,,,"));
             }
 
@@ -405,10 +406,10 @@ class AgentTest {
             void shouldAddEnvironmentsWithValidListOfEnvironmentNames() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-                agent.addEnvironments(asList("env1", "env2"));
+                agent.addEnvironments(List.of("env1", "env2"));
                 assertThat(agent.getEnvironments(), is("env1,env2"));
 
-                agent.addEnvironments(asList("env3"));
+                agent.addEnvironments(List.of("env3"));
                 assertThat(agent.getEnvironments(), is("env1,env2,env3"));
             }
 
@@ -423,28 +424,28 @@ class AgentTest {
             void shouldAddEnvironmentsWithListOfEnvironmentNamesContainingLeadingTrailingSpaces() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
-                agent.addEnvironments(asList("env1", "env2"));
+                agent.addEnvironments(List.of("env1", "env2"));
                 assertThat(agent.getEnvironments(), is("env1,env2"));
 
-                agent.addEnvironments(asList("  env3", "env4  ", "  env5  ", "env6", "   ", " "));
+                agent.addEnvironments(List.of("  env3", "env4  ", "  env5  ", "env6", "   ", " "));
                 assertThat(agent.getEnvironments(), is("env1,env2,env3,env4,env5,env6"));
             }
         }
 
         @Nested
-        class RemoveEnvironments{
+        class RemoveEnvironments {
             @Test
             void shouldRemoveEnvironmentsFromExistingEnvironments() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
                 agent.setEnvironments("env1,env2");
-                agent.removeEnvironments(asList("env1", "env3"));
+                agent.removeEnvironments(List.of("env1", "env3"));
                 assertThat(agent.getEnvironments(), is("env2"));
             }
 
             @Test
             void shouldDoNothingWhenListOfEnvironmentsToRemoveDoesNotExist() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.removeEnvironments(asList("env1", "env3"));
+                agent.removeEnvironments(List.of("env1", "env3"));
                 assertNull(agent.getEnvironments());
             }
 
@@ -465,16 +466,16 @@ class AgentTest {
             @Test
             void shouldTrimEachEnvironmentNameInTheListOfEnvironmentsToRemove() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setEnvironmentsFrom(asList("e1","e2", "e3"));
-                agent.removeEnvironments(asList("  e1 ","e2 ", " e3"));
+                agent.setEnvironmentsFrom(List.of("e1", "e2", "e3"));
+                agent.removeEnvironments(List.of("  e1 ", "e2 ", " e3"));
                 assertNull(agent.getEnvironments());
             }
 
             @Test
             void shouldNotConsiderNullOrEmptyEnvironmentNamesInTheListOfEnvironmentsToRemove() {
                 Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
-                agent.setEnvironmentsFrom(asList("e1","e2", "e3"));
-                agent.removeEnvironments(asList(null," ", ""));
+                agent.setEnvironmentsFrom(List.of("e1", "e2", "e3"));
+                agent.removeEnvironments(Arrays.asList(null, " ", ""));
                 assertThat(agent.getEnvironments(), is("e1,e2,e3"));
             }
         }
@@ -502,7 +503,7 @@ class AgentTest {
 
             assertThat(agent.getEnvironments(), not(nullValue()));
             assertThat(agent.getEnvironments(), is("env1,env2"));
-            assertThat(agent.getEnvironmentsAsList(), is(asList("env1", "env2")));
+            assertThat(agent.getEnvironmentsAsList(), is(List.of("env1", "env2")));
         }
     }
 
@@ -510,9 +511,9 @@ class AgentTest {
     class hasAllResources {
         @Test
         void shouldMakeACaseInsensitiveComparisonOfResources() {
-            Agent agent = new Agent("uuid", "host", "ip", asList("Postgres DB", "Linux-1", "W1nd0ws", "Mac OS"));
+            Agent agent = new Agent("uuid", "host", "ip", List.of("Postgres DB", "Linux-1", "W1nd0ws", "Mac OS"));
 
-            assertTrue(agent.hasAllResources(asList("posTgres db", "linux-1", "w1nd0ws")));
+            assertTrue(agent.hasAllResources(List.of("posTgres db", "linux-1", "w1nd0ws")));
         }
     }
 }

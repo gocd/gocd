@@ -22,10 +22,6 @@ import java.util.Map;
 
 public class ConfigFileListsRepresenter {
     public static void toJSON(OutputWriter jsonWriter, Map<String, ConfigFileList> pacablePlugins) {
-        jsonWriter.addChildList("plugins", pluginsWriter -> {
-          pacablePlugins.forEach((pluginId, fileList) -> {
-              pluginsWriter.addChild(pluginWriter -> ConfigFileListRepresenter.toJSON(pluginWriter, pluginId, fileList));
-          });
-        });
+        jsonWriter.addChildList("plugins", pluginsWriter -> pacablePlugins.forEach((pluginId, fileList) -> pluginsWriter.addChild(pluginWriter -> ConfigFileListRepresenter.toJSON(pluginWriter, pluginId, fileList))));
     }
 }

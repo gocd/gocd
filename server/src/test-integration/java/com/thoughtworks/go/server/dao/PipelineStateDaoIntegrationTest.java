@@ -48,12 +48,8 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.assertIsInserted;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.assertNotInserted;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -185,14 +181,11 @@ public class PipelineStateDaoIntegrationTest {
             Stage stage = new Stage("stage-1", jobInstances, "shilpa", null, "auto", new TimeProvider());
             final Pipeline pipeline = PipelineMother.pipeline("mingle", stage);
             pipeline.setCounter(i + 1);
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        pipelineStateDao.lockPipeline(pipeline);
-                    } catch (Exception e) {
-                        errors[0]++;
-                    }
+            Thread thread = new Thread(() -> {
+                try {
+                    pipelineStateDao.lockPipeline(pipeline);
+                } catch (Exception e) {
+                    errors[0]++;
                 }
             }, "thread-" + i);
             threads.add(thread);

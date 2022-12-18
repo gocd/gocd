@@ -15,17 +15,13 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.service.TaskFactory;
 
+import java.util.*;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
-import static java.util.Arrays.asList;
 
 @ConfigTag("jobs")
 @ConfigCollection(value = JobConfig.class, minimum = 1)
@@ -34,7 +30,7 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
 
 
     public JobConfigs(JobConfig... plans) {
-        super(asList(plans));
+        super(Arrays.asList(plans));
     }
 
     public JobConfigs() {
@@ -73,7 +69,7 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
     }
 
     private void verifyUniqueName(JobConfig jobConfig) {
-        bombIf(containsName(jobConfig.name()), String.format("You have defined multiple Jobs called '%s'. Job names are case-insensitive and must be unique.", jobConfig.name()));
+        bombIf(containsName(jobConfig.name()), () -> String.format("You have defined multiple Jobs called '%s'. Job names are case-insensitive and must be unique.", jobConfig.name()));
     }
 
     private void verifyUniqueName(JobConfig jobConfig, int index) {

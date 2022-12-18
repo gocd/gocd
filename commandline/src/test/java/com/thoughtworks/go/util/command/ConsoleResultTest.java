@@ -19,7 +19,6 @@ package com.thoughtworks.go.util.command;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,9 +27,9 @@ class ConsoleResultTest {
 
     @Test
     void shouldSmudgeExceptionMessagesForNestedExceptions() {
-        List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
-        List<SecretString> secrets = Arrays.asList(new PasswordArgument("quux"));
-        ConsoleResult result = new ConsoleResult(0, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
+        List<CommandArgument> args = List.of(new StringArgument("foo"), new PasswordArgument("bar"));
+        List<SecretString> secrets = List.of(new PasswordArgument("quux"));
+        ConsoleResult result = new ConsoleResult(0, List.of(" foo ", " bar ", " baz ", " abc "), List.of(" quux ", " bang "), args, secrets);
         Exception innerException = new Exception("baz quux baz");
         Exception topException = new RuntimeException("foo bar abc", innerException);
         Exception exception = result.smudgedException(topException);
@@ -54,9 +53,9 @@ class ConsoleResultTest {
 
     @Test
     void shouldDescribeResult() {
-        List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
-        List<SecretString> secrets = Arrays.asList(new PasswordArgument("quux"));
-        ConsoleResult result = new ConsoleResult(42, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
+        List<CommandArgument> args = List.of(new StringArgument("foo"), new PasswordArgument("bar"));
+        List<SecretString> secrets = List.of(new PasswordArgument("quux"));
+        ConsoleResult result = new ConsoleResult(42, List.of(" foo ", " bar ", " baz ", " abc "), List.of(" quux ", " bang "), args, secrets);
         assertThat(result.describe()).contains("--- EXIT CODE (42) ---");
         assertThat(result.describe()).contains("--- STANDARD OUT ---");
         assertThat(result.describe()).contains("--- STANDARD ERR ---");

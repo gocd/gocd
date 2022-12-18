@@ -28,13 +28,13 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ParamResolverTest {
 
@@ -136,7 +136,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldResolveConfigValue() throws NoSuchFieldException {
+    public void shouldResolveConfigValue() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         StageConfig stageConfig = pipelineConfig.get(0);
@@ -149,7 +149,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldResolveSubTags() throws NoSuchFieldException {
+    public void shouldResolveSubTags() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         TrackingTool trackingTool = new TrackingTool("http://#{foo}.com/#{bar}", "\\w+#{bar}");
@@ -163,7 +163,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldResolveCollections() throws NoSuchFieldException {
+    public void shouldResolveCollections() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig("http://#{foo}.com/#{bar}");
@@ -176,7 +176,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldResolveInBasicPipelineConfigs() throws NoSuchFieldException {
+    public void shouldResolveInBasicPipelineConfigs() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig("http://#{foo}.com/#{bar}");
@@ -190,7 +190,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldResolveInMergePipelineConfigs() throws NoSuchFieldException {
+    public void shouldResolveInMergePipelineConfigs() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig("http://#{foo}.com/#{bar}");
@@ -204,7 +204,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldProvideContextWhenAnExceptionOccurs() throws NoSuchFieldException {
+    public void shouldProvideContextWhenAnExceptionOccurs() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("#a");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
@@ -212,7 +212,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldUseValidationErrorKeyAnnotationForFieldNameInCaseOfException() throws NoSuchFieldException {
+    public void shouldUseValidationErrorKeyAnnotationForFieldNameInCaseOfException() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant", "nant");
         FetchTask task = new FetchTask(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("ant"), "#a", "dest");
         pipelineConfig.get(0).getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
@@ -223,7 +223,7 @@ public class ParamResolverTest {
 
 
     @Test
-    public void shouldAddErrorTheMessageOnTheRightFieldOfTheRightElement() throws NoSuchFieldException {
+    public void shouldAddErrorTheMessageOnTheRightFieldOfTheRightElement() {
         ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.setName("#{not-found}");
 
@@ -238,7 +238,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldProvideContextWhenAnExceptionOccursBecauseOfHashAtEnd() throws NoSuchFieldException {
+    public void shouldProvideContextWhenAnExceptionOccursBecauseOfHashAtEnd() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("abc#");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
@@ -246,7 +246,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldProvideContextWhenAnExceptionOccursBecauseOfIncompleteParamAtEnd() throws NoSuchFieldException {
+    public void shouldProvideContextWhenAnExceptionOccursBecauseOfIncompleteParamAtEnd() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         pipelineConfig.setLabelTemplate("abc#{");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
@@ -254,10 +254,10 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldResolveInheritedAttributes() throws NoSuchFieldException {
+    public void shouldResolveInheritedAttributes() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        materialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "work/#{foo}/#{bar}/baz"));
+        materialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "work/#{foo}/#{bar}/baz"));
         pipelineConfig.addMaterialConfig(materialConfig);
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
@@ -266,7 +266,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldAddResolutionErrorOnViewIfP4MaterialViewHasAnError() throws NoSuchFieldException {
+    public void shouldAddResolutionErrorOnViewIfP4MaterialViewHasAnError() {
         P4MaterialViewConfig p4MaterialViewConfig = new P4MaterialViewConfig("#");
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialViewConfig);
@@ -282,7 +282,7 @@ public class ParamResolverTest {
     }
 
     @Test
-    public void shouldLexicallyScopeTheParameters() throws NoSuchFieldException {
+    public void shouldLexicallyScopeTheParameters() {
         PipelineConfig withParams = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");
         withParams.addParam(param("foo", "pipeline"));
 
@@ -294,7 +294,7 @@ public class ParamResolverTest {
         cruiseConfig.server().setArtifactsDir("/#{foo}/#{bar}");
 
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        materialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "work/#{foo}/#{bar}/baz"));
+        materialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "work/#{foo}/#{bar}/baz"));
         withParams.addMaterialConfig(materialConfig);
 
         withParams.setLabelTemplate("2.0.#{foo}-#{bar}");
@@ -341,7 +341,7 @@ public class ParamResolverTest {
 
     private ParamsConfig params(ParamConfig... configs) {
         ParamsConfig paramsConfig = new ParamsConfig();
-        paramsConfig.addAll(Arrays.asList(configs));
+        paramsConfig.addAll(List.of(configs));
         return paramsConfig;
     }
 

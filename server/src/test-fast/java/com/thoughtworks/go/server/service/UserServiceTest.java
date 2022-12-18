@@ -44,7 +44,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -77,76 +76,76 @@ public class UserServiceTest {
 
     @Test
     void shouldLoadAllUsersOrderedOnUsername() {
-        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
-        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
-        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
+        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
+        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
+        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
+        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.DESC);
-        assertThat(models).isEqualTo(Arrays.asList(model(quux), model(foo), model(bar)));
+        assertThat(models).isEqualTo(List.of(model(quux), model(foo), model(bar)));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(Arrays.asList(model(bar), model(foo), model(quux)));
+        assertThat(models).isEqualTo(List.of(model(bar), model(foo), model(quux)));
     }
 
     @Test
     void shouldLoadAllUsersOrderedOnEmail() {
-        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
-        User zoo = new User("bar", Arrays.asList("bAR", "Bar"), "zooboo@go.com", true);
-        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, zoo, quux)));
+        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
+        User zoo = new User("bar", List.of("bAR", "Bar"), "zooboo@go.com", true);
+        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
+        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, zoo, quux)));
 
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.DESC);
-        assertThat(models).isEqualTo(Arrays.asList(model(zoo), model(quux), model(foo)));
+        assertThat(models).isEqualTo(List.of(model(zoo), model(quux), model(foo)));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(Arrays.asList(model(foo), model(quux), model(zoo)));
+        assertThat(models).isEqualTo(List.of(model(foo), model(quux), model(zoo)));
     }
 
     @Test
     void shouldLoadAllUsersOrderedOnRoles() {
-        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
-        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "zooboo@go.com", true);
-        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("loser")
+        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
+        User bar = new User("bar", List.of("bAR", "Bar"), "zooboo@go.com", true);
+        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
+        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("loser")
         ), new RoleConfig(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("user")
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("user")
         ), new RoleConfig(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("quux"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("user")
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("quux"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("user")
         ), new RoleConfig(new CaseInsensitiveString("loser"))));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.ROLES, UserService.SortDirection.DESC);
-        UserModel quuxModel = model(quux, Arrays.asList("user", "loser"), false);
-        UserModel barModel = model(bar, Arrays.asList("user", "boozer"), false);
-        UserModel fooModel = model(foo, Arrays.asList("loser", "boozer"), false);
-        assertThat(models).isEqualTo(Arrays.asList(quuxModel, barModel, fooModel));
+        UserModel quuxModel = model(quux, List.of("user", "loser"), false);
+        UserModel barModel = model(bar, List.of("user", "boozer"), false);
+        UserModel fooModel = model(foo, List.of("loser", "boozer"), false);
+        assertThat(models).isEqualTo(List.of(quuxModel, barModel, fooModel));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.ROLES, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(Arrays.asList(fooModel, barModel, quuxModel));
+        assertThat(models).isEqualTo(List.of(fooModel, barModel, quuxModel));
     }
 
     @Test
     void shouldLoadAllUsersOrderedOnMatchers() {
-        User foo = new User("foo", Arrays.asList("abc", "def"), "foo@cruise.com", false);
-        User bar = new User("bar", Arrays.asList("ghi", "def"), "zooboo@go.com", true);
-        User quux = new User("quux", Arrays.asList("ghi", "jkl"), "quux@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(quux, foo, bar)));
+        User foo = new User("foo", List.of("abc", "def"), "foo@cruise.com", false);
+        User bar = new User("bar", List.of("ghi", "def"), "zooboo@go.com", true);
+        User quux = new User("quux", List.of("ghi", "jkl"), "quux@cruise.go", false);
+        when(userDao.allUsers()).thenReturn(new Users(List.of(quux, foo, bar)));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.MATCHERS, UserService.SortDirection.DESC);
 
-        assertThat(models).isEqualTo(Arrays.asList(model(quux), model(bar), model(foo)));
+        assertThat(models).isEqualTo(List.of(model(quux), model(bar), model(foo)));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.MATCHERS, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(Arrays.asList(model(foo), model(bar), model(quux)));
+        assertThat(models).isEqualTo(List.of(model(foo), model(bar), model(quux)));
     }
 
     public static <T> Condition<T> anyOfObject(T... objects) {
-        return new Condition<T>() {
+        return new Condition<>() {
             @Override
             public boolean matches(T value) {
-                return Arrays.asList(objects).contains(value);
+                return List.of(objects).contains(value);
             }
         };
     }
@@ -157,7 +156,7 @@ public class UserServiceTest {
         User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
         User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
         User baaz = new User("baaz", new ArrayList<>(), "baaz@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(quux, foo, bar, baaz)));
+        when(userDao.allUsers()).thenReturn(new Users(List.of(quux, foo, bar, baaz)));
 
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("foo")))).thenReturn(false);
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("bar")))).thenReturn(true);
@@ -190,7 +189,7 @@ public class UserServiceTest {
         User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
         User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
         User baaz = new User("baaz", new ArrayList<>(), "baaz@cruise.go", false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(quux, foo, bar, baaz)));
+        when(userDao.allUsers()).thenReturn(new Users(List.of(quux, foo, bar, baaz)));
 
         foo.disable();
         quux.disable();
@@ -216,18 +215,18 @@ public class UserServiceTest {
 
     @Test
     void shouldLoadAllUsersWithRolesAndAdminFlag() {
-        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
-        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
+        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
 
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
+        when(userDao.allUsers()).thenReturn(new Users(List.of(foo, bar)));
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("foo")))).thenReturn(true);
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("loser")
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("loser")
         ), new RoleConfig(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("user")
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(List.of(new RoleConfig(new CaseInsensitiveString("user")
         ), new RoleConfig(new CaseInsensitiveString("loser"))));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
-        assertThat(models).isEqualTo(Arrays.asList(model(bar, Arrays.asList("user", "loser"), false), model(foo, Arrays.asList("loser", "boozer"), true)));
+        assertThat(models).isEqualTo(List.of(model(bar, List.of("user", "loser"), false), model(foo, List.of("loser", "boozer"), true)));
     }
 
     @Test
@@ -239,7 +238,7 @@ public class UserServiceTest {
         when(userDao.enabledUserCount()).thenReturn(10L);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(Arrays.asList(foo), result);
+        userService.create(List.of(foo), result);
         assertThat(result.isSuccessful()).isTrue();
     }
 
@@ -250,7 +249,7 @@ public class UserServiceTest {
         User existsingUser = new User("existingUser", "Existing User", "existing@user.com");
         UserSearchModel searchModel = new UserSearchModel(existsingUser, UserSourceType.PLUGIN);
         when(userDao.findUser("existingUser")).thenReturn(existsingUser);
-        userService.create(Arrays.asList(searchModel), result);
+        userService.create(List.of(searchModel), result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_CONFLICT);
@@ -265,7 +264,7 @@ public class UserServiceTest {
         when(userDao.findUser("fooUser")).thenReturn(new NullUser());
         when(userDao.enabledUserCount()).thenReturn(1L);
 
-        userService.create(Arrays.asList(searchModel), result);
+        userService.create(List.of(searchModel), result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
@@ -275,12 +274,12 @@ public class UserServiceTest {
     void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
+        when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake"), new User("Pavan"), new User("Shilpa")));
         configureAdmin("Jake", true);
         configureAdmin("Pavan", true);
         configureAdmin("Shilpa", false);
 
-        userService.disable(Arrays.asList("Pavan", "Jake"), result);
+        userService.disable(List.of("Pavan", "Jake"), result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
@@ -288,7 +287,7 @@ public class UserServiceTest {
 
     @Test
     void shouldBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
+        when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake"), new User("Pavan"), new User("Shilpa")));
         configureAdmin("Jake", true);
 
         assertThat(userService.canUserTurnOffAutoLogin()).isTrue();
@@ -297,7 +296,7 @@ public class UserServiceTest {
 
     @Test
     void shouldNotBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
+        when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake"), new User("Pavan"), new User("Shilpa")));
 
         assertThat(userService.canUserTurnOffAutoLogin()).isFalse();
     }
@@ -306,8 +305,8 @@ public class UserServiceTest {
     void shouldNotFailToEnableTheSameUser() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake")));
-        userService.enable(Arrays.asList("Jake"), result);
+        when(userDao.enabledUsers()).thenReturn(List.of(new User("Jake")));
+        userService.enable(List.of("Jake"), result);
 
         assertThat(result.isSuccessful()).isTrue();
     }
@@ -360,7 +359,7 @@ public class UserServiceTest {
         config.addPipeline("defaultGroup", pipeline);
 
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
+        when(userDao.allUsers()).thenReturn(new Users(List.of(new User("user_one"), new User("user_two"))));
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_one")))).thenReturn(true);
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_two")))).thenReturn(false);
 
@@ -386,7 +385,7 @@ public class UserServiceTest {
         config.addPipeline("defaultGroup", pipeline);
 
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(false);
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
+        when(userDao.allUsers()).thenReturn(new Users(List.of(new User("user_one"), new User("user_two"))));
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_one")))).thenReturn(true);
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_two")))).thenReturn(false);
 
@@ -410,7 +409,7 @@ public class UserServiceTest {
         PipelineConfigs group = config.findGroup("defaultGroup");
         group.getAuthorization().getAdminsConfig().add(new AdminUser(new CaseInsensitiveString("admin")));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("pavan")));
-        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
+        when(userDao.allUsers()).thenReturn(new Users(List.of(new User("user_one"), new User("user_two"))));
         Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
 
         assertThat(group.hasAuthorizationDefined()).isTrue();
@@ -530,7 +529,7 @@ public class UserServiceTest {
 
     @Test
     void shouldDeleteAllSpecifiedUsersSuccessfully() {
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
 
         User john = new User("john");
         john.disable();
@@ -544,12 +543,12 @@ public class UserServiceTest {
 
         verify(userDao).deleteUsers(usernames, "currentUser");
         assertThat(result.isSuccessful()).isTrue();
-        assertThat(result.message()).isEqualTo(EntityType.User.deleteSuccessful(Arrays.asList("john", "joan")));
+        assertThat(result.message()).isEqualTo(EntityType.User.deleteSuccessful(List.of("john", "joan")));
     }
 
     @Test
     void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkDelete() {
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
         User john = new User("John");
         john.disable();
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -570,7 +569,7 @@ public class UserServiceTest {
 
     @Test
     void shouldFailWithErrorEvenIfOneUserIsEnabledDuringBulkDelete() {
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
         User john = new User("john");
         User joan = new User("joan");
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -614,7 +613,7 @@ public class UserServiceTest {
 
     @Test
     void shouldEnableAllSpecifiedUsersSuccessfully() {
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
 
         User john = new User("john");
         john.disable();
@@ -636,7 +635,7 @@ public class UserServiceTest {
     void shouldDisableAllSpecifiedUsersSuccessfully() {
         User admin = new User("admin");
 
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
 
         User john = new User("john");
         User joan = new User("joan");
@@ -645,7 +644,7 @@ public class UserServiceTest {
 
         when(userDao.findUser("john")).thenReturn(john);
         when(userDao.findUser("joan")).thenReturn(joan);
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(joan, joan, admin));
+        when(userDao.enabledUsers()).thenReturn(List.of(joan, joan, admin));
         when(securityService.isUserAdmin(new Username("admin"))).thenReturn(true);
 
         userService.bulkEnableDisableUsers(usernames, false, result);
@@ -657,7 +656,7 @@ public class UserServiceTest {
 
     @Test
     void shouldFailWithErrorIfAllAdminUsersAreTriedToBeDisabled() {
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
 
         User john = new User("john");
         User joan = new User("joan");
@@ -666,7 +665,7 @@ public class UserServiceTest {
 
         when(userDao.findUser("john")).thenReturn(john);
         when(userDao.findUser("joan")).thenReturn(joan);
-        when(userDao.enabledUsers()).thenReturn(Arrays.asList(joan, joan));
+        when(userDao.enabledUsers()).thenReturn(List.of(joan, joan));
 
         userService.bulkEnableDisableUsers(usernames, false, result);
 
@@ -677,7 +676,7 @@ public class UserServiceTest {
 
     @Test
     void shouldFailWithErrorEvenIfOneUserDoesNotExistDuringBulkEnableOrDisableUsers() {
-        List<String> usernames = Arrays.asList("john", "joan");
+        List<String> usernames = List.of("john", "joan");
         User john = new User("John");
         john.disable();
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
@@ -720,14 +719,14 @@ public class UserServiceTest {
 
     @Test
     void shouldFindUserHavingSubscriptionAndPermissionForPipeline() {
-        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
+        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
         foo.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
-        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Passes, true));
-        User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
+        User quux = new User("quux", List.of("qUUX", "Quux"), "quux@cruise.go", false);
         quux.addNotificationFilter(new NotificationFilter("p2", "s2", StageEvent.Passes, true));
 
-        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
+        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar, quux)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
@@ -735,12 +734,12 @@ public class UserServiceTest {
 
     @Test
     void shouldFindUserSubscribingForAnyPipelineAndThatHasPermission() {
-        User foo = new User("foo", Arrays.asList("fOO", "Foo"), "foo@cruise.com", false);
+        User foo = new User("foo", List.of("fOO", "Foo"), "foo@cruise.com", false);
         foo.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
-        User bar = new User("bar", Arrays.asList("bAR", "Bar"), "bar@go.com", true);
+        User bar = new User("bar", List.of("bAR", "Bar"), "bar@go.com", true);
         bar.addNotificationFilter(new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Passes, true));
 
-        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
+        when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(List.of(foo, bar)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
         assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);

@@ -22,8 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,10 +42,10 @@ class ExtensionsRegistryTest {
         registry = new ExtensionsRegistry();
 
         when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
-        when(authorizationExtension.goSupportedVersions()).thenReturn(Arrays.asList("1.0", "2.0"));
+        when(authorizationExtension.goSupportedVersions()).thenReturn(List.of("1.0", "2.0"));
 
         when(elasticExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
-        when(elasticExtension.goSupportedVersions()).thenReturn(Collections.singletonList("2.0"));
+        when(elasticExtension.goSupportedVersions()).thenReturn(List.of("2.0"));
     }
 
     @Test

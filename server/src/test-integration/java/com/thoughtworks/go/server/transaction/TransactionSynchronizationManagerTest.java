@@ -25,10 +25,10 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -82,7 +82,7 @@ public class TransactionSynchronizationManagerTest {
                 transactionActivity.add(synchronizationManager.isActualTransactionActive());
             }
         });
-        assertThat(transactionActivity, is(Arrays.asList(true)));
+        assertThat(transactionActivity, is(List.of(true)));
         assertThat(synchronizationManager.isActualTransactionActive(), is(false));
     }
 
@@ -91,12 +91,9 @@ public class TransactionSynchronizationManagerTest {
         final boolean[] inBody = new boolean[] {false};
         final TransactionSynchronizationManager synchronizationManager = new TransactionSynchronizationManager();
 
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                inBody[0] = synchronizationManager.isTransactionBodyExecuting();
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) status -> {
+            inBody[0] = synchronizationManager.isTransactionBodyExecuting();
+            return null;
         });
         assertThat(inBody[0], is(true));
         assertThat(synchronizationManager.isTransactionBodyExecuting(), is(false));

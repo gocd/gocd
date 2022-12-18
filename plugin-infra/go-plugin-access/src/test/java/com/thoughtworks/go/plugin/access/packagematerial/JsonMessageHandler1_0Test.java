@@ -30,9 +30,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsonMessageHandler1_0Test {
@@ -125,14 +125,14 @@ public class JsonMessageHandler1_0Test {
     public void shouldBuildSuccessResultFromCheckRepositoryConnectionResponse() throws Exception {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToRepository(responseBody);
-        assertSuccessResult(result, Arrays.asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
     public void shouldBuildFailureResultFromCheckRepositoryConnectionResponse() throws Exception {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToRepository(responseBody);
-        assertFailureResult(result, Arrays.asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -151,14 +151,14 @@ public class JsonMessageHandler1_0Test {
     public void shouldBuildSuccessResultFromCheckPackageConnectionResponse() throws Exception {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToPackage(responseBody);
-        assertSuccessResult(result, Arrays.asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
     public void shouldBuildFailureResultFromCheckPackageConnectionResponse() throws Exception {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToPackage(responseBody);
-        assertFailureResult(result, Arrays.asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test

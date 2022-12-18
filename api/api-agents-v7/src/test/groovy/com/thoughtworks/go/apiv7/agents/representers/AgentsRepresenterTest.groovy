@@ -29,7 +29,6 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
-import static java.util.Arrays.asList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyString
@@ -50,13 +49,10 @@ class AgentsRepresenterTest {
     missing.getAgent().setEnvironments("unit")
     building.getAgent().setEnvironments("integration,functional_test")
 
-    Map<AgentInstance, Collection<EnvironmentConfig>> agentEnvironmentMap = new LinkedHashMap<AgentInstance, Collection<EnvironmentConfig>>() {
-      {
-        put(idle, asList(environment("uat"), environment("load_test")))
-        put(missing, asList(environment("unit")))
-        put(building, asList(environment("integration"), environment("functional_test")))
-      }
-    }
+    Map<AgentInstance, Collection<EnvironmentConfig>> agentEnvironmentMap = new LinkedHashMap<>()
+    agentEnvironmentMap.put(idle, List.of(environment("uat"), environment("load_test")))
+    agentEnvironmentMap.put(missing, List.of(environment("unit")))
+    agentEnvironmentMap.put(building, List.of(environment("integration"), environment("functional_test")))
 
     when(securityService.hasViewOrOperatePermissionForPipeline(any() as Username, anyString())).thenReturn(true)
 

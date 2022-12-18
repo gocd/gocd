@@ -54,7 +54,6 @@ import spark.Response;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -156,7 +155,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             folder = FileUtil.createTempFolder();
             checkoutFromMaterialConfig(materialConfig, folder);
 
-            final Map<String, ConfigFileList> pacPluginFiles = Collections.singletonMap(repoPlugin.id(), repoPlugin.getConfigFiles(folder, new ArrayList<>()));
+            final Map<String, ConfigFileList> pacPluginFiles = Map.of(repoPlugin.id(), repoPlugin.getConfigFiles(folder, new ArrayList<>()));
             return jsonizeAsTopLevelObject(req, w -> ConfigFileListsRepresenter.toJSON(w, pacPluginFiles));
         } catch (TimeoutException e) {
             res.status(HttpStatus.PAYLOAD_TOO_LARGE.value());

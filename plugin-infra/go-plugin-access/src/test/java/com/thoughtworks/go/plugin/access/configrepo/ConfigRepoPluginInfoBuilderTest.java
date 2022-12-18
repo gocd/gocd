@@ -28,12 +28,11 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ConfigRepoPluginInfoBuilderTest {
@@ -56,7 +55,7 @@ public class ConfigRepoPluginInfoBuilderTest {
         when(extension.getCapabilities("plugin1")).thenReturn(new Capabilities(true, true, true, true));
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("username", new Metadata(true, false)),
                 new PluginConfiguration("password", new Metadata(true, true))
         );

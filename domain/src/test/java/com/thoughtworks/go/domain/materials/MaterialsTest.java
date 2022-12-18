@@ -38,7 +38,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -148,9 +148,9 @@ public class MaterialsTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldFailIfMultipleMaterialsHaveSameFolderNameSet_CaseInSensitive() {
         HgMaterialConfig materialOne = hg("http://url1", null);
-        materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
+        materialOne.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "folder"));
         HgMaterialConfig materialTwo = hg("http://url2", null);
-        materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "foLder"));
+        materialTwo.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "foLder"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
         pipelineOne.setMaterialConfigs(new MaterialConfigs(materialOne, materialTwo));

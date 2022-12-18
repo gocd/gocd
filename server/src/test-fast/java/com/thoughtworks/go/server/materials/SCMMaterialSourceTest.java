@@ -37,15 +37,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class SCMMaterialSourceTest {
@@ -76,10 +73,10 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldListAllSchedulableSCMMaterials_schedulableMaterials() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(singleton(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config());
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(singleton(svnMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial));
 
         Set<Material> materials = source.materialsForUpdate();
 
@@ -90,11 +87,11 @@ public class SCMMaterialSourceTest {
     @Test
     public void shouldListMaterialsWhichHaveElapsedUpdateInterval_schedulableMaterials() {
         long minuteBack = DateTimeUtils.currentTimeMillis() - 60000;
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
 
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "60000");
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
 
         freezeTime(minuteBack);
         source.onMaterialUpdate(gitMaterial);
@@ -126,7 +123,7 @@ public class SCMMaterialSourceTest {
         doNothing().when(goConfigService).register(captor.capture());
         when(goConfigService.getSchedulableSCMMaterials())
                 .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
+                .thenReturn(Set.of(gitMaterial));
 
         source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
         source.initialize();
@@ -152,7 +149,7 @@ public class SCMMaterialSourceTest {
         doNothing().when(goConfigService).register(captor.capture());
         when(goConfigService.getSchedulableSCMMaterials())
                 .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
+                .thenReturn(Set.of(gitMaterial));
 
 
         source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
@@ -179,7 +176,7 @@ public class SCMMaterialSourceTest {
         doNothing().when(goConfigService).register(captor.capture());
         when(goConfigService.getSchedulableSCMMaterials())
                 .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
+                .thenReturn(Set.of(gitMaterial));
 
         source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
         source.initialize();
@@ -205,7 +202,7 @@ public class SCMMaterialSourceTest {
         doNothing().when(goConfigService).register(captor.capture());
         when(goConfigService.getSchedulableSCMMaterials())
                 .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
+                .thenReturn(Set.of(gitMaterial));
 
         source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
         source.initialize();
@@ -232,10 +229,10 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldReloadSchedulableMaterialsOnConfigChange() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config());
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial));
 
         Set<Material> materials = source.materialsForUpdate();
 
@@ -243,9 +240,9 @@ public class SCMMaterialSourceTest {
         assertTrue(materials.contains(svnMaterial));
 
 
-        schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
 
         source.onConfigChange(mock(CruiseConfig.class));
@@ -258,9 +255,9 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldReloadSchedulableMaterialsOnConfigRepoChange() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
 
         source.onEntityConfigChange(mock(ConfigRepoConfig.class));
@@ -273,10 +270,10 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldReloadSchedulableMaterialsOnPipelineConfigChange() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = Set.of(svnMaterial.config());
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial));
 
         Set<Material> materials = source.materialsForUpdate();
 
@@ -284,10 +281,10 @@ public class SCMMaterialSourceTest {
         assertTrue(materials.contains(svnMaterial));
 
 
-        schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        schedulableMaterialConfigs = Set.of(svnMaterial.config(), gitMaterial.config());
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(goConfigService.getCurrentConfig()).thenReturn(mock(CruiseConfig.class));
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(Set.of(svnMaterial, gitMaterial));
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
 
         source.pipelineConfigChangedListener().onEntityConfigChange(mock(PipelineConfig.class));

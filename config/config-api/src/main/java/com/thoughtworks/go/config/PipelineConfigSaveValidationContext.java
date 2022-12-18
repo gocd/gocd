@@ -305,13 +305,10 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     @Override
     public Map<CaseInsensitiveString, Boolean> getPipelineToMaterialAutoUpdateMapByFingerprint(String fingerprint) {
         Map<CaseInsensitiveString, Boolean> map = new HashMap<>();
-        getCruiseConfig().getAllPipelineConfigs().forEach(pipeline -> {
-            pipeline.materialConfigs().stream()
-                    .filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint))
-                    .findFirst()
-                    .ifPresent(expectedMaterialConfig -> map.put(pipeline.name(), expectedMaterialConfig.isAutoUpdate()));
-
-        });
+        getCruiseConfig().getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().stream()
+                .filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint))
+                .findFirst()
+                .ifPresent(expectedMaterialConfig -> map.put(pipeline.name(), expectedMaterialConfig.isAutoUpdate())));
         return map;
     }
 }

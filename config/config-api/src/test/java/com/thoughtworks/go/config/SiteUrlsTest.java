@@ -19,7 +19,7 @@ import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ class SiteUrlsTest {
 
         assertThat(siteUrls.getSiteUrl().errors())
                 .hasSize(1)
-                .containsEntry("siteUrl", Collections.singletonList("Invalid format for site url. 'htp://foo.bar' must start with http/s"));
+                .containsEntry("siteUrl", List.of("Invalid format for site url. 'htp://foo.bar' must start with http/s"));
     }
 
     @Test
@@ -54,7 +54,7 @@ class SiteUrlsTest {
 
         assertThat(siteUrls.getSecureSiteUrl().errors())
                 .hasSize(1)
-                .containsEntry("secureSiteUrl", Collections.singletonList("Invalid format for secure site url. 'http://foo.bar' must start with https"));
+                .containsEntry("secureSiteUrl", List.of("Invalid format for secure site url. 'http://foo.bar' must start with https"));
     }
 
     @Test
@@ -65,9 +65,9 @@ class SiteUrlsTest {
 
         assertThat(siteUrls.getSiteUrl().errors())
                 .hasSize(1)
-                .containsEntry("siteUrl", Collections.singletonList("Invalid format for site url. 'htp://foo.bar' must start with http/s"));
+                .containsEntry("siteUrl", List.of("Invalid format for site url. 'htp://foo.bar' must start with http/s"));
         assertThat(siteUrls.getSecureSiteUrl().errors())
                 .hasSize(1)
-                .containsEntry("secureSiteUrl", Collections.singletonList("Invalid format for secure site url. 'http://foo.bar' must start with https"));
+                .containsEntry("secureSiteUrl", List.of("Invalid format for secure site url. 'http://foo.bar' must start with https"));
     }
 }

@@ -27,11 +27,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -154,7 +155,7 @@ public class XmlPartialConfigProviderTest {
         File[] matchingFiles = xmlPartialProvider.getFiles(tmpFolder, mock(PartialConfigLoadContext.class));
 
         File[] expected = new File[] {file1, file3, file4};
-        assertArrayEquals(expected, matchingFiles, "Matched files are: " + Arrays.asList(matchingFiles));
+        assertArrayEquals(expected, matchingFiles, "Matched files are: " + List.of(matchingFiles));
     }
 
     @Test

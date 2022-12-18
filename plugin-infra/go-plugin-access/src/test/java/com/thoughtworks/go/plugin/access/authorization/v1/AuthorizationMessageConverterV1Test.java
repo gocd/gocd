@@ -18,16 +18,17 @@ package com.thoughtworks.go.plugin.access.authorization.v1;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static java.util.Collections.singletonList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class AuthorizationMessageConverterV1Test {
 
     @Test
-    public void getProcessRoleConfigsResponseBody() throws Exception {
+    public void getProcessRoleConfigsResponseBody() {
         AuthorizationMessageConverterV1 converter = new AuthorizationMessageConverterV1();
-        String json = converter.getProcessRoleConfigsResponseBody(singletonList(new PluginRoleConfig("blackbird", "ldap", create("foo", false, "bar"))));
+        String json = converter.getProcessRoleConfigsResponseBody(List.of(new PluginRoleConfig("blackbird", "ldap", create("foo", false, "bar"))));
         assertThatJson("[{\"name\":\"blackbird\",\"configuration\":{\"foo\":\"bar\"}}]").isEqualTo(json);
     }
 }

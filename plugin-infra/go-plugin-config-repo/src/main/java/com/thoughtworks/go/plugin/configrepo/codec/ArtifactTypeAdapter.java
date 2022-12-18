@@ -27,7 +27,7 @@ public class ArtifactTypeAdapter extends TypeAdapter implements JsonDeserializer
 
     @Override
     public CRArtifact deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return (CRArtifact) determineJsonElementForDistinguishingImplementers(json, context, TYPE, TypeAdapter.ARTIFACT_ORIGIN);
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, TypeAdapter.ARTIFACT_ORIGIN);
     }
 
     @Override

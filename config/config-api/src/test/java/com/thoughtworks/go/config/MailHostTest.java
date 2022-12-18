@@ -20,7 +20,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -86,10 +86,10 @@ public class MailHostTest {
 
         assertThat(mailHost.errors())
                 .hasSize(4)
-                .containsEntry("hostname", Collections.singletonList("Hostname must not be blank."))
-                .containsEntry("port", Collections.singletonList("Port must be a positive number."))
-                .containsEntry("sender_email", Collections.singletonList("Sender email must not be blank."))
-                .containsEntry("admin_email", Collections.singletonList("Admin email must not be blank."))
+                .containsEntry("hostname", List.of("Hostname must not be blank."))
+                .containsEntry("port", List.of("Port must be a positive number."))
+                .containsEntry("sender_email", List.of("Sender email must not be blank."))
+                .containsEntry("admin_email", List.of("Admin email must not be blank."))
         ;
     }
 
@@ -100,8 +100,8 @@ public class MailHostTest {
 
         assertThat(mailHost.errors())
                 .hasSize(2)
-                .containsEntry("admin_email", Collections.singletonList("Does not look like a valid email address."))
-                .containsEntry("sender_email", Collections.singletonList("Does not look like a valid email address."))
+                .containsEntry("admin_email", List.of("Does not look like a valid email address."))
+                .containsEntry("sender_email", List.of("Does not look like a valid email address."))
         ;
     }
 }

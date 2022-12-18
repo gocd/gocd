@@ -30,12 +30,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.FilterBy.*;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -87,7 +85,7 @@ public class AgentsUpdateValidatorTest {
             AgentInstance pendingAgent = AgentInstanceMother.pending();
             uuids.add(pendingAgent.getUuid());
 
-            when(agentInstances.filterBy(uuids, Pending)).thenReturn(singletonList(pendingAgent.getUuid()));
+            when(agentInstances.filterBy(uuids, Pending)).thenReturn(List.of(pendingAgent.getUuid()));
 
             assertThatCode(() -> newAgentsUpdateValidator().validate())
                     .isInstanceOf(BadRequestException.class)
@@ -117,7 +115,7 @@ public class AgentsUpdateValidatorTest {
             uuids.add(nonExistingUuid);
             uuids.add(anotherNonExistingUuid);
 
-            when(agentInstances.filterBy(uuids, Null)).thenReturn(Arrays.asList(nonExistingUuid, anotherNonExistingUuid));
+            when(agentInstances.filterBy(uuids, Null)).thenReturn(List.of(nonExistingUuid, anotherNonExistingUuid));
 
             RecordNotFoundException e = assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
             assertThat(e.getMessage(), is("Agents with uuids [non-existing-uuid, another-non-existing-uuid] were not found!"));
@@ -130,7 +128,7 @@ public class AgentsUpdateValidatorTest {
             String uuid = elasticAgent.getUuid();
             uuids.add(uuid);
 
-            when(agentInstances.filterBy(uuids, Elastic)).thenReturn(singletonList(uuid));
+            when(agentInstances.filterBy(uuids, Elastic)).thenReturn(List.of(uuid));
             assertThatCode(() -> newAgentsUpdateValidator().validate())
                     .isInstanceOf(BadRequestException.class)
                     .hasMessage(format("Resources on elastic agents with uuids [%s] can not be updated.", uuid));

@@ -50,8 +50,8 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.confirmHeaderMissing
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote
-import static java.util.Arrays.asList
-import static java.util.Collections.*
+import static java.util.Collections.emptyList
+import static java.util.Collections.emptySet
 import static java.util.stream.Collectors.toSet
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
@@ -327,13 +327,13 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should update agent information'() {
       loginAsAdmin()
-      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
+      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", List.of("psql", "java"), "20.3.0-1234", "20.5.0-2345")
       updatedAgentInstance.getAgent().setEnvironments("env1,unknown-env")
 
       def envsConfig = new EnvironmentsConfig()
       def envConfig = environment("env1")
       when(environmentConfigService.find("env1")).thenReturn(envConfig)
-      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(singleton(envConfig))
+      when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(Set.of(envConfig))
 
       envsConfig.add(envConfig)
       when(agentService.updateAgentAttributes(
@@ -430,7 +430,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should reset agents environment attribute value to null in db when environments is specified as empty string in the request payload'() {
       loginAsAdmin()
-      def resources = asList("psql", "java")
+      def resources = List.of("psql", "java")
       AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources, "20.3.0-1234", "20.5.0-2345")
 
       when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
@@ -654,7 +654,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should pass empty environments string to service given empty comma separated list of environments'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", List.of("psql", "java"), "20.3.0-1234", "20.5.0-2345")
 
         def commaSeparatedEnvs = "             "
 
@@ -716,7 +716,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should pass null as environments string to service given null comma separated list of environments'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", List.of("psql", "java"), "20.3.0-1234", "20.5.0-2345")
         when(agentService.updateAgentAttributes(
           eq("uuid2"),
           eq("agent02.example.com"),
@@ -773,7 +773,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should filter out environments which are associated via config-repo'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", List.of("psql", "java"), "20.3.0-1234", "20.5.0-2345")
         updatedAgentInstance.getAgent().setEnvironments("env1,config-repo-env")
 
         def localEnvName = "env1"
@@ -882,7 +882,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should pass in the env name even if it is not defined'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", List.of("psql", "java"), "20.3.0-1234", "20.5.0-2345")
         updatedAgentInstance.getAgent().setEnvironments("env1,non-existent-env")
 
         def localEnvName = "env1"
@@ -1078,7 +1078,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       def uuid = "uuid"
       when(agentService.findAgent(uuid)).thenReturn(idle())
-      doNothing().when(agentService).deleteAgents(eq(asList(uuid)))
+      doNothing().when(agentService).deleteAgents(eq(List.of(uuid)))
 
       deleteWithApiHeader(controller.controllerPath(uuid))
 
@@ -1097,7 +1097,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       when(agentService.findAgent(nonExistingUUID)).thenReturn(new NullAgentInstance(nonExistingUUID))
       doAnswer({ InvocationOnMock invocation ->
         throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
-      }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
+      }).when(agentService).deleteAgents(eq(List.of(nonExistingUUID)))
 
       deleteWithApiHeader(controller.controllerPath(nonExistingUUID))
 
@@ -1113,7 +1113,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       doAnswer({ InvocationOnMock invocation ->
         throw new UnprocessableEntityException("Some message")
-      }).when(agentService).deleteAgents(eq(asList("uuid2")))
+      }).when(agentService).deleteAgents(eq(List.of("uuid2")))
 
       deleteWithApiHeader(controller.controllerPath("uuid2"))
 
@@ -1148,7 +1148,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
         when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
 
-        doNothing().when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
+        doNothing().when(agentService).deleteAgents(eq(List.of("agent-1", "agent-2")))
 
         def requestBody = ["uuids": ["agent-1", "agent-2"]]
         deleteWithApiHeader(controller.controllerPath(), requestBody)
@@ -1172,7 +1172,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         when(agentService.findAgent(disabledUUID1)).thenReturn(disabledAgent1)
         when(agentService.findAgent(disabledUUID2)).thenReturn(disabledAgent2)
 
-        doNothing().when(agentService).deleteAgents(eq(asList(disabledUUID1, disabledUUID2)))
+        doNothing().when(agentService).deleteAgents(eq(List.of(disabledUUID1, disabledUUID2)))
 
         def requestBody = ["uuids": [disabledUUID1, disabledUUID2]]
         deleteWithApiHeader(controller.controllerPath(), requestBody)
@@ -1225,7 +1225,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         doAnswer({ InvocationOnMock invocation ->
           throw new RecordNotFoundException(EntityType.Agent, nonExistingUUID)
-        }).when(agentService).deleteAgents(eq(singletonList(nonExistingUUID)))
+        }).when(agentService).deleteAgents(eq(List.of(nonExistingUUID)))
 
         def requestBody = ["uuids": [nonExistingUUID]]
         deleteWithApiHeader(controller.controllerPath(), requestBody)
@@ -1248,7 +1248,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         doAnswer({ InvocationOnMock invocation ->
           throw new UnprocessableEntityException("Could not delete any agents, as one or more agents might not be disabled or are still building.")
-        }).when(agentService).deleteAgents(eq(asList(disabledAgent.getUuid(), building.getUuid())))
+        }).when(agentService).deleteAgents(eq(List.of(disabledAgent.getUuid(), building.getUuid())))
 
         def requestBody = ["uuids": [disabledAgent.getUuid(), building.getUuid()]]
         deleteWithApiHeader(controller.controllerPath(), requestBody)
@@ -1269,7 +1269,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         doAnswer({ InvocationOnMock invocation ->
           throw new UnprocessableEntityException("Failed to delete an agent, as it is not in a disabled state or is still building.")
-        }).when(agentService).deleteAgents(eq(singletonList(building.getUuid())))
+        }).when(agentService).deleteAgents(eq(List.of(building.getUuid())))
 
         def requestBody = ["uuids": [building.getUuid()]]
         deleteWithApiHeader(controller.controllerPath(), requestBody)
@@ -1286,7 +1286,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
 
         doAnswer({ InvocationOnMock invocation ->
           throw new RuntimeException("Error deleting agents", null)
-        }).when(agentService).deleteAgents(eq(asList("agent-1", "agent-2")))
+        }).when(agentService).deleteAgents(eq(List.of("agent-1", "agent-2")))
 
         def requestBody = ["uuids": ["agent-1", "agent-2"]]
 

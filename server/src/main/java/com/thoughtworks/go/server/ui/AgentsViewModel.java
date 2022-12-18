@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.BaseCollection;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -26,7 +27,6 @@ import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentStatus.Disabled;
 import static com.thoughtworks.go.domain.AgentStatus.Pending;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.CollectionUtils.exists;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -84,7 +84,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     private boolean agentFiltersHas(final String enumKey) {
-        return CollectionUtils.exists(asList(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
+        return CollectionUtils.exists(Arrays.asList(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
     }
 
     private int count(AgentStatus status) {

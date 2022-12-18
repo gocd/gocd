@@ -42,7 +42,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 
 public class GitCommand extends SCMCommand {
     public static final String GIT_CLEAN_KEEP_IGNORED_FILES_FLAG = "toggle.agent.git.clean.keep.ignored.files";
@@ -350,7 +349,7 @@ public class GitCommand extends SCMCommand {
         CommandLine syncCmd = gitWd().withArgs(syncArgs);
         runOrBomb(syncCmd);
 
-        List<String> foreachArgs = submoduleForEachRecursive(asList("git", "submodule", "sync"));
+        List<String> foreachArgs = submoduleForEachRecursive(List.of("git", "submodule", "sync"));
         CommandLine foreachCmd = gitWd().withArgs(foreachArgs);
         runOrBomb(foreachCmd);
     }
@@ -447,7 +446,7 @@ public class GitCommand extends SCMCommand {
 
     private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Removing modified files in submodules");
-        List<String> submoduleForEachRecursive = submoduleForEachRecursive(asList("git", "checkout", "."));
+        List<String> submoduleForEachRecursive = submoduleForEachRecursive(List.of("git", "checkout", "."));
         runOrBomb(gitWd().withArgs(submoduleForEachRecursive));
     }
 
@@ -538,7 +537,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private void cleanUnversionedFilesInAllSubmodules() {
-        List<String> args = submoduleForEachRecursive(asList("git", "clean", gitCleanArgs()));
+        List<String> args = submoduleForEachRecursive(List.of("git", "clean", gitCleanArgs()));
         runOrBomb(gitWd().withArgs(args));
     }
 
@@ -586,7 +585,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private List<String> submoduleForEachRecursive(List<String> args) {
-        List<String> forEachArgs = new ArrayList<>(asList("submodule", "foreach", "--recursive"));
+        List<String> forEachArgs = new ArrayList<>(List.of("submodule", "foreach", "--recursive"));
         if (version().requiresSubmoduleCommandFix()) {
             forEachArgs.add(StringUtils.join(args, " "));
         } else {

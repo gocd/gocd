@@ -19,13 +19,12 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
 public class GoDashboardCacheTest {
@@ -77,7 +76,7 @@ public class GoDashboardCacheTest {
         cache.put(pipeline3);
         cache.put(pipeline4);
 
-        cache.replaceAllEntriesInCacheWith(asList(pipeline3, newPipeline4, pipeline5));
+        cache.replaceAllEntriesInCacheWith(List.of(pipeline3, newPipeline4, pipeline5));
 
         assertThat(cache.allEntries().find(cis("pipeline1")), is(nullValue()));
         assertThat(cache.allEntries().find(cis("pipeline2")), is(nullValue()));

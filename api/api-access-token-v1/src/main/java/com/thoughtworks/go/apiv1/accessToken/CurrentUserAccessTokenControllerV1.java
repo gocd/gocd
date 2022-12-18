@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
 
 import static spark.Spark.*;
@@ -76,7 +77,7 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
         });
     }
 
-    public String createAccessToken(Request request, Response response) throws Exception {
+    public String createAccessToken(Request request, Response response) throws IOException {
         String authConfigId = currentUserAuthConfigId(request);
         SecurityAuthConfig authConfig = authConfigService.findProfile(authConfigId);
         if (!extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)) {

@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 
 public class ScheduleCheckMessageMatcher {
     public static ScheduleCheckMessage matchScheduleCheckMessage(final String expectedPipelineName) {
-        return argThat(new ArgumentMatcher<ScheduleCheckMessage>() {
+        return argThat(new ArgumentMatcher<>() {
 
             @Override
             public boolean matches(ScheduleCheckMessage o) {

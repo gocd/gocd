@@ -43,7 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -86,7 +85,7 @@ public class AgentDao extends HibernateDaoSupport {
         Agent agent = (Agent) cache.get(key);
 
         if (agent == null) {
-            List<String> uuids = singletonList(uuid);
+            List<String> uuids = List.of(uuid);
             AgentMutex mutex = agentMutexes.acquire(uuids);
             synchronized (mutex) {
                 agent = (Agent) cache.get(key);
@@ -106,7 +105,7 @@ public class AgentDao extends HibernateDaoSupport {
         final String uuid = agentIdentifier.getUuid();
         final String key = agentCacheKey(uuid);
 
-        List<String> uuids = singletonList(agentIdentifier.getUuid());
+        List<String> uuids = List.of(agentIdentifier.getUuid());
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -159,7 +158,7 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public Agent fetchAgentFromDBByUUID(final String uuid) {
-        List<String> uuids = singletonList(uuid);
+        List<String> uuids = List.of(uuid);
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
             Agent agent = (Agent) transactionTemplate.execute(transactionStatus -> {
@@ -174,7 +173,7 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     public Agent fetchAgentFromDBByUUIDIncludingDeleted(final String uuid) {
-        List<String> uuids = singletonList(uuid);
+        List<String> uuids = List.of(uuid);
         AgentMutex mutex = agentMutexes.acquire(uuids);
         synchronized (mutex) {
             Agent agent = (Agent) transactionTemplate.execute(transactionStatus -> {
@@ -191,7 +190,7 @@ public class AgentDao extends HibernateDaoSupport {
     public void saveOrUpdate(Agent agent) {
         final String key = agentCacheKey(agent.getUuid());
         updateAgentIdFromDBIfAgentDoesNotHaveAnIdAndAgentExistInDB(agent);
-        List<String> uuids = singletonList(agent.getUuid());
+        List<String> uuids = List.of(agent.getUuid());
         AgentMutex mutex = agentMutexes.acquire(uuids);
 
         synchronized (mutex) {

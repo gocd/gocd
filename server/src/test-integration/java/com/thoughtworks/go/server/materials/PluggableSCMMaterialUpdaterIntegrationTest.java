@@ -41,7 +41,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
@@ -49,8 +48,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(ClearSingleton.class)
@@ -102,12 +101,9 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         material.getScmConfig().getConfiguration().addNewConfiguration("fieldX", true);
         final List<Modification> modifications = ModificationsMother.multipleModificationList();
         doNothing().when(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
+            return null;
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
@@ -127,12 +123,9 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications());
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications());
+            return null;
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);
@@ -155,12 +148,9 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
 
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(new Modification()));
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(new Modification()));
+            return null;
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);

@@ -16,13 +16,13 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -33,8 +33,6 @@ import org.hibernate.classic.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -48,7 +46,8 @@ import static com.thoughtworks.go.domain.PipelineState.NOT_LOCKED;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
 
 public class PipelineStateDaoCachingTest {
@@ -114,13 +113,10 @@ public class PipelineStateDaoCachingTest {
     @Test
     public void lockPipeline_ShouldSavePipelineStateAndInvalidateCache() throws Exception {
         final List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters = new ArrayList<>();
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
-                transactionSynchronizationAdapters.add(adapter);
-                return null;
-            }
+        doAnswer(invocation -> {
+            TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
+            transactionSynchronizationAdapters.add(adapter);
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
         setupTransactionTemplate(transactionSynchronizationAdapters);
 
@@ -150,13 +146,10 @@ public class PipelineStateDaoCachingTest {
     @Test
     public void unlockPipeline_shouldSavePipelineStateAndInvalidateCache() throws Exception {
         final List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters = new ArrayList<>();
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
-                transactionSynchronizationAdapters.add(adapter);
-                return null;
-            }
+        doAnswer(invocation -> {
+            TransactionSynchronizationAdapter adapter= (TransactionSynchronizationAdapter) invocation.getArguments()[0];
+            transactionSynchronizationAdapters.add(adapter);
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
         setupTransactionTemplate(transactionSynchronizationAdapters);
 
@@ -176,16 +169,13 @@ public class PipelineStateDaoCachingTest {
     }
 
     private void setupTransactionTemplate(List<TransactionSynchronizationAdapter> transactionSynchronizationAdapters) {
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                for (TransactionSynchronizationAdapter synchronizationAdapter : transactionSynchronizationAdapters) {
-                    synchronizationAdapter.afterCommit();
-                }
-                return null;
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            for (TransactionSynchronizationAdapter synchronizationAdapter : transactionSynchronizationAdapters) {
+                synchronizationAdapter.afterCommit();
             }
+            return null;
         });
     }
 

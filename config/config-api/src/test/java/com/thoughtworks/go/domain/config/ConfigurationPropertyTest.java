@@ -203,12 +203,7 @@ public class ConfigurationPropertyTest {
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
         attributes.put(ConfigurationProperty.IS_CHANGED, "0");
 
-        configurationProperty.setConfigAttributes(attributes, new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                return secureKey.equals(key);
-            }
-        });
+        configurationProperty.setConfigAttributes(attributes, secureKey::equals);
 
         String encryptedValue = new GoCipher().encrypt("fooValue");
 
@@ -232,12 +227,7 @@ public class ConfigurationPropertyTest {
         encryptedValueMap.put("value", "encryptedValue");
         attributes.put(ConfigurationProperty.ENCRYPTED_VALUE, encryptedValueMap);
 
-        configurationProperty.setConfigAttributes(attributes, new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                return secureKey.equals(key);
-            }
-        });
+        configurationProperty.setConfigAttributes(attributes, secureKey::equals);
 
         assertThat(configurationProperty.getConfigurationKey().getName()).isEqualTo(secureKey);
         assertThat(configurationProperty.getConfigurationValue()).isNull();

@@ -20,16 +20,16 @@ import com.thoughtworks.go.config.EnvironmentPipelineConfig;
 import com.thoughtworks.go.config.EnvironmentPipelinesConfig;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class EnvironmentPipelineMatcherTest {
 
     @Test
     public void shouldMatchPipelineNameIgnoringCase() {
-        EnvironmentPipelineMatcher matcher = new EnvironmentPipelineMatcher(new CaseInsensitiveString("env"), Arrays.asList("uuid1", "uuid2"),
+        EnvironmentPipelineMatcher matcher = new EnvironmentPipelineMatcher(new CaseInsensitiveString("env"), List.of("uuid1", "uuid2"),
                 new EnvironmentPipelinesConfig() {{
                     add(new EnvironmentPipelineConfig(new CaseInsensitiveString("pipeline1")));
                     add(new EnvironmentPipelineConfig(new CaseInsensitiveString("pipeline2")));

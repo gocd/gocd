@@ -104,9 +104,7 @@ public class JsonOutputWriter {
 
         @Override
         public JsonOutputWriterUsingJackson add(String key, String value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeStringField(key, value);
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeStringField(key, value));
         }
 
         @Override
@@ -116,9 +114,7 @@ public class JsonOutputWriter {
 
         @Override
         public JsonOutputWriterUsingJackson add(String key, Double value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeNumberField(key, value);
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeNumberField(key, value));
         }
 
         @Override
@@ -191,37 +187,27 @@ public class JsonOutputWriter {
 
         @Override
         public JsonOutputWriterUsingJackson add(String key, int value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeNumberField(key, value);
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeNumberField(key, value));
         }
 
         @Override
         public JsonOutputWriterUsingJackson add(String key, boolean value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeBooleanField(key, value);
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeBooleanField(key, value));
         }
 
         @Override
         public JsonOutputWriterUsingJackson add(String key, long value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeNumberField(key, value);
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeNumberField(key, value));
         }
 
         @Override
         public JsonOutputWriterUsingJackson add(String key, Date value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeStringField(key, jsonDate(value));
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeStringField(key, jsonDate(value)));
         }
 
         @Override
         public OutputWriter addInMillis(String key, Date value) {
-            return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeNumberField(key, value.getTime());
-            });
+            return withExceptionHandling((jacksonWriter) -> jacksonWriter.writeNumberField(key, value.getTime()));
         }
 
         @Override
@@ -261,11 +247,7 @@ public class JsonOutputWriter {
         public OutputWriter addLinks(Consumer<OutputLinkWriter> consumer) {
             if (null == requestContext) return this;
 
-            return withExceptionHandling((jacksonWriter) -> {
-                addChild("_links", (childWriter) -> {
-                    consumer.accept(new JsonOutputLinkWriter(childWriter));
-                });
-            });
+            return withExceptionHandling((jacksonWriter) -> addChild("_links", (childWriter) -> consumer.accept(new JsonOutputLinkWriter(childWriter))));
         }
 
         @Override
@@ -325,9 +307,7 @@ public class JsonOutputWriter {
 
         private void forTopLevelArray(Consumer<OutputListWriter> consumer) {
             try {
-                withExceptionHandling(writer -> {
-                    new JsonOutputListWriter(this).startArrayWithoutName(consumer);
-                });
+                withExceptionHandling(writer -> new JsonOutputListWriter(this).startArrayWithoutName(consumer));
             } catch (Exception e) {
                 makeOutputAnInvalidJSON();
                 throw e;
@@ -433,9 +413,7 @@ public class JsonOutputWriter {
 
             @Override
             public JsonOutputLinkWriter addAbsoluteLink(String key, String href) {
-                parentWriter.addChild(key, innerChildWriter -> {
-                    innerChildWriter.add("href", href);
-                });
+                parentWriter.addChild(key, innerChildWriter -> innerChildWriter.add("href", href));
                 return this;
             }
         }

@@ -30,9 +30,7 @@ import java.util.Optional;
 public class TaskRepresenter {
 
     public static void toJSONArray(OutputListWriter tasksWriter, Tasks tasks) {
-        tasks.forEach(task -> {
-            tasksWriter.addChild(taskWriter -> toJSON(taskWriter, task));
-        });
+        tasks.forEach(task -> tasksWriter.addChild(taskWriter -> toJSON(taskWriter, task)));
     }
 
     public static void toJSON(OutputWriter jsonWriter, Task task) {
@@ -76,11 +74,7 @@ public class TaskRepresenter {
 
     public static Tasks fromJSONArray(JsonReader jsonReader) {
         Tasks allTasks = new Tasks();
-        jsonReader.readArrayIfPresent("tasks", tasks -> {
-            tasks.forEach(task -> {
-                allTasks.add(fromJSON(new JsonReader(task.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("tasks", tasks -> tasks.forEach(task -> allTasks.add(fromJSON(new JsonReader(task.getAsJsonObject())))));
 
         return allTasks;
     }

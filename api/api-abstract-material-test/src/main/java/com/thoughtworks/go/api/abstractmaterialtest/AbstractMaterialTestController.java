@@ -46,7 +46,6 @@ import spark.Request;
 import spark.Response;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -142,14 +141,14 @@ public abstract class AbstractMaterialTestController extends ApiController {
     }
 
     private void haltIfMaterialTypeIsInvalid(String type) {
-        List materialTypes = Arrays.asList("git", "hg", "svn", "p4", "tfs", "dependency", "package", "plugin");
+        List<String> materialTypes = List.of("git", "hg", "svn", "p4", "tfs", "dependency", "package", "plugin");
         if (!materialTypes.contains(type)) {
             throw new UnprocessableEntityException(String.format("Invalid material type '%s'. It has to be one of %s.", type, materialTypes));
         }
     }
 
     private void haltIfMaterialTypeDoesNotSupportsCheckConnection(String type) {
-        List scmMaterialTypes = Arrays.asList("git", "hg", "svn", "p4", "tfs");
+        List<String> scmMaterialTypes = List.of("git", "hg", "svn", "p4", "tfs");
         if (!scmMaterialTypes.contains(type)) {
             throw new UnprocessableEntityException(String.format("The material of type '%s' does not support connection testing.", type));
         }

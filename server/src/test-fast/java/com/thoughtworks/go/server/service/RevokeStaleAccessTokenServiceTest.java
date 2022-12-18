@@ -26,8 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -70,7 +70,7 @@ class RevokeStaleAccessTokenServiceTest {
         config.server().security().securityAuthConfigs().add(authConfig2);
 
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
         verify(accessTokenService, never()).revokeAccessTokenByGoCD(anyInt(), anyString());
@@ -93,7 +93,7 @@ class RevokeStaleAccessTokenServiceTest {
     void shouldRevokeAllTheTokensWhenAllTheAuthConfigsAreRemovedDuringStartup() {
         BasicCruiseConfig config = new BasicCruiseConfig();
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
 
@@ -108,7 +108,7 @@ class RevokeStaleAccessTokenServiceTest {
         config.server().security().securityAuthConfigs().add(authConfig1);
 
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
 
@@ -123,7 +123,7 @@ class RevokeStaleAccessTokenServiceTest {
         config.server().security().securityAuthConfigs().add(authConfig2);
 
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
         verify(accessTokenService, never()).revokeAccessTokenByGoCD(anyInt(), anyString());
@@ -141,7 +141,7 @@ class RevokeStaleAccessTokenServiceTest {
         config.server().security().securityAuthConfigs().add(authConfig2);
 
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
         verify(accessTokenService, never()).revokeAccessTokenByGoCD(anyInt(), anyString());
@@ -162,7 +162,7 @@ class RevokeStaleAccessTokenServiceTest {
         config.server().security().securityAuthConfigs().add(authConfig2);
 
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
         verify(accessTokenService, never()).revokeAccessTokenByGoCD(anyInt(), anyString());
@@ -179,7 +179,7 @@ class RevokeStaleAccessTokenServiceTest {
         config.server().security().securityAuthConfigs().add(authConfig2);
 
         when(goConfigService.getConfigForEditing()).thenReturn(config);
-        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(Arrays.asList(authConfig1_token1, authConfig1_token2, authConfig2_token1));
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn(List.of(authConfig1_token1, authConfig1_token2, authConfig2_token1));
 
         service.initialize();
         verify(accessTokenService, never()).revokeAccessTokenByGoCD(anyInt(), anyString());

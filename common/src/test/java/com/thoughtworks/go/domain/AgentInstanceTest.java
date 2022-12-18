@@ -47,8 +47,6 @@ import static com.thoughtworks.go.helper.AgentInstanceMother.cancelled;
 import static com.thoughtworks.go.remote.AgentInstruction.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
@@ -601,9 +599,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agent, LOCAL, systemEnvironment, null);
 
         final JobPlan job = jobPlan("pipeline-name", "job-name", "resource", agent.getUuid());
-        JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<JobPlan>() {{
-            add(job);
-        }});
+        JobPlan matchingJob = agentInstance.firstMatching(List.of(job));
         assertThat(matchingJob).isEqualTo(job);
     }
 
@@ -613,9 +609,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agent, LOCAL, systemEnvironment, null);
 
         final JobPlan job = jobPlan("pipeline-name", "job-name", "linux", agent.getUuid() + "-ensure-doesn't-match");
-        JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<JobPlan>() {{
-            add(job);
-        }});
+        JobPlan matchingJob = agentInstance.firstMatching(List.of(job));
         assertThat(matchingJob).isNull();
     }
 
@@ -670,7 +664,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agent, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setElasticProfile(new ElasticProfile("foo", "prod-cluster"));
-        List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
+        List<JobPlan> jobPlans = List.of(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans)).isNull();
     }
@@ -684,21 +678,21 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agent, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setElasticProfile(new ElasticProfile("foo", "prod-cluster"));
-        List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
+        List<JobPlan> jobPlans = List.of(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans)).isNull();
     }
 
     @Test
     void shouldNotMatchJobPlanIfTheAgentIsElasticAndJobHasResourcesDefined() {
-        Agent agent = new Agent("uuid", "hostname", "11.1.1.1", singletonList("r1"));
+        Agent agent = new Agent("uuid", "hostname", "11.1.1.1", List.of("r1"));
         agent.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
         agent.setElasticPluginId(elasticPluginId);
         AgentInstance agentInstance = new AgentInstance(agent, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
-        jobPlan1.setResources(asList(new Resource("r1")));
-        List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
+        jobPlan1.setResources(List.of(new Resource("r1")));
+        List<JobPlan> jobPlans = List.of(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans)).isNull();
     }
@@ -842,7 +836,7 @@ public class AgentInstanceTest {
             AgentInstance agentInstance = building();
 
             assertThatExceptionOfType(InvalidAgentInstructionException.class)
-                    .isThrownBy(() -> agentInstance.killRunningTasks())
+                    .isThrownBy(agentInstance::killRunningTasks)
                     .withMessage("The agent should be in cancelled state before attempting to kill running tasks. Current Agent state is: 'Building'");
         }
 
@@ -853,7 +847,7 @@ public class AgentInstanceTest {
             agentInstance.killRunningTasks();
 
             assertThatExceptionOfType(InvalidAgentInstructionException.class)
-                    .isThrownBy(() -> agentInstance.killRunningTasks())
+                    .isThrownBy(agentInstance::killRunningTasks)
                     .withMessage("There is a pending request to kill running task.");
         }
     }

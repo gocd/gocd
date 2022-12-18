@@ -71,13 +71,9 @@ public class AgentCLITest {
 
     @Test
     public void shouldRaisExceptionWhenInvalidSslModeIsPassed() {
-        assertThatCode(() -> {
-            agentCLI.parse("-serverUrl", "https://go.example.com/go", "-sslVerificationMode", "FOOBAR");
-        })
+        assertThatCode(() -> agentCLI.parse("-serverUrl", "https://go.example.com/go", "-sslVerificationMode", "FOOBAR"))
                 .isInstanceOf(ExitException.class)
-                .satisfies(o -> {
-                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
-                });
+                .satisfies(o -> assertThat(((ExitException) o).getStatus()).isEqualTo(1));
 
         assertThat(errorStream.toString()).contains("Invalid value for -sslVerificationMode parameter. Allowed values:[FULL, NONE, NO_VERIFY_HOST]");
         assertThat(errorStream.toString()).contains("Usage: java -jar agent-bootstrapper.jar");
@@ -85,52 +81,36 @@ public class AgentCLITest {
 
     @Test
     public void shouldRaiseExceptionWhenRootCertificateFileIsNotPresent() {
-        assertThatCode(() -> {
-            agentCLI.parse("-serverUrl", "http://example.com/go", "-rootCertFile", UUID.randomUUID().toString());
-        })
+        assertThatCode(() -> agentCLI.parse("-serverUrl", "http://example.com/go", "-rootCertFile", UUID.randomUUID().toString()))
                 .isInstanceOf(ExitException.class)
-                .satisfies(o -> {
-                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
-                });
+                .satisfies(o -> assertThat(((ExitException) o).getStatus()).isEqualTo(1));
 
         assertThat(errorStream.toString()).contains("-rootCertFile must be a file that is readable.");
     }
 
     @Test
     public void shouldRaiseExceptionWhenSSLCertificateFileIsNotPresent() {
-        assertThatCode(() -> {
-            agentCLI.parse("-serverUrl", "http://example.com/go", "-sslCertificateFile", UUID.randomUUID().toString());
-        })
+        assertThatCode(() -> agentCLI.parse("-serverUrl", "http://example.com/go", "-sslCertificateFile", UUID.randomUUID().toString()))
                 .isInstanceOf(ExitException.class)
-                .satisfies(o -> {
-                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
-                });
+                .satisfies(o -> assertThat(((ExitException) o).getStatus()).isEqualTo(1));
 
         assertThat(errorStream.toString()).contains("-sslCertificateFile must be a file that is readable.");
     }
 
     @Test
     public void shouldRaiseExceptionWhenSSLPrivateKeyPassphraseFileIsNotPresent() {
-        assertThatCode(() -> {
-            agentCLI.parse("-serverUrl", "http://example.com/go", "-sslPrivateKeyPassphraseFile", UUID.randomUUID().toString());
-        })
+        assertThatCode(() -> agentCLI.parse("-serverUrl", "http://example.com/go", "-sslPrivateKeyPassphraseFile", UUID.randomUUID().toString()))
                 .isInstanceOf(ExitException.class)
-                .satisfies(o -> {
-                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
-                });
+                .satisfies(o -> assertThat(((ExitException) o).getStatus()).isEqualTo(1));
 
         assertThat(errorStream.toString()).contains("-sslPrivateKeyPassphraseFile must be a file that is readable.");
     }
 
     @Test
     public void shouldRaiseExceptionWhenSSLPrivateKeyFileIsNotPresent() {
-        assertThatCode(() -> {
-            agentCLI.parse("-serverUrl", "http://example.com/go", "-sslPrivateKeyFile", UUID.randomUUID().toString());
-        })
+        assertThatCode(() -> agentCLI.parse("-serverUrl", "http://example.com/go", "-sslPrivateKeyFile", UUID.randomUUID().toString()))
                 .isInstanceOf(ExitException.class)
-                .satisfies(o -> {
-                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
-                });
+                .satisfies(o -> assertThat(((ExitException) o).getStatus()).isEqualTo(1));
 
         assertThat(errorStream.toString()).contains("-sslPrivateKeyFile must be a file that is readable.");
     }

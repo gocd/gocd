@@ -31,7 +31,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -112,7 +111,7 @@ public class JsonMessageHandler1_0Test {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToSCM(responseBody);
 
-        assertSuccessResult(result, asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -120,7 +119,7 @@ public class JsonMessageHandler1_0Test {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckConnectionToSCM(responseBody);
 
-        assertFailureResult(result, asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -144,7 +143,7 @@ public class JsonMessageHandler1_0Test {
         MaterialPollResult pollResult = messageHandler.responseMessageForLatestRevision(responseBody);
 
         assertThat(pollResult.getMaterialData(), is(nullValue()));
-        assertSCMRevision(pollResult.getLatestRevision(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        assertSCMRevision(pollResult.getLatestRevision(), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
     }
 
     @Test
@@ -184,8 +183,8 @@ public class JsonMessageHandler1_0Test {
         assertThat(pollResult.getMaterialData(), is(nullValue()));
         List<SCMRevision> scmRevisions = pollResult.getRevisions();
         assertThat(scmRevisions.size(), is(2));
-        assertSCMRevision(scmRevisions.get(0), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
-        assertSCMRevision(scmRevisions.get(1), "r2", "new-user", "2011-07-14T19:43:37.101Z", "comment", asList(new ModifiedFile("f1", ModifiedAction.added)));
+        assertSCMRevision(scmRevisions.get(0), "r1", "some-user", "2011-07-14T19:43:37.100Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        assertSCMRevision(scmRevisions.get(1), "r2", "new-user", "2011-07-14T19:43:37.101Z", "comment", List.of(new ModifiedFile("f1", ModifiedAction.added)));
     }
 
     @Test
@@ -228,7 +227,7 @@ public class JsonMessageHandler1_0Test {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.responseMessageForCheckout(responseBody);
 
-        assertFailureResult(result, asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test

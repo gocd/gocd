@@ -26,9 +26,9 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,11 +53,11 @@ class SvnPostCommitHookImplementerTest {
         final Material p4Material = mock(P4Material.class);
         final Material tfsMaterial = mock(TfsMaterial.class);
         final Material dependencyMaterial = mock(DependencyMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3, gitMaterial, hgMaterial, p4Material, tfsMaterial, dependencyMaterial));
+        final Set<Material> allMaterials = Set.of(svnMaterial1, svnMaterial2, svnMaterial3, gitMaterial, hgMaterial, p4Material, tfsMaterial, dependencyMaterial);
         final SvnPostCommitHookImplementer spy = spy(implementer);
-        doAnswer(invocation -> Boolean.TRUE).when(spy).isQualified(anyString(), any(SvnMaterial.class), any(HashMap.class));
-        doAnswer(invocation -> new HashMap()).when(spy).createUrlToRemoteUUIDMap(allMaterials);
-        final HashMap params = new HashMap();
+        doAnswer(invocation -> Boolean.TRUE).when(spy).isQualified(anyString(), any(SvnMaterial.class), anyMap());
+        doAnswer(invocation -> Map.of()).when(spy).createUrlToRemoteUUIDMap(allMaterials);
+        Map<String, String> params = new HashMap<>();
         params.put(SvnPostCommitHookImplementer.UUID, "some uuid");
         final Set<Material> prunedList = spy.prune(allMaterials, params);
 
@@ -70,8 +70,8 @@ class SvnPostCommitHookImplementerTest {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
         final SvnMaterial svnMaterial2 = mock(SvnMaterial.class);
         final SvnMaterial svnMaterial3 = mock(SvnMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3));
-        final HashMap<Object, Object> params = new HashMap<>();
+        final Set<Material> allMaterials = Set.of(svnMaterial1, svnMaterial2, svnMaterial3);
+        final Map<String, String> params = new HashMap<>();
         final String uuid = "12345";
         params.put(SvnPostCommitHookImplementer.UUID, uuid);
 
@@ -97,8 +97,8 @@ class SvnPostCommitHookImplementerTest {
         SvnMaterial svnMaterial1 = new SvnMaterial("http://user:pass@example.com/svn1", "user", "pass", true);
         SvnMaterial svnMaterial2 = new SvnMaterial("http://admin@example.com/svn2", "admin", "discreetbluewhale", true);
         GitMaterial gitMaterial = new GitMaterial("http://admin@example.com/svn2");
-        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, gitMaterial));
-        final HashMap<Object, Object> params = new HashMap<>();
+        final Set<Material> allMaterials = Set.of(svnMaterial1, svnMaterial2, gitMaterial);
+        final Map<Object, Object> params = new HashMap<>();
         final SvnPostCommitHookImplementer svnPostCommitHookImplementer = new SvnPostCommitHookImplementer();
         params.put(SvnPostCommitHookImplementer.REPO_URL_PARAM_KEY, "http://example.com/svn1");
         Set<Material> prunedList = svnPostCommitHookImplementer.prune(allMaterials, params);
@@ -120,7 +120,7 @@ class SvnPostCommitHookImplementerTest {
     @Test
     void shouldReturnEmptyListWhenUUIDIsNotPresent() {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<>();
+        final Set<Material> allMaterials = new HashSet<>();
         allMaterials.add(svnMaterial1);
         final SvnPostCommitHookImplementer spy = spy(implementer);
         final Set<Material> prunedList = spy.prune(allMaterials, new HashMap());
@@ -136,7 +136,7 @@ class SvnPostCommitHookImplementerTest {
         when(svnMaterial2.urlForCommandLine()).thenReturn("url2");
         final SvnMaterial svnMaterial3 = mock(SvnMaterial.class);
         when(svnMaterial3.urlForCommandLine()).thenReturn("url not present in map");
-        final HashMap<String, String> map = new HashMap<>();
+        final Map<String, String> map = new HashMap<>();
         map.put("url1", "12345");
         map.put("url2", "54321");
         assertThat(implementer.isQualified("12345", svnMaterial1, map)).isTrue();
@@ -148,18 +148,18 @@ class SvnPostCommitHookImplementerTest {
     void shouldCreateRemoteUrlToRemoteUUIDMap() {
         final SvnPostCommitHookImplementer spy = spy(implementer);
         final SvnCommand svnCommand = mock(SvnCommand.class);
-        final Material svnMaterial1 = mock(SvnMaterial.class);
+        final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
         final Material hgMaterial1 = mock(HgMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, hgMaterial1));
+        final Set<Material> allMaterials = Set.of(svnMaterial1, hgMaterial1);
         doAnswer(invocation -> svnCommand).when(spy).getEmptySvnCommand();
         spy.createUrlToRemoteUUIDMap(allMaterials);
-        verify(svnCommand).createUrlToRemoteUUIDMap(new HashSet<>(Arrays.asList((SvnMaterial) svnMaterial1)));
+        verify(svnCommand).createUrlToRemoteUUIDMap(Set.of(svnMaterial1));
     }
 
     @Test
     void shouldReturnEmptySvnCommand() {
         final SvnCommand svnCommand = implementer.getEmptySvnCommand();
-        assertThat(svnCommand instanceof SvnCommand).isTrue();
+        assertThat(svnCommand).isNotNull();
         assertThat(svnCommand.getUrl().toString()).isEqualTo(".");
     }
 }

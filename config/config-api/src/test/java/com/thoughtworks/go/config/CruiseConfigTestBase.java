@@ -28,7 +28,6 @@ import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.TaskConfigVisitor;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -71,7 +70,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
 
     @Test
     public void cloneForValidationShouldKeepProposedPartials() {
-        cruiseConfig.setPartials(Arrays.asList(createPartial()));
+        cruiseConfig.setPartials(List.of(createPartial()));
         assertThat(cruiseConfig.getPartials().size(), is(1));
         cruiseConfig = cruiseConfig.cloneForValidation();
         assertThat(cruiseConfig.getPartials().size(), is(1));
@@ -242,13 +241,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         setupJobWithTasks(config, task1, task2);
 
         final List<Task> tasksVisited = new ArrayList<>();
-        config.accept(new TaskConfigVisitor() {
-
-            @Override
-            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
-                tasksVisited.add(task);
-            }
-        });
+        config.accept((pipelineConfig, stageConfig, jobConfig, task) -> tasksVisited.add(task));
 
         assertThat(tasksVisited.size(), is(3));
         assertThat(tasksVisited.get(0), is(task2));
@@ -331,7 +324,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         pipelineConfig.errors().add("base", "Some base errors");
 
         P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
-        p4MaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "p4_folder"));
+        p4MaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "p4_folder"));
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
@@ -538,9 +531,9 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         CruiseConfig cruiseConfig = createCruiseConfig();
         PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         SvnMaterialConfig material = (SvnMaterialConfig) pipeline1.materialConfigs().get(0);
-        material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "svn_dir"));
+        material.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "svn_dir"));
         P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
-        p4MaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "p4_folder"));
+        p4MaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "p4_folder"));
         pipeline1.addMaterialConfig(p4MaterialConfig);
         PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline3", "stage", "build");
         PipelineConfig pipeline3 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
@@ -668,7 +661,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
     public void shouldDecideIfPluggableSCMMaterialCanBeDeleted_BasedOnPluggableSCMMaterialBeingUsedByPipelines() throws Exception {
         SCM scmConfigOne = SCMMother.create("scm-id-1");
         SCM scmConfigTwo = SCMMother.create("scm-id-2");
-        cruiseConfig.getSCMs().addAll(Arrays.asList(scmConfigOne, scmConfigTwo));
+        cruiseConfig.getSCMs().addAll(List.of(scmConfigOne, scmConfigTwo));
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline");
         pipeline.addMaterialConfig(new PluggableSCMMaterialConfig(null, scmConfigOne, null, null, false));
         cruiseConfig.addPipeline("existing_group", pipeline);
@@ -847,7 +840,7 @@ public abstract class CruiseConfigTestBase implements FunctionalUtils {
         PipelineConfig p3 = createPipelineConfig("p3", "s3", "j1");
         p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
         p1.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p3"), new CaseInsensitiveString("s3")));
-        pipelines.addAll(Arrays.asList(p1, p2, p3));
+        pipelines.addAll(List.of(p1, p2, p3));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepo = git("http://git");

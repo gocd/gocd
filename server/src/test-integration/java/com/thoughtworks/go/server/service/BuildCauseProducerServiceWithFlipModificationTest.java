@@ -58,7 +58,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -179,7 +178,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     private SvnMaterialConfig setUpPipelineWithTwoMaterials() throws Exception {
         SvnMaterialConfig svnMaterialConfig = svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "svnDir"));
+        svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "svnDir"));
         MaterialConfigs materialConfigs = new MaterialConfigs(svnMaterialConfig, hgTestRepo.createMaterialConfig("hgDir"));
         mingleConfig = configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME, materialConfigs, "unit", "functional");
         return svnMaterialConfig;

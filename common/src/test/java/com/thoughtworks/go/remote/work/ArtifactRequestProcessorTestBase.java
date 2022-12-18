@@ -24,7 +24,7 @@ import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.*;
@@ -46,7 +46,7 @@ public abstract class ArtifactRequestProcessorTestBase {
         descriptor = mock(GoPluginDescriptor.class);
         goPublisher = mock(DefaultGoPublisher.class);
         EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
-        when(environmentVariableContext.secrets()).thenReturn(Collections.singletonList(new PasswordArgument("secret.value")));
+        when(environmentVariableContext.secrets()).thenReturn(List.of(new PasswordArgument("secret.value")));
 
         artifactRequestProcessorForPublish = ArtifactRequestProcessor.forPublishArtifact(goPublisher, environmentVariableContext);
         artifactRequestProcessorForFetch = ArtifactRequestProcessor.forFetchArtifact(goPublisher, environmentVariableContext);
@@ -66,9 +66,7 @@ public abstract class ArtifactRequestProcessorTestBase {
 
         when(request.requestBody()).thenReturn("{\"logLevel\":\"ERROR\",\"message\":\"Error while pushing docker image to registry: foo.\"}");
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            artifactRequestProcessorForPublish.process(descriptor, request);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> artifactRequestProcessorForPublish.process(descriptor, request));
 
         assertThat(exception.getMessage(), containsString("Unsupported 'go.processor.artifact.console-log' API version: 3.0"));
     }

@@ -20,10 +20,8 @@ import com.thoughtworks.go.config.ValidationContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AbstractDirectiveTest {
@@ -33,7 +31,7 @@ class AbstractDirectiveTest {
         void shouldAddErrorIfActionIsNotSet() {
             Directive directive = getDirective(null, "environment", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(1);
             assertThat(directive.errors().get("action"))
@@ -45,7 +43,7 @@ class AbstractDirectiveTest {
         void shouldAddErrorIfActionIsSetToOtherThanAllowedActions() {
             Directive directive = getDirective("invalid", "environment", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(1);
 
@@ -58,7 +56,7 @@ class AbstractDirectiveTest {
         void shouldNotAllowActionToHaveWildcard() {
             Directive directive = getDirective("*", "environment", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(1);
             assertThat(directive.errors().on("action")).isEqualTo("Invalid action, must be one of [view].");
@@ -68,7 +66,7 @@ class AbstractDirectiveTest {
         void shouldAddErrorIfTypeIsNotSet() {
             Directive directive = getDirective("view", null, "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(1);
             assertThat(directive.errors().get("type"))
@@ -80,7 +78,7 @@ class AbstractDirectiveTest {
         void shouldAddErrorIfTypeIsSetToOtherThanAllowedActions() {
             Directive directive = getDirective("view", "invalid", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(1);
 
@@ -93,7 +91,7 @@ class AbstractDirectiveTest {
         void shouldAllowTypeToHaveWildcard() {
             Directive directive = getDirective("view", "*", "test-resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), singletonList("environment")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment")));
 
             assertThat(directive.errors()).hasSize(0);
         }
@@ -102,7 +100,7 @@ class AbstractDirectiveTest {
         void shouldNotFailWhenResourceIsEmpty() {
             Directive directive = getDirective("view", "elastic_agent_profile", null);
 
-            directive.validate(rulesValidationContext(singletonList("view"), Arrays.asList("environment", "elastic_agent_profile")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment", "elastic_agent_profile")));
 
             assertThat(directive.errors()).hasSize(0);
         }
@@ -112,7 +110,7 @@ class AbstractDirectiveTest {
         void shouldNotAddAnErrorForColonSeparatorOnElasticAgentProfileResource() {
             Directive directive = getDirective("view", "elastic_agent_profile", "test:resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), Arrays.asList("environment", "elastic_agent_profile")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment", "elastic_agent_profile")));
 
             assertThat(directive.errors()).hasSize(0);
         }
@@ -121,7 +119,7 @@ class AbstractDirectiveTest {
         void shouldAddErrorIfColonSeparatorIsSpecifiedAsResourceForAnyTypeApartFromElasticAgentProfile() {
             Directive directive = getDirective("view", "environment", "test:resource");
 
-            directive.validate(rulesValidationContext(singletonList("view"), Arrays.asList("environment", "elastic_agent_profile")));
+            directive.validate(rulesValidationContext(List.of("view"), List.of("environment", "elastic_agent_profile")));
 
             assertThat(directive.errors()).hasSize(1);
             assertThat(directive.errors().get("resource"))

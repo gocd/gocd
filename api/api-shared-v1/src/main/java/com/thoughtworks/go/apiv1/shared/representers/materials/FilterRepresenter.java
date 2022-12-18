@@ -32,11 +32,7 @@ public class FilterRepresenter {
     public static Filter fromJSON(JsonReader jsonReader) {
         Filter filter = new Filter();
         filter.clear();
-        jsonReader.readArrayIfPresent("ignore", ignoredFiles -> {
-            ignoredFiles.forEach(ignoredFile -> {
-                filter.add(new IgnoredFiles(ignoredFile.getAsString()));
-            });
-        });
+        jsonReader.readArrayIfPresent("ignore", ignoredFiles -> ignoredFiles.forEach(ignoredFile -> filter.add(new IgnoredFiles(ignoredFile.getAsString()))));
         return filter;
     }
 }

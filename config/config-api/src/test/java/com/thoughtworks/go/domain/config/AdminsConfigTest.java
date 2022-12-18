@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.domain.config;
 
-import java.util.Arrays;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.UserRoleMatcherMother;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,14 +50,14 @@ public class AdminsConfigTest {
     @Test
     public void shouldReturnTrueIfAUserBelongsToAnAdminRole() {
         AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("Role1")));
-        assertThat(adminsConfig.isAdmin(new AdminUser(new CaseInsensitiveString("user1")), Arrays.asList(new RoleConfig(new CaseInsensitiveString("first")
+        assertThat(adminsConfig.isAdmin(new AdminUser(new CaseInsensitiveString("user1")), List.of(new RoleConfig(new CaseInsensitiveString("first")
         ), new RoleConfig(new CaseInsensitiveString("role1")))), is(true));
     }
 
     @Test
     public void shouldReturnTrueIfAUserIsAnAdmin() {
         AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("USER1")));
-        assertThat(adminsConfig.isAdmin(new AdminUser(new CaseInsensitiveString("user1")), Arrays.asList(new RoleConfig(new CaseInsensitiveString("first")
+        assertThat(adminsConfig.isAdmin(new AdminUser(new CaseInsensitiveString("user1")), List.of(new RoleConfig(new CaseInsensitiveString("first")
         ), new RoleConfig(new CaseInsensitiveString("role1")))), is(true));
     }
 
@@ -72,9 +72,9 @@ public class AdminsConfigTest {
     @Test
     public void shouldUnderstandIfAUserIsAnAdminThroughRole() {
         AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("Role1")));
-        assertThat(adminsConfig.isAdminRole(Arrays.asList(new RoleConfig(new CaseInsensitiveString("first")), new RoleConfig(new CaseInsensitiveString("role1")))), is(true));
-        assertThat(adminsConfig.isAdminRole(Arrays.asList(new RoleConfig(new CaseInsensitiveString("role2")))), is(false));
-        assertThat(adminsConfig.isAdminRole(Arrays.asList(new RoleConfig(new CaseInsensitiveString("loser")))), is(false));
+        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(new CaseInsensitiveString("first")), new RoleConfig(new CaseInsensitiveString("role1")))), is(true));
+        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(new CaseInsensitiveString("role2")))), is(false));
+        assertThat(adminsConfig.isAdminRole(List.of(new RoleConfig(new CaseInsensitiveString("loser")))), is(false));
     }
 
     @Test

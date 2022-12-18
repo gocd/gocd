@@ -22,19 +22,14 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.util.DataStructureUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class PipelineTemplateConfigTest {
     @Test
@@ -63,7 +58,7 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldSetPrimitiveAttributes() {
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig();
-        Map map = m(PipelineTemplateConfig.NAME, "templateName");
+        Map<String, String> map = Map.of(PipelineTemplateConfig.NAME, "templateName");
 
         pipelineTemplateConfig.setConfigAttributes(map);
 
@@ -73,10 +68,10 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldUpdateAuthorization() {
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate("template-1");
-        templateConfig.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
-                DataStructureUtils.m(Authorization.NAME, "loser", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
-                DataStructureUtils.m(Authorization.NAME, "boozer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
-                DataStructureUtils.m(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
+        templateConfig.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
+                Map.of(Authorization.NAME, "loser", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
+                Map.of(Authorization.NAME, "boozer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
+                Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size(), Matchers.is(3));
@@ -91,15 +86,15 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldReInitializeAuthorizationIfWeClearAllPermissions() {
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate("template-1");
-        templateConfig.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
-                DataStructureUtils.m(Authorization.NAME, "loser", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
-                DataStructureUtils.m(Authorization.NAME, "boozer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
-                DataStructureUtils.m(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
+        templateConfig.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
+                Map.of(Authorization.NAME, "loser", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
+                Map.of(Authorization.NAME, "boozer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
+                Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size(), Matchers.is(3));
 
-        templateConfig.setConfigAttributes(m());
+        templateConfig.setConfigAttributes(Map.of());
 
         authorization = templateConfig.getAuthorization();
         assertThat(authorization.getAdminsConfig().size(), Matchers.is(0));
@@ -108,10 +103,10 @@ public class PipelineTemplateConfigTest {
     @Test
     public void shouldIgnoreBlankUserWhileSettingAttributes() {
         PipelineTemplateConfig templateConfig = PipelineTemplateConfigMother.createTemplate("template-1");
-        templateConfig.setConfigAttributes(m(BasicPipelineConfigs.AUTHORIZATION, a(
-                DataStructureUtils.m(Authorization.NAME, "", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
-                DataStructureUtils.m(Authorization.NAME, null, Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
-                DataStructureUtils.m(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, a(DataStructureUtils.m(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
+        templateConfig.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
+                Map.of(Authorization.NAME, "", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
+                Map.of(Authorization.NAME, " ", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))),
+                Map.of(Authorization.NAME, "geezer", Authorization.TYPE, Authorization.UserType.USER.toString(), Authorization.PRIVILEGES, List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), Authorization.PrivilegeState.ON.toString()))))));
         Authorization authorization = templateConfig.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size(), Matchers.is(1));
@@ -152,7 +147,7 @@ public class PipelineTemplateConfigTest {
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
 
-        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
+        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(List.of("Role \"non-existent-role\" does not exist.")));
     }
 
     @Test
@@ -167,7 +162,7 @@ public class PipelineTemplateConfigTest {
 
         template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
 
-        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
+        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(List.of("Role \"non-existent-role\" does not exist.")));
     }
 
     @Test
@@ -192,7 +187,7 @@ public class PipelineTemplateConfigTest {
 
         templateWithParams.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(templateWithParams.errors().getAllOn("params"), is(Arrays.asList("The param 'param1' is not defined in pipeline 'pipeline'", "The param 'param2' is not defined in pipeline 'pipeline'")));
+        assertThat(templateWithParams.errors().getAllOn("params"), is(List.of("The param 'param1' is not defined in pipeline 'pipeline'", "The param 'param2' is not defined in pipeline 'pipeline'")));
     }
 
     @Test
@@ -210,7 +205,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("pipeline"), is(Arrays.asList("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
+        assertThat(template.errors().getAllOn("pipeline"), is(List.of("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
     }
 
 
@@ -229,7 +224,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("pipeline"), is(Arrays.asList("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
+        assertThat(template.errors().getAllOn("pipeline"), is(List.of("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
     }
 
     @Test
@@ -247,7 +242,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("storeId"), is(Arrays.asList("Artifact store with id `non-existent-store-id` does not exist. Please correct the `storeId` attribute on pipeline `pipeline`.")));
+        assertThat(template.errors().getAllOn("storeId"), is(List.of("Artifact store with id `non-existent-store-id` does not exist. Please correct the `storeId` attribute on pipeline `pipeline`.")));
     }
 
     @Test
@@ -265,7 +260,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
+        assertThat(template.errors().getAllOn("name"), is(List.of("Role \"non-existent-role\" does not exist.")));
     }
 
     @Test
@@ -285,7 +280,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("name"), is(Arrays.asList("User \"non-admin-non-operate\" who is not authorized to operate pipeline group `group` can not be authorized to approve stage")));
+        assertThat(template.errors().getAllOn("name"), is(List.of("User \"non-admin-non-operate\" who is not authorized to operate pipeline group `group` can not be authorized to approve stage")));
     }
 
     @Test
@@ -311,7 +306,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("base"), is(Arrays.asList("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)")));
+        assertThat(template.errors().getAllOn("base"), is(List.of("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)")));
     }
 
     @Test
@@ -341,7 +336,7 @@ public class PipelineTemplateConfigTest {
 
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
-        assertThat(template.errors().getAllOn("base"), is(Arrays.asList("\"downstreamPipeline :: mingle :: fetchJob\" tries to fetch artifact from job \"pipeline :: stage :: non-existent-job\" which does not exist.")));
+        assertThat(template.errors().getAllOn("base"), is(List.of("\"downstreamPipeline :: mingle :: fetchJob\" tries to fetch artifact from job \"pipeline :: stage :: non-existent-job\" which does not exist.")));
     }
 
     @Test

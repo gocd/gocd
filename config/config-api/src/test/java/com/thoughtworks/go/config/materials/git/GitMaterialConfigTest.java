@@ -156,7 +156,7 @@ class GitMaterialConfigTest {
     @Test
     void shouldHandleEmptyBranchWhileSettingConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = git("http://url", "foo");
-        gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "     "));
+        gitMaterialConfig.setConfigAttributes(Map.of(GitMaterialConfig.BRANCH, "     "));
         assertEquals("master", gitMaterialConfig.getBranch());
     }
 

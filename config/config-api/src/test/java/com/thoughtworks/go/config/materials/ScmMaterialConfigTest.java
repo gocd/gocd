@@ -27,9 +27,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Map;
 
-import static com.thoughtworks.go.config.materials.ScmMaterialConfig.*;
+import static com.thoughtworks.go.config.materials.ScmMaterialConfig.AUTO_UPDATE;
+import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ScmMaterialConfigTest {
@@ -43,7 +44,7 @@ class ScmMaterialConfigTest {
     @Test
     void shouldSetFilterToNullWhenBlank() {
         material.setFilter(new Filter(new IgnoredFiles("*.*")));
-        material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FILTER, ""));
+        material.setConfigAttributes(Map.of(ScmMaterialConfig.FILTER, ""));
         assertThat(material.filter()).isEqualTo(new Filter());
         assertThat(material.getFilterAsString()).isEqualTo("");
     }
@@ -56,26 +57,24 @@ class ScmMaterialConfigTest {
 
     @Test
     void shouldSetFolderToNullWhenBlank() {
-        material.setConfigAttributes(Collections.singletonMap(FOLDER, "foo"));
+        material.setConfigAttributes(Map.of(FOLDER, "foo"));
         assertThat(material.getFolder()).isNotNull();
 
-        material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
+        material.setConfigAttributes(Map.of(FOLDER, ""));
         assertThat(material.getFolder()).isNull();
     }
 
     @Test
     void shouldUpdateAutoUpdateFieldFromConfigAttributes() {
-        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "false"));
+        material.setConfigAttributes(Map.of(AUTO_UPDATE, "false"));
         assertThat(material.isAutoUpdate()).isFalse();
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
         assertThat(material.isAutoUpdate()).isFalse();
-        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "true"));
+        material.setConfigAttributes(Map.of(AUTO_UPDATE, "true"));
         assertThat(material.isAutoUpdate()).isTrue();
-        material.setConfigAttributes(new HashMap());
+        material.setConfigAttributes(Map.of());
         assertThat(material.isAutoUpdate()).isFalse();
-        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
-        assertThat(material.isAutoUpdate()).isFalse();
-        material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "random-stuff"));
+        material.setConfigAttributes(Map.of(AUTO_UPDATE, "random-stuff"));
         assertThat(material.isAutoUpdate()).isFalse();
     }
 
@@ -83,7 +82,7 @@ class ScmMaterialConfigTest {
     class validate {
         @Test
         void shouldNotValidateEmptyDestinationFolder() {
-            material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
+            material.setConfigAttributes(Map.of(FOLDER, ""));
             material.validate(new ConfigSaveValidationContext(null));
             assertThat(material.errors.isEmpty()).isTrue();
         }

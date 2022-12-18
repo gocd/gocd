@@ -27,7 +27,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
-import static com.thoughtworks.go.util.ExceptionUtils.*;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
 public class MaterialRevision implements Serializable {
@@ -37,7 +38,6 @@ public class MaterialRevision implements Serializable {
 
     public MaterialRevision(Material material, boolean changed, List<Modification> modifications) {
         bombIfNull(modifications, "modifications cannot be null");
-        bombIf(modifications.contains(null), "modifications cannot be null");
         this.material = material;
         this.changed = changed;
         this.modifications = new Modifications(modifications);
@@ -52,7 +52,7 @@ public class MaterialRevision implements Serializable {
     }
 
     public MaterialRevision(Material material, boolean changed, Modification... modifications) {
-        this(material, changed, Arrays.asList(modifications));
+        this(material, changed, List.of(modifications));
     }
 
     public int numberOfModifications() {

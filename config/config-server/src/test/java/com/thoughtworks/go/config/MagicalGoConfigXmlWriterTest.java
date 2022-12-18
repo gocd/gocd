@@ -55,10 +55,10 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -136,7 +136,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotWriteDuplicatedPipelines() throws Exception {
+    public void shouldNotWriteDuplicatedPipelines() {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
@@ -177,7 +177,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotWriteWhenEnvironmentNameIsNotSet() throws Exception {
+    public void shouldNotWriteWhenEnvironmentNameIsNotSet() {
         String xml = ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER;
 
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
@@ -191,7 +191,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldValidateThatEnvironmentsAreSameEvenNamesAreOfDifferentCase() throws Exception {
+    public void shouldValidateThatEnvironmentsAreSameEvenNamesAreOfDifferentCase() {
         String xml = ConfigFileFixture.WITH_DUPLICATE_ENVIRONMENTS;
         try {
 
@@ -249,7 +249,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldWriteObjectToXmlPartial() throws Exception {
+    public void shouldWriteObjectToXmlPartial() {
         String xml = ConfigFileFixture.ONE_PIPELINE;
         CruiseConfig cruiseConfig = ConfigMigrator.load(xml);
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
@@ -337,7 +337,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotSaveUserNameAndPasswordWhenBothAreEmpty() throws Exception {
+    public void shouldNotSaveUserNameAndPasswordWhenBothAreEmpty() {
         MailHost mailHost = new MailHost("hostname", 24, "", "", null, true, false, "from@te.com", "to@te.com", new GoCipher());
         mailHost.ensureEncrypted();
         String s = xmlWriter.toXmlPartial(mailHost);
@@ -386,7 +386,7 @@ public class MagicalGoConfigXmlWriterTest {
         String encryptedPassword = new GoCipher().encrypt("password");
         P4MaterialConfig p4MaterialConfig = com.thoughtworks.go.helper.MaterialConfigsMother.p4MaterialConfig();
         p4MaterialConfig.setPassword("password");
-        p4MaterialConfig.setConfigAttributes(m(
+        p4MaterialConfig.setConfigAttributes(Map.of(
                 P4MaterialConfig.SERVER_AND_PORT, "localhost:1666",
                 P4MaterialConfig.USERNAME, "cruise",
                 P4MaterialConfig.VIEW, "//depot/dir1/... //lumberjack/...",
@@ -408,14 +408,14 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldWriteHgMaterialToXmlPartial() throws Exception {
+    public void shouldWriteHgMaterialToXmlPartial() {
         HgMaterialConfig material = com.thoughtworks.go.helper.MaterialConfigsMother.hgMaterialConfig();
-        material.setConfigAttributes(m(HgMaterialConfig.URL, "http://user:pass@hg", HgMaterialConfig.AUTO_UPDATE, "true"));
+        material.setConfigAttributes(Map.of(HgMaterialConfig.URL, "http://user:pass@hg", HgMaterialConfig.AUTO_UPDATE, "true"));
         assertThat(xmlWriter.toXmlPartial(material), is("<hg url=\"http://user:pass@hg\" />"));
     }
 
     @Test
-    public void shouldWriteGitMaterialToXmlPartial() throws Exception {
+    public void shouldWriteGitMaterialToXmlPartial() {
         GitMaterialConfig gitMaterial = git("gitUrl");
         assertThat(xmlWriter.toXmlPartial(gitMaterial), is("<git url=\"gitUrl\" />"));
     }
@@ -594,7 +594,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldRemoveDuplicatedIgnoreTag() throws Exception {
+    public void shouldRemoveDuplicatedIgnoreTag() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.TWO_DUPLICATED_FILTER);
 
         int size = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().first().filter().size();
@@ -625,7 +625,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotDefineATrackingToolWithoutALink() throws Exception {
+    public void shouldNotDefineATrackingToolWithoutALink() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.setTrackingTool(new TrackingTool("", "regex"));
@@ -648,7 +648,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldNotDefineATrackingToolWithoutARegex() throws Exception {
+    public void shouldNotDefineATrackingToolWithoutARegex() {
         CruiseConfig cruiseConfig = ConfigMigrator.load(ConfigFileFixture.ONE_PIPELINE);
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.setTrackingTool(new TrackingTool("link", ""));

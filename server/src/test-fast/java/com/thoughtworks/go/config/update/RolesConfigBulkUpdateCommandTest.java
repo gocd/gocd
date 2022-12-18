@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,15 +53,15 @@ public class RolesConfigBulkUpdateCommandTest {
     @Test
     public void shouldUpdateExistingGoCDRoles() throws Exception {
         RoleConfig role1 = new RoleConfig("foo", new RoleUser("user1"));
-        List<String> userToAdd = Collections.singletonList("user2");
+        List<String> userToAdd = List.of("user2");
 
         RoleConfig role2 = new RoleConfig("bar", new RoleUser("user1"));
-        List<String> userToRemove = Collections.singletonList("user1");
+        List<String> userToRemove = List.of("user1");
 
         cruiseConfig.server().security().getRoles().add(role1);
         cruiseConfig.server().security().getRoles().add(role2);
 
-        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(Arrays.asList(
+        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(List.of(
                 new GoCDRolesBulkUpdateRequest.Operation("foo", userToAdd, Collections.emptyList()),
                 new GoCDRolesBulkUpdateRequest.Operation("bar", Collections.emptyList(), userToRemove)));
 
@@ -96,7 +95,7 @@ public class RolesConfigBulkUpdateCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
-        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(Collections.singletonList(
+        GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(List.of(
                 new GoCDRolesBulkUpdateRequest.Operation("role_that_doesnt_exist", Collections.emptyList(), Collections.emptyList())));
         RolesConfigBulkUpdateCommand command = new RolesConfigBulkUpdateCommand(request, currentUser, goConfigService, result);
 

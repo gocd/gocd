@@ -33,6 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -80,7 +81,7 @@ public class RoutesHelper {
             LOG.error(format("Unhandled exception on [%s]: %s", uri, e.getMessage()), e);
 
             res.status(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            res.body(GSON.toJson(Collections.singletonMap("error", e.getMessage())));
+            res.body(GSON.toJson(Map.of("error", e.getMessage())));
         });
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
     }
@@ -111,7 +112,7 @@ public class RoutesHelper {
 
     private void unprocessableEntity(UnprocessableEntityException exception, Request request, Response response) {
         response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
-        response.body(GSON.toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
+        response.body(GSON.toJson(Map.of("message", "Your request could not be processed. " + exception.getMessage())));
     }
 
     void httpException(HttpException ex, Request req, Response res) {
@@ -123,12 +124,12 @@ public class RoutesHelper {
         } else if (containsAny(acceptedTypes, APPLICATION_XML_VALUE, TEXT_XML_VALUE, APPLICATION_RSS_XML_VALUE, APPLICATION_ATOM_XML_VALUE)) {
             res.body(ex.asXML());
         } else {
-            res.body(GSON.toJson(Collections.singletonMap("message", ex.getMessage())));
+            res.body(GSON.toJson(Map.of("message", ex.getMessage())));
         }
     }
 
     private boolean containsAny(List<String> list, String... strs) {
-        return List.of(strs).stream().anyMatch(list::contains);
+        return Arrays.stream(strs).anyMatch(list::contains);
     }
 
     private List<String> getAcceptedTypesFromRequest(Request request) {
@@ -137,12 +138,12 @@ public class RoutesHelper {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(acceptHeader.trim().toLowerCase().split("\\s*,\\s*"));
+        return List.of(acceptHeader.trim().toLowerCase().split("\\s*,\\s*"));
     }
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {
         res.status(HttpStatus.SC_BAD_REQUEST);
-        res.body(GSON.toJson(Collections.singletonMap("error", "Payload data is not valid JSON: " + ex.getMessage())));
+        res.body(GSON.toJson(Map.of("error", "Payload data is not valid JSON: " + ex.getMessage())));
     }
 
     private class RuntimeHeaderEmitter {

@@ -34,12 +34,14 @@ import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,102 +53,52 @@ public class PluginRoleConfigTest {
 
     @Test
     public void validate_shouldValidatePresenceOfRoleName() {
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validatePresenceOfRoleName(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_shouldValidateNullRoleName() {
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validateNullRoleName(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_presenceAuthConfigId() {
-        validatePresenceAuthConfigId(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validatePresenceAuthConfigId(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_presenceOfAuthConfigIdInSecurityConfig() throws Exception {
-        validatePresenceOfAuthConfigIdInSecurityConfig(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validatePresenceOfAuthConfigIdInSecurityConfig(PluginRoleConfig::validate);
     }
 
     @Test
     public void validate_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validate(context);
-            }
-        });
+        validateUniquenessOfRoleName(PluginRoleConfig::validate);
     }
 
     @Test
     public void validateTree_shouldValidatePresenceOfRoleName() {
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validatePresenceOfRoleName((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
     public void validateTree_shouldValidateNullRoleName() {
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                pluginRoleConfig.validateTree(context);
-            }
-        });
+        validateNullRoleName(Role::validateTree);
     }
 
     @Test
     public void validateTree_presenceAuthConfigId() {
-        validatePresenceAuthConfigId(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validatePresenceAuthConfigId((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
     public void validateTree_presenceOfAuthConfigIdInSecurityConfig() throws Exception {
-        validatePresenceOfAuthConfigIdInSecurityConfig(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validatePresenceOfAuthConfigIdInSecurityConfig((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
     public void validateTree_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(PluginRoleConfig pluginRoleConfig, ValidationContext context) {
-                assertFalse(pluginRoleConfig.validateTree(context));
-            }
-        });
+        validateUniquenessOfRoleName((pluginRoleConfig, context) -> assertFalse(pluginRoleConfig.validateTree(context)));
     }
 
     @Test
@@ -260,7 +212,7 @@ public class PluginRoleConfigTest {
         BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig();
         basicCruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig(authConfigId, pluginId));
         PluginRoleConfig role = new PluginRoleConfig("admin", authConfigId);
-        role.addConfigurations(asList(
+        role.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
@@ -298,7 +250,7 @@ public class PluginRoleConfigTest {
         BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig();
         basicCruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig(authConfigId, pluginId));
         PluginRoleConfig role = new PluginRoleConfig("admin", authConfigId);
-        role.addConfigurations(asList(
+        role.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
@@ -333,7 +285,7 @@ public class PluginRoleConfigTest {
 
         BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig();
         PluginRoleConfig role = new PluginRoleConfig("admin", authConfigId);
-        role.addConfigurations(asList(
+        role.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
@@ -372,8 +324,8 @@ public class PluginRoleConfigTest {
         PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
         PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
 
-        PluggableInstanceSettings authConfigSettins = new PluggableInstanceSettings(asList(k1, k2, k3));
-        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings authConfigSettins = new PluggableInstanceSettings(List.of(k1, k2, k3));
+        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(List.of(k1, k2, k3));
 
         com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities = new com.thoughtworks.go.plugin.domain.authorization.Capabilities(SupportedAuthType.Web, true, true, true);
         AuthorizationPluginInfo artifactPluginInfo = new AuthorizationPluginInfo(pluginDescriptor, authConfigSettins, roleConfigSettings, null, capabilities);

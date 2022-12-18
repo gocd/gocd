@@ -27,9 +27,7 @@ public class ApprovalRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, Approval approval) {
         if (!approval.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(new HashMap<>()).toJSON(errorWriter, approval);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(errorWriter, approval));
         }
 
         jsonWriter.add("type", approval.getType());

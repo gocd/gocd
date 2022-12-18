@@ -23,7 +23,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import static java.util.Arrays.asList;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
@@ -51,7 +52,7 @@ public class PluginNotificationMessageListenerTest {
 
         PluginNotificationMessage message = new PluginNotificationMessage("pid", "request-name", "data");
         Result result = new Result();
-        result.withErrorMessages(asList(new String[]{"error message 1", "error message 2"}));
+        result.withErrorMessages(List.of(new String[]{"error message 1", "error message 2"}));
         when(notificationExtension.notify(message.pluginId(), message.getRequestName(), message.getData())).thenReturn(result);
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         listener.onMessage(message);

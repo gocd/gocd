@@ -29,8 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.server.service.plugins.processor.serverinfo.ServerInfoRequestProcessor.GET_SERVER_INFO;
 import static java.lang.String.format;
@@ -68,13 +67,13 @@ public class ServerInfoRequestProcessorTest {
 
     @Test
     public void shouldRegisterAPIRequestWithProcessor() {
-        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
+        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "1.0", new GoPluginIdentifier("extension1", List.of("1.0")));
         assertThat(processorRegistry.canProcess(request), is(true));
     }
 
     @Test
     public void shouldReturnAServerIdInJSONForm() {
-        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "1.0", new GoPluginIdentifier("extension1", Arrays.asList("1.0")));
+        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "1.0", new GoPluginIdentifier("extension1", List.of("1.0")));
 
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
@@ -87,7 +86,7 @@ public class ServerInfoRequestProcessorTest {
 
     @Test
     public void shouldReturnSuccessForServerInfoV2() {
-        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "2.0", new GoPluginIdentifier("extension1", Arrays.asList("1.0")));
+        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "2.0", new GoPluginIdentifier("extension1", List.of("1.0")));
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
@@ -96,7 +95,7 @@ public class ServerInfoRequestProcessorTest {
 
     @Test
     public void shouldReturnAErrorResponseIfExtensionDoesNotSupportServerInfo() {
-        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "bad-version", new GoPluginIdentifier("foo", Arrays.asList("1.0")));
+        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_INFO, "bad-version", new GoPluginIdentifier("foo", List.of("1.0")));
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 

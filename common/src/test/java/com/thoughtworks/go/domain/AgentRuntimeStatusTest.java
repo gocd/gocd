@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +25,7 @@ public class AgentRuntimeStatusTest {
 
     @Test
     public void shouldConvertToBuildState() throws Exception {
-        List<AgentRuntimeStatus> agentRuntimeStatuses = Arrays.asList(AgentRuntimeStatus.Idle, AgentRuntimeStatus.Building, AgentRuntimeStatus.Cancelled);
+        List<AgentRuntimeStatus> agentRuntimeStatuses = List.of(AgentRuntimeStatus.Idle, AgentRuntimeStatus.Building, AgentRuntimeStatus.Cancelled);
 
         for (AgentRuntimeStatus status : AgentRuntimeStatus.values()) {
             if (agentRuntimeStatuses.contains(status)) {
@@ -39,7 +38,7 @@ public class AgentRuntimeStatusTest {
 
     @Test
     public void shouldConvertToAgentState() throws Exception {
-        List<AgentRuntimeStatus> agentRuntimeStatuses = Arrays.asList(AgentRuntimeStatus.Idle, AgentRuntimeStatus.Building, AgentRuntimeStatus.LostContact, AgentRuntimeStatus.Missing);
+        List<AgentRuntimeStatus> agentRuntimeStatuses = List.of(AgentRuntimeStatus.Idle, AgentRuntimeStatus.Building, AgentRuntimeStatus.LostContact, AgentRuntimeStatus.Missing);
 
         for (AgentRuntimeStatus status : AgentRuntimeStatus.values()) {
             if (agentRuntimeStatuses.contains(status)) {

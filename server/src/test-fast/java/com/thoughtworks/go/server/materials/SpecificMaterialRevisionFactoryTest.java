@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import java.util.Collections;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -29,8 +26,11 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
+import java.util.Date;
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -50,7 +50,7 @@ public class SpecificMaterialRevisionFactoryTest {
     }
 
     @Test
-    public void shouldCreateDependencyMaterialForAPipeline() throws Exception {
+    public void shouldCreateDependencyMaterialForAPipeline() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("blah-stage"));
         MaterialConfig dependencyMaterialConfig = dependencyMaterial.config();
         MaterialRevision expected = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/4/blah-stage/2", "MOCK_LABEL-12", null));
@@ -60,17 +60,17 @@ public class SpecificMaterialRevisionFactoryTest {
         when(materialConfigConverter.toMaterial(dependencyMaterialConfig)).thenReturn(dependencyMaterial);
         when(mockMaterialChecker.findSpecificRevision(dependencyMaterial, "upstream/4/blah-stage/2")).thenReturn(expected);
 
-        MaterialRevisions materialRevisions = specificMaterialRevisionFactory.create("blahPipeline", Collections.singletonMap(upstreamFingerprint, "upstream/4/blah-stage/2"));
+        MaterialRevisions materialRevisions = specificMaterialRevisionFactory.create("blahPipeline", Map.of(upstreamFingerprint, "upstream/4/blah-stage/2"));
 
         assertThat(materialRevisions, is(new MaterialRevisions(expected)));
     }
 
     @Test
-    public void shouldThrowExceptionWhenSpecifiedMaterialDoesNotExist() throws Exception {
+    public void shouldThrowExceptionWhenSpecifiedMaterialDoesNotExist() {
         when(mockGoConfigService.findMaterial(new CaseInsensitiveString("blahPipeline"), "not-exist")).thenReturn(null);
 
         try {
-            specificMaterialRevisionFactory.create("blahPipeline", Collections.singletonMap("not-exist", "upstream/500/blah-stage/2"));
+            specificMaterialRevisionFactory.create("blahPipeline", Map.of("not-exist", "upstream/500/blah-stage/2"));
             fail("Should not be able to find material");
         } catch (Exception expected) {
             assertThat(expected.getMessage(), is("Material with fingerprint [not-exist] for pipeline [blahPipeline] does not exist"));
@@ -78,13 +78,13 @@ public class SpecificMaterialRevisionFactoryTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSpecifiedRevisionDoesNotExist() throws Exception {
+    public void shouldThrowExceptionWhenSpecifiedRevisionDoesNotExist() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("blah-stage"));
         when(mockGoConfigService.findMaterial(new CaseInsensitiveString("blahPipeline"), dependencyMaterial.getPipelineUniqueFingerprint())).thenReturn(dependencyMaterial.config());
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
         when(mockMaterialChecker.findSpecificRevision(dependencyMaterial, "upstream-pipeline/500/blah-stage/2")).thenThrow(new RuntimeException("revision not found"));
         try {
-            specificMaterialRevisionFactory.create("blahPipeline", Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/500/blah-stage/2"));
+            specificMaterialRevisionFactory.create("blahPipeline", Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/500/blah-stage/2"));
             fail("Should not be able to find revision");
         } catch (Exception expected) {
             assertThat(expected.getMessage(), is("revision not found"));

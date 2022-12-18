@@ -26,7 +26,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
 @Extension
 public class GoExtensionWithUnloadAnnotationMethodThrowingException implements GoPlugin {
@@ -46,6 +46,6 @@ public class GoExtensionWithUnloadAnnotationMethodThrowingException implements G
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("some-extension-type", List.of("1.0"));
     }
 }

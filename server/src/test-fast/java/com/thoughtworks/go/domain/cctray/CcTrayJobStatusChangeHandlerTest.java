@@ -16,10 +16,10 @@
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Users;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +33,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +47,7 @@ public class CcTrayJobStatusChangeHandlerTest {
 
 
     @Test
-    public void shouldGetJobStatusWithNewActivity_NotTheOneInCache() throws Exception {
+    public void shouldGetJobStatusWithNewActivity_NotTheOneInCache() {
         ProjectStatus status = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
         when(cache.get(projectNameFor("job1"))).thenReturn(status);
 
@@ -59,7 +58,7 @@ public class CcTrayJobStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldCreateNewStatusWithOldValuesFromCache_WhenNewJob_HasNotCompleted() throws Exception {
+    public void shouldCreateNewStatusWithOldValuesFromCache_WhenNewJob_HasNotCompleted() {
         ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
         when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
 
@@ -74,7 +73,7 @@ public class CcTrayJobStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldCreateNewStatusWithNoPartsUsedFromCache_WhenNewJob_HasCompleted() throws Exception {
+    public void shouldCreateNewStatusWithNoPartsUsedFromCache_WhenNewJob_HasCompleted() {
         ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
         when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
 
@@ -89,7 +88,7 @@ public class CcTrayJobStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldUpdateBreakersAlongWithOtherFields() throws Exception {
+    public void shouldUpdateBreakersAlongWithOtherFields() {
         String jobName = "job1";
 
         Set<String> breakers = new HashSet<>();
@@ -103,8 +102,8 @@ public class CcTrayJobStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
-        Users viewers = new AllowedUsers(s("viewer1", "viewer2"), Collections.singleton(new PluginRoleConfig("admin", "ldap")));
+    public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() {
+        Users viewers = new AllowedUsers(Set.of("viewer1", "viewer2"), Set.of(new PluginRoleConfig("admin", "ldap")));
 
         ProjectStatus oldStatusInCache = new ProjectStatus(projectNameFor("job1"), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("job1"));
         oldStatusInCache.updateViewers(viewers);
@@ -117,7 +116,7 @@ public class CcTrayJobStatusChangeHandlerTest {
     }
 
     @Test
-    public void shouldUpdateValueInCacheWhenJobHasChanged() throws Exception {
+    public void shouldUpdateValueInCacheWhenJobHasChanged() {
         String jobName = "job1";
         ProjectStatus existingStatusInCache = new ProjectStatus(projectNameFor(jobName), "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor(jobName));
         when(cache.get(projectNameFor(jobName))).thenReturn(existingStatusInCache);

@@ -26,12 +26,11 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class AbstractTfsCommandTest {
@@ -61,7 +60,7 @@ public class AbstractTfsCommandTest {
             }
 
             @Override protected List<Modification> history(String beforeRevision, long revsToLoad) {
-                return Arrays.asList(new Modification());
+                return List.of(new Modification());
             }
 
             @Override protected void retrieveFiles(File workDir, Revision revision) {
@@ -97,7 +96,7 @@ public class AbstractTfsCommandTest {
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "9"));
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "8"));
 
-        when(tfsCommand.history(null, 1)).thenReturn(Arrays.asList(modifications.get(0)));
+        when(tfsCommand.history(null, 1)).thenReturn(List.of(modifications.get(0)));
         when(tfsCommand.history("10", 3)).thenReturn(modifications);
         List<Modification> actual = tfsCommand.modificationsSince(workDir, new StringRevision("7"));
 

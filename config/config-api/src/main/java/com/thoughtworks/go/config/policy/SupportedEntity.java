@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
@@ -57,8 +56,8 @@ public enum SupportedEntity {
     }
 
     public static List<String> unmodifiableListOf(SupportedEntity... supportedEntities) {
-        return unmodifiableList(Arrays.stream(supportedEntities)
-                .map(SupportedEntity::getType)
-                .collect(Collectors.toList()));
+        return Arrays.stream(supportedEntities)
+            .map(SupportedEntity::getType)
+            .collect(Collectors.toUnmodifiableList());
     }
 }

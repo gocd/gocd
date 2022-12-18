@@ -182,9 +182,7 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
             return notModified(res);
         } else {
             setEtagHeader(res, etagFromServer);
-            return writerForTopLevelObject(req, res, writer -> {
-                ParametersRepresenter.toJSON(writer, templateConfig.name().toString(), paramConfigs);
-            });
+            return writerForTopLevelObject(req, res, writer -> ParametersRepresenter.toJSON(writer, templateConfig.name().toString(), paramConfigs));
         }
     }
 

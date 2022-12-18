@@ -44,9 +44,7 @@ public class PipelineGroupsViewModel {
     private Map<CaseInsensitiveString, EnvironmentConfig> pipelineEnvironmentMap(EnvironmentsConfig environmentConfigs) {
         HashMap<CaseInsensitiveString, EnvironmentConfig> map = new HashMap<>();
 
-        environmentConfigs.forEach(environmentConfig -> {
-            environmentConfig.getPipelineNames().forEach(name -> map.put(name, environmentConfig));
-        });
+        environmentConfigs.forEach(environmentConfig -> environmentConfig.getPipelineNames().forEach(name -> map.put(name, environmentConfig)));
         return map;
     }
 

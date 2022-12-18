@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import java.util.List;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+
+import java.util.List;
 
 public class ServerHealthMatcher {
 
@@ -30,7 +30,7 @@ public class ServerHealthMatcher {
     public static Matcher<ServerHealthService> containsState(final HealthStateType healthStateType,
                                                         final HealthStateLevel healthStateLevel,
                                                         final String message) {
-        return new TypeSafeMatcher<ServerHealthService>() {
+        return new TypeSafeMatcher<>() {
             private List<ServerHealthState> allLogs;
             private ServerHealthState entry;
             private boolean levelMatches;
@@ -70,7 +70,7 @@ public class ServerHealthMatcher {
     }
 
     public static Matcher<ServerHealthService> doesNotContainState(final HealthStateType healthStateType) {
-        return new TypeSafeMatcher<ServerHealthService>() {
+        return new TypeSafeMatcher<>() {
             private ServerHealthState entry;
 
             @Override

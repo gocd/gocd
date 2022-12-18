@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.lang.String.format;
@@ -51,7 +51,7 @@ class EntityHashesTest {
 
     @Test
     void digestDomainNonConfigEntity() {
-        assertEquals(sha512_256Hex("{\"hello\":\"world\"}"), hashes.digestDomainNonConfigEntity(Collections.singletonMap("hello", "world")));
+        assertEquals(sha512_256Hex("{\"hello\":\"world\"}"), hashes.digestDomainNonConfigEntity(Map.of("hello", "world")));
     }
 
     @Nested
@@ -82,7 +82,7 @@ class EntityHashesTest {
             ));
 
             assertEquals(expected, hashes.digest(
-                    Arrays.asList(
+                    List.of(
                             new AdminUser("bilbo"),
                             new AdminUser("baggins")
                     )

@@ -35,7 +35,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.UUID;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -66,7 +65,7 @@ public class PluginSettingsMetadataLoaderTest {
         when(configRepoExtension.extensionName()).thenReturn(PluginConstants.CONFIG_REPO_EXTENSION);
         when(taskExtension.extensionName()).thenReturn(PluginConstants.PLUGGABLE_TASK_EXTENSION);
 
-        List<GoPluginExtension> extensions = asList(packageRepositoryExtension, scmExtension, notificationExtension, configRepoExtension, taskExtension);
+        List<GoPluginExtension> extensions = List.of(packageRepositoryExtension, scmExtension, notificationExtension, configRepoExtension, taskExtension);
         metadataLoader = new PluginSettingsMetadataLoader(extensions, pluginManager);
 
         PluginSettingsMetadataStore.getInstance().clear();
@@ -79,7 +78,7 @@ public class PluginSettingsMetadataLoaderTest {
 
     @Test
     public void shouldFetchPluginSettingsMetadataForPluginBasedOnPluginId() throws Exception {
-        List<AbstractExtension> everyExtensionExceptTask = asList(packageRepositoryExtension, scmExtension, notificationExtension, configRepoExtension);
+        List<AbstractExtension> everyExtensionExceptTask = List.of(packageRepositoryExtension, scmExtension, notificationExtension, configRepoExtension);
 
         for (GoPluginExtension extension : everyExtensionExceptTask) {
             PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();

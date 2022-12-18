@@ -96,7 +96,7 @@ class ClusterProfileRepresenterTest {
     ]
 
     def elasticAgentMetadataStore = ElasticAgentMetadataStore.instance()
-    PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(Arrays.asList(
+    PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(List.of(
       new PluginConfiguration("Password", new Metadata(true, true))))
     elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(pluginDescriptor(), pluggableInstanceSettings, pluggableInstanceSettings, null, null, null))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(clusterProfile)

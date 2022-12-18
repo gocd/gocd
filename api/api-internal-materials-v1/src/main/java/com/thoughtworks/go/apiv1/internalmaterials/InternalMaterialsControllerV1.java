@@ -52,7 +52,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
@@ -143,7 +142,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         materialConfigs.forEach((materialConfig, hasOperatePermission) -> {
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
                 Material material = materialConfigConverter.toMaterial(materialConfig);
-                List<HealthStateScope> scopes = asList(forMaterial(material), forMaterialUpdate(material), forMaterialConfig(materialConfig));
+                List<HealthStateScope> scopes = List.of(forMaterial(material), forMaterialUpdate(material), forMaterialConfig(materialConfig));
                 List<ServerHealthState> logs = allLogs.stream().filter((log) -> scopes.contains(log.getType().getScope())).collect(toList());
                 Modification mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), null);
                 MaintenanceModeService.MaterialPerformingMDU mduInfo = runningMDUs.stream()

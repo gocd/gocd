@@ -26,14 +26,15 @@ import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -109,19 +110,16 @@ public class RailsAssetsServiceTest {
 
     @Test
     public void shouldHaveAssetsAsTheSerializedNameForAssetsMapInRailsAssetsManifest_ThisIsRequiredSinceManifestFileGeneratedBySprocketsHasAMapOfAssetsWhichThisServiceNeedsAccessTo(){
-        List<Field> fields = new ArrayList<>(Arrays.asList(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields()));
-        List<Field> fieldsAnnotatedWithSerializedNameAsAssets = fields.stream().filter(new Predicate<Field>() {
-            @Override
-            public boolean test(Field field) {
-                if (field.isAnnotationPresent(SerializedName.class)) {
-                    SerializedName annotation = field.getAnnotation(SerializedName.class);
-                    if (annotation.value().equals("assets")) {
-                        return true;
-                    }
-                    return false;
+        List<Field> fields = new ArrayList<>(List.of(RailsAssetsService.RailsAssetsManifest.class.getDeclaredFields()));
+        List<Field> fieldsAnnotatedWithSerializedNameAsAssets = fields.stream().filter(field -> {
+            if (field.isAnnotationPresent(SerializedName.class)) {
+                SerializedName annotation = field.getAnnotation(SerializedName.class);
+                if (annotation.value().equals("assets")) {
+                    return true;
                 }
                 return false;
             }
+            return false;
         }).collect(Collectors.toList());
         assertThat("Expected a field annotated with SerializedName 'assets'", fieldsAnnotatedWithSerializedNameAsAssets.isEmpty(), is(false));
         assertThat(fieldsAnnotatedWithSerializedNameAsAssets.size(), is(1));

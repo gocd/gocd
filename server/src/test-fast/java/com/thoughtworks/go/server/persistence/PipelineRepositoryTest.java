@@ -45,7 +45,8 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class PipelineRepositoryTest {
@@ -76,7 +77,7 @@ public class PipelineRepositoryTest {
     }
 
     @Test
-    public void shouldCachePipelineSelectionForGivenUserId() throws Exception {
+    public void shouldCachePipelineSelectionForGivenUserId() {
         String queryString = "FROM PipelineSelections WHERE userId = ?";
         PipelineSelections pipelineSelections = makePipelineSelections();
         long userId = 1L;
@@ -97,7 +98,7 @@ public class PipelineRepositoryTest {
     }
 
     @Test
-    public void shouldCachePipelineSelectionForGivenId() throws Exception {
+    public void shouldCachePipelineSelectionForGivenId() {
         PipelineSelections pipelineSelections = makePipelineSelections();
         long id = 1L;
 
@@ -113,7 +114,7 @@ public class PipelineRepositoryTest {
     }
 
     @Test
-    public void shouldInvalidatePipelineSelectionCacheOnSaveOrUpdate() throws Exception {
+    public void shouldInvalidatePipelineSelectionCacheOnSaveOrUpdate() {
         PipelineSelections pipelineSelections = makePipelineSelections();
         pipelineSelections.setId(1);
         pipelineSelections.update(Filters.defaults(), new Date(), 2L);
@@ -124,7 +125,7 @@ public class PipelineRepositoryTest {
     }
 
     @Test
-    public void shouldUpdateTimelineEntriesAndEntriesForRollback() throws Exception {
+    public void shouldUpdateTimelineEntriesAndEntriesForRollback() {
         Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", null, new BigInteger("1"), new BigInteger("1")};
         Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
 
@@ -144,7 +145,7 @@ public class PipelineRepositoryTest {
     }
 
     @Test
-    public void shouldNotUpdateTimelineEntriesAndEntriesForRollbackUponFailureDuringRetrieval() throws Exception {
+    public void shouldNotUpdateTimelineEntriesAndEntriesForRollbackUponFailureDuringRetrieval() {
         Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", null, new BigInteger("1"), new BigInteger("1")};
         Object[] pipelineRow2 = {"p1", "cause-failure-during-retrieval", new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
 
@@ -162,7 +163,7 @@ public class PipelineRepositoryTest {
     }
 
     @Test
-    public void shouldUpdateTimelineEntriesAndEntriesForRollbackDuringFailureWhileUpdatingTheDb() throws Exception {
+    public void shouldUpdateTimelineEntriesAndEntriesForRollbackDuringFailureWhileUpdatingTheDb() {
         Object[] pipelineRow1 = {"p1", new BigInteger("1"), new BigInteger("1"), new Date(), "fingerprint", 1.0, "r1", null, new BigInteger("1"), new BigInteger("1")};
         Object[] pipelineRow2 = {"p1", new BigInteger("2"), new BigInteger("2"), new Date(), "fingerprint", 2.0, "r2", null, new BigInteger("1"), new BigInteger("1")};
 

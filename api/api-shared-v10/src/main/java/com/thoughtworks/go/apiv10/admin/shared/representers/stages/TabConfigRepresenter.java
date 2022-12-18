@@ -27,16 +27,12 @@ import java.util.HashMap;
 public class TabConfigRepresenter {
 
     public static void toJSONArray(OutputListWriter tabsWriter, Tabs tabs) {
-        tabs.forEach(tab -> {
-            tabsWriter.addChild(tabWriter -> toJSON(tabWriter, tab));
-        });
+        tabs.forEach(tab -> tabsWriter.addChild(tabWriter -> toJSON(tabWriter, tab)));
     }
 
     public static void toJSON(OutputWriter jsonWriter, Tab tab) {
         if (!tab.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(new HashMap<>()).toJSON(errorWriter, tab);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(errorWriter, tab));
         }
         jsonWriter.add("name", tab.getName());
         jsonWriter.add("path", tab.getPath());
@@ -44,11 +40,7 @@ public class TabConfigRepresenter {
 
     public static Tabs fromJSONArray(JsonReader jsonReader) {
         Tabs tabsConfig = new Tabs();
-        jsonReader.readArrayIfPresent("tabs", tabs -> {
-            tabs.forEach(tab -> {
-                tabsConfig.add(fromJSON(new JsonReader(tab.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("tabs", tabs -> tabs.forEach(tab -> tabsConfig.add(fromJSON(new JsonReader(tab.getAsJsonObject())))));
         return tabsConfig;
     }
 

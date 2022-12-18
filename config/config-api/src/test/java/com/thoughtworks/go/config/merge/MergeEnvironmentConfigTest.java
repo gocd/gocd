@@ -24,13 +24,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.*;
@@ -131,8 +129,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
             List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
 
             assertThat(pipelineNames).hasSize(2)
-                    .contains(new CaseInsensitiveString("deployment"),
-                            new CaseInsensitiveString("testing"));
+                .contains(new CaseInsensitiveString("deployment"),
+                    new CaseInsensitiveString("testing"));
         }
 
         @Test
@@ -247,32 +245,32 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         }
 
         @Test
-        void shouldReturnTrueIfAssociatedAgentUUIDsAreFromSpecifiedSetOfUUIDs(){
+        void shouldReturnTrueIfAssociatedAgentUUIDsAreFromSpecifiedSetOfUUIDs() {
             pairEnvironmentConfig.addAgent("uuid1");
             pairEnvironmentConfig.addAgent("uuid2");
             pairEnvironmentConfig.addAgent("uuid3");
 
-            boolean result = pairEnvironmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid3", "uuid4")));
+            boolean result = pairEnvironmentConfig.validateContainsAgentUUIDsFrom(Set.of("uuid1", "uuid2", "uuid3", "uuid4"));
             assertThat(result).isTrue();
         }
 
         @Test
-        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDs(){
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDs() {
             pairEnvironmentConfig.addAgent("uuid1");
             pairEnvironmentConfig.addAgent("uuid2");
             pairEnvironmentConfig.addAgent("uuid3");
 
-            boolean result = pairEnvironmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(asList("uuid1", "uuid2", "uuid4")));
+            boolean result = pairEnvironmentConfig.validateContainsAgentUUIDsFrom(Set.of("uuid1", "uuid2", "uuid4"));
             assertThat(result).isFalse();
         }
 
         @Test
-        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDsBecauseSpecifiedSetIsEmpty(){
+        void shouldReturnFalseIfAssociatedAgentUUIDsAreNotFromSpecifiedSetOfUUIDsBecauseSpecifiedSetIsEmpty() {
             environmentConfig.addAgent("uuid1");
             environmentConfig.addAgent("uuid2");
             environmentConfig.addAgent("uuid3");
 
-            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(new HashSet<>(emptyList()));
+            boolean result = environmentConfig.validateContainsAgentUUIDsFrom(Set.of());
             assertThat(result).isFalse();
         }
     }
@@ -299,8 +297,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
             MergeEnvironmentConfig mergeEnvironmentConfig = new MergeEnvironmentConfig(basicEnvironmentConfig);
             assertThatCode(mergeEnvironmentConfig::getFirstEditablePart)
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("No editable configuration part");
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("No editable configuration part");
         }
 
         @Test
@@ -434,8 +432,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         uatLocalPart.addEnvironmentVariable("hello", "world");
         environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
-        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
-                asList(envVar("foo", "bar"), envVar("baz", "quux"), envVar("hello", "you"))));
+        environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.VARIABLES_FIELD,
+            List.of(envVar("foo", "bar"), envVar("baz", "quux"), envVar("hello", "you"))));
 
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("hello", "you"));
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("foo", "bar"));
@@ -503,8 +501,8 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         singleEnvironmentConfig.addPipeline(p1);
         singleEnvironmentConfig.addPipeline(p2);
 
-        assertThatCode(() -> singleEnvironmentConfig.validateContainsOnlyPipelines(asList(p1, p2)))
-                .doesNotThrowAnyException();
+        assertThatCode(() -> singleEnvironmentConfig.validateContainsOnlyPipelines(List.of(p1, p2)))
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -516,9 +514,9 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         singleEnvironmentConfig.addPipeline(p1);
         singleEnvironmentConfig.addPipeline(p2);
 
-        assertThatCode(() -> singleEnvironmentConfig.validateContainsOnlyPipelines(asList(p1, p3)))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Environment 'UAT' refers to an unknown pipeline 'pipeline-2'.");
+        assertThatCode(() -> singleEnvironmentConfig.validateContainsOnlyPipelines(List.of(p1, p3)))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Environment 'UAT' refers to an unknown pipeline 'pipeline-2'.");
     }
 
     @Test
@@ -533,7 +531,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
-    void shouldAddAgentIfNew(){
+    void shouldAddAgentIfNew() {
         pairEnvironmentConfig.addAgentIfNew("uuid1");
         pairEnvironmentConfig.addAgentIfNew("uuid2");
         pairEnvironmentConfig.addAgentIfNew("uuid3");
@@ -543,7 +541,7 @@ class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
-    void shouldAddAgentIfNewAndIfAnyPartIsEditable(){
+    void shouldAddAgentIfNewAndIfAnyPartIsEditable() {
         BasicEnvironmentConfig part1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
         BasicEnvironmentConfig part2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"));
 

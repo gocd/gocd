@@ -35,11 +35,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -78,12 +77,12 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
 
         @Test
         void shouldEncryptASecureVariable() {
-            PluggableInstanceSettings securityConfigSettings = new PluggableInstanceSettings(asList(new PluginConfiguration("password", new Metadata(true, true))));
+            PluggableInstanceSettings securityConfigSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
             SecretsPluginInfo pluginInfo = new SecretsPluginInfo(pluginDescriptor("plugin_id"), securityConfigSettings, null);
 
             store.setPluginInfo(pluginInfo);
             SecretConfig secretConfig = new SecretConfig("id", "plugin_id");
-            secretConfig.addConfigurations(asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+            secretConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
             assertThat(secretConfig.getConfiguration()).hasSize(1);
             assertThat(secretConfig.getConfiguration().first().isSecure()).isTrue();
@@ -108,7 +107,7 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
     class postConstruct {
         @Test
         void shouldEncryptSecureConfigurations() {
-            PluggableInstanceSettings secretsConfigSettings = new PluggableInstanceSettings(singletonList(new PluginConfiguration("password", new Metadata(true, true))));
+            PluggableInstanceSettings secretsConfigSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
             SecretsPluginInfo pluginInfo = new SecretsPluginInfo(pluginDescriptor("plugin_id"), secretsConfigSettings, null);
 
             store.setPluginInfo(pluginInfo);

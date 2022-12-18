@@ -25,15 +25,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.TEST_AGENT;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JarUtilTest {
 
@@ -69,6 +68,6 @@ public class JarUtilTest {
         assertEquals(files, actualFiles);
         assertEquals(files.size(), 2);
         Set<String> fileNames = files.stream().map(File::getName).collect(Collectors.toSet());
-        assertEquals(fileNames, new HashSet<>(Arrays.asList("ArgPrintingMain.class", "HelloWorldStreamWriter.class")));
+        assertEquals(fileNames, Set.of("ArgPrintingMain.class", "HelloWorldStreamWriter.class"));
     }
 }

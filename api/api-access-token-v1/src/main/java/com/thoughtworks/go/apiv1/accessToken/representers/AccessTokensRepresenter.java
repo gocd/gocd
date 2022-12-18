@@ -27,9 +27,7 @@ public class AccessTokensRepresenter {
                 .addLink("self", urlBuilder.base())
                 .addAbsoluteLink("doc", urlBuilder.doc()))
                 .addChild("_embedded", embeddedWriter ->
-                        embeddedWriter.addChildList("access_tokens", AccessTokenWriter -> {
-                            allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, urlBuilder, token)));
-                        })
+                        embeddedWriter.addChildList("access_tokens", AccessTokenWriter -> allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, urlBuilder, token))))
                 );
     }
 }

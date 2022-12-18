@@ -18,23 +18,22 @@ package com.thoughtworks.go.config.update;
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ConfigUpdateAjaxResponseTest {
 
     @Test
     public void shouldGetJsonRepresentationForFailure() throws Exception {
         HashMap<String, List<String>> fieldErrors = new HashMap<>();
-        fieldErrors.put("field1", Arrays.asList("error 1"));
-        fieldErrors.put("field2", Arrays.asList("error 2"));
-        ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, Arrays.asList("global1", "global2"));
+        fieldErrors.put("field1", List.of("error 1"));
+        fieldErrors.put("field2", List.of("error 2"));
+        ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, List.of("global1", "global2"));
         String jsonString = response.toJson();
         assertThat(response.getStatusCode(),is(SC_BAD_REQUEST));
         JsonFluentAssert.assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}");

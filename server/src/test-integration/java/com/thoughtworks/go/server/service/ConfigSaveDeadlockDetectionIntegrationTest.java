@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -156,17 +155,14 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         for (int i = 0; i < count; i++) {
             Thread timerThread = null;
             try {
-                timerThread = createThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            writeConfigToFile(new File(goConfigDao.fileLocation()));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            fail("Failed with error: " + e.getMessage());
-                        }
-                        cachedGoConfig.forceReload();
+                timerThread = createThread(() -> {
+                    try {
+                        writeConfigToFile(new File(goConfigDao.fileLocation()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        fail("Failed with error: " + e.getMessage());
                     }
+                    cachedGoConfig.forceReload();
                 }, "timer-thread");
             } catch (InterruptedException e) {
                 fail(e.getMessage());
@@ -227,90 +223,54 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     }
 
     private Thread configRepoSaveThread(final ConfigRepoConfig configRepoConfig, final int counter) throws InterruptedException {
-        return createThread(new Runnable() {
-            @Override
-            public void run() {
-                partialConfigService.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1")));
-            }
-        }, "config-repo-save-thread" + counter);
+        return createThread(() -> partialConfigService.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1"))), "config-repo-save-thread" + counter);
     }
 
     private Thread fullConfigSaveThread(final int counter) throws InterruptedException {
-        return createThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
-                    CruiseConfig cruiseConfig1 = configHelper.deepClone(cruiseConfig);
-                    cruiseConfig1.addEnvironment(UUID.randomUUID().toString());
+        return createThread(() -> {
+            try {
+                CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
+                CruiseConfig cruiseConfig1 = configHelper.deepClone(cruiseConfig);
+                cruiseConfig1.addEnvironment(UUID.randomUUID().toString());
 
-                    goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig1, cruiseConfig.getMd5()));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig1, cruiseConfig.getMd5()));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }, "full-config-save-thread" + counter);
 
     }
 
     private Thread configRepoDeleteThread(final ConfigRepoConfig configRepoToBeDeleted, final int counter) throws InterruptedException {
-        return createThread(new Runnable() {
-            @Override
-            public void run() {
-                goConfigService.updateConfig(new UpdateConfigCommand() {
-                    @Override
-                    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                        ConfigRepoConfig repoConfig = cruiseConfig.getConfigRepos().stream().filter(new Predicate<ConfigRepoConfig>() {
-                            @Override
-                            public boolean test(ConfigRepoConfig item) {
-                                return configRepoToBeDeleted.getRepo().equals(item.getRepo());
-                            }
-                        }).findFirst().orElse(null);
-                        cruiseConfig.getConfigRepos().remove(repoConfig);
-                        return cruiseConfig;
-                    }
-                });
-            }
-        }, "config-repo-delete-thread" + counter);
+        return createThread(() -> goConfigService.updateConfig(cruiseConfig -> {
+            ConfigRepoConfig repoConfig = cruiseConfig.getConfigRepos().stream().filter(item -> configRepoToBeDeleted.getRepo().equals(item.getRepo())).findFirst().orElse(null);
+            cruiseConfig.getConfigRepos().remove(repoConfig);
+            return cruiseConfig;
+        }), "config-repo-delete-thread" + counter);
     }
 
     private Thread pipelineSaveThread(int counter) throws InterruptedException {
-        return createThread(new Runnable() {
-            @Override
-            public void run() {
-                PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
-                HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-                pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
-                assertThat(result.message(), result.isSuccessful(), is(true));
-            }
+        return createThread(() -> {
+            PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
+            assertThat(result.message(), result.isSuccessful(), is(true));
         }, "pipeline-config-save-thread" + counter);
     }
 
     private Thread configSaveThread(final int counter) throws InterruptedException {
-        return createThread(new Runnable() {
-            @Override
-            public void run() {
-                goConfigService.updateConfig(new UpdateConfigCommand() {
-                    @Override
-                    public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                        PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
-                        cruiseConfig.addPipeline("default", pipelineConfig);
-                        return cruiseConfig;
-                    }
-                });
-
-            }
-        }, "config-save-thread" + counter);
+        return createThread(() -> goConfigService.updateConfig(cruiseConfig -> {
+            PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
+            cruiseConfig.addPipeline("default", pipelineConfig);
+            return cruiseConfig;
+        }), "config-save-thread" + counter);
     }
 
     private Thread createThread(Runnable runnable, String name) throws InterruptedException {
         Thread thread = new Thread(runnable, name);
-        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage(), e);
-            }
+        thread.setUncaughtExceptionHandler((t, e) -> {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
         });
         return thread;
     }

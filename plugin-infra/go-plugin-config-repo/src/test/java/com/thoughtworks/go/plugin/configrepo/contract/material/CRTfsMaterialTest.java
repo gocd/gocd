@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,7 +37,7 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
     public CRTfsMaterialTest() {
         simpleTfs = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", "projectDir", null);
 
-        customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false, false, "user4", Arrays.asList("tools", "externals"), "url3", "projectDir", "example.com");
+        customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false, false, "user4", List.of("tools", "externals"), "url3", "projectDir", "example.com");
         customTfs.setPassword("pass");
 
         invalidTfsNoUrl = new CRTfsMaterial(null, null, false, false, "user1", null, null, "projectDir", null);

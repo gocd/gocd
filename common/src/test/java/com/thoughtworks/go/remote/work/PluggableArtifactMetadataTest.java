@@ -24,12 +24,12 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PluggableArtifactMetadataTest {
     @Test
@@ -38,9 +38,9 @@ public class PluggableArtifactMetadataTest {
 
         assertTrue(pluggableArtifactMetadata.getMetadataPerPlugin().isEmpty());
 
-        pluggableArtifactMetadata.addMetadata("docker", "installer", Collections.singletonMap("image", "alpine"));
+        pluggableArtifactMetadata.addMetadata("docker", "installer", Map.of("image", "alpine"));
 
-        assertThat(pluggableArtifactMetadata.getMetadataPerPlugin(), Matchers.hasEntry("docker", Collections.singletonMap("installer", Collections.singletonMap("image", "alpine"))));
+        assertThat(pluggableArtifactMetadata.getMetadataPerPlugin(), Matchers.hasEntry("docker", Map.of("installer", Map.of("image", "alpine"))));
     }
 
     @Test
@@ -49,21 +49,21 @@ public class PluggableArtifactMetadataTest {
 
         assertTrue(pluggableArtifactMetadata.getMetadataPerPlugin().isEmpty());
 
-        pluggableArtifactMetadata.addMetadata("docker", "centos", Collections.singletonMap("image", "centos"));
-        pluggableArtifactMetadata.addMetadata("docker", "alpine", Collections.singletonMap("image", "alpine"));
+        pluggableArtifactMetadata.addMetadata("docker", "centos", Map.of("image", "centos"));
+        pluggableArtifactMetadata.addMetadata("docker", "alpine", Map.of("image", "alpine"));
 
         final Map<String, Map> docker = pluggableArtifactMetadata.getMetadataPerPlugin().get("docker");
         assertNotNull(docker);
-        assertThat(docker, Matchers.hasEntry("centos", Collections.singletonMap("image", "centos")));
-        assertThat(docker, Matchers.hasEntry("alpine", Collections.singletonMap("image", "alpine")));
+        assertThat(docker, Matchers.hasEntry("centos", Map.of("image", "centos")));
+        assertThat(docker, Matchers.hasEntry("alpine", Map.of("image", "alpine")));
     }
 
     @Test
     public void shouldWriteMetadataFile(@TempDir File workingDirectory) throws IOException {
         final PluggableArtifactMetadata pluggableArtifactMetadata = new PluggableArtifactMetadata();
 
-        pluggableArtifactMetadata.addMetadata("cd.go.docker-registry", "centos", Collections.singletonMap("image", "centos"));
-        pluggableArtifactMetadata.addMetadata("cd.go.docker-registry", "alpine", Collections.singletonMap("image", "alpine"));
+        pluggableArtifactMetadata.addMetadata("cd.go.docker-registry", "centos", Map.of("image", "centos"));
+        pluggableArtifactMetadata.addMetadata("cd.go.docker-registry", "alpine", Map.of("image", "alpine"));
 
         pluggableArtifactMetadata.write(workingDirectory);
 

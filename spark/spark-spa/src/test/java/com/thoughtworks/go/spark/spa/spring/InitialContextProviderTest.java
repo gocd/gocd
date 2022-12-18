@@ -30,8 +30,8 @@ import com.thoughtworks.go.spark.SparkController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +72,7 @@ class InitialContextProviderTest {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(true);
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(combinedPluginInfo));
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(combinedPluginInfo));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(true);
     }
@@ -82,7 +82,7 @@ class InitialContextProviderTest {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(false);
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(combinedPluginInfo));
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(combinedPluginInfo));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }
@@ -91,7 +91,7 @@ class InitialContextProviderTest {
     void shouldNotShowAnalyticsDashboardPluginIsNotPresent() {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(true);
-        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo()));
+        when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo()));
         Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
         assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }

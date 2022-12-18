@@ -45,9 +45,7 @@ public class PluggableScmMaterialRepresenter implements MaterialRepresenter<Plug
 
         }
         jsonReader.readStringIfPresent("destination", pluggableSCMMaterialConfig::setFolder);
-        jsonReader.optJsonObject("filter").ifPresent(filterReader -> {
-            pluggableSCMMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader));
-        });
+        jsonReader.optJsonObject("filter").ifPresent(filterReader -> pluggableSCMMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader)));
         return pluggableSCMMaterialConfig;
     }
 }

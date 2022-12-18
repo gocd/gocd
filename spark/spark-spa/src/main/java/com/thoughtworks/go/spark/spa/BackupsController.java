@@ -26,6 +26,7 @@ import spark.Response;
 import spark.TemplateEngine;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static spark.Spark.*;
@@ -34,7 +35,7 @@ public class BackupsController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
-    private BackupService backupService;
+    private final BackupService backupService;
 
     public BackupsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, BackupService backupService) {
         this.authenticationHelper = authenticationHelper;
@@ -56,15 +57,15 @@ public class BackupsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Backup");
-            put("meta", meta());
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Backup",
+            "meta", meta()
+        );
 
         return new ModelAndView(object, null);
     }
 
-    private HashMap<String, String> meta() {
+    private Map<String, String> meta() {
         HashMap<String, String> meta = new HashMap<>();
         Optional<DateTime> dateTime = backupService.lastBackupTime().map(DateTime::new);
         meta.put("lastBackupTime", dateTime.map(Object::toString).orElse(null));

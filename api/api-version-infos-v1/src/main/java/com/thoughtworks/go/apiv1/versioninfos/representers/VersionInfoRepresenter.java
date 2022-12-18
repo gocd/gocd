@@ -35,10 +35,8 @@ public class VersionInfoRepresenter {
         if (versionInfo == null) {
             return;
         }
-        outputWriter.addLinks(linkWriter -> {
-            linkWriter.addAbsoluteLink("doc", apiDocsUrl("#version-info"))
-                    .addLink("self", Routes.VersionInfos.BASE + Routes.VersionInfos.STALE);
-        }).add("component_name", versionInfo.getComponentName());
+        outputWriter.addLinks(linkWriter -> linkWriter.addAbsoluteLink("doc", apiDocsUrl("#version-info"))
+                .addLink("self", Routes.VersionInfos.BASE + Routes.VersionInfos.STALE)).add("component_name", versionInfo.getComponentName());
 
         renderUpdatedServerUrl(outputWriter, versionInfo, systemEnvironment);
 

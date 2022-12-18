@@ -32,15 +32,15 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.filteredHgMaterialConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PipelineConfigDependencyGraphTest {
 
@@ -61,10 +61,10 @@ public class PipelineConfigDependencyGraphTest {
         );
 
         Queue<PipelineConfigDependencyGraph.PipelineConfigQueueEntry> queue = new LinkedList<>();
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up1, Arrays.asList(current, up1)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up2, Arrays.asList(current, up2)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, Arrays.asList(current, up1, uppest)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, Arrays.asList(current, up2, uppest)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up1, List.of(current, up1)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up2, List.of(current, up2)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up1, uppest)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up2, uppest)));
         assertThat(dependencyGraph.buildQueue(), is(queue));
     }
 
@@ -82,14 +82,14 @@ public class PipelineConfigDependencyGraphTest {
         );
 
         Queue<PipelineConfigDependencyGraph.PipelineConfigQueueEntry> queue = new LinkedList<>();
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up1, Arrays.asList(current, up1)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up2, Arrays.asList(current, up2)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(upper, Arrays.asList(current, up1, upper)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, Arrays.asList(current, up1, uppest)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(upper, Arrays.asList(current, up2, upper)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, Arrays.asList(current, up2, uppest)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, Arrays.asList(current, up1, upper, uppest)));
-        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, Arrays.asList(current, up2, upper, uppest)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up1, List.of(current, up1)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up2, List.of(current, up2)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(upper, List.of(current, up1, upper)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up1, uppest)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(upper, List.of(current, up2, upper)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up2, uppest)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up1, upper, uppest)));
+        queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(uppest, List.of(current, up2, upper, uppest)));
         Queue<PipelineConfigDependencyGraph.PipelineConfigQueueEntry> configQueueEntryQueue = dependencyGraph.buildQueue();
         assertThat(configQueueEntryQueue, is(queue));
     }

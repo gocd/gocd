@@ -567,10 +567,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public List<CaseInsensitiveString> pipelinesWithMaterial(String fingerprint) {
         ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
-        getAllPipelineConfigs().forEach(pipeline -> {
-            pipeline.materialConfigs().stream().filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint)).findFirst().ifPresent(expectedMaterialConfig -> pipelineNames.add(pipeline.name()));
-
-        });
+        getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().stream().filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint)).findFirst().ifPresent(expectedMaterialConfig -> pipelineNames.add(pipeline.name())));
         return pipelineNames;
     }
 

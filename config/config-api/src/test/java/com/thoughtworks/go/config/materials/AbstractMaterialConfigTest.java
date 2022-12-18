@@ -37,7 +37,7 @@ class AbstractMaterialConfigTest {
         TestMaterialConfig testMaterialConfig = new TestMaterialConfig("foo");
 
         String pipelineUniqueFingerprint = testMaterialConfig.getPipelineUniqueFingerprint();
-        testMaterialConfig.setConfigAttributes(m("bar", "baz"));
+        testMaterialConfig.setConfigAttributes(Map.of("bar", "baz"));
         assertThat(testMaterialConfig.getPipelineUniqueFingerprint()).isNotEqualTo(pipelineUniqueFingerprint);
     }
 
@@ -57,7 +57,7 @@ class AbstractMaterialConfigTest {
         AbstractMaterialConfig testMaterialConfig = new TestMaterialConfig("foo");
 
         Map<String, Object> sqlCriteria = testMaterialConfig.getSqlCriteria();
-        testMaterialConfig.setConfigAttributes(m("bar", "baz"));
+        testMaterialConfig.setConfigAttributes(Map.of("bar", "baz"));
         assertThat(testMaterialConfig.getSqlCriteria()).isNotEqualTo(sqlCriteria);
         assertThat(testMaterialConfig.getSqlCriteria().get("foo")).isEqualTo("baz");
     }
@@ -132,12 +132,6 @@ class AbstractMaterialConfigTest {
         materialConfig.setName(new CaseInsensitiveString(""));
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
-    }
-
-    private Map<String, String> m(String key, String value) {
-        HashMap<String, String> map = new HashMap<>();
-        map.put(key, value);
-        return map;
     }
 
     public static class TestMaterialConfig extends AbstractMaterialConfig {

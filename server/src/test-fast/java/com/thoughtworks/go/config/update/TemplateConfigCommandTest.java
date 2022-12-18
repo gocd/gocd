@@ -31,7 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -64,7 +64,7 @@ public class TemplateConfigCommandTest {
         cruiseConfig.addTemplate(templateConfig);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(templateConfig.errors().getAllOn("name"), is(Arrays.asList("Invalid template name '@#$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(templateConfig.errors().getAllOn("name"), is(List.of("Invalid template name '@#$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class TemplateConfigCommandTest {
         cruiseConfig.addTemplate(templateConfig2);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig2, currentUser, securityService, result, externalArtifactsService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(templateConfig2.errors().getAllOn("name"), is(Arrays.asList("Template name 'template' is not unique")));
+        assertThat(templateConfig2.errors().getAllOn("name"), is(List.of("Template name 'template' is not unique")));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class TemplateConfigCommandTest {
         cruiseConfig.addTemplate(templateConfig);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(templateConfig.getStage(new CaseInsensitiveString("stage")).errors().getAllOn("name"), is(Arrays.asList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
+        assertThat(templateConfig.getStage(new CaseInsensitiveString("stage")).errors().getAllOn("name"), is(List.of("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
     }
 
 

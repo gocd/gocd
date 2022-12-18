@@ -42,10 +42,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
-import static java.util.Arrays.asList;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -53,7 +55,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(ClearSingleton.class)
 class WebBasedPluginAuthenticationProviderTest {
     private static final String PLUGIN_ID = "github.oauth";
-    private static final AccessToken CREDENTIALS = new AccessToken(singletonMap("access_token", "some-token"));
+    private static final AccessToken CREDENTIALS = new AccessToken(Map.of("access_token", "some-token"));
     private AuthorizationExtension authorizationExtension;
     private PluginRoleService pluginRoleService;
     private TestingClock clock;
@@ -93,7 +95,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
-            verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), singletonList(adminRole));
+            verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubSecurityAuthconfig), List.of(adminRole));
         }
 
         @Test
@@ -110,7 +112,7 @@ class WebBasedPluginAuthenticationProviderTest {
             securityConfig.addRole(adminRole);
             securityConfig.addRole(operatorRole);
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubPublic), singletonList(adminRole))).thenReturn(new AuthenticationResponse(user, asList("admin")));
+            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubPublic), List.of(adminRole))).thenReturn(new AuthenticationResponse(user, List.of("admin")));
 
             final AuthenticationToken<AccessToken> authenticationToken = authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
@@ -121,14 +123,14 @@ class WebBasedPluginAuthenticationProviderTest {
             assertThat(authenticationToken.getUser().getAuthorities())
                     .containsExactly(ROLE_USER.asAuthority());
 
-            verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubPublic), singletonList(adminRole));
-            verify(authorizationExtension, never()).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubEnterprise), singletonList(operatorRole));
+            verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubPublic), List.of(adminRole));
+            verify(authorizationExtension, never()).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubEnterprise), List.of(operatorRole));
         }
 
         @Test
         void shouldCreateUserIfDoesNotExist() {
             final User user = new User("username", "displayname", "emailId");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
 
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
@@ -148,7 +150,7 @@ class WebBasedPluginAuthenticationProviderTest {
         @Test
         void shouldAssignRolesToUser() {
             final User user = new User("username", "displayname", "emailId");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
 
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
@@ -159,7 +161,7 @@ class WebBasedPluginAuthenticationProviderTest {
         @Test
         void shouldReturnAuthenticationTokenOnSuccessfulAuthorization() {
             final User user = new User("username", "displayname", "emailId");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
 
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
 
@@ -176,7 +178,7 @@ class WebBasedPluginAuthenticationProviderTest {
         @Test
         void shouldReturnAuthTokenWithUserDetails() {
             final User user = new User("username", "displayname", "emailId");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
 
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
 
@@ -190,7 +192,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
         @Test
         void shouldEnsureUserDetailsInAuthTokenHasDisplayName() {
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(new User("username", null, "email"), asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(new User("username", null, "email"), List.of("admin"));
 
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
 
@@ -202,21 +204,21 @@ class WebBasedPluginAuthenticationProviderTest {
         @Test
         void shouldAssignRoleBeforeGrantingAnAuthority() {
             final User user = new User("username", null, "email");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
 
             final InOrder inOrder = inOrder(pluginRoleService, authorityGranter);
 
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
-            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), asList(new CaseInsensitiveString("admin")));
+            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(new CaseInsensitiveString("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }
 
         @Test
         void shouldPerformOperationInSequence() {
             final User user = new User("username", null, "email");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
 
             final InOrder inOrder = inOrder(authorizationExtension, pluginRoleService, authorityGranter, userService);
@@ -225,16 +227,16 @@ class WebBasedPluginAuthenticationProviderTest {
 
             inOrder.verify(authorizationExtension).authenticateUser(eq(PLUGIN_ID), eq(CREDENTIALS.getCredentials()), anyList(), anyList());
             inOrder.verify(userService).addOrUpdateUser(any(com.thoughtworks.go.domain.User.class), eq(githubSecurityAuthconfig));
-            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), asList(new CaseInsensitiveString("admin")));
+            inOrder.verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), List.of(new CaseInsensitiveString("admin")));
             inOrder.verify(authorityGranter).authorities(user.getUsername());
         }
 
         @Test
         void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
             final User user = new User("username", null, "email");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
+            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
             doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any(), any());
 
             assertThatThrownBy(() -> authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID))
@@ -252,14 +254,14 @@ class WebBasedPluginAuthenticationProviderTest {
 
             authenticationProvider.reauthenticate(oldAuthenticationToken);
 
-            verify(authorizationExtension).authenticateUser(eq(PLUGIN_ID), eq(CREDENTIALS.getCredentials()), eq(singletonList(githubSecurityAuthconfig)), anyList());
+            verify(authorizationExtension).authenticateUser(eq(PLUGIN_ID), eq(CREDENTIALS.getCredentials()), eq(List.of(githubSecurityAuthconfig)), anyList());
         }
 
         @Test
         void shouldReturnNullInCaseOfErrors() {
             final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
             final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(user, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
-            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList()))
+            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubSecurityAuthconfig), emptyList()))
                     .thenReturn(null);
 
             final AuthenticationToken<AccessToken> authenticationToken = authenticationProvider.reauthenticate(oldAuthenticationToken);
@@ -278,8 +280,8 @@ class WebBasedPluginAuthenticationProviderTest {
 
             authenticationProvider.reauthenticate(oldAuthenticationToken);
 
-            verify(authorizationExtension, never()).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList());
-            verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubPrivateSecurityConfig), emptyList());
+            verify(authorizationExtension, never()).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubSecurityAuthconfig), emptyList());
+            verify(authorizationExtension).authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubPrivateSecurityConfig), emptyList());
         }
 
         @Test
@@ -288,9 +290,9 @@ class WebBasedPluginAuthenticationProviderTest {
             final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
 
             final User user = new User("username", null, "email");
-            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, asList("admin"));
+            AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), singletonList(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
+            when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubSecurityAuthconfig), emptyList())).thenReturn(authenticationResponse);
             doThrow(new OnlyKnownUsersAllowedException("username", "Please ask the administrator to add you to GoCD.")).when(userService).addOrUpdateUser(any(), any());
 
             assertThatThrownBy(() -> authenticationProvider.reauthenticate(oldAuthenticationToken))
@@ -309,8 +311,8 @@ class WebBasedPluginAuthenticationProviderTest {
 
         authenticationProvider.getAuthorizationServerUrl(PLUGIN_ID, "https://example.com");
 
-        verify(authorizationExtension, never()).getAuthorizationServerUrl(PLUGIN_ID, singletonList(githubSecurityAuthconfig), "https://example.com");
-        verify(authorizationExtension).getAuthorizationServerUrl(PLUGIN_ID, singletonList(githubSecurityAuthconfig), "https://foo.bar.com");
+        verify(authorizationExtension, never()).getAuthorizationServerUrl(PLUGIN_ID, List.of(githubSecurityAuthconfig), "https://example.com");
+        verify(authorizationExtension).getAuthorizationServerUrl(PLUGIN_ID, List.of(githubSecurityAuthconfig), "https://foo.bar.com");
     }
 
     @Test
@@ -321,7 +323,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
         authenticationProvider.getAuthorizationServerUrl(PLUGIN_ID, "https://example.com");
 
-        verify(authorizationExtension).getAuthorizationServerUrl(PLUGIN_ID, singletonList(githubSecurityAuthconfig), "https://example.com");
+        verify(authorizationExtension).getAuthorizationServerUrl(PLUGIN_ID, List.of(githubSecurityAuthconfig), "https://example.com");
     }
 
     @Test
@@ -339,9 +341,9 @@ class WebBasedPluginAuthenticationProviderTest {
 
     @Test
     void shouldFetchAccessTokenFromPlugin() {
-        when(authorizationExtension.fetchAccessToken(PLUGIN_ID, emptyMap(), singletonMap("code", "some-code"), singletonList(githubSecurityAuthconfig))).thenReturn(singletonMap("access_token", "some-access-token"));
+        when(authorizationExtension.fetchAccessToken(PLUGIN_ID, emptyMap(), Map.of("code", "some-code"), List.of(githubSecurityAuthconfig))).thenReturn(Map.of("access_token", "some-access-token"));
 
-        final AccessToken accessToken = authenticationProvider.fetchAccessToken(PLUGIN_ID, emptyMap(), singletonMap("code", "some-code"));
+        final AccessToken accessToken = authenticationProvider.fetchAccessToken(PLUGIN_ID, emptyMap(), Map.of("code", "some-code"));
 
         assertThat(accessToken.getCredentials())
                 .containsEntry("access_token", "some-access-token")

@@ -20,7 +20,7 @@ import com.beust.jcommander.ParameterException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
+import java.util.List;
 
 public class ServerUrlValidator implements IParameterValidator {
 
@@ -33,7 +33,7 @@ public class ServerUrlValidator implements IParameterValidator {
             throw new ParameterException(name + " is not a valid url");
         }
 
-        if (!Arrays.asList("http", "https").contains(serverUrl.getProtocol())) {
+        if (!List.of("http", "https").contains(serverUrl.getProtocol())) {
             throw new ParameterException(name + " must use http or https protocol");
         }
 

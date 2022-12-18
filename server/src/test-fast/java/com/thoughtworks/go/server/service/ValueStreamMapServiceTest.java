@@ -47,12 +47,14 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertDepth;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
-import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -286,9 +288,9 @@ public class ValueStreamMapServiceTest {
          * */
 
         GitMaterial git = new GitMaterial("git");
-        BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
-        BuildCause p2buildCause = createBuildCause(new ArrayList<>(), asList(git));
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p3buildCause = createBuildCause(List.of("p1", "p2"), new ArrayList<>());
+        BuildCause p2buildCause = createBuildCause(new ArrayList<>(), List.of(git));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
 
 
         when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
@@ -337,7 +339,7 @@ public class ValueStreamMapServiceTest {
         GitMaterial gitMaterial = new GitMaterial("git");
         MaterialConfig gitConfig = gitMaterial.config();
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", null, "master", "submodule", "flyweight");
-        BuildCause p2buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
+        BuildCause p2buildCause = createBuildCause(new ArrayList<>(), List.of(gitMaterial));
         Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
         String gitRevision = gitModification.getRevision();
 
@@ -394,9 +396,9 @@ public class ValueStreamMapServiceTest {
         String p1 = "p1";
         String p2 = "p2";
         String p3 = "p3";
-        BuildCause p3buildCause = createBuildCause(asList(p1, p2), new ArrayList<>());
-        BuildCause p2buildCause = createBuildCause(asList(p1), asList(git));
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p3buildCause = createBuildCause(List.of(p1, p2), new ArrayList<>());
+        BuildCause p2buildCause = createBuildCause(List.of(p1), List.of(git));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
 
         when(pipelineService.buildCauseFor(p3, 1)).thenReturn(p3buildCause);
         when(pipelineService.buildCauseFor(p2, 1)).thenReturn(p2buildCause);
@@ -453,7 +455,7 @@ public class ValueStreamMapServiceTest {
         String currentPipeline = "p1";
         String p3 = "p3";
         GitMaterial git = new GitMaterial("git");
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
 
         when(pipelineService.buildCauseFor(currentPipeline, 1)).thenReturn(p1buildCause);
         when(pipelineService.findPipelineByNameAndCounter(currentPipeline, 1)).thenReturn(new Pipeline(currentPipeline, "p1-label", p1buildCause, new EnvironmentVariables()));
@@ -496,8 +498,8 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig(p3, new MaterialConfigs(dependencyMaterialP1.config(), dependencyMaterialP2.config()));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
 
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
-        BuildCause p2buildCause = createBuildCause(asList(p1), asList(git));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
+        BuildCause p2buildCause = createBuildCause(List.of(p1), List.of(git));
 
         when(pipelineService.buildCauseFor(p1, 1)).thenReturn(p1buildCause);
         when(pipelineService.buildCauseFor(p2, 1)).thenReturn(p2buildCause);
@@ -549,9 +551,9 @@ public class ValueStreamMapServiceTest {
         GitMaterial g1 = new GitMaterial("g1");
         GitMaterial g2 = new GitMaterial("g2");
 
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(g1));
-        BuildCause p3buildCause = createBuildCause(asList(p1.toString()), asList(g2));
-        BuildCause p2buildCause = createBuildCause(asList(p1.toString(), p3.toString()), Arrays.<GitMaterial>asList());
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(g1));
+        BuildCause p3buildCause = createBuildCause(List.of(p1.toString()), List.of(g2));
+        BuildCause p2buildCause = createBuildCause(List.of(p1.toString(), p3.toString()), List.of());
 
         when(pipelineService.buildCauseFor(p1.toString(), 1)).thenReturn(p1buildCause);
         when(pipelineService.buildCauseFor(p2.toString(), 1)).thenReturn(p2buildCause);
@@ -586,9 +588,9 @@ public class ValueStreamMapServiceTest {
 
         GitMaterial git = new GitMaterial("git");
         MaterialConfig gitConfig = git.config();
-        BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
-        BuildCause p2buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 2)), asList(git), ModificationsMother.multipleModificationList(0));
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p3buildCause = createBuildCause(List.of("p1", "p2"), new ArrayList<>());
+        BuildCause p2buildCause = createBuildCauseForRevisions(List.of(dependencyMaterial("p1", 2)), List.of(git), ModificationsMother.multipleModificationList(0));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
         Modifications modifications = p1buildCause.getMaterialRevisions().getMaterialRevision(0).getModifications();
 
         when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
@@ -625,8 +627,8 @@ public class ValueStreamMapServiceTest {
 
         GitMaterial git = new GitMaterial("git");
         MaterialConfig gitConfig = git.config();
-        BuildCause p2buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 1)), asList(git), ModificationsMother.multipleModificationList(0));
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p2buildCause = createBuildCauseForRevisions(List.of(dependencyMaterial("p1", 1)), List.of(git), ModificationsMother.multipleModificationList(0));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
         Modifications gitModifications = p1buildCause.getMaterialRevisions().getMaterialRevision(0).getModifications();
 
         when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
@@ -664,9 +666,9 @@ public class ValueStreamMapServiceTest {
         Modification modification1 = checkinWithComment("rev1", "comment1", new Date());
         Modification modification2 = checkinWithComment("rev2", "comment2", new Date());
         Modification modification3 = checkinWithComment("rev3", "comment3", new Date());
-        BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), asList(git), new Modifications(
+        BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), List.of(git), new Modifications(
                 modification1, modification2));
-        BuildCause p2buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 1)), asList(git), new Modifications(modification3));
+        BuildCause p2buildCause = createBuildCauseForRevisions(List.of(dependencyMaterial("p1", 1)), List.of(git), new Modifications(modification3));
 
         when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
@@ -702,10 +704,10 @@ public class ValueStreamMapServiceTest {
 
         GitMaterial git = new GitMaterial("git");
         MaterialConfig gitConfig = git.config();
-        BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), asList(git), Arrays.asList(ModificationsMother.oneModifiedFile("rev1")));
-        BuildCause p2buildCause = createBuildCauseForRevisions(new ArrayList<>(), asList(git), Arrays.asList(ModificationsMother.oneModifiedFile("rev2")));
+        BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), List.of(git), List.of(ModificationsMother.oneModifiedFile("rev1")));
+        BuildCause p2buildCause = createBuildCauseForRevisions(new ArrayList<>(), List.of(git), List.of(ModificationsMother.oneModifiedFile("rev2")));
 
-        BuildCause p3buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 1), dependencyMaterial("p2", 1)), new ArrayList<>(), new ArrayList<>());
+        BuildCause p3buildCause = createBuildCauseForRevisions(List.of(dependencyMaterial("p1", 1), dependencyMaterial("p2", 1)), new ArrayList<>(), new ArrayList<>());
 
 
         when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
@@ -742,10 +744,10 @@ public class ValueStreamMapServiceTest {
         Modification rev2 = ModificationsMother.oneModifiedFile("rev2");
         Modification rev3 = ModificationsMother.oneModifiedFile("rev3");
 
-        BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), asList(git), Arrays.asList(rev3, rev2, rev1));
-        BuildCause p2buildCause = createBuildCauseForRevisions(new ArrayList<>(), asList(git), Arrays.asList(rev3));
+        BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), List.of(git), List.of(rev3, rev2, rev1));
+        BuildCause p2buildCause = createBuildCauseForRevisions(new ArrayList<>(), List.of(git), List.of(rev3));
 
-        BuildCause p3buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 1), dependencyMaterial("p2", 1)), new ArrayList<>(), new ArrayList<>());
+        BuildCause p3buildCause = createBuildCauseForRevisions(List.of(dependencyMaterial("p1", 1), dependencyMaterial("p2", 1)), new ArrayList<>(), new ArrayList<>());
 
 
         when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
@@ -778,7 +780,7 @@ public class ValueStreamMapServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git.config()))));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
         when(pipelineService.findPipelineByNameAndCounter(pipelineName, 1)).thenReturn(new Pipeline("p1", "label-1", p1buildCause, new EnvironmentVariables()));
 
@@ -814,8 +816,8 @@ public class ValueStreamMapServiceTest {
          */
 
         GitMaterial git = new GitMaterial("git");
-        BuildCause p3buildCause = createBuildCause(asList("p1"), new ArrayList<>());
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p3buildCause = createBuildCause(List.of("p1"), new ArrayList<>());
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
 
 
         when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
@@ -862,8 +864,8 @@ public class ValueStreamMapServiceTest {
          */
 
         GitMaterial git = new GitMaterial("git");
-        BuildCause p2buildCause = createBuildCause(asList("p1"), new ArrayList<>());
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p2buildCause = createBuildCause(List.of("p1"), new ArrayList<>());
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
 
 
         when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
@@ -894,8 +896,8 @@ public class ValueStreamMapServiceTest {
          */
 
         GitMaterial git = new GitMaterial("git");
-        BuildCause p2buildCause = createBuildCause(asList("p1"), new ArrayList<>());
-        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+        BuildCause p2buildCause = createBuildCause(List.of("p1"), new ArrayList<>());
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), List.of(git));
 
         when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);

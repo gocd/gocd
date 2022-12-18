@@ -25,7 +25,7 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.Collections;
+import java.util.List;
 
 @Extension
 public class ClassWhichUsesSomeClassesInOrgXMLSaxPackage implements GoPlugin {
@@ -47,6 +47,7 @@ public class ClassWhichUsesSomeClassesInOrgXMLSaxPackage implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("some-extension-type", List.of("1.0"));
     }
+
 }

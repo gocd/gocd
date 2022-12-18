@@ -17,9 +17,6 @@ package com.thoughtworks.go.util;
 
 import java.util.function.Supplier;
 
-/**
- *
- */
 public final class ExceptionUtils {
     private ExceptionUtils() {
 
@@ -45,6 +42,9 @@ public final class ExceptionUtils {
         bombIf(o == null, msg);
     }
 
+    public static void bombIfNull(Object o, Supplier<String> msg) {
+        bombIf(o == null, msg);
+    }
 
     public static void bombIfFailedToRunCommandLine(int returnValue, String msg) throws Exception {
         if (returnValue != 0) {
@@ -65,6 +65,10 @@ public final class ExceptionUtils {
     }
 
     public static void bombUnless(boolean check, String msg) {
+        bombIf(!check, msg);
+    }
+
+    public static void bombUnless(boolean check, Supplier<String> msg) {
         bombIf(!check, msg);
     }
 

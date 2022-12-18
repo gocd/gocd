@@ -23,8 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -65,7 +65,7 @@ public class GoPluginOSGiManifest {
             Attributes mainAttributes = manifest.getMainAttributes();
 
             if (mainAttributes.containsKey(new Attributes.Name(BUNDLE_SYMBOLICNAME))) {
-                descriptor.markAsInvalid(Arrays.asList("Plugin JAR is invalid. MANIFEST.MF already contains header: " + BUNDLE_SYMBOLICNAME), null);
+                descriptor.markAsInvalid(List.of("Plugin JAR is invalid. MANIFEST.MF already contains header: " + BUNDLE_SYMBOLICNAME), null);
                 return;
             }
             mainAttributes.put(new Attributes.Name(BUNDLE_SYMBOLICNAME), symbolicName);

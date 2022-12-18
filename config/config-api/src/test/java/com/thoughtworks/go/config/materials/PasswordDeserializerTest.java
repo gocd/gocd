@@ -16,18 +16,18 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Arrays;
+import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(ResetCipher.class)
 public class PasswordDeserializerTest {
@@ -36,8 +36,8 @@ public class PasswordDeserializerTest {
         SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         passwordDeserializer.deserialize("password", new GoCipher().encrypt("encryptedPassword"), svnMaterialConfig);
-        assertThat(svnMaterialConfig.errors().getAllOn("password"), is(Arrays.asList("You may only specify `password` or `encrypted_password`, not both!")));
-        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(Arrays.asList("You may only specify `password` or `encrypted_password`, not both!")));
+        assertThat(svnMaterialConfig.errors().getAllOn("password"), is(List.of("You may only specify `password` or `encrypted_password`, not both!")));
+        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(List.of("You may only specify `password` or `encrypted_password`, not both!")));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class PasswordDeserializerTest {
         SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         passwordDeserializer.deserialize(null, "invalidEncryptedPassword", svnMaterialConfig);
-        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(Arrays.asList("Encrypted value for password is invalid. This usually happens when the cipher text is invalid.")));
+        assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(List.of("Encrypted value for password is invalid. This usually happens when the cipher text is invalid.")));
     }
 
     @Test

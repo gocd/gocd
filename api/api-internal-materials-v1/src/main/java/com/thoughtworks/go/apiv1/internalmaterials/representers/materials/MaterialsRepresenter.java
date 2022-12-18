@@ -49,18 +49,14 @@ public class MaterialsRepresenter {
     }
 
     public static Consumer<OutputWriter> toJSON(MaterialConfig materialConfig) {
-        return materialWriter -> {
-
-            stream(Materials.values())
-                    .filter(material -> material.type == materialConfig.getClass())
-                    .findFirst()
-                    .ifPresent(material -> {
-                        materialWriter.add("type", material.name().toLowerCase());
-                        materialWriter.add("fingerprint", materialConfig.getFingerprint());
-                        materialWriter.addChild("attributes", material.representer.toJSON(materialConfig));
-                    });
-
-        };
+        return materialWriter -> stream(Materials.values())
+                .filter(material -> material.type == materialConfig.getClass())
+                .findFirst()
+                .ifPresent(material -> {
+                    materialWriter.add("type", material.name().toLowerCase());
+                    materialWriter.add("fingerprint", materialConfig.getFingerprint());
+                    materialWriter.addChild("attributes", material.representer.toJSON(materialConfig));
+                });
     }
 
 }

@@ -67,14 +67,14 @@ public class AgentUpgradeService {
         this.jvmExitter = jvmExitter;
     }
 
-    public void checkForUpgradeAndExtraProperties() throws Exception {
+    public void checkForUpgradeAndExtraProperties() throws IOException {
         if (!"".equals(systemEnvironment.getAgentMd5())) {
             checkForUpgradeAndExtraProperties(systemEnvironment.getAgentMd5(), systemEnvironment.getGivenAgentLauncherMd5(),
                     systemEnvironment.getAgentPluginsMd5(), systemEnvironment.getTfsImplMd5());
         }
     }
 
-    private void checkForUpgradeAndExtraProperties(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws Exception {
+    private void checkForUpgradeAndExtraProperties(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws IOException {
         HttpGet method = getAgentLatestStatusGetMethod();
         try (final CloseableHttpResponse response = httpClient.execute(method)) {
             if (response.getStatusLine().getStatusCode() != 200) {

@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,13 +37,13 @@ public class CRHgMaterialTest extends AbstractCRTest<CRHgMaterial> {
         simpleHg = new CRHgMaterial();
         simpleHg.setUrl("myHgRepo");
 
-        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
+        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, List.of("externals", "tools"), "repos/myhg", "feature");
 
         invalidHgNoUrl = new CRHgMaterial();
-        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
+        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, List.of("externals", "tools"), "repos/myhg", "feature");
         invalidHgWhitelistAndIgnores.setIncludesNoCheck("src", "tests");
 
-        invalidPasswordAndEncyptedPasswordSet = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
+        invalidPasswordAndEncyptedPasswordSet = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, List.of("externals", "tools"), "repos/myhg", "feature");
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
         invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }

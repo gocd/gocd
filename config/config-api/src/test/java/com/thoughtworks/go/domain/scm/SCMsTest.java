@@ -26,10 +26,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.api.config.Property.REQUIRED;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -129,11 +130,11 @@ public class SCMsTest {
         assertThat(scm5.getFingerprint().equals(scm1.getFingerprint())).isTrue();
 
         String expectedErrorMessage = "Cannot save SCM, found duplicate SCMs. scm1, scm3, scm5";
-        assertThat(scm1.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(scm1.errors().getAllOn(SCM.SCM_ID)).isEqualTo(List.of(expectedErrorMessage));
         assertThat(scm2.errors().getAllOn(SCM.SCM_ID)).isEmpty();
-        assertThat(scm3.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(scm3.errors().getAllOn(SCM.SCM_ID)).isEqualTo(List.of(expectedErrorMessage));
         assertThat(scm4.errors().getAllOn(SCM.SCM_ID)).isEmpty();
-        assertThat(scm5.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(scm5.errors().getAllOn(SCM.SCM_ID)).isEqualTo(List.of(expectedErrorMessage));
     }
 
     @Nested

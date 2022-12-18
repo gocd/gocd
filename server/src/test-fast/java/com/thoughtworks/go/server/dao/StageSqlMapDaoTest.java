@@ -37,11 +37,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
@@ -69,18 +66,13 @@ class StageSqlMapDaoTest {
         stageSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
         cloner = mock(Cloner.class);
         ReflectionUtil.setField(stageSqlMapDao, "cloner", cloner);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) {
-                return invocationOnMock.getArguments()[0];
-            }
-        }).when(cloner).deepClone(any());
+        doAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]).when(cloner).deepClone(any());
     }
 
     @Test
     void findLatestStageInstancesShouldCacheResults() {
-        List<StageIdentity> latestStages = Arrays.asList(new StageIdentity("p1", "s1", 10L), new StageIdentity("p2", "s2", 100L));
-        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn((List) latestStages);
+        List<StageIdentity> latestStages = List.of(new StageIdentity("p1", "s1", 10L), new StageIdentity("p2", "s2", 100L));
+        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn(latestStages);
 
         List<StageIdentity> firstStageInstances = stageSqlMapDao.findLatestStageInstances();
 
@@ -93,7 +85,7 @@ class StageSqlMapDaoTest {
 
     @Test
     void shouldRemoveLatestStageInstancesFromCache_OnStageChange() {
-        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn(Arrays.asList(new StageIdentity("p1", "s1", 10L), new StageIdentity("p2", "s2", 100L)));
+        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn(List.of(new StageIdentity("p1", "s1", 10L), new StageIdentity("p2", "s2", 100L)));
         String cacheKey = stageSqlMapDao.cacheKeyForLatestStageInstances();
 
         List<StageIdentity> latestStageInstances = stageSqlMapDao.findLatestStageInstances();

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
@@ -97,7 +98,7 @@ public class PipelineSelectionsServiceTest {
         enableSecurity();
 
         User user = getUser("badger");
-        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pipeline2"), null, user.getId(), true);
+        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(List.of("pipeline2"), null, user.getId(), true);
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
         when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
 
@@ -115,7 +116,7 @@ public class PipelineSelectionsServiceTest {
     public void shouldUpdateExistingPersistedSelection_WhenSecurityIsDisabled() {
         disableSecurity();
 
-        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
+        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(List.of("pip1"));
         when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
 
         final Filters newFilters = Filters.single(excludes("pipelineX", "pipeline3"));
@@ -142,7 +143,7 @@ public class PipelineSelectionsServiceTest {
     public void shouldReturnPersistedPipelineSelectionsUsingCookieId_WhenSecurityisDisabled() {
         disableSecurity();
 
-        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
+        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(List.of("pip1"));
         when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
 
         assertEquals(pipelineSelections, pipelineSelectionsService.load("123", null));
@@ -156,7 +157,7 @@ public class PipelineSelectionsServiceTest {
         enableSecurity();
 
         User loser = getUser("loser");
-        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
+        PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(List.of("pip1"));
 
         when(pipelineRepository.findPipelineSelectionsByUserId(loser.getId())).thenReturn(pipelineSelections);
 

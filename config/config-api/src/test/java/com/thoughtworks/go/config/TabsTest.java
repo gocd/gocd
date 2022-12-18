@@ -17,17 +17,18 @@ package com.thoughtworks.go.config;
 
 import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.is;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class TabsTest {
 
     @Test
-    public void shouldSetAttributedOfTabs() throws Exception {
+    public void shouldSetAttributedOfTabs() {
         Tabs tabs = new Tabs();
-        tabs.setConfigAttributes(a(m(Tab.NAME, "tab1", Tab.PATH, "path1"), m(Tab.NAME, "tab2", Tab.PATH, "path2")));
+        tabs.setConfigAttributes(List.of(Map.of(Tab.NAME, "tab1", Tab.PATH, "path1"), Map.of(Tab.NAME, "tab2", Tab.PATH, "path2")));
         assertThat(tabs.get(0).getName(), is("tab1"));
         assertThat(tabs.get(0).getPath(), is("path1"));
         assertThat(tabs.get(1).getName(), is("tab2"));

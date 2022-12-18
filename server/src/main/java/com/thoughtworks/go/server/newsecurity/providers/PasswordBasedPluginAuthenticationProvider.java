@@ -31,9 +31,8 @@ import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
-
-import static java.util.Collections.singletonList;
 
 @Component
 public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<UsernamePassword> {
@@ -75,7 +74,7 @@ public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAut
                                                                SecurityAuthConfig authConfig,
                                                                List<PluginRoleConfig> pluginRoleConfigs) {
         return authorizationExtension.authenticateUser(pluginId, credentials.getUsername(), credentials.getPassword(),
-                singletonList(authConfig), pluginRoleConfigs);
+            Collections.singletonList(authConfig), pluginRoleConfigs);
     }
 
     @Override

@@ -25,20 +25,17 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.DataStructureUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.SECURE;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -163,7 +160,7 @@ class SCMTest {
     @Test
     void shouldThrowUpOnSetConfigAttributesIfPluginIsNotAvailable() {
         try {
-            Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost");
+            Map<String, String> attributeMap = Map.of(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost");
             SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
             scm.setConfigAttributes(attributeMap);
             fail("should have thrown exception");
@@ -181,7 +178,7 @@ class SCMTest {
         scmConfigurations.add(new SCMConfiguration("password").with(SECURE, true));
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", scmConfigurations, null);
 
-        Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost", "username", "user", "password", "pass");
+        Map<String, String> attributeMap = Map.of(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost", "username", "user", "password", "pass");
         SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
         scm.setConfigAttributes(attributeMap);
 
@@ -211,7 +208,7 @@ class SCMTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
         SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
 
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1", "Key2", "value2");
         scm.setConfigAttributes(attributeMap);
 
         assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
@@ -231,7 +228,7 @@ class SCMTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"), ConfigurationPropertyMother.create("Key2"));
         SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
 
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1");
         scm.setConfigAttributes(attributeMap);
 
         assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
@@ -250,7 +247,7 @@ class SCMTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
 
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1", "Key2", "value2");
         scm.setConfigAttributes(attributeMap);
 
         assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
@@ -270,7 +267,7 @@ class SCMTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM scm = new SCM("scm-id", new PluginConfiguration("plugin-id", "1"), configuration);
 
-        Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
+        Map<String, String> attributeMap = Map.of("KEY1", "value1", "Key2", "value2");
         scm.setConfigAttributes(attributeMap);
 
         assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
@@ -282,7 +279,7 @@ class SCMTest {
         SCM scm = new SCM();
         scm.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
 
-        assertThat(scm.errors().getAllOn(SCM.NAME)).isEqualTo(asList("Please provide name"));
+        assertThat(scm.errors().getAllOn(SCM.NAME)).isEqualTo(List.of("Please provide name"));
     }
 
     @Test
@@ -340,8 +337,8 @@ class SCMTest {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-id", "13.4");
 
         GoCipher cipher = new GoCipher();
-        List<String> keys = Arrays.asList("Avengers 1", "Avengers 2", "Avengers 3", "Avengers 4");
-        List<String> values = Arrays.asList("Iron man", "Hulk", "Thor", "Captain America");
+        List<String> keys = List.of("Avengers 1", "Avengers 2", "Avengers 3", "Avengers 4");
+        List<String> values = List.of("Iron man", "Hulk", "Thor", "Captain America");
 
         Configuration configuration = new Configuration(
                 new ConfigurationProperty(new ConfigurationKey(keys.get(0)), new ConfigurationValue(values.get(0))),
@@ -376,7 +373,7 @@ class SCMTest {
 
     @Test
     void shouldAddConfigurationPropertiesForAnyPlugin() {
-        List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"));
+        List<ConfigurationProperty> configurationProperties = List.of(create("key", "value", "encValue"));
         Configuration configuration = new Configuration();
         SCM scm = SCMMother.create("id", "name", "does_not_exist", "1.1", configuration);
 
@@ -403,7 +400,7 @@ class SCMTest {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_password]}}");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
             SCM scm = new SCM("scm-id", "scm-name");
-            scm.getConfiguration().addAll(asList(k1, k2));
+            scm.getConfiguration().addAll(List.of(k1, k2));
 
             assertThat(scm.hasSecretParams()).isTrue();
         }
@@ -423,7 +420,7 @@ class SCMTest {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
             SCM scm = new SCM("scm-id", "scm-name");
-            scm.getConfiguration().addAll(asList(k1, k2));
+            scm.getConfiguration().addAll(List.of(k1, k2));
 
             assertThat(scm.getSecretParams().size()).isEqualTo(2);
             assertThat(scm.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));

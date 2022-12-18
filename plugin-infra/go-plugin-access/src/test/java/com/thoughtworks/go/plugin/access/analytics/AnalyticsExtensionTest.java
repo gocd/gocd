@@ -32,8 +32,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
@@ -62,7 +62,7 @@ public class AnalyticsExtensionTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("1.0", "2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, List.of("1.0", "2.0"))).thenReturn("1.0", "2.0");
         when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         analyticsExtension = new AnalyticsExtension(pluginManager, extensionsRegistry);
@@ -104,7 +104,7 @@ public class AnalyticsExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ANALYTICS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         AnalyticsData pipelineAnalytics = analyticsExtension.getAnalytics(PLUGIN_ID, "pipeline", "pipeline_with_highest_wait_time",
-                Collections.singletonMap("pipeline_name", "test_pipeline"));
+                Map.of("pipeline_name", "test_pipeline"));
 
         String expectedRequestBody = "{" +
                 "\"type\": \"pipeline\"," +

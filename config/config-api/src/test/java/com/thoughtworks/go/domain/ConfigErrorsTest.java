@@ -18,11 +18,11 @@ package com.thoughtworks.go.domain;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 
-import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConfigErrorsTest {
     @Test
@@ -53,7 +53,7 @@ public class ConfigErrorsTest {
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.add("field", "error");
         configErrors.add("field", "error");
-        assertThat(configErrors.getAllOn("field"), is(asList("error")));
+        assertThat(configErrors.getAllOn("field"), is(List.of("error")));
     }
 
     @Test

@@ -49,10 +49,8 @@ public abstract class MaterialXmlRepresenter implements XmlRepresentable {
         materialBuilder.attr("materialUri", ctx.materialUri(pipelineName, pipelineCounter, material.getPipelineUniqueFingerprint()));
         material.getAttributesForXml().forEach((key, value) -> materialBuilder.attr(key, value.toString()));
 
-        materialBuilder.node("modifications", modificationBuilder -> {
-            materialRevision.getModifications()
-                .forEach(modification -> populateModification(modificationBuilder, modification, ctx));
-        });
+        materialBuilder.node("modifications", modificationBuilder -> materialRevision.getModifications()
+            .forEach(modification -> populateModification(modificationBuilder, modification, ctx)));
     }
 
     protected abstract void populateModification(ElementBuilder builder, Modification modification, XmlWriterContext ctx);

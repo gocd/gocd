@@ -23,7 +23,10 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AgentRepresenter {
@@ -65,11 +68,11 @@ public class AgentRepresenter {
         }
 
         if (!agentInstance.errors().isEmpty()) {
-            Map<String, String> fieldMapping = new HashMap<>() {{
-                put("ipAddress", "ip_address");
-                put("elasticAgentId", "elastic_agent_id");
-                put("elasticPluginId", "elastic_plugin_id");
-            }};
+            Map<String, String> fieldMapping = Map.of(
+                "ipAddress", "ip_address",
+                "elasticAgentId", "elastic_agent_id",
+                "elasticPluginId", "elastic_plugin_id"
+            );
             outputWriter.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, agentInstance.errors()));
         }
     }

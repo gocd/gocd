@@ -55,13 +55,11 @@ public class JobXmlRepresenter implements XmlRepresentable {
                 ab.attr("baseUri", ctx.artifactBaseUrl(identifier))
                     .attr("pathFromArtifactRoot", ctx.artifactRootPath(identifier));
 
-                jobPlan.getArtifactPlansOfType(ArtifactPlanType.unit).forEach(artifactPlan -> {
-                    ab.node("artifact", artifactBuilder -> artifactBuilder
-                        .attr("src", artifactPlan.getSrc())
-                        .attr("dest", artifactPlan.getDest())
-                        .attr("type", artifactPlan.getArtifactPlanType())
-                    );
-                });
+                jobPlan.getArtifactPlansOfType(ArtifactPlanType.unit).forEach(artifactPlan -> ab.node("artifact", artifactBuilder -> artifactBuilder
+                    .attr("src", artifactPlan.getSrc())
+                    .attr("dest", artifactPlan.getDest())
+                    .attr("type", artifactPlan.getArtifactPlanType())
+                ));
             })
             .comment("Resources are now intentionally left blank. See https://github.com/gocd/gocd/pull/2875")
             .emptyNode("resources")

@@ -40,7 +40,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -146,7 +145,7 @@ public class ScheduleStageTest {
         jobVariables.add("jobEnv", "jobBaz");
         configHelper.addEnvironmentVariableToJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE, jobVariables);
 
-        Stage stage = scheduleService.rerunJobs(oldStage, a(fixture.JOB_FOR_DEV_STAGE), new HttpOperationResult());
+        Stage stage = scheduleService.rerunJobs(oldStage, List.of(fixture.JOB_FOR_DEV_STAGE), new HttpOperationResult());
 
         EnvironmentVariables expectedVariableOrder = new EnvironmentVariables();
         expectedVariableOrder.add("pipelineEnv", "pipelineFoo");
@@ -172,7 +171,7 @@ public class ScheduleStageTest {
         assertThat(oldStage.hasRerunJobs(), is(false));
 
         HttpOperationResult result = new HttpOperationResult();
-        Stage newStage = scheduleService.rerunJobs(oldStage, a("foo", "foo3"), result);
+        Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
         assertThat(loadedLatestStage.isLatestRun(), is(true));
 
@@ -217,7 +216,7 @@ public class ScheduleStageTest {
         assertThat(oldStage.hasRerunJobs(), is(false));
 
         HttpOperationResult result = new HttpOperationResult();
-        Stage newStage = scheduleService.rerunJobs(oldStage, a("foo", "foo3"), result);
+        Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
 
         assertThat(loadedLatestStage.hasRerunJobs(), is(true));
@@ -225,7 +224,7 @@ public class ScheduleStageTest {
         dbHelper.passStage(loadedLatestStage);
         JobInstances jobsBeforeLatestRerunJobs = loadedLatestStage.getJobInstances();
 
-        newStage = scheduleService.rerunJobs(loadedLatestStage, a("foo2"), result);
+        newStage = scheduleService.rerunJobs(loadedLatestStage, List.of("foo2"), result);
 
         loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
 
@@ -264,7 +263,7 @@ public class ScheduleStageTest {
 
         HttpOperationResult result = new HttpOperationResult();
 
-        Stage newStage = scheduleService.rerunJobs(oldStage, a("foo3"), result);
+        Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo3"), result);
 
         assertThat(result.canContinue(), is(false));
         assertThat(result.message(), containsString("Cannot rerun job 'foo3'. Configuration for job doesn't exist."));
@@ -278,7 +277,7 @@ public class ScheduleStageTest {
 
         SessionUtilsHelper.loginAs("looser");
         HttpOperationResult result = new HttpOperationResult();
-        Stage newStage = scheduleService.rerunJobs(oldStage, a("foo", "foo3"), result);
+        Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
         Stage loadedLatestStage = dbHelper.getStageDao().findStageWithIdentifier(newStage.getIdentifier());
         assertThat(loadedLatestStage.getApprovedBy(), is("looser"));
         assertThat(oldStage.getApprovedBy(), is(not("looser")));
@@ -291,7 +290,7 @@ public class ScheduleStageTest {
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
         HttpOperationResult result = new HttpOperationResult();
-        Stage newStage = scheduleService.rerunJobs(oldStage, a("foo", "foo3"), result);
+        Stage newStage = scheduleService.rerunJobs(oldStage, List.of("foo", "foo3"), result);
 
         assertThat(result.canContinue(), is(false));
         assertThat(result.message(), containsString("Pipeline[name='" + pipeline.getName() + "', counter='" + pipeline.getCounter() + "', label='" + pipeline.getLabel() + "'] is still in progress"));
@@ -328,14 +327,11 @@ public class ScheduleStageTest {
     }
 
     private Runnable rerunStage(final List<Exception> exceptions, final String ftStage) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineCounter(), ftStage);
-                } catch (Exception e) {
-                    exceptions.add(e);
-                }
+        return () -> {
+            try {
+                scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineCounter(), ftStage);
+            } catch (Exception e) {
+                exceptions.add(e);
             }
         };
     }

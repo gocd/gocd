@@ -43,7 +43,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -586,7 +589,7 @@ public class GitCommandTest {
                 //hack to reproduce synchronization issue
                 @Override
                 public Map<String, String> submoduleUrls() {
-                    return Collections.singletonMap("submodule", "submodule");
+                    return Map.of("submodule", "submodule");
                 }
             };
             InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();

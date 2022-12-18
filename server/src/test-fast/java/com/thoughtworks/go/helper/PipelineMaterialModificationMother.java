@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.helper;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import org.joda.time.DateTime;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class PipelineMaterialModificationMother {
     private static long id = 1;
@@ -47,7 +46,7 @@ public class PipelineMaterialModificationMother {
         Map<String, List<PipelineTimelineEntry.Revision>> materialToMod = new HashMap<>();
         for (int i = 0; i < materials.size(); i++) {
             String fingerprint = materials.get(i);
-            materialToMod.put(fingerprint, a(new PipelineTimelineEntry.Revision(datetimes.get(i).toDate(), rev, fingerprint, PipelineMaterialModificationMother.id++)));
+            materialToMod.put(fingerprint, List.of(new PipelineTimelineEntry.Revision(datetimes.get(i).toDate(), rev, fingerprint, PipelineMaterialModificationMother.id++)));
         }
         return new PipelineTimelineEntry(pipelineName, id, counter, materialToMod);
     }

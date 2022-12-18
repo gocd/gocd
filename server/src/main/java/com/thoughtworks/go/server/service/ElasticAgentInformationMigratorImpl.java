@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +107,7 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             String reason = e.getMessage();
             String errorMessage = String.format("Plugin '%s' failed to perform '%s' call. Plugin sent an invalid config. Reason: %s.\n Please fix the errors and restart GoCD server.", pluginId, pluginAPIRequest, reason);
 
-            pluginDescriptor.markAsInvalid(Collections.singletonList(errorMessage), e);
+            pluginDescriptor.markAsInvalid(List.of(errorMessage), e);
             return false;
         }
     }

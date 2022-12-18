@@ -41,8 +41,7 @@ import org.mockito.InOrder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
@@ -120,7 +119,7 @@ public class FetchPluggableArtifactBuilderTest {
     @Test
     public void shouldCallArtifactExtensionWithMetadata() throws IOException {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
-        final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
+        final Map<String, Object> metadata = Map.of("Version", "10.12.0");
 
         FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), UTF_8);
 
@@ -132,7 +131,7 @@ public class FetchPluggableArtifactBuilderTest {
     @Test
     public void shouldRegisterAndDeRegisterArtifactRequestProcessBeforeAndAfterPublishingPluggableArtifact() throws IOException {
         final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
-        final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
+        final Map<String, Object> metadata = Map.of("Version", "10.12.0");
 
         FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), UTF_8);
 
@@ -155,7 +154,7 @@ public class FetchPluggableArtifactBuilderTest {
         environmentVariableContext.setProperty("VAR4", "old-value4", true);
 
         when(artifactExtension.fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), any(), anyMap(), eq(metadataDest.getParent())))
-                .thenReturn(Arrays.asList(
+                .thenReturn(List.of(
                         new FetchArtifactEnvironmentVariable("VAR1", "value1-is-now-secure", true),
                         new FetchArtifactEnvironmentVariable("VAR2", "value2-is-now-insecure", false),
                         new FetchArtifactEnvironmentVariable("VAR3", "value3-but-secure-is-unchanged", true),

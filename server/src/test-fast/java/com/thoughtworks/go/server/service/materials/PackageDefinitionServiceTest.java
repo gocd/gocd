@@ -39,7 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.server.service.materials.PackageMaterialTestHelper.assertPackageConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,11 +91,11 @@ public class PackageDefinitionServiceTest {
                 any(RepositoryConfiguration.class))).thenReturn(expectedValidationResult);
         service.performPluginValidationsFor(packageDefinition);
 
-        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(Arrays.asList("Field: 'required' is required"));
-        assertThat(packageDefinition.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value")).isEqualTo(Arrays.asList("Field: 'required_secure' is required"));
+        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("Field: 'required' is required"));
+        assertThat(packageDefinition.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("Field: 'required_secure' is required"));
         assertThat(packageDefinition.getConfiguration().get(2).getEncryptedConfigurationValue().errors().isEmpty()).isTrue();
         assertThat(packageDefinition.getConfiguration().get(3).getConfigurationValue().errors().isEmpty()).isTrue();
-        assertThat(packageDefinition.getConfiguration().get(4).getConfigurationValue().errors().getAllOn("value")).isEqualTo(Arrays.asList("invalid spec"));
+        assertThat(packageDefinition.getConfiguration().get(4).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("invalid spec"));
     }
 
     @Test

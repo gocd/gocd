@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,7 +78,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         secondPart.setOrigin(new RepoConfigOrigin());
         MergePipelineConfigs merge = new MergePipelineConfigs(filePart, secondPart);
 
-        assertThat(merge.getLocal(), Matchers.<PipelineConfigs>is(filePart));
+        assertThat(merge.getLocal(), Matchers.is(filePart));
     }
 
     @Test
@@ -131,9 +130,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfigs group = new MergePipelineConfigs(
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
-        assertThrows(RuntimeException.class, () -> {
-            group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
-        });
+        assertThrows(RuntimeException.class, () -> group.setConfigAttributes(Map.of(BasicPipelineConfigs.GROUP, "my-new-group")));
         assertThat(group.getGroup(), nullValue());
     }
 
@@ -320,7 +317,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs());
 
-        assertThat(group.getFirstEditablePartOrNull(), Matchers.<PipelineConfigs>is(part1));
+        assertThat(group.getFirstEditablePartOrNull(), Matchers.is(part1));
 
     }
 
@@ -344,7 +341,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
         MergePipelineConfigs group = new MergePipelineConfigs(
                 part1, new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")));
 
-        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1")), Matchers.<PipelineConfigs>is(part1));
+        assertThat(group.getPartWithPipeline(new CaseInsensitiveString("pipeline1")), Matchers.is(part1));
 
     }
 

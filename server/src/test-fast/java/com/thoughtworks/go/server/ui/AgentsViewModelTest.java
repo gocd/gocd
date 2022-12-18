@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
+import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -186,7 +186,7 @@ class AgentsViewModelTest {
         AgentsViewModel agents = new AgentsViewModel();
         AgentInstance idleAgentInstance = AgentInstanceMother.idle(new Date(), "CCeDev01");
         AgentInstanceMother.updateOS(idleAgentInstance, "macos");
-        idleAgentInstance.getAgent().addResources(asList("foo","bar"));
+        idleAgentInstance.getAgent().addResources(List.of("foo","bar"));
         agents.add(new AgentViewModel(idleAgentInstance, "uat"));
 
         AgentInstance buildingAgentInstance = AgentInstanceMother.building();

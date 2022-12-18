@@ -17,20 +17,17 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.bazaarvoice.jolt.ContextualTransform;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AddEmptyTaskJoltTransformer implements ContextualTransform {
-    private static final Logger LOG = LoggerFactory.getLogger(AddEmptyTaskJoltTransformer.class);
 
     @Override
     public Object transform(Object input, Map<String, Object> context) {
         List<?> pipelines = getFieldFromMap(input, "pipelines");
-        if (pipelines == null) {
-            return input;
-        }
         pipelines.forEach((Object pipeline) -> {
             List<?> stages = getFieldFromMap(pipeline, "stages");
             stages.forEach((Object stage) -> {
@@ -44,7 +41,7 @@ public class AddEmptyTaskJoltTransformer implements ContextualTransform {
 
                     List<LinkedHashMap> tasks = ((LinkedHashMap<String, List<LinkedHashMap>>) job).get("tasks");
                     if (tasks == null) {
-                        ((LinkedHashMap<String, List<LinkedHashMap>>) job).put("tasks", Arrays.asList(echoTask));
+                        ((LinkedHashMap<String, List<LinkedHashMap>>) job).put("tasks", List.of(echoTask));
                     }
 
                     if (tasks != null && tasks.isEmpty()) {

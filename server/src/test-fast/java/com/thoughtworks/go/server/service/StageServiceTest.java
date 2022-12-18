@@ -72,9 +72,7 @@ import java.util.Map;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.helper.PipelineMother.completedFailedStageInstance;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonMap;
 import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -369,7 +367,7 @@ public class StageServiceTest {
 
         @BeforeEach
         void setUp() {
-            when(changesetService.modificationsOfPipelines(of(1L), "cruise", username)).thenReturn(singletonMap(1L, emptyList()));
+            when(changesetService.modificationsOfPipelines(of(1L), "cruise", username)).thenReturn(Map.of(1L, emptyList()));
             service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
                 new StubGoCache(transactionSynchronizationManager));
         }
@@ -433,13 +431,13 @@ public class StageServiceTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("down");
         Map<Long, List<ModificationForPipeline>> expectedModMapDown = new HashMap<>();
         Modification mod1 = checkinWithComment("revision", "#123 hello wolrd", updateDate);
-        expectedModMapDown.put(1L, asList(new ModificationForPipeline(new PipelineId("down", 1L), mod1, "Svn", "fooBarBaaz")));
+        expectedModMapDown.put(1L, of(new ModificationForPipeline(new PipelineId("down", 1L), mod1, "Svn", "fooBarBaaz")));
 
         FeedEntry expected = stageFeedEntry("down", updateDate);
 
-        when(stageDao.findCompletedStagesFor("down", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("down", updateDate), stageFeedEntry("down", updateDate)));
+        when(stageDao.findCompletedStagesFor("down", FeedModifier.Latest, -1, 25)).thenReturn(List.of(stageFeedEntry("down", updateDate), stageFeedEntry("down", updateDate)));
         when(goConfigService.currentCruiseConfig()).thenReturn(config);
-        when(changesetService.modificationsOfPipelines(asList(1L, 1L), "down", Username.ANONYMOUS)).thenReturn(expectedModMapDown);
+        when(changesetService.modificationsOfPipelines(List.of(1L, 1L), "down", Username.ANONYMOUS)).thenReturn(expectedModMapDown);
         when(config.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(false).thenReturn(true);
         when(config.pipelineConfigByName(any(CaseInsensitiveString.class))).thenReturn(pipelineConfig);
 
@@ -447,9 +445,9 @@ public class StageServiceTest {
             new StubGoCache(transactionSynchronizationManager));
 
         FeedEntries feedEntries = service.feed("down", Username.ANONYMOUS);
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected, expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
-        assertThat(feedEntries.get(1).getAuthors()).isEqualTo(asList(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(List.of(expected, expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(of(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
+        assertThat(feedEntries.get(1).getAuthors()).isEqualTo(of(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
     }
 
     private StageFeedEntry stageFeedEntry(String pipelineName, final Date updateDate) {
@@ -518,7 +516,7 @@ public class StageServiceTest {
         Stage stageBar = StageMother.passedStageInstance("stage-bar", "job", "pipeline-quux");
         Stage stageBaz = StageMother.passedStageInstance("stage-baz", "job", "pipeline-foo");
         Stage stageQuux = StageMother.passedStageInstance("stage-quux", "job", "pipeline-bar");
-        when(stageDao.oldestStagesHavingArtifacts()).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
+        when(stageDao.oldestStagesHavingArtifacts()).thenReturn(List.of(stageFoo, stageBar, stageBaz, stageQuux));
 
         List<Stage> stages = service.oldestStagesWithDeletableArtifacts();
         assertThat(stages.size()).isEqualTo(4);

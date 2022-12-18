@@ -19,9 +19,8 @@ import com.thoughtworks.go.domain.NullAgent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 public class Agents extends ArrayList<Agent> {
     public Agents() {
@@ -35,7 +34,7 @@ public class Agents extends ArrayList<Agent> {
     }
 
     public Agents(Agent... agents) {
-        this.addAll(asList(agents));
+        this.addAll(Arrays.asList(agents));
     }
 
     public Agent getAgentByUUID(String uuid) {

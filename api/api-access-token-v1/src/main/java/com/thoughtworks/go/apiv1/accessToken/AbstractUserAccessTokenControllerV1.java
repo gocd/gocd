@@ -47,7 +47,7 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
         this.accessTokenService = AccessTokenService;
     }
 
-    public String getAllAccessTokens(Request request, Response response) throws Exception {
+    public String getAllAccessTokens(Request request, Response response) throws IOException {
         String filterValue = request.queryParams("filter");
         AccessTokenFilter filter = AccessTokenFilter.fromString(filterValue);
         if (filter == null) {
@@ -57,7 +57,7 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, urlContext(), allTokens));
     }
 
-    public String revokeAccessToken(Request request, Response response) throws Exception {
+    public String revokeAccessToken(Request request, Response response) throws IOException {
         long id = Long.parseLong(request.params(":id"));
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         String revokeCause = reader.optString("revoke_cause").orElse(null);
@@ -67,7 +67,7 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
         return renderAccessToken(request, response, revokeAccessToken);
     }
 
-    public String getAccessToken(Request request, Response response) throws Exception {
+    public String getAccessToken(Request request, Response response) throws IOException {
         final AccessToken token = accessTokenService.find(Long.parseLong(request.params(":id")), currentUsernameString());
 
         return renderAccessToken(request, response, token);

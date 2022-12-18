@@ -27,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Collections;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
@@ -100,8 +99,8 @@ public class ElasticAgentExtensionTest {
 
         final String elasticAgentId = "ea1";
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
-        final Map<String, String> elasticProfileConfiguration = Collections.singletonMap("Image", "alpine:latest");
-        final Map<String, String> clusterProfileConfiguration = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> elasticProfileConfiguration = Map.of("Image", "alpine:latest");
+        final Map<String, String> clusterProfileConfiguration = Map.of("ServerURL", "https://example.com/go");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
         extension.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);

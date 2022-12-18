@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,7 @@ public class PipelineSelectionsHelper {
     public static PipelineSelections with(List<String> pipelines, Date date, Long userId, boolean shouldBeExcluded) {
         List<CaseInsensitiveString> params = CaseInsensitiveString.list(pipelines);
         DashboardFilter filter = shouldBeExcluded ? new ExcludesFilter(DEFAULT_NAME, params, new HashSet<>()) : new IncludesFilter(DEFAULT_NAME, params, new HashSet<>());
-        return new PipelineSelections(new Filters(Collections.singletonList(filter)), date, userId);
+        return new PipelineSelections(new Filters(List.of(filter)), date, userId);
     }
 
     public static PipelineSelections with(List<String> pipelines) {

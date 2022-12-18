@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static java.util.Arrays.asList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class RolesViewModelRepresenterTest {
@@ -36,8 +35,8 @@ class RolesViewModelRepresenterTest {
   void 'should serialize into json'() {
     def rolesConfig = new RolesConfig(goCDRoleConfig, pluginRoleConfig)
     def autoSuggestions = new HashMap<String, List<String>>()
-    autoSuggestions.put("key1", asList("val1", "val2"))
-    autoSuggestions.put("key2", asList("val3", "val3"))
+    autoSuggestions.put("key1", List.of("val1", "val2"))
+    autoSuggestions.put("key2", List.of("val3", "val3"))
     def rolesViewModel = new RolesViewModel().setRolesConfig(rolesConfig).setAutoSuggestions(autoSuggestions)
 
     def actualJson = toObjectString({ RolesViewModelRepresenter.toJSON(it, rolesViewModel) })

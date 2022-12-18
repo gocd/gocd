@@ -20,14 +20,12 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -97,7 +95,7 @@ public class GoConfigRevisionTest {
     public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsAByteArray() {
         GoConfigRevision rev = new GoConfigRevision("blah".getBytes(UTF_8), String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
         assertThat(rev.isByteArrayBacked(), is(true));
-        assertThat(Arrays.asList(rev.getConfigXmlBytes()), hasItems("blah".getBytes(UTF_8)));
+        assertThat(List.of(rev.getConfigXmlBytes()), hasItems("blah".getBytes(UTF_8)));
         assertThat(rev.getContent(), is("blah"));
     }
 }

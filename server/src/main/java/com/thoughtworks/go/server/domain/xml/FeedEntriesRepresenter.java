@@ -54,9 +54,7 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
             documentBuilder.link(ctx.stagesXmlLink(pipelineName, last.getStageIdentifier().getPipelineCounter()), "next");
         }
 
-        feedEntries.forEach(feed -> documentBuilder.node("entry", builder -> {
-            this.addEntry((StageFeedEntry) feed, builder, ctx);
-        }));
+        feedEntries.forEach(feed -> documentBuilder.node("entry", builder -> this.addEntry((StageFeedEntry) feed, builder, ctx)));
 
         return documentBuilder.build();
     }
@@ -72,14 +70,12 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
             builder.node("go", "author", childBuilder -> childBuilder.cdataNode("go", "name", feed.getApprovedBy()));
         }
 
-        feed.getAuthors().forEach(author -> {
-            builder.node("author", child -> {
-                child.cdataNode("name", author.getName());
-                if (isNotBlank(author.getEmail())) {
-                    child.textNode("email", author.getEmail());
-                }
-            });
-        });
+        feed.getAuthors().forEach(author -> builder.node("author", child -> {
+            child.cdataNode("name", author.getName());
+            if (isNotBlank(author.getEmail())) {
+                child.textNode("email", author.getEmail());
+            }
+        }));
 
         if (isNotBlank(feed.getCancelledBy())) {
             builder.node("cancelledBy", child -> child.cdataNode("go", "name", feed.getCancelledBy()));
@@ -102,11 +98,9 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
     }
 
     private void addCategory(ElementBuilder builder, String term, String label) {
-        builder.node("category", nodeBuilder -> {
-            nodeBuilder.attr("scheme", "http://www.thoughtworks-studios.com/ns/categories/go")
-                .attr("term", term)
-                .attr("label", label);
-        });
+        builder.node("category", nodeBuilder -> nodeBuilder.attr("scheme", "http://www.thoughtworks-studios.com/ns/categories/go")
+            .attr("term", term)
+            .attr("label", label));
     }
 
     @Override

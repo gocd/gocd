@@ -19,10 +19,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static java.util.Arrays.asList;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NotificationPluginRegistryTest {
@@ -42,9 +43,9 @@ public class NotificationPluginRegistryTest {
     public void setUp() {
         notificationPluginRegistry = new NotificationPluginRegistry();
 
-        notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_1, asList(PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS));
-        notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_2, asList(PIPELINE_STATUS));
-        notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_3, asList(STAGE_STATUS));
+        notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_1, List.of(PIPELINE_STATUS, STAGE_STATUS, JOB_STATUS));
+        notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_2, List.of(PIPELINE_STATUS));
+        notificationPluginRegistry.registerPluginInterests(PLUGIN_ID_3, List.of(STAGE_STATUS));
     }
 
     @AfterEach

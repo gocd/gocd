@@ -29,10 +29,6 @@ public class PackageDefinitionsRepresenter {
             outputLinkWriter.addLink("self", Routes.Packages.BASE);
             outputLinkWriter.addAbsoluteLink("doc", apiDocsUrl("#packages"));
         });
-        outputWriter.addEmbedded(embeddedWriter -> {
-            embeddedWriter.addChildList("packages", listWriter -> {
-                packages.forEach(packageDefinition -> listWriter.addChild(childWriter -> PackageDefinitionRepresenter.toJSON(childWriter, packageDefinition)));
-            });
-        });
+        outputWriter.addEmbedded(embeddedWriter -> embeddedWriter.addChildList("packages", listWriter -> packages.forEach(packageDefinition -> listWriter.addChild(childWriter -> PackageDefinitionRepresenter.toJSON(childWriter, packageDefinition)))));
     }
 }

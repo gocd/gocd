@@ -17,12 +17,12 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CRApprovalTest extends AbstractCRTest<CRApproval> {
@@ -37,7 +37,7 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
         success = new CRApproval(CRApprovalCondition.success);
 
         manualWithAuth = new CRApproval(CRApprovalCondition.manual);
-        manualWithAuth.setRoles(Arrays.asList("manager"));
+        manualWithAuth.setRoles(List.of("manager"));
 
         badType = new CRApproval();
     }

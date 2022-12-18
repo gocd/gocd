@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.config.RunIfConfig.ANY;
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
@@ -43,7 +43,7 @@ public class BuildersTest {
                 new com.thoughtworks.go.domain.builder.StubBuilder(),
                 "");
 
-        Builders builders = new Builders(Collections.singletonList(builder), goPublisher, null, null, null);
+        Builders builders = new Builders(List.of(builder), goPublisher, null, null, null);
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext, StandardCharsets.UTF_8);
 
@@ -55,12 +55,12 @@ public class BuildersTest {
     public void shouldNotSetAsCurrentBuilderIfNotRun() {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), null, "");
-        Builders builders = new Builders(Collections.singletonList(builder), null, null, null, null);
+        Builders builders = new Builders(List.of(builder), null, null, null, null);
 
         builders.setIsCancelled(true);
         builders.build(environmentVariableContext, StandardCharsets.UTF_8);
 
-        Builders expected = new Builders(Collections.singletonList(builder), null, null, null, null);
+        Builders expected = new Builders(List.of(builder), null, null, null, null);
         expected.setIsCancelled(true);
 
         assertThat(builders, is(expected));
@@ -70,7 +70,7 @@ public class BuildersTest {
     public void shouldNotCancelAnythingIfAllBuildersHaveRun() {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         Builder builder = new StubBuilder(new RunIfConfigs(ANY));
-        Builders builders = new Builders(Collections.singletonList(builder), new StubGoPublisher(), null, null, null);
+        Builders builders = new Builders(List.of(builder), new StubGoPublisher(), null, null, null);
         builders.build(environmentVariableContext, StandardCharsets.UTF_8);
         builders.cancel(environmentVariableContext, StandardCharsets.UTF_8);
     }

@@ -24,7 +24,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,7 +44,7 @@ public class JobXmlRepresenterTest {
         when(urlReader.findArtifactUrl(identifier)).thenReturn("artifact-url");
         when(urlReader.findArtifactRoot(identifier)).thenReturn("artifact-root-url");
         when(jobPlanLoader.loadOriginalJobPlan(jobInstance.getIdentifier())).thenReturn(jobPlan);
-        when(jobPlan.getArtifactPlansOfType(ArtifactPlanType.unit)).thenReturn(Collections.singletonList(
+        when(jobPlan.getArtifactPlansOfType(ArtifactPlanType.unit)).thenReturn(List.of(
             new ArtifactPlan(ArtifactPlanType.unit, "source", "destination")
         ));
 

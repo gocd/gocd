@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
-import java.util.Collections;
+import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
@@ -109,7 +109,7 @@ public class BackupScheduler extends EntityConfigChangedListener<BackupConfig> i
     }
 
     private JobDataMap jobDataMap() {
-        return new JobDataMap(Collections.singletonMap(ScheduleBackupQuartzJob.BACKUP_SCHEDULER_KEY, this));
+        return new JobDataMap(Map.of(ScheduleBackupQuartzJob.BACKUP_SCHEDULER_KEY, this));
     }
 
     private void unscheduleExistingBackupJob() throws SchedulerException {

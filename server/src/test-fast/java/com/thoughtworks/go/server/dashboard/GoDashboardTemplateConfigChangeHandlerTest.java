@@ -26,7 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +53,7 @@ public class GoDashboardTemplateConfigChangeHandlerTest {
         CaseInsensitiveString pipeline2 = new CaseInsensitiveString("p2");
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelinesAssociatedWithTemplate(templateConfig.name())).thenReturn(a(pipeline1, pipeline2));
+        when(cruiseConfig.pipelinesAssociatedWithTemplate(templateConfig.name())).thenReturn(List.of(pipeline1, pipeline2));
 
         handler.call(templateConfig);
 

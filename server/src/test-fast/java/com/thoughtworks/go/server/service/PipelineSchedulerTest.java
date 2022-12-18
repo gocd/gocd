@@ -40,10 +40,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
@@ -119,7 +121,7 @@ public class PipelineSchedulerTest {
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
         final HashMap<String, String> revisions = new HashMap<>();
-        scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Collections.singletonMap("blahVariable", "blahValue"), new HashMap<>()), operationResult);
+        scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Map.of("blahVariable", "blahValue"), new HashMap<>()), operationResult);
         //noinspection unchecked
         verifyNoMoreInteractions(buildCauseProducerService);
         verify(operationResult).notFound("Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'", "Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'",
@@ -133,7 +135,7 @@ public class PipelineSchedulerTest {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("blahPipeline"))).thenReturn(true);
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(true);
         OperationResult operationResult = mock(OperationResult.class);
-        Map<String, String> variables = Collections.singletonMap("blahVariable", "blahValue");
+        Map<String, String> variables = Map.of("blahVariable", "blahValue");
         final HashMap<String, String> revisions = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, variables, new HashMap<>()), operationResult);
         //noinspection unchecked
@@ -147,7 +149,7 @@ public class PipelineSchedulerTest {
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(null);
         HttpOperationResult result = new HttpOperationResult();
         final HashMap<String, String> environmentVariables = new HashMap<>();
-        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Collections.singletonMap("invalid-material", "blah-revision"), environmentVariables, new HashMap<>()), result);
+        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", "blah-revision"), environmentVariables, new HashMap<>()), result);
         assertThat(result.httpCode(), is(404));
         assertThat(result.message(), is("material with fingerprint [invalid-material] not found in pipeline [pipeline]"));
     }
@@ -160,7 +162,7 @@ public class PipelineSchedulerTest {
 
         HttpOperationResult result = new HttpOperationResult();
         final HashMap<String, String> environmentVariables = new HashMap<>();
-        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Collections.singletonMap("invalid-material", ""), environmentVariables, new HashMap<>()), result);
+        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Map.of("invalid-material", ""), environmentVariables, new HashMap<>()), result);
         assertThat(result.httpCode(), is(406));
         assertThat(result.message(), is("material with fingerprint [invalid-material] has empty revision"));
     }
@@ -215,7 +217,7 @@ public class PipelineSchedulerTest {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
-        cruiseConfig.merge(asList(partialConfigInRepo1, partialConfigInRepo2), false);
+        cruiseConfig.merge(List.of(partialConfigInRepo1, partialConfigInRepo2), false);
 
         when(configService.cruiseConfig()).thenReturn(cruiseConfig);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
@@ -239,7 +241,7 @@ public class PipelineSchedulerTest {
         //remove one config repo
         BasicCruiseConfig updatedConfig = new BasicCruiseConfig();
         updatedConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
-        updatedConfig.merge(Collections.singletonList(partialConfigInRepo1), false);
+        updatedConfig.merge(List.of(partialConfigInRepo1), false);
         when(configService.cruiseConfig()).thenReturn(updatedConfig);
         entityConfigChangedListener.onEntityConfigChange(null);
 

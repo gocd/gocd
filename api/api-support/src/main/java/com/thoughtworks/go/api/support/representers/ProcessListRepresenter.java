@@ -22,8 +22,6 @@ import java.util.Collection;
 
 public class ProcessListRepresenter {
     public static void toJSON(OutputWriter writer, Collection<ProcessWrapper> processList) {
-        writer.addChildList("process-list", listWriter -> {
-            processList.forEach(process -> listWriter.addChild(childWriter -> ProcessRepresenter.toJSON(childWriter, process)));
-        });
+        writer.addChildList("process-list", listWriter -> processList.forEach(process -> listWriter.addChild(childWriter -> ProcessRepresenter.toJSON(childWriter, process))));
     }
 }

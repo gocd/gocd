@@ -39,8 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -88,7 +89,7 @@ public class PackageRepositoryServiceIntegrationTest {
         goConfigService.forceNotifyListeners();
         service.setPluginManager(pluginManager);
         username = new Username("CurrentUser");
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(username.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
+        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(username.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
     }
 
@@ -100,7 +101,7 @@ public class PackageRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteTheSpecifiedPackageRepository() throws Exception {
+    public void shouldDeleteTheSpecifiedPackageRepository() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String repoId = "npm";
         PackageRepository npmRepo = new PackageRepository();
@@ -120,7 +121,7 @@ public class PackageRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheExactLocalizeMessageIfItFailsToDeletePackageRepository() throws Exception {
+    public void shouldReturnTheExactLocalizeMessageIfItFailsToDeletePackageRepository() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String repoId = "npm";
         PackageRepository npmRepo = new PackageRepository();
@@ -140,7 +141,7 @@ public class PackageRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheExactLocalizeMessageIfItFailsToCreatePackageRepository() throws Exception {
+    public void shouldReturnTheExactLocalizeMessageIfItFailsToCreatePackageRepository() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String repoId = "npm";
         PackageRepository npmRepo = new PackageRepository();
@@ -161,7 +162,7 @@ public class PackageRepositoryServiceIntegrationTest {
 
 
     @Test
-    public void shouldReturnTheExactLocalizeMessageIfItFailsToUpdatePackageRepository() throws Exception {
+    public void shouldReturnTheExactLocalizeMessageIfItFailsToUpdatePackageRepository() {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit("npm.org", "UnauthorizedUser"), forbidden());
 

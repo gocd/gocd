@@ -15,22 +15,18 @@
  */
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.FileUtil;
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.*;
+
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class DirectoryCleaner {
     private File baseFolder;

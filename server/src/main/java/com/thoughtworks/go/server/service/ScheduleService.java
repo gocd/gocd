@@ -52,7 +52,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -264,7 +263,7 @@ public class ScheduleService {
      * Top-level operation only; consumes exceptions
      */
     public Stage rerunStage(String pipelineName, Integer pipelineCounter, String stageName, HttpOperationResult result) {
-        String identifier = StringUtils.join(Arrays.asList(pipelineName, pipelineCounter, stageName), "/");
+        String identifier = StringUtils.join(List.of(pipelineName, pipelineCounter, stageName), "/");
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName));
         Stage stage = null;
 

@@ -35,7 +35,7 @@ class PluginInfosRepresenterTest {
     def SCMCombinedPluginInfo = new CombinedPluginInfo(SCMPluginInfo)
     def authorizationCombinedPluginInfo = new CombinedPluginInfo(authorizationPluginInfo)
 
-    Collection<CombinedPluginInfo> pluginInfos = Arrays.asList(SCMCombinedPluginInfo, authorizationCombinedPluginInfo)
+    Collection<CombinedPluginInfo> pluginInfos = List.of(SCMCombinedPluginInfo, authorizationCombinedPluginInfo)
 
     def actualJson = toObjectString({ PluginInfosRepresenter.toJSON(it, pluginInfos) })
 

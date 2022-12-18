@@ -19,12 +19,10 @@ import com.thoughtworks.go.domain.config.Admin;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class AuthorizationTest {
     @Test
@@ -67,10 +65,10 @@ public class AuthorizationTest {
     @Test
     public void shouldReturnTrueIfAnUserBelongsToAnAdminRole() {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("bar1")), new AdminRole(new CaseInsensitiveString("bar2"))));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo1"), Arrays.asList(new RoleConfig(new CaseInsensitiveString("bar1")), new RoleConfig(new CaseInsensitiveString("bar1")
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo1"), List.of(new RoleConfig(new CaseInsensitiveString("bar1")), new RoleConfig(new CaseInsensitiveString("bar1")
         ))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo2"), Arrays.asList(new RoleConfig(new CaseInsensitiveString("bar2")))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo3"), Arrays.asList(new RoleConfig(new CaseInsensitiveString("bar1")))), is(true));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo2"), List.of(new RoleConfig(new CaseInsensitiveString("bar2")))), is(true));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo3"), List.of(new RoleConfig(new CaseInsensitiveString("bar1")))), is(true));
         assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo4"), new ArrayList<>()), is(false));
     }
 
@@ -129,9 +127,9 @@ public class AuthorizationTest {
     public void shouldReturnAuthorizationMapForView() {
         Authorization authorization = new Authorization();
         authorization.getAdminsConfig().add(new AdminRole(new CaseInsensitiveString("group_of_losers")));
-        authorization.getOperationConfig().addAll(a(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("group_of_losers")), new AdminRole(
+        authorization.getOperationConfig().addAll(List.of(new AdminUser(new CaseInsensitiveString("loser")), new AdminRole(new CaseInsensitiveString("group_of_losers")), new AdminRole(
                 new CaseInsensitiveString("gang_of_boozers"))));
-        authorization.getViewConfig().addAll(a(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("loser"))));
+        authorization.getViewConfig().addAll(List.of(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("loser"))));
 
         List<Authorization.PresentationElement> userAuthMap = authorization.getUserAuthorizations();
         assertThat(userAuthMap.size(), is(2));

@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigReferenceElements {
-    private Map<String, Map<String, Object>> collectionRegistry;
+    private final Map<String, Map<String, Object>> collectionRegistry;
 
     public ConfigReferenceElements() {
         collectionRegistry = new HashMap<>();

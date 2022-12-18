@@ -33,7 +33,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Set;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.*;
@@ -186,16 +185,16 @@ public class ServerHealthServiceTest {
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline(PIPELINE_NAME))));
-        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
+        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forStage(PIPELINE_NAME, "stage1"))));
-        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
+        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
 
 
         serverHealthService = new ServerHealthService();
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forJob(PIPELINE_NAME, "stage1", "job1"))));
-        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Collections.singleton(PIPELINE_NAME)));
+        assertThat((serverHealthService.logs().get(0)).getPipelineNames(config), equalTo(Set.of(PIPELINE_NAME)));
     }
 
     @Test

@@ -18,12 +18,12 @@ package com.thoughtworks.go.domain.valuestreammap;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
 public class NodeTest {
@@ -117,9 +117,8 @@ public class NodeTest {
         p3.setLevel(1);
         p3.setDepth(4);
 
-        List<PipelineDependencyNode> nodes = Arrays.asList(p1, p2, p3);
-        Collections.sort(nodes);
-        assertThat(nodes, is(Arrays.asList(p2, p3, p1)));
+        List<PipelineDependencyNode> nodes = Stream.of(p1, p2, p3).sorted().collect(Collectors.toList());
+        assertThat(nodes, is(List.of(p2, p3, p1)));
     }
 
     @Test
@@ -148,6 +147,6 @@ public class NodeTest {
         node.addRevision(revision_2);
         node.addRevision(revision_1);
         node.addRevision(revision_3);
-        assertThat(node.revisions(), is(Arrays.asList(revision_3, revision_2, revision_1)));
+        assertThat(node.revisions(), is(List.of(revision_3, revision_2, revision_1)));
     }
 }

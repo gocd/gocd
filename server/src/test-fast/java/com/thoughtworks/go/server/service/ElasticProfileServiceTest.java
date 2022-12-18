@@ -35,7 +35,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
@@ -195,7 +198,7 @@ class ElasticProfileServiceTest {
 
         @Test
         void shouldReturnJobsUsingElasticProfile() {
-            final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
+            final List<PipelineConfig> allPipelineConfigs = List.of(
                     templateBasedPipelineWithElasticJobs("docker-template", "docker", "P1", "S1", "Job1", "Job2"),
                     pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
@@ -219,7 +222,7 @@ class ElasticProfileServiceTest {
 
         @Test
         void shouldReturnEmptyWhenNoneOfTheJobMatchesProfileId() {
-            final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
+            final List<PipelineConfig> allPipelineConfigs = List.of(
                     templateBasedPipelineWithElasticJobs("docker-template", "docker", "P1", "S1", "Job1", "Job2"),
                     pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")

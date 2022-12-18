@@ -63,10 +63,10 @@ public class AccessTokensController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Access Tokens");
-            put("meta", getMeta(request));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Access Tokens",
+            "meta", getMeta(request)
+        );
         return new ModelAndView(object, null);
     }
 

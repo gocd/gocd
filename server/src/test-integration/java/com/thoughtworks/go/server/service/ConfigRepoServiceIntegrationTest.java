@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -39,8 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -83,7 +83,7 @@ public class ConfigRepoServiceIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         user = new Username(new CaseInsensitiveString("current"));
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
+        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
 
         this.repoId = "repo-1";
@@ -126,12 +126,9 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldDeleteSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(configRepo);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(configRepo);
+            return cruiseConfig;
         });
 
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));
@@ -165,12 +162,9 @@ public class ConfigRepoServiceIntegrationTest {
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(configRepo);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(configRepo);
+            return cruiseConfig;
         });
         String newRepoId = "repo-2";
         ConfigRepoConfig toUpdateWith = ConfigRepoConfig.createConfigRepoConfig(git("http://bar.git", "master"), "yaml-plugin", newRepoId);

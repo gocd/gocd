@@ -19,7 +19,10 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @understands What values are selected on multiple agents
@@ -96,7 +99,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     public static TriStateSelection forSystemAdmin(final AdminsConfig adminsConfig, final Set<Role> allRoles, final UserRoleMatcher userRoleMatcher, List<String> users) {
-        return convert(new HashSet<>(Arrays.asList(Admin.GO_SYSTEM_ADMIN)), users, new Assigner<>() {
+        return convert(Set.of(Admin.GO_SYSTEM_ADMIN), users, new Assigner<>() {
             @Override
             public boolean shouldAssociate(String userName, String ignore) {
                 return adminsConfig.hasUser(new CaseInsensitiveString(userName), userRoleMatcher);

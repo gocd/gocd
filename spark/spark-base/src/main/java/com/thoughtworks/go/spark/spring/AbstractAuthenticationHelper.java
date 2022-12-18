@@ -177,7 +177,7 @@ public abstract class AbstractAuthenticationHelper {
             return;
         }
 
-        JsonElement group = new JsonParser().parse(request.body()).getAsJsonObject().get("group");
+        JsonElement group = JsonParser.parseString(request.body()).getAsJsonObject().get("group");
         if (group == null) {
             throw new UnprocessableEntityException("Pipeline group must be specified for creating a pipeline.");
         } else {

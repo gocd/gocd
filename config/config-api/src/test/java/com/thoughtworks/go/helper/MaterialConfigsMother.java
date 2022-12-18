@@ -34,7 +34,8 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
+import java.util.Map;
+
 
 public class MaterialConfigsMother {
     public static GitMaterialConfig git() {
@@ -365,7 +366,7 @@ public class MaterialConfigsMother {
 
     public static P4MaterialConfig p4MaterialConfig(String serverAndPort, String userName, String password, String view, boolean useTickets) {
         final P4MaterialConfig material = p4(serverAndPort, view);
-        material.setConfigAttributes(m(P4MaterialConfig.USERNAME, userName, P4MaterialConfig.AUTO_UPDATE, "true"));
+        material.setConfigAttributes(userName == null ? Map.of(P4MaterialConfig.AUTO_UPDATE, "true") : Map.of(P4MaterialConfig.USERNAME, userName, P4MaterialConfig.AUTO_UPDATE, "true"));
         material.setPassword(password);
         material.setUseTickets(useTickets);
         return material;

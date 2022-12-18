@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -88,7 +87,7 @@ public class PackageRepositoryExtensionTest {
         packageConfiguration.add(new PackageMaterialProperty("key-four", "value-four"));
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, PACKAGE_MATERIAL_EXTENSION, asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, PACKAGE_MATERIAL_EXTENSION, List.of("1.0"))).thenReturn("1.0");
     }
 
     @Test
@@ -284,7 +283,7 @@ public class PackageRepositoryExtensionTest {
         Result result = extension.checkConnectionToRepository(PLUGIN_ID, repositoryConfiguration);
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_REPOSITORY_CONNECTION, expectedRequestBody);
-        assertSuccessResult(result, asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -299,7 +298,7 @@ public class PackageRepositoryExtensionTest {
         Result result = extension.checkConnectionToRepository(PLUGIN_ID, repositoryConfiguration);
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_REPOSITORY_CONNECTION, expectedRequestBody);
-        assertFailureResult(result, asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -315,7 +314,7 @@ public class PackageRepositoryExtensionTest {
         Result result = extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_PACKAGE_CONNECTION, expectedRequestBody);
-        assertSuccessResult(result, asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
@@ -331,7 +330,7 @@ public class PackageRepositoryExtensionTest {
         Result result = extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
 
         assertRequest(requestArgumentCaptor.getValue(), PACKAGE_MATERIAL_EXTENSION, "1.0", PackageRepositoryExtension.REQUEST_CHECK_PACKAGE_CONNECTION, expectedRequestBody);
-        assertFailureResult(result, asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test

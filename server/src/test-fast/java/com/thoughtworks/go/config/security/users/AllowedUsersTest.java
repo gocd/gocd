@@ -22,11 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AllowedUsersTest {
@@ -43,8 +43,8 @@ public class AllowedUsersTest {
     }
 
     @Test
-    public void shouldCheckViewPermissionsInACaseInsensitiveWay() throws Exception {
-        AllowedUsers users = new AllowedUsers(s("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet());
+    public void shouldCheckViewPermissionsInACaseInsensitiveWay() {
+        AllowedUsers users = new AllowedUsers(Set.of("USER1", "user2", "User3", "AnoTherUsEr"), Collections.emptySet());
 
         assertThat(users.contains("user1"), is(true));
         assertThat(users.contains("USER1"), is(true));
@@ -56,12 +56,12 @@ public class AllowedUsersTest {
     }
 
     @Test
-    public void usersShouldHaveViewPermissionIfTheyBelongToAllowedPluginRoles() throws Exception {
+    public void usersShouldHaveViewPermissionIfTheyBelongToAllowedPluginRoles() {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
 
         pluginRoleUsersStore.assignRole("foo", admin);
 
-        AllowedUsers users = new AllowedUsers(Collections.emptySet(), Collections.singleton(admin));
+        AllowedUsers users = new AllowedUsers(Collections.emptySet(), Set.of(admin));
 
         assertTrue(users.contains("FOO"));
         assertTrue(users.contains("foo"));

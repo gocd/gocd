@@ -52,8 +52,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -141,23 +139,23 @@ public class BackupService implements BackupStatusProvider {
             LOGGER.error("Cannot find backup with id: {}. Skipping backup generation", id);
             return Optional.empty();
         }
-        ServerBackup serverBackup = performBackup(backup.get(), singletonList(new BackupStatusUpdater(backup.get(), serverBackupRepository)), BackupInitiator.USER);
+        ServerBackup serverBackup = performBackup(backup.get(), List.of(new BackupStatusUpdater(backup.get(), serverBackupRepository)), BackupInitiator.USER);
         return Optional.of(serverBackup);
     }
 
     ServerBackup backupViaTimer() {
         ServerBackup serverBackup = createServerBackup(Username.CRUISE_TIMER);
-        return performBackup(serverBackup, singletonList(new BackupStatusUpdater(serverBackup, serverBackupRepository)), BackupInitiator.TIMER);
+        return performBackup(serverBackup, List.of(new BackupStatusUpdater(serverBackup, serverBackupRepository)), BackupInitiator.TIMER);
     }
 
     public ServerBackup startBackup(Username username) {
         ServerBackup serverBackup = createServerBackup(username);
-        return performBackup(serverBackup, singletonList(new BackupStatusUpdater(serverBackup, serverBackupRepository)), BackupInitiator.USER);
+        return performBackup(serverBackup, List.of(new BackupStatusUpdater(serverBackup, serverBackupRepository)), BackupInitiator.USER);
     }
 
     ServerBackup startBackup(Username username, BackupUpdateListener backupUpdateListener) {
         ServerBackup serverBackup = createServerBackup(username);
-        return performBackup(serverBackup, asList(new BackupStatusUpdater(serverBackup, serverBackupRepository), backupUpdateListener), BackupInitiator.USER);
+        return performBackup(serverBackup, List.of(new BackupStatusUpdater(serverBackup, serverBackupRepository), backupUpdateListener), BackupInitiator.USER);
     }
 
     private ServerBackup performBackup(ServerBackup backup, List<BackupUpdateListener> backupUpdateListeners, BackupInitiator initiatedBy) {

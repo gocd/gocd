@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.MailHost;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,10 +49,10 @@ class CreateOrUpdateUpdateMailHostCommandTest {
         assertThat(command.isValid(cruiseConfig)).isFalse();
         assertThat(newMailHost.errors())
                 .hasSize(4)
-                .containsEntry("hostname", Collections.singletonList("Hostname must not be blank."))
-                .containsEntry("port", Collections.singletonList("Port must be a positive number."))
-                .containsEntry("sender_email", Collections.singletonList("Sender email must not be blank."))
-                .containsEntry("admin_email", Collections.singletonList("Admin email must not be blank."))
+                .containsEntry("hostname", List.of("Hostname must not be blank."))
+                .containsEntry("port", List.of("Port must be a positive number."))
+                .containsEntry("sender_email", List.of("Sender email must not be blank."))
+                .containsEntry("admin_email", List.of("Admin email must not be blank."))
         ;
 
         assertThat(command.getPreprocessedEntityConfig()).isSameAs(newMailHost);

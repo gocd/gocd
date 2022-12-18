@@ -20,14 +20,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 public class ConsoleOutViewTest {
-    private static final List<String> CHARSETS = Arrays.asList("utf-8", "utf-16", "ISO-8859-7", "IBM00858", "KOI8-R", "US-ASCII");
+    private static final List<String> CHARSETS = List.of("utf-8", "utf-16", "ISO-8859-7", "IBM00858", "KOI8-R", "US-ASCII");
 
     private Charset randomCharset;
 

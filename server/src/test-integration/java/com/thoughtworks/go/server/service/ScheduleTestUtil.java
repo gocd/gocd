@@ -46,7 +46,6 @@ import java.io.File;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 
 public class ScheduleTestUtil {
 
@@ -430,7 +429,7 @@ public class ScheduleTestUtil {
     }
 
     public void checkinFile(final Material material, final String revision, final File file, final ModifiedAction modifiedAction) {
-        checkinFiles(material, revision, a(file), modifiedAction);
+        checkinFiles(material, revision, List.of(file), modifiedAction);
     }
 
     public void checkinFiles(final Material material, final String revision, final List<File> files, final ModifiedAction modifiedAction) {

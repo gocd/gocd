@@ -16,12 +16,12 @@
 package com.thoughtworks.go.domain.cctray;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
-import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +32,14 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,11 +80,11 @@ public class CcTrayStageStatusChangeHandlerTest {
     @Test
     public void shouldCalculateBreakersForStage() throws Exception {
         Stage stage = StageMother.custom("stage1", JobInstanceMother.building("job1"));
-        when(breakersCalculator.calculateFor(stage)).thenReturn(s("breaker1", "breaker2"));
+        when(breakersCalculator.calculateFor(stage)).thenReturn(Set.of("breaker1", "breaker2"));
 
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
-        assertThat(statuses.get(0).getBreakers(), is(s("breaker1", "breaker2")));
+        assertThat(statuses.get(0).getBreakers(), is(Set.of("breaker1", "breaker2")));
     }
 
     @Test
@@ -90,12 +92,12 @@ public class CcTrayStageStatusChangeHandlerTest {
         JobInstance job1_building = JobInstanceMother.building("job1");
         JobInstance job2_failed = JobInstanceMother.failed("job2");
         Stage stage = StageMother.custom("stage1", job1_building, job2_failed);
-        when(breakersCalculator.calculateFor(stage)).thenReturn(s("breaker1", "breaker2"));
+        when(breakersCalculator.calculateFor(stage)).thenReturn(Set.of("breaker1", "breaker2"));
 
         handler.statusesOfStageAndItsJobsFor(stage);
 
         verify(jobStatusChangeHandler).statusFor(job1_building, new HashSet<>());
-        verify(jobStatusChangeHandler).statusFor(job2_failed, s("breaker1", "breaker2"));
+        verify(jobStatusChangeHandler).statusFor(job2_failed, Set.of("breaker1", "breaker2"));
     }
 
     @Test
@@ -154,7 +156,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
     @Test
     public void shouldReuseViewersListFromExistingStatusWhenCreatingNewStatus() throws Exception {
-        Users viewers = viewers(Collections.singleton(new PluginRoleConfig("admin", "ldap")),"viewer1", "viewer2");
+        Users viewers = viewers(Set.of(new PluginRoleConfig("admin", "ldap")),"viewer1", "viewer2");
 
         String projectName = "pipeline :: stage1";
         ProjectStatus existingStageStatus = new ProjectStatus(projectName, "OldActivity", "OldStatus", "OldLabel", new Date(), webUrlFor("stage1"));
@@ -209,6 +211,6 @@ public class CcTrayStageStatusChangeHandlerTest {
     }
 
     private Users viewers(Set<PluginRoleConfig> roles, String... users) {
-        return new AllowedUsers(s(users), roles);
+        return new AllowedUsers(Set.of(users), roles);
     }
 }

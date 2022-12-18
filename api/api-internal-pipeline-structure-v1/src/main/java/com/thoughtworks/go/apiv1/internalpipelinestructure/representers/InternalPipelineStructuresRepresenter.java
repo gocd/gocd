@@ -28,51 +28,37 @@ import java.util.*;
 public class InternalPipelineStructuresRepresenter {
     public static void toJSON(OutputWriter outputWriter, PipelineStructureViewModel pipelineStructureViewModel) {
         outputWriter.
-                addChildList("groups", groupsWriter -> {
-                    pipelineStructureViewModel.getPipelineGroups().forEach(group -> {
-                        groupsWriter.addChild(groupWriter -> {
-                            groupWriter.add("name", group.getGroup())
-                                    .addChildList("pipelines",
-                                            outputListWriter -> group.forEach(pipelineConfig -> {
-                                                outputListWriter.addChild(pipelineWriter -> {
-                                                    pipelineWriter
-                                                            .add("name", pipelineConfig.name())
-                                                            .addIfNotNull("template_name", pipelineConfig.getTemplateName());
-                                                    writeOrigin(pipelineWriter, pipelineConfig.getOrigin());
-                                                    renderEnvironment(pipelineWriter, pipelineConfig, pipelineStructureViewModel.getEnvironmentsConfig());
-                                                    renderDependantPipelines(pipelineWriter, pipelineConfig, pipelineStructureViewModel.getPipelineDependencyTable());
-                                                    if (pipelineConfig.hasTemplate()) {
-                                                        renderStages(pipelineStructureViewModel.getTemplatesConfig().templateByName(pipelineConfig.getTemplateName()), pipelineWriter);
-                                                    } else {
-                                                        renderStages(pipelineConfig, pipelineWriter);
-                                                    }
-                                                });
-                                            }));
-                        });
-                    });
-                })
-                .addChildList("templates", templatesWriter -> {
-                    pipelineStructureViewModel.getTemplatesConfig().forEach(template -> {
-                        templatesWriter.addChild(templateWriter -> {
-                            templateWriter
-                                    .add("name", template.name())
-                                    .addChildList("parameters", template.referredParams().getNames());
-                            renderStages(template, templateWriter);
-                        });
-                    });
-                });
+                addChildList("groups", groupsWriter -> pipelineStructureViewModel.getPipelineGroups().forEach(group -> groupsWriter.addChild(groupWriter -> groupWriter.add("name", group.getGroup())
+                                .addChildList("pipelines",
+                                        outputListWriter -> group.forEach(pipelineConfig -> outputListWriter.addChild(pipelineWriter -> {
+                                                pipelineWriter
+                                                        .add("name", pipelineConfig.name())
+                                                        .addIfNotNull("template_name", pipelineConfig.getTemplateName());
+                                                writeOrigin(pipelineWriter, pipelineConfig.getOrigin());
+                                                renderEnvironment(pipelineWriter, pipelineConfig, pipelineStructureViewModel.getEnvironmentsConfig());
+                                                renderDependantPipelines(pipelineWriter, pipelineConfig, pipelineStructureViewModel.getPipelineDependencyTable());
+                                                if (pipelineConfig.hasTemplate()) {
+                                                    renderStages(pipelineStructureViewModel.getTemplatesConfig().templateByName(pipelineConfig.getTemplateName()), pipelineWriter);
+                                                } else {
+                                                    renderStages(pipelineConfig, pipelineWriter);
+                                                }
+                                            }))))))
+                .addChildList("templates", templatesWriter -> pipelineStructureViewModel.getTemplatesConfig().forEach(template -> templatesWriter.addChild(templateWriter -> {
+                        templateWriter
+                                .add("name", template.name())
+                                .addChildList("parameters", template.referredParams().getNames());
+                        renderStages(template, templateWriter);
+                    })));
     }
 
     private static void renderDependantPipelines(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, Hashtable<CaseInsensitiveString, Node> pipelineDependencyTable) {
-        pipelineWriter.addChildList("dependant_pipelines", outputListWriter -> {
-            pipelineDependencyTable.entrySet().forEach((entry) -> {
-                Optional<Node.DependencyNode> dependency = entry.getValue().getDependency(pipelineConfig.name());
-                dependency.ifPresent(dependencyNode -> outputListWriter.addChild(childWriter -> {
-                    childWriter.add("dependent_pipeline_name", entry.getKey().toString());
-                    childWriter.add("depends_on_stage", dependencyNode.getStageName());
-                }));
-            });
-        });
+        pipelineWriter.addChildList("dependant_pipelines", outputListWriter -> pipelineDependencyTable.entrySet().forEach((entry) -> {
+            Optional<Node.DependencyNode> dependency = entry.getValue().getDependency(pipelineConfig.name());
+            dependency.ifPresent(dependencyNode -> outputListWriter.addChild(childWriter -> {
+                childWriter.add("dependent_pipeline_name", entry.getKey().toString());
+                childWriter.add("depends_on_stage", dependencyNode.getStageName());
+            }));
+        }));
     }
 
     private static void renderEnvironment(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, EnvironmentsConfig environments) {
@@ -102,22 +88,9 @@ public class InternalPipelineStructuresRepresenter {
             return;
         }
         pipelineWriter
-                .addChildList("stages", stagesWriter -> {
-                    pipelineConfig.forEach(stage -> {
-                        stagesWriter.addChild(stageWriter -> {
-                            stageWriter.add("name", stage.name())
-                                    .addChildList("jobs", (jobsWriter) -> {
-                                        stage.getJobs().forEach(job -> {
-                                            jobsWriter.addChild(jobWriter -> {
-                                                jobWriter.add("name", job.name())
-                                                        .add("is_elastic", job.usesElasticAgent());
-                                            });
-
-                                        });
-                                    });
-                        });
-                    });
-                });
+                .addChildList("stages", stagesWriter -> pipelineConfig.forEach(stage -> stagesWriter.addChild(stageWriter -> stageWriter.add("name", stage.name())
+                                .addChildList("jobs", (jobsWriter) -> stage.getJobs().forEach(job -> jobsWriter.addChild(jobWriter -> jobWriter.add("name", job.name())
+                                                    .add("is_elastic", job.usesElasticAgent())))))));
     }
 
     public static void toJSON(OutputWriter outputWriter, PipelineStructureViewModel pipelineStructureViewModel, Collection<String> users, Collection<String> roles) {

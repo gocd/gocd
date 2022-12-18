@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -36,7 +35,10 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,10 +168,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     }
 
     private AgentInstance agent(Agent agent) {
-        return AgentInstance.createFromAgent(agent, new SystemEnvironment(), new AgentStatusChangeListener() {
-            @Override
-            public void onAgentStatusChange(AgentInstance agentInstance) {
-            }
+        return AgentInstance.createFromAgent(agent, new SystemEnvironment(), agentInstance -> {
         });
     }
 }

@@ -58,9 +58,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
@@ -128,7 +128,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistory() throws Exception {
+    public void shouldLoadPipelineHistory() {
         pipelineOne.createdPipelineWithAllStagesPassed();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
                 Pagination.pageStartingAt(0, 1, 10),
@@ -143,7 +143,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnActiveInstanceOfAPipeline() throws Exception {
+    public void shouldReturnActiveInstanceOfAPipeline() {
         pipelineOne.createdPipelineWithAllStagesPassed();
         configHelper.setViewPermissionForGroup("group1", "jez");
 
@@ -157,7 +157,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistoryWithEmptyDefaultIfNone() throws Exception {
+    public void shouldLoadPipelineHistoryWithEmptyDefaultIfNone() {
         configHelper.setViewPermissionForGroup("group1", "jez");
         PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 1), "jez");
         assertThat(history.size(), is(1));
@@ -174,7 +174,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotLoadPipelinesThatTheUserDoesNotHavePermissionToSee() throws Exception {
+    public void shouldNotLoadPipelinesThatTheUserDoesNotHavePermissionToSee() {
         configHelper.setViewPermissionForGroup("group1", "foo");
 
         PipelineInstanceModels history = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.pageStartingAt(0, 1, 1), "non-admin-user");
@@ -182,7 +182,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadPipelineHistoryWithPlaceholderStagesPopulated() throws Exception {
+    public void shouldLoadPipelineHistoryWithPlaceholderStagesPopulated() {
         pipelineOne.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
                 Pagination.pageStartingAt(0, 1, 10),
@@ -219,7 +219,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotLoadDuplicatPlaceholderStages() throws Exception {
+    public void shouldNotLoadDuplicatPlaceholderStages() {
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job"), "pipeline-group");
 
         PipelineInstanceModels history = pipelineHistoryService.load("pipeline", Pagination.pageStartingAt(0, 1, 10), "anyone", true);
@@ -232,7 +232,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldContainLatestRevisionForEachPipeline() throws Exception {
+    public void shouldContainLatestRevisionForEachPipeline() {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         MaterialRevision materialRevision = new MaterialRevision(pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null));
         saveRev(materialRevision);
@@ -253,7 +253,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnLatestPipelineIntance() throws Exception {
+    public void shouldReturnLatestPipelineIntance() {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         saveRev(new MaterialRevision(pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial(), new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
         configHelper.setViewPermissionForGroup("group1", "username");
@@ -263,10 +263,10 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() throws Exception {
+    public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() {
         pipelineOne.createPipelineWithFirstStageScheduled();
         SvnMaterialConfig svnMaterialConfig = svn("new-material", null, null, false);
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "new-material"));
+        svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "new-material"));
         configHelper.addMaterialToPipeline(pipelineOne.pipelineName, svnMaterialConfig);
         configHelper.setViewPermissionForGroup("group1", "username");
         PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
@@ -275,7 +275,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() throws Exception {
+    public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() {
         SvnMaterialConfig svnMaterial = svn("https://some-url", "new-user", "new-pass", false);
         configHelper.addPipeline("new-pipeline", "new-stage", svnMaterial, "first-job");
         configHelper.addAuthorizedUserForPipelineGroup("username", BasicPipelineConfigs.DEFAULT_GROUP);
@@ -290,7 +290,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUnderstandIfMaterialHasNewModifications() throws Exception {
+    public void shouldUnderstandIfMaterialHasNewModifications() {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
         saveRev(new MaterialRevision(material, new Modification(new Date(), "2", "MOCK_LABEL-12", null)));
@@ -364,7 +364,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
 	@Test
-	public void shouldLoadPipelineHistoryWithPlaceholderStagesPopulated_loadMinimalData() throws Exception {
+	public void shouldLoadPipelineHistoryWithPlaceholderStagesPopulated_loadMinimalData() {
 		pipelineOne.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
 
 		HttpOperationResult result = new HttpOperationResult();

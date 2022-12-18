@@ -60,10 +60,6 @@ public class TemplateConfigRepresenter {
 
     private static void setStages(JsonReader jsonReader, PipelineTemplateConfig pipelineTemplateConfig) {
         pipelineTemplateConfig.getStages().clear();
-        jsonReader.readArrayIfPresent("stages", stages -> {
-            stages.forEach(stage -> {
-                pipelineTemplateConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("stages", stages -> stages.forEach(stage -> pipelineTemplateConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())))));
     }
 }

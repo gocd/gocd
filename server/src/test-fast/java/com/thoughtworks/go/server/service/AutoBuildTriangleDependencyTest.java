@@ -29,11 +29,9 @@ import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 /**
@@ -74,11 +72,7 @@ public class AutoBuildTriangleDependencyTest {
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, pipelineName, systemEnvironment, materialChecker);
         AutoBuild spyAutoBuild = spy(autoBuild);
-        doAnswer(new Answer() {
-            @Override public Object answer(InvocationOnMock invocation) throws Throwable {
-                return true;
-            }
-        }).when(spyAutoBuild).hasAnyUnsharedMaterialChanged(dependencyGraph, originalRevisions);
+        doAnswer(invocation -> true).when(spyAutoBuild).hasAnyUnsharedMaterialChanged(dependencyGraph, originalRevisions);
         BuildCause buildCause = spyAutoBuild.onModifications(originalRevisions, false, null);
 
         verify(pipelineService).getRevisionsBasedOnDependencies(dependencyGraph, originalRevisions);

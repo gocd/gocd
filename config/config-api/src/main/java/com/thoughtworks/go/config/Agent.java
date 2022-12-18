@@ -31,9 +31,7 @@ import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.SystemUtil.isLocalhost;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -56,7 +54,7 @@ public class Agent extends PersistentObject {
     private boolean deleted;
 
     private transient Boolean cachedIsFromLocalHost;
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
     public static final String IP_ADDRESS = "ipAddress";
     public static final String UUID = "uuid";
     private static final String DEFAULT_VALUE = "";
@@ -165,7 +163,7 @@ public class Agent extends PersistentObject {
     }
 
     public List<ConfigErrors> errorsAsList() {
-        return asList(errors);
+        return List.of(errors);
     }
 
     public boolean hasErrors() {
@@ -188,7 +186,7 @@ public class Agent extends PersistentObject {
 
     public void addResource(String resource) {
         if (isNotBlank(resource)) {
-            addResources(singletonList(resource));
+            addResources(List.of(resource));
         }
     }
 
@@ -354,7 +352,7 @@ public class Agent extends PersistentObject {
     }
 
     public void addEnvironment(String env) {
-        this.addEnvironments(isBlank(env) ? null : singletonList(env));
+        this.addEnvironments(isBlank(env) ? null : List.of(env));
     }
 
     public String getResources() {

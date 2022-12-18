@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -43,7 +43,7 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
         simpleSvnAuth.setPassword("pa$sw0rd");
 
         customSvn = new CRSvnMaterial("svnMaterial1", "destDir1", false,
-                false, "user1", Arrays.asList("tools", "lib"), "http://svn", true);
+                false, "user1", List.of("tools", "lib"), "http://svn", true);
         customSvn.setPassword("pass1");
 
         invalidNoUrl = new CRSvnMaterial();

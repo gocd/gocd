@@ -333,9 +333,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig, JobConfig preprocessedJobConfig) {
         List<PluggableArtifactConfig> artifactConfigs = artifactTypeConfigs().getPluggableArtifactConfigs();
         List<PluggableArtifactConfig> preprocessedArtifactConfigs = preprocessedJobConfig.artifactTypeConfigs().getPluggableArtifactConfigs();
-        artifactConfigs.forEach(artifactConfig -> {
-            artifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedArtifactConfigs.get(artifactConfigs.indexOf(artifactConfig)));
-        });
+        artifactConfigs.forEach(artifactConfig -> artifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedArtifactConfigs.get(artifactConfigs.indexOf(artifactConfig))));
 
         tasks.forEach(task -> {
             if (task instanceof FetchPluggableArtifactTask) {
@@ -346,9 +344,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineTemplateConfig pipelineTemplateConfig) {
         List<PluggableArtifactConfig> artifactConfigs = artifactTypeConfigs().getPluggableArtifactConfigs();
-        artifactConfigs.forEach(artifactConfig -> {
-            artifactConfig.encryptSecureProperties(preprocessedConfig, artifactConfig);
-        });
+        artifactConfigs.forEach(artifactConfig -> artifactConfig.encryptSecureProperties(preprocessedConfig, artifactConfig));
 
         tasks.forEach(task -> {
             if (task instanceof FetchPluggableArtifactTask) {

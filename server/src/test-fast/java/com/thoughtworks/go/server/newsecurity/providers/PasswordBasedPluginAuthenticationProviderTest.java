@@ -42,8 +42,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_USER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -119,10 +119,10 @@ class PasswordBasedPluginAuthenticationProviderTest {
             securityConfig.securityAuthConfigs().add(fileAuthConfig);
             securityConfig.securityAuthConfigs().add(ldapAuthConfig);
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, Collections.singletonList(fileAuthConfig), Collections.emptyList())).
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, List.of(fileAuthConfig), Collections.emptyList())).
                     thenThrow(new RuntimeException());
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, Collections.singletonList(ldapAuthConfig), Collections.emptyList())).
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, List.of(ldapAuthConfig), Collections.emptyList())).
                     thenReturn(new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList()));
 
             AuthenticationToken<UsernamePassword> authenticationToken = provider.authenticate(CREDENTIALS, null);
@@ -149,15 +149,15 @@ class PasswordBasedPluginAuthenticationProviderTest {
 
             InOrder inOrder = inOrder(authorizationExtension);
 
-            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, Collections.singletonList(internalLDAP), Collections.emptyList())).
+            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), Collections.emptyList())).
                     thenReturn(new AuthenticationResponse(new User(USERNAME, null, null), Collections.emptyList()));
 
             provider.authenticate(CREDENTIALS, null);
 
-            inOrder.verify(authorizationExtension).authenticateUser("file", USERNAME, PASSWORD, Collections.singletonList(sha1Passwords), Collections.emptyList());
-            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, Collections.singletonList(corporateLDAP), Collections.emptyList());
-            inOrder.verify(authorizationExtension).authenticateUser("file", USERNAME, PASSWORD, Collections.singletonList(bcryptPasswords), Collections.emptyList());
-            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, Collections.singletonList(internalLDAP), Collections.emptyList());
+            inOrder.verify(authorizationExtension).authenticateUser("file", USERNAME, PASSWORD, List.of(sha1Passwords), Collections.emptyList());
+            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, List.of(corporateLDAP), Collections.emptyList());
+            inOrder.verify(authorizationExtension).authenticateUser("file", USERNAME, PASSWORD, List.of(bcryptPasswords), Collections.emptyList());
+            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), Collections.emptyList());
         }
 
         @Test
@@ -175,13 +175,13 @@ class PasswordBasedPluginAuthenticationProviderTest {
             securityConfig.addRole(operator);
 
             InOrder inOrder = inOrder(authorizationExtension);
-            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, Collections.singletonList(internalLDAP), Collections.singletonList(operator))).
+            when(authorizationExtension.authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), List.of(operator))).
                     thenReturn(new AuthenticationResponse(new User(USERNAME, null, null), Collections.emptyList()));
 
             provider.authenticate(CREDENTIALS, null);
 
-            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, Collections.singletonList(corporateLDAP), Collections.singletonList(admin));
-            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, Collections.singletonList(internalLDAP), Collections.singletonList(operator));
+            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, List.of(corporateLDAP), List.of(admin));
+            inOrder.verify(authorizationExtension).authenticateUser("ldap", USERNAME, PASSWORD, List.of(internalLDAP), List.of(operator));
         }
 
         @Test
@@ -194,7 +194,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_1), securityConfig.getPluginRoles(PLUGIN_ID_1))).thenReturn(
                     new AuthenticationResponse(
                             new User(USERNAME, USERNAME, "bob@example.com"),
-                            Arrays.asList("blackbird", "admins")
+                            List.of("blackbird", "admins")
                     )
             );
 
@@ -213,7 +213,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_1);
 
             when(authorizationExtension.authenticateUser(PLUGIN_ID_1, "foo@bar.com", PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_1), securityConfig.getPluginRoles(PLUGIN_ID_1))).thenReturn(
-                    new AuthenticationResponse(new User(USERNAME, USERNAME, "bob@example.com"), Arrays.asList("blackbird", "admins"))
+                    new AuthenticationResponse(new User(USERNAME, USERNAME, "bob@example.com"), List.of("blackbird", "admins"))
             );
 
             AuthenticationToken<UsernamePassword> authenticationToken = provider.authenticate(credentials, null);
@@ -281,9 +281,9 @@ class PasswordBasedPluginAuthenticationProviderTest {
             securityConfig.securityAuthConfigs().add(fileAuthConfig);
             securityConfig.securityAuthConfigs().add(ldapAuthConfig);
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, Collections.singletonList(fileAuthConfig), Collections.emptyList())).thenThrow(new RuntimeException());
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_1, USERNAME, PASSWORD, List.of(fileAuthConfig), Collections.emptyList())).thenThrow(new RuntimeException());
 
-            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, Collections.singletonList(ldapAuthConfig), Collections.emptyList())).thenReturn(new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList()));
+            when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, List.of(ldapAuthConfig), Collections.emptyList())).thenReturn(new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList()));
 
             AuthenticationToken<UsernamePassword> authenticationToken = provider.reauthenticate(oldAuthenticationToken);
 
@@ -331,7 +331,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             when(authorizationExtension.authenticateUser(PLUGIN_ID_1, "foo@bar.com", PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_1), securityConfig.getPluginRoles(PLUGIN_ID_1))).thenReturn(
                     new AuthenticationResponse(
                             new User(USERNAME, USERNAME, "bob@example.com"),
-                            Arrays.asList("blackbird", "admins")
+                            List.of("blackbird", "admins")
                     )
             );
 

@@ -41,8 +41,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -666,9 +666,9 @@ class FetchPluggableArtifactTaskTest {
 
     @Test
     void shouldSetConfiguration_whenPluginIsProvided() {
-        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        final Map<Object, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
-        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", "gocd.zip"));
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Map.of("NAME", "gocd.zip"));
         configAttrs.put("pluginId", "cd.go.artifact.s3");
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
@@ -682,12 +682,11 @@ class FetchPluggableArtifactTaskTest {
 
     @Test
     void shouldSetConfiguration_whenPluginIsNotProvided() throws CryptoException {
-        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        final Map<Object, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
-        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", new HashMap<String, String>() {{
-            put("value", new GoCipher().encrypt("gocd.zip"));
-            put("isSecure", "true");
-        }}));
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION,
+            Map.of("NAME", Map.of("value", new GoCipher().encrypt("gocd.zip"), "isSecure", "true"))
+        );
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
         task.setFetchTaskAttributes(configAttrs);
@@ -700,9 +699,9 @@ class FetchPluggableArtifactTaskTest {
 
     @Test
     void shouldNotSetConfigurationWhenArtifactIdIsNotProvided() {
-        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        final Map<Object, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "");
-        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", "gocd.zip"));
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Map.of("NAME", "gocd.zip"));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
         task.setFetchTaskAttributes(configAttrs);

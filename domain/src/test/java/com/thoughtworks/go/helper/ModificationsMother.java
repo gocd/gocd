@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Materials;
@@ -33,6 +31,8 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.GoConstants;
 import org.joda.time.DateTime;
+
+import java.util.*;
 
 public class ModificationsMother {
     public static final String MOD_COMMENT = "Fixing the not checked in files";
@@ -265,12 +265,7 @@ public class ModificationsMother {
     }
 
     public static List<Modification> multipleModificationList() {
-        return multipleModificationList(new RevisionToUse() {
-            @Override
-            public String next() {
-                return nextRevision();
-            }
-        });
+        return multipleModificationList(ModificationsMother::nextRevision);
     }
 
     public static List<Modification> multipleModificationList(final int initialRevision) {
@@ -339,7 +334,7 @@ public class ModificationsMother {
         return Arrays.asList(modifications);
     }
 
-    public static MaterialRevisions getMaterialRevisions(HashMap<Material, String> checkins) {
+    public static MaterialRevisions getMaterialRevisions(Map<Material, String> checkins) {
         MaterialRevisions revisions = new MaterialRevisions();
         for (Material material : checkins.keySet()) {
             Modification modification = aCheckIn(checkins.get(material), "file1.txt");
@@ -387,7 +382,7 @@ public class ModificationsMother {
         return revisions;
     }
 
-    private static interface RevisionToUse {
+    private interface RevisionToUse {
         String next();
     }
 }

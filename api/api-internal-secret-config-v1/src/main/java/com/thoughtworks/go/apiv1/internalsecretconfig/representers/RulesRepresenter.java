@@ -26,25 +26,21 @@ import java.util.HashMap;
 
 public class RulesRepresenter {
     public static void toJSON(OutputListWriter listWriter, Rules rules) {
-        rules.forEach(directive -> {
-            listWriter.addChild(directiveWriter -> {
-                if (directive.hasErrors()) {
-                    directiveWriter.addChild("errors", errorWriter -> {
-                        new ErrorGetter(new HashMap<>()).toJSON(directiveWriter, directive);
-                    });
-                }
+        rules.forEach(directive -> listWriter.addChild(directiveWriter -> {
+            if (directive.hasErrors()) {
+                directiveWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(directiveWriter, directive));
+            }
 
-                if (directive instanceof Unknown) {
-                    directiveWriter.add("directive", ((Unknown) directive).getDirective());
-                } else {
-                    directiveWriter.add("directive", directive.getDirectiveType().type());
-                }
+            if (directive instanceof Unknown) {
+                directiveWriter.add("directive", ((Unknown) directive).getDirective());
+            } else {
+                directiveWriter.add("directive", directive.getDirectiveType().type());
+            }
 
-                directiveWriter.add("action", directive.action());
-                directiveWriter.add("type", directive.type());
-                directiveWriter.add("resource", directive.resource());
-            });
-        });
+            directiveWriter.add("action", directive.action());
+            directiveWriter.add("type", directive.type());
+            directiveWriter.add("resource", directive.resource());
+        }));
     }
 
     static class Unknown extends AbstractDirective {

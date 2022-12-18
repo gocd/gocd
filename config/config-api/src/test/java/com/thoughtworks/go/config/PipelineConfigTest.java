@@ -36,18 +36,15 @@ import com.thoughtworks.go.util.Node;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -645,7 +642,7 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
         HashMap stageMap = new HashMap();
-        List jobList = a(m(JobConfig.NAME, "JobName"));
+        List jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
         stageMap.put(StageConfig.NAME, "someStage");
         stageMap.put(StageConfig.JOBS, jobList);
 
@@ -676,7 +673,7 @@ public class PipelineConfigTest {
                         new CaseInsensitiveString("second"), new JobConfigs()));
 
         HashMap stageMap = new HashMap();
-        List jobList = a(m(JobConfig.NAME, "JobName"));
+        List jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
         stageMap.put(StageConfig.NAME, "someStage");
         stageMap.put(StageConfig.JOBS, jobList);
 
@@ -756,8 +753,8 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsAuto() throws Exception {
-        Map approvalAttributes = Collections.singletonMap(Approval.TYPE, Approval.SUCCESS);
-        Map<String, Map> map = Collections.singletonMap(StageConfig.APPROVAL, approvalAttributes);
+        Map approvalAttributes = Map.of(Approval.TYPE, Approval.SUCCESS);
+        Map<String, Map> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.get(0).updateApproval(Approval.manualApproval());
 
@@ -768,8 +765,8 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsManual() throws Exception {
-        Map approvalAttributes = Collections.singletonMap(Approval.TYPE, Approval.MANUAL);
-        Map<String, Map> map = Collections.singletonMap(StageConfig.APPROVAL, approvalAttributes);
+        Map approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Map> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.get(0).updateApproval(Approval.manualApproval());
 
@@ -780,8 +777,8 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldAssignApprovalTypeOnFirstStageAsManualAndRestOfStagesAsUntouched() throws Exception {
-        Map approvalAttributes = Collections.singletonMap(Approval.TYPE, Approval.MANUAL);
-        Map<String, Map> map = Collections.singletonMap(StageConfig.APPROVAL, approvalAttributes);
+        Map approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Map> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", StageConfigMother.custom("s1", Approval.automaticApproval()),
                 StageConfigMother.custom("s2", Approval.automaticApproval()));
 

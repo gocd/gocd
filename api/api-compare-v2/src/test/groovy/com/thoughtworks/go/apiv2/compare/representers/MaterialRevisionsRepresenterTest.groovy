@@ -74,7 +74,7 @@ class MaterialRevisionsRepresenterTest {
     Modification hgCommit = checkinWithComment("cdef", "#4521 - get gadget working", checkinTime)
     Modification gitCommit = checkinWithComment("2345", "#4200 - whatever", checkinTime)
 
-    List<MaterialRevision> revisionList = Arrays.asList(
+    List<MaterialRevision> revisionList = List.of(
       new MaterialRevision(hg, hgCommit),
       new MaterialRevision(git, gitCommit))
     return revisionList

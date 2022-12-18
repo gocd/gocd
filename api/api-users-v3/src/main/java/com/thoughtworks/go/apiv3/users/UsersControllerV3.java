@@ -115,7 +115,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             throw new RecordNotFoundException(EntityType.User, loginName);
         }
 
-        UserToRepresent toRepresent = getUserToRepresent(user, roleConfigService.getRolesForUser(Collections.singletonList(user.getUsername())));
+        UserToRepresent toRepresent = getUserToRepresent(user, roleConfigService.getRolesForUser(List.of(user.getUsername())));
         return writerForTopLevelObject(req, res, writer -> UserRepresenter.toJSON(writer, toRepresent));
     }
 
@@ -190,7 +190,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         userService.save(userToOperate, TriState.from(userFromRequest.isEnabled()), TriState.from(userFromRequest.isEmailMe()), userFromRequest.getEmail(), userFromRequest.getMatcher(), result);
         boolean isSaved = result.isSuccessful();
         if (isSaved) {
-            return writerForTopLevelObject(req, res, writer -> UserRepresenter.toJSON(writer, getUserToRepresent(userService.findUserByName(username), roleConfigService.getRolesForUser(Collections.singletonList(new Username(username))))));
+            return writerForTopLevelObject(req, res, writer -> UserRepresenter.toJSON(writer, getUserToRepresent(userService.findUserByName(username), roleConfigService.getRolesForUser(List.of(new Username(username))))));
         } else {
             return renderHTTPOperationResult(result, req, res);
         }

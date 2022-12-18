@@ -32,7 +32,6 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,7 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
-    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV4.VERSION, ElasticAgentExtensionV5.VERSION);
+    public static final List<String> SUPPORTED_VERSIONS = List.of(ElasticAgentExtensionV4.VERSION, ElasticAgentExtensionV5.VERSION);
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
 
     @Autowired

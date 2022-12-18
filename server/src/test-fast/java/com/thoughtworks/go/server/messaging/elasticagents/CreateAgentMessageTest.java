@@ -26,13 +26,12 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CreateAgentMessageTest {
     @Test
     void shouldGetPluginId() {
-        List<ConfigurationProperty> properties = singletonList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
+        List<ConfigurationProperty> properties = List.of(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", properties);
         ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", properties);
 

@@ -57,11 +57,7 @@ public class JobRepresenter {
     }
 
     private static Consumer<OutputListWriter> getArtifacts(JobConfig jobConfig) {
-        return artifactsWriter -> {
-            jobConfig.artifactTypeConfigs().forEach(artifactConfig -> {
-                artifactsWriter.addChild(artifactWriter -> ArtifactRepresenter.toJSON(artifactWriter, artifactConfig));
-            });
-        };
+        return artifactsWriter -> jobConfig.artifactTypeConfigs().forEach(artifactConfig -> artifactsWriter.addChild(artifactWriter -> ArtifactRepresenter.toJSON(artifactWriter, artifactConfig)));
     }
 
     private static Collection<String> getResourceNames(JobConfig jobConfig) {
@@ -106,22 +102,14 @@ public class JobRepresenter {
 
     private static void setResources(JobConfig jobConfig) {
         ResourceConfigs resourceConfigs = new ResourceConfigs();
-        jsonReader.readArrayIfPresent("resources", resources -> {
-            resources.forEach(resource -> {
-                resourceConfigs.add(new ResourceConfig(resource.getAsString()));
-            });
-        });
+        jsonReader.readArrayIfPresent("resources", resources -> resources.forEach(resource -> resourceConfigs.add(new ResourceConfig(resource.getAsString()))));
 
         jobConfig.setResourceConfigs(resourceConfigs);
     }
 
     private static void setArtifacts(JobConfig jobConfig) {
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
-        jsonReader.readArrayIfPresent("artifacts", artifacts -> {
-            artifacts.forEach(artifact -> {
-                artifactTypeConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("artifacts", artifacts -> artifacts.forEach(artifact -> artifactTypeConfigs.add(ArtifactRepresenter.fromJSON(new JsonReader(artifact.getAsJsonObject())))));
         jobConfig.setArtifactTypeConfigs(artifactTypeConfigs);
     }
 

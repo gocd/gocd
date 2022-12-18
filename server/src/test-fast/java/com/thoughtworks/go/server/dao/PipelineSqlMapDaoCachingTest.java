@@ -42,16 +42,17 @@ import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -95,11 +96,11 @@ class PipelineSqlMapDaoCachingTest {
         MaterialRevisions originalMaterialRevisions = ModificationsMother.createHgMaterialRevisions();
 
         when(repository.findMaterialRevisionsForPipeline(3)).thenReturn(originalMaterialRevisions);
-        when(mockTemplate.queryForObject("findPipelineByNameAndCounter", m("name", "pipeline", "counter", 15))).thenReturn(expected);
+        when(mockTemplate.queryForObject("findPipelineByNameAndCounter", Map.of("name", "pipeline", "counter", 15))).thenReturn(expected);
 
         BuildCause buildCause = pipelineDao.findBuildCauseOfPipelineByNameAndCounter("pipeline", 15);
 
-        verify(mockTemplate).queryForObject("findPipelineByNameAndCounter", m("name", "pipeline", "counter", 15));
+        verify(mockTemplate).queryForObject("findPipelineByNameAndCounter", Map.of("name", "pipeline", "counter", 15));
         verify(repository).findMaterialRevisionsForPipeline(3);
 
         assertThat(buildCause.getMaterialRevisions()).isEqualTo(originalMaterialRevisions);
@@ -115,7 +116,7 @@ class PipelineSqlMapDaoCachingTest {
     void findPipelineIds_shouldCacheResultWhenOnlyLatestPipelineIdIsRequested() {
         List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
-        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn((List) expectedIds);
+        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(expectedIds);
         pipelineDao.findPipelineIds("pipelineName", 1, 0);
         List<Long> actual = pipelineDao.findPipelineIds("pipelineName", 1, 0);
         assertThat(actual.size()).isEqualTo(1);
@@ -128,7 +129,7 @@ class PipelineSqlMapDaoCachingTest {
         List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
         expectedIds.add(2L);
-        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn((List) expectedIds);
+        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(expectedIds);
         pipelineDao.findPipelineIds("pipelineName", 2, 0);
         pipelineDao.findPipelineIds("pipelineName", 2, 0);
         pipelineDao.findPipelineIds("pipelineName", 1, 2);
@@ -138,21 +139,15 @@ class PipelineSqlMapDaoCachingTest {
 
     @Test
     void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
-        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(99L));
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
-                return null;
-            }
+        when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(List.of(99L));
+        doAnswer((Answer<Object>) invocation -> {
+            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
+            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
 
         pipelineDao.save(PipelineMother.pipeline("pipelineName"));
@@ -191,7 +186,7 @@ class PipelineSqlMapDaoCachingTest {
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
-        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
+        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
@@ -202,7 +197,7 @@ class PipelineSqlMapDaoCachingTest {
         models.add(new StageInstanceModel("stage", "1", new JobHistory()));
         PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), models);
         PipelineInstanceModels pims = PipelineInstanceModels.createPipelineInstanceModels(pipeline);
-        when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
+        when(mockTemplate.queryForList("allActivePipelines")).thenReturn(pims);
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
         PipelineInstanceModels loaded;
         loaded = pipelineDao.loadActivePipelines();
@@ -258,7 +253,7 @@ class PipelineSqlMapDaoCachingTest {
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
         PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
         List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first);
-        when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
+        when(mockTemplate.queryForList("allActivePipelines")).thenReturn(pims);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap())).thenReturn(second);
 
@@ -276,7 +271,7 @@ class PipelineSqlMapDaoCachingTest {
     void stageStatusChanged_shouldNotRaiseErrorWhenNoPipelinesAreActive() {
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
         List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels();
-        when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
+        when(mockTemplate.queryForList("allActivePipelines")).thenReturn(pims);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
 
         // ensure cache is initialized
@@ -294,7 +289,7 @@ class PipelineSqlMapDaoCachingTest {
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
-        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
+        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
@@ -304,7 +299,7 @@ class PipelineSqlMapDaoCachingTest {
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
         PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
         List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first, second);
-        when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
+        when(mockTemplate.queryForList("allActivePipelines")).thenReturn(pims);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 1L).asMap())).thenReturn(first);
         when(mockTemplate.queryForObject("getPipelineHistoryById", arguments("id", 2L).asMap())).thenReturn(second);
 
@@ -331,7 +326,7 @@ class PipelineSqlMapDaoCachingTest {
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
-        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(Arrays.asList(new CaseInsensitiveString(pipelineName)));
+        when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
@@ -458,8 +453,8 @@ class PipelineSqlMapDaoCachingTest {
 
     @Test
     void shouldCachePipelineInstancesTriggeredOutOfDependencyMaterialCaseInsensitively() {
-        List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn((List) results);
+        List<PipelineIdentifier> results = List.of(new PipelineIdentifier("p1", 1));
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn(results);
 
         pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
 
@@ -493,20 +488,14 @@ class PipelineSqlMapDaoCachingTest {
                 new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
+            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
 
         pipelineDao.save(pipeline);
@@ -516,8 +505,8 @@ class PipelineSqlMapDaoCachingTest {
     @Test
     void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial_WhenADifferentPipelineInstanceIsCreatedWithDifferentRevision() {
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", "p", 1);
-        List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn((List) result);
+        List<PipelineIdentifier> result = List.of(new PipelineIdentifier("p1", 1, "1"));
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn(result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
         assertThat(actual).isEqualTo(result);
@@ -535,9 +524,9 @@ class PipelineSqlMapDaoCachingTest {
     @Test
     void shouldCachePipelineInstancesTriggeredOutOfMaterialRevision() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
-        List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
+        List<PipelineIdentifier> results = List.of(new PipelineIdentifier("p1", 1));
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn((List) results);
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(results);
 
         assertThat(goCache.get(cacheKey)).isNull();
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
@@ -565,8 +554,8 @@ class PipelineSqlMapDaoCachingTest {
     void shouldInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
-        List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn((List) result);
+        List<PipelineIdentifier> result = List.of(new PipelineIdentifier("p1", 1, "1"));
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
         assertThat(actual).hasSize(1);
@@ -574,20 +563,14 @@ class PipelineSqlMapDaoCachingTest {
 
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+            return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
+            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
 
         pipelineDao.save(pipeline);
@@ -598,8 +581,8 @@ class PipelineSqlMapDaoCachingTest {
     void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision_WhenAPipelineInstanceIsCreatedWithDifferentMaterial() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
-        List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
-        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn((List) result);
+        List<PipelineIdentifier> result = List.of(new PipelineIdentifier("p1", 1, "1"));
+        when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
         assertThat(actual).isEqualTo(result);

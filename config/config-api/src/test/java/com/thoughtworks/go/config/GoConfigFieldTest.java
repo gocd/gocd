@@ -15,18 +15,17 @@
  */
 package com.thoughtworks.go.config;
 
-import java.io.File;
-
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.FileUtil;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
 import org.jdom2.Element;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoConfigFieldTest {
     public SystemEnvironment systemEnvironment;
@@ -47,9 +46,9 @@ public class GoConfigFieldTest {
         final Foo object = new Foo();
         final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("directory"), object, configCache, null);
         final Element element = new Element("foo");
-        element.setAttribute("directory", "foo" + FileUtil.fileseparator() + "dir");
+        element.setAttribute("directory", "foo" + File.separator + "dir");
         field.setValueIfNotNull(element, object);
-        assertThat(object.directory.getPath(), is("foo" + FileUtil.fileseparator() + "dir"));
+        assertThat(object.directory.getPath(), is("foo" + File.separator + "dir"));
     }
 
     @Test

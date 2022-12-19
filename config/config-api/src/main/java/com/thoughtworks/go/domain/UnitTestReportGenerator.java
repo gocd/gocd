@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
@@ -54,7 +53,7 @@ public class UnitTestReportGenerator implements TestReportGenerator {
 
     @Override
     public void generate(File[] allTestFiles, String uploadDestPath) {
-        File mergedResults = new File(folderToUpload.getAbsolutePath() + FileUtil.fileseparator() + TEST_RESULTS_FILE);
+        File mergedResults = new File(folderToUpload.getAbsolutePath() + File.separator + TEST_RESULTS_FILE);
         File mergedResource = null;
         try (FileOutputStream transformedHtml = new FileOutputStream(mergedResults)) {
             mergedResource = mergeAllTestResultToSingleFile(allTestFiles);

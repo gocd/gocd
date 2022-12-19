@@ -27,7 +27,7 @@ class VerifyJarTask extends DefaultTask {
   @Input
   Zip jarTask
 
-  public void setJarTask(Zip jarTask) {
+  void setJarTask(Zip jarTask) {
     this.jarTask = jarTask
     this.dependsOn(jarTask)
   }
@@ -36,11 +36,11 @@ class VerifyJarTask extends DefaultTask {
   Map<String, List<String>> expectedJars
 
   @TaskAction
-  public void perform() {
+  void perform() {
     def expectedMessages = []
 
     expectedJars.each { directoryInJar, expectedJarsInDir ->
-      FileTree tree = project.zipTree(jarTask.archivePath).matching {
+      FileTree tree = project.zipTree(jarTask.archiveFile).matching {
         include "${directoryInJar}/*.jar"
         include "${directoryInJar}/*.zip"
       }
@@ -48,14 +48,14 @@ class VerifyJarTask extends DefaultTask {
 
       if (!allJars.equals(expectedJarsInDir.sort())) {
         if (!(allJars - expectedJarsInDir).empty) {
-          expectedMessages += ["Got some extra jars in ${jarTask.archivePath}!${directoryInJar} that were not expected"]
+          expectedMessages += ["Got some extra jars in ${jarTask.archiveFile.get()}!${directoryInJar} that were not expected"]
           (allJars - expectedJarsInDir).each { jar ->
             expectedMessages += ["  - ${jar}"]
           }
         }
 
         if (!(expectedJarsInDir - allJars).empty) {
-          expectedMessages += ["Some jars that were expected in ${jarTask.archivePath}!${directoryInJar} were not present"]
+          expectedMessages += ["Some jars that were expected in ${jarTask.archiveFile.get()}!${directoryInJar} were not present"]
           (expectedJarsInDir - allJars).each { jar ->
             expectedMessages += ["  - ${jar}"]
           }
@@ -64,7 +64,7 @@ class VerifyJarTask extends DefaultTask {
     }
 
     if (!expectedMessages.empty) {
-      throw new IllegalStateException(expectedMessages.join(System.getProperty("line.separator")))
+      throw new IllegalStateException(expectedMessages.join(System.lineSeparator()))
     }
   }
 }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -149,11 +148,11 @@ public class UnitTestReportGeneratorTest {
     }
 
     private OutputStream target(String targetFile) throws FileNotFoundException {
-        return new FileOutputStream(testFolder.getAbsolutePath() + FileUtil.fileseparator() + targetFile);
+        return new FileOutputStream(testFolder.getAbsolutePath() + File.separator + targetFile);
     }
 
     private InputStream source(String filename) throws IOException {
-        return new ClassPathResource(FileUtil.fileseparator() + "data" + FileUtil.fileseparator() + filename).getInputStream();
+        return new ClassPathResource(File.separator + "data" + File.separator + filename).getInputStream();
     }
 
 

@@ -16,41 +16,26 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.AbstractAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
-import static com.thoughtworks.go.util.FileUtilTest.FilePathMatcher.assertPath;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 public class FileUtilTest {
 
     @TempDir
     File folder;
-
-    @Test
-    void shouldBeHiddenIfFileStartWithDot() {
-        assertThat(FileUtil.isHidden(new File(".svn"))).isTrue();
-    }
-
-    @Test
-    void shouldBeHiddenIfFileIsHidden() {
-        File mockFile = Mockito.mock(File.class);
-        Mockito.when(mockFile.isHidden()).thenReturn(true);
-        assertThat(FileUtil.isHidden(mockFile)).isTrue();
-    }
 
     @Test
     void shouldUseSpecifiedFolderIfAbsolute() {
@@ -59,24 +44,24 @@ public class FileUtilTest {
     }
 
     @Test
-    void shouldUseSpecifiedFolderIfBaseDirIsEmpty() throws Exception {
+    void shouldUseSpecifiedFolderIfBaseDirIsEmpty() {
         assertThat(FileUtil.applyBaseDirIfRelative(new File(""), new File("zx"))).isEqualTo(new File("zx"));
     }
 
     @Test
-    void shouldAppendToDefaultIfRelative() throws Exception {
+    void shouldAppendToDefaultIfRelative() {
         final File relativepath = new File("zx");
         assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), relativepath)).isEqualTo(new File("xyz", relativepath.getPath()));
     }
 
     @Test
-    void shouldUseDefaultIfActualisNull() throws Exception {
+    void shouldUseDefaultIfActualIsNull() {
         final File baseFile = new File("xyz");
         assertThat(FileUtil.applyBaseDirIfRelative(baseFile, null)).isEqualTo(baseFile);
     }
 
     @Test
-    void shouldCreateUniqueHashForFolders() throws Exception {
+    void shouldCreateUniqueHashForFolders() {
         File file = new File("c:a/b/c/d/e");
         File file2 = new File("c:foo\\bar\\baz");
         assertThat(FileUtil.filesystemSafeFileHash(file).matches("[0-9a-zA-Z\\.\\-]*")).isTrue();
@@ -116,21 +101,7 @@ public class FileUtilTest {
     }
 
     @Test
-    @EnabledOnOs(OS.WINDOWS)
-    void shouldReturnFalseForInvalidWindowsUNCFilePath() {
-        assertThat(FileUtil.isAbsolutePath("\\\\host\\")).isFalse();
-        assertThat(FileUtil.isAbsolutePath("\\\\host")).isFalse();
-    }
-
-    @Test
-    @EnabledOnOs(OS.WINDOWS)
-    void shouldReturnTrueForValidWindowsUNCFilePath() {
-        assertThat(FileUtil.isAbsolutePath("\\\\host\\share")).isTrue();
-        assertThat(FileUtil.isAbsolutePath("\\\\host\\share\\dir")).isTrue();
-    }
-
-    @Test
-    void FolderIsEmptyWhenItHasNoContents() throws Exception {
+    void folderIsEmptyWhenItHasNoContents() {
         assertThat(FileUtil.isFolderEmpty(folder)).isTrue();
     }
 
@@ -152,64 +123,9 @@ public class FileUtilTest {
     }
 
     @Test
-    void shouldRemoveLeadingFilePathFromAFilePathOnWindows() {
-        File file = new File("/var/command-repo/default/windows/echo.xml");
-        File base = new File("/var/command-repo/default");
-
-        assertPath(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath())).isSameAs("/windows/echo.xml");
-        assertPath(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath())).isSameAs("/windows/echo.xml");
-        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml")).isEqualTo("/var/command-repo/default/windows/echo.xml");
-        assertPath(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isSameAs("/abcd.txt");
-        assertPath(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isSameAs("/abcd.txt");
-        assertPath(FileUtil.removeLeadingPath(null, new File("/blah/abcd.txt").getAbsolutePath())).isSameAs(new File("/blah/abcd.txt").getAbsolutePath());
-        assertPath(FileUtil.removeLeadingPath("", new File("/blah/abcd.txt").getAbsolutePath())).isSameAs(new File("/blah/abcd.txt").getAbsolutePath());
-    }
-
-    @Test
-    void shouldReturnTrueIfDirectoryIsReadable() {
-        File readableDirectory = mock(File.class);
-        when(readableDirectory.canRead()).thenReturn(true);
-        when(readableDirectory.canExecute()).thenReturn(true);
-        when(readableDirectory.listFiles()).thenReturn(new File[]{});
-        assertThat(FileUtil.isDirectoryReadable(readableDirectory)).isTrue();
-
-        File unreadableDirectory = mock(File.class);
-        when(readableDirectory.canRead()).thenReturn(false);
-        when(readableDirectory.canExecute()).thenReturn(false);
-        assertThat(FileUtil.isDirectoryReadable(unreadableDirectory)).isFalse();
-
-        verify(readableDirectory).canRead();
-        verify(readableDirectory).canExecute();
-        verify(readableDirectory).listFiles();
-        verify(unreadableDirectory).canRead();
-        verify(unreadableDirectory, never()).canExecute();
-    }
-
-    @Test
     void shouldCalculateSha1Digest() throws IOException {
         File tempFile = folder.toPath().resolve("testFile.txt").toFile();
         FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
         assertThat(FileUtil.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
     }
-
-    static class FilePathMatcher extends AbstractAssert<FilePathMatcher, String> {
-
-        public FilePathMatcher(String consoleOut) {
-            super(consoleOut, FilePathMatcher.class);
-        }
-
-        public static FilePathMatcher assertPath(String actual) {
-            return new FilePathMatcher(actual);
-        }
-
-        public FilePathMatcher isSameAs(String expected) {
-            final String osSpecificPath = expected.replace('/', File.separatorChar);
-            if (!StringUtils.equals(actual, osSpecificPath)) {
-                failWithMessage("The actual path: [<%s>] does not match the expected path [<%s>]", actual, osSpecificPath);
-            }
-
-            return this;
-        }
-    }
-
 }

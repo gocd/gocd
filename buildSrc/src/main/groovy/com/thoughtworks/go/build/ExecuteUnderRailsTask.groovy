@@ -42,10 +42,11 @@ class ExecuteUnderRailsTask extends JavaExec {
 
     systemProperties += project.railsSystemProperties
 
-    classpath(project.tasks.getByName('pathingJar').archivePath)
+    def pathingJarLoc = project.tasks.getByName('pathingJar').archiveFile
 
+    classpath(pathingJarLoc)
     if (CURRENT_OS.isWindows()) {
-      environment['CLASSPATH'] += "${File.pathSeparatorChar}${project.tasks.getByName('pathingJar').archivePath}"
+      environment['CLASSPATH'] += "${File.pathSeparatorChar}${pathingJarLoc.get()}"
     }
     setup(project, this, disableJRubyOptimization)
   }

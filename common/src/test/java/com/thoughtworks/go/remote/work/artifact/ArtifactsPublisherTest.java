@@ -116,7 +116,7 @@ public class ArtifactsPublisherTest {
 
         new ArtifactsPublisher(publisher, artifactExtension, new ArtifactStores(), registry, workingFolder).publishArtifacts(artifactPlans, env);
 
-        assertThat(publisher.publishedFiles()).containsExactlyEntriesOf(Map.of(src1, "dest", src2, "test"));
+        assertThat(publisher.publishedFiles()).containsExactlyInAnyOrderEntriesOf(Map.of(src1, "dest", src2, "test"));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class ArtifactsPublisherTest {
     }
 
     private Set<String> uploadedPluggableMetadataFiles(Map<File, String> actual) {
-        final HashSet<String> filesUploaded = new HashSet<>();
+        final Set<String> filesUploaded = new HashSet<>();
         for (Map.Entry<File, String> entry : actual.entrySet()) {
             if (entry.getValue().equals("pluggable-artifact-metadata")) {
                 filesUploaded.add(entry.getKey().getName());
@@ -224,7 +224,7 @@ public class ArtifactsPublisherTest {
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));
-        List<ArtifactPlan> artifactPlans = Arrays.asList(
+        List<ArtifactPlan> artifactPlans = List.of(
                 new ArtifactPlan(ArtifactPlanType.file, "installer.zip", "dist"),
                 new ArtifactPlan(ArtifactPlanType.unit, "testreports.xml", "testreports"),
                 artifactPlan

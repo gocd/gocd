@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.AttributeAwareConfigTag;
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
@@ -29,6 +26,9 @@ import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.output.XMLOutputter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class ConfigUtil {
@@ -36,7 +36,7 @@ public class ConfigUtil {
 
 
     public ConfigUtil(String configFile) {
-        this.configFile = (String) ObjectUtils.defaultIfNull(configFile, "<no config file specified>");
+        this.configFile = ObjectUtils.defaultIfNull(configFile, "<no config file specified>");
     }
 
     public static List<String> allTasks(ConfigElementImplementationRegistry registry) {

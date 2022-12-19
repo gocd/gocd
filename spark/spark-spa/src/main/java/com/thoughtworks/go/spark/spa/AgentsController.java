@@ -25,8 +25,6 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -58,10 +56,10 @@ public class AgentsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Agents Page");
-            put("meta", Collections.singletonMap("data-should-show-analytics-icon", showAnalyticsIcon()));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Agents Page",
+            "meta", Map.of("data-should-show-analytics-icon", showAnalyticsIcon())
+        );
 
         return new ModelAndView(object, null);
     }

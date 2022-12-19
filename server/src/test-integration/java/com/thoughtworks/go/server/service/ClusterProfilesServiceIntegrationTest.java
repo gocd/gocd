@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
@@ -33,9 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -55,12 +53,9 @@ public class ClusterProfilesServiceIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         configHelper.onSetUp();
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getElasticConfig().setClusterProfiles(new ClusterProfiles());
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getElasticConfig().setClusterProfiles(new ClusterProfiles());
+            return cruiseConfig;
         });
     }
 

@@ -32,8 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -97,7 +97,7 @@ public class UpdatePipelineConfigsCommandTest {
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(newAuthorization.getAllErrors().get(0).getAllOn("roles"), is(Arrays.asList("Role \"invalidRole\" does not exist.")));
+        assertThat(newAuthorization.getAllErrors().get(0).getAllOn("roles"), is(List.of("Role \"invalidRole\" does not exist.")));
     }
 
     @Test

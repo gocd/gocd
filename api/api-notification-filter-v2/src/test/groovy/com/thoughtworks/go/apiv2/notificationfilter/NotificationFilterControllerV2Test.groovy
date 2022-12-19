@@ -87,7 +87,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       filterOne.setId(200L)
       def filterTwo = new NotificationFilter("up43", "Stage_2", StageEvent.Fails, false)
       filterTwo.setId(201L)
-      def notificationFilters = Arrays.asList(filterOne, filterTwo)
+      def notificationFilters = List.of(filterOne, filterTwo)
       when(userService.findUserByName(currentUsernameString())).thenReturn(user)
       when(user.getNotificationFilters()).thenReturn(notificationFilters)
 
@@ -140,7 +140,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       filterOne.setId(200L)
       def filterTwo = new NotificationFilter("up43", "Stage_2", StageEvent.Fails, false)
       filterTwo.setId(201L)
-      def notificationFilters = Arrays.asList(filterOne, filterTwo)
+      def notificationFilters = List.of(filterOne, filterTwo)
       when(userService.findUserByName(currentUsernameString())).thenReturn(user)
       when(user.getNotificationFilters()).thenReturn(notificationFilters)
 
@@ -158,7 +158,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       filterOne.setId(200L)
       def filterTwo = new NotificationFilter("up43", "Stage_2", StageEvent.Fails, false)
       filterTwo.setId(201L)
-      def notificationFilters = Arrays.asList(filterOne, filterTwo)
+      def notificationFilters = List.of(filterOne, filterTwo)
       when(userService.findUserByName(currentUsernameString())).thenReturn(user)
       when(user.getNotificationFilters()).thenReturn(notificationFilters)
 
@@ -176,7 +176,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       filterOne.setId(200L)
       def filterTwo = new NotificationFilter("up43", "Stage_2", StageEvent.Fails, false)
       filterTwo.setId(201L)
-      def notificationFilters = Arrays.asList(filterOne, filterTwo)
+      def notificationFilters = List.of(filterOne, filterTwo)
       when(userService.findUserByName(currentUsernameString())).thenReturn(user)
       when(user.getNotificationFilters()).thenReturn(notificationFilters)
       when(goConfigService.isSmtpEnabled()).thenReturn(false)

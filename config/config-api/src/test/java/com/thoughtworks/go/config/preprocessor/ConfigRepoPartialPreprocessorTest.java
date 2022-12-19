@@ -26,10 +26,11 @@ import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ConfigRepoPartialPreprocessorTest {
 
@@ -50,7 +51,7 @@ public class ConfigRepoPartialPreprocessorTest {
         PipelineConfig pipelineInMain = PipelineConfigMother.createPipelineConfig("main_pipeline", "stage", "job");
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineInMain));
         cruiseConfig.setConfigRepos(reposConfig);
-        cruiseConfig.setPartials(asList(partialConfig));
+        cruiseConfig.setPartials(List.of(partialConfig));
         preprocessor.process(cruiseConfig);
         assertThat(cruiseConfig.getAllPipelineNames().contains(pipelineInMain.name()), is(true));
         assertThat(cruiseConfig.getAllPipelineNames().contains(partialConfig.getGroups().first().get(0).name()), is(true));

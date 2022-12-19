@@ -31,7 +31,6 @@ import spark.Request;
 import java.util.List;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 public abstract class WebhookRequest implements HasAuth, HasEvents, RequestContents {
@@ -82,6 +81,6 @@ public abstract class WebhookRequest implements HasAuth, HasEvents, RequestConte
 
     public List<String> scmNamesQuery() {
         QueryParamsMap queryMap = this.request.queryMap();
-        return queryMap.hasKey(KEY_SCM_NAME) ? asList(queryMap.get(KEY_SCM_NAME).values()) : emptyList();
+        return queryMap.hasKey(KEY_SCM_NAME) ? List.of(queryMap.get(KEY_SCM_NAME).values()) : emptyList();
     }
 }

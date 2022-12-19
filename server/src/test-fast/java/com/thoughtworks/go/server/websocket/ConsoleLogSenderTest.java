@@ -216,7 +216,7 @@ public class ConsoleLogSenderTest {
 
         @Override
         public long totalLinesConsumed() {
-            return (long) count;
+            return count;
         }
 
         @Override

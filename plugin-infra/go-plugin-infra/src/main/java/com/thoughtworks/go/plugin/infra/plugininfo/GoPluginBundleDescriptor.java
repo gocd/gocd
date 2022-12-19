@@ -15,17 +15,18 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.Bundle;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlElementWrapper;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class GoPluginBundleDescriptor {
     private List<GoPluginDescriptor> pluginDescriptors;
 
     public GoPluginBundleDescriptor(GoPluginDescriptor... pluginDescriptors) {
-        this.pluginDescriptors = List.of(pluginDescriptors);
+        this.pluginDescriptors = Arrays.asList(pluginDescriptors);
         this.pluginDescriptors.forEach(descriptor -> {
             descriptor.setBundleDescriptor(this);
             descriptor.version(this.version);

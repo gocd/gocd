@@ -15,34 +15,30 @@
  */
 package com.thoughtworks.go.config.registry;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.BuildTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.plugins.PluginExtensions;
 import com.thoughtworks.go.plugins.PluginTestUtil;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModelFactory;
 import com.thoughtworks.go.presentation.TaskViewModel;
-import com.thoughtworks.go.util.DataStructureUtils;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.osgi.framework.BundleContext;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ConfigElementImplementationRegistryTest {
     private PluginExtensions pluginExtns;
@@ -60,20 +56,20 @@ public class ConfigElementImplementationRegistryTest {
 
         URL resource = new File("file:///tmp/foo").toURI().toURL();
         URL resource1 = new File("file:///tmp/bar").toURI().toURL();
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-1", PluginNamespace.XSD_NAMESPACE_URI, "uri1")), resource);
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-2", PluginNamespace.XSD_NAMESPACE_URI, "uri2")), resource);
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-3", PluginNamespace.XSD_NAMESPACE_URI, "uri3")), resource1);
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-1", PluginNamespace.XSD_NAMESPACE_URI, "uri1")), resource);
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-2", PluginNamespace.XSD_NAMESPACE_URI, "uri2")), resource);
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "uri-3", PluginNamespace.XSD_NAMESPACE_URI, "uri3")), resource1);
 
-        assertThat(registry.xsds(), containsString(String.format("uri1 %s", resource.toString())));
-        assertThat(registry.xsds(), containsString(String.format("uri2 %s", resource.toString())));
-        assertThat(registry.xsds(), containsString(String.format("uri3 %s", resource1.toString())));
+        assertThat(registry.xsds(), containsString(String.format("uri1 %s", resource)));
+        assertThat(registry.xsds(), containsString(String.format("uri2 %s", resource)));
+        assertThat(registry.xsds(), containsString(String.format("uri3 %s", resource1)));
     }
 
     @Test
     public void shouldAddPluginNamespaceToPassedInElement() throws MalformedURLException {
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "something", PluginNamespace.XSD_NAMESPACE_URI, "uri")), new File("file:///tmp/foo").toURI().toURL());
-        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(m(PluginNamespace.XSD_NAMESPACE_PREFIX, "second", PluginNamespace.XSD_NAMESPACE_URI, "uri-1")), new File("file:///tmp/foo1").toURI().toURL());
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "something", PluginNamespace.XSD_NAMESPACE_URI, "uri")), new File("file:///tmp/foo").toURI().toURL());
+        registry.xsdFor(PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "second", PluginNamespace.XSD_NAMESPACE_URI, "uri-1")), new File("file:///tmp/foo1").toURI().toURL());
         Element foo = new Element("foo");
         registry.registerNamespacesInto(foo);
         assertThat(foo.getNamespace("something"), is(Namespace.getNamespace("something", "uri")));
@@ -107,7 +103,7 @@ public class ConfigElementImplementationRegistryTest {
 
     @Test
     public void shouldCreateTaskViewModelForPlugins() throws MalformedURLException {
-        BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
+        BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
         PluggableViewModelFactory<PluginExec> factory = mock(PluggableViewModelFactory.class);
         ConfigTypeExtension exec = new TestTaskConfigTypeExtension<>(PluginExec.class, factory);
         PluginExec execInstance = new PluginExec();
@@ -118,7 +114,7 @@ public class ConfigElementImplementationRegistryTest {
 
         ConfigurationExtension execTask = new ConfigurationExtension<>(
                 new PluginNamespace(execCtx, new URL("file:///exec")), exec);
-        when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTask));
+        when(pluginExtns.configTagImplementations()).thenReturn(List.of(execTask));
 
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
         assertThat(registry.getViewModelFor(execInstance, "new"), is(stubbedViewModel));
@@ -126,13 +122,13 @@ public class ConfigElementImplementationRegistryTest {
 
     @Test
     public void shouldNotThrowUpIfPluginHasNotRegisteredViewTemplates() throws Exception {
-        BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
+        BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
         ConfigTypeExtension exec = new TestTaskConfigTypeExtension<>(PluginExec.class, PluggableViewModelFactory.DOES_NOT_APPLY);
         PluginExec execInstance = new PluginExec();
 
         ConfigurationExtension execTask = new ConfigurationExtension<>(
                 new PluginNamespace(execCtx, new URL("file:///exec")), exec);
-        when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTask));
+        when(pluginExtns.configTagImplementations()).thenReturn(List.of(execTask));
 
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
 
@@ -146,21 +142,21 @@ public class ConfigElementImplementationRegistryTest {
 
     @Test
     public void registerAllConfigTagImplementationsProvidedByPlugins() throws MalformedURLException {
-        BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
+        BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
         PluggableViewModelFactory<PluginExec> factory = mock(PluggableViewModelFactory.class);
         ConfigTypeExtension exec = new TestTaskConfigTypeExtension<>(PluginExec.class, factory);
 
         ConfigurationExtension execTag = new ConfigurationExtension<>(
                 new PluginNamespace(execCtx, new URL("file:///exec")), exec);
 
-        BundleContext antCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "ant", PluginNamespace.XSD_NAMESPACE_URI, "uri-ant"));
+        BundleContext antCtx = PluginTestUtil.bundleCtxWithHeaders(Map.of(PluginNamespace.XSD_NAMESPACE_PREFIX, "ant", PluginNamespace.XSD_NAMESPACE_URI, "uri-ant"));
 
         ConfigTypeExtension ant = new TestTaskConfigTypeExtension<>(PluginAnt.class, mock(PluggableViewModelFactory.class));
 
         ConfigurationExtension antTag = new ConfigurationExtension<>(
                 new PluginNamespace(antCtx, new URL("file:///ant")), ant);
 
-        when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTag, antTag));
+        when(pluginExtns.configTagImplementations()).thenReturn(List.of(execTag, antTag));
 
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
 

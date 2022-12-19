@@ -40,11 +40,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.support.TransactionCallback;
 
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -108,10 +107,10 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), any(SchedulingContext.class), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(SchedulingContext.class), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
                 .thenReturn(expectedStageToBeCreated);
 
-        Stage stage = service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
+        Stage stage = service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());
 
         assertThat(stage).isNotNull();
         verify(stageService).save(pipeline, stage);
@@ -146,7 +145,7 @@ public class JobRerunScheduleServiceTest {
         HttpOperationResult result = new HttpOperationResult();
 
         try (LogFixture logFixture = logFixtureFor(ScheduleService.class, Level.DEBUG)) {
-            Stage stage = service.rerunJobs(firstStage, a("unit"), result);
+            Stage stage = service.rerunJobs(firstStage, List.of("unit"), result);
             assertThat(logFixture.contains(Level.ERROR, "Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null.")).isTrue();
             assertThat(stage).isNull();
             assertThat(result.httpCode()).isEqualTo(500);
@@ -200,7 +199,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal(latestMd5);
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), any(SchedulingContext.class), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(List.of("unit")), any(SchedulingContext.class), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
                 .thenThrow(new CannotScheduleException("Could not find matching agents to run job [unit] of stage [build].", "build"));
 
         assertScheduleFailure("unit", firstStage, "Could not find matching agents to run job [unit] of stage [build].", 409);
@@ -272,25 +271,19 @@ public class JobRerunScheduleServiceTest {
             }
         };
 
-        Thread firstReq = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                requestNumber.set(0);
-                service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
-            }
+        Thread firstReq = new Thread(() -> {
+            requestNumber.set(0);
+            service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());
         });
 
-        Thread secondReq = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    requestNumber.set(1);
-                    sem.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
+        Thread secondReq = new Thread(() -> {
+            try {
+                requestNumber.set(1);
+                sem.acquire();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            service.rerunJobs(firstStage, List.of("unit"), new HttpOperationResult());
         });
 
         firstReq.start();
@@ -326,7 +319,7 @@ public class JobRerunScheduleServiceTest {
         ScheduleService scheduleServiceSpy = spy(service);
         scheduleServiceSpy.rerunFailedJobs(stage, result);
 
-        verify(scheduleServiceSpy).rerunJobs(stage, Arrays.asList("job1"), result);
+        verify(scheduleServiceSpy).rerunJobs(stage, List.of("job1"), result);
     }
 
     @Test
@@ -347,7 +340,7 @@ public class JobRerunScheduleServiceTest {
 
     private void assertScheduleFailure(String jobName, Stage oldStage, String failureMessage, int statusCode) {
         HttpOperationResult result = new HttpOperationResult();
-        Stage stage = service.rerunJobs(oldStage, a(jobName), result);
+        Stage stage = service.rerunJobs(oldStage, List.of(jobName), result);
 
         assertThat(stage).isNull();
         assertThat(result.message()).isEqualTo(failureMessage);

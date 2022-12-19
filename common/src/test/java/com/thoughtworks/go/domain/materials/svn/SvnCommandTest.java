@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -244,7 +243,7 @@ public class SvnCommandTest {
     void assertAtRevision(int rev, String file) {
         String[] filenames = checkoutFolder.list(DOT_SVN_IGNORING_FILTER);
         assertThat(filenames.length).isEqualTo(rev);
-        assertThat(Arrays.asList(filenames)).contains(file);
+        assertThat(List.of(filenames)).contains(file);
     }
 
     protected SubversionRevision revision(int revision) {

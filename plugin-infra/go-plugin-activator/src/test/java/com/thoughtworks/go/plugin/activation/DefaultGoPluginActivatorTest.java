@@ -42,14 +42,13 @@ import java.net.URL;
 import java.util.*;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 @ExtendWith(MockitoExtension.class)
 public class DefaultGoPluginActivatorTest {
     private static final String CONSTRUCTOR_FAIL_MSG = "Ouch! Failed construction";
@@ -388,7 +387,7 @@ public class DefaultGoPluginActivatorTest {
         when(bundle.loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully")).thenReturn((Class) PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class);
 
         when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName())).thenReturn("plugin_id_1");
-        when(pluginRegistryService.extensionClassesInBundle(SYMBOLIC_NAME)).thenReturn(singletonList(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName()));
+        when(pluginRegistryService.extensionClassesInBundle(SYMBOLIC_NAME)).thenReturn(List.of(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName()));
 
         activator.start(context);
 
@@ -403,13 +402,13 @@ public class DefaultGoPluginActivatorTest {
         setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class");
         when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
 
-        when(pluginRegistryService.extensionClassesInBundle(SYMBOLIC_NAME)).thenReturn(singletonList("com.some.InvalidClass"));
+        when(pluginRegistryService.extensionClassesInBundle(SYMBOLIC_NAME)).thenReturn(List.of("com.some.InvalidClass"));
 
         activator.start(context);
 
         assertThat(activator.hasErrors(), is(true));
         verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), any());
-        verify(pluginRegistryService).reportErrorAndInvalidate(SYMBOLIC_NAME, singletonList("Extension class declared in plugin bundle is not found: com.some.InvalidClass"));
+        verify(pluginRegistryService).reportErrorAndInvalidate(SYMBOLIC_NAME, List.of("Extension class declared in plugin bundle is not found: com.some.InvalidClass"));
     }
 
     private void verifyThatOneOfTheErrorMessagesIsPresent(String expectedErrorMessage1, String expectedErrorMessage2) {
@@ -433,7 +432,7 @@ public class DefaultGoPluginActivatorTest {
 
     private void verifyErrorsReported(String... errors) {
         verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
-        verify(pluginRegistryService).reportErrorAndInvalidate(PLUGIN_ID, asList(errors));
+        verify(pluginRegistryService).reportErrorAndInvalidate(PLUGIN_ID, List.of(errors));
         verify(pluginRegistryService).extensionClassesInBundle(SYMBOLIC_NAME);
         verifyNoMoreInteractions(pluginRegistryService);
     }
@@ -455,7 +454,7 @@ public class DefaultGoPluginActivatorTest {
     }
 
     @Extension
-    public class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements GoPlugin {
+    public static class PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor implements GoPlugin {
         public PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor(int x) {
         }
 
@@ -475,7 +474,7 @@ public class DefaultGoPluginActivatorTest {
     }
 
     @Extension
-    public class PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor implements GoPlugin {
+    public static class PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor implements GoPlugin {
         public PublicGoExtensionClassWhichThrowsAnExceptionInItsConstructor() {
             throw new RuntimeException(CONSTRUCTOR_FAIL_MSG);
         }

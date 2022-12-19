@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -87,6 +87,6 @@ public class UpdateTemplateAuthConfigCommandTest {
         UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService, externalArtifactsService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles"), is(Arrays.asList("Role \"\" does not exist.")));
+        assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles"), is(List.of("Role \"\" does not exist.")));
     }
 }

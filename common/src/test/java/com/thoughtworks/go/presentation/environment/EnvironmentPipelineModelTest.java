@@ -15,11 +15,12 @@
  */
 package com.thoughtworks.go.presentation.environment;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Collections;
-
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -39,7 +40,7 @@ public class EnvironmentPipelineModelTest {
 
 
     @Test
-    public void shouldUnderstandWhenAssiciatedWithADifferentEnvironment() {
+    public void shouldUnderstandWhenAssociatedWithADifferentEnvironment() {
         EnvironmentPipelineModel foo = new EnvironmentPipelineModel("foo", "env");
         assertThat(foo.isAssociatedWithEnvironmentOtherThan("env"), is(false));
         assertThat(foo.isAssociatedWithEnvironmentOtherThan("env2"), is(true));
@@ -51,13 +52,13 @@ public class EnvironmentPipelineModelTest {
     }
 
     @Test
-    public void hasEnvironmentAssociated_shouldReturnTrueWhenAPipelineIsAsscoiatedWithAnEnvironment() {
+    public void hasEnvironmentAssociated_shouldReturnTrueWhenAPipelineIsAssociatedWithAnEnvironment() {
         EnvironmentPipelineModel foo = new EnvironmentPipelineModel("foo");
         assertThat(foo.hasEnvironmentAssociated(), is(false));
     }
 
     @Test
-    public void hasEnvironmentAssociated_shouldReturnFalseWhenAPipelineIsNotAsscoiatedWithAnEnvironment() {
+    public void hasEnvironmentAssociated_shouldReturnFalseWhenAPipelineIsNotAssociatedWithAnEnvironment() {
         EnvironmentPipelineModel foo = new EnvironmentPipelineModel("foo","env-name");
         assertThat(foo.hasEnvironmentAssociated(), is(true));
     }
@@ -68,8 +69,7 @@ public class EnvironmentPipelineModelTest {
         EnvironmentPipelineModel bar = new EnvironmentPipelineModel("bar");
         EnvironmentPipelineModel baz = new EnvironmentPipelineModel("baz");
 
-        List<EnvironmentPipelineModel> models = Arrays.asList(foo, bar, baz);
-        Collections.sort(models);
+        List<EnvironmentPipelineModel> models = Stream.of(foo, bar, baz).sorted().collect(Collectors.toList());
 
         assertThat(models.get(0), is(bar));
         assertThat(models.get(1), is(baz));
@@ -83,8 +83,7 @@ public class EnvironmentPipelineModelTest {
         EnvironmentPipelineModel Third = new EnvironmentPipelineModel("Third");
         EnvironmentPipelineModel second = new EnvironmentPipelineModel("second");
 
-        List<EnvironmentPipelineModel> models = Arrays.asList(first, First, Third, second);
-        Collections.sort(models);
+        List<EnvironmentPipelineModel> models = Stream.of(first, First, Third, second).sorted().collect(Collectors.toList());
 
         assertThat(models.get(0), is(first));
         assertThat(models.get(1), is(First));

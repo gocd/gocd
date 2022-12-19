@@ -38,7 +38,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
@@ -179,7 +182,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
                 throw new UserEnabledException();
             }
             sessionFactory.getCurrentSession().delete(user);
-            accessTokenDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(username), byWhom);
+            accessTokenDao.revokeTokensBecauseOfUserDelete(List.of(username), byWhom);
             return Boolean.TRUE;
         });
     }

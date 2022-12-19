@@ -29,8 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,12 +93,7 @@ public class CachedGoConfigTest {
         cachedGoConfig.registerListener(listener);
         cachedGoConfig.forceReload();
 
-        cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                return cruiseConfig;
-            }
-        });
+        cachedGoConfig.writeWithLock(cruiseConfig -> cruiseConfig);
 
         verify(listener, times(2)).onConfigChange(any(BasicCruiseConfig.class));
     }
@@ -115,19 +110,19 @@ public class CachedGoConfigTest {
         final boolean[] pipelineConfigChangeListenerCalled = {false};
         final boolean[] agentConfigChangeListenerCalled = {false};
         final boolean[] cruiseConfigChangeListenerCalled = {false};
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = new EntityConfigChangedListener<PipelineConfig>() {
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(PipelineConfig entity) {
                 pipelineConfigChangeListenerCalled[0] = true;
             }
         };
-        EntityConfigChangedListener<Agent> agentConfigChangeListener = new EntityConfigChangedListener<Agent>() {
+        EntityConfigChangedListener<Agent> agentConfigChangeListener = new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(Agent entity) {
                 agentConfigChangeListenerCalled[0] = true;
             }
         };
-        EntityConfigChangedListener<CruiseConfig> cruiseConfigChangeListener = new EntityConfigChangedListener<CruiseConfig>() {
+        EntityConfigChangedListener<CruiseConfig> cruiseConfigChangeListener = new EntityConfigChangedListener<>() {
             @Override
             public void onEntityConfigChange(CruiseConfig entity) {
                 cruiseConfigChangeListenerCalled[0] = true;

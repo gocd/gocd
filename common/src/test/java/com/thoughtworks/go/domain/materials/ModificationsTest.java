@@ -15,12 +15,6 @@
  */
 package com.thoughtworks.go.domain.materials;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -33,11 +27,16 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleCheckin;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ModificationsTest {
@@ -178,7 +177,7 @@ public class ModificationsTest {
     @Test
     public void shouldIncludeModificationsIfAnyFileIsNotIgnored() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
         materialConfig.setFilter(filter);
 
         Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf", "a.java")));
@@ -188,7 +187,7 @@ public class ModificationsTest {
     @Test
     public void shouldIncludeModificationsIfAnyFileIsNotIgnored1() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
         materialConfig.setFilter(filter);
 
         Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf"), aCheckIn("100", "a.java")));
@@ -198,7 +197,7 @@ public class ModificationsTest {
     @Test
     public void shouldIgnoreModificationsIfAllTheIgnoresMatch() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("*.doc"), new IgnoredFiles("*.pdf")));
         materialConfig.setFilter(filter);
 
         assertThat(new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf"))).shouldBeIgnoredByFilterIn(materialConfig), is(true));
@@ -220,7 +219,7 @@ public class ModificationsTest {
     @Test
     public void shouldIgnoreModificationsIfWildcardBlacklist() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("**/*")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("**/*")));
         materialConfig.setFilter(filter);
 
         Modifications modifications = new Modifications(multipleCheckin(aCheckIn("100", "a.doc", "a.pdf", "a.java")));
@@ -230,7 +229,7 @@ public class ModificationsTest {
     @Test
     public void shouldIncludeModificationsIfInvertFilterAndWildcardBlacklist() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("**/*")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("**/*")));
         materialConfig.setFilter(filter);
         materialConfig.setInvertFilter(true);
 
@@ -241,7 +240,7 @@ public class ModificationsTest {
     @Test
     public void shouldIgnoreModificationsIfInvertFilterAndSpecificFileNotChanged() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("*.foo")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("*.foo")));
         materialConfig.setFilter(filter);
         materialConfig.setInvertFilter(true);
 
@@ -252,7 +251,7 @@ public class ModificationsTest {
     @Test
     public void shouldIgnoreModificationsIfInvertFilterAndSpecificFileNotChanged2() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("foo/bar.baz")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("foo/bar.baz")));
         materialConfig.setFilter(filter);
         materialConfig.setInvertFilter(true);
 
@@ -263,7 +262,7 @@ public class ModificationsTest {
     @Test
     public void shouldIncludeModificationsIfInvertFilterAndSpecificIsChanged() {
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig();
-        Filter filter = new Filter(Arrays.asList(new IgnoredFiles("foo/bar.baz")));
+        Filter filter = new Filter(List.of(new IgnoredFiles("foo/bar.baz")));
         materialConfig.setFilter(filter);
         materialConfig.setInvertFilter(true);
 

@@ -22,11 +22,13 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class GitPostCommitHookImplementerTest {
@@ -39,7 +41,7 @@ public class GitPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnListOfMaterialMatchingThePayloadURL() throws Exception {
+    public void shouldReturnListOfMaterialMatchingThePayloadURL() {
         GitMaterial material1 = mock(GitMaterial.class);
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("https://other_repo.local.git"));
         GitMaterial material2 = mock(GitMaterial.class);
@@ -48,8 +50,8 @@ public class GitPostCommitHookImplementerTest {
         when(material3.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
         GitMaterial material4 = mock(GitMaterial.class);
         when(material4.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2, material3, material4));
-        HashMap params = new HashMap();
+        Set<Material> materials = Set.of(material1, material2, material3, material4);
+        Map<String, String> params = new HashMap<>();
         params.put(GitPostCommitHookImplementer.REPO_URL_PARAM_KEY, "https://machine.local.git");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -65,10 +67,10 @@ public class GitPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldQueryOnlyGitMaterialsWhilePruning() throws Exception {
+    public void shouldQueryOnlyGitMaterialsWhilePruning() {
         SvnMaterial material1 = mock(SvnMaterial.class);
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
-        HashMap params = new HashMap();
+        Set<Material> materials = Set.of(material1);
+        Map<String, String> params = new HashMap<>();
         params.put(GitPostCommitHookImplementer.REPO_URL_PARAM_KEY, "https://machine.local.git");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -79,11 +81,11 @@ public class GitPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnEmptyListIfParamHasNoValueForRepoURL() throws Exception {
+    public void shouldReturnEmptyListIfParamHasNoValueForRepoURL() {
         GitMaterial material1 = mock(GitMaterial.class);
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
-        HashMap params = new HashMap();
+        Set<Material> materials = Set.of(material1);
+        Map<String, String> params = new HashMap<>();
         params.put(GitPostCommitHookImplementer.REPO_URL_PARAM_KEY, "");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -94,10 +96,10 @@ public class GitPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnEmptyListIfParamIsMissingForRepoURL() throws Exception {
+    public void shouldReturnEmptyListIfParamIsMissingForRepoURL() {
         GitMaterial material1 = mock(GitMaterial.class);
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
+        Set<Material> materials = Set.of(material1);
 
         Set<Material> actual = implementer.prune(materials, new HashMap());
 
@@ -107,61 +109,61 @@ public class GitPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenURLIsAnExactMatch() throws Exception {
+    public void shouldReturnTrueWhenURLIsAnExactMatch() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://repo-url.git"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() throws Exception {
+    public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:passW)rD@repo-url.git"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() throws Exception {
+    public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:@repo-url.git"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() throws Exception {
+    public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user@repo-url.git"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnFalseWhenProtocolIsDifferent() throws Exception {
+    public void shouldReturnFalseWhenProtocolIsDifferent() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("https://repo-url.git"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseWhenNoValidatorCouldParseUrl() throws Exception {
+    public void shouldReturnFalseWhenNoValidatorCouldParseUrl() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("something.completely.random"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseUpWheNoProtocolIsGiven() throws Exception {
+    public void shouldReturnFalseUpWheNoProtocolIsGiven() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("repo-url.git"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseForEmptyURLField() throws Exception {
+    public void shouldReturnFalseForEmptyURLField() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseForEmptyURLFieldWithAuth() throws Exception {
+    public void shouldReturnFalseForEmptyURLFieldWithAuth() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url.git", new GitMaterial("http://user:password@"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldMatchFileBasedAccessWithoutAuth() throws Exception {
+    public void shouldMatchFileBasedAccessWithoutAuth() {
         boolean isEqual = implementer.isUrlEqual("/tmp/foo/repo-git", new GitMaterial("/tmp/foo/repo-git"));
         assertThat(isEqual, is(true));
     }

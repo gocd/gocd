@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -30,15 +30,13 @@ import org.hibernate.classic.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 
 import java.util.UUID;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -69,13 +67,10 @@ class PipelineStateDaoTest {
         PipelineState pipelineState = new PipelineState(pipelineName);
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
         doThrow(new RuntimeException("could not save!")).when(session).saveOrUpdate(any(PipelineState.class));
 
@@ -98,13 +93,10 @@ class PipelineStateDaoTest {
         pipelineState.lock(lockedByPipelineId);
         goCache.put(pipelineStateDao.pipelineLockStateCacheKey(pipelineName), pipelineState);
 
-        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
-                callback.doInTransaction(new SimpleTransactionStatus());
-                return null;
-            }
+        when(transactionTemplate.execute(any(org.springframework.transaction.support.TransactionCallbackWithoutResult.class))).thenAnswer(invocation -> {
+            org.springframework.transaction.support.TransactionCallbackWithoutResult callback = (org.springframework.transaction.support.TransactionCallbackWithoutResult) invocation.getArguments()[0];
+            callback.doInTransaction(new SimpleTransactionStatus());
+            return null;
         });
         doThrow(new RuntimeException("could not save!")).when(session).saveOrUpdate(any(PipelineState.class));
 

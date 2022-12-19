@@ -94,9 +94,7 @@ public class ElasticProfileDTO {
     public ElasticProfile toDomainModel() {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
 
-        this.properties.forEach((key, value) -> {
-            configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
-        });
+        this.properties.forEach((key, value) -> configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value))));
 
         ElasticProfile elasticProfile = new ElasticProfile(this.id, this.clusterProfileId);
         elasticProfile.addConfigurations(configurationProperties);

@@ -29,13 +29,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ArtifactStoreTest {
     private ArtifactMetadataStore store;
@@ -55,7 +56,7 @@ public class ArtifactStoreTest {
         ConfigurationProperty property = create("username", false, "some_value");
 
         ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
-        artifactStore.addConfigurations(Arrays.asList(property));
+        artifactStore.addConfigurations(List.of(property));
 
         assertThat(artifactStore.size(), is(1));
         assertThat(artifactStore, contains(create("username", false, "some_value")));
@@ -66,7 +67,7 @@ public class ArtifactStoreTest {
         ConfigurationProperty property = create("username", true, "some_value");
 
         ArtifactStore artifactStore = new ArtifactStore("id", "plugin_id");
-        artifactStore.addConfigurations(Arrays.asList(property));
+        artifactStore.addConfigurations(List.of(property));
 
         assertThat(artifactStore.size(), is(1));
         assertThat(artifactStore, contains(create("username", true, "some_value")));
@@ -132,7 +133,7 @@ public class ArtifactStoreTest {
     @Test
     public void postConstruct_shouldEncryptSecureConfigurations() {
         final PluggableInstanceSettings storeConfig = new PluggableInstanceSettings(
-                Arrays.asList(new PluginConfiguration("password", new Metadata(true, true)))
+                List.of(new PluginConfiguration("password", new Metadata(true, true)))
         );
 
         final ArtifactPluginInfo pluginInfo = new ArtifactPluginInfo(pluginDescriptor("plugin_id"), storeConfig, null, null, null, null);

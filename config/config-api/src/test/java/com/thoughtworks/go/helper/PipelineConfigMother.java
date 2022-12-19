@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static java.util.Arrays.asList;
-
 public class PipelineConfigMother {
     public static PipelineConfigs studiosAndEvolve() {
         return new BasicPipelineConfigs(pipelineConfig("studios"), pipelineConfig("evolve"));
@@ -108,7 +106,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig pipelineConfigWithTimer(String name, String timerSpec, boolean timerShouldTriggerOnlyOnMaterialChanges) {
-        List<StageConfig> stages = asList(new StageConfig(new CaseInsensitiveString("mingle"), new JobConfigs()));
+        List<StageConfig> stages = List.of(new StageConfig(new CaseInsensitiveString("mingle"), new JobConfigs()));
         return new PipelineConfig(new CaseInsensitiveString(name), PipelineLabel.COUNT_TEMPLATE, timerSpec, timerShouldTriggerOnlyOnMaterialChanges, MaterialConfigsMother.defaultMaterialConfigs(), stages);
     }
 
@@ -161,7 +159,7 @@ public class PipelineConfigMother {
         for (JobConfig job : stage.getJobs()) {
             job.setVariables(
                     new EnvironmentVariablesConfig(
-                            asList(
+                            List.of(
                                     new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.asString(), true)
                             )
                     )
@@ -191,7 +189,7 @@ public class PipelineConfigMother {
         for (JobConfig job : stageConfig.getJobs()) {
             job.setVariables(
                     new EnvironmentVariablesConfig(
-                            asList(
+                            List.of(
                                     new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.asString(), true)
                             )
                     )

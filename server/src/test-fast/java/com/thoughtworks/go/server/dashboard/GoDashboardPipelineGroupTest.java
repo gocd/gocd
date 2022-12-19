@@ -23,8 +23,8 @@ import com.thoughtworks.go.server.domain.Username;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -34,7 +34,7 @@ public class GoDashboardPipelineGroupTest {
         Permissions permissions = new Permissions(
                 NoOne.INSTANCE,
                 NoOne.INSTANCE,
-                new AllowedUsers(s("admin1"), Collections.emptySet()),
+                new AllowedUsers(Set.of("admin1"), Collections.emptySet()),
                 NoOnePermission.INSTANCE);
 
         GoDashboardPipelineGroup pipelineGroup = new GoDashboardPipelineGroup("group1", permissions, true);

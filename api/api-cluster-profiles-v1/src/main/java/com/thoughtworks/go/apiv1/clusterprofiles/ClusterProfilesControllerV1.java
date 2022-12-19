@@ -88,9 +88,7 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
                 apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, resourceToOperateOn);
             });
 
-            before(Routes.ClusterProfilesAPI.ID, mimeType, (request, response) -> {
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_id"));
-            });
+            before(Routes.ClusterProfilesAPI.ID, mimeType, (request, response) -> apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_id")));
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);

@@ -33,16 +33,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MaterialRepresenter {
-    private static Map<Class, String> classToTypeMap = new HashMap() {{
-        put(GitMaterialConfig.class, "git");
-        put(HgMaterialConfig.class, "hg");
-        put(SvnMaterialConfig.class, "svn");
-        put(P4MaterialConfig.class, "p4");
-        put(TfsMaterialConfig.class, "tfs");
-        put(DependencyMaterialConfig.class, "dependency");
-        put(PackageMaterialConfig.class, "package");
-        put(PluggableSCMMaterialConfig.class, "plugin");
-    }};
+    private static final Map<Class<? extends MaterialConfig>, String> classToTypeMap = Map.of(
+        GitMaterialConfig.class, "git",
+        HgMaterialConfig.class, "hg",
+        SvnMaterialConfig.class, "svn",
+        P4MaterialConfig.class, "p4",
+        TfsMaterialConfig.class, "tfs",
+        DependencyMaterialConfig.class, "dependency",
+        PackageMaterialConfig.class, "package",
+        PluggableSCMMaterialConfig.class, "plugin"
+    );
 
     public static void toJSON(OutputWriter outputWriter, Material material) {
         outputWriter

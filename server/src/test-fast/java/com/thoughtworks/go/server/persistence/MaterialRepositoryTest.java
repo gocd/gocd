@@ -27,8 +27,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import java.util.ArrayList;
@@ -63,26 +61,17 @@ public class MaterialRepositoryTest {
         materialExpansionService = mock(MaterialExpansionService.class);
         materialRepository = new MaterialRepository(sessionFactory, goCache, 4242, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
         materialRepository.setHibernateTemplate(mockHibernateTemplate);
-        when(goCache.get(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                return ourCustomCache.get(arguments[0]);
-            }
+        when(goCache.get(anyString())).thenAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            return ourCustomCache.get(arguments[0]);
         });
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                return ourCustomCache.put((String) arguments[0], arguments[1]);
-            }
+        doAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            return ourCustomCache.put((String) arguments[0], arguments[1]);
         }).when(goCache).put(anyString(), any());
-        when(goCache.remove(anyString())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                return ourCustomCache.remove(arguments[0]);
-            }
+        when(goCache.remove(anyString())).thenAnswer(invocation -> {
+            Object[] arguments = invocation.getArguments();
+            return ourCustomCache.remove(arguments[0]);
         });
     }
 

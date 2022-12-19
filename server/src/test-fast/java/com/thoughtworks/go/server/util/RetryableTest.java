@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RetryableTest {
     @Test
     public void retryThrowsExceptionWhen() {
-        final List<Integer> attempts = new ArrayList<Integer>();
+        final List<Integer> attempts = new ArrayList<>();
         boolean raised = false;
 
         try {
@@ -47,7 +47,7 @@ public class RetryableTest {
 
     @Test
     public void retryStopsWhenSuccessful() {
-        final List<Integer> attempts = new ArrayList<Integer>();
+        final List<Integer> attempts = new ArrayList<>();
         boolean raised = false;
 
         try {

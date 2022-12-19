@@ -27,9 +27,7 @@ public class PipelineGroupsRepresenter {
                 .addAbsoluteLink("doc", Routes.PipelineGroupsAdmin.DOC)
                 .addLink("find", Routes.PipelineGroupsAdmin.find())
         );
-        jsonWriter.addChild("_embedded", childWriter -> {
-            childWriter.addChildList("groups", groupsWriter -> writePipelineGroups(groupsWriter, pipelineGroups));
-        });
+        jsonWriter.addChild("_embedded", childWriter -> childWriter.addChildList("groups", groupsWriter -> writePipelineGroups(groupsWriter, pipelineGroups)));
     }
 
     private static void writePipelineGroups(OutputListWriter jsonWriter, PipelineGroups groups) {

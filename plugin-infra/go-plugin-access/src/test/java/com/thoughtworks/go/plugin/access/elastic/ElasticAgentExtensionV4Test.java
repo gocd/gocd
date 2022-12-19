@@ -39,7 +39,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
@@ -65,7 +68,7 @@ public class ElasticAgentExtensionV4Test {
     @BeforeEach
     public void setUp() throws Exception {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        final List<String> goSupportedVersions = Arrays.asList("4.0");
+        final List<String> goSupportedVersions = List.of("4.0");
 
         when(descriptor.id()).thenReturn(PLUGIN_ID);
 
@@ -146,7 +149,7 @@ public class ElasticAgentExtensionV4Test {
 
     @Test
     public void shouldMakeCreateAgentCall() {
-        final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Map.of("ServerURL", "https://example.com/go");
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
@@ -206,7 +209,7 @@ public class ElasticAgentExtensionV4Test {
 
     @Test
     public void shouldMakeShouldAssignWorkCall() {
-        final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Map.of("ServerURL", "https://example.com/go");
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
 

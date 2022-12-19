@@ -67,8 +67,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -195,7 +195,7 @@ class ElasticAgentPluginServiceTest {
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
-        service.createAgentsFor(asList(plan1), asList(plan1, plan2));
+        service.createAgentsFor(List.of(plan1), List.of(plan1, plan2));
 
         verify(createAgentQueue).post(createAgentMessageArgumentCaptor.capture(), ttl.capture());
         CreateAgentMessage createAgentMessage = createAgentMessageArgumentCaptor.getValue();
@@ -214,7 +214,7 @@ class ElasticAgentPluginServiceTest {
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
-        service.createAgentsFor(asList(plan1), asList(plan1, plan2));
+        service.createAgentsFor(List.of(plan1), List.of(plan1, plan2));
 
         verify(createAgentQueue).post(createAgentMessageArgumentCaptor.capture(), ttl.capture());
         assertThat(ttl.getValue()).isEqualTo(10000L);
@@ -229,8 +229,8 @@ class ElasticAgentPluginServiceTest {
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
-        service.createAgentsFor(new ArrayList<>(), asList(plan1));
-        service.createAgentsFor(asList(plan1), asList(plan1));//invoke create again
+        service.createAgentsFor(new ArrayList<>(), List.of(plan1));
+        service.createAgentsFor(List.of(plan1), List.of(plan1));//invoke create again
 
         verify(createAgentQueue, times(2)).post(captor.capture(), ttl.capture());
         verifyNoMoreInteractions(createAgentQueue);
@@ -245,7 +245,7 @@ class ElasticAgentPluginServiceTest {
     void shouldReportMissingElasticPlugin() {
         JobPlan plan1 = plan(1, "missing");
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
-        service.createAgentsFor(new ArrayList<>(), asList(plan1));
+        service.createAgentsFor(new ArrayList<>(), List.of(plan1));
 
         verify(serverHealthService).update(captorForHealthState.capture());
         verifyNoInteractions(createAgentQueue);
@@ -263,7 +263,7 @@ class ElasticAgentPluginServiceTest {
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
 
-        service.createAgentsFor(new ArrayList<>(), asList(plan1));
+        service.createAgentsFor(new ArrayList<>(), List.of(plan1));
 
         verify(createAgentQueue, times(1)).post(any(), ttl.capture());
         verify(serverHealthService).removeByScope(captor.capture());
@@ -275,8 +275,8 @@ class ElasticAgentPluginServiceTest {
     void shouldRetryCreateAgentForJobForWhichAssociatedPluginIsMissing() {
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1, "missing");
-        service.createAgentsFor(new ArrayList<>(), asList(plan1));
-        service.createAgentsFor(asList(plan1), asList(plan1));//invoke create again
+        service.createAgentsFor(new ArrayList<>(), List.of(plan1));
+        service.createAgentsFor(List.of(plan1), List.of(plan1));//invoke create again
 
         verifyNoInteractions(createAgentQueue);
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
@@ -355,7 +355,7 @@ class ElasticAgentPluginServiceTest {
         allClusterProfiles.add(cluster2);
 
         when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
-        when(registry.getPluginStatusReport("cd.go.example.plugin", asList(cluster1.getConfigurationAsMap(true)))).thenReturn("<div>This is a plugin status report snippet.</div>");
+        when(registry.getPluginStatusReport("cd.go.example.plugin", List.of(cluster1.getConfigurationAsMap(true)))).thenReturn("<div>This is a plugin status report snippet.</div>");
 
         final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
 
@@ -535,7 +535,7 @@ class ElasticAgentPluginServiceTest {
 
             when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
 
-            service.createAgentsFor(emptyList(), asList(jobPlan));
+            service.createAgentsFor(emptyList(), List.of(jobPlan));
 
             verifyNoInteractions(createAgentQueue);
             verify(scheduleService).cancelJob(jobPlan.getIdentifier());
@@ -572,7 +572,7 @@ class ElasticAgentPluginServiceTest {
             List<ServerPingMessage> messages = captor.getAllValues();
             assertThat(messages).hasSize(3)
                     .containsExactly(
-                            new ServerPingMessage("p1", singletonList(clusterProfile)),
+                            new ServerPingMessage("p1", List.of(clusterProfile)),
                             new ServerPingMessage("p2", emptyList()),
                             new ServerPingMessage("docker", emptyList())
                     );
@@ -624,7 +624,7 @@ class ElasticAgentPluginServiceTest {
                 return null;
             }).when(secretParamResolver).resolve(any(ElasticProfile.class));
 
-            service.createAgentsFor(singletonList(plan1), asList(plan1, plan2));
+            service.createAgentsFor(List.of(plan1), List.of(plan1, plan2));
 
             verify(secretParamResolver).resolve(plan2.getClusterProfile());
             verify(secretParamResolver).resolve(plan2.getElasticProfile());
@@ -651,7 +651,7 @@ class ElasticAgentPluginServiceTest {
             when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
             doThrow(new RulesViolationException("some-rules-violation-message")).when(secretParamResolver).resolve(any(ElasticProfile.class));
 
-            service.createAgentsFor(singletonList(plan1), asList(plan1, plan2));
+            service.createAgentsFor(List.of(plan1), List.of(plan1, plan2));
 
             InOrder inOrder = inOrder(secretParamResolver, secretParamResolver, jobInstanceSqlMapDao, consoleService, scheduleService);
             inOrder.verify(secretParamResolver).resolve(plan2.getClusterProfile());
@@ -725,7 +725,7 @@ class ElasticAgentPluginServiceTest {
             final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
 
             verify(secretParamResolver).resolve(clusterProfile);
-            verify(registry).getPluginStatusReport("cd.go.example.plugin", singletonList(clusterProfile.getConfigurationAsMap(true, true)));
+            verify(registry).getPluginStatusReport("cd.go.example.plugin", List.of(clusterProfile.getConfigurationAsMap(true, true)));
             assertThat(pluginStatusReport).isEqualTo("<div>This is a plugin status report snippet.</div>");
         }
 

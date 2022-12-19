@@ -37,9 +37,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -148,8 +150,8 @@ public class GoFileConfigDataSourceTest {
         com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs("loser_boozer");
         PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id1"), "git_r1"));
         PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin", "id2"), "svn_r1"));
-        List<PartialConfig> known = asList(partialConfig1);
-        List<PartialConfig> valid = asList(partialConfig2);
+        List<PartialConfig> known = List.of(partialConfig1);
+        List<PartialConfig> valid = List.of(partialConfig2);
 
         BasicCruiseConfig configForEdit = new BasicCruiseConfig();
         MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
@@ -188,8 +190,8 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldNotRetryConfigUpdateIfLastKnownAndValidPartialsAreSame_OnWriteFullConfigWithLock() throws Exception {
         PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id"), "git_r1"));
-        List<PartialConfig> known = asList(partialConfig1);
-        List<PartialConfig> valid = asList(partialConfig1);
+        List<PartialConfig> known = List.of(partialConfig1);
+        List<PartialConfig> valid = List.of(partialConfig1);
 
         BasicCruiseConfig configForEdit = new BasicCruiseConfig();
         MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
@@ -225,7 +227,7 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldUpdateAndReloadConfigUsingFullSaveNormalFlowWithLastKnownPartials_onLoad() throws Exception {
         PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id"), "git_r1"));
-        List<PartialConfig> lastKnownPartials = asList(partialConfig1);
+        List<PartialConfig> lastKnownPartials = List.of(partialConfig1);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         MagicalGoConfigXmlLoader.setMd5(cruiseConfig, "md5");
         GoConfigHolder goConfigHolder = new GoConfigHolder(cruiseConfig, cruiseConfig);
@@ -253,8 +255,8 @@ public class GoFileConfigDataSourceTest {
     public void shouldReloadConfigUsingFullSaveNormalFlowWithLastValidPartialsIfUpdatingWithLastKnownPartialsFails_onLoad() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PartialConfigMother.withPipeline("P1");
-        List lastKnownPartials = Arrays.asList(PartialConfigMother.withPipeline("P1"));
-        List lastValidPartials = Arrays.asList(PartialConfigMother.withPipeline("P2"), PartialConfigMother.withPipeline("P3"));
+        List lastKnownPartials = List.of(PartialConfigMother.withPipeline("P1"));
+        List lastValidPartials = List.of(PartialConfigMother.withPipeline("P2"), PartialConfigMother.withPipeline("P3"));
         GoConfigHolder goConfigHolder = new GoConfigHolder(cruiseConfig, cruiseConfig);
 
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);

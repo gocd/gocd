@@ -33,25 +33,17 @@ public class HeaderUtilTest {
         assertExtraPropertiesWithoutBase64("", new HashMap<>());
         assertExtraProperties("", new HashMap<>());
 
-        assertExtraProperties("Key1=Value1 key2=value2", new HashMap<String, String>() {{
-            put("Key1", "Value1");
-            put("key2", "value2");
-        }});
+        assertExtraProperties("Key1=Value1 key2=value2",
+            Map.of("Key1", "Value1", "key2", "value2"));
 
-        assertExtraProperties("  Key1=Value1    key2=value2  ", new HashMap<String, String>() {{
-            put("Key1", "Value1");
-            put("key2", "value2");
-        }});
+        assertExtraProperties("  Key1=Value1    key2=value2  ",
+            Map.of("Key1", "Value1", "key2", "value2"));
 
-        assertExtraProperties("Key1=Value1 key2=value2 key2=value3", new HashMap<String, String>() {{
-            put("Key1", "Value1");
-            put("key2", "value2");
-        }});
+        assertExtraProperties("Key1=Value1 key2=value2 key2=value3",
+            Map.of("Key1", "Value1", "key2", "value2"));
 
-        assertExtraProperties("Key1%20WithSpace=Value1%20WithSpace key2=value2", new HashMap<String, String>() {{
-            put("Key1 WithSpace", "Value1 WithSpace");
-            put("key2", "value2");
-        }});
+        assertExtraProperties("Key1%20WithSpace=Value1%20WithSpace key2=value2",
+            Map.of("Key1 WithSpace", "Value1 WithSpace", "key2", "value2"));
     }
 
     @Test

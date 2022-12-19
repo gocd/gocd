@@ -20,7 +20,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CSVResponse {
@@ -71,7 +70,7 @@ public class CSVResponse {
     public boolean containsColumn(String... columns) {
         List<String> targetColumn = null;
         for (List column : this.allColumns) {
-            targetColumn = Arrays.asList(columns);
+            targetColumn = List.of(columns);
             if (StringUtils.contains(column.toString(), targetColumn.toString())) {
                 return true;
             }
@@ -82,8 +81,8 @@ public class CSVResponse {
     public boolean containsRow(String... rows) {
         List<String> targetRows = null;
         for (String row : this.allRows) {
-            targetRows = Arrays.asList(rows);
-            List<String> storedRows = Arrays.asList(row.split(","));
+            targetRows = List.of(rows);
+            List<String> storedRows = List.of(row.split(","));
             if (StringUtils.contains(storedRows.toString(), targetRows.toString())) {
                 return true;
             }

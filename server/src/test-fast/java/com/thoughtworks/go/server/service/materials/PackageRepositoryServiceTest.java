@@ -47,7 +47,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -99,8 +99,8 @@ public class PackageRepositoryServiceTest {
 
         service.performPluginValidationsFor(packageRepository);
 
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(Arrays.asList("This field is required"));
-        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value")).isEqualTo(Arrays.asList("This field is required"));
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("This field is required"));
+        assertThat(packageRepository.getConfiguration().get(1).getEncryptedConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("This field is required"));
     }
 
     private GoPluginDescriptor getPluginDescriptor(String pluginId) {
@@ -124,14 +124,14 @@ public class PackageRepositoryServiceTest {
 
         service = new PackageRepositoryService(pluginManager, packageRepositoryExtension, goConfigService, securityService, entityHashingService, secretParamResolver);
         service.performPluginValidationsFor(packageRepository);
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(Arrays.asList("url format incorrect"));
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value")).isEqualTo(List.of("url format incorrect"));
     }
 
     @Test
     void shouldAddErrorWhenPluginIdIsMissing() {
         PackageRepository packageRepository = new PackageRepository();
         service.performPluginValidationsFor(packageRepository);
-        assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID)).isEqualTo(Arrays.asList("Please select package repository plugin"));
+        assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID)).isEqualTo(List.of("Please select package repository plugin"));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setPluginConfiguration(new PluginConfiguration("missing-plugin", "1.0"));
         service.performPluginValidationsFor(packageRepository);
-        assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID)).isEqualTo(Arrays.asList("Invalid plugin id"));
+        assertThat(packageRepository.getPluginConfiguration().errors().getAllOn(PluginConfiguration.ID)).isEqualTo(List.of("Invalid plugin id"));
     }
 
     @Test

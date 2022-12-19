@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import java.util.Collections;
+import java.util.List;
 
 public class ClassThatExtendsTestExtensionPoint implements TestGoPluginExtensionPoint {
     @Extension
@@ -41,7 +41,7 @@ public class ClassThatExtendsTestExtensionPoint implements TestGoPluginExtension
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+            return new GoPluginIdentifier("some-extension-type", List.of("1.0"));
         }
     }
 

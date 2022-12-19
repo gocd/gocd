@@ -36,7 +36,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -67,8 +66,8 @@ class JobInstanceSqlMapDaoTest {
     void setUp() {
         GoCache goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         jobInstanceSqlMapDao = new JobInstanceSqlMapDao(environmentVariableDao, goCache, transactionTemplate, null,
-                cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
-                artifactPlanRepository, jobAgentMetadataDao);
+            cache, transactionSynchronizationManager, systemEnvironment, null, resourceRepository,
+            artifactPlanRepository, jobAgentMetadataDao);
         jobInstanceSqlMapDao.setSqlMapClientTemplate(template);
     }
 
@@ -77,7 +76,7 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForJobInstanceWithTransitions(1L))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$jobInstanceWithTransitionIds.$1");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$jobInstanceWithTransitionIds.$1");
         }
     }
 
@@ -87,7 +86,7 @@ class JobInstanceSqlMapDaoTest {
         void shouldGenerateCacheKey() {
             final StageIdentifier stageIdentifier = new StageIdentifier("Foo", 1, "Bar", "Baz", "1");
             assertThat(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifier, "job"))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$originalJobIdentifier.$Foo.$bar.$1.$baz.$1.$job");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$originalJobIdentifier.$Foo.$bar.$1.$baz.$1.$job");
         }
 
         @Test
@@ -99,7 +98,7 @@ class JobInstanceSqlMapDaoTest {
             System.out.println(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
 
             assertThat(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierOne, "job"))
-                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
+                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForOriginalJobIdentifier(stageIdentifierTwo, "job"));
         }
 
         @Test
@@ -110,30 +109,30 @@ class JobInstanceSqlMapDaoTest {
             String stageName = "stage-name";
             int pipelineCounter = 1;
             String stageCounter = "1";
-            Map<String, String> attrs = m(
-                    "pipelineName", pipelineName,
-                    "pipelineCounter", 1,
-                    "stageName", stageName,
-                    "stageCounter", 1,
-                    "jobName", jobNameInDifferentCase);
+            Map<String, Object> attrs = Map.of(
+                "pipelineName", pipelineName,
+                "pipelineCounter", 1,
+                "stageName", stageName,
+                "stageCounter", 1,
+                "jobName", jobNameInDifferentCase);
 
             JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter, jobName);
 
             when(template.queryForObject("findJobId", attrs)).thenReturn(jobIdentifier);
 
-           assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
-                    new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
-                    jobNameInDifferentCase)).isEqualTo(jobIdentifier);
+            assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+                new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
+                jobNameInDifferentCase)).isEqualTo(jobIdentifier);
 
             verify(template).queryForObject("findJobId", attrs);
 
-           assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
-                    new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
-                    jobNameInDifferentCase)).isNotSameAs(jobIdentifier);
+            assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+                new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
+                jobNameInDifferentCase)).isNotSameAs(jobIdentifier);
 
-           assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
-                    new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
-                    jobName)).isEqualTo(jobIdentifier);
+            assertThat(jobInstanceSqlMapDao.findOriginalJobIdentifier(
+                new StageIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter),
+                jobName)).isEqualTo(jobIdentifier);
 
             verifyNoMoreInteractions(template);
         }
@@ -144,13 +143,13 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForLatestCompletedJobs("Foo", "Bar", "Baz", 1))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$latestCompletedJobs.$foo.$bar.$baz.$1");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$latestCompletedJobs.$foo.$bar.$baz.$1");
         }
 
         @Test
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForLatestCompletedJobs("Foo", "Bar_Jaz", "Baz", 1))
-                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForLatestCompletedJobs("Foo_Bar", "Jaz", "Baz", 1));
+                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForLatestCompletedJobs("Foo_Bar", "Jaz", "Baz", 1));
         }
     }
 
@@ -159,13 +158,13 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo", "Bar", "Baz"))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$getJobHistoryCount.$foo.$bar.$baz");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$getJobHistoryCount.$foo.$bar.$baz");
         }
 
         @Test
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo", "Bar_Jaz", "Baz"))
-                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo_Bar", "Jaz", "Baz"));
+                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForGetJobHistoryCount("Foo_Bar", "Jaz", "Baz"));
         }
     }
 
@@ -174,13 +173,13 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo", "Bar", "Baz", 1, 1))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobHistoryPage.$foo.$bar.$baz.$1.$1");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobHistoryPage.$foo.$bar.$baz.$1.$1");
         }
 
         @Test
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo", "Bar_Jaz", "Baz", 1, 1))
-                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo_Bar", "Jaz", "Baz", 1, 1));
+                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobHistoryPage("Foo_Bar", "Jaz", "Baz", 1, 1));
         }
     }
 
@@ -189,13 +188,13 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo", "Bar", "Baz", 1, 1))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobInstance.$foo.$bar.$baz.$1.$1");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findJobInstance.$foo.$bar.$baz.$1.$1");
         }
 
         @Test
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo", "Bar_Jaz", "Baz", 1, 1))
-                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo_Bar", "Jaz", "Baz", 1, 1));
+                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindJobInstance("Foo_Bar", "Jaz", "Baz", 1, 1));
         }
     }
 
@@ -204,7 +203,7 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForJobPlan(1L))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$jobPlan.$1");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$jobPlan.$1");
         }
     }
 
@@ -213,7 +212,7 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForActiveJob(1L))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$activeJob.$1");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$activeJob.$1");
         }
     }
 
@@ -222,7 +221,7 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForActiveJobIds())
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$activeJobIds");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$activeJobIds");
         }
     }
 
@@ -231,13 +230,13 @@ class JobInstanceSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo", "Bar", "Baz", "", 1, 10))
-                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findDetailedJobHistoryViaCursor.$foo.$bar.$baz.$.$1.$10");
+                .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findDetailedJobHistoryViaCursor.$foo.$bar.$baz.$.$1.$10");
         }
 
         @Test
         void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
             assertThat(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo", "Bar_Jaz", "Baz", "", 1, 1))
-                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo_Bar", "Jaz", "Baz", "", 1, 1));
+                .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo_Bar", "Jaz", "Baz", "", 1, 1));
         }
     }
 }

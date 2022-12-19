@@ -387,7 +387,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     private List<SecretString> secrets() {
         SecretString secretSubstitution = line -> line.replace(urlForCommandLine(), getUriForDisplay());
-        return Collections.singletonList(secretSubstitution);
+        return List.of(secretSubstitution);
     }
 
     // Unshallow local repo to include a revision operating on via two step process:

@@ -15,21 +15,21 @@
  */
 package com.thoughtworks.go.presentation;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfig;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
 import org.hamcrest.Matchers;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 
 public class TriStateSelectionTest {
     private Set<ResourceConfig> resourceConfigs;
@@ -55,8 +55,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionAddIfAllAgentsHaveThatResource() {
         resourceConfigs.add(new ResourceConfig("all"));
-        agents.add(new Agent("uuid1", "host1", "127.0.0.1", singletonList("all")));
-        agents.add(new Agent("uuid2", "host2", "127.0.0.2", singletonList("all")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", List.of("all")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", List.of("all")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("all", TriStateSelection.Action.add)));
@@ -65,7 +65,7 @@ public class TriStateSelectionTest {
     @Test
     public void shouldBeNoChangeIfAllAgentsHaveThatResource() {
         resourceConfigs.add(new ResourceConfig("some"));
-        agents.add(new Agent("uuid1", "host1", "127.0.0.1", singletonList("some")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", List.of("some")));
         agents.add(new Agent("uuid2", "host2", "127.0.0.2", emptyList()));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
@@ -75,8 +75,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionRemoveIfNoAgentsHaveResource() {
         resourceConfigs.add(new ResourceConfig("none"));
-        agents.add(new Agent("uuid1", "host1", "127.0.0.1", singletonList("one")));
-        agents.add(new Agent("uuid2", "host2", "127.0.0.2", singletonList("two")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", List.of("one")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", List.of("two")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("none", TriStateSelection.Action.remove)));
@@ -99,7 +99,7 @@ public class TriStateSelectionTest {
     public void shouldDisableWhenDisableVoted() {
         final boolean[] associate = new boolean[1];
 
-        final TriStateSelection.Assigner<String, String> disableWhenEql = new TriStateSelection.Assigner<String, String>() {
+        final TriStateSelection.Assigner<String, String> disableWhenEql = new TriStateSelection.Assigner<>() {
             @Override
             public boolean shouldAssociate(String a, String b) {
                 return associate[0];
@@ -116,25 +116,25 @@ public class TriStateSelectionTest {
             }
         };
 
-        final HashSet<String> assignables = new HashSet<>(Arrays.asList("quux", "baz"));
+        final Set<String> assignables = Set.of("quux", "baz");
 
         associate[0] = true;
-        List<TriStateSelection> selections = TriStateSelection.convert(assignables, Arrays.asList("foo", "bar"), disableWhenEql);
+        List<TriStateSelection> selections = TriStateSelection.convert(assignables, List.of("foo", "bar"), disableWhenEql);
         assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.add)));
         assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.add)));
 
         associate[0] = false;
-        selections = TriStateSelection.convert(assignables, Arrays.asList("foo", "bar"), disableWhenEql);
+        selections = TriStateSelection.convert(assignables, List.of("foo", "bar"), disableWhenEql);
         assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.remove)));
         assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.remove)));
 
         associate[0] = true;
-        selections = TriStateSelection.convert(assignables, Arrays.asList("quux", "bar"), disableWhenEql);
+        selections = TriStateSelection.convert(assignables, List.of("quux", "bar"), disableWhenEql);
         assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.add, false)));
         assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.add, true)));
 
         associate[0] = false;
-        selections = TriStateSelection.convert(assignables, Arrays.asList("bar", "baz"), disableWhenEql);
+        selections = TriStateSelection.convert(assignables, List.of("bar", "baz"), disableWhenEql);
         assertThat(selections, hasItem(new TriStateSelection("quux", TriStateSelection.Action.remove, true)));
         assertThat(selections, hasItem(new TriStateSelection("baz", TriStateSelection.Action.remove, false)));
     }

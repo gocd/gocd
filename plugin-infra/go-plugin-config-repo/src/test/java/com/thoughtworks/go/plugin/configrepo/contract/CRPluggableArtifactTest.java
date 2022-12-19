@@ -17,13 +17,13 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact> {
     private CRPluggableArtifact validArtifactWithNoConfiguration;
@@ -34,11 +34,11 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
     public CRPluggableArtifactTest() {
         validArtifactWithNoConfiguration = new CRPluggableArtifact("id", "storeId", null);
-        validArtifactWithConfiguration = new CRPluggableArtifact("id", "storeId", Arrays.asList(new CRConfigurationProperty("foo", "bar")));
+        validArtifactWithConfiguration = new CRPluggableArtifact("id", "storeId", List.of(new CRConfigurationProperty("foo", "bar")));
 
         invalidArtifactWithNoId = new CRPluggableArtifact(null, "storeId", null);
         invalidArtifactWithNoStoreId = new CRPluggableArtifact("id", null, null);
-        invalidArtifactWithInvalidConfiguration = new CRPluggableArtifact("id", "storeId", Arrays.asList(new CRConfigurationProperty("foo", "bar", "baz")));
+        invalidArtifactWithInvalidConfiguration = new CRPluggableArtifact("id", "storeId", List.of(new CRConfigurationProperty("foo", "bar", "baz")));
     }
 
     @Override
@@ -101,6 +101,6 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
 
         assertThat(crPluggableArtifact.getId(), is("id"));
         assertThat(crPluggableArtifact.getStoreId(), is("s3"));
-        assertThat(crPluggableArtifact.getConfiguration(), is(Arrays.asList(new CRConfigurationProperty("image", "gocd-agent"))));
+        assertThat(crPluggableArtifact.getConfiguration(), is(List.of(new CRConfigurationProperty("image", "gocd-agent"))));
     }
 }

@@ -36,17 +36,16 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
-import static java.util.Arrays.asList;
 
 @Component
 public class NotificationExtension extends AbstractExtension {
-    static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0", "4.0");
+    static final List<String> goSupportedVersions = List.of("1.0", "2.0", "3.0", "4.0");
 
     static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
     public static final String AGENT_STATUS_CHANGE_NOTIFICATION = "agent-status";
 
-    static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION, AGENT_STATUS_CHANGE_NOTIFICATION);
+    static final List<String> VALID_NOTIFICATION_TYPES = List.of(STAGE_STATUS_CHANGE_NOTIFICATION, AGENT_STATUS_CHANGE_NOTIFICATION);
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 

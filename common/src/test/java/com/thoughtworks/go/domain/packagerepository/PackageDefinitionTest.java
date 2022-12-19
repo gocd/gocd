@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PackageDefinitionTest extends PackageMaterialTestBase {
@@ -250,7 +250,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
         assertThat(packageDefinition.errors().isEmpty()).isFalse();
-        assertThat(packageDefinition.errors().getAllOn("name")).isEqualTo(asList("Package name is mandatory"));
+        assertThat(packageDefinition.errors().getAllOn("name")).isEqualTo(List.of("Package name is mandatory"));
     }
 
     @Test
@@ -358,8 +358,8 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         definition2.validateFingerprintUniqueness(map);
         definition3.validateFingerprintUniqueness(map);
 
-        assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
-        assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(List.of(expectedErrorMessage));
+        assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(List.of(expectedErrorMessage));
 
         assertThat(definition2.errors().getAllOn(PackageDefinition.ID)).isEmpty();
     }

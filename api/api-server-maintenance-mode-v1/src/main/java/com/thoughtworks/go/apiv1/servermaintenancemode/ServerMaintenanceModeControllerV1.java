@@ -35,13 +35,17 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import static spark.Spark.*;
 
@@ -127,27 +131,23 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
 
         if (serverMaintenanceMode.isMaintenanceMode()) {
             Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
-            List<ArrayList<JobInstance>> allRunningJobs = getRunningJobs();
-            ArrayList<JobInstance> buildingJobs = allRunningJobs.get(0);
-            ArrayList<JobInstance> scheduledJobs = allRunningJobs.get(1);
+            Pair<List<JobInstance>, List<JobInstance>> allRunningJobs = getRunningJobs();
+            List<JobInstance> buildingJobs = allRunningJobs.first();
+            List<JobInstance> scheduledJobs = allRunningJobs.last();
 
             boolean hasNoRunningSystems = runningMDUs.isEmpty() && buildingJobs.isEmpty();
-            return writerForTopLevelObject(req, res, writer -> {
-                MaintenanceModeInfoRepresenter.toJSON(writer, serverMaintenanceMode, hasNoRunningSystems, runningMDUs, buildingJobs, scheduledJobs);
-            });
+            return writerForTopLevelObject(req, res, writer -> MaintenanceModeInfoRepresenter.toJSON(writer, serverMaintenanceMode, hasNoRunningSystems, runningMDUs, buildingJobs, scheduledJobs));
         } else {
-            return writerForTopLevelObject(req, res, writer -> {
-                MaintenanceModeInfoRepresenter.toJSON(writer, serverMaintenanceMode, false, null, null, null);
-            });
+            return writerForTopLevelObject(req, res, writer -> MaintenanceModeInfoRepresenter.toJSON(writer, serverMaintenanceMode, false, null, null, null));
         }
     }
 
-    private List<ArrayList<JobInstance>> getRunningJobs() {
+    private Pair<List<JobInstance>, List<JobInstance>> getRunningJobs() {
         Collection<GoDashboardPipeline> pipelines = dashboardCache.allEntries().getPipelines();
         HashMap<String, String> buildToAgentUUIDMap = getBuildLocatorToAgentUUIDMap();
 
-        ArrayList<JobInstance> buildingJobs = new ArrayList<>();
-        ArrayList<JobInstance> scheduledJobs = new ArrayList<>();
+        List<JobInstance> buildingJobs = new ArrayList<>();
+        List<JobInstance> scheduledJobs = new ArrayList<>();
 
         for (GoDashboardPipeline pipeline : pipelines) {
             for (PipelineInstanceModel pipelineInstance : pipeline.model().getActivePipelineInstances()) {
@@ -176,7 +176,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
             }
         }
 
-        return Arrays.asList(buildingJobs, scheduledJobs);
+        return Pair.pair(buildingJobs, scheduledJobs);
     }
 
     private HashMap<String, String> getBuildLocatorToAgentUUIDMap() {

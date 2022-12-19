@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ThreadSafetyChecker {
     private long testTimeoutTime;
@@ -39,12 +39,7 @@ public class ThreadSafetyChecker {
     }
 
     public void run(final int numberOfTimesToRunTheStuffInsideTheOperations) throws Exception {
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable throwable) {
-                exceptions.put(thread, throwable);
-            }
-        });
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> exceptions.put(thread, throwable));
 
         List<Thread> threads = createThreads(numberOfTimesToRunTheStuffInsideTheOperations);
         startThreads(threads);
@@ -65,12 +60,9 @@ public class ThreadSafetyChecker {
         for (int i = 0; i < operations.size(); i++) {
             final Operation operation = operations.get(i);
 
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int runIndex = 0; runIndex < numberOfTimesToRunTheStuffInsideTheOperations; runIndex++) {
-                        operation.execute(runIndex);
-                    }
+            Thread thread = new Thread(() -> {
+                for (int runIndex = 0; runIndex < numberOfTimesToRunTheStuffInsideTheOperations; runIndex++) {
+                    operation.execute(runIndex);
                 }
             }, "ThreadSafetyChecker-" + i);
 

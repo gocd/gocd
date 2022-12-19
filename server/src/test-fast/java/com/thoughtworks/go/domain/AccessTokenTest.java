@@ -23,7 +23,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,9 +36,9 @@ class AccessTokenTest {
 
         assertThat(token.errors())
                 .hasSize(3)
-                .containsEntry("authConfigId", Collections.singletonList("must not be blank"))
-                .containsEntry("description", Collections.singletonList("must not be blank"))
-                .containsEntry("username", Collections.singletonList("must not be blank"));
+                .containsEntry("authConfigId", List.of("must not be blank"))
+                .containsEntry("description", List.of("must not be blank"))
+                .containsEntry("username", List.of("must not be blank"));
     }
 
     @Test

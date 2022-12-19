@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -91,7 +90,7 @@ class AgentViewModelTest {
         @Test
         void shouldSortAgentInstanceWithDifferentUsableSpaceCorrectly() {
             // nobody's grand daddy knows where this came from!
-            List<Long> magicValuesForTimSort = asList(1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, -1L, -1L,
+            List<Long> magicValuesForTimSort = List.of(1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, -1L, -1L,
                     -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L, -1L,
                     -1L, -1L, -1L, -1L, -1L, 1L, 2L);
             List<AgentViewModel> avmList = new ArrayList<>();
@@ -188,7 +187,7 @@ class AgentViewModelTest {
 
         @Test
         void shouldMapErrors() {
-            Agent agent = new Agent("uuid", "host", "IP", asList("foo", "bar"));
+            Agent agent = new Agent("uuid", "host", "IP", List.of("foo", "bar"));
             agent.addError(Agent.IP_ADDRESS, "bad ip");
             agent.addError(ResourceConfig.NAME, "bad name for resource2");
             agent.addError(ResourceConfig.NAME, "bad name for resource1");

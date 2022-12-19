@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +62,7 @@ class UserTest {
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.svnMaterial(), aCheckIn("100", "readme")));
         user = new User("UserName", new String[]{"README"}, "user@mail.com", true);
         user.setNotificationFilters(
-                Arrays.asList(new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)));
+                List.of(new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)));
         assertThat(user.matchNotification(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
     }
 
@@ -72,7 +71,7 @@ class UserTest {
         materialRevisions = new MaterialRevisions(new MaterialRevision(MaterialsMother.svnMaterial(), aCheckIn("100", "xyz")));
         user = new User("UserName", new String[]{"README"}, "user@mail.com", true);
         user.setNotificationFilters(
-                Arrays.asList(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)));
+                List.of(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)));
         assertThat(user.matchNotification(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed, materialRevisions)).isTrue();
     }
 
@@ -183,14 +182,14 @@ class UserTest {
     @Test
     void shouldUnderstandSplittingMatcherString() {
         User user = new User("UserName", new String[]{"A", "b"}, "user@mail.com", true);
-        assertThat(user.getMatchers()).isEqualTo(Arrays.asList("A", "b"));
+        assertThat(user.getMatchers()).isEqualTo(List.of("A", "b"));
         user = new User("UserName", new String[]{"A,b"}, "user@mail.com", true);
-        assertThat(user.getMatchers()).isEqualTo(Arrays.asList("A", "b"));
+        assertThat(user.getMatchers()).isEqualTo(List.of("A", "b"));
         user = new User("UserName", new String[]{""}, "user@mail.com", true);
         List<String> matchers = Collections.emptyList();
         assertThat(user.getMatchers()).isEqualTo(matchers);
         user = new User("UserName", new String[]{"b,A"}, "user@mail.com", true);
-        assertThat(user.getMatchers()).isEqualTo(Arrays.asList("A", "b"));
+        assertThat(user.getMatchers()).isEqualTo(List.of("A", "b"));
     }
 
     @Test

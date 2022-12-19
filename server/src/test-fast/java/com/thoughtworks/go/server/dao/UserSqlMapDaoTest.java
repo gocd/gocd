@@ -31,13 +31,12 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionCallback;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,9 +68,9 @@ public class UserSqlMapDaoTest {
         bar.setId(2);
         final User baz = new User("baz");
         bar.setId(3);
-        when(transactionTemplate.execute(any(TransactionCallback.class))).thenReturn(Arrays.asList(foo, bar, baz));
+        when(transactionTemplate.execute(any(TransactionCallback.class))).thenReturn(List.of(foo, bar, baz));
 
-        Set<String> userNames = dao.findUsernamesForIds(s(foo.getId(), bar.getId()));
+        Set<String> userNames = dao.findUsernamesForIds(Set.of(foo.getId(), bar.getId()));
         assertThat(userNames.size(), is(2));
         assertThat(userNames, hasItems("foo", "bar"));
     }

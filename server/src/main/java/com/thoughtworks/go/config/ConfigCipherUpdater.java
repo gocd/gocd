@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -86,8 +85,8 @@ public class ConfigCipherUpdater {
                 return;
             }
             Document document = new SAXBuilder().build(configFile);
-            List<String> encryptedAttributes = Arrays.asList("encryptedPassword", "encryptedManagerPassword");
-            List<String> encryptedNodes = Arrays.asList("encryptedValue");
+            List<String> encryptedAttributes = List.of("encryptedPassword", "encryptedManagerPassword");
+            List<String> encryptedNodes = List.of("encryptedValue");
             XPathFactory xPathFactory = XPathFactory.instance();
             for (String attributeName : encryptedAttributes) {
                 XPathExpression<Element> xpathExpression = xPathFactory.compile(String.format("//*[@%s]", attributeName), Filters.element());

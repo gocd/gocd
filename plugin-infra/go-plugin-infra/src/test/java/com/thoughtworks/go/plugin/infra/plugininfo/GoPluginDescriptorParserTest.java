@@ -15,17 +15,16 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import jakarta.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import jakarta.xml.bind.JAXBException;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoPluginDescriptorParserTest {
@@ -63,7 +62,7 @@ class GoPluginDescriptorParserTest {
         final GoPluginDescriptor pluginDescriptor = bundleDescriptor.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor, "testplugin.descriptorValidator", "Plugin Descriptor Validator",
                 "1.0.1", "17.12", "Validates its own plugin descriptor",
-                "GoCD Team", "https://gocd.org", asList("Linux", "Windows"));
+                "GoCD Team", "https://gocd.org", List.of("Linux", "Windows"));
 
         assertTrue(pluginDescriptor.extensionClasses().isEmpty());
     }

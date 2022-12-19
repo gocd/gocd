@@ -33,12 +33,11 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
-import static java.util.Arrays.asList;
 
 @Component
 public class PackageRepositoryExtension extends AbstractExtension {
 
-    private static final List<String> goSupportedVersions = asList("1.0");
+    private static final List<String> goSupportedVersions = List.of("1.0");
 
     public static final String REQUEST_REPOSITORY_CONFIGURATION = "repository-configuration";
     public static final String REQUEST_PACKAGE_CONFIGURATION = "package-configuration";

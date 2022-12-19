@@ -51,10 +51,10 @@ public class AgentJobRunHistoryController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Agent Job History");
-            put("meta", meta(request));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Agent Job History",
+            "meta", meta(request)
+        );
 
         return new ModelAndView(object, null);
     }

@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
-import static java.util.Arrays.asList;
 
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
@@ -52,7 +51,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public static final String REQUEST_CAPABILITIES = "get-capabilities";
     public static final String REQUEST_CONFIG_FILES = "config-files";
 
-    private static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0");
+    private static final List<String> goSupportedVersions = List.of("1.0", "2.0", "3.0");
 
     private final Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 

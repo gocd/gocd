@@ -44,7 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -163,13 +163,13 @@ public class AbstractReAuthenticationFilterTest {
         @Test
         void shouldReAuthenticateWebBasedTokenWhenItHasExpired() throws IOException, ServletException {
             request = HttpRequestBuilder.GET("/").build();
-            final AuthenticationToken<AccessToken> authenticationToken = SessionUtilsHelper.createWebAuthentication(Collections.singletonMap("access_token", "some-token"), clock.currentTimeMillis());
+            final AuthenticationToken<AccessToken> authenticationToken = SessionUtilsHelper.createWebAuthentication(Map.of("access_token", "some-token"), clock.currentTimeMillis());
             SessionUtilsHelper.setAuthenticationToken(request, authenticationToken);
 
             clock.addSeconds(3601);
             when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(3600 * 1000L);
 
-            final AuthenticationToken<AccessToken> reAuthenticatedToken = SessionUtilsHelper.createWebAuthentication(Collections.singletonMap("access_token", "some-token"), clock.currentTimeMillis());
+            final AuthenticationToken<AccessToken> reAuthenticatedToken = SessionUtilsHelper.createWebAuthentication(Map.of("access_token", "some-token"), clock.currentTimeMillis());
 
             when(webBasedPluginAuthenticationProvider.reauthenticate(authenticationToken)).thenReturn(reAuthenticatedToken);
 
@@ -233,7 +233,7 @@ public class AbstractReAuthenticationFilterTest {
         @Test
         void shouldErrorOutIfWebBasedTokenReAuthenticationFails() throws IOException, ServletException {
             request = HttpRequestBuilder.GET("/").build();
-            final AuthenticationToken<AccessToken> authenticationToken = SessionUtilsHelper.createWebAuthentication(Collections.singletonMap("access_token", "some-token"), clock.currentTimeMillis());
+            final AuthenticationToken<AccessToken> authenticationToken = SessionUtilsHelper.createWebAuthentication(Map.of("access_token", "some-token"), clock.currentTimeMillis());
             SessionUtilsHelper.setAuthenticationToken(request, authenticationToken);
 
             clock.addSeconds(3601);

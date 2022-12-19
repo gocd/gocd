@@ -23,7 +23,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -165,7 +168,7 @@ class EnvironmentVariablesConfigTest {
         EnvironmentVariableConfig var1 = secureVariable(mockGoCipher, "foo1", "bar1", "encryptedBar1");
         EnvironmentVariableConfig var2 = secureVariable(mockGoCipher, "foo2", "bar2", "encryptedBar2");
         EnvironmentVariableConfig var3 = secureVariable(mockGoCipher, "foo3", "bar3", "encryptedBar3");
-        environmentVariablesConfig.addAll(Arrays.asList(var1, var2, var3, plainVar1));
+        environmentVariablesConfig.addAll(List.of(var1, var2, var3, plainVar1));
 
         List<EnvironmentVariableConfig> variables = environmentVariablesConfig.getSecureVariables();
 
@@ -180,7 +183,7 @@ class EnvironmentVariablesConfigTest {
         EnvironmentVariableConfig plainVar2 = new EnvironmentVariableConfig("var2", "var2_value");
         EnvironmentVariableConfig var1 = secureVariable(goCipher, "foo1", "bar1", "encryptedBar1");
         EnvironmentVariableConfig var2 = secureVariable(goCipher, "foo2", "bar2", "encryptedBar2");
-        environmentVariablesConfig.addAll(Arrays.asList(var1, var2, plainVar1, plainVar2));
+        environmentVariablesConfig.addAll(List.of(var1, var2, plainVar1, plainVar2));
 
         List<EnvironmentVariableConfig> variables = environmentVariablesConfig.getPlainTextVariables();
 

@@ -34,11 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
-import static java.util.Arrays.asList;
 
 @Component
 public class SCMExtension extends AbstractExtension {
-    private static final List<String> goSupportedVersions = asList("1.0");
+    private static final List<String> goSupportedVersions = List.of("1.0");
 
     public static final String REQUEST_SCM_CONFIGURATION = "scm-configuration";
     public static final String REQUEST_SCM_VIEW = "scm-view";

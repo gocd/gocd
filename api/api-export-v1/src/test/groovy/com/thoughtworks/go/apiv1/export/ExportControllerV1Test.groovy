@@ -102,12 +102,10 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
         when(entityHashingService.hashForEntity(pipeline, groupName, pluginId)).thenReturn(exportEtag)
-        Map<String, String> headers = new HashMap<String, String>() {
-          {
-            put("Content-Type", "text/plain")
-            put("X-Export-Filename", "foo.txt")
-          }
-        }
+        Map<String, String> headers = Map.of(
+            "Content-Type", "text/plain",
+            "X-Export-Filename", "foo.txt"
+          )
         when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn(from("message from plugin", headers))
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?plugin_id=${pluginId}"), ['if-none-match': '"junk"'])

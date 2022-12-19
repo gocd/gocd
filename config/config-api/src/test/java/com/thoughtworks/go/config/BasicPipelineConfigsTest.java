@@ -18,9 +18,12 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -97,17 +100,24 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
     @Test
     public void shouldUpdateName() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
-        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, "my-new-group"));
+        group.setConfigAttributes(Map.of(BasicPipelineConfigs.GROUP, "my-new-group"));
         assertThat(group.getGroup(), is("my-new-group"));
 
-        group.setConfigAttributes(m());
+        group.setConfigAttributes(Map.of());
         assertThat(group.getGroup(), is("my-new-group"));
 
         group.setConfigAttributes(null);
         assertThat(group.getGroup(), is("my-new-group"));
 
-        group.setConfigAttributes(m(BasicPipelineConfigs.GROUP, null));
+        group.setConfigAttributes(mapOfNull(BasicPipelineConfigs.GROUP));
         assertThat(group.getGroup(), is(nullValue()));
+    }
+
+    @NotNull
+    private static Map<String, Object> mapOfNull(String key) {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(key, null);
+        return attributes;
     }
 
 

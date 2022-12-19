@@ -34,8 +34,6 @@ import java.util.UUID;
 import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.mock;
 
 public class AgentInstanceMother {
@@ -115,7 +113,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
-        Agent buildingAgentConfig = new Agent("uuid3", "CCeDev01", "10.18.5.1", singletonList("java"));
+        Agent buildingAgentConfig = new Agent("uuid3", "CCeDev01", "10.18.5.1", List.of("java"));
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
         AgentInstance building = AgentInstance.createFromAgent(buildingAgentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
@@ -124,7 +122,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pending(SystemEnvironment systemEnvironment) {
-        Agent agent = new Agent("uuid4", "CCeDev03", "10.18.5.3", asList("db", "web"));
+        Agent agent = new Agent("uuid4", "CCeDev03", "10.18.5.3", List.of("db", "web"));
 
         AgentRuntimeInfo runtimeInfo = fromServer(agent, false,"/var/lib", 0L, "linux");
         AgentInstance agentInstance = createFromLiveAgent(runtimeInfo, systemEnvironment, mock(AgentStatusChangeListener.class));
@@ -279,7 +277,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance agentWithConfigErrors() {
-        Agent agent = new Agent("uuid", "host", "IP", asList("foo%","bar$"));
+        Agent agent = new Agent("uuid", "host", "IP", List.of("foo%","bar$"));
         agent.validate();
         return AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }

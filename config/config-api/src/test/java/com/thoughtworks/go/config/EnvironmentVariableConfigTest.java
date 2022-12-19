@@ -27,8 +27,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -311,8 +311,8 @@ class EnvironmentVariableConfigTest {
     void shouldDeserializeWithErrorFlagIfAnEncryptedVarialeHasBothClearTextAndCipherText() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
         variable.deserialize("PASSWORD", "clearText", true, new GoCipher().encrypt("c!ph3rt3xt"));
-        assertThat(variable.errors().getAllOn("value")).isEqualTo(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!"));
-        assertThat(variable.errors().getAllOn("encryptedValue")).isEqualTo(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!"));
+        assertThat(variable.errors().getAllOn("value")).isEqualTo(List.of("You may only specify `value` or `encrypted_value`, not both!"));
+        assertThat(variable.errors().getAllOn("encryptedValue")).isEqualTo(List.of("You may only specify `value` or `encrypted_value`, not both!"));
     }
 
     @Test
@@ -342,7 +342,7 @@ class EnvironmentVariableConfigTest {
         variable.deserialize("PASSWORD", null, false, new GoCipher().encrypt("cipherText"));
         variable.validateTree(null);
 
-        assertThat(variable.errors().getAllOn("encryptedValue")).isEqualTo(Arrays.asList("You may specify encrypted value only when option 'secure' is true."));
+        assertThat(variable.errors().getAllOn("encryptedValue")).isEqualTo(List.of("You may specify encrypted value only when option 'secure' is true."));
     }
 
     @Nested

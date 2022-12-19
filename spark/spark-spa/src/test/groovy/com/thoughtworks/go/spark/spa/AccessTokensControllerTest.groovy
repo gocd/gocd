@@ -80,8 +80,8 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
       .thenReturn(true)
     when(securityAuthConfigService.findProfile(any() as String)).thenReturn(mock(SecurityAuthConfig.class))
 
-    ModelAndView modalAndView = controller.index(new Request(request), response)
-    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+    ModelAndView modelAndView = controller.index(new Request(request), response)
+    Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
     Assertions.assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pluginId", "cd.go.ldap-plugin")
@@ -98,8 +98,8 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
       .thenReturn(false)
     when(securityAuthConfigService.findProfile(any() as String)).thenReturn(mock(SecurityAuthConfig.class))
 
-    ModelAndView modalAndView = controller.index(new Request(request), response)
-    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+    ModelAndView modelAndView = controller.index(new Request(request), response)
+    Map<Object, Object> model = modelAndView.getModel() as Map<Object, Object>
 
     Assertions.assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pluginId", "cd.go.ldap-plugin")

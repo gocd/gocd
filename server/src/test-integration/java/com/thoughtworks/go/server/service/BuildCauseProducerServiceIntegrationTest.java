@@ -80,7 +80,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -340,7 +339,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         runAndPass(revsAfterFoo);
         String revisionForFingerPrint = revsAfterBar.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), m(mingleConfig.materialConfigs().get(0).getPipelineUniqueFingerprint(), revisionForFingerPrint));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(mingleConfig.materialConfigs().get(0).getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(new CaseInsensitiveString(MINGLE_PIPELINE_NAME)));
         BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));
@@ -357,7 +356,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         MaterialRevisions revsAfterFoo = checkinFile(svn, "foo.c", svnRepository);
 
         String revisionForFingerPrint = revsAfterFoo.findRevisionForFingerPrint(svn.getFingerprint()).getRevision().getRevision();
-        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), m(new MaterialConfigConverter().toMaterial(mingleConfig.materialConfigs().get(0)).getPipelineUniqueFingerprint(), revisionForFingerPrint));
+        scheduleHelper.manuallySchedulePipelineWithRealMaterials(MINGLE_PIPELINE_NAME, new Username(new CaseInsensitiveString("loser")), Map.of(new MaterialConfigConverter().toMaterial(mingleConfig.materialConfigs().get(0)).getPipelineUniqueFingerprint(), revisionForFingerPrint));
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(new CaseInsensitiveString(MINGLE_PIPELINE_NAME)));
         BuildCause bisectAfterBisectBuildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(MINGLE_PIPELINE_NAME));

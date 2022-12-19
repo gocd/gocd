@@ -68,9 +68,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
@@ -138,7 +139,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     }
 
-    private Pipeline schedulePipelineWithStages(PipelineConfig pipelineConfig) throws Exception {
+    private Pipeline schedulePipelineWithStages(PipelineConfig pipelineConfig) {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineConfig), "");
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
         assertNotInserted(pipeline.getId());
@@ -179,7 +180,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadNaturalOrder() throws SQLException {
+    public void shouldLoadNaturalOrder() {
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider()));
         savePipeline(pipeline);
         dbHelper.updateNaturalOrder(pipeline.getId(), 2.5);
@@ -191,7 +192,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadStageResult() throws SQLException {
+    public void shouldLoadStageResult() {
         Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider());
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
@@ -203,7 +204,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadStageIdentifier() throws SQLException {
+    public void shouldLoadStageIdentifier() {
         Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider());
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
@@ -222,7 +223,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReserveModificationsOrder() throws Exception {
+    public void shouldReserveModificationsOrder() {
         MaterialRevisions materialRevisions = ModificationsMother.multipleModifications();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createWithModifications(materialRevisions, ""));
         save(pipeline);
@@ -234,7 +235,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadModificationsWithChangedFlagApplied() throws Exception {
+    public void shouldLoadModificationsWithChangedFlagApplied() {
         MaterialRevisions materialRevisions = ModificationsMother.multipleModifications();
         materialRevisions.getMaterialRevision(0).markAsChanged();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createWithModifications(materialRevisions, ""));
@@ -245,7 +246,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadModificationsWithNoModifiedFiles() throws Exception {
+    public void shouldLoadModificationsWithNoModifiedFiles() {
         List<Modification> modifications = new ArrayList<>();
         Modification modification = ModificationsMother.oneModifiedFile(ModificationsMother.nextRevision());
         modifications.add(modification);
@@ -290,7 +291,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldPersistBuildCauseMessage() throws SQLException {
+    public void shouldPersistBuildCauseMessage() {
         MaterialRevisions materialRevisions = ModificationsMother.multipleModifications();
         BuildCause buildCause = BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS);
         Pipeline pipeline = new Pipeline("Test", buildCause);
@@ -300,7 +301,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullWhileLoadingMostRecentPipelineForNoPipelineFound() throws SQLException {
+    public void shouldReturnNullWhileLoadingMostRecentPipelineForNoPipelineFound() {
         Pipeline loaded = pipelineDao.mostRecentPipeline("Test");
         assertThat(loaded, is(instanceOf(NullPipeline.class)));
     }
@@ -356,7 +357,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     private Matcher<PipelineInstanceModels> hasPipeline(final Pipeline pipeline) {
-        return new BaseMatcher<PipelineInstanceModels>() {
+        return new BaseMatcher<>() {
 
             @Override
             public boolean matches(Object o) {
@@ -477,7 +478,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEmptyListWhenThereIsNoPipelineHistory() throws Exception {
+    public void shouldReturnEmptyListWhenThereIsNoPipelineHistory() {
         PipelineInstanceModels pipelineHistories = pipelineDao.loadHistory("something not exist", 10, 0);
         assertThat(pipelineHistories.size(), is(0));
     }
@@ -511,7 +512,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllActivePipelines() throws Exception {
+    public void shouldLoadAllActivePipelines() {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
@@ -539,7 +540,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllActivePipelinesPresentInConfigOnly() throws Exception {
+    public void shouldLoadAllActivePipelinesPresentInConfigOnly() {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
@@ -568,7 +569,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void loadAllActivePipelinesPresentInConfigOnlyShouldBeCaseInsensitive() throws Exception {
+    public void loadAllActivePipelinesPresentInConfigOnlyShouldBeCaseInsensitive() {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
@@ -584,7 +585,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAllActivePipelinesPresentInConfigAndAlsoTheScheduledStagesOfPipelinesNotInConfig() throws Exception {
+    public void shouldLoadAllActivePipelinesPresentInConfigAndAlsoTheScheduledStagesOfPipelinesNotInConfig() {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
         List<CaseInsensitiveString> allPipelineNames = goConfigDao.load().getAllPipelineNames();
@@ -610,7 +611,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
 
     @Test
-    public void shouldLoadAllActivePipelinesEvenWhenThereIsStageStatusChange() throws Exception {
+    public void shouldLoadAllActivePipelinesEvenWhenThereIsStageStatusChange() {
         PipelineConfig twistConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("twist", "dev", "ft");
         goConfigDao.addPipeline(twistConfig, "pipelinesqlmapdaotest");
         Pipeline twistPipeline = dbHelper.newPipelineWithAllStagesPassed(twistConfig);
@@ -661,7 +662,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveUserNameAsCausedBy() throws Exception {
+    public void shouldSaveUserNameAsCausedBy() {
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         BuildCause cause = BuildCause.createManualForced(modifyOneFile(pipelineConfig), Username.ANONYMOUS);
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, cause, new DefaultSchedulingContext(MOD_USER), md5, new TimeProvider());
@@ -682,7 +683,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveSvnMaterials() throws SQLException {
+    public void shouldStoreAndRetrieveSvnMaterials() {
         SvnMaterial svnMaterial = svnMaterial("svnUrl", "folder");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(svnMaterial.config()));
@@ -702,19 +703,14 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldRetrieveModificationsSortedBySavedOrder() throws SQLException {
+    public void shouldRetrieveModificationsSortedBySavedOrder() {
         GitMaterial gitMaterial = new GitMaterial("url");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(new MaterialConfigs(gitMaterial.config()));
 
         Modification firstModification = new Modification(new Date(), "1", "MOCK_LABEL-12", null);
         Modification secondModification = new Modification(new Date(), "2", "MOCK_LABEL-12", null);
-        ArrayList<ModifiedFile> modifiedFiles = new ArrayList<ModifiedFile>() {
-            {
-                add(new ModifiedFile("filename", "foldername", ModifiedAction.modified));
-            }
-        };
-        secondModification.setModifiedFiles(modifiedFiles);
+        secondModification.setModifiedFiles(List.of(new ModifiedFile("filename", "foldername", ModifiedAction.modified)));
 
         MaterialRevisions materialRevisions = new MaterialRevisions();
         materialRevisions.addRevision(gitMaterial, firstModification, secondModification);
@@ -736,7 +732,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveDependencyMaterials() throws SQLException {
+    public void shouldStoreAndRetrieveDependencyMaterials() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
@@ -759,7 +755,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveDependencyMaterialsWithMaxAllowedRevision() throws SQLException {
+    public void shouldStoreAndRetrieveDependencyMaterialsWithMaxAllowedRevision() {
         char[] name = new char[255];
         for (int i = 0; i < 255; i++) {
             name[i] = 'a';
@@ -787,7 +783,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveMultipleSvnMaterials() throws SQLException {
+    public void shouldStoreAndRetrieveMultipleSvnMaterials() {
         SvnMaterial svnMaterial1 = svnMaterial("svnUrl1", "folder1");
         SvnMaterial svnMaterial2 = svnMaterial("svnUrl2", "folder2");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
@@ -808,7 +804,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveMaterialRevisions() throws SQLException {
+    public void shouldStoreAndRetrieveMaterialRevisions() {
         SvnMaterial svnMaterial1 = svnMaterial("svnUrl1", "folder1");
         SvnMaterial svnMaterial2 = svnMaterial("svnUrl2", "folder2");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
@@ -831,7 +827,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveHgMaterialsFromDatabase() throws SQLException {
+    public void shouldStoreAndRetrieveHgMaterialsFromDatabase() {
         Materials materials = MaterialsMother.hgMaterials("hgUrl", "hgdir");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
@@ -851,7 +847,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldHaveUrlInGitMaterials() throws SQLException {
+    public void shouldHaveUrlInGitMaterials() {
         Materials gitMaterials = MaterialsMother.gitMaterials("gitUrl");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(gitMaterials.convertToConfigs());
@@ -869,7 +865,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSupportBranchInGitMaterials() throws Exception {
+    public void shouldSupportBranchInGitMaterials() {
         Materials branchedMaterials = MaterialsMother.gitMaterials("gitUrl", "foo");
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(branchedMaterials.convertToConfigs());
@@ -887,7 +883,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSupportSubmoduleFolderInGitMaterials() throws Exception {
+    public void shouldSupportSubmoduleFolderInGitMaterials() {
         Materials materials = MaterialsMother.gitMaterials("gitUrl", "submoduleFolder", null);
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "dev");
         pipelineConfig.setMaterialConfigs(materials.convertToConfigs());
@@ -904,7 +900,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldHaveServerAndPortAndViewAndUseTicketsInP4Materials() throws SQLException {
+    public void shouldHaveServerAndPortAndViewAndUseTicketsInP4Materials() {
         String p4view = "//depot/... //localhost/...";
         Materials p4Materials = MaterialsMother.p4Materials(p4view);
         P4Material p4Material = (P4Material) p4Materials.first();
@@ -925,7 +921,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSupportMultipleP4Materials() throws SQLException {
+    public void shouldSupportMultipleP4Materials() {
         String p4view1 = "//depot1/... //localhost1/...";
         String p4view2 = "//depot2/... //localhost2/...";
         Material p4Material1 = MaterialsMother.p4Materials(p4view1).get(0);
@@ -1009,7 +1005,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveModificationWithChangedAsTrue() throws Exception {
+    public void shouldSaveModificationWithChangedAsTrue() {
         Pipeline pipeline = new Pipeline("Test", BuildCause.createWithModifications(revisions(true), ""));
         save(pipeline);
         Pipeline loaded = pipelineDao.loadPipeline(pipeline.getId());
@@ -1017,7 +1013,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveModificationWithChangedAsFalse() throws Exception {
+    public void shouldSaveModificationWithChangedAsFalse() {
         Pipeline pipeline = new Pipeline("Test", BuildCause.createWithModifications(revisions(false), ""));
         save(pipeline);
         Pipeline loaded = pipelineDao.loadPipeline(pipeline.getId());
@@ -1053,7 +1049,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
 
     @Test
-    public void shouldFindPipelineThatPassedForStage() throws Exception {
+    public void shouldFindPipelineThatPassedForStage() {
         PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
         Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
         dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
@@ -1093,7 +1089,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindPipelineThatPassedForStageAcrossStageRerunsHavingPassedStagesOtherThanLatest() throws Exception {
+    public void shouldFindPipelineThatPassedForStageAcrossStageRerunsHavingPassedStagesOtherThanLatest() {
         PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
         Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
         dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
@@ -1123,7 +1119,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindPipelineThatPassedForStageAcrossStageReruns() throws Exception {
+    public void shouldFindPipelineThatPassedForStageAcrossStageReruns() {
         PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
         Pipeline pipeline0 = dbHelper.newPipelineWithAllStagesPassed(config);
         dbHelper.updateNaturalOrder(pipeline0.getId(), 4.0);
@@ -1155,7 +1151,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheEarliestFailedPipelineIfThereAreNoPassedStageEver() throws Exception {
+    public void shouldReturnTheEarliestFailedPipelineIfThereAreNoPassedStageEver() {
         PipelineConfig config = PipelineMother.createPipelineConfig("pipeline", new MaterialConfigs(MaterialConfigsMother.hgMaterialConfig()), "firstStage", "secondStage");
 
         Pipeline pipeline2 = dbHelper.newPipelineWithFirstStagePassed(config);
@@ -1310,7 +1306,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldIncrementCounter_WhenPipelineRowIsPresentWhichWasInsertedByPauseAction() throws SQLException {
+    public void shouldIncrementCounter_WhenPipelineRowIsPresentWhichWasInsertedByPauseAction() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
 
@@ -1331,7 +1327,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnStageIdIfAStageOfPipelineIdPassed() throws SQLException {
+    public void shouldReturnStageIdIfAStageOfPipelineIdPassed() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
 
@@ -1342,7 +1338,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullStageIdIfStageOfPipelineIdNeverPassed() throws SQLException {
+    public void shouldReturnNullStageIdIfStageOfPipelineIdNeverPassed() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
@@ -1352,7 +1348,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnStageIdOfPassedRunIfThereWereMultipleRerunsOfAStageAndOneOfThemPassed() throws SQLException {
+    public void shouldReturnStageIdOfPassedRunIfThereWereMultipleRerunsOfAStageAndOneOfThemPassed() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
 
@@ -1365,7 +1361,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnLatestPassedStageIdentifierIfMultipleRunsOfTheStageHadPassed() throws SQLException {
+    public void shouldReturnLatestPassedStageIdentifierIfMultipleRunsOfTheStageHadPassed() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
@@ -1425,7 +1421,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnListOfPipelineIdentifiersForDownstreamPipelinesBasedOnARunOfUpstreamPipeline() throws Exception {
+    public void shouldReturnListOfPipelineIdentifiersForDownstreamPipelinesBasedOnARunOfUpstreamPipeline() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 
@@ -1443,7 +1439,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEmptyListOfPipelineIdentifiersForUnRunDownstreamPipelinesBasedOnARunOfUpstreamPipeline() throws Exception {
+    public void shouldReturnEmptyListOfPipelineIdentifiersForUnRunDownstreamPipelinesBasedOnARunOfUpstreamPipeline() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 
@@ -1458,7 +1454,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnListOfPipelineIdentifiersBasedOnAMaterialRevisionCorrectly() throws Exception {
+    public void shouldReturnListOfPipelineIdentifiersBasedOnAMaterialRevisionCorrectly() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1", "g_2", "g_3");
 
@@ -1481,7 +1477,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     /* THIS IS A BUG IN VSM. STAGE RERUNS ARE NOT SUPPORTED AND DOWNSTREAMS SHOW THE RUNS MADE OUT OF PREVIOUS STAGE RUN. CHANGE TEST EXPECTATION WHEN BUG IS FIXED POST 13.2 [Mingle #7385] (DUCK & SACHIN) */
-    public void shouldReturnListOfDownstreamPipelineIdentifiersForARunOfUpstreamPipeline_AlthoughUpstreamHasHadAStageReRun() throws Exception {
+    public void shouldReturnListOfDownstreamPipelineIdentifiersForARunOfUpstreamPipeline_AlthoughUpstreamHasHadAStageReRun() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 
@@ -1499,7 +1495,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldInvalidateCachedPipelineHistoryViaNameAndCounterUponStageChangeCaseInsensitively() throws Exception {
+    public void shouldInvalidateCachedPipelineHistoryViaNameAndCounterUponStageChangeCaseInsensitively() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 
@@ -1516,7 +1512,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadHistoryForDashboard() throws Exception {
+    public void shouldLoadHistoryForDashboard() {
         /*
          *   P1 [S1 (J1), S2(J1), S3(J1, J2)]
          *   P2 [S1 (J1)]
@@ -1558,7 +1554,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline p2_1 = dbHelper.schedulePipeline(p2.config, new TestingClock(new Date()));
         dbHelper.pass(p2_1);
 
-        PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistoryForDashboard(Arrays.asList(pipeline1, pipeline2)); // Load for all pipelines
+        PipelineInstanceModels pipelineInstanceModels = pipelineDao.loadHistoryForDashboard(List.of(pipeline1, pipeline2)); // Load for all pipelines
         assertThat(pipelineInstanceModels.size(), is(4));
         PipelineInstanceModels allRunningInstancesOfPipeline1 = pipelineInstanceModels.findAll(pipeline1);
         assertThat(allRunningInstancesOfPipeline1.size(), is(3));
@@ -1570,7 +1566,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(allRunningInstancesOfPipeline2.size(), is(1));
         assertThat(allRunningInstancesOfPipeline2.get(0).getCounter(), is(1));
 
-        PipelineInstanceModels pipelineInstanceModelsForPipeline1 = pipelineDao.loadHistoryForDashboard(Arrays.asList(pipeline1)); // Load for single pipeline
+        PipelineInstanceModels pipelineInstanceModelsForPipeline1 = pipelineDao.loadHistoryForDashboard(List.of(pipeline1)); // Load for single pipeline
         assertThat(pipelineInstanceModelsForPipeline1.size(), is(3));
         assertThat(pipelineInstanceModelsForPipeline1.get(0).getCounter(), is(4));
         assertThat(pipelineInstanceModelsForPipeline1.get(1).getCounter(), is(3));
@@ -1602,7 +1598,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbForAGivenPipelineName() throws SQLException {
+    public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbForAGivenPipelineName() {
         String pipelineName = "Pipeline-Name";
         configHelper.addPipeline(pipelineName, "stage-name");
         pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
@@ -1619,16 +1615,11 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     private Stream<PipelineInstanceModel> getActivePipelinesForPipelineName(ScheduleTestUtil.AddedPipeline pipeline1) {
-        return pipelineDao.loadActivePipelines().stream().filter(new Predicate<PipelineInstanceModel>() {
-            @Override
-            public boolean test(PipelineInstanceModel pipelineInstanceModel) {
-                return pipelineInstanceModel.getName().equalsIgnoreCase(pipeline1.config.name().toString());
-            }
-        });
+        return pipelineDao.loadActivePipelines().stream().filter(pipelineInstanceModel -> pipelineInstanceModel.getName().equalsIgnoreCase(pipeline1.config.name().toString()));
     }
 
     @Test
-    public void shouldLoadMostRecentPipelineIdentifier() throws Exception {
+    public void shouldLoadMostRecentPipelineIdentifier() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 
@@ -1665,7 +1656,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnLatestPipelineHistory() throws SQLException {
+    public void shouldReturnLatestPipelineHistory() {
         String pipelineName = "some-pipeline";
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "dev", "ft");
 
@@ -1688,7 +1679,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnPipelineHistoryAfterTheSuppliedCursor() throws SQLException {
+    public void shouldReturnPipelineHistoryAfterTheSuppliedCursor() {
         String pipelineName = "pipeline-name" + UUID.randomUUID().toString();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "dev", "ft");
 
@@ -1710,7 +1701,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnPipelineHistoryBeforeTheSuppliedCursor() throws SQLException {
+    public void shouldReturnPipelineHistoryBeforeTheSuppliedCursor() {
         String pipelineName = "pipeline-name" + UUID.randomUUID().toString();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "dev", "ft");
 

@@ -206,7 +206,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
                 errors.add("artifactDir", "it should not be blank.")
                 def errorMsg = "Validations failed for artifacts. Error(s): [it should not be blank.]. Please correct and resubmit."
 
-                when(cruiseConfig.getAllErrors()).thenReturn(Arrays.asList(errors))
+                when(cruiseConfig.getAllErrors()).thenReturn(List.of(errors))
                 doThrow(e).when(serverConfigService).updateArtifactConfig(Mockito.any() as ArtifactConfig)
 
                 putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-digest'], jsonPayload)

@@ -24,7 +24,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 
 import static java.lang.Double.parseDouble;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -197,15 +200,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<Boolean> INITIALIZE_CONFIG_REPOSITORIES_ON_STARTUP = new GoBooleanSystemProperty("gocd.initialize.config.repositories.on.startup", true);
 
-    private static final Map<String, String> GIT_ALLOW_PROTOCOL;
-
-    static {
-        Map<String, String> map = new HashMap<>() {{
-            put("GIT_ALLOW_PROTOCOL", System.getenv("GIT_ALLOW_PROTOCOL") == null ?
-                "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL"));
-        }};
-        GIT_ALLOW_PROTOCOL = Collections.unmodifiableMap(map);
-    }
+    private static final Map<String, String> GIT_ALLOW_PROTOCOL = Map.of(
+        "GIT_ALLOW_PROTOCOL",
+        System.getenv("GIT_ALLOW_PROTOCOL") == null ? "http:https:ssh:git:file:rsync" : System.getenv("GIT_ALLOW_PROTOCOL")
+    );
 
     private volatile static Integer agentConnectionTimeout;
     private volatile static String cruiseConfigDir;

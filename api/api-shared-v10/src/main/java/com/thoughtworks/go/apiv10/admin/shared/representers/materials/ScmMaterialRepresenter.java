@@ -45,9 +45,7 @@ public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implem
     public void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig, ConfigHelperOptions options) {
         jsonReader.readStringIfPresent("destination", scmMaterialConfig::setFolder);
         jsonReader.optBoolean("invert_filter").ifPresent(scmMaterialConfig::setInvertFilter);
-        jsonReader.optJsonObject("filter").ifPresent(filterReader -> {
-            scmMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader));
-        });
+        jsonReader.optJsonObject("filter").ifPresent(filterReader -> scmMaterialConfig.setFilter(FilterRepresenter.fromJSON(filterReader)));
         jsonReader.readCaseInsensitiveStringIfPresent("name", scmMaterialConfig::setName);
         jsonReader.optBoolean("auto_update").ifPresent(scmMaterialConfig::setAutoUpdate);
 

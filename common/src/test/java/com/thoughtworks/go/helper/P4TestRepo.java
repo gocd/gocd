@@ -34,8 +34,8 @@ import org.apache.commons.lang3.SystemUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
@@ -161,7 +161,7 @@ public class P4TestRepo extends TestRepo {
 
     public P4MaterialConfig materialConfig(String p4view) {
         P4MaterialConfig p4MaterialConfig = p4(serverAndPort(), p4view);
-        p4MaterialConfig.setConfigAttributes(Collections.singletonMap(P4MaterialConfig.USERNAME, user));
+        p4MaterialConfig.setConfigAttributes(Map.of(P4MaterialConfig.USERNAME, user));
         p4MaterialConfig.setPassword(password);
         p4MaterialConfig.setUseTickets(useTickets);
         return p4MaterialConfig;

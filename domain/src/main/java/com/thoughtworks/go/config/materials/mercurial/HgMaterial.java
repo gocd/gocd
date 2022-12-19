@@ -37,7 +37,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
@@ -217,7 +220,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     protected List<SecretString> secrets() {
         SecretString secretSubstitution = line -> line.replace(urlForCommandLine(), getUriForDisplay());
-        return Collections.singletonList(secretSubstitution);
+        return List.of(secretSubstitution);
     }
 
     private boolean isHgRepository(File workingFolder) {

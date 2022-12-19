@@ -94,9 +94,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
                 apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, resourceToOperateOn);
             });
 
-            before(Routes.Environments.NAME, mimeType, (request, response) -> {
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, request.params("name"));
-            });
+            before(Routes.Environments.NAME, mimeType, (request, response) -> apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ENVIRONMENT, request.params("name")));
 
             get("", mimeType, this::index);
             get(Routes.Environments.NAME, mimeType, this::show);

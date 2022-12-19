@@ -19,8 +19,6 @@ import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -32,15 +30,17 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
 import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 
@@ -180,12 +180,9 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() throws Exception {
         try {
-            goConfigDao.updateConfig(new UpdateConfigCommand() {
-                @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                    cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
-                    return cruiseConfig;
-                }
+            goConfigDao.updateConfig(cruiseConfig -> {
+                cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
+                return cruiseConfig;
             });
         } catch (RuntimeException e) {
             fail("should not have failed for edit when overwrite allowed.");
@@ -200,7 +197,7 @@ public abstract class GoConfigDaoTestBase {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                 PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("foo"), "#{bar}-${COUNT}", null, false, new MaterialConfigs(hg("url", null)),
-                        a(StageConfigMother.custom("stage", "job")));
+                        List.of(StageConfigMother.custom("stage", "job")));
                 pipelineConfig.addParam(new ParamConfig("bar", "baz"));
                 cruiseConfig.addPipeline("my-group", pipelineConfig);
                 return cruiseConfig;
@@ -335,18 +332,10 @@ public abstract class GoConfigDaoTestBase {
         String oldServerId = goConfigDao.load().server().getServerId();
         Exception ex = null;
         try {
-            GoConfigFileHelper.withServerIdImmutability(new Runnable() {
-                @Override
-                public void run() {
-                    goConfigDao.updateConfig(new UpdateConfigCommand() {
-                        @Override
-                        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                            ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
-                            return cruiseConfig;
-                        }
-                    });
-                }
-            });
+            GoConfigFileHelper.withServerIdImmutability((Runnable) () -> goConfigDao.updateConfig(cruiseConfig -> {
+                ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
+                return cruiseConfig;
+            }));
             fail("should not save with modified serverId");
         } catch (Exception e) {
             ex = e;

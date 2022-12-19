@@ -49,7 +49,7 @@ class AgentRepresenterTest {
 
   @Test
   void 'renders an agent with hal representation'() {
-    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", List.of("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
     agentInstance.getAgent().setEnvironments("uat,load_test,non-existent-env")
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(null, "yaml", "foo"), "revision"))
@@ -144,7 +144,7 @@ class AgentRepresenterTest {
 
   @Test
   void 'renders the elastic agent properties correctly'() {
-    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", List.of("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
     updateElasticAgentId(agentInstance, "docker-elastic-agent")
     updateElasticPluginId(agentInstance, "cd.go.docker")
 
@@ -161,7 +161,7 @@ class AgentRepresenterTest {
 
   @Test
   void 'should render environments associated through config-repo'() {
-    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", List.of("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
     agentInstance.getAgent().setEnvironments("uat")
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(null, "yaml", "foo"), "revision"))

@@ -66,7 +66,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
     }
 
     public boolean remove(Role role) {
-        bombIf(!this.contains(role), "Role '" + CaseInsensitiveString.str(role.getName()) + "' does not exist.");
+        bombIf(!this.contains(role), () -> "Role '" + CaseInsensitiveString.str(role.getName()) + "' does not exist.");
         return super.remove(role);
     }
 
@@ -126,7 +126,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
 
     public boolean isUserMemberOfRole(final CaseInsensitiveString userName, final CaseInsensitiveString roleName) {
         Role role = findByName(roleName);
-        bombIfNull(role, String.format("Role \"%s\" does not exist!", roleName));
+        bombIfNull(role, () -> String.format("Role \"%s\" does not exist!", roleName));
         return role.hasMember(userName);
     }
 

@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.service.TaskFactory;
-import com.thoughtworks.go.util.DataStructureUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -29,9 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -48,56 +47,58 @@ class JobConfigTest {
     }
 
     @Test
-    void shouldCopyAttributeValuesFromAttributeMap() throws Exception {
+    void shouldCopyAttributeValuesFromAttributeMap() {
         config = new JobConfig();//override the setup mock
         TaskFactory taskFactory = mock(TaskFactory.class);
         ExecTask emptyExecTask = new ExecTask();
         when(taskFactory.taskInstanceFor(emptyExecTask.getTaskType())).thenReturn(emptyExecTask);
 
-        config.setConfigAttributes(DataStructureUtils.m(JobConfig.NAME, "foo-job", JobConfig.TASKS, DataStructureUtils.m(Tasks.TASK_OPTIONS, "exec", "exec",
-                DataStructureUtils.m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))), taskFactory);
+        config.setConfigAttributes(Map.of(JobConfig.NAME, "foo-job", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec", "exec",
+                Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))), taskFactory);
         assertThat(config.name()).isEqualTo(new CaseInsensitiveString("foo-job"));
         assertThat(config.getTasks().get(0)).isEqualTo(new ExecTask("ls", "-la", "/tmp"));
         assertThat(config.getTasks().size()).isEqualTo(1);
     }
 
     @Test
-    void shouldSetTimeoutIfSpecified() throws Exception {
+    void shouldSetTimeoutIfSpecified() {
         config.setConfigAttributes(
-                m(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.OVERRIDE_TIMEOUT, JobConfig.TIMEOUT, "100", JobConfig.TASKS, m(Tasks.TASK_OPTIONS, "exec", "exec",
-                        m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
+                Map.of(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.OVERRIDE_TIMEOUT, JobConfig.TIMEOUT, "100", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec", "exec",
+                        Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
         assertThat(config.getTimeout()).isEqualTo("100");
     }
 
     @Test
-    void shouldClearTimeoutIfSubmittedWithEmptyValue() throws Exception {
+    void shouldClearTimeoutIfSubmittedWithEmptyValue() {
         config.setConfigAttributes(
-                m(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.OVERRIDE_TIMEOUT, JobConfig.TIMEOUT, "", JobConfig.TASKS, m(Tasks.TASK_OPTIONS, "exec",
-                        "exec", m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp")))
+                Map.of(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.OVERRIDE_TIMEOUT, JobConfig.TIMEOUT, "", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec",
+                        "exec", Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp")))
         );
         assertThat(config.getTimeout()).isNull();
     }
 
     @Test
-    void shouldSetTimeoutToZeroIfSubmittedWithNever() throws Exception {
-        config.setConfigAttributes(m(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.NEVER_TIMEOUT, JobConfig.TIMEOUT, "100", JobConfig.TASKS, m(Tasks.TASK_OPTIONS, "exec", "exec",
-                m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
+    void shouldSetTimeoutToZeroIfSubmittedWithNever() {
+        config.setConfigAttributes(Map.of(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.NEVER_TIMEOUT, JobConfig.TIMEOUT, "100", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec", "exec",
+                Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
         assertThat(config.getTimeout()).isEqualTo("0");
     }
 
     @Test
-    void shouldSetTimeoutToNullIfSubmittedWithDefault() throws Exception {
-        config.setConfigAttributes(m(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.DEFAULT_TIMEOUT, JobConfig.TIMEOUT, "", JobConfig.TASKS, m(Tasks.TASK_OPTIONS, "exec", "exec",
-                m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
+    void shouldSetTimeoutToNullIfSubmittedWithDefault() {
+        config.setConfigAttributes(Map.of(JobConfig.NAME, "foo-job", "timeoutType", JobConfig.DEFAULT_TIMEOUT, JobConfig.TIMEOUT, "", JobConfig.TASKS, Map.of(Tasks.TASK_OPTIONS, "exec", "exec",
+                Map.of(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))));
         assertThat(config.getTimeout()).isNull();
     }
 
     @Test
-    void shouldNotSetJobNameIfNotGiven() throws Exception {
+    void shouldNotSetJobNameIfNotGiven() {
         JobConfig config = new JobConfig("some-job-name");
-        config.setConfigAttributes(m());
+        config.setConfigAttributes(Map.of());
         assertThat(config.name()).isEqualTo(new CaseInsensitiveString("some-job-name"));
-        config.setConfigAttributes(m(JobConfig.NAME, null));
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(JobConfig.NAME, null);
+        config.setConfigAttributes(attributes);
         assertThat(config.name()).isNull();
     }
 
@@ -110,16 +111,18 @@ class JobConfigTest {
     }
 
     @Test
-    void shouldNotSetTasksIfNoTasksGiven() throws Exception {
+    void shouldNotSetTasksIfNoTasksGiven() {
         config = new JobConfig();
         AntTask task = new AntTask();
         task.setTarget("hello");
         config.addTask(task);
-        config.setConfigAttributes(m());
+        config.setConfigAttributes(Map.of());
         AntTask taskAfterUpdate = (AntTask) config.getTasks().get(0);
         assertThat(taskAfterUpdate.getTarget()).isEqualTo("hello");
         assertThat(config.getTasks().size()).isEqualTo(1);
-        config.setConfigAttributes(m(JobConfig.TASKS, null));
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(JobConfig.TASKS, null);
+        config.setConfigAttributes(attributes);
         assertThat(config.getTasks().size()).isEqualTo(0);
     }
 
@@ -313,7 +316,7 @@ class JobConfigTest {
     void shouldPopulateTabsFromAttributeMap() {
         JobConfig jobConfig = new JobConfig("job-name");
 
-        jobConfig.setConfigAttributes(m(JobConfig.TABS, a(m(Tab.NAME, "tab1", Tab.PATH, "path1"), m(Tab.NAME, "tab2", Tab.PATH, "path2"))));
+        jobConfig.setConfigAttributes(Map.of(JobConfig.TABS, List.of(Map.of(Tab.NAME, "tab1", Tab.PATH, "path1"), Map.of(Tab.NAME, "tab2", Tab.PATH, "path2"))));
 
         assertThat(jobConfig.getTabs().size()).isEqualTo(2);
         assertThat(jobConfig.getTabs().get(0).getName()).isEqualTo("tab1");

@@ -115,9 +115,7 @@ public class PipelineConfigRepresenter {
         pipelineConfig.setMaterialConfigs(MaterialsRepresenter.fromJSONArray(jsonReader, options));
         setStages(jsonReader, pipelineConfig);
         setTrackingTool(jsonReader, pipelineConfig);
-        jsonReader.optJsonObject("timer").ifPresent(timerJsonReader -> {
-            pipelineConfig.setTimer(TimerRepresenter.fromJSON(timerJsonReader));
-        });
+        jsonReader.optJsonObject("timer").ifPresent(timerJsonReader -> pipelineConfig.setTimer(TimerRepresenter.fromJSON(timerJsonReader)));
         return pipelineConfig;
     }
 
@@ -130,10 +128,6 @@ public class PipelineConfigRepresenter {
 
     private static void setStages(JsonReader jsonReader, PipelineConfig pipelineConfig) {
         pipelineConfig.getStages().clear();
-        jsonReader.readArrayIfPresent("stages", stages -> {
-            stages.forEach(stage -> {
-                pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("stages", stages -> stages.forEach(stage -> pipelineConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())))));
     }
 }

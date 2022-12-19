@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,12 +36,7 @@ public class ConsoleStreamerTest {
         final ArrayList<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile(expected).toPath(), 0L)) {
-            console.stream(new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    actual.add(s);
-                }
-            });
+            console.stream(actual::add);
             assertArrayEquals(expected, actual.toArray());
             assertEquals(3L, console.totalLinesConsumed());
         }
@@ -53,12 +47,7 @@ public class ConsoleStreamerTest {
         final ArrayList<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile("first", "second", "third", "fourth").toPath(), 2L)) {
-            console.stream(new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    actual.add(s);
-                }
-            });
+            console.stream(actual::add);
             assertArrayEquals(new String[]{"third", "fourth"}, actual.toArray());
             assertEquals(2L, console.totalLinesConsumed());
         }
@@ -74,12 +63,7 @@ public class ConsoleStreamerTest {
         final ArrayList<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile(expected).toPath(), -1L)) {
-            console.stream(new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    actual.add(s);
-                }
-            });
+            console.stream(actual::add);
             assertArrayEquals(expected, actual.toArray());
             assertEquals(3L, console.totalLinesConsumed());
         }
@@ -90,12 +74,7 @@ public class ConsoleStreamerTest {
         final ArrayList<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile("first", "second").toPath(), 5L)) {
-            console.stream(new Consumer<String>() {
-                @Override
-                public void accept(String s) {
-                    actual.add(s);
-                }
-            });
+            console.stream(actual::add);
             assertTrue(actual.isEmpty());
             assertEquals(0L, console.totalLinesConsumed());
         }

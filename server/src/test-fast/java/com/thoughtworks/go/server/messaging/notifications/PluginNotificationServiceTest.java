@@ -47,10 +47,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -81,7 +80,7 @@ public class PluginNotificationServiceTest {
 
     @Test
     public void shouldConstructDataForAgentNotification() {
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         AgentInstance agentInstance = AgentInstanceMother.building();
@@ -106,7 +105,7 @@ public class PluginNotificationServiceTest {
 
     @Test
     public void shouldConstructDataForElasticAgentNotification() {
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
 
@@ -133,7 +132,7 @@ public class PluginNotificationServiceTest {
     @Test
     public void shouldConstructDataForStageNotification() {
         Stage stage = StageMother.custom("Stage");
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
         BuildCause buildCause = BuildCause.createManualForced();
@@ -160,7 +159,7 @@ public class PluginNotificationServiceTest {
         StageConfig previousStage = new StageConfig(new CaseInsensitiveString("previous_stage"), null);
 
         stage.setApprovedBy("changes");
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
         when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
@@ -186,7 +185,7 @@ public class PluginNotificationServiceTest {
 
         stage.setApprovedBy("admins");
         stage.setApprovalType("manual");
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
         when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
@@ -212,7 +211,7 @@ public class PluginNotificationServiceTest {
         stage.setApprovedBy("admins");
         stage.setApprovalType("manual");
         stage.setCounter(2);
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
@@ -233,7 +232,7 @@ public class PluginNotificationServiceTest {
         stage.setApprovedBy("admins");
         stage.setApprovalType("manual");
 
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1)));
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
@@ -250,7 +249,7 @@ public class PluginNotificationServiceTest {
     public void shouldNotifyInterestedPluginsCorrectly() {
         Result result = new Result();
         result.withSuccessMessages("success message");
-        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
+        when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(List.of(PLUGIN_ID_1, PLUGIN_ID_2)));
         when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         AgentInstance agentInstance = AgentInstanceMother.lostContact();

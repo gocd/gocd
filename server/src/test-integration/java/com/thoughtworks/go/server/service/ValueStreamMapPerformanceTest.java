@@ -100,15 +100,12 @@ public class ValueStreamMapPerformanceTest {
         int numberOfParallelRequests = 10;
         for (int i = 0; i < numberOfParallelRequests; i++) {
             final int finalI = i;
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(5000);
-                        doRun(numberOfDownstreamPipelines, cruiseConfig, "Thread" + finalI);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            Thread t = new Thread(() -> {
+                try {
+                    Thread.sleep(5000);
+                    doRun(numberOfDownstreamPipelines, cruiseConfig, "Thread" + finalI);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }, "Thread" + i);
             ts.add(t);

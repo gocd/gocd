@@ -57,13 +57,11 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     private void updateSCMConfigurationOnAssociatedPipelines(CruiseConfig modifiedConfig) {
         List<PipelineConfig> pipelinesWithSCM = modifiedConfig.pipelinesAssociatedWithPluggableSCM(globalScmConfig);
-        pipelinesWithSCM.forEach(pipelineConfig -> {
-            pipelineConfig.pluggableSCMMaterialConfigs().forEach(pluggableSCMMaterialConfig -> {
-                if (pluggableSCMMaterialConfig.getScmId().equals(globalScmConfig.getId())) {
-                    pluggableSCMMaterialConfig.setSCMConfig(globalScmConfig);
-                }
-            });
-        });
+        pipelinesWithSCM.forEach(pipelineConfig -> pipelineConfig.pluggableSCMMaterialConfigs().forEach(pluggableSCMMaterialConfig -> {
+            if (pluggableSCMMaterialConfig.getScmId().equals(globalScmConfig.getId())) {
+                pluggableSCMMaterialConfig.setSCMConfig(globalScmConfig);
+            }
+        }));
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {

@@ -31,15 +31,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.config.policy.SupportedAction.ADMINISTER;
 import static com.thoughtworks.go.config.policy.SupportedAction.VIEW;
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -77,7 +73,7 @@ public class ConfigRepoPermissionTest {
         repo1.setId("repo1");
         ConfigRepoConfig repo2 = new ConfigRepoConfig();
         repo2.setId("repo2");
-        cruiseConfig.getConfigRepos().addAll(asList(repo1, repo2));
+        cruiseConfig.getConfigRepos().addAll(List.of(repo1, repo2));
 
         Map<String, Object> permissions = permission.permissions(username);
 
@@ -94,7 +90,7 @@ public class ConfigRepoPermissionTest {
         repo1.setId("repo1");
         ConfigRepoConfig repo2 = new ConfigRepoConfig();
         repo2.setId("repo2");
-        cruiseConfig.getConfigRepos().addAll(asList(repo1, repo2));
+        cruiseConfig.getConfigRepos().addAll(List.of(repo1, repo2));
 
         when(securityService.doesUserHasPermissions(SessionUtils.currentUsername(), VIEW, CONFIG_REPO, "repo1", null)).thenReturn(true);
         when(securityService.doesUserHasPermissions(SessionUtils.currentUsername(), VIEW, CONFIG_REPO, "repo2", null)).thenReturn(true);
@@ -105,8 +101,8 @@ public class ConfigRepoPermissionTest {
         Map<String, Object> permissions = permission.permissions(username);
 
         Map<String, Object> configRepo = new LinkedHashMap<>();
-        configRepo.put("view", asList("repo1", "repo2"));
-        configRepo.put("administer", asList("repo1"));
+        configRepo.put("view", List.of("repo1", "repo2"));
+        configRepo.put("administer", List.of("repo1"));
 
         assertThat(permissions).isEqualTo(configRepo);
     }

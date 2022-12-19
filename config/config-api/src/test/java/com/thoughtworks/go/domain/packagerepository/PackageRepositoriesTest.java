@@ -17,11 +17,7 @@ package com.thoughtworks.go.domain.packagerepository;
 
 
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
@@ -29,8 +25,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -63,12 +60,12 @@ class PackageRepositoriesTest {
         PackageRepository repo1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", repo1);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", repo1);
-        repo1.getPackages().addAll(asList(packageDefinitionOne, packageDefinitionTwo));
+        repo1.getPackages().addAll(List.of(packageDefinitionOne, packageDefinitionTwo));
 
         PackageRepository repo2 = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionThree = PackageDefinitionMother.create("pid3", repo2);
         PackageDefinition packageDefinitionFour = PackageDefinitionMother.create("pid4", repo2);
-        repo2.getPackages().addAll(asList(packageDefinitionThree, packageDefinitionFour));
+        repo2.getPackages().addAll(List.of(packageDefinitionThree, packageDefinitionFour));
 
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
@@ -159,10 +156,10 @@ class PackageRepositoriesTest {
 
         packageRepositories.validate(null);
 
-        assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
-        assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(List.of(expectedErrorMessage));
+        assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(List.of(expectedErrorMessage));
         assertThat(definition3.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER))).isTrue();
-        assertThat(definition5.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition5.errors().getAllOn(PackageDefinition.ID)).isEqualTo(List.of(expectedErrorMessage));
         assertThat(definition5.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER))).isTrue();
 
         assertThat(definition2.errors().getAllOn(PackageDefinition.ID)).isEmpty();
@@ -176,12 +173,12 @@ class PackageRepositoriesTest {
         PackageRepository repo1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", repo1);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", repo1);
-        repo1.getPackages().addAll(asList(packageDefinitionOne, packageDefinitionTwo));
+        repo1.getPackages().addAll(List.of(packageDefinitionOne, packageDefinitionTwo));
 
         PackageRepository repo2 = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionThree = PackageDefinitionMother.create("pid3", repo2);
         PackageDefinition packageDefinitionFour = PackageDefinitionMother.create("pid4", repo2);
-        repo2.getPackages().addAll(asList(packageDefinitionThree, packageDefinitionFour));
+        repo2.getPackages().addAll(List.of(packageDefinitionThree, packageDefinitionFour));
 
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);

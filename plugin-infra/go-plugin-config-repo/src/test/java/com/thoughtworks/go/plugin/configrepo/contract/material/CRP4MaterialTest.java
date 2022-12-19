@@ -19,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,7 +40,7 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
         p4simple = new CRP4Material(null, null, false, false, null, null, "10.18.3.102:1666", exampleView, false);
 
         p4custom = new CRP4Material(
-                "p4materialName", "dir1", false, false, "user1", Arrays.asList("lib", "tools"), "10.18.3.102:1666", exampleView, false);
+                "p4materialName", "dir1", false, false, "user1", List.of("lib", "tools"), "10.18.3.102:1666", exampleView, false);
 
         invalidP4NoView = new CRP4Material(null, null, false, false, null, null, "10.18.3.102:1666", null, false);
         invalidP4NoServer = new CRP4Material(null, null, false, false, null, null, null, exampleView, false);

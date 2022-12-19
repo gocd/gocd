@@ -23,14 +23,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -49,16 +48,16 @@ class PluginExtensionsAndVersionValidatorImplTest {
         when(extensionsRegistry.allRegisteredExtensions())
                 .thenReturn(Stream.of(ELASTIC_AGENT_EXTENSION, AUTHORIZATION_EXTENSION).collect(Collectors.toSet()));
         when(extensionsRegistry.gocdSupportedExtensionVersions(ELASTIC_AGENT_EXTENSION))
-                .thenReturn(Arrays.asList("1.0", "2.0"));
+                .thenReturn(List.of("1.0", "2.0"));
         when(extensionsRegistry.gocdSupportedExtensionVersions(AUTHORIZATION_EXTENSION))
-                .thenReturn(singletonList("2.0"));
+                .thenReturn(List.of("2.0"));
 
         pluginExtensionsAndVersionValidator = new PluginExtensionsAndVersionValidatorImpl(extensionsRegistry);
     }
 
     @Test
     void shouldNotAddErrorOnSuccessfulValidation() {
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("2.0")));
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Map.of(ELASTIC_AGENT_EXTENSION, List.of("2.0")));
 
         assertThat(validationResult.isAFailure()).isFalse();
         assertThat(validationResult.getMessage()).isNull();
@@ -66,7 +65,7 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
     @Test
     void shouldAddErrorAndReturnValidationResultWhenPluginRequiredExtensionIsNotSupportedByGoCD() {
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap("some-invalid-extension", singletonList("2.0")));
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Map.of("some-invalid-extension", List.of("2.0")));
 
         assertThat(validationResult.isAFailure()).isTrue();
         assertThat(validationResult.getMessage()).isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
@@ -75,7 +74,7 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
     @Test
     void shouldAddErrorAndReturnValidationResultWhenPluginRequiredExtensionVersionIsNotSupportedByGoCD() {
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("3.0")));
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Map.of(ELASTIC_AGENT_EXTENSION, List.of("3.0")));
 
         assertThat(validationResult.isAFailure()).isTrue();
         assertThat(validationResult.getMessage())
@@ -85,7 +84,7 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
     @Test
     void shouldConsiderPluginValidWhenOneOfTheExtensionVersionUsedByThePluginIsSupportedByGoCD() {
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, Arrays.asList("a.b", "2.0")));
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Map.of(ELASTIC_AGENT_EXTENSION, List.of("a.b", "2.0")));
 
         assertThat(validationResult.isAFailure()).isFalse();
     }

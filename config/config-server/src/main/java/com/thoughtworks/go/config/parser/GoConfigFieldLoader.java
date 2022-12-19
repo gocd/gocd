@@ -38,13 +38,13 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.text.MessageFormat.format;
 
 public class GoConfigFieldLoader<T> {
-    private static Map<Field, Boolean> implicts = new HashMap<>();
+    private static final Map<Field, Boolean> implicits = new HashMap<>();
     private static final SimpleTypeConverter typeConverter = new GoConfigFieldTypeConverter();
 
     private final Element e;
     private final T instance;
     private final Field field;
-    private ConfigCache configCache;
+    private final ConfigCache configCache;
     private final ConfigReferenceElements configReferenceElements;
     private final ConfigElementImplementationRegistry registry;
 
@@ -93,11 +93,11 @@ public class GoConfigFieldLoader<T> {
     }
 
     private boolean isImplicitCollection() {
-        if (!implicts.containsKey(field)) {
-            implicts.put(field, ConfigCache.isAnnotationPresent(field, ConfigSubtag.class)
-                    && GoConfigClassLoader.isImplicitCollection(field.getType(), configCache));
+        if (!implicits.containsKey(field)) {
+            implicits.put(field, ConfigCache.isAnnotationPresent(field, ConfigSubtag.class)
+                    && GoConfigClassLoader.isImplicitCollection(field.getType()));
         }
-        return implicts.get(field);
+        return implicits.get(field);
     }
 
     private void setValue(Object val) {
@@ -106,7 +106,7 @@ public class GoConfigFieldLoader<T> {
             if (configAttributeValue != null) {
                 if (val != null || configAttributeValue.createForNull()) {
                     Constructor<?> constructor = field.getType().getConstructor(String.class);
-                    field.set(instance, constructor.newInstance(new Object[]{val}));
+                    field.set(instance, constructor.newInstance(val));
                 }
             } else if (val != null) {
                 Object convertedValue = typeConverter.convertIfNecessary(val, field.getType());

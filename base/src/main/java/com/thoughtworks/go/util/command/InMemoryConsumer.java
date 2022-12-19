@@ -24,7 +24,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class InMemoryConsumer implements StreamConsumer {
-    private Queue<String> lines = new ConcurrentLinkedQueue<>();
+    private final Queue<String> lines = new ConcurrentLinkedQueue<>();
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(InMemoryConsumer.class);
 
     @Override

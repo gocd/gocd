@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
@@ -53,13 +54,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.helper.AgentMother.localAgentWithResources;
 import static com.thoughtworks.go.helper.BuildPlanMother.withBuildPlans;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.DataStructureUtils.listOf;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -370,12 +372,7 @@ public class JobInstanceServiceIntegrationTest {
 
         final JobInstance[] changedJobPassed = new JobInstance[1];
 
-        jobInstanceService.registerJobStateChangeListener(new JobStatusListener() {
-            @Override
-            public void jobStatusChanged(JobInstance job) {
-                changedJobPassed[0] = job;
-            }
-        });
+        jobInstanceService.registerJobStateChangeListener(job -> changedJobPassed[0] = job);
 
         JobInstance jobInstance1 = jobInstanceService.buildByIdWithTransitions(jobInstance.getId());
         jobInstanceService.failJob(jobInstance1);
@@ -408,7 +405,7 @@ public class JobInstanceServiceIntegrationTest {
         jobInstanceDao.save(stageFromDeletedPipeline, cancelledJob);
 
         //completed
-        List<JobInstance> sortedOnCompleted = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.job, SortOrder.ASC, 1, 10).iterator());
+        List<JobInstance> sortedOnCompleted = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.job, SortOrder.ASC, 1, 10));
         assertThat(sortedOnCompleted.size(), is(3));
         assertThat(sortedOnCompleted.get(0).getName(), is("existingJob"));
         assertThat(sortedOnCompleted.get(0).isPipelineStillConfigured(), is(true));
@@ -444,46 +441,46 @@ public class JobInstanceServiceIntegrationTest {
         jobInstanceDao.save(stageC_Id, simpleJob);
 
         //completed
-        List<JobInstance> sortedOnCompleted = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.completed, SortOrder.DESC, 1, 10).iterator());
+        List<JobInstance> sortedOnCompleted = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.completed, SortOrder.DESC, 1, 10));
         assertThat(sortedOnCompleted.size(), is(4));
         assertThat(sortedOnCompleted.get(0).getName(), is("simpleJob"));
 
-        List<JobInstance> sortedOnCompletedAsc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.completed, SortOrder.ASC, 1, 10).iterator());
+        List<JobInstance> sortedOnCompletedAsc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.completed, SortOrder.ASC, 1, 10));
         assertThat(sortedOnCompletedAsc.size(), is(4));
         assertThat(sortedOnCompletedAsc.get(3).getName(), is("simpleJob"));
 
         //pipeline
-        List<JobInstance> sortedOnPipelineName = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 1, 10).iterator());
+        List<JobInstance> sortedOnPipelineName = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 1, 10));
         assertThat(sortedOnPipelineName.size(), is(4));
         assertThat(sortedOnPipelineName.get(0).getIdentifier().getPipelineName(), is("pipeline-aaa"));
         assertThat(sortedOnPipelineName.get(1).getIdentifier().getPipelineName(), is("pipeline-aaa"));
         assertThat(sortedOnPipelineName.get(2).getIdentifier().getPipelineName(), is("pipeline-bbb"));
 
-        List<JobInstance> sortedOnPipelineNameDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.pipeline, SortOrder.DESC, 1, 10).iterator());
+        List<JobInstance> sortedOnPipelineNameDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.pipeline, SortOrder.DESC, 1, 10));
         assertThat(sortedOnPipelineNameDesc.size(), is(4));
         assertThat(sortedOnPipelineNameDesc.get(0).getIdentifier().getPipelineName(), is("pipeline-bbb"));
         assertThat(sortedOnPipelineNameDesc.get(2).getIdentifier().getPipelineName(), is("pipeline-aaa"));
 
         //stage
-        List<JobInstance> sortedOnStageName = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.ASC, 1, 10).iterator());
+        List<JobInstance> sortedOnStageName = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.ASC, 1, 10));
         assertThat(sortedOnStageName.size(), is(4));
         assertThat(sortedOnStageName.get(0).getIdentifier().getStageName(), is("stage-bbb"));
         assertThat(sortedOnStageName.get(2).getIdentifier().getStageName(), is("stage-ccc"));
 
-        List<JobInstance> sortedOnStageNameDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.DESC, 1, 10).iterator());
+        List<JobInstance> sortedOnStageNameDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.stage, SortOrder.DESC, 1, 10));
         assertThat(sortedOnStageNameDesc.size(), is(4));
         assertThat(sortedOnStageNameDesc.get(0).getIdentifier().getStageName(), is("stage-ccc"));
         assertThat(sortedOnStageNameDesc.get(2).getIdentifier().getStageName(), is("stage-bbb"));
 
         //result
-        List<JobInstance> sortedOnResult = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.result, SortOrder.ASC, 1, 10).iterator());
+        List<JobInstance> sortedOnResult = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.result, SortOrder.ASC, 1, 10));
         assertThat(sortedOnResult.size(), is(4));
         assertThat(sortedOnResult.get(0).getResult(), is(JobResult.Cancelled));
         assertThat(sortedOnResult.get(1).getResult(), is(JobResult.Failed));
         assertThat(sortedOnResult.get(2).getResult(), is(JobResult.Passed));
         assertThat(sortedOnResult.get(3).getResult(), is(JobResult.Unknown));
 
-        List<JobInstance> sortedOnResultDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.result, SortOrder.DESC, 1, 10).iterator());
+        List<JobInstance> sortedOnResultDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.result, SortOrder.DESC, 1, 10));
         assertThat(sortedOnResultDesc.size(), is(4));
         assertThat(sortedOnResultDesc.get(3).getResult(), is(JobResult.Cancelled));
         assertThat(sortedOnResultDesc.get(2).getResult(), is(JobResult.Failed));
@@ -491,14 +488,14 @@ public class JobInstanceServiceIntegrationTest {
         assertThat(sortedOnResultDesc.get(0).getResult(), is(JobResult.Unknown));
 
         // duration
-        List<JobInstance> sortedOnDuration = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.ASC, 1, 10).iterator());
+        List<JobInstance> sortedOnDuration = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.ASC, 1, 10));
         assertThat(sortedOnDuration.size(), is(4));
         assertThat(sortedOnDuration.get(0).getResult(), is(JobResult.Unknown)); // duration is null therefore comes first
         assertThat(sortedOnDuration.get(1).getResult(), is(JobResult.Passed)); // has new Date(1)
         assertThat(sortedOnDuration.get(2).getResult(), is(JobResult.Cancelled)); // now.minusMinutes(5) always greater than new Date(1)
         assertThat(sortedOnDuration.get(3).getResult(), is(JobResult.Failed)); // 2 years therefore goes to the end
 
-        List<JobInstance> sortedOnDurationDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.DESC, 1, 10).iterator());
+        List<JobInstance> sortedOnDurationDesc = listOf(jobInstanceService.completedJobsOnAgent(agentUuid, JobInstanceService.JobHistoryColumns.duration, SortOrder.DESC, 1, 10));
         assertThat(sortedOnDurationDesc.size(), is(4));
         assertThat(sortedOnDurationDesc.get(0).getResult(), is(JobResult.Failed)); // 2 years therefore goes to the beginning
         assertThat(sortedOnDurationDesc.get(1).getResult(), is(JobResult.Cancelled)); // now.minusMinutes(5) always greater than new Date(1)
@@ -506,15 +503,14 @@ public class JobInstanceServiceIntegrationTest {
         assertThat(sortedOnDurationDesc.get(3).getResult(), is(JobResult.Unknown)); // duration is null therefore comes last
     }
 
+    private List<JobInstance> listOf(JobInstancesModel instances) {
+        return StreamSupport.stream(instances.spliterator(), false).collect(Collectors.toList());
+    }
+
     @Test
     public void shouldNotNotifyListenersWhenTransactionRollsback() {
         final boolean[] isListenerCalled = {false};
-        JobStatusListener jobStatusListener = new JobStatusListener() {
-            @Override
-            public void jobStatusChanged(JobInstance job) {
-                isListenerCalled[0] = true;
-            }
-        };
+        JobStatusListener jobStatusListener = job -> isListenerCalled[0] = true;
         jobInstanceService.registerJobStateChangeListener(jobStatusListener);
         StageConfig ftStage = pipelineFixture.ftStage();
         Pipeline pipeline = pipelineFixture.createPipelineWithFirstStagePassedAndSecondStageRunning();

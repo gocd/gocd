@@ -30,7 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -58,18 +57,18 @@ class PermissionsServiceTest {
 
     @Test
     void shouldReturnAllTheEntityNamesThatSupportsPermission() {
-        assertThat(service.allEntitiesSupportsPermission()).isEqualTo(asList("environment", "config_repo"));
+        assertThat(service.allEntitiesSupportsPermission()).isEqualTo(List.of("environment", "config_repo"));
     }
 
     @Test
     void shouldFetchPermissions() {
         Map<String, Object> environments = new LinkedHashMap<>();
-        environments.put("view", asList("QA", "UAT"));
-        environments.put("administer", asList("QA"));
+        environments.put("view", List.of("QA", "UAT"));
+        environments.put("administer", List.of("QA"));
 
         Map<String, Object> configRepo = new LinkedHashMap<>();
-        configRepo.put("view", asList("repo1", "repo2"));
-        configRepo.put("administer", asList("repo1"));
+        configRepo.put("view", List.of("repo1", "repo2"));
+        configRepo.put("administer", List.of("repo1"));
 
         when(environmentPermission.permissions(username)).thenReturn(environments);
         when(configRepoPermission.permissions(username)).thenReturn(configRepo);
@@ -83,12 +82,12 @@ class PermissionsServiceTest {
     @Test
     void shouldFetchPermissionsOnlyForRequestedType() {
         Map<String, Object> environments = new LinkedHashMap<>();
-        environments.put("view", asList("QA", "UAT"));
-        environments.put("administer", asList("QA"));
+        environments.put("view", List.of("QA", "UAT"));
+        environments.put("administer", List.of("QA"));
 
         when(environmentPermission.permissions(username)).thenReturn(environments);
 
-        Map<String, Object> permissions = service.getPermissions(Arrays.asList("environment"));
+        Map<String, Object> permissions = service.getPermissions(List.of("environment"));
 
         assertThat(permissions.get("environment")).isEqualTo(environments);
     }

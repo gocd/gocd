@@ -64,13 +64,11 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
 
     private void updatePackageRepositoryConfigurationOnAssociatedPipelines(CruiseConfig modifiedConfig) {
         List<PipelineConfig> pipelinesWithPackageRepo = modifiedConfig.pipelinesAssociatedWithPackageRepository(newRepo);
-        pipelinesWithPackageRepo.forEach(pipelineConfig -> {
-            pipelineConfig.packageMaterialConfigs().forEach(packageMaterialConfig -> {
-                if (packageMaterialConfig.getPackageDefinition().getRepository().getId().equals(newRepo.getId())) {
-                    packageMaterialConfig.getPackageDefinition().setRepository(newRepo);
-                }
-            });
-        });
+        pipelinesWithPackageRepo.forEach(pipelineConfig -> pipelineConfig.packageMaterialConfigs().forEach(packageMaterialConfig -> {
+            if (packageMaterialConfig.getPackageDefinition().getRepository().getId().equals(newRepo.getId())) {
+                packageMaterialConfig.getPackageDefinition().setRepository(newRepo);
+            }
+        }));
     }
 
     private boolean isIdSame() {

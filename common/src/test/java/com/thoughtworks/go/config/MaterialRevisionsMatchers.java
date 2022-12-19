@@ -90,7 +90,7 @@ public class MaterialRevisionsMatchers {
     }
 
     public static Matcher<MaterialRevisions> containsModifiedBy(final String filename, final String user) {
-        return new TypeSafeMatcher<MaterialRevisions>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(MaterialRevisions revisions) {
                 ModifiedBy modifiedBy = new ModifiedBy(user, filename);
@@ -107,7 +107,7 @@ public class MaterialRevisionsMatchers {
 
 
     public static Matcher<MaterialRevisions> containsModifiedFile(final String filename) {
-        return new TypeSafeMatcher<MaterialRevisions>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(MaterialRevisions revisions) {
                 ModifiedFileVisitor modifiedBy = new ModifiedFileVisitor(filename);

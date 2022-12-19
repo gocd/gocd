@@ -51,15 +51,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -97,7 +98,7 @@ public class PluginServiceTest {
 
         lenient().when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
         lenient().when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
-        extensions = Arrays.asList(authorizationExtension, elasticAgentExtension);
+        extensions = List.of(authorizationExtension, elasticAgentExtension);
 
         pluginService = new PluginService(extensions, pluginDao, securityService, entityHashingService, defaultPluginInfoFinder, pluginManager);
     }
@@ -189,7 +190,7 @@ public class PluginServiceTest {
         PluginSettings pluginSettings = new PluginSettings(elasticAgentPluginId);
         final PluginInfo pluginInfo = mock(PluginInfo.class);
         when(pluginInfo.isSecure(secureKey)).thenReturn(true);
-        pluginSettings.addConfigurations(pluginInfo, Arrays.asList(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher"))));
+        pluginSettings.addConfigurations(pluginInfo, List.of(new ConfigurationProperty(new ConfigurationKey(secureKey), new EncryptedConfigurationValue("value_encrypted_by_a_different_cipher"))));
 
         pluginService.validatePluginSettings(pluginSettings);
 
@@ -218,8 +219,8 @@ public class PluginServiceTest {
         pluginService.validatePluginSettings(pluginSettings);
 
         assertThat(pluginSettings.hasErrors(), is(true));
-        assertThat(pluginSettings.getErrorFor("key-1"), is(Arrays.asList("m1")));
-        assertThat(pluginSettings.getErrorFor("key-3"), is(Arrays.asList("m3")));
+        assertThat(pluginSettings.getErrorFor("key-1"), is(List.of("m1")));
+        assertThat(pluginSettings.getErrorFor("key-3"), is(List.of("m3")));
     }
 
     @Test
@@ -487,7 +488,7 @@ public class PluginServiceTest {
     }
 
     private PluggableInstanceSettings getPluggableInstanceSettings() {
-        final List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        final List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("key-1", new Metadata(false, false)),
                 new PluginConfiguration("key-2", new Metadata(false, false)),
                 new PluginConfiguration("key-3", new Metadata(false, false))

@@ -134,7 +134,7 @@ public class GoConfigClassLoaderTest {
 
         assertThatThrownBy(loader::parse)
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Attribute `type` is not allowed in com.thoughtworks.go.config.parser.AttributeAwareConfigTagHasConfigAttributeWithSameName. You cannot use @ConfigAttribute  annotation with attribute name `type` when @AttributeAwareConfigTag is configured with same name.");
+                .hasMessageContaining("Attribute `type` is not allowed in com.thoughtworks.go.config.parser.AttributeAwareConfigTagHasConfigAttributeWithSameName. You cannot use @ConfigAttribute annotation with attribute name `type` when @AttributeAwareConfigTag is configured with same name.");
     }
 }
 

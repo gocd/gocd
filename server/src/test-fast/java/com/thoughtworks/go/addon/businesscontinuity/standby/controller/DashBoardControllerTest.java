@@ -23,13 +23,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -216,7 +212,7 @@ class DashBoardControllerTest {
         pluginTwo.put("md5", "md52");
 
         Map<String, Object> plugins = new HashMap<>();
-        plugins.put("external", asList(pluginOne, pluginTwo));
+        plugins.put("external", List.of(pluginOne, pluginTwo));
 
         long time = 1428051875504L;
         doReturn(new ServerStatusResponse(60000, time, fileDetailsMap)).when(primaryServerCommunicationService).getLatestFileStatus();

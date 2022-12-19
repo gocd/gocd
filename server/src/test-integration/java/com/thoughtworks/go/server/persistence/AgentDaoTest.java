@@ -38,9 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.HashMap;
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -108,7 +106,7 @@ public class AgentDaoTest {
             String uuid = "uuid";
             Agent agent = new Agent(uuid, "localhost", "127.0.0.1", "cookie");
             agentDao.saveOrUpdate(agent);
-            agentDao.bulkSoftDelete(singletonList(uuid));
+            agentDao.bulkSoftDelete(List.of(uuid));
 
             Agent agentFromDB = agentDao.fetchAgentFromDBByUUID(uuid);
             assertThat(agentFromDB, is(nullValue()));
@@ -133,7 +131,7 @@ public class AgentDaoTest {
             agentDao.saveOrUpdate(agent2);
             agentDao.saveOrUpdate(agent3);
 
-            List<Agent> agents = agentDao.getAgentsByUUIDs(asList(uuid1, uuid2, uuid3));
+            List<Agent> agents = agentDao.getAgentsByUUIDs(List.of(uuid1, uuid2, uuid3));
 
             assertThat(agents.size(), is(2));
             assertThat(agents.get(0).getUuid(), is(uuid1));
@@ -177,7 +175,7 @@ public class AgentDaoTest {
 
         @Test
         void shouldReturnEmptyListWhenUnknownUUIDsAreSpecifiedInGetAgentsByUUIDs() {
-            List<Agent> agents = agentDao.getAgentsByUUIDs(singletonList("uuid-that-does-not-exist"));
+            List<Agent> agents = agentDao.getAgentsByUUIDs(List.of("uuid-that-does-not-exist"));
             assertThat(agents, is(emptyList()));
         }
 
@@ -338,19 +336,19 @@ public class AgentDaoTest {
             agentToStatusMap.put(agent1.getUuid(), agentInstance1.getStatus().getConfigStatus());
             agentToStatusMap.put(agent3.getUuid(), agentInstance3.getStatus().getConfigStatus());
 
-            agent1.addResources(asList("r3", "r4"));
-            agent3.addResources(asList("r3", "r4"));
+            agent1.addResources(List.of("r3", "r4"));
+            agent3.addResources(List.of("r3", "r4"));
 
-            agent1.removeResources(asList("r1", "r2"));
-            agent3.removeResources(asList("r1", "r2"));
+            agent1.removeResources(List.of("r1", "r2"));
+            agent3.removeResources(List.of("r1", "r2"));
 
-            agent1.addEnvironments(asList("e2", "e4"));
-            agent3.addEnvironments(asList("e2", "e4"));
+            agent1.addEnvironments(List.of("e2", "e4"));
+            agent3.addEnvironments(List.of("e2", "e4"));
 
-            agent1.removeEnvironments(asList("e1", "e3"));
-            agent3.removeEnvironments(asList("e1", "e3"));
+            agent1.removeEnvironments(List.of("e1", "e3"));
+            agent3.removeEnvironments(List.of("e1", "e3"));
 
-            agentDao.bulkUpdateAgents(asList(agent1, agent3));
+            agentDao.bulkUpdateAgents(List.of(agent1, agent3));
 
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getResources(), is("r3,r4"));
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getResources(), is("r1"));
@@ -372,9 +370,9 @@ public class AgentDaoTest {
             agentDao.saveOrUpdate(agent1);
             agentDao.saveOrUpdate(agent2);
 
-            agentDao.bulkSoftDelete(asList(uuid1, uuid2));
+            agentDao.bulkSoftDelete(List.of(uuid1, uuid2));
 
-            assertThat(agentDao.getAgentsByUUIDs(asList(uuid1, uuid2)), is(emptyList()));
+            assertThat(agentDao.getAgentsByUUIDs(List.of(uuid1, uuid2)), is(emptyList()));
         }
 
         @Test
@@ -388,7 +386,7 @@ public class AgentDaoTest {
             agentDao.saveOrUpdate(agent1);
             agentDao.saveOrUpdate(agent2);
 
-            List<String> disabledUuids = asList(disabledUUID1, disabledUUID2);
+            List<String> disabledUuids = List.of(disabledUUID1, disabledUUID2);
             agentDao.disableAgents(disabledUuids);
 
             disabledUuids.forEach(uuid -> assertThat(agentDao.getAgentByUUIDFromCacheOrDB(uuid).isDisabled(), is(true)));

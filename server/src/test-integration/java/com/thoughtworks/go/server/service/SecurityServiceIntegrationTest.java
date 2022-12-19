@@ -31,14 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -88,16 +87,12 @@ public class SecurityServiceIntegrationTest {
 
     @Test
     public void userShouldNotHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
-        withDefaultGroupPermission(false, (o) -> {
-            assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(false));
-        });
+        withDefaultGroupPermission(false, (o) -> assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(false)));
     }
 
     @Test
     public void userShouldHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
-        withDefaultGroupPermission(true, (o) -> {
-            assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(true));
-        });
+        withDefaultGroupPermission(true, (o) -> assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(true)));
     }
 
     @Test
@@ -139,16 +134,12 @@ public class SecurityServiceIntegrationTest {
 
     @Test
     public void userShouldNotHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
-        withDefaultGroupPermission(false, (o) -> {
-            assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(false));
-        });
+        withDefaultGroupPermission(false, (o) -> assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(false)));
     }
 
     @Test
     public void userShouldHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
-        withDefaultGroupPermission(true, (o) -> {
-            assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(true));
-        });
+        withDefaultGroupPermission(true, (o) -> assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(true)));
     }
 
     @Test
@@ -325,17 +316,17 @@ public class SecurityServiceIntegrationTest {
         configHelper.onTearDown();
         configHelper.saveFullConfig(CONFIG_WITH_2_GROUPS, true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("blah"))).size(), is(0));
-        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))), is(Arrays.asList(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("pipeline2"))));
-        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan"))), is(Arrays.asList(new CaseInsensitiveString("pipeline3"))));
+        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))), is(List.of(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("pipeline2"))));
+        assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan"))), is(List.of(new CaseInsensitiveString("pipeline3"))));
     }
 
     @Test public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
         configHelper.onTearDown();
         configHelper.saveFullConfig(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))),
-                is(Arrays.asList(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
+                is(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
         assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS),
-                is(Arrays.asList(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
+                is(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
     }
 
     @Test public void shouldNotHaveOperatePermissionsOnStagesThatDoNotExist() throws Exception {

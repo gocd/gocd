@@ -59,7 +59,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -116,7 +115,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
         PipelineConfig p4 = createPipelineConfig("p4", "s4", "j1");
         p4.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("s2")));
-        pipelines.addAll(asList(p4, p2, p1, p3));
+        pipelines.addAll(List.of(p4, p2, p1, p3));
         Map<CaseInsensitiveString, List<PipelineConfig>> expectedPipelines = cruiseConfig.generatePipelineVsDownstreamMap();
         assertThat(expectedPipelines.size(), is(4));
         assertThat(expectedPipelines.get(new CaseInsensitiveString("p1")), hasItems(p2, p3));
@@ -181,7 +180,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
 
-        cruiseConfig.merge(asList(partialConfigInRepo1, partialConfigInRepo2), false);
+        cruiseConfig.merge(List.of(partialConfigInRepo1, partialConfigInRepo2), false);
         assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(true));
         assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
     }
@@ -194,7 +193,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
-        cruiseConfig.merge(asList(partialConfigInRepo1, partialConfigInRepo2), false);
+        cruiseConfig.merge(List.of(partialConfigInRepo1, partialConfigInRepo2), false);
         assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(false));
         assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
     }
@@ -317,7 +316,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineTemplateConfig templateConfig = cruiseConfig.getTemplates().first();
         JobConfig jobConfig = templateConfig.getStages().get(0).getJobs().get(0);
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("foo", "store1");
-        artifactConfig.addConfigurations(asList(
+        artifactConfig.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
@@ -348,7 +347,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("auth1", "cd.go.github"));
         PluginRoleConfig pluginRole = new PluginRoleConfig("role1", "auth1");
-        pluginRole.addConfigurations(asList(
+        pluginRole.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
@@ -380,7 +379,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.getElasticConfig().getClusterProfiles().add(new ClusterProfile("prod-cluster", "ecs"));
         ElasticProfile elasticProfile = new ElasticProfile("profile1", "prod-cluster");
-        elasticProfile.addConfigurations(asList(
+        elasticProfile.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
@@ -481,7 +480,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new CaseInsensitiveString("#{UPSTREAM_PIPELINE}"),
                 new CaseInsensitiveString("#{UPSTREAM_STAGE}"),
                 new CaseInsensitiveString("#{UPSTREAM_JOB}"), "#{ARTIFACT_ID}");
-        fetchFromAncestor.addConfigurations(asList(
+        fetchFromAncestor.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("fetch_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("fetch_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("fetch_v3"))));
@@ -490,7 +489,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new CaseInsensitiveString("parent"),
                 new CaseInsensitiveString("stage1"),
                 new CaseInsensitiveString("job1"), "art_2");
-        fetchFromParent.addConfigurations(asList(
+        fetchFromParent.addConfigurations(List.of(
                 new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("fetch_v1")),
                 new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("fetch_v2")),
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("fetch_v3"))));
@@ -502,12 +501,12 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
     private void setArtifactPluginInfo() {
         PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
-        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList());
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(List.of());
         PluginConfiguration k1 = new PluginConfiguration("k1", new Metadata(false, true));
         PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
         PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
-        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
-        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(List.of(k1, k2, k3));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(List.of(k1, k2, k3));
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
         when(pluginDescriptor.id()).thenReturn("cd.go.s3");
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
@@ -520,8 +519,8 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
         PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
 
-        PluggableInstanceSettings authConfigSettins = new PluggableInstanceSettings(asList(k1, k2, k3));
-        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings authConfigSettins = new PluggableInstanceSettings(List.of(k1, k2, k3));
+        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(List.of(k1, k2, k3));
 
         com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities = new com.thoughtworks.go.plugin.domain.authorization.Capabilities(SupportedAuthType.Web, true, true, true);
         AuthorizationPluginInfo artifactPluginInfo = new AuthorizationPluginInfo(pluginDescriptor, authConfigSettins, roleConfigSettings, null, capabilities);
@@ -536,8 +535,8 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
         PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
 
-        PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(List.of(k1, k2, k3));
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(List.of(k1, k2, k3));
 
         com.thoughtworks.go.plugin.domain.elastic.Capabilities capabilities = new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true);
         ElasticAgentPluginInfo ecsPluginInfo = new ElasticAgentPluginInfo(pluginDescriptor, clusterProfileSettings, profileSettings, null, null, capabilities);

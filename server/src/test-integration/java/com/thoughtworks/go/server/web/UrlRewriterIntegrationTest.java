@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -147,16 +146,13 @@ public class UrlRewriterIntegrationTest {
     @BeforeAll
     public static void beforeClass() throws Exception {
         ServletHelper.init();
-        httpUtil = new HttpTestUtil(new HttpTestUtil.ContextCustomizer() {
-            @Override
-            public void customize(WebAppContext ctx) throws Exception {
-                wac = mock(WebApplicationContext.class);
-                ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+        httpUtil = new HttpTestUtil(ctx -> {
+            wac = mock(WebApplicationContext.class);
+            ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
 
-                ctx.setBaseResource(Resource.newResource(new File("src/main/webapp/WEB-INF/urlrewrite.xml").getParentFile()));
-                ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
-                ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
-            }
+            ctx.setBaseResource(Resource.newResource(new File("src/main/webapp/WEB-INF/urlrewrite.xml").getParentFile()));
+            ctx.addFilter(UrlRewriteFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST)).setInitParameter("confPath", "/urlrewrite.xml");
+            ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
         });
         httpUtil.httpConnector(HTTP);
         httpUtil.httpsConnector(HTTPS);

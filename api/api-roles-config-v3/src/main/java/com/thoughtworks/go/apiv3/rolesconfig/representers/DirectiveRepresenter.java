@@ -30,9 +30,7 @@ public class DirectiveRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, Directive directive) {
         if (directive.hasErrors()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(new HashMap<>()).toJSON(jsonWriter, directive);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(jsonWriter, directive));
         }
 
         if (directive instanceof Unknown) {

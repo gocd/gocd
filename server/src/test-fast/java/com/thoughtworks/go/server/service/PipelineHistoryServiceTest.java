@@ -47,7 +47,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -178,7 +177,7 @@ class PipelineHistoryServiceTest {
 
     private PipelineInstanceModel activePipeline(String pipelineName, int pipelineCounter, double naturalOrder, StageInstanceModel... moreStages) {
         StageInstanceModels stagesForNonOperatablePipeline = new StageInstanceModels();
-        stagesForNonOperatablePipeline.addAll(Arrays.asList(moreStages));
+        stagesForNonOperatablePipeline.addAll(List.of(moreStages));
         PipelineInstanceModel nonOperatablePipeline = PipelineInstanceModel.createPipeline(pipelineName, -1, "1.0", BuildCause.createWithEmptyModifications(), stagesForNonOperatablePipeline);
         nonOperatablePipeline.setNaturalOrder(naturalOrder);
         nonOperatablePipeline.setCounter(pipelineCounter);
@@ -354,8 +353,8 @@ class PipelineHistoryServiceTest {
     @Test
     void shouldPopulatePipelineInstanceModelWithTheBeforeAndAfterForTheGivenPipeline() {
         DateTime now = new DateTime();
-        PipelineTimelineEntry first = PipelineMaterialModificationMother.modification(Arrays.asList("first"), 1, "123", now);
-        PipelineTimelineEntry second = PipelineMaterialModificationMother.modification(Arrays.asList("first"), 1, "123", now);
+        PipelineTimelineEntry first = PipelineMaterialModificationMother.modification(List.of("first"), 1, "123", now);
+        PipelineTimelineEntry second = PipelineMaterialModificationMother.modification(List.of("first"), 1, "123", now);
 
         when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline"))).thenReturn(first);
         when(pipelineTimeline.runAfter(1, new CaseInsensitiveString("pipeline"))).thenReturn(second);

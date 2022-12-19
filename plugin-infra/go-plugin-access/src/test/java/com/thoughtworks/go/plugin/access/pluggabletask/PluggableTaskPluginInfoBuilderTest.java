@@ -29,15 +29,12 @@ import com.thoughtworks.go.plugin.infra.Action;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableTaskPluginInfoBuilderTest {
@@ -73,13 +70,10 @@ public class PluggableTaskPluginInfoBuilderTest {
         String pluginId = "plugin1";
         when(descriptor.id()).thenReturn(pluginId);
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
-                action.execute(task, descriptor);
-                return null;
-            }
+        doAnswer(invocation -> {
+            final Action<Task> action = (Action<Task>) invocation.getArguments()[1];
+            action.execute(task, descriptor);
+            return null;
         }).when(extension).doOnTask(eq("plugin1"), any(Action.class));
     }
 
@@ -89,7 +83,7 @@ public class PluggableTaskPluginInfoBuilderTest {
 
         PluggableTaskPluginInfo pluginInfo = new PluggableTaskPluginInfoBuilder(extension) .pluginInfoFor(descriptor);
 
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("username", new Metadata(true, false)),
                 new PluginConfiguration("password", new Metadata(true, true))
         );

@@ -28,10 +28,6 @@ public class UserSearchResultsRepresenter {
                         .addAbsoluteLink("doc", Routes.UserSearch.DOC)
                         .addLink("self", Routes.UserSearch.self(searchTerm))
                         .addLink("find", Routes.UserSearch.find()))
-                .addChild("_embedded", embeddedWriter -> {
-                    embeddedWriter.addChildList("users", usersWriter -> {
-                        userSearchModels.forEach(userSearchModel -> usersWriter.addChild(outputWriter -> UserSearchRepresenter.toJSON(outputWriter, userSearchModel)));
-                    });
-                });
+                .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("users", usersWriter -> userSearchModels.forEach(userSearchModel -> usersWriter.addChild(outputWriter -> UserSearchRepresenter.toJSON(outputWriter, userSearchModel)))));
     }
 }

@@ -22,7 +22,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class ElasticProfileRepresenter {
@@ -39,7 +38,7 @@ public class ElasticProfileRepresenter {
                                 listWriter.addChild(propertyWriter ->
                                         ConfigurationPropertyRepresenter.toJSON(propertyWriter, property))));
         if (elasticProfile.hasErrors()) {
-            Map<String, String> fieldMapping = Collections.singletonMap("pluginId", "plugin_id");
+            Map<String, String> fieldMapping = Map.of("pluginId", "plugin_id");
             outputWriter.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, elasticProfile));
         }
     }

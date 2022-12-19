@@ -22,23 +22,23 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
-import com.thoughtworks.go.plugin.api.task.*;
+import com.thoughtworks.go.plugin.api.task.EnvironmentVariables;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
+import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
+import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class JsonBasedTaskExecutorTest {
@@ -60,7 +60,7 @@ public class JsonBasedTaskExecutorTest {
         response = mock(GoPluginApiResponse.class);
         handler = mock(JsonBasedTaskExtensionHandler.class);
         handlerHashMap.put("1.0", handler);
-        final List<String> goSupportedVersions = asList("1.0");
+        final List<String> goSupportedVersions = List.of("1.0");
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, PLUGGABLE_TASK_EXTENSION);
         when(pluginManager.resolveExtensionVersion(pluginId, PLUGGABLE_TASK_EXTENSION, goSupportedVersions)).thenReturn(extensionVersion);
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
@@ -107,13 +107,10 @@ public class JsonBasedTaskExecutorTest {
         when(response.responseBody()).thenReturn("{\"success\":true,\"messages\":[\"message1\",\"message2\"]}");
 
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
-                executionRequest[0] = request;
-                return response;
-            }
+        doAnswer(invocationOnMock -> {
+            GoPluginApiRequest request = (GoPluginApiRequest) invocationOnMock.getArguments()[2];
+            executionRequest[0] = request;
+            return response;
         }).when(pluginManager).submitTo(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(GoPluginApiRequest.class));
         handler = new JsonBasedTaskExtensionHandler_V1();
         handlerHashMap.put("1.0", handler);

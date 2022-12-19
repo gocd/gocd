@@ -75,7 +75,7 @@ class EnvironmentVariableRepresenterTest {
 
   @Test
   void 'should serialize collection of environment config to JSON'() {
-    List<EnvironmentVariableConfig> configs = Arrays.asList(
+    List<EnvironmentVariableConfig> configs = List.of(
       new EnvironmentVariableConfig("JAVA_HOME", "/bin/java"),
       new EnvironmentVariableConfig("GROOVY_HOME", "/bin/groovy")
     )
@@ -142,8 +142,8 @@ class EnvironmentVariableRepresenterTest {
     ])
     def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
 
-    assertEquals(actualEnvironmentVariableConfig.errors().getAllOn("value"), Arrays.asList('You may only specify `value` or `encrypted_value`, not both!'))
-    assertEquals(actualEnvironmentVariableConfig.errors().getAllOn("encryptedValue"), Arrays.asList('You may only specify `value` or `encrypted_value`, not both!'))
+    assertEquals(actualEnvironmentVariableConfig.errors().getAllOn("value"), List.of('You may only specify `value` or `encrypted_value`, not both!'))
+    assertEquals(actualEnvironmentVariableConfig.errors().getAllOn("encryptedValue"), List.of('You may only specify `value` or `encrypted_value`, not both!'))
   }
 
   @Test

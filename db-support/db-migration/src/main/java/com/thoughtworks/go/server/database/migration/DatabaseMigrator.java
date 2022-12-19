@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
@@ -39,7 +38,7 @@ public class DatabaseMigrator {
         try {
             log.info("Upgrading database, this might take a while depending on the size of the database.");
 
-            List<String> messages = Arrays.asList(
+            List<String> messages = List.of(
                     repeat("*", "", 72),
                     "WARNING: Shutting down your server at this point will lead to a database corruption. Please wait until the database upgrade completes.",
                     repeat("*", "", 72)

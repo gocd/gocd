@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static java.util.Collections.singletonList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,14 +37,14 @@ class AuthorizationMessageConverterV2Test {
 
     @Test
     void getProcessRoleConfigsResponseBody() {
-        String json = converter.getProcessRoleConfigsResponseBody(singletonList(new PluginRoleConfig("blackbird", "ldap", create("foo", false, "bar"))));
+        String json = converter.getProcessRoleConfigsResponseBody(List.of(new PluginRoleConfig("blackbird", "ldap", create("foo", false, "bar"))));
         assertThatJson("[{\"name\":\"blackbird\",\"configuration\":{\"foo\":\"bar\"}}]").isEqualTo(json);
     }
 
     @Test
     void shouldReturnRequestBodyForGetUserRolesRequest() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("p1", "ldap", create("key1", false, "value2"));
-        List<PluginRoleConfig> roleConfigs = singletonList(new PluginRoleConfig("role1", "p1", create("key2", false, "value2")));
+        List<PluginRoleConfig> roleConfigs = List.of(new PluginRoleConfig("role1", "p1", create("key2", false, "value2")));
 
 
         String requestBody = converter.getUserRolesRequestBody("foo", authConfig, roleConfigs);

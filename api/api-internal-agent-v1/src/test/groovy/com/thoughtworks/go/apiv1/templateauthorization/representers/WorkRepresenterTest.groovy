@@ -141,7 +141,7 @@ class WorkRepresenterTest {
     }
 
     private List<ArtifactPlan> artifactPlans() {
-        return ArtifactPlan.toArtifactPlans(new ArtifactTypeConfigs(Arrays.asList(
+        return ArtifactPlan.toArtifactPlans(new ArtifactTypeConfigs(List.of(
                 new BuildArtifactConfig("source", "destination"),
                 new TestArtifactConfig("test-source", "test-destination"),
                 new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"))

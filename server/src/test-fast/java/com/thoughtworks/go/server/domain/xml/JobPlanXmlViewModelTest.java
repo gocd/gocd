@@ -23,8 +23,7 @@ import org.dom4j.DocumentException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,7 +41,7 @@ public class JobPlanXmlViewModelTest {
         DefaultJobPlan jobPlan2 = JobInstanceMother.jobPlan("job-2", 1);
         jobPlan2.setJobId(11);
 
-        JobPlanXmlViewModel jobPlanXmlViewModel = new JobPlanXmlViewModel(new ArrayList<>(Arrays.asList(new WaitingJobPlan(jobPlan1, "envName"), new WaitingJobPlan(jobPlan2, null))));
+        JobPlanXmlViewModel jobPlanXmlViewModel = new JobPlanXmlViewModel(List.of(new WaitingJobPlan(jobPlan1, "envName"), new WaitingJobPlan(jobPlan2, null)));
 
         String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<scheduledJobs>"

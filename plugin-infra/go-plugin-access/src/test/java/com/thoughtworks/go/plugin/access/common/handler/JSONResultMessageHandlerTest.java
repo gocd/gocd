@@ -21,11 +21,10 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class JSONResultMessageHandlerTest {
@@ -48,14 +47,14 @@ public class JSONResultMessageHandlerTest {
     public void shouldBuildSuccessResultFromResponseBody() throws Exception {
         String responseBody = "{\"status\":\"success\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.toResult(responseBody);
-        assertSuccessResult(result, Arrays.asList("message-one", "message-two"));
+        assertSuccessResult(result, List.of("message-one", "message-two"));
     }
 
     @Test
     public void shouldBuildFailureResultFromResponseBody() throws Exception {
         String responseBody = "{\"status\":\"failure\",messages=[\"message-one\",\"message-two\"]}";
         Result result = messageHandler.toResult(responseBody);
-        assertFailureResult(result, Arrays.asList("message-one", "message-two"));
+        assertFailureResult(result, List.of("message-one", "message-two"));
     }
 
     @Test

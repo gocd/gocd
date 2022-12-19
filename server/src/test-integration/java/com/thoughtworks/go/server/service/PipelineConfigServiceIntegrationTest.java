@@ -54,11 +54,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -124,17 +124,14 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.addPipeline(pipelineConfig, groupName);
         repoConfig1 = createConfigRepoWithDefaultRules(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id1");
         repoConfig2 = createConfigRepoWithDefaultRules(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName, "git-id2");
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.getConfigRepos().add(repoConfig1);
-                cruiseConfig.getConfigRepos().add(repoConfig2);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getConfigRepos().add(repoConfig1);
+            cruiseConfig.getConfigRepos().add(repoConfig2);
+            return cruiseConfig;
         });
         GoCipher goCipher = new GoCipher();
         goConfigService.updateServerConfig(new MailHost(goCipher), goConfigService.configFileMd5(), "artifacts", null, null, "0", null, null, "foo");
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
+        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
         remoteDownstreamPipelineName = "remote-downstream";
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, pipelineConfig, new RepoConfigOrigin(repoConfig1, "repo1_r1"));
@@ -453,12 +450,9 @@ public class PipelineConfigServiceIntegrationTest {
         jobConfigs.add(job);
         StageConfig stage = new StageConfig(new CaseInsensitiveString("Stage-1"), jobConfigs);
         final PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), stage);
-        goConfigDao.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addTemplate(templateConfig);
-                return cruiseConfig;
-            }
+        goConfigDao.updateConfig(cruiseConfig -> {
+            cruiseConfig.addTemplate(templateConfig);
+            return cruiseConfig;
         });
 
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig();
@@ -702,7 +696,7 @@ public class PipelineConfigServiceIntegrationTest {
         setupPipelineWithTemplate(pipelineName, templateName);
         PipelineConfig pipelineConfig1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         String digest = entityHashingService.hashForEntity(pipelineConfig1, "group");
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<>() {
             @Override
             public void onConfigChange(CruiseConfig newCruiseConfig) {
             }
@@ -727,7 +721,7 @@ public class PipelineConfigServiceIntegrationTest {
         final boolean[] listenerInvoked = {false};
         setupPipelineWithTemplate(pipelineName, templateName);
 
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<>() {
             @Override
             public void onConfigChange(CruiseConfig newCruiseConfig) {
             }
@@ -746,15 +740,12 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     private void setupPipelineWithTemplate(final String pipelineName, final String templateName) {
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
-                PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
-                cruiseConfig.addTemplate(template);
-                cruiseConfig.addPipeline("group", pipeline);
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate(templateName);
+            PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, template.name().toString());
+            cruiseConfig.addTemplate(template);
+            cruiseConfig.addPipeline("group", pipeline);
+            return cruiseConfig;
         });
     }
 
@@ -805,7 +796,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
-        pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
+        pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("key", "value"))));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
@@ -864,7 +855,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
-        pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
+        pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("key", "value"))));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
@@ -1048,7 +1039,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
-        pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
+        pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("key", "value"))));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));

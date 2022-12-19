@@ -17,24 +17,27 @@ package com.thoughtworks.go.server.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class CollectionUtilTest {
     @Test
     public void shouldReverseKeyToCollectionMap() {
         Map<String, List<Integer>> stringIntMap = new HashMap<>();
-        stringIntMap.put("foo", Arrays.asList(1, 2, 3, 4));
-        stringIntMap.put("bar", Arrays.asList(3, 4, 5, 6));
+        stringIntMap.put("foo", List.of(1, 2, 3, 4));
+        stringIntMap.put("bar", List.of(3, 4, 5, 6));
         Map<Integer, Set<String>> reversedMap = CollectionUtil.reverse(stringIntMap);
-        assertThat(reversedMap.get(1), is(new HashSet<>(Arrays.asList("foo"))));
-        assertThat(reversedMap.get(2), is(new HashSet<>(Arrays.asList("foo"))));
-        assertThat(reversedMap.get(3), is(new HashSet<>(Arrays.asList("foo", "bar"))));
-        assertThat(reversedMap.get(4), is(new HashSet<>(Arrays.asList("foo", "bar"))));
-        assertThat(reversedMap.get(5), is(new HashSet<>(Arrays.asList("bar"))));
-        assertThat(reversedMap.get(6), is(new HashSet<>(Arrays.asList("bar"))));
+        assertThat(reversedMap.get(1), is(Set.of("foo")));
+        assertThat(reversedMap.get(2), is(Set.of("foo")));
+        assertThat(reversedMap.get(3), is(Set.of("foo", "bar")));
+        assertThat(reversedMap.get(4), is(Set.of("foo", "bar")));
+        assertThat(reversedMap.get(5), is(Set.of("bar")));
+        assertThat(reversedMap.get(6), is(Set.of("bar")));
     }
 
     @Test
@@ -44,7 +47,7 @@ public class CollectionUtilTest {
         cVM.put("foo", 10);
         cVM.put("bar", 20);
         cVM.put("foo", 30);
-        assertThat(mapWithCollection.get("foo"), is(Arrays.asList(10, 30)));
-        assertThat(mapWithCollection.get("bar"), is(Arrays.asList(20)));
+        assertThat(mapWithCollection.get("foo"), is(List.of(10, 30)));
+        assertThat(mapWithCollection.get("bar"), is(List.of(20)));
     }
 }

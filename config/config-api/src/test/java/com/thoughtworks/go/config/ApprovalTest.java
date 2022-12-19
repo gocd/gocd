@@ -22,7 +22,10 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,12 +49,12 @@ public class ApprovalTest {
     @Test
     public void shouldNotAssignType() {
         Approval approval = new Approval();
-        approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, Approval.SUCCESS));
+        approval.setConfigAttributes(Map.of(Approval.TYPE, Approval.SUCCESS));
         assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
         approval.setConfigAttributes(new HashMap());
         assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
 
-        approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, Approval.MANUAL));
+        approval.setConfigAttributes(Map.of(Approval.TYPE, Approval.MANUAL));
         assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
         approval.setConfigAttributes(new HashMap());
         assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
@@ -60,7 +63,7 @@ public class ApprovalTest {
     @Test
     void shouldValidateApprovalType() {
         Approval approval = new Approval();
-        approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, "not-manual-or-success"));
+        approval.setConfigAttributes(Map.of(Approval.TYPE, "not-manual-or-success"));
         assertThat(approval.getType()).isEqualTo("not-manual-or-success");
         approval.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new BasicPipelineConfigs()));
         assertThat(approval.errors().firstError()).isEqualTo("You have defined approval type as 'not-manual-or-success'. Approval can only be of the type 'manual' or 'success'.");
@@ -154,10 +157,10 @@ public class ApprovalTest {
         approval.setOperatePermissions(names, roles);
 
         assertThat(approval.getAuthConfig().size()).isEqualTo(4);
-        assertThat(approval.getAuthConfig()).contains((Admin) new AdminUser(new CaseInsensitiveString("awesome_shilpa")));
-        assertThat(approval.getAuthConfig()).contains((Admin) new AdminUser(new CaseInsensitiveString("youth")));
-        assertThat(approval.getAuthConfig()).contains((Admin) new AdminRole(new CaseInsensitiveString("role1")));
-        assertThat(approval.getAuthConfig()).contains((Admin) new AdminRole(new CaseInsensitiveString("role2")));
+        assertThat(approval.getAuthConfig()).contains(new AdminUser(new CaseInsensitiveString("awesome_shilpa")));
+        assertThat(approval.getAuthConfig()).contains(new AdminUser(new CaseInsensitiveString("youth")));
+        assertThat(approval.getAuthConfig()).contains(new AdminRole(new CaseInsensitiveString("role1")));
+        assertThat(approval.getAuthConfig()).contains(new AdminRole(new CaseInsensitiveString("role2")));
     }
 
     @Test

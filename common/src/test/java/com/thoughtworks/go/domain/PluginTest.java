@@ -19,33 +19,25 @@ import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PluginTest {
     private Plugin plugin;
 
     @BeforeEach
     public void setUp() throws Exception {
-        Map<String, String> configuration = new HashMap<>();
-        configuration.put("k1", "v1");
-        configuration.put("k2", "v2");
-        plugin = new Plugin("plugin-id", new GsonBuilder().create().toJson(configuration));
+        plugin = new Plugin("plugin-id", new GsonBuilder().create().toJson(Map.of("k1", "v1", "k2", "v2")));
     }
 
     @Test
     public void shouldGetAllConfigurationKeys() {
-        assertEquals(new HashSet<>(asList("k1", "k2")), plugin.getAllConfigurationKeys());
+        assertThat(plugin.getAllConfigurationKeys()).containsExactly("k1", "k2");
     }
 
     @Test
-    public void shouldGetValueForConfigurationKey() throws Exception {
-        assertThat(plugin.getConfigurationValue("k1"), is("v1"));
+    public void shouldGetValueForConfigurationKey() {
+        assertThat(plugin.getConfigurationValue("k1")).isEqualTo("v1");
     }
 }

@@ -23,7 +23,7 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_BASE;
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE;
@@ -54,9 +54,9 @@ public class PipelinesController implements SparkController {
     }
 
     public ModelAndView create(Request req, Response res) {
-        HashMap<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Create a pipeline");
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Create a pipeline"
+        );
 
         return new ModelAndView(object, null);
     }

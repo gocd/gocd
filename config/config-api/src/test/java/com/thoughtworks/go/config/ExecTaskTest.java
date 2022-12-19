@@ -22,9 +22,10 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +41,7 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void describeMutipleArgumentsTest() {
+    public void describeMultipleArgumentsTest() {
         ExecTask task = new ExecTask("echo", null, new Arguments(new Argument("abc"), new Argument("hello baby!")));
         task.setTimeout(600);
         assertThat(task.describe(),
@@ -48,7 +49,7 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldValidateConfig() throws Exception {
+    public void shouldValidateConfig() {
         ExecTask execTask = new ExecTask("arg1 arg2", new Arguments(new Argument("arg1"), new Argument("arg2")));
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(execTask.errors().isEmpty(), is(false));
@@ -67,7 +68,7 @@ public class ExecTaskTest {
 
 
     @Test
-    public void shouldBeValid() throws Exception {
+    public void shouldBeValid() {
         ExecTask execTask = new ExecTask("", new Arguments(new Argument("arg1"), new Argument("arg2")));
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(execTask.errors().isEmpty(), is(true));
@@ -93,20 +94,28 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldAllowSettingOfConfigAttributes() throws Exception {
+    public void shouldAllowSettingOfConfigAttributes() {
         ExecTask exec = new ExecTask();
-        exec.setConfigAttributes(m(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
+        exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
         assertThat(exec.command(), is("ls"));
         assertThat(exec.getArgs(), is("-la"));
         assertThat(exec.getArgListString(), is(""));
         assertThat(exec.workingDirectory(), is("my_dir"));
 
-        exec.setConfigAttributes(m(ExecTask.COMMAND, null, ExecTask.ARGS, null, ExecTask.WORKING_DIR, null));
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(ExecTask.COMMAND, null);
+        attributes.put(ExecTask.ARGS, null);
+        attributes.put(ExecTask.WORKING_DIR, null);
+        exec.setConfigAttributes(attributes);
         assertThat(exec.command(), is(nullValue()));
         assertThat(exec.getArgs(), is(""));
         assertThat(exec.workingDirectory(), is(nullValue()));
 
-        exec.setConfigAttributes(m(ExecTask.COMMAND, null, ExecTask.ARG_LIST_STRING, "-l\n-a\npavan's\\n working dir?", ExecTask.WORKING_DIR, null));
+        Map<String, String> attributes1 = new HashMap<>();
+        attributes1.put(ExecTask.COMMAND, null);
+        attributes1.put(ExecTask.ARG_LIST_STRING, "-l\n-a\npavan's\\n working dir?");
+        attributes1.put(ExecTask.WORKING_DIR, null);
+        exec.setConfigAttributes(attributes1);
         assertThat(exec.command(), is(nullValue()));
         assertThat(exec.getArgListString(), is("-l\n-a\npavan's\\n working dir?"));
         assertThat(exec.getArgList().size(), is(3));
@@ -117,20 +126,20 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldNotSetAttributesWhenKeysNotPresentInAttributeMap() throws Exception {
+    public void shouldNotSetAttributesWhenKeysNotPresentInAttributeMap() {
         ExecTask exec = new ExecTask();
-        exec.setConfigAttributes(m(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
-        exec.setConfigAttributes(m());//Key is not present
+        exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "my_dir"));
+        exec.setConfigAttributes(Map.of());//Key is not present
         assertThat(exec.command(), is("ls"));
         assertThat(exec.getArgs(), is("-la"));
         assertThat(exec.workingDirectory(), is("my_dir"));
     }
 
     @Test
-    public void shouldNotSetArgsIfTheValueIsBlank() throws Exception {
+    public void shouldNotSetArgsIfTheValueIsBlank() {
         ExecTask exec = new ExecTask();
-        exec.setConfigAttributes(m(ExecTask.COMMAND, "ls", ExecTask.ARGS, "", ExecTask.WORKING_DIR, "my_dir"));
-        exec.setConfigAttributes(m());
+        exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "ls", ExecTask.ARGS, "", ExecTask.WORKING_DIR, "my_dir"));
+        exec.setConfigAttributes(Map.of());
         assertThat(exec.command(), is("ls"));
         assertThat(exec.getArgList().size(), is(0));
         assertThat(exec.workingDirectory(), is("my_dir"));
@@ -139,7 +148,7 @@ public class ExecTaskTest {
     @Test
     public void shouldNullOutWorkingDirectoryIfGivenBlank() {
         ExecTask exec = new ExecTask("ls", "-la", "foo");
-        exec.setConfigAttributes(m(ExecTask.COMMAND, "", ExecTask.ARGS, "", ExecTask.WORKING_DIR, ""));
+        exec.setConfigAttributes(Map.of(ExecTask.COMMAND, "", ExecTask.ARGS, "", ExecTask.WORKING_DIR, ""));
         assertThat(exec.command(), is(""));
         assertThat(exec.getArgs(), is(""));
         assertThat(exec.workingDirectory(), is(nullValue()));
@@ -148,12 +157,12 @@ public class ExecTaskTest {
     @Test
     public void shouldPopulateAllAttributesOnPropertiesForDisplay() {
         ExecTask execTask = new ExecTask("ls", "-la", "holy/dir");
-        execTask.setTimeout(10l);
+        execTask.setTimeout(10L);
         assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout")));
         assertThat(execTask.getPropertiesForDisplay().size(), is(4));
 
         execTask = new ExecTask("ls", new Arguments(new Argument("-la"), new Argument("/proc")), "holy/dir");
-        execTask.setTimeout(10l);
+        execTask.setTimeout(10L);
         assertThat(execTask.getPropertiesForDisplay(), hasItems(new TaskProperty("Command", "ls", "command"), new TaskProperty("Arguments", "-la /proc", "arguments"), new TaskProperty("Working Directory", "holy/dir", "working_directory"), new TaskProperty("Timeout", "10", "timeout")));
         assertThat(execTask.getPropertiesForDisplay().size(), is(4));
 
@@ -235,7 +244,10 @@ public class ExecTaskTest {
     @Test
     public void shouldSetConfigAttributesWithCarriageReturnCharPresent() {
         ExecTask exec = new ExecTask();
-        exec.setConfigAttributes(m(ExecTask.COMMAND, null, ExecTask.ARG_LIST_STRING, "ls\r\n-al\r\n&&\npwd"));
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(ExecTask.COMMAND, null);
+        attributes.put(ExecTask.ARG_LIST_STRING, "ls\r\n-al\r\n&&\npwd");
+        exec.setConfigAttributes(attributes);
         assertThat(exec.command(), is(nullValue()));
         assertThat(exec.getArgListString(), is("ls\n-al\n&&\npwd"));
         assertThat(exec.getArgList().size(), is(4));

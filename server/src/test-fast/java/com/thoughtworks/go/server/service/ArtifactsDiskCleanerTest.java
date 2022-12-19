@@ -15,10 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.Semaphore;
-
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.StageMother;
@@ -33,20 +29,15 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class ArtifactsDiskCleanerTest {
     private SystemEnvironment sysEnv;
@@ -121,23 +112,17 @@ public class ArtifactsDiskCleanerTest {
         Stage stageTwo = StageMother.passedStageInstance("another", "job", "with-pipeline");
         Stage stageThree = StageMother.passedStageInstance("yet-another", "job1", "foo-pipeline");
 
-        when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageOne, stageTwo, stageThree));
+        when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageOne, stageTwo, stageThree));
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(6 * GoConstants.GIGA_BYTE);
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(6 * GoConstants.GIGA_BYTE);
+            return null;
         }).when(artifactService).purgeArtifactsForStage(stageOne);
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(10 * GoConstants.GIGA_BYTE);
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(10 * GoConstants.GIGA_BYTE);
+            return null;
         }).when(artifactService).purgeArtifactsForStage(stageTwo);
 
         artifactsDiskCleaner.deleteOldArtifacts();
@@ -157,31 +142,22 @@ public class ArtifactsDiskCleanerTest {
         final Stage stageFour = StageMother.passedStageInstance("foo-stage", "bar-job", "baz-pipeline");
         final Stage stageFive = StageMother.passedStageInstance("bar-stage", "baz-job", "quux-pipeline");
 
-        when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageOne, stageTwo));
+        when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageOne, stageTwo));
         when(diskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(4 * GoConstants.GIGA_BYTE);
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageThree, stageFour));
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageThree, stageFour));
+            return null;
         }).when(artifactService).purgeArtifactsForStage(stageTwo);
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(Arrays.asList(stageFive));
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(List.of(stageFive));
+            return null;
         }).when(artifactService).purgeArtifactsForStage(stageFour);
 
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(new ArrayList<>());
-                return null;
-            }
+        doAnswer((Answer<Object>) invocation -> {
+            when(stageService.oldestStagesWithDeletableArtifacts()).thenReturn(new ArrayList<>());
+            return null;
         }).when(artifactService).purgeArtifactsForStage(stageFive);
 
         artifactsDiskCleaner.deleteOldArtifacts();

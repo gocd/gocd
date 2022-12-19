@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +57,8 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldTalkToExtensionToCreateElasticAgent() {
-        final Map<String, String> configuration = Collections.singletonMap("GoServerURL", "foo");
-        final Map<String, String> clusterConfiguration = Collections.singletonMap("GoServerURL", "foo");
+        final Map<String, String> configuration = Map.of("GoServerURL", "foo");
+        final Map<String, String> clusterConfiguration = Map.of("GoServerURL", "foo");
         final JobIdentifier jobIdentifier = new JobIdentifier();
         final String autoRegisterKey = "auto-register-key";
         final String environment = "test-env";
@@ -72,10 +71,10 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldTalkToExtensionToExecuteServerPingCall() {
-        final Map<String, String> clusterProfileProperties = Collections.singletonMap("GoServerURL", "foo");
-        elasticAgentPluginRegistry.serverPing(PLUGIN_ID, Arrays.asList(clusterProfileProperties));
+        final Map<String, String> clusterProfileProperties = Map.of("GoServerURL", "foo");
+        elasticAgentPluginRegistry.serverPing(PLUGIN_ID, List.of(clusterProfileProperties));
 
-        verify(elasticAgentExtension, times(1)).serverPing(PLUGIN_ID, Arrays.asList(clusterProfileProperties));
+        verify(elasticAgentExtension, times(1)).serverPing(PLUGIN_ID, List.of(clusterProfileProperties));
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 
@@ -83,8 +82,8 @@ public class ElasticAgentPluginRegistryTest {
     public void shouldTalkToExtensionToExecuteShouldAssignWorkCall() {
         final String environment = "test-env";
         final JobIdentifier jobIdentifier = new JobIdentifier();
-        final Map<String, String> configuration = Collections.singletonMap("Image", "alpine:latest");
-        final Map<String, String> clusterProfileProperties = Collections.singletonMap("GoServerURL", "foo");
+        final Map<String, String> configuration = Map.of("Image", "alpine:latest");
+        final Map<String, String> clusterProfileProperties = Map.of("GoServerURL", "foo");
         final AgentMetadata agentMetadata = new AgentMetadata("som-id", "Idle", "Idle", "Enabled");
 
         elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, agentMetadata, environment, configuration, clusterProfileProperties, jobIdentifier);
@@ -124,8 +123,8 @@ public class ElasticAgentPluginRegistryTest {
     public void shouldTalkToExtensionToReportJobCompletion() {
         final JobIdentifier jobIdentifier = new JobIdentifier();
         final String elasticAgentId = "ea_1";
-        final Map<String, String> elasticProfileConfiguration = Collections.singletonMap("Image", "alpine:latest");
-        final Map<String, String> clusterProfileConfiguration = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> elasticProfileConfiguration = Map.of("Image", "alpine:latest");
+        final Map<String, String> clusterProfileConfiguration = Map.of("ServerURL", "https://example.com/go");
 
         elasticAgentPluginRegistry.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
 
@@ -135,7 +134,7 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldTalkToExtensionToNotifyClusterProfileHasChanged() {
-        final Map<String, String> newClusterProfileConfigurations = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> newClusterProfileConfigurations = Map.of("Image", "alpine:latest");
         elasticAgentPluginRegistry.notifyPluginAboutClusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);
 
         verify(elasticAgentExtension, times(1)).clusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);
@@ -144,7 +143,7 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldNotFailEvenWhenExtensionFailsToHandleClusterProfileChangedCall() {
-        final Map<String, String> newClusterProfileConfigurations = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> newClusterProfileConfigurations = Map.of("Image", "alpine:latest");
         doThrow(new RuntimeException("Boom!")).when(elasticAgentExtension).clusterProfileChanged(any(), any(), any(), any());
 
         elasticAgentPluginRegistry.notifyPluginAboutClusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);

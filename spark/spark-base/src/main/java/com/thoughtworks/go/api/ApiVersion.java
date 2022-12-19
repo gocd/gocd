@@ -47,9 +47,7 @@ public enum ApiVersion {
     private static Map<String, ApiVersion> HEADER_TO_VERSION_MAP = new LinkedHashMap<>();
 
     static {
-        Arrays.stream(ApiVersion.values()).forEach(apiVersion -> {
-            HEADER_TO_VERSION_MAP.put(apiVersion.mimeType(), apiVersion);
-        });
+        Arrays.stream(ApiVersion.values()).forEach(apiVersion -> HEADER_TO_VERSION_MAP.put(apiVersion.mimeType(), apiVersion));
     }
 
     private final String mimeType;

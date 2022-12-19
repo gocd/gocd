@@ -78,9 +78,7 @@ public class MaterialsRepresenter {
 
     public static MaterialConfigs fromJSONArray(JsonReader jsonReader, ConfigHelperOptions options) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
-        jsonReader.readArrayIfPresent("materials", materials -> {
-            materials.forEach(material -> materialConfigs.add(MaterialsRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()), options)));
-        });
+        jsonReader.readArrayIfPresent("materials", materials -> materials.forEach(material -> materialConfigs.add(MaterialsRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()), options))));
         return materialConfigs;
     }
 

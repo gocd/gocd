@@ -21,17 +21,15 @@ import com.thoughtworks.go.util.DateUtils;
 import org.jdom2.Element;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
-import java.util.Date;
+import java.util.*;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 public class ProjectStatusTest {
     @Test
-    public void shouldGetCcTrayStatusxml() throws Exception {
+    public void shouldGetCcTrayStatusXml() {
         String projectName = "projectName";
         String activity = "Building";
         String lastBuildStatus = "Success";
@@ -55,7 +53,7 @@ public class ProjectStatusTest {
     }
 
     @Test
-    public void shouldListViewers() throws Exception {
+    public void shouldListViewers() {
         Users viewers = mock(Users.class);
 
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
@@ -65,7 +63,7 @@ public class ProjectStatusTest {
     }
 
     @Test
-    public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() throws Exception {
+    public void shouldProvideItsXmlRepresentation_WhenThereAreNoBreakers() {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
                 DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url");
 
@@ -75,9 +73,9 @@ public class ProjectStatusTest {
     }
 
     @Test
-    public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() throws Exception {
+    public void shouldProvideItsXmlRepresentation_WhenThereAreBreakers() {
         ProjectStatus status = new ProjectStatus("name", "activity1", "build-status-1", "build-label-1",
-                DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", s("breaker1", "breaker2"));
+                DateUtils.parseRFC822("Sun, 23 May 2010 10:00:00 +0200"), "web-url", new LinkedHashSet<>(List.of("breaker1", "breaker2")));
 
         assertThat(status.xmlRepresentation(),
                 is("<Project name=\"name\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" " +
@@ -86,19 +84,19 @@ public class ProjectStatusTest {
     }
 
     @Test
-    public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() throws Exception {
+    public void shouldAlwaysHaveEmptyStringAsXMLRepresentationOfANullProjectStatus() {
         assertThat(new ProjectStatus.NullProjectStatus("some-name").xmlRepresentation(), is(""));
         assertThat(new ProjectStatus.NullProjectStatus("some-other-name").xmlRepresentation(), is(""));
     }
 
     @Test
-    public void shouldNotBeViewableByAnyoneTillViewersAreUpdated() throws Exception {
+    public void shouldNotBeViewableByAnyoneTillViewersAreUpdated() {
         ProjectStatus status = new ProjectStatus("name", "activity", "web-url");
 
         assertThat(status.canBeViewedBy("abc"), is(false));
         assertThat(status.canBeViewedBy("def"), is(false));
 
-        status.updateViewers(new AllowedUsers(s("abc", "ghi"), Collections.emptySet()));
+        status.updateViewers(new AllowedUsers(Set.of("abc", "ghi"), Collections.emptySet()));
 
         assertThat(status.canBeViewedBy("abc"), is(true));
         assertThat(status.canBeViewedBy("def"), is(false));

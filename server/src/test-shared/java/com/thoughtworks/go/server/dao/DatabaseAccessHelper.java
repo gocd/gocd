@@ -48,8 +48,6 @@ import org.dbunit.database.AmbiguousTableNameException;
 import org.dbunit.dataset.DefaultDataSet;
 import org.dbunit.dataset.DefaultTable;
 import org.dbunit.operation.DatabaseOperation;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -300,7 +298,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return pipeline;
     }
 
-    public Pipeline newPipelineWithAllStagesPassed(PipelineConfig config) throws SQLException {
+    public Pipeline newPipelineWithAllStagesPassed(PipelineConfig config) {
         Pipeline pipeline = newPipelineWithFirstStagePassed(config);
         for (StageConfig stageConfig : config) {
             if (config.first().equals(stageConfig)) {
@@ -314,7 +312,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return pipelineDao.loadPipeline(pipeline.getId());
     }
 
-    public Stage saveBuildingStage(String pipelineName, String stageName) throws SQLException {
+    public Stage saveBuildingStage(String pipelineName, String stageName) {
         Pipeline pipeline = saveTestPipeline(pipelineName, stageName);
         Stage stage = saveBuildingStage(pipeline.getStages().byName(stageName));
         for (JobInstance job : stage.getJobInstances()) {
@@ -552,12 +550,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Integer updateNaturalOrder(final long pipelineId, final double naturalOrder) {
-        return (Integer) getHibernateTemplate().execute(new HibernateCallback() {
-            @Override
-            public Object doInHibernate(Session session) throws HibernateException {
-                return PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder);
-            }
-        });
+        return (Integer) getHibernateTemplate().execute((HibernateCallback) session -> PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder));
     }
 
     public MaterialRevision addRevisionsWithModifications(Material material, Modification... modifications) {
@@ -602,7 +595,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         }
         MaterialRevision depRev = addRevisionsWithModifications(dependencyMaterial, modifications.toArray(new Modification[0]));
         materialRevisions.add(depRev);
-        return Arrays.asList(depRev);
+        return List.of(depRev);
     }
 
     public void addJobAgentMetadata(JobAgentMetadata jobAgentMetadata) {

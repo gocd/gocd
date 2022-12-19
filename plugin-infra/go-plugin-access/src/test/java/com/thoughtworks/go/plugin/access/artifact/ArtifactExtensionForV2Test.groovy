@@ -66,7 +66,7 @@ class ArtifactExtensionForV2Test extends ArtifactExtensionTestBase {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(new Gson().toJson(responseHash)))
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"))
 
-        List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp")
+        List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Map.of("Version", "10.12.0"), "/temp")
 
         final GoPluginApiRequest request = requestArgumentCaptor.getValue()
 

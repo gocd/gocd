@@ -17,7 +17,7 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class JobConfigMother {
@@ -54,7 +54,7 @@ public class JobConfigMother {
     }
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
-        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactTypeConfigs(Arrays.asList(new BuildArtifactConfig("src", "dest"))));
+        return new JobConfig(new CaseInsensitiveString("defaultJob"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("Java")), new ArtifactTypeConfigs(List.of(new BuildArtifactConfig("src", "dest"))));
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {

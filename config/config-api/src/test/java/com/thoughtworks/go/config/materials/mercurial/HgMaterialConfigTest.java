@@ -24,14 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -227,7 +225,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldEnsureDestFilePathIsValid() {
-            hgMaterialConfig.setConfigAttributes(Collections.singletonMap(FOLDER, "../a"));
+            hgMaterialConfig.setConfigAttributes(Map.of(FOLDER, "../a"));
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(hgMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }

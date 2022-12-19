@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import spark.HaltException;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.ArtifactPlan.GSON;
@@ -100,7 +100,7 @@ class ApiAuthenticationHelperTest {
             directives.add(new Allow("view", "environment", "*"));
             RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "foo"));
@@ -122,7 +122,7 @@ class ApiAuthenticationHelperTest {
             directives.add(new Allow("view", "environment", "env_1"));
             RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
 
@@ -148,7 +148,7 @@ class ApiAuthenticationHelperTest {
             directives.add(new Allow("view", "environment", "env_1"));
             RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
@@ -172,7 +172,7 @@ class ApiAuthenticationHelperTest {
             directives.add(new Deny("view", "environment", "*"));
             RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
@@ -194,7 +194,7 @@ class ApiAuthenticationHelperTest {
             directives.add(new Allow("administer", "environment", "*"));
             RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
             assertDoesNotThrow(() -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "foo"));
@@ -221,7 +221,7 @@ class ApiAuthenticationHelperTest {
             directives.add(new Allow("administer", "environment", "env_1"));
             RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("read-only-environments"), new Users(), directives);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(roleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(roleConfig));
 
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
@@ -258,7 +258,7 @@ class ApiAuthenticationHelperTest {
             directives2.add(new Allow("administer", "environment", "*"));
             RoleConfig allowRoleConfig = new RoleConfig(new CaseInsensitiveString("allow-permissions"), new Users(), directives2);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(denyRoleConfig, allowRoleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(denyRoleConfig, allowRoleConfig));
 
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));
@@ -295,7 +295,7 @@ class ApiAuthenticationHelperTest {
             directives2.add(new Allow("administer", "environment", "*"));
             RoleConfig allowRoleConfig = new RoleConfig(new CaseInsensitiveString("allow-permissions"), new Users(), directives2);
 
-            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(Arrays.asList(allowRoleConfig, denyRoleConfig));
+            when(goConfigService.rolesForUser(BOB.getUsername())).thenReturn(List.of(allowRoleConfig, denyRoleConfig));
 
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, null));
             assertThrows(HaltException.class, () -> helper.checkUserHasPermissions(BOB, SupportedAction.VIEW, SupportedEntity.ENVIRONMENT, "env_1"));

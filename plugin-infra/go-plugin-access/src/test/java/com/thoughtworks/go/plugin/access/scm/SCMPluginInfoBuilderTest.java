@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -67,12 +66,12 @@ public class SCMPluginInfoBuilderTest {
 
         SCMPluginInfo pluginInfo = new SCMPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        List<PluginConfiguration> scmConfigurations = Arrays.asList(
+        List<PluginConfiguration> scmConfigurations = List.of(
                 new PluginConfiguration("username", new MetadataWithPartOfIdentity(true, false, true)),
                 new PluginConfiguration("password", new MetadataWithPartOfIdentity(true, true, false))
         );
         PluginView pluginView = new PluginView("some html");
-        List<PluginConfiguration> pluginSettings = Arrays.asList(new PluginConfiguration("k1", new Metadata(true, false)));
+        List<PluginConfiguration> pluginSettings = List.of(new PluginConfiguration("k1", new Metadata(true, false)));
 
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("scm"));

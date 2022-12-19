@@ -41,10 +41,9 @@ import org.springframework.http.HttpStatus;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.function.Predicate;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -133,12 +132,7 @@ public class SslInfrastructureServiceTest {
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {
-        return nameValuePairs.stream().filter(new Predicate<NameValuePair>() {
-            @Override
-            public boolean test(NameValuePair nameValuePair) {
-                return nameValuePair.getName().equals(paramName);
-            }
-        }).findFirst().orElse(null);
+        return nameValuePairs.stream().filter(nameValuePair -> nameValuePair.getName().equals(paramName)).findFirst().orElse(null);
     }
 
 }

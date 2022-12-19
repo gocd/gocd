@@ -57,7 +57,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
@@ -419,7 +418,7 @@ public class JobInstanceServiceTest {
 
     @Test
     public void shouldGetRunningJobsFromJobInstanceDao() {
-        List<JobInstance> expectedRunningJobs = Arrays.asList(job);
+        List<JobInstance> expectedRunningJobs = List.of(job);
         when(jobInstanceDao.getRunningJobs()).thenReturn(expectedRunningJobs);
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,

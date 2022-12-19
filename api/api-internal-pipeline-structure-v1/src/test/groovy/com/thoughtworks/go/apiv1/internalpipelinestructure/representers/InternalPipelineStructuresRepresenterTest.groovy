@@ -30,7 +30,6 @@ import com.thoughtworks.go.util.Node
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static java.util.Arrays.asList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class InternalPipelineStructuresRepresenterTest {
@@ -176,8 +175,8 @@ class InternalPipelineStructuresRepresenterTest {
     def templateBasedPipeline = PipelineConfigMother.pipelineConfigWithTemplate("my-template-based-pipeline", "first-template")
     def group = PipelineConfigMother.createGroup("first-group", pipeline1)
     def group2 = PipelineConfigMother.createGroup("second-group", pipeline2, templateBasedPipeline)
-    def users = asList('user1', 'user2')
-    def roles = asList('role1', 'role2')
+    def users = List.of('user1', 'user2')
+    def roles = List.of('role1', 'role2')
 
     def pipelineStructureViewModel = new PipelineStructureViewModel()
       .setPipelineGroups(new PipelineGroups(group, group2))

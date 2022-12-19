@@ -35,11 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,7 +80,7 @@ public class CcTrayConfigChangeHandlerTest {
 
         handler.call(GoConfigMother.configWithPipelines("pipeline2", "pipeline1")); /* Adds pipeline1 first in config. Then pipeline2. */
 
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(pipeline1_stage1, pipeline1_stage1_job, pipeline2_stage1, pipeline2_stage1_job)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(pipeline1_stage1, pipeline1_stage1_job, pipeline2_stage1, pipeline2_stage1_job)));
         verifyNoInteractions(stageStatusLoader);
     }
 
@@ -102,7 +99,7 @@ public class CcTrayConfigChangeHandlerTest {
         handler.call(GoConfigMother.configWithPipelines("pipeline1"));
 
 
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(existingStageStatus, existingJobStatus)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(existingStageStatus, existingJobStatus)));
         verifyNoInteractions(stageStatusLoader);
     }
 
@@ -117,12 +114,12 @@ public class CcTrayConfigChangeHandlerTest {
         ProjectStatus statusOfJobInDB = new ProjectStatus(jobProjectName, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "job-url");
         when(cache.get(stageProjectName)).thenReturn(null);
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage")))
-                .thenReturn(asList(statusOfStageInDB, statusOfJobInDB));
+                .thenReturn(List.of(statusOfStageInDB, statusOfJobInDB));
 
         handler.call(config);
 
 
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStageInDB, statusOfJobInDB)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStageInDB, statusOfJobInDB)));
     }
 
     @Test
@@ -143,7 +140,7 @@ public class CcTrayConfigChangeHandlerTest {
 
         when(cache.get(stage2ProjectName)).thenReturn(null);
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage2")))
-                .thenReturn(Collections.<ProjectStatus>emptyList());
+                .thenReturn(Collections.emptyList());
 
 
         handler.call(config);
@@ -151,7 +148,7 @@ public class CcTrayConfigChangeHandlerTest {
 
         ProjectStatus expectedNullStatusForStage2 = new ProjectStatus.NullProjectStatus(stage2ProjectName);
         ProjectStatus expectedNullStatusForJob2 = new ProjectStatus.NullProjectStatus(job2ProjectName);
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InCache, statusOfJob1InCache, expectedNullStatusForStage2, expectedNullStatusForJob2)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InCache, statusOfJob1InCache, expectedNullStatusForStage2, expectedNullStatusForJob2)));
     }
 
     /* Simulate adding a job, when server is down. DB does not know anything about that job. */
@@ -168,14 +165,14 @@ public class CcTrayConfigChangeHandlerTest {
         ProjectStatus statusOfJob1InDB = new ProjectStatus(job1ProjectName, "OldActivity-Job", "OldStatus-Job", "OldLabel-Job", new Date(), "job1-url");
         when(cache.get(stage1ProjectName)).thenReturn(null);
         when(stageStatusLoader.getStatusesForStageAndJobsOf(pipelineConfigFor(config, "pipeline1"), stageConfigFor(config, "pipeline1", "stage1")))
-                .thenReturn(asList(statusOfStage1InDB, statusOfJob1InDB));
+                .thenReturn(List.of(statusOfStage1InDB, statusOfJob1InDB));
 
 
         handler.call(config);
 
 
         ProjectStatus expectedNullStatusForNewJob = new ProjectStatus.NullProjectStatus(projectNameOfNewJob);
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InDB, statusOfJob1InDB, expectedNullStatusForNewJob)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InDB, statusOfJob1InDB, expectedNullStatusForNewJob)));
     }
 
     /* Simulate adding a job, in a running system. Cache has the stage info, but not the job info. */
@@ -199,7 +196,7 @@ public class CcTrayConfigChangeHandlerTest {
 
 
         ProjectStatus expectedNullStatusForNewJob = new ProjectStatus.NullProjectStatus(projectNameOfNewJob);
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InCache, statusOfJob1InCache, expectedNullStatusForNewJob)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InCache, statusOfJob1InCache, expectedNullStatusForNewJob)));
         verifyNoInteractions(stageStatusLoader);
     }
 
@@ -222,7 +219,7 @@ public class CcTrayConfigChangeHandlerTest {
         handler.call(config);
 
 
-        verify(cache).replaceAllEntriesInCacheWith(eq(asList(statusOfStage1InCache, statusOfJob1InCache)));
+        verify(cache).replaceAllEntriesInCacheWith(eq(List.of(statusOfStage1InCache, statusOfJob1InCache)));
         verifyNoInteractions(stageStatusLoader);
     }
 
@@ -232,8 +229,8 @@ public class CcTrayConfigChangeHandlerTest {
         pluginRoleUsersStore.assignRole("user4", admin);
 
         Permissions pipeline1Permissions = new Permissions(viewers("user1", "user2"), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
-        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(s("user3"), Collections.singleton(admin)), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
-        when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(m(new CaseInsensitiveString("pipeline1"), pipeline1Permissions, new CaseInsensitiveString("pipeline2"), pipeline2Permissions));
+        Permissions pipeline2Permissions = new Permissions(new AllowedUsers(Set.of("user3"), Set.of(admin)), NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
+        when(pipelinePermissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(Map.of(new CaseInsensitiveString("pipeline1"), pipeline1Permissions, new CaseInsensitiveString("pipeline2"), pipeline2Permissions));
 
         CruiseConfig config = GoConfigMother.defaultCruiseConfig();
         goConfigMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2", "job2");
@@ -328,7 +325,7 @@ public class CcTrayConfigChangeHandlerTest {
     }
 
     private Users viewers(String... users) {
-        return new AllowedUsers(s(users), Collections.emptySet());
+        return new AllowedUsers(Set.of(users), Collections.emptySet());
     }
 
     private PipelineConfig pipelineConfigFor(CruiseConfig config, String pipelineName) {

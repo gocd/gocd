@@ -33,13 +33,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -112,7 +113,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, pkg, repoId, currentUser, result, packageDefinitionService);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pkg.errors().getAllOn("name"), is(Arrays.asList("Package name is mandatory")));
+        assertThat(pkg.errors().getAllOn("name"), is(List.of("Package name is mandatory")));
     }
 
     @Test
@@ -126,7 +127,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, pkg, repoId, currentUser, result, packageDefinitionService);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pkg.errors().getAllOn("name"), is(Arrays.asList("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(pkg.errors().getAllOn("name"), is(List.of("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test

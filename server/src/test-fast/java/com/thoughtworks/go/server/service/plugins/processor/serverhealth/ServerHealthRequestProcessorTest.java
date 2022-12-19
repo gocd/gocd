@@ -28,13 +28,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse.INTERNAL_ERROR;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.server.service.plugins.processor.serverhealth.ServerHealthRequestProcessor.ADD_SERVER_HEALTH_MESSAGES;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -64,7 +63,7 @@ public class ServerHealthRequestProcessorTest {
 
     @Test
     public void shouldAddDeserializedServerHealthMessages() {
-        String requestBody = new Gson().toJson(asList(
+        String requestBody = new Gson().toJson(List.of(
                 new PluginHealthMessage("warning", "message 1"),
                 new PluginHealthMessage("error", "message 2")
         ));
@@ -86,7 +85,7 @@ public class ServerHealthRequestProcessorTest {
         GoApiResponse response = processor.process(descriptor, createRequest("1.0", "INVALID_JSON"));
 
         assertThat(response.responseCode()).isEqualTo(INTERNAL_ERROR);
-        assertThat(new Gson().fromJson(response.responseBody(), Map.class)).isEqualTo(m("message", "Failed to deserialize message from plugin: INVALID_JSON"));
+        assertThat(new Gson().fromJson(response.responseBody(), Map.class)).isEqualTo(Map.of("message", "Failed to deserialize message from plugin: INVALID_JSON"));
     }
 
     private DefaultGoApiRequest createRequest(String apiVersion, String requestBody) {

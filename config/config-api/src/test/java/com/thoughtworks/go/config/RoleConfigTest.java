@@ -28,62 +28,32 @@ public class RoleConfigTest {
 
     @Test
     public void validate_presenceOfRoleName() {
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validate(context);
-            }
-        });
+        validatePresenceOfRoleName(Role::validate);
     }
 
     @Test
     public void validate_nullNameInRole() {
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validate(context);
-            }
-        });
+        validateNullRoleName(Role::validate);
     }
 
     @Test
     public void validate_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validate(context);
-            }
-        });
+        validateUniquenessOfRoleName(Role::validate);
     }
 
     @Test
     public void validateTree_presenceOfRoleName() {
-        validatePresenceOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                assertThat(roleConfig.validateTree(context)).isFalse();
-            }
-        });
+        validatePresenceOfRoleName((roleConfig, context) -> assertThat(roleConfig.validateTree(context)).isFalse());
     }
 
     @Test
     public void validateTree_nullNameInRole() {
-        validateNullRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validateTree(context);
-            }
-        });
+        validateNullRoleName(Role::validateTree);
     }
 
     @Test
     public void validateTree_uniquenessOfRoleName() throws Exception {
-        validateUniquenessOfRoleName(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                assertThat(roleConfig.validateTree(context)).isFalse();
-            }
-        });
+        validateUniquenessOfRoleName((roleConfig, context) -> assertThat(roleConfig.validateTree(context)).isFalse());
     }
 
     @Test
@@ -99,12 +69,7 @@ public class RoleConfigTest {
 
     @Test
     void shouldValidatePolicy() {
-        validatePolicyIsInvalid(new Validator() {
-            @Override
-            public void validate(RoleConfig roleConfig, ValidationContext context) {
-                roleConfig.validateTree(context);
-            }
-        });
+        validatePolicyIsInvalid(Role::validateTree);
     }
 
     private void validatePresenceOfRoleName(Validator v) {

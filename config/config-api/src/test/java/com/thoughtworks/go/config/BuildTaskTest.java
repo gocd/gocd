@@ -23,32 +23,29 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class BuildTaskTest {
 
     @Test
-    public void antTaskShouldNormalizeBuildFile() throws Exception {
+    public void antTaskShouldNormalizeBuildFile() {
         AntTask task = new AntTask();
         task.setBuildFile("pavan\\build.xml");
         assertThat(task.arguments(), containsString("\"pavan/build.xml\""));
     }
 
     @Test
-    public void rakeTaskShouldNormalizeBuildFile() throws Exception {
+    public void rakeTaskShouldNormalizeBuildFile() {
         RakeTask task = new RakeTask();
         task.setBuildFile("pavan\\build.xml");
         assertThat(task.arguments(), containsString("\"pavan/build.xml\""));
     }
 
     @Test
-    public void shouldUpdateAllItsAttributes() throws Exception {
+    public void shouldUpdateAllItsAttributes() {
         BuildTask task = new BuildTask() {
 
             @Override
@@ -71,18 +68,18 @@ public class BuildTaskTest {
                 return null;
             }
         };
-        task.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
+        task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
         assertThat(task.getBuildFile(), Matchers.is("foo/build.xml"));
         assertThat(task.getTarget(), Matchers.is("foo.target"));
         assertThat(task.workingDirectory(), Matchers.is("work_dir"));
-        task.setConfigAttributes(m(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
+        task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
         assertThat(task.getBuildFile(), Matchers.is(nullValue()));
         assertThat(task.getTarget(), Matchers.is(nullValue()));
         assertThat(task.workingDirectory(), Matchers.is(nullValue()));
     }
 
     @Test
-    public void shouldSetWorkingDirectoryToNullIfValueIsAnEmptyString() throws Exception {
+    public void shouldSetWorkingDirectoryToNullIfValueIsAnEmptyString() {
         BuildTask task = new BuildTask() {
 
             @Override
@@ -105,14 +102,14 @@ public class BuildTaskTest {
                 return null;
             }
         };
-        task.setConfigAttributes(m(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
+        task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "", BuildTask.TARGET, "", BuildTask.WORKING_DIRECTORY, ""));
         assertThat(task.getBuildFile(), is(nullValue()));
         assertThat(task.getTarget(), is(nullValue()));
         assertThat(task.workingDirectory(), is(nullValue()));
     }
 
     @Test
-    public void shouldNotUpdateItsAttributesWhenMapDoesNotHaveKeys() throws Exception {
+    public void shouldNotUpdateItsAttributesWhenMapDoesNotHaveKeys() {
         BuildTask task = new BuildTask() {
 
             @Override
@@ -135,8 +132,8 @@ public class BuildTaskTest {
                 return null;
             }
         };
-        task.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
-        task.setConfigAttributes(m());
+        task.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", BuildTask.TARGET, "foo.target", BuildTask.WORKING_DIRECTORY, "work_dir"));
+        task.setConfigAttributes(Map.of());
         assertThat(task.getBuildFile(), Matchers.is("foo/build.xml"));
         assertThat(task.getTarget(), Matchers.is("foo.target"));
         assertThat(task.workingDirectory(), Matchers.is("work_dir"));

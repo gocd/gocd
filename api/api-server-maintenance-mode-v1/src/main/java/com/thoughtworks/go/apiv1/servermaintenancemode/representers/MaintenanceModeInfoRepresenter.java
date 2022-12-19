@@ -52,30 +52,22 @@ public class MaintenanceModeInfoRepresenter {
     }
 
     private static Consumer<OutputListWriter> runningMDUsToJSON(Collection<MaterialPerformingMDU> runningMDUs) {
-        return listWriter -> {
-            runningMDUs.stream().forEach(materialPerformingMDU -> {
-                listWriter.addChild(childItemWriter -> {
-                    MaterialRepresenter.toJSON(childItemWriter, materialPerformingMDU.getMaterial().config());
-                    childItemWriter.add("mdu_start_time", materialPerformingMDU.getTimestamp());
-                });
-            });
-        };
+        return listWriter -> runningMDUs.stream().forEach(materialPerformingMDU -> listWriter.addChild(childItemWriter -> {
+                MaterialRepresenter.toJSON(childItemWriter, materialPerformingMDU.getMaterial().config());
+                childItemWriter.add("mdu_start_time", materialPerformingMDU.getTimestamp());
+            }));
     }
 
     private static Consumer<OutputListWriter> runningJobsToJSON(List<JobInstance> runningJobs) {
-        return listWriter -> {
-            runningJobs.stream().forEach(job -> {
-                listWriter.addChild(childItemWriter -> {
-                    childItemWriter.add("pipeline_name", job.getPipelineName());
-                    childItemWriter.add("pipeline_counter", job.getPipelineCounter());
-                    childItemWriter.add("stage_name", job.getStageName());
-                    childItemWriter.add("stage_counter", job.getStageCounter());
-                    childItemWriter.add("name", job.getName());
-                    childItemWriter.add("state", job.getState().toString());
-                    childItemWriter.add("scheduled_date", new Timestamp(job.getScheduledDate().getTime()));
-                    childItemWriter.add("agent_uuid", job.getAgentUuid());
-                });
-            });
-        };
+        return listWriter -> runningJobs.stream().forEach(job -> listWriter.addChild(childItemWriter -> {
+                childItemWriter.add("pipeline_name", job.getPipelineName());
+                childItemWriter.add("pipeline_counter", job.getPipelineCounter());
+                childItemWriter.add("stage_name", job.getStageName());
+                childItemWriter.add("stage_counter", job.getStageCounter());
+                childItemWriter.add("name", job.getName());
+                childItemWriter.add("state", job.getState().toString());
+                childItemWriter.add("scheduled_date", new Timestamp(job.getScheduledDate().getTime()));
+                childItemWriter.add("agent_uuid", job.getAgentUuid());
+            }));
     }
 }

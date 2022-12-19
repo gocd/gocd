@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.util.Collections;
+import java.util.List;
 
 @Extension
 public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
@@ -47,6 +47,6 @@ public class ClassWhichUsesSomeClassInJavaxPackage implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("some-extension-type", List.of("1.0"));
     }
 }

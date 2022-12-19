@@ -24,9 +24,7 @@ public class StageRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, StageInstanceModel model, String pipelineName, String pipelineCounter) {
         jsonOutputWriter
-            .addLinks(linkWriter -> {
-                linkWriter.addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter()));
-            })
+            .addLinks(linkWriter -> linkWriter.addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter())))
             .add("name", model.getName())
             .add("counter", model.getCounter())
             .add("status", model.getState().name())
@@ -37,9 +35,7 @@ public class StageRepresenter {
             jsonOutputWriter.add("cancelled_by", model.getCancelledBy() == null ? "GoCD" : model.getCancelledBy());
         }
         if (model.getPreviousStage() != null) {
-            jsonOutputWriter.addChild("previous_stage", childWriter -> {
-                StageRepresenter.toJSON(childWriter, model.getPreviousStage(), pipelineName, pipelineCounter);
-            });
+            jsonOutputWriter.addChild("previous_stage", childWriter -> StageRepresenter.toJSON(childWriter, model.getPreviousStage(), pipelineName, pipelineCounter));
         }
     }
 }

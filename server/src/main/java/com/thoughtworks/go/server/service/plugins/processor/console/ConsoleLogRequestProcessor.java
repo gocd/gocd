@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.text.MessageFormat.format;
-import static java.util.Arrays.asList;
 
 @Component
 public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
@@ -44,7 +43,7 @@ public class ConsoleLogRequestProcessor implements GoPluginApiRequestProcessor {
 
     public static final String VERSION_1 = "1.0";
     public static final String VERSION_2 = "2.0";
-    private static final List<String> supportedVersions = asList(VERSION_1, VERSION_2);
+    private static final List<String> supportedVersions = List.of(VERSION_1, VERSION_2);
 
     private Map<String, MessageHandlerForConsoleLogRequestProcessor> versionToMessageHandlerMap;
     private ConsoleService consoleService;

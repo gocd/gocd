@@ -21,8 +21,8 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -45,24 +45,21 @@ public class ConfigurationPropertyRepresenter {
             writer.add("encrypted_value", configurationProperty.getEncryptedValue());
         }
         if (configurationProperty.hasErrors()) {
-            writer.addChild("errors", errorWriter -> new ErrorGetter(new LinkedHashMap<>() {{
-                put("encryptedValue", "encrypted_value");
-                put("configurationValue", "configuration_value");
-                put("configurationKey", "configuration_key");
-            }}).toJSON(errorWriter, configurationProperty));
+            writer.addChild("errors", errorWriter -> new ErrorGetter(Map.of(
+                "encryptedValue", "encrypted_value",
+                "configurationValue", "configuration_value",
+                "configurationKey", "configuration_key"
+            )).toJSON(errorWriter, configurationProperty));
         }
     }
 
     public static List<ConfigurationProperty> fromJSONArray(JsonReader jsonReader, String arrayKey) {
         List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-        jsonReader.readArrayIfPresent(arrayKey, properties -> {
-            properties.forEach(property -> {
-                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
-                ConfigurationProperty configurationProperty = fromJSON(configPropertyReader);
-                configurationProperties.add(configurationProperty);
-            });
-
-        });
+        jsonReader.readArrayIfPresent(arrayKey, properties -> properties.forEach(property -> {
+            JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
+            ConfigurationProperty configurationProperty = fromJSON(configPropertyReader);
+            configurationProperties.add(configurationProperty);
+        }));
         return configurationProperties;
     }
 
@@ -86,14 +83,11 @@ public class ConfigurationPropertyRepresenter {
      */
     public static List<ConfigurationProperty> fromJSONArrayHandlingEncryption(JsonReader jsonReader, String arrayKey) {
         List<ConfigurationProperty> configurationProperties = new ArrayList<>();
-        jsonReader.readArrayIfPresent(arrayKey, properties -> {
-            properties.forEach(property -> {
-                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
-                ConfigurationProperty configurationProperty = fromJSONHandlingEncryption(configPropertyReader);
-                configurationProperties.add(configurationProperty);
-            });
-
-        });
+        jsonReader.readArrayIfPresent(arrayKey, properties -> properties.forEach(property -> {
+            JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
+            ConfigurationProperty configurationProperty = fromJSONHandlingEncryption(configPropertyReader);
+            configurationProperties.add(configurationProperty);
+        }));
         return configurationProperties;
     }
 

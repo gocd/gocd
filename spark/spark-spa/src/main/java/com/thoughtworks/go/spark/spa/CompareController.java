@@ -70,10 +70,10 @@ public class CompareController implements SparkController {
         }
         bombIfNotFound(pipelineName, fromCounter);
         bombIfNotFound(pipelineName, toCounter);
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Compare");
-            put("meta", meta(request));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Compare",
+            "meta", meta(request)
+        );
         return new ModelAndView(object, null);
     }
 

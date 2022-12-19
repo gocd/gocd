@@ -19,12 +19,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RolesConfigTest {
@@ -58,7 +54,7 @@ public class RolesConfigTest {
         Role secondRole = new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user3")));
         Role thirdRole = new RoleConfig(new CaseInsensitiveString("role3"), new RoleUser(new CaseInsensitiveString("user2")), new RoleUser(new CaseInsensitiveString("user3")));
         RolesConfig rolesConfig = new RolesConfig(firstRole, secondRole, thirdRole);
-        assertThat(rolesConfig.memberRoles(new AdminUser(new CaseInsensitiveString("user1"))), is(asList(firstRole, secondRole)));
+        assertThat(rolesConfig.memberRoles(new AdminUser(new CaseInsensitiveString("user1"))), is(List.of(firstRole, secondRole)));
     }
 
     @Test
@@ -66,8 +62,8 @@ public class RolesConfigTest {
         Role firstRole = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("USER1")), new RoleUser(new CaseInsensitiveString("user2")));
         Role secondRole = new RoleConfig(new CaseInsensitiveString("ROLE2"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user3")));
         RolesConfig rolesConfig = new RolesConfig(firstRole, secondRole);
-        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role1"))), is(asList(firstRole)));
-        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role2"))), is(asList(secondRole)));
+        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role1"))), is(List.of(firstRole)));
+        assertThat(rolesConfig.memberRoles(new AdminRole(new CaseInsensitiveString("role2"))), is(List.of(secondRole)));
     }
 
     @Test

@@ -20,8 +20,6 @@ import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
 
 public class FeatureTogglesRepresenter {
     public static void toJSON(OutputListWriter outputWriter, FeatureToggles featureToggles) {
-        featureToggles.all().forEach(toggle -> {
-            outputWriter.addChild(writer -> FeatureToggleRepresenter.toJSON(writer, toggle));
-        });
+        featureToggles.all().forEach(toggle -> outputWriter.addChild(writer -> FeatureToggleRepresenter.toJSON(writer, toggle)));
     }
 }

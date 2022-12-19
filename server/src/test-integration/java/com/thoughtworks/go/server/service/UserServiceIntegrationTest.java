@@ -45,11 +45,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -263,7 +262,7 @@ public class UserServiceIntegrationTest {
     public void shouldCreateANewUser() {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(Arrays.asList(foo), result);
+        userService.create(List.of(foo), result);
 
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(), is("User 'fooUser' successfully added."));
@@ -273,7 +272,7 @@ public class UserServiceIntegrationTest {
     public void shouldReturnErrorWhenTryingToAddAnonymousUser() {
         UserSearchModel anonymous = new UserSearchModel(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()), "Mr. Anonymous", "anon@cruise.com"), UserSourceType.PLUGIN);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(Arrays.asList(anonymous), result);
+        userService.create(List.of(anonymous), result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Failed to add user. Username 'anonymous' is not permitted."));
@@ -284,7 +283,7 @@ public class UserServiceIntegrationTest {
         UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
         addUser(foo.getUser());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(Arrays.asList(foo), result);
+        userService.create(List.of(foo), result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(EntityType.User.alreadyExists("fooUser")));
@@ -304,7 +303,7 @@ public class UserServiceIntegrationTest {
         addUser(new User("user_two"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.disable(Arrays.asList("user_one"), result);
+        userService.disable(List.of("user_one"), result);
 
         assertThat(result.isSuccessful(), is(true));
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
@@ -321,7 +320,7 @@ public class UserServiceIntegrationTest {
 
         createDisabledUser("user_two");
 
-        userService.enable(Arrays.asList("user_one"), new HttpLocalizedOperationResult());
+        userService.enable(List.of("user_one"), new HttpLocalizedOperationResult());
 
         assertThat(result.isSuccessful(), is(true));
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
@@ -347,7 +346,7 @@ public class UserServiceIntegrationTest {
         User invalidUser = new User("fooUser", "Foo User", "invalidEmail");
         UserSearchModel searchModel = new UserSearchModel(invalidUser, UserSourceType.PLUGIN);
 
-        userService.create(Arrays.asList(searchModel), result);
+        userService.create(List.of(searchModel), result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Failed to add user. Validations failed. Invalid email address."));
@@ -362,10 +361,10 @@ public class UserServiceIntegrationTest {
 
         userService.create(users("Jake", "Pavan", "Shilpa", "Yogi"), new HttpLocalizedOperationResult());
 
-        userService.disable(Arrays.asList("Yogi"), result);
+        userService.disable(List.of("Yogi"), result);
         assertThat(result.isSuccessful(), is(true));
 
-        userService.disable(Arrays.asList("Pavan", "Jake"), result);//disable remaining admins
+        userService.disable(List.of("Pavan", "Jake"), result);//disable remaining admins
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
@@ -377,7 +376,7 @@ public class UserServiceIntegrationTest {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(true));
         assertThat(result.isSuccessful(), is(true));
@@ -387,9 +386,9 @@ public class UserServiceIntegrationTest {
     public void modifyRoles_shouldNotAddUserToExistingRoleIfAlreadyAMember() {
         addUser(new User("user-1"));
         // first time
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         // second time
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(true));
     }
@@ -397,7 +396,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void modifyRoles_shouldCreateRoleAndAddUserIfRoleDoesntExist() {
         addUser(new User("user-1"));
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(true));
     }
@@ -407,7 +406,7 @@ public class UserServiceIntegrationTest {
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection(".dev+", TriStateSelection.Action.add)), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection(".dev+", TriStateSelection.Action.add)), result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), containsString("Failed to add role. Reason - "));
@@ -417,9 +416,9 @@ public class UserServiceIntegrationTest {
     public void modifyRoles_shouldRemoveUserFromRole() {
         addUser(new User("user-1"));
         // add it first
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         // now remove it
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.remove)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.remove)), new HttpLocalizedOperationResult());
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(false));
     }
@@ -428,9 +427,9 @@ public class UserServiceIntegrationTest {
     public void modifyRoles_shouldNotModifyRolesWhenActionIsNoChange() {
         addUser(new User("user-1"));
         // add it first
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
         // no change
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.nochange)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.nochange)), new HttpLocalizedOperationResult());
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(true));
     }
@@ -440,7 +439,7 @@ public class UserServiceIntegrationTest {
         assertThat(userDao.findUser("user-1"), is(instanceOf(NullUser.class)));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
 
         assertThat(userDao.findUser("user-1"), is(instanceOf(NullUser.class)));
         assertThat(result.isSuccessful(), is(false));
@@ -452,7 +451,7 @@ public class UserServiceIntegrationTest {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("dev")).hasMember(new CaseInsensitiveString("user-1")), is(true));
         assertThat(cruiseConfig.server().security().adminsConfig().hasUser(new CaseInsensitiveString("user-1"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER), is(true));
@@ -465,7 +464,7 @@ public class UserServiceIntegrationTest {
         addUser(new User("loser"));
         addUser(new User("boozer"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), new ArrayList<>(), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), new ArrayList<>(), result);
         CruiseConfig cruiseConfig = goConfigDao.load();
         final AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
         assertThat(adminsConfig.hasUser(new CaseInsensitiveString("user"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER), is(true));
@@ -491,7 +490,7 @@ public class UserServiceIntegrationTest {
         assertThat(adminsConfig.hasUser(new CaseInsensitiveString("boozer"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER), is(true));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove), new ArrayList<>(), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove), new ArrayList<>(), result);
 
         cruiseConfig = goConfigDao.load();
         securityConfig = cruiseConfig.server().security();
@@ -517,7 +516,7 @@ public class UserServiceIntegrationTest {
 
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), new ArrayList<>(), result);
+        userService.modifyRolesAndUserAdminPrivileges(List.of("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), new ArrayList<>(), result);
 
         final CruiseConfig cruiseConfig = goConfigDao.load();
         final SecurityConfig securityConfig = cruiseConfig.server().security();
@@ -537,11 +536,11 @@ public class UserServiceIntegrationTest {
         addUser(new User("yogi"));
         addUser(new User("shilpa"));
         addUser(new User("pavan"));
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("girl", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("boy", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("pavan"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("none", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
-        List<TriStateSelection> selections = userService.getAdminAndRoleSelections(Arrays.asList("yogi", "shilpa")).getRoleSelections();
+        userService.modifyRolesAndUserAdminPrivileges(List.of("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("dev", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("girl", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("yogi"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("boy", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        userService.modifyRolesAndUserAdminPrivileges(List.of("pavan"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("none", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        List<TriStateSelection> selections = userService.getAdminAndRoleSelections(List.of("yogi", "shilpa")).getRoleSelections();
         assertThat(selections.size(), is(4));
         assertRoleSelection(selections.get(0), "boy", TriStateSelection.Action.nochange);
         assertRoleSelection(selections.get(1), "dev", TriStateSelection.Action.add);
@@ -556,8 +555,8 @@ public class UserServiceIntegrationTest {
         configFileHelper.addRole(new PluginRoleConfig("plugin-role", "auth_id"));
         addUser(new User("yogi"));
         addUser(new User("shilpa"));
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("core-role", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
-        List<TriStateSelection> selections = userService.getAdminAndRoleSelections(Arrays.asList("yogi", "shilpa")).getRoleSelections();
+        userService.modifyRolesAndUserAdminPrivileges(List.of("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), List.of(new TriStateSelection("core-role", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        List<TriStateSelection> selections = userService.getAdminAndRoleSelections(List.of("yogi", "shilpa")).getRoleSelections();
         assertThat(selections.size(), is(1));
         assertRoleSelection(selections.get(0), "core-role", TriStateSelection.Action.add);
     }
@@ -565,10 +564,10 @@ public class UserServiceIntegrationTest {
     @Test
     public void shouldGetAdminSelectionWithCorrectState() {
         configFileHelper.addAdmins("foo", "quux");
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo", "quux")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("baz", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("foo", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("foo", "quux")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("baz", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove)));
     }
 
     @Test
@@ -578,11 +577,11 @@ public class UserServiceIntegrationTest {
         configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("bar-grp"), new RoleUser(new CaseInsensitiveString("bar")), new RoleUser(new CaseInsensitiveString("bar-one"))));
         configFileHelper.addAdminRoles("foo-grp", "quux-grp");
 
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add, false)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange, false)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("bar", "baz")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("baz")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove)));
-        assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo", "quux")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add, false)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add, false)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("foo", "bar")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange, false)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("bar", "baz")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("baz")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove)));
+        assertThat(userService.getAdminAndRoleSelections(List.of("foo", "quux")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add, false)));
     }
 
     @Test

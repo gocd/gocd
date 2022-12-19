@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.domain.user;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static java.lang.String.format;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PipelineSelectionsTest {
     @Test
     public void etagBasedOnFilterContent() {
-        PipelineSelections ps = PipelineSelectionsHelper.with(Arrays.asList("p1", "p2"));
+        PipelineSelections ps = PipelineSelectionsHelper.with(List.of("p1", "p2"));
         assertEquals("148c3fde87ad2ac597262975fece58e64036a79ced54351a700232ac6fda90b0", ps.etag());
 
         ps.update(Filters.defaults(), null, null);

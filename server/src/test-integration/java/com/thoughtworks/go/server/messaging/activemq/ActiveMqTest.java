@@ -30,8 +30,8 @@ import javax.jms.JMSException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -58,7 +58,8 @@ public class ActiveMqTest implements GoMessageListener {
     @Test
     public void shouldBeAbleToListenForMessages() throws Exception {
         GoMessageTopic<GoTextMessage> topic
-                = new GoMessageTopic<GoTextMessage>(messaging, "queue-name") {};
+                = new GoMessageTopic<>(messaging, "queue-name") {
+        };
         topic.addListener(this);
 
         topic.post(new GoTextMessage("Hello World!"));
@@ -74,7 +75,8 @@ public class ActiveMqTest implements GoMessageListener {
         FastListener fast1 = new FastListener();
 
         GoMessageQueue<GoTextMessage> queue
-                = new GoMessageQueue<GoTextMessage>(messaging, "queue-name") {};
+                = new GoMessageQueue<>(messaging, "queue-name") {
+        };
         queue.addListener(hanging);
         queue.addListener(fast1);
 
@@ -96,7 +98,8 @@ public class ActiveMqTest implements GoMessageListener {
         ExceptionListener exceptionListener = new ExceptionListener();
 
         GoMessageQueue<GoTextMessage> queue
-                = new GoMessageQueue<GoTextMessage>(messaging, "queue-name") {};
+                = new GoMessageQueue<>(messaging, "queue-name") {
+        };
         queue.addListener(exceptionListener);
 
         queue.post(new GoTextMessage("Hello World1"));

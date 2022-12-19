@@ -39,7 +39,6 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static java.util.Arrays.asList
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
@@ -117,7 +116,7 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
       def groups = new PipelineGroups([group])
       def templateConfigs = new TemplatesConfig(template)
       def users = Set.of('user1', 'user2')
-      def roles = asList('role1', 'role2')
+      def roles = List.of('role1', 'role2')
 
       when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(groups)
       when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(templateConfigs)

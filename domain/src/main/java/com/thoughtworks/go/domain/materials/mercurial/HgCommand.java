@@ -117,14 +117,14 @@ public class HgCommand extends SCMCommand {
     private List<Modification> findRecentModifications(int count) {
         // Currently impossible to check modifications on a remote repository.
         InMemoryStreamConsumer consumer = inMemoryConsumer();
-        bombUnless(pull(consumer), "Failed to run hg pull command: " + consumer.getAllOutput());
+        bombUnless(pull(consumer), () -> "Failed to run hg pull command: " + consumer.getAllOutput());
         CommandLine hg = hg("log", "--limit", String.valueOf(count), branchArg(), "--style", templatePath());
         return new HgModificationSplitter(execute(hg)).modifications();
     }
 
     public List<Modification> modificationsSince(Revision revision) {
         InMemoryStreamConsumer consumer = inMemoryConsumer();
-        bombUnless(pull(consumer), "Failed to run hg pull command: " + consumer.getAllOutput());
+        bombUnless(pull(consumer), () -> "Failed to run hg pull command: " + consumer.getAllOutput());
         CommandLine hg = hg("log", "-r", "tip:" + revision.getRevision(), branchArg(), "--style", templatePath());
         return new HgModificationSplitter(execute(hg)).filterOutRevision(revision);
     }

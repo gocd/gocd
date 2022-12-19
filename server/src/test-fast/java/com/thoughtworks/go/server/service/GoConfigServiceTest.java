@@ -56,7 +56,9 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -160,11 +162,11 @@ public class GoConfigServiceTest {
         assertThat(goConfigService.shouldFetchMaterials("cruise", "dev"), is(false));
     }
 
-    private void expectLoad(final CruiseConfig result) throws Exception {
+    private void expectLoad(final CruiseConfig result) {
         when(goConfigDao.load()).thenReturn(result);
     }
 
-    private void expectLoadForEditing(final CruiseConfig result) throws Exception {
+    private void expectLoadForEditing(final CruiseConfig result) {
         when(goConfigDao.loadForEditing()).thenReturn(result);
     }
 
@@ -249,7 +251,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldRememberValidityWhenCruiseConfigLoaderHasInvalidConfigFile() throws Exception {
+    public void shouldRememberValidityWhenCruiseConfigLoaderHasInvalidConfigFile() {
         GoConfigService service = goConfigServiceWithInvalidStatus();
         assertThat(service.checkConfigFileValid().isValid(), is(false));
         assertThat(((GoConfigValidity.InvalidGoConfig) service.checkConfigFileValid()).errorMessage(), is("JDom exception"));
@@ -271,7 +273,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnInvalidWhenWholeConfigIsInvalidAndShouldUpgrade() throws Exception {
+    public void shouldReturnInvalidWhenWholeConfigIsInvalidAndShouldUpgrade() {
         CruiseConfig config = configWithPipeline();
         when(goConfigDao.loadForEditing()).thenReturn(config);
         String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -287,7 +289,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnInvalidWhenWholeConfigIsInvalid() throws Exception {
+    public void shouldReturnInvalidWhenWholeConfigIsInvalid() {
         CruiseConfig config = configWithPipeline();
         when(goConfigDao.loadForEditing()).thenReturn(config);
         String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -482,7 +484,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldFindMaterialByPipelineUniqueFingerprint() throws Exception {
+    public void shouldFindMaterialByPipelineUniqueFingerprint() {
         SvnMaterialConfig svnMaterialConfig = svn("repo", null, null, false);
         svnMaterialConfig.setName(new CaseInsensitiveString("foo"));
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
@@ -493,7 +495,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnNullIfNoMaterialMatches() throws Exception {
+    public void shouldReturnNullIfNoMaterialMatches() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("upstream-stage"));
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(dependencyMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
@@ -502,7 +504,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldFindMaterialConfigBasedOnFingerprint() throws Exception {
+    public void shouldFindMaterialConfigBasedOnFingerprint() {
         SvnMaterialConfig expected = svn("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(expected));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
@@ -512,7 +514,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenUnableToFindMaterialBasedOnFingerprint() throws Exception {
+    public void shouldThrowExceptionWhenUnableToFindMaterialBasedOnFingerprint() {
         SvnMaterialConfig svnMaterialConfig = svn("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
@@ -526,7 +528,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnDependentPiplinesForAGivenPipeline() throws Exception {
+    public void shouldReturnDependentPiplinesForAGivenPipeline() {
         PipelineConfig up = createPipelineConfig("blahPipeline", "blahStage");
         up.addMaterialConfig(MaterialConfigsMother.hgMaterialConfig());
         PipelineConfig down1 = GoConfigMother.createPipelineConfigWithMaterialConfig("down1", new DependencyMaterialConfig(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage")));
@@ -536,11 +538,11 @@ public class GoConfigServiceTest {
                         new CaseInsensitiveString("blahStage")))
         ));
 
-        assertThat(goConfigService.downstreamPipelinesOf("blahPipeline"), is(Arrays.asList(down1, down2)));
+        assertThat(goConfigService.downstreamPipelinesOf("blahPipeline"), is(List.of(down1, down2)));
     }
 
     @Test
-    public void shouldReturnUpstreamDependencyGraphForAGivenPipeline() throws Exception {
+    public void shouldReturnUpstreamDependencyGraphForAGivenPipeline() {
         PipelineConfig current = GoConfigMother.createPipelineConfigWithMaterialConfig("current", new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")),
                 new DependencyMaterialConfig(new CaseInsensitiveString("up2"), new CaseInsensitiveString("first")));
         PipelineConfig up1 = GoConfigMother.createPipelineConfigWithMaterialConfig("up1", new DependencyMaterialConfig(new CaseInsensitiveString("uppest"), new CaseInsensitiveString("first")));
@@ -571,7 +573,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldRegisterBaseUrlChangeListener() throws Exception {
+    public void shouldRegisterBaseUrlChangeListener() {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
         when(goConfigDao.load()).thenReturn(cruiseConfig);
         goConfigService.initialize();
@@ -619,7 +621,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldUseInstanceFactoryToCreateAStageInstanceForTheSpecifiedPipelineStageCombination() throws Exception {
+    public void shouldUseInstanceFactoryToCreateAStageInstanceForTheSpecifiedPipelineStageCombination() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo-pipeline", "foo-stage", "foo-job");
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser");
         String md5 = "foo-md5";
@@ -851,14 +853,14 @@ public class GoConfigServiceTest {
     @Test
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.any())).thenReturn(expectedSaveState);
         ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), "md5", null, null, null, null, "http://site",
                 "https://site", "location");
         assertThat(configSaveState, is(expectedSaveState));
     }
 
     @Test
-    public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
+    public void shouldDelegateToConfig_getAllPipelinesInGroup() {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(goConfigDao.loadForEditing()).thenReturn(cruiseConfig);
         goConfigService.getAllPipelinesForEditInGroup("group");
@@ -899,7 +901,7 @@ public class GoConfigServiceTest {
         DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
-        HashSet<MaterialConfig> materialConfigs = new HashSet<>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
+        Set<MaterialConfig> materialConfigs = Set.of(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig);
 
         when(goConfigService.getCurrentConfig()).thenReturn(config);
         when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);
@@ -916,7 +918,7 @@ public class GoConfigServiceTest {
         DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
-        HashSet<MaterialConfig> materialConfigs = new HashSet<>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
+        Set<MaterialConfig> materialConfigs = Set.of(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig);
 
         when(goConfigService.getCurrentConfig()).thenReturn(config);
         when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);
@@ -929,7 +931,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToEditAnExistentLocalPipelineWithAdminPrivileges() throws Exception {
+    public void shouldBeAbleToEditAnExistentLocalPipelineWithAdminPrivileges() {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         PipelineConfig pipeline = new PipelineConfig();
         pipeline.setName("pipeline1");
@@ -944,7 +946,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldNotBeAbleToEditANonExistentPipeline() throws Exception {
+    public void shouldNotBeAbleToEditANonExistentPipeline() {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
@@ -954,7 +956,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldNotBeAbleToEditPipelineIfUserDoesNotHaveSufficientPermissions() throws Exception {
+    public void shouldNotBeAbleToEditPipelineIfUserDoesNotHaveSufficientPermissions() {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         PipelineConfig pipeline = new PipelineConfig();
         pipeline.setName("pipeline1");
@@ -972,7 +974,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldNotAllowEditOfConfigRepoPipelines() throws Exception {
+    public void shouldNotAllowEditOfConfigRepoPipelines() {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);

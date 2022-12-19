@@ -64,9 +64,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
 import static java.lang.String.format;
 import static java.time.Duration.between;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
@@ -182,7 +180,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, uuids, TRUE, emptyList(), emptyList());
-        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), singletonList(envConfig.name().toString()), emptyList(), TRUE)) {
+        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), List.of(envConfig.name().toString()), emptyList(), TRUE)) {
             validator.validate();
 
             List<String> uuidsToAssociate = (uuids == null) ? emptyList() : uuids;
@@ -201,7 +199,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, union(agentUUIDsToAssociate, agentUUIDsToRemove), TRUE, emptyList(), emptyList());
-        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), singletonList(envConfig.name().toString()), emptyList(), TRUE)) {
+        if (isAnyOperationPerformedOnBulkAgents(emptyList(), emptyList(), List.of(envConfig.name().toString()), emptyList(), TRUE)) {
             validator.validate();
 
             List<Agent> agents = getAgentsToAddEnvToOrRemoveEnvFrom(envConfig.name().toString(), agentUUIDsToAssociate, agentUUIDsToRemove);
@@ -233,7 +231,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (agentInstance.isIpChangeRequired(agentRuntimeInfo.getIpAdress())) {
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", agentRuntimeInfo.getUUId(), agentInstance.getAgent().getIpaddress(), agentRuntimeInfo.getIpAdress());
             Agent agent = (agentInstance.isRegistered() ? agentInstance.getAgent() : null);
-            bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
+            bombIfNull(agent, () -> "Unable to set agent ipAddress; Agent [" + agentInstance.getAgent().getUuid() + "] not found.");
             agent.setIpaddress(agentRuntimeInfo.getIpAdress());
             saveOrUpdate(agent);
         }
@@ -304,11 +302,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void addWarningForAgentsStuckInCancel() {
-        agentInstances.agentsStuckInCancel().forEach(agentInstance -> {
-            serverHealthService.update(warning(format("Agent `%s` is stuck in cancel.", agentInstance.getHostname()),
-                    format("Looks like the agent is stuck cancelling a job, the job was cancelled %s minutes ago.", cancelledForMins(agentInstance.cancelledAt())),
-                    HealthStateType.general(GLOBAL), Timeout.THIRTY_SECONDS));
-        });
+        agentInstances.agentsStuckInCancel().forEach(agentInstance -> serverHealthService.update(warning(format("Agent `%s` is stuck in cancel.", agentInstance.getHostname()),
+                format("Looks like the agent is stuck cancelling a job, the job was cancelled %s minutes ago.", cancelledForMins(agentInstance.cancelledAt())),
+                HealthStateType.general(GLOBAL), Timeout.THIRTY_SECONDS)));
     }
 
     public void killAllRunningTasksOnAgent(String uuid) throws InvalidAgentInstructionException {
@@ -394,7 +390,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void disableAgents(String... uuids) {
         if (uuids != null) {
-            agentDao.disableAgents(asList(uuids));
+            agentDao.disableAgents(Arrays.asList(uuids));
         }
     }
 
@@ -559,7 +555,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private Agent getAgentFromDBAfterAddingEnvToExistingEnvs(String env, String uuid) {
         Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
-        String envsToSet = append(agent.getEnvironments(), singletonList(env));
+        String envsToSet = append(agent.getEnvironments(), List.of(env));
         agent.setEnvironments(envsToSet);
         return agent;
     }
@@ -573,7 +569,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private Agent getAgentFromDBAfterRemovingEnvFromExistingEnvs(String env, String uuid) {
         Agent agent = agentDao.getAgentByUUIDFromCacheOrDB(uuid);
-        String envsToSet = remove(agent.getEnvironments(), singletonList(env));
+        String envsToSet = remove(agent.getEnvironments(), List.of(env));
         agent.setEnvironments(envsToSet);
         return agent;
     }

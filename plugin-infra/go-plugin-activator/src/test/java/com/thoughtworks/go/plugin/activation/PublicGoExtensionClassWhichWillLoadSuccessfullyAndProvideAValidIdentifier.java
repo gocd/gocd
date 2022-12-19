@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import java.util.Collections;
+import java.util.List;
 
 @Extension
 public class PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier implements GoPlugin {
@@ -39,6 +39,6 @@ public class PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIden
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("test-extension", Collections.singletonList("2.0"));
+        return new GoPluginIdentifier("test-extension", List.of("2.0"));
     }
 }

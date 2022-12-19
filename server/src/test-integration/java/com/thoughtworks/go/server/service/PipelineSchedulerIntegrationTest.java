@@ -52,11 +52,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.BooleanSupplier;
+import java.util.Map;
 
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
@@ -129,22 +127,17 @@ public class PipelineSchedulerIntegrationTest {
 
     @Test
     public void shouldPassOverriddenEnvironmentVariablesForScheduling() {
-        final ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), Collections.singletonMap("KEY", "value"), new HashMap<>());
+        final ScheduleOptions scheduleOptions = new ScheduleOptions(new HashMap<>(), Map.of("KEY", "value"), new HashMap<>());
         HttpOperationResult operationResult = new HttpOperationResult();
         goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_MINGLE)).setVariables(env("KEY", "somejunk"));
         serverHealthService.update(ServerHealthState.failToScheduling(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, "should wait till cleared"));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.message(), operationResult.canContinue(),is(true));
-        Assertions.waitUntil(Timeout.ONE_MINUTE, new BooleanSupplier() {
-            @Override
-            public boolean getAsBoolean() {
-                return serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0;
-            }
-        });
+        Assertions.waitUntil(Timeout.ONE_MINUTE, () -> serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0);
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_MINGLE));
 
         EnvironmentVariables overriddenVariables = buildCause.getVariables();
-        assertThat(overriddenVariables, is(new EnvironmentVariables(Arrays.asList(new EnvironmentVariable("KEY", "value")))));
+        assertThat(overriddenVariables, is(new EnvironmentVariables(List.of(new EnvironmentVariable("KEY", "value")))));
     }
 
 
@@ -197,7 +190,7 @@ public class PipelineSchedulerIntegrationTest {
     }
 
     @Test
-    public void shouldPauseAndUnpausePipeline_identifiedByCaseInsensitiveString() throws Exception {
+    public void shouldPauseAndUnpausePipeline_identifiedByCaseInsensitiveString() {
         configHelper.setOperatePermissionForGroup("defaultGroup", "pausedBy");
         String pipelineName = PIPELINE_NAME.toUpperCase();
         configHelper.addPipeline(pipelineName, "stage-name");
@@ -216,7 +209,7 @@ public class PipelineSchedulerIntegrationTest {
     }
 
     @Test
-    public void shouldPauseAndUnpausePipeline() throws Exception {
+    public void shouldPauseAndUnpausePipeline() {
         configHelper.setOperatePermissionForGroup("defaultGroup", "pausedBy");
         configHelper.addPipeline(PIPELINE_NAME, "stage-name");
 

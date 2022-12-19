@@ -29,8 +29,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -137,7 +135,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         assertThat(user1AccessTokens).hasSize(2).containsExactlyInAnyOrder(token1, token2);
         assertThat(user2AccessTokens).hasSize(1).containsExactlyInAnyOrder(token3);
 
-        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Arrays.asList("bob", "john"), "admin");
+        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(List.of("bob", "john"), "admin");
 
         assertThat(accessTokenSqlMapDao.findAllTokensForUser("bob", AccessTokenFilter.all)).isEmpty();
         assertThat(accessTokenSqlMapDao.findAllTokensForUser("john", AccessTokenFilter.all)).isEmpty();
@@ -155,7 +153,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token2);
 
         accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
-        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(user2), "admin");
+        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(List.of(user2), "admin");
 
         assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.all))
                 .hasSize(2)
@@ -174,7 +172,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token2);
 
         accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
-        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(user2), "admin");
+        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(List.of(user2), "admin");
 
         assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.revoked))
                 .hasSize(2)

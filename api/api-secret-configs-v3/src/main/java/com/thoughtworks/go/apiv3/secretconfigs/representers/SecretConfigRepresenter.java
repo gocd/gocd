@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.spark.Routes;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Collections;
 import java.util.Map;
 
 public class SecretConfigRepresenter {
@@ -39,7 +38,7 @@ public class SecretConfigRepresenter {
                 .addIfNotNull("description", secretConfig.getDescription());
 
         if (secretConfig.hasErrors()) {
-            Map<String, String> fieldMapping = Collections.singletonMap("pluginId", "plugin_id");
+            Map<String, String> fieldMapping = Map.of("pluginId", "plugin_id");
             jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, secretConfig));
         }
 

@@ -49,8 +49,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -247,11 +245,8 @@ public class ScheduleServiceStageTriggerTest {
         StageService stageService = mock(StageService.class);
         when(stageService.stageById(stage.getId())).thenReturn(stage);
 
-        Mockito.doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                throw new RuntimeException();
-            }
+        Mockito.doAnswer(invocationOnMock -> {
+            throw new RuntimeException();
         }).when(stageService).cancelStage(stage, null);
 
         StageOrderService stageOrderService = mock(StageOrderService.class);

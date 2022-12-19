@@ -31,10 +31,10 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
-import static java.util.Collections.singletonList;
 
 @Component
 public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
@@ -221,6 +221,6 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
                                                  String format,
                                                  Object... values) {
         String prefix = String.format(bundleDescriptor.descriptors().size() > 1 ? "Plugins with IDs (%s) are not valid: " : "Plugin with ID (%s) is not valid: ", bundleDescriptor.pluginIDs());
-        bundleDescriptor.markAsInvalid(singletonList(String.format(prefix + format, values)), null);
+        bundleDescriptor.markAsInvalid(List.of(String.format(prefix + format, values)), null);
     }
 }

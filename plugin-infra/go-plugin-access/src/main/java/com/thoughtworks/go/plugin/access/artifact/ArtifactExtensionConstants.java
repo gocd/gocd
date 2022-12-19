@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.plugin.access.artifact;
 
-import java.util.Arrays;
 import java.util.List;
 
 public interface ArtifactExtensionConstants {
     String V1 = "1.0";
     String V2 = "2.0";
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(V1, V2);
+    List<String> SUPPORTED_VERSIONS = List.of(V1, V2);
 
     String REQUEST_PREFIX = "cd.go.artifact";
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";

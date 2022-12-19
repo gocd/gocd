@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.TriState.UNSET;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
@@ -45,7 +44,7 @@ public class BulkUpdateAgentCommand extends AgentPerformanceCommand {
     }
 
     private void bulkUpdateAgent(List<String> uuids) {
-        agentService.bulkUpdateAgentAttributes(uuids, asList("r3", "r4"), null, asList("e3", "e4"), asList("e1", "e2"), UNSET, envConfigService);
+        agentService.bulkUpdateAgentAttributes(uuids, List.of("r3", "r4"), null, List.of("e3", "e4"), List.of("e1", "e2"), UNSET, envConfigService);
     }
 
     private Optional<List<String>> findAnyRegisteredUUIDs() {

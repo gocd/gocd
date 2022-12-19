@@ -26,8 +26,8 @@ import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.ExcludesFilter;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
+import com.thoughtworks.go.server.domain.user.ExcludesFilter;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -39,12 +39,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
-import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -110,7 +110,7 @@ public class GoDashboardServiceTest {
         GoDashboardPipeline pipeline1 = pipeline("pipeline1");
         GoDashboardPipeline pipeline2 = pipeline("pipeline2");
 
-        List<GoDashboardPipeline> pipelines = asList(pipeline1, pipeline2);
+        List<GoDashboardPipeline> pipelines = List.of(pipeline1, pipeline2);
         when(dashboardCurrentStateLoader.allPipelines(config)).thenReturn(pipelines);
 
         service.updateCacheForAllPipelinesIn(config);
@@ -155,7 +155,7 @@ public class GoDashboardServiceTest {
     @Test
     public void allPipelineGroupsForDashboard_shouldRetrieveOnlyPipelineGroupsViewableByTheUser() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Collections.singleton("user1"), Collections.emptySet()),
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Set.of("user1"), Collections.emptySet()),
                 NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");
@@ -172,7 +172,7 @@ public class GoDashboardServiceTest {
     @Test
     public void allEnvironmentsForDashboard_shouldRetrieveOnlyPipelinesViewableByTheUser() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Collections.singleton("user1"), Collections.emptySet()),
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Set.of("user1"), Collections.emptySet()),
                 NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");

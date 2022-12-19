@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.newsecurity.helpers;
 
 import com.thoughtworks.go.server.security.GoAuthority;
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -56,24 +55,9 @@ class AuthorityVerifierTest {
 
     @Test
     void shouldBailWhenNoAuthoritiesArePassedToVerifier() {
-        assertThatCode(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new AuthorityVerifier(new HashSet<>());
-            }
-        }).hasMessage("granted authority must not be empty");
-        assertThatCode(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new AuthorityVerifier(null);
-            }
-        }).hasMessage("granted authority must not be empty");
-        assertThatCode(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                new AuthorityVerifier(Collections.singleton(null));
-            }
-        }).hasMessage("granted authority must not contain null elements");
+        assertThatCode(() -> new AuthorityVerifier(new HashSet<>())).hasMessage("granted authority must not be empty");
+        assertThatCode(() -> new AuthorityVerifier(null)).hasMessage("granted authority must not be empty");
+        assertThatCode(() -> new AuthorityVerifier(Collections.singleton(null))).hasMessage("granted authority must not contain null elements");
     }
 
     private Set<GrantedAuthority> authoritySet(GoAuthority... authorities) {

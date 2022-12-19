@@ -17,16 +17,15 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Arrays.asList;
 
 public class Node {
     private final List<DependencyNode> dependencies;
 
     public Node(DependencyNode... deps) {
-        this(asList(deps));
+        this(Arrays.asList(deps));
     }
 
     public Node(List<DependencyNode> deps) {

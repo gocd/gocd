@@ -24,12 +24,11 @@ import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import java.util.List;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.*;
-import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
 public class SecretConfig extends RuleAwarePluginProfile {
-    private List<String> allowedActions = singletonList("refer");
+    private List<String> allowedActions = List.of("refer");
     private List<String> allowedTypes = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT, PLUGGABLE_SCM, PACKAGE_REPOSITORY, CLUSTER_PROFILE);
 
     public SecretConfig() {

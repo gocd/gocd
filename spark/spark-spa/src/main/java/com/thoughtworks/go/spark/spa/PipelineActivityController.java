@@ -62,10 +62,10 @@ public class PipelineActivityController implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         String pipelineName = request.params("pipeline_name");
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Pipeline Activity");
-            put("meta", meta(pipelineName));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Pipeline Activity",
+            "meta", meta(pipelineName)
+        );
         return new ModelAndView(object, null);
     }
 

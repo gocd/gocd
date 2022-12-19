@@ -16,7 +16,10 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -78,11 +81,11 @@ public class StandbyFileSyncServiceTest {
 
     @Test
     void shouldSyncConfigFiles() throws Exception {
-        Map<ConfigFileType, FileDetails> latestStatusMap = new HashMap<ConfigFileType, FileDetails>() {{
-            put(ConfigFileType.CRUISE_CONFIG_XML, new FileDetails("new-md5"));
-            put(ConfigFileType.AES_CIPHER, new FileDetails("new-md5"));
-            put(ConfigFileType.JETTY_XML, new FileDetails("new-md5"));
-        }};
+        Map<ConfigFileType, FileDetails> latestStatusMap = Map.of(
+            ConfigFileType.CRUISE_CONFIG_XML, new FileDetails("new-md5"),
+            ConfigFileType.AES_CIPHER, new FileDetails("new-md5"),
+            ConfigFileType.JETTY_XML, new FileDetails("new-md5")
+        );
 
         when(primaryServerCommunicationService.getLatestFileStatus()).thenReturn(new ServerStatusResponse(60, 0L, latestStatusMap));
 
@@ -104,16 +107,15 @@ public class StandbyFileSyncServiceTest {
         Map<ConfigFileType, FileDetails> latestStatusMap = new HashMap<>();
         when(primaryServerCommunicationService.getLatestFileStatus()).thenReturn(new ServerStatusResponse(60, 0L, latestStatusMap));
 
-        Map<String, String> pluginMap1 = new HashMap<String, String>() {{
-            put("name", "external-1.jar");
-            put("md5", "md5-1");
-        }};
-        Map<String, String> pluginMap2 = new HashMap<String, String>() {{
-            put("name", "external-2.jar");
-            put("md5", "md5-2");
-        }};
-        Map<String, Object> pluginsList = new HashMap<>();
-        pluginsList.put("external", Arrays.asList(pluginMap1, pluginMap2));
+        Map<String, String> pluginMap1 = Map.of(
+            "name", "external-1.jar",
+            "md5", "md5-1"
+        );
+        Map<String, String> pluginMap2 = Map.of(
+            "name", "external-2.jar",
+            "md5", "md5-2"
+        );
+        Map<String, Object> pluginsList = Map.of("external", List.of(pluginMap1, pluginMap2));
 
         when(primaryServerCommunicationService.getLatestPluginsStatus()).thenReturn(pluginsList);
 
@@ -149,10 +151,10 @@ public class StandbyFileSyncServiceTest {
     @Test
     void shouldEnqueueSyncErrors() {
         when(primaryServerCommunicationService.getLatestFileStatus())
-                .thenThrow(new RuntimeException("could not connect"))
-                .thenThrow(new RuntimeException("could not connect"))
-                .thenThrow(new RuntimeException("could not connect"))
-                .thenThrow(new RuntimeException("connection refused"));
+            .thenThrow(new RuntimeException("could not connect"))
+            .thenThrow(new RuntimeException("could not connect"))
+            .thenThrow(new RuntimeException("could not connect"))
+            .thenThrow(new RuntimeException("connection refused"));
 
         MockScheduledExecutorService executorService = new MockScheduledExecutorService(6);
         StandbyFileSyncService standbyFileSyncService = new StandbyFileSyncService(systemEnvironment, primaryServerCommunicationService, executorService, addOnConfiguration);
@@ -169,8 +171,8 @@ public class StandbyFileSyncServiceTest {
     @Test
     void shouldClearErrorsAfterSuccess() {
         when(primaryServerCommunicationService.getLatestFileStatus())
-                .thenThrow(new RuntimeException("could not connect"))
-                .thenReturn(new ServerStatusResponse(0, 0, new HashMap<>()));
+            .thenThrow(new RuntimeException("could not connect"))
+            .thenReturn(new ServerStatusResponse(0, 0, new HashMap<>()));
         Map<String, Object> pluginsList = new HashMap<>();
         pluginsList.put("external", new ArrayList<Map>());
         when(primaryServerCommunicationService.getLatestPluginsStatus()).thenReturn(pluginsList);

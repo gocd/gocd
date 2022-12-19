@@ -35,8 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Arrays.asList;
-
 @Component
 public class StandbyFileSyncService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StandbyFileSyncService.class);
@@ -97,7 +95,7 @@ public class StandbyFileSyncService {
     }
 
     public List<String> syncErrors() {
-        return asList(errorQueue.toArray(new String[0]));
+        return Arrays.asList(errorQueue.toArray(new String[0]));
     }
 
     public Map<ConfigFileType, String> getCurrentFileStatus() {

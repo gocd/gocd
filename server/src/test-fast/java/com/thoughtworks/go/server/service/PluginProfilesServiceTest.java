@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,7 +68,7 @@ class PluginProfilesServiceTest {
         service.validatePluginProperties(command, pluginProfile);
 
         assertThat(pluginProfile.hasErrors()).isTrue();
-        assertThat(pluginProfile.errors().get("pluginId")).isEqualTo(Arrays.asList(errorMessage));
+        assertThat(pluginProfile.errors().get("pluginId")).isEqualTo(List.of(errorMessage));
     }
 
     @Test
@@ -82,6 +82,6 @@ class PluginProfilesServiceTest {
         service.validatePluginProperties(command, pluginProfile);
 
         assertThat(pluginProfile.hasErrors()).isTrue();
-        assertThat(pluginProfile.errors().get("pluginId")).isEqualTo(Arrays.asList(errorMessage));
+        assertThat(pluginProfile.errors().get("pluginId")).isEqualTo(List.of(errorMessage));
     }
 }

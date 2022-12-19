@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -70,13 +71,8 @@ public class DefaultWorkCreator implements WorkCreator {
             bomb("Unable to create " + dir.getAbsolutePath());
         }
         dir.deleteOnExit();
-        ArrayList<File> files = new ArrayList<File>() {
-            {
-                add(new File(dir, "test1.txt"));
-                add(new File(dir, "test2.txt"));
-            }
-        };
-        for (File file : files) {
+
+        for (File file : List.of(new File(dir, "test1.txt"), new File(dir, "test2.txt"))) {
             try {
                 if (!file.createNewFile()) {
                     bomb("Unable to create " + file.getAbsolutePath());
@@ -105,7 +101,7 @@ public class DefaultWorkCreator implements WorkCreator {
         return getWork();
     }
 
-    private JobPlan toPlan(final CruiseConfig config) throws Exception {
+    private JobPlan toPlan(final CruiseConfig config) {
         JobConfig plan = config.jobConfigByName(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, true);
         return JobInstanceMother.createJobPlan(plan, new JobIdentifier(PIPELINE_NAME, PIPELINE_LABEL, STAGE_NAME, "1", JOB_PLAN_NAME), new DefaultSchedulingContext());
     }

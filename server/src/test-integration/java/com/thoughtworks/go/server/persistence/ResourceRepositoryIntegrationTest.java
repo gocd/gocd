@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -145,7 +144,7 @@ public class ResourceRepositoryIntegrationTest {
         assertThat(resourceList.size(), is(1));
 
         // Act
-        resourceRepository.deleteAll(Arrays.asList(savedResource));
+        resourceRepository.deleteAll(List.of(savedResource));
 
         // Assert
         resourceList = resourceRepository.findByBuildId(jobInstance.getId());

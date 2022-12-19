@@ -17,9 +17,8 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GoPluginDescriptorTest {
@@ -50,7 +49,7 @@ class GoPluginDescriptorTest {
         return GoPluginDescriptor.builder()
                 .about(GoPluginDescriptor.About
                         .builder()
-                        .targetOperatingSystems(Arrays.asList(oses))
+                        .targetOperatingSystems(List.of(oses))
                         .build())
 
                 .build();
@@ -63,13 +62,13 @@ class GoPluginDescriptorTest {
 
         final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        pluginDescriptor1.markAsInvalid(singletonList("Ouch!"), new RuntimeException("Failure ..."));
+        pluginDescriptor1.markAsInvalid(List.of("Ouch!"), new RuntimeException("Failure ..."));
 
         assertThat(bundleDescriptor.isInvalid()).isTrue();
         assertThat(pluginDescriptor1.isInvalid()).isTrue();
         assertThat(pluginDescriptor2.isInvalid()).isTrue();
 
-        assertThat(pluginDescriptor1.getStatus().getMessages()).isEqualTo(singletonList("Ouch!"));
-        assertThat(pluginDescriptor2.getStatus().getMessages()).isEqualTo(singletonList("Ouch!"));
+        assertThat(pluginDescriptor1.getStatus().getMessages()).isEqualTo(List.of("Ouch!"));
+        assertThat(pluginDescriptor2.getStatus().getMessages()).isEqualTo(List.of("Ouch!"));
     }
 }

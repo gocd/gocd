@@ -23,7 +23,7 @@ import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
-import java.util.Collections;
+import java.util.List;
 
 @Extension
 public class TestPluginOuterClass implements GoPlugin {
@@ -39,7 +39,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
     @Override
     public GoPluginIdentifier pluginIdentifier() {
-        return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+        return new GoPluginIdentifier("some-extension-type", List.of("1.0"));
     }
 
     @Extension
@@ -56,7 +56,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            return new GoPluginIdentifier("some-extension-type1", Collections.singletonList("1.0"));
+            return new GoPluginIdentifier("some-extension-type1", List.of("1.0"));
         }
     }
 
@@ -74,7 +74,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            return new GoPluginIdentifier("some-extension-type2", Collections.singletonList("1.0"));
+            return new GoPluginIdentifier("some-extension-type2", List.of("1.0"));
         }
 
         public class SecondLevelInnerClass {
@@ -93,7 +93,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
                 @Override
                 public GoPluginIdentifier pluginIdentifier() {
-                    return new GoPluginIdentifier("some-extension-type3", Collections.singletonList("1.0"));
+                    return new GoPluginIdentifier("some-extension-type3", List.of("1.0"));
                 }
             }
         }
@@ -116,7 +116,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
                 @Override
                 public GoPluginIdentifier pluginIdentifier() {
-                    return new GoPluginIdentifier("some-extension-type4", Collections.singletonList("1.0"));
+                    return new GoPluginIdentifier("some-extension-type4", List.of("1.0"));
                 }
             }
 

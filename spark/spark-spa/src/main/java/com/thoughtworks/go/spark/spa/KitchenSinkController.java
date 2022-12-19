@@ -22,7 +22,7 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.get;
 import static spark.Spark.path;
@@ -41,15 +41,13 @@ public class KitchenSinkController implements SparkController {
 
     @Override
     public void setupRoutes() {
-        path(controllerBasePath(), () -> {
-            get("", this::index, engine);
-        });
+        path(controllerBasePath(), () -> get("", this::index, engine));
     }
 
     private ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Kitchen Sink");
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Kitchen Sink"
+        );
 
         return new ModelAndView(object, null);
     }

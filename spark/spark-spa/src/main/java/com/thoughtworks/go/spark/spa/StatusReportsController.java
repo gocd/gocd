@@ -65,13 +65,9 @@ public class StatusReportsController implements SparkController {
         path(controllerBasePath(), () -> {
             before("/:plugin_id", authenticationHelper::checkAdminUserAnd403);
 
-            before("/:plugin_id/agent/:elastic_agent_id", (request, response) -> {
-                authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params("elastic_agent_id"));
-            });
+            before("/:plugin_id/agent/:elastic_agent_id", (request, response) -> authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params("elastic_agent_id")));
 
-            before("/:plugin_id/cluster/:cluster_profile_id", (request, response) -> {
-                authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_profile_id"));
-            });
+            before("/:plugin_id/cluster/:cluster_profile_id", (request, response) -> authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_profile_id")));
 
             get("/:plugin_id", this::pluginStatusReport, engine);
             get("/:plugin_id/agent/:elastic_agent_id", this::agentStatusReport, engine);
@@ -83,10 +79,10 @@ public class StatusReportsController implements SparkController {
         String pluginId = request.params("plugin_id");
         try {
             String pluginStatusReport = elasticAgentPluginService.getPluginStatusReport(pluginId);
-            Map<Object, Object> object = new HashMap<>() {{
-                put("viewTitle", "Plugin Status Report");
-                put("viewFromPlugin", pluginStatusReport);
-            }};
+            Map<String, Object> object = Map.of(
+                "viewTitle", "Plugin Status Report",
+                "viewFromPlugin", pluginStatusReport
+            );
             return new ModelAndView(object, "status_reports/index.ftlh");
         } catch (RecordNotFoundException e) {
             return errorPage(response, 404, "Plugin Status Report", e.getMessage());
@@ -102,7 +98,7 @@ public class StatusReportsController implements SparkController {
         }
     }
 
-    public ModelAndView agentStatusReport(Request request, Response response) throws Exception {
+    public ModelAndView agentStatusReport(Request request, Response response) {
         String pluginId = request.params("plugin_id");
         String elasticAgentId = parseElasticAgentId(request);
         String jobIdString = request.queryParams("job_id");
@@ -139,10 +135,10 @@ public class StatusReportsController implements SparkController {
         String clusterId = request.params("cluster_profile_id");
         try {
             String clusterStatusReport = elasticAgentPluginService.getClusterStatusReport(pluginId, clusterId);
-            Map<Object, Object> object = new HashMap<>() {{
-                put("viewTitle", "Cluster Status Report");
-                put("viewFromPlugin", clusterStatusReport);
-            }};
+            Map<String, Object> object = Map.of(
+                "viewTitle", "Cluster Status Report",
+                "viewFromPlugin", clusterStatusReport
+            );
             return new ModelAndView(object, "status_reports/index.ftlh");
         } catch (RecordNotFoundException e) {
             return errorPage(response, 404, "Cluster Status Report", e.getMessage());

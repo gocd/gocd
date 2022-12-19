@@ -61,8 +61,6 @@ import static com.thoughtworks.go.helper.MaterialsMother.pluggableSCMMaterial;
 import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_AGENT_RESOURCES;
 import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_PIPELINE_GROUP_NAME;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -302,7 +300,7 @@ class BuildAssignmentServiceTest {
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
-            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(List.of(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             lenient().when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
@@ -342,7 +340,7 @@ class BuildAssignmentServiceTest {
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
-            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(List.of(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             lenient().when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
@@ -406,7 +404,7 @@ class BuildAssignmentServiceTest {
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
-            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(List.of(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(environmentConfigService.environmentForPipeline(anyString())).thenReturn(new BasicEnvironmentConfig());
@@ -449,7 +447,7 @@ class BuildAssignmentServiceTest {
             when(agentInstance.getAgent()).thenReturn(mock(Agent.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
             when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
-            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(List.of(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             lenient().when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
@@ -469,7 +467,7 @@ class BuildAssignmentServiceTest {
 
             BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agentInstance);
 
-            inOrder.verify(secretParamResolver).resolve(asList(pluggableSCMMaterial, packageMaterial));
+            inOrder.verify(secretParamResolver).resolve(List.of(pluggableSCMMaterial, packageMaterial));
             inOrder.verify(goConfigService).artifactStores();
             inOrder.verify(secretParamResolver).resolve(any(BuildAssignment.class));
 

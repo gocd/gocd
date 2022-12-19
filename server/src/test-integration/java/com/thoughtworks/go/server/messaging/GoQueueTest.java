@@ -41,7 +41,7 @@ import static org.hamcrest.Matchers.is;
 })
 public class GoQueueTest {
     @Autowired private MessagingService messageService;
-    Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<String>());
+    Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<>());
 
     @BeforeAll
     public static void beforeClass() {

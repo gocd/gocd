@@ -38,7 +38,6 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -238,17 +237,17 @@ public class SvnMaterialTest {
     @Test
     void shouldReturnEqualsWhenEverythingIsSameForSvnMaterialConfigs() {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.USERNAME, "userName"));
+        svnMaterialConfig.setConfigAttributes(Map.of(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
+        svnMaterialConfig.setConfigAttributes(Map.of(SvnMaterialConfig.USERNAME, "userName"));
         svnMaterialConfig.setPassword("password");
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.URL, "URL"));
+        svnMaterialConfig.setConfigAttributes(Map.of(SvnMaterialConfig.URL, "URL"));
 
 
         SvnMaterialConfig other = MaterialConfigsMother.svnMaterialConfig();
-        other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
-        other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.USERNAME, "userName"));
+        other.setConfigAttributes(Map.of(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
+        other.setConfigAttributes(Map.of(SvnMaterialConfig.USERNAME, "userName"));
         other.setPassword("password");
-        other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.URL, "URL"));
+        other.setConfigAttributes(Map.of(SvnMaterialConfig.URL, "URL"));
 
         assertThat(other).isEqualTo(svnMaterialConfig);
     }

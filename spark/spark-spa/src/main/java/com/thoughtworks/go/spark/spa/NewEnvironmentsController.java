@@ -23,7 +23,6 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -51,9 +50,9 @@ public class NewEnvironmentsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Environments");
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Environments"
+        );
 
         return new ModelAndView(object, null);
     }

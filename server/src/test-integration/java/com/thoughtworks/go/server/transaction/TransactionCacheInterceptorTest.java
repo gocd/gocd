@@ -37,10 +37,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Date;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
@@ -83,12 +81,7 @@ public class TransactionCacheInterceptorTest {
     @Test
     public void shouldOptOutOfCacheServing_forInsert() {
         final MaterialInstance materialInstance = hgInstance();
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            @Override
-            public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().save(materialInstance);
-            }
-        });
+        assertionUtil.assertCacheBehaviourInTxn(() -> hibernateDaoSupport.getHibernateTemplate().save(materialInstance));
         assertThat(materialInstance.getId(), greaterThan(0l));
     }
 
@@ -97,12 +90,9 @@ public class TransactionCacheInterceptorTest {
         final MaterialInstance materialInstance = savedHg();
 
         ReflectionUtil.setField(materialInstance, "url", "loser-name");
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            @Override
-            public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().update(materialInstance);
-                hibernateDaoSupport.getHibernateTemplate().flush();
-            }
+        assertionUtil.assertCacheBehaviourInTxn(() -> {
+            hibernateDaoSupport.getHibernateTemplate().update(materialInstance);
+            hibernateDaoSupport.getHibernateTemplate().flush();
         });
         assertThat(ReflectionUtil.getField(hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId()), "url"), is("loser-name"));
     }
@@ -111,12 +101,7 @@ public class TransactionCacheInterceptorTest {
     public void shouldOptOutOfCacheServing_forDelete() {
         final MaterialInstance materialInstance = savedHg();
 
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            @Override
-            public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().delete(materialInstance);
-            }
-        });
+        assertionUtil.assertCacheBehaviourInTxn(() -> hibernateDaoSupport.getHibernateTemplate().delete(materialInstance));
 
         try {
             hibernateDaoSupport.getHibernateTemplate().load(MaterialInstance.class, materialInstance.getId());
@@ -137,12 +122,7 @@ public class TransactionCacheInterceptorTest {
         ModifiedFile bar_c = mod.createModifiedFile("bar.c", "src", ModifiedAction.deleted);
         ModifiedFile baz_c = mod.createModifiedFile("baz.c", "src", ModifiedAction.modified);
 
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            @Override
-            public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().update(mod);
-            }
-        });
+        assertionUtil.assertCacheBehaviourInTxn(() -> hibernateDaoSupport.getHibernateTemplate().update(mod));
 
         assertThat(mod.getId(), greaterThan(0l));
         assertThat(foo_c.getId(), greaterThan(0l));
@@ -161,12 +141,9 @@ public class TransactionCacheInterceptorTest {
 
         ReflectionUtil.setField(foo_c, "fileName", "foo_generated.c");
 
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            @Override
-            public void invoke() {
-                hibernateDaoSupport.getHibernateTemplate().update(mod);
-                hibernateDaoSupport.getHibernateTemplate().flush();
-            }
+        assertionUtil.assertCacheBehaviourInTxn(() -> {
+            hibernateDaoSupport.getHibernateTemplate().update(mod);
+            hibernateDaoSupport.getHibernateTemplate().flush();
         });
 
         assertThat(hibernateDaoSupport.getHibernateTemplate().load(ModifiedFile.class, foo_c.getId()).getFileName(), is("foo_generated.c"));

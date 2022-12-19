@@ -86,9 +86,7 @@ public class ClusterProfileDTO {
 
     public ClusterProfile toDomainModel() {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
-        this.properties.forEach((key, value) -> {
-            configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
-        });
+        this.properties.forEach((key, value) -> configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value))));
 
         ClusterProfile clusterProfile = new ClusterProfile(this.id, this.pluginId);
         clusterProfile.addConfigurations(configurationProperties);

@@ -110,9 +110,7 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
     void itShouldThrowErrorWhenAccessTokenBelongingTheUserDoesNotExists() {
         when(authorizationService.isValidUser(pluginId, credentials.getAccessToken().getUsername(), authConfig)).thenReturn(false);
 
-        InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> {
-            provider.authenticateWithExtension(pluginId, credentials, authConfig, null);
-        });
+        InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> provider.authenticateWithExtension(pluginId, credentials, authConfig, null));
 
         assertThat(exception.getMessage()).startsWith("Invalid Personal Access Token. Access Token belonging to the user has either been disabled, removed or expired.");
     }

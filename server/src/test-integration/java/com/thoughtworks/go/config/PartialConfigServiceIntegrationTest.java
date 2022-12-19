@@ -42,12 +42,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -166,12 +165,7 @@ public class PartialConfigServiceIntegrationTest {
     }
 
     private PartialConfig findPartial(final String invalidPipelineInPartial, List<PartialConfig> partials) {
-        return partials.stream().filter(new Predicate<PartialConfig>() {
-            @Override
-            public boolean test(PartialConfig item) {
-                return item.getGroups().first().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null;
-            }
-        }).findFirst().orElse(null);
+        return partials.stream().filter(item -> item.getGroups().first().findBy(new CaseInsensitiveString(invalidPipelineInPartial)) != null).findFirst().orElse(null);
     }
 
     @Test
@@ -399,11 +393,6 @@ public class PartialConfigServiceIntegrationTest {
     }
 
     private boolean cacheContainsPartial(List<PartialConfig> partialConfigs, final PartialConfig partialConfig) {
-        return partialConfigs.stream().filter(new Predicate<PartialConfig>() {
-            @Override
-            public boolean test(PartialConfig item) {
-                return partialConfig.getEnvironments().equals(item.getEnvironments()) && partialConfig.getGroups().equals(item.getGroups()) && partialConfig.getOrigin().equals(item.getOrigin());
-            }
-        }).findFirst().isPresent();
+        return partialConfigs.stream().filter(item -> partialConfig.getEnvironments().equals(item.getEnvironments()) && partialConfig.getGroups().equals(item.getGroups()) && partialConfig.getOrigin().equals(item.getOrigin())).findFirst().isPresent();
     }
 }

@@ -15,17 +15,13 @@
  */
 package com.thoughtworks.go.server.valuestreammap;
 
-import java.util.Arrays;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.valuestreammap.Node;
-import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
-import com.thoughtworks.go.domain.valuestreammap.SCMDependencyNode;
-import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
-import com.thoughtworks.go.domain.valuestreammap.PipelineDependencyNode;
+import com.thoughtworks.go.domain.valuestreammap.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -62,13 +58,13 @@ public class CrossingMinimizationTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode(g1.toString(), g1.toString(), "git"), null, p2, new MaterialRevision(null));
 
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(graph.findNode(p1), graph.findNode(p2))));
+        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(p1), graph.findNode(p2))));
 
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(Arrays.asList(graph.findNode(p3))));
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(graph.findNode(p2), graph.findNode(p1))));
-        assertThat(levelToNodesMap.get(-2), is(Arrays.asList(graph.findNode(g1), graph.findNode(g2))));
+        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p3))));
+        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(p2), graph.findNode(p1))));
+        assertThat(levelToNodesMap.get(-2), is(List.of(graph.findNode(g1), graph.findNode(g2))));
 
         assertThat(graph.findNode(g1).getDepth(), is(1));
         assertThat(graph.findNode(g2).getDepth(), is(2));
@@ -110,9 +106,9 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(Arrays.asList(graph.findNode(p))));
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(graph.findNode(p1), graph.findNode(p2), graph.findNode(p3))));
-        assertThat(levelToNodesMap.get(-2), is(Arrays.asList(graph.findNode(g1), graph.findNode(g2), graph.findNode(g3))));
+        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p))));
+        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(p1), graph.findNode(p2), graph.findNode(p3))));
+        assertThat(levelToNodesMap.get(-2), is(List.of(graph.findNode(g1), graph.findNode(g2), graph.findNode(g3))));
 
         assertThat(graph.findNode(g1).getDepth(), is(1));
         assertThat(graph.findNode(g2).getDepth(), is(2));
@@ -145,10 +141,10 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(g1)));
-        assertThat(levelToNodesMap.get(0), is(Arrays.asList(graph.getCurrentPipeline())));
-        assertThat(levelToNodesMap.get(1), is(Arrays.asList(p1, p2)));
-        assertThat(levelToNodesMap.get(2), is(Arrays.asList(p3)));
+        assertThat(levelToNodesMap.get(-1), is(List.of(g1)));
+        assertThat(levelToNodesMap.get(0), is(List.of(graph.getCurrentPipeline())));
+        assertThat(levelToNodesMap.get(1), is(List.of(p1, p2)));
+        assertThat(levelToNodesMap.get(2), is(List.of(p3)));
 
         assertThat(p1.getDepth(), is(1));
         assertThat(p2.getDepth(), is(2));
@@ -185,9 +181,9 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(Arrays.asList(graph.getCurrentPipeline())));
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(g4, p1, p2)));
-        assertThat(levelToNodesMap.get(-2), is(Arrays.asList(g1, g2, g3)));
+        assertThat(levelToNodesMap.get(0), is(List.of(graph.getCurrentPipeline())));
+        assertThat(levelToNodesMap.get(-1), is(List.of(g4, p1, p2)));
+        assertThat(levelToNodesMap.get(-2), is(List.of(g1, g2, g3)));
 
         assertThat(graph.toString(), g1.getDepth(), is(1));
         assertThat(g2.getDepth(), is(2));
@@ -229,10 +225,10 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(Arrays.asList(graph.findNode(p))));
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(graph.findNode(new CaseInsensitiveString(g1)))));
-        assertThat(levelToNodesMap.get(1), is(Arrays.asList(graph.findNode(p1), graph.findNode(p3), graph.findNode(p2))));
-        assertThat(levelToNodesMap.get(2), is(Arrays.asList(graph.findNode(p4), graph.findNode(p5))));
+        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p))));
+        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(new CaseInsensitiveString(g1)))));
+        assertThat(levelToNodesMap.get(1), is(List.of(graph.findNode(p1), graph.findNode(p3), graph.findNode(p2))));
+        assertThat(levelToNodesMap.get(2), is(List.of(graph.findNode(p4), graph.findNode(p5))));
 
         assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth(), is(1));
         assertThat(graph.findNode(p).getDepth(), is(1));
@@ -268,9 +264,9 @@ public class CrossingMinimizationTest {
         NodeLevelMap levelToNodesMap = nodeLevelMap(graph);
         crossingMinimization.apply(levelToNodesMap);
 
-        assertThat(levelToNodesMap.get(0), is(Arrays.asList(graph.findNode(p))));
-        assertThat(levelToNodesMap.get(-1), is(Arrays.asList(graph.findNode(new CaseInsensitiveString(g3)), graph.findNode(p1))));
-        assertThat(levelToNodesMap.get(-2), is(Arrays.asList(graph.findNode(new CaseInsensitiveString(g1)), graph.findNode(new CaseInsensitiveString(g2)))));
+        assertThat(levelToNodesMap.get(0), is(List.of(graph.findNode(p))));
+        assertThat(levelToNodesMap.get(-1), is(List.of(graph.findNode(new CaseInsensitiveString(g3)), graph.findNode(p1))));
+        assertThat(levelToNodesMap.get(-2), is(List.of(graph.findNode(new CaseInsensitiveString(g1)), graph.findNode(new CaseInsensitiveString(g2)))));
 
         assertThat(graph.findNode(new CaseInsensitiveString(g1)).getDepth(), is(1));
         assertThat(graph.findNode(new CaseInsensitiveString(g2)).getDepth(), is(2));

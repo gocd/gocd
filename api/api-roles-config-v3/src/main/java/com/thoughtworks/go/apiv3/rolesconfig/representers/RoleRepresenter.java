@@ -28,7 +28,7 @@ import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
 
 
@@ -43,9 +43,7 @@ public class RoleRepresenter {
                 .addChildList("policy", policyToJSON(role.getPolicy()));
 
         if (role.hasErrors()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(Collections.singletonMap("authConfigId", "auth_config_id")).toJSON(errorWriter, role);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(Map.of("authConfigId", "auth_config_id")).toJSON(errorWriter, role));
         }
         if (role instanceof RoleConfig) {
             jsonWriter.addChild("attributes", attributeWriter -> GoCDRoleConfigRepresenter.toJSON(attributeWriter, (RoleConfig) role));
@@ -55,13 +53,7 @@ public class RoleRepresenter {
     }
 
     private static Consumer<OutputListWriter> policyToJSON(Policy policy) {
-        return listWriter -> {
-            policy.stream().forEach(permission -> {
-                listWriter.addChild(childItemWriter -> {
-                    DirectiveRepresenter.toJSON(childItemWriter, permission);
-                });
-            });
-        };
+        return listWriter -> policy.stream().forEach(permission -> listWriter.addChild(childItemWriter -> DirectiveRepresenter.toJSON(childItemWriter, permission)));
     }
 
     public static Role fromJSON(JsonReader jsonReader) {
@@ -79,9 +71,7 @@ public class RoleRepresenter {
         model.setName(new CaseInsensitiveString(jsonReader.optString("name").orElse(null)));
 
         Policy directives = new Policy();
-        jsonReader.readArrayIfPresent("policy", policy -> {
-            policy.forEach(directive -> directives.add(DirectiveRepresenter.fromJSON(new JsonReader(directive.getAsJsonObject()))));
-        });
+        jsonReader.readArrayIfPresent("policy", policy -> policy.forEach(directive -> directives.add(DirectiveRepresenter.fromJSON(new JsonReader(directive.getAsJsonObject())))));
         model.setPolicy(directives);
 
         return model;

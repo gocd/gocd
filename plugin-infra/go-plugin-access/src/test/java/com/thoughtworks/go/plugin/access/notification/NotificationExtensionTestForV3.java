@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.Collections;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
@@ -62,7 +61,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
     @Test
     public void shouldNotifyPluginSettingsChange() throws Exception {
         String supportedVersion = "3.0";
-        Map<String, String> settings = Collections.singletonMap("foo", "bar");
+        Map<String, String> settings = Map.of("foo", "bar");
         ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
         when(pluginManager.resolveExtensionVersion(eq("pluginId"), eq(NOTIFICATION_EXTENSION), anyList())).thenReturn(supportedVersion);

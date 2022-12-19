@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -114,9 +113,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(admin), "viewer1");
-        assertOperators(permissions, "pipeline1", Collections.singleton(admin));
-        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
+        assertViewers(permissions, "pipeline1", Set.of(admin), "viewer1");
+        assertOperators(permissions, "pipeline1", Set.of(admin));
+        assertAdmins(permissions, "pipeline1", Set.of(admin));
     }
 
     @Test
@@ -172,7 +171,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
         assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
-        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
+        assertAdmins(permissions, "pipeline1", Set.of(admin));
     }
 
     @Test
@@ -223,10 +222,10 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(admin));
-        assertOperators(permissions, "pipeline1", Collections.singleton(admin));
-        assertPipelineOperators(permissions, "pipeline1", Collections.singleton(admin));
-        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
+        assertViewers(permissions, "pipeline1", Set.of(admin));
+        assertOperators(permissions, "pipeline1", Set.of(admin));
+        assertPipelineOperators(permissions, "pipeline1", Set.of(admin));
+        assertAdmins(permissions, "pipeline1", Set.of(admin));
     }
 
     @Test
@@ -243,9 +242,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(admin), "view_user");
-        assertOperators(permissions, "pipeline1", Collections.singleton(admin));
-        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
+        assertViewers(permissions, "pipeline1", Set.of(admin), "view_user");
+        assertOperators(permissions, "pipeline1", Set.of(admin));
+        assertAdmins(permissions, "pipeline1", Set.of(admin));
 
         pluginRoleUsersStore.revokeAllRolesFor("admin_user");
 
@@ -269,9 +268,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(groupAdmin));
-        assertOperators(permissions, "pipeline1", Collections.singleton(groupAdmin));
-        assertAdmins(permissions, "pipeline1", Collections.singleton(groupAdmin));
+        assertViewers(permissions, "pipeline1", Set.of(groupAdmin));
+        assertOperators(permissions, "pipeline1", Set.of(groupAdmin));
+        assertAdmins(permissions, "pipeline1", Set.of(groupAdmin));
 
         pluginRoleUsersStore.revokeAllRolesFor("admin_user");
 
@@ -367,9 +366,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
 
-        assertViewers(permissions, "pipeline1", Collections.singleton(groupAdmin), "superadmin1");
-        assertOperators(permissions, "pipeline1", Collections.singleton(groupAdmin), "superadmin1");
-        assertAdmins(permissions, "pipeline1", Collections.singleton(groupAdmin), "superadmin1");
+        assertViewers(permissions, "pipeline1", Set.of(groupAdmin), "superadmin1");
+        assertOperators(permissions, "pipeline1", Set.of(groupAdmin), "superadmin1");
+        assertAdmins(permissions, "pipeline1", Set.of(groupAdmin), "superadmin1");
 
         assertViewers(permissions, "pipeline2", Collections.emptySet(), "superadmin1", "viewer1");
         assertOperators(permissions, "pipeline2", Collections.emptySet(), "superadmin1");
@@ -462,7 +461,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
 
-        assertViewers(permissions, "pipeline1", Collections.singleton(groupViewer), "superadmin1");
+        assertViewers(permissions, "pipeline1", Set.of(groupViewer), "superadmin1");
         assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
         assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
 
@@ -540,7 +539,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertPipelinesInMap(permissions, "pipeline1", "pipeline2");
 
         assertViewers(permissions, "pipeline1", Collections.emptySet(), "super_admin");
-        assertOperators(permissions, "pipeline1", Collections.singleton(groupOperator), "super_admin");
+        assertOperators(permissions, "pipeline1", Set.of(groupOperator), "super_admin");
         assertAdmins(permissions, "pipeline1", Collections.emptySet(), "super_admin");
 
         assertViewers(permissions, "pipeline2", Collections.emptySet(), "super_admin", "viewer2");
@@ -768,8 +767,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
         assertPipelinesInMap(permissions, "pipeline1");
 
-        assertGroupOperators(permissions, "pipeline1", Collections.singleton(groupOperator), "user1", "super_admin");
-        assertPipelineOperators(permissions, "pipeline1", Collections.singleton(groupOperator), "super_admin");
+        assertGroupOperators(permissions, "pipeline1", Set.of(groupOperator), "user1", "super_admin");
+        assertPipelineOperators(permissions, "pipeline1", Set.of(groupOperator), "super_admin");
     }
 
     @Test
@@ -789,16 +788,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
 
         Permissions p2Permission = service.permissionsForPipeline(p2Config.name());
-        assertThat(p2Permission.viewers(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
-        assertThat(p2Permission.operators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
-        assertThat(p2Permission.admins(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
-        assertThat(p2Permission.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.viewers(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.operators(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.admins(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "groupadmin1"), emptySet())));
     }
 
     @Test
@@ -815,12 +814,12 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
 
-        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(Set.of("superadmin1", "operator1"), emptySet())));
     }
 
     @Test
@@ -841,13 +840,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
 
-        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(s("superadmin1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(Set.of("superadmin1", "operator2"), emptySet())));
     }
 
     @Test
@@ -868,14 +867,14 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
-        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(Set.of("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(Set.of("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
 
-        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
-        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(s("superadmin1", "operator2"), emptySet())));
-        assertThat(p1Permissions.stageOperators("stage-non-existing-stage-A"), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(Set.of("superadmin1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage-non-existing-stage-A"), is(new AllowedUsers(Set.of("superadmin1", "operator1", "operator2"), emptySet())));
     }
 
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny() {
@@ -896,7 +895,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
     private void assertViewers(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedViewers) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.viewers(), is(new AllowedUsers(s(expectedViewers), pluginRoleConfigs)));
+        assertThat(permissions.viewers(), is(new AllowedUsers(Set.of(expectedViewers), pluginRoleConfigs)));
     }
 
     private void assertOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
@@ -906,17 +905,17 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
     private void assertPipelineOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.pipelineOperators(), is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
+        assertThat(permissions.pipelineOperators(), is(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs)));
     }
 
     private void assertGroupOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.operators(), is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
+        assertThat(permissions.operators(), is(new AllowedUsers(Set.of(expectedOperators), pluginRoleConfigs)));
     }
 
     private void assertAdmins(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedAdmins) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.admins(), is(new AllowedUsers(s(expectedAdmins), pluginRoleConfigs)));
+        assertThat(permissions.admins(), is(new AllowedUsers(Set.of(expectedAdmins), pluginRoleConfigs)));
     }
 
     private void assertPipelinesInMap(Map<CaseInsensitiveString, Permissions> pipelinesToPermissions, String... expectedPipelines) {

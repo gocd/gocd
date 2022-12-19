@@ -23,8 +23,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 public class VerifyConnectionRepresenter {
     public static void toJSON(OutputWriter outputWriter, HttpLocalizedOperationResult result, PackageDefinition packageDefinition) {
         outputWriter.add("message", result.message())
-                .addChild("package", writer -> {
-                    PackageDefinitionRepresenter.toJSON(writer, packageDefinition);
-                });
+                .addChild("package", writer -> PackageDefinitionRepresenter.toJSON(writer, packageDefinition));
     }
 }

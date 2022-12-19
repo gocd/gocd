@@ -34,7 +34,6 @@ import java.util.List;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_WORK_DIR;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -207,7 +206,7 @@ class DefaultPluginJarChangeListenerTest {
                         .pluginJarFileLocation(pluginJarFileLocation)
                         .isBundledPlugin(true)
                         .build())
-                .markAsInvalid(singletonList("For a test"), null);
+                .markAsInvalid(List.of("For a test"), null);
 
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptorForInvalidPlugin);
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
@@ -238,7 +237,7 @@ class DefaultPluginJarChangeListenerTest {
                 .pluginJarFileLocation(pluginJarFileLocation)
                 .isBundledPlugin(true)
                 .build())
-                .markAsInvalid(singletonList("For a test"), null);
+                .markAsInvalid(List.of("For a test"), null);
 
         Bundle oldBundle = mock(Bundle.class);
         final GoPluginDescriptor oldPluginDescriptor = GoPluginDescriptor.builder()

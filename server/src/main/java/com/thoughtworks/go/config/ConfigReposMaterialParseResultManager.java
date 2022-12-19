@@ -28,7 +28,10 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -140,7 +143,7 @@ public class ConfigReposMaterialParseResultManager {
     }
 
     static class ConfigRepoReparseListener extends EntityConfigChangedListener<Object> {
-        private final List<Class<?>> configClassesToCareAbout = Arrays.asList(
+        private final List<Class<?>> configClassesToCareAbout = List.of(
                 PipelineConfig.class,
                 EnvironmentConfig.class,
                 PipelineTemplateConfig.class,

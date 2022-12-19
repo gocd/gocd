@@ -30,9 +30,7 @@ public class NotificationFiltersRepresenter {
             outputLinkWriter.addAbsoluteLink("doc", apiDocsUrl("#notification-filters"));
         });
 
-        writer.addEmbedded(embeddedWriter -> {
-            embeddedWriter.addChildList("filters", listWriter -> notificationFilters
-                    .forEach(notificationFilter -> listWriter.addChild(childWriter -> NotificationFilterRepresenter.toJSON(childWriter, notificationFilter))));
-        });
+        writer.addEmbedded(embeddedWriter -> embeddedWriter.addChildList("filters", listWriter -> notificationFilters
+                .forEach(notificationFilter -> listWriter.addChild(childWriter -> NotificationFilterRepresenter.toJSON(childWriter, notificationFilter)))));
     }
 }

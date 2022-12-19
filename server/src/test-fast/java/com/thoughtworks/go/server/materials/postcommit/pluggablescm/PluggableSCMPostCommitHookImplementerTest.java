@@ -22,12 +22,17 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class PluggableSCMPostCommitHookImplementerTest {
     private PluggableSCMPostCommitHookImplementer implementer;
@@ -38,13 +43,13 @@ public class PluggableSCMPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnListOfMaterialMatchingTheSCMNameWithCaseInsensitivity() throws Exception {
+    public void shouldReturnListOfMaterialMatchingTheSCMNameWithCaseInsensitivity() {
         PluggableSCMMaterial material1 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-1", null, null));
         PluggableSCMMaterial material2 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-2", null, null));
         PluggableSCMMaterial material3 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-3", null, null));
         PluggableSCMMaterial material4 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-4", null, null));
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2, material3, material4));
-        Map params = new HashMap();
+        Set<Material> materials = Stream.of(material1, material2, material3, material4).collect(Collectors.toSet());
+        Map<String, String> params = new HashMap<>();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "SCM-MATERIAL-1");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -54,11 +59,11 @@ public class PluggableSCMPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnEmptyListIfNoMatchingMaterialFound() throws Exception {
+    public void shouldReturnEmptyListIfNoMatchingMaterialFound() {
         PluggableSCMMaterial material1 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-1", null, null));
         PluggableSCMMaterial material2 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-2", null, null));
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2));
-        Map params = new HashMap();
+        Set<Material> materials = Stream.of(material1, material2).collect(Collectors.toSet());
+        Map<String, String> params = new HashMap<>();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "unknown-scm-name");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -67,10 +72,10 @@ public class PluggableSCMPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldQueryOnlyPluggableSCMMaterialsWhilePruning() throws Exception {
+    public void shouldQueryOnlyPluggableSCMMaterialsWhilePruning() {
         SvnMaterial material1 = mock(SvnMaterial.class);
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
-        Map params = new HashMap();
+        Set<Material> materials = Set.of(material1);
+        Map<String, String> params = new HashMap<>();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "scm-material-1");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -80,10 +85,10 @@ public class PluggableSCMPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnEmptyListIfParamHasNoValueForSCMName() throws Exception {
+    public void shouldReturnEmptyListIfParamHasNoValueForSCMName() {
         PluggableSCMMaterial material1 = mock(PluggableSCMMaterial.class);
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
-        Map params = new HashMap();
+        Set<Material> materials = Set.of(material1);
+        Map<String, String> params = new HashMap<>();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -93,11 +98,11 @@ public class PluggableSCMPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnEmptyListIfParamIsMissingForSCMName() throws Exception {
+    public void shouldReturnEmptyListIfParamIsMissingForSCMName() {
         PluggableSCMMaterial material1 = mock(PluggableSCMMaterial.class);
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
+        Set<Material> materials = Set.of(material1);
 
-        Set<Material> actual = implementer.prune(materials, new HashMap());
+        Set<Material> actual = implementer.prune(materials, new HashMap<>());
 
         assertThat(actual.size(), is(0));
         verifyNoMoreInteractions(material1);

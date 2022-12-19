@@ -43,7 +43,6 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static java.util.Arrays.asList
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.when
@@ -316,7 +315,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         when(environmentConfigService.getEnvironmentConfig("env")).thenReturn(env)
         doThrow(new RecordNotFoundException(EntityType.Agent, "agent1"))
           .when(agentService)
-          .updateAgentsAssociationOfEnvironment(env, asList("agent1", "agent2"), asList())
+          .updateAgentsAssociationOfEnvironment(env, List.of("agent1", "agent2"), List.of())
 
         patchWithApiHeader(controller.controllerPath('env'), json)
 

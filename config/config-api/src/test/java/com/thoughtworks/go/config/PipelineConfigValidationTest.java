@@ -32,7 +32,6 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -40,9 +39,7 @@ class PipelineConfigValidationTest {
     private CruiseConfig config;
     private PipelineConfig pipeline;
     private GoConfigMother goConfigMother;
-    private LabelErrorsFn emptyCheck = (errors) -> {
-        assertThat(errors).isEmpty();
-    };
+    private LabelErrorsFn emptyCheck = (errors) -> assertThat(errors).isEmpty();
 
     @BeforeEach
     void setup() {
@@ -62,18 +59,16 @@ class PipelineConfigValidationTest {
         pipelineConfig.addStageWithoutValidityAssertion(stageConfig);
         pipelineConfig.validate(null);
 
-        assertThat(stageConfig.errors().getAllOn("name")).isEqualTo(singletonList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
+        assertThat(stageConfig.errors().getAllOn("name")).isEqualTo(List.of("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
 
-        assertThat(pipelineConfig.get(0).errors().getAllOn("name")).isEqualTo(singletonList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
+        assertThat(pipelineConfig.get(0).errors().getAllOn("name")).isEqualTo(List.of("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
 
-        assertThat(cruiseConfig.validateAfterPreprocess().get(0).getAllOn("name")).isEqualTo(singletonList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
+        assertThat(cruiseConfig.validateAfterPreprocess().get(0).getAllOn("name")).isEqualTo(List.of("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique."));
     }
 
     @Test
     void rejectsLabelTemplateWithMissingMaterial() {
-        assertLabelTemplate("foo-${[:5]}-bar", errors -> {
-            assertThat(errors).isEqualTo(singletonList("You have defined a label template in pipeline 'go' that refers to a material called '', but no material with this name is defined."));
-        });
+        assertLabelTemplate("foo-${[:5]}-bar", errors -> assertThat(errors).isEqualTo(List.of("You have defined a label template in pipeline 'go' that refers to a material called '', but no material with this name is defined.")));
     }
 
     @Test
@@ -87,16 +82,16 @@ class PipelineConfigValidationTest {
     @Test
     void rejectsLabelTemplateWithBlankToken() {
         assertLabelTemplate("foo-${}-bar", errors ->
-                assertThat(errors).isEqualTo(singletonList("Label template variable cannot be blank.")));
+                assertThat(errors).isEqualTo(List.of("Label template variable cannot be blank.")));
     }
 
     @Test
     void rejectsLabelTemplateWithMissingEnvironmentVariable() {
         assertLabelTemplate("foo-${env:}-bar", errors ->
-                assertThat(errors).isEqualTo(singletonList("Missing environment variable name.")));
+                assertThat(errors).isEqualTo(List.of("Missing environment variable name.")));
 
         assertLabelTemplate("foo-${ENV:}-bar", errors ->
-                assertThat(errors).isEqualTo(singletonList("Missing environment variable name.")));
+                assertThat(errors).isEqualTo(List.of("Missing environment variable name.")));
     }
 
     @Test
@@ -108,7 +103,7 @@ class PipelineConfigValidationTest {
     @Test
     void isValid_shouldEnsureLabelTemplateRefersToValidMaterials() {
         assertLabelTemplate("pipeline-${COUNT}-${myGit}", errors ->
-                assertThat(errors).isEqualTo(singletonList("You have defined a label template in pipeline 'go' that refers to a material called 'myGit', but no material with this name is defined.")));
+                assertThat(errors).isEqualTo(List.of("You have defined a label template in pipeline 'go' that refers to a material called 'myGit', but no material with this name is defined.")));
     }
 
     @Test

@@ -102,8 +102,8 @@ public class ElasticAgentProfilePermissionTest {
         Map<String, Object> permissions = permission.permissions(username);
 
         Map<String, Object> elasticAgentProfile = new LinkedHashMap<>();
-        elasticAgentProfile.put("view", Arrays.asList("build-agent", "deploy-agent"));
-        elasticAgentProfile.put("administer", Arrays.asList("build-agent"));
+        elasticAgentProfile.put("view", List.of("build-agent", "deploy-agent"));
+        elasticAgentProfile.put("administer", List.of("build-agent"));
 
         assertThat(permissions).isEqualTo(elasticAgentProfile);
     }

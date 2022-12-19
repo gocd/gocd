@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.CommandUtils.exec;
@@ -72,7 +71,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
     }
 
     public List<File> files(String repoFolder) {
-        return new ArrayList<>(Arrays.asList(workingCopy(repoFolder).listFiles()));
+        return new ArrayList<>(List.of(workingCopy(repoFolder).listFiles()));
     }
 
     public GitMaterial mainRepo() {

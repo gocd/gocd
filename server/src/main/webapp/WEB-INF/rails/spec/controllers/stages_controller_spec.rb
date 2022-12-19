@@ -276,7 +276,7 @@ describe StagesController do
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
         expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
+        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.List.of([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
         expect(@security_service).to receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
         get :jobs, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
         expect(assigns(:jobs)).to eq model
@@ -289,7 +289,7 @@ describe StagesController do
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
         expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
+        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.List.of([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
         expect(@security_service).to receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
         get :jobs, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
         expect(assigns(:jobs)).to eq model
@@ -303,7 +303,7 @@ describe StagesController do
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
         expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
+        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.List.of([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
         expect(@security_service).to receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(false)
         get :jobs, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
         expect(assigns(:jobs)).to eq model

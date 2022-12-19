@@ -42,9 +42,7 @@ public class MailServerRepresenter {
                 .add("admin_email", mailhost.getAdminMail());
 
         if (!mailhost.errors().isEmpty()) {
-            writer.addChild("errors", errorWriter -> {
-                new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, mailhost);
-            });
+            writer.addChild("errors", errorWriter -> new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, mailhost));
         }
 
     }

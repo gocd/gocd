@@ -32,13 +32,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StopWatch;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -98,7 +96,7 @@ public class UserSqlMapDaoCachingTest {
         userDao.saveOrUpdate(new User("some-random-user"));
         makeSureThatCacheIsInitialized();
 
-        userDao.disableUsers(Arrays.asList("some-random-user"));
+        userDao.disableUsers(List.of("some-random-user"));
 
         assertThatEnabledUserCacheHasBeenCleared();
     }
@@ -108,7 +106,7 @@ public class UserSqlMapDaoCachingTest {
         userDao.saveOrUpdate(new User("some-random-user"));
         makeSureThatCacheIsInitialized();
 
-        userDao.enableUsers(Arrays.asList("some-random-user"));
+        userDao.enableUsers(List.of("some-random-user"));
 
         assertThatEnabledUserCacheHasBeenCleared();
     }
@@ -199,7 +197,7 @@ public class UserSqlMapDaoCachingTest {
             public void execute(int runIndex) {
                 StopWatch stopWatch = new StopWatch("enableUsers");
                 stopWatch.start("enableUsers");
-                userDao.enableUsers(Arrays.asList("some-random-user " + runIndex));
+                userDao.enableUsers(List.of("some-random-user " + runIndex));
                 stopWatch.stop();
 //                System.out.println(stopWatch.shortSummary());
             }

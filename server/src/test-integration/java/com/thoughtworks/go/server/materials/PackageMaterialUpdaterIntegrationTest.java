@@ -36,14 +36,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doNothing;
 
 @ExtendWith(ClearSingleton.class)
@@ -86,12 +85,9 @@ public class PackageMaterialUpdaterIntegrationTest {
         material.getPackageDefinition().getConfiguration().addNewConfiguration("fieldX", true);
         final List<Modification> modifications = ModificationsMother.multipleModificationList();
         doNothing().when(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
-        transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus transactionStatus) {
-                packageMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
-                return null;
-            }
+        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            packageMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
+            return null;
         });
 
         MaterialInstance actualInstance = materialRepository.findMaterialInstance(material);

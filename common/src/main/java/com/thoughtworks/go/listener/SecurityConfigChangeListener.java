@@ -20,11 +20,10 @@ import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class SecurityConfigChangeListener extends EntityConfigChangedListener<Object> {
-    private final List<Class<?>> securityConfigClasses = Arrays.asList(
+    private final List<Class<?>> securityConfigClasses = List.of(
             SecurityAuthConfig.class,
             Role.class,
             AdminsConfig.class,

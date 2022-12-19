@@ -26,13 +26,12 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Map.entry;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public class MaterialsRepresenter {
@@ -64,30 +63,28 @@ public class MaterialsRepresenter {
         }
     }
 
-    private static final Map<String, String> ERROR_MAPPING = Collections.unmodifiableMap(new HashMap<>() {
-        {
-            put("materialName", "name");
-            put("folder", "destination");
-            put("autoUpdate", "auto_update");
-            put("filterAsString", "filter");
-            put("checkexternals", "check_externals");
-            put("serverAndPort", "port");
-            put("useTickets", "use_tickets");
-            put("pipelineName", "pipeline");
-            put("stageName", "stage");
-            put("pipelineStageName", "pipeline");
-            put("packageId", "ref");
-            put("scmId", "ref");
-            put("encryptedPassword", "encrypted_password");
-        }
-    });
+    private static final Map<String, String> ERROR_MAPPING = Map.ofEntries(
+        entry("materialName", "name"),
+        entry("folder", "destination"),
+        entry("autoUpdate", "auto_update"),
+        entry("filterAsString", "filter"),
+        entry("checkexternals", "check_externals"),
+        entry("serverAndPort", "port"),
+        entry("useTickets", "use_tickets"),
+        entry("pipelineName", "pipeline"),
+        entry("stageName", "stage"),
+        entry("pipelineStageName", "pipeline"),
+        entry("packageId", "ref"),
+        entry("scmId", "ref"),
+        entry("encryptedPassword", "encrypted_password")
+    );
 
     public static void toJSON(OutputWriter jsonWriter, MaterialConfig materialConfig) {
         validateSupportedMaterials(materialConfig);
         stream(Materials.values())
-                .filter(material -> material.type == materialConfig.getClass())
-                .findFirst()
-                .ifPresent(material -> material.toJSON(jsonWriter, materialConfig));
+            .filter(material -> material.type == materialConfig.getClass())
+            .findFirst()
+            .ifPresent(material -> material.toJSON(jsonWriter, materialConfig));
     }
 
     static MaterialConfig fromJSON(JsonReader jsonReader) {
@@ -95,10 +92,10 @@ public class MaterialsRepresenter {
         JsonReader attributes = jsonReader.readJsonObject("attributes");
 
         return stream(Materials.values())
-                .filter(material -> equalsIgnoreCase(type, material.name()))
-                .findFirst()
-                .map(material -> material.representer.fromJSON(attributes))
-                .orElseThrow(unprocessableMaterialType(type));
+            .filter(material -> equalsIgnoreCase(type, material.name()))
+            .findFirst()
+            .map(material -> material.representer.fromJSON(attributes))
+            .orElseThrow(unprocessableMaterialType(type));
     }
 
     private static void addErrors(OutputWriter json, MaterialConfig material) {

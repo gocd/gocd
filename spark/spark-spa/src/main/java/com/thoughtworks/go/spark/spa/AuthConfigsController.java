@@ -23,7 +23,6 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -51,9 +50,9 @@ public class AuthConfigsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Authorization Configurations");
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Authorization Configurations"
+        );
         return new ModelAndView(object, null);
     }
 }

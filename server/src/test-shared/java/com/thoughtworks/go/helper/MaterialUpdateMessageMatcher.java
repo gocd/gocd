@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 
 public class MaterialUpdateMessageMatcher {
     public static MaterialUpdateMessage matchMaterialUpdateMessage(final Material expectedMaterial) {
-        return argThat(new ArgumentMatcher<MaterialUpdateMessage>() {
+        return argThat(new ArgumentMatcher<>() {
             @Override
             public boolean matches(MaterialUpdateMessage o) {
                 return expectedMaterial.equals(o.getMaterial());

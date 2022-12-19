@@ -37,14 +37,12 @@ public class RouteInformationProvider {
 
     public void cacheRouteInformation() {
         routes.clear();
-        routeList().forEach(routeEntry -> {
-            routes.add(new RouteEntry(
-                getField(routeEntry, "httpMethod"),
-                getField(routeEntry, "path"),
-                getField(routeEntry, "acceptedType"),
-                getField(routeEntry, "target")
-            ));
-        });
+        routeList().forEach(routeEntry -> routes.add(new RouteEntry(
+            getField(routeEntry, "httpMethod"),
+            getField(routeEntry, "path"),
+            getField(routeEntry, "acceptedType"),
+            getField(routeEntry, "target")
+        )));
     }
 
     public List<RouteEntry> getRoutes() {

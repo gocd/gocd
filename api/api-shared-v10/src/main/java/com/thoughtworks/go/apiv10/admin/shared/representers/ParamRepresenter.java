@@ -27,16 +27,12 @@ import java.util.HashMap;
 public class ParamRepresenter {
 
     public static void toJSONArray(OutputListWriter jsonWriter, ParamsConfig paramConfigs) {
-        paramConfigs.forEach(param -> {
-            jsonWriter.addChild(paramWriter -> toJSON(paramWriter, param));
-        });
+        paramConfigs.forEach(param -> jsonWriter.addChild(paramWriter -> toJSON(paramWriter, param)));
     }
 
     public static void toJSON(OutputWriter jsonWriter, ParamConfig paramConfig) {
         if (!paramConfig.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(new HashMap<>()).toJSON(errorWriter, paramConfig);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(errorWriter, paramConfig));
         }
         jsonWriter.add("name", paramConfig.getName());
         jsonWriter.add("value", paramConfig.getValue());
@@ -44,11 +40,7 @@ public class ParamRepresenter {
 
     public static ParamsConfig fromJSONArray(JsonReader jsonReader) {
         ParamsConfig paramConfigs = new ParamsConfig();
-        jsonReader.readArrayIfPresent("parameters", params -> {
-            params.forEach(param -> {
-                paramConfigs.add(ParamRepresenter.fromJSON(new JsonReader(param.getAsJsonObject())));
-            });
-        });
+        jsonReader.readArrayIfPresent("parameters", params -> params.forEach(param -> paramConfigs.add(ParamRepresenter.fromJSON(new JsonReader(param.getAsJsonObject())))));
         return paramConfigs;
     }
 

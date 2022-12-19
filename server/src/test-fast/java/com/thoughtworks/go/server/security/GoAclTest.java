@@ -15,57 +15,41 @@
  */
 package com.thoughtworks.go.server.security;
 
-import java.util.ArrayList;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class GoAclTest {
 
     @Test
     public void shouldBeGrantedIfUserInApprovalList() {
-        GoAcl acl = new GoAcl(new ArrayList<CaseInsensitiveString>() {
-            {
-                add(new CaseInsensitiveString("admin"));
-            }
-        });
+        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         assertThat("admin should be granted", acl.isGranted(new CaseInsensitiveString("admin")), is(true));
     }
 
     @Test
     public void shouldBeGrantedIfAnyUserInApprovalList() {
-        GoAcl acl = new GoAcl(new ArrayList<CaseInsensitiveString>() {
-            {
-                add(new CaseInsensitiveString("admin"));
-            }
-        });
+        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         assertThat("admin should be granted", acl.isGranted(new CaseInsensitiveString("admin")), is(true));
     }
 
-    @Test public void shouldNotBeGrantedIfUserNotInApprovalList() throws Exception {
-        GoAcl acl = new GoAcl(new ArrayList<CaseInsensitiveString>() {
-            {
-                add(new CaseInsensitiveString("admin"));
-            }
-        });
+    @Test public void shouldNotBeGrantedIfUserNotInApprovalList() {
+        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         assertThat("noexist should not be granted", acl.isGranted(new CaseInsensitiveString("noexist")), is(false));
     }
 
-    @Test public void userNameShouldNotBeCaseSensitive() throws Exception {
-        GoAcl acl = new GoAcl(new ArrayList<CaseInsensitiveString>() {
-            {
-                add(new CaseInsensitiveString("admin"));
-            }
-        });
+    @Test public void userNameShouldNotBeCaseSensitive() {
+        GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         boolean granted = acl.isGranted(new CaseInsensitiveString("ADMIN"));
         assertThat("ADMIN should be granted", granted, is(true));
     }
 
-    @Test public void shouldNotGrantIfNoUsersDefined() throws Exception {
-        GoAcl acl = new GoAcl(new ArrayList<>());
+    @Test public void shouldNotGrantIfNoUsersDefined() {
+        GoAcl acl = new GoAcl(List.of());
         assertThat("ADMIN should not be granted", acl.isGranted(new CaseInsensitiveString("ADMIN")), is(false));
     }
 }

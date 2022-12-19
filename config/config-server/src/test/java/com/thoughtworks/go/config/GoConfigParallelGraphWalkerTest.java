@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -116,7 +115,7 @@ public class GoConfigParallelGraphWalkerTest {
     @Test
     public void shouldCopyErrorsForFieldsOnPipelineConfig(){
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline", MaterialConfigsMother.defaultMaterialConfigs(), new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
-        pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("name", "value"))));
+        pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("name", "value"))));
 
         PipelineConfig pipelineWithErrors = GoConfigMother.deepClone(pipelineConfig);
         pipelineWithErrors.getVariables().get(0).addError("name", "error on environment variable");

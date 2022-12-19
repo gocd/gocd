@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
@@ -80,8 +79,8 @@ public class ElasticAgentPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithClusterProfileSettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> elasticAgentProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
-        List<PluginConfiguration> clusterProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_url", new Metadata(true, false)));
+        List<PluginConfiguration> elasticAgentProfileConfigurations = List.of(new PluginConfiguration("aws_password", new Metadata(true, false)));
+        List<PluginConfiguration> clusterProfileConfigurations = List.of(new PluginConfiguration("aws_url", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(property);
@@ -117,7 +116,7 @@ public class ElasticAgentPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithoutClusterProfileSettingsForPluginsImplementedUsingv4Extension() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> elasticAgentProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
+        List<PluginConfiguration> elasticAgentProfileConfigurations = List.of(new PluginConfiguration("aws_password", new Metadata(true, false)));
         PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
         PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
         pluginSettingsConfiguration.add(property);
@@ -153,7 +152,7 @@ public class ElasticAgentPluginInfoBuilderTest {
     @Test
     public void shouldContinueWithBuildingPluginInfoIfPluginSettingsIsNotProvidedByThePlugin() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
+        List<PluginConfiguration> pluginConfigurations = List.of(new PluginConfiguration("aws_password", new Metadata(true, false)));
 
         Image icon = new Image("content_type", "data", "hash");
 

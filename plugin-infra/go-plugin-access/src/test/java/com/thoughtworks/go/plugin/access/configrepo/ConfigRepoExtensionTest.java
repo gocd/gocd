@@ -34,7 +34,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,12 +63,10 @@ public class ConfigRepoExtensionTest {
     ExtensionsRegistry extensionsRegistry;
     private ConfigRepoExtension extension;
     private final String responseBody = "expected-response";
-    private final Map<String, String> responseHeaders = new HashMap<>() {
-        {
-            put("Content-Type", "text/plain");
-            put("X-Export-Filename", "foo.txt");
-        }
-    };
+    private final Map<String, String> responseHeaders = Map.of(
+        "Content-Type", "text/plain",
+        "X-Export-Filename", "foo.txt"
+    );
 
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
@@ -79,7 +79,7 @@ public class ConfigRepoExtensionTest {
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, PLUGIN_ID)).thenReturn(true);
         DefaultGoPluginApiResponse response = DefaultGoPluginApiResponse.success(responseBody);
         responseHeaders.forEach(response::addResponseHeader);
@@ -109,7 +109,7 @@ public class ConfigRepoExtensionTest {
         CRPipeline pipeline = new CRPipeline();
         String serialized = new GsonCodec().getGson().toJson(pipeline);
         when(jsonMessageHandler2.responseMessageForPipelineExport(responseBody, responseHeaders)).thenReturn(ExportedConfig.from(serialized, responseHeaders));
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("2.0");
 
 
         ExportedConfig response = extension.pipelineExport(PLUGIN_ID, pipeline);
@@ -126,7 +126,7 @@ public class ConfigRepoExtensionTest {
         deserializedResponse.add("file.yaml");
         ConfigFileList files = new ConfigFileList(deserializedResponse, null);
         when(jsonMessageHandler3.responseMessageForConfigFiles(responseBody)).thenReturn(files);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("3.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("3.0");
 
 
         ConfigFileList response = extension.getConfigFiles(PLUGIN_ID, "dir", null);
@@ -141,13 +141,13 @@ public class ConfigRepoExtensionTest {
     public void shouldGracefullyHandleV1AndV2Incompatability() {
         ConfigFileList expected = ConfigFileList.withError("Unsupported Operation", "This plugin version does not support list config files");
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("1.0");
         ConfigFileList responseV1 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
 
         assertTrue(responseV1.hasErrors(), "should have errors");
         assertThat(responseV1.getErrors().getErrorsAsText(), is(expected.getErrors().getErrorsAsText()));
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("2.0");
         ConfigFileList responseV2 = extension.getConfigFiles(PLUGIN_ID, "dir", null);
 
         assertTrue(responseV2.hasErrors(), "should have errors");
@@ -158,7 +158,7 @@ public class ConfigRepoExtensionTest {
     public void shouldRequestCapabilities() {
         Capabilities capabilities = new Capabilities(true, true, false, false);
         when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(List.of("1.0", "2.0", "3.0")))).thenReturn("2.0");
 
         Capabilities res = extension.getCapabilities(PLUGIN_ID);
 

@@ -16,9 +16,8 @@
 package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-
-import static java.util.Arrays.asList;
 
 
 public class BaseCollection<T> extends ArrayList<T> {
@@ -30,7 +29,7 @@ public class BaseCollection<T> extends ArrayList<T> {
     }
 
     public BaseCollection(T... items) {
-        this(asList(items));
+        this(Arrays.asList(items));
     }
 
     public T first() {

@@ -57,10 +57,10 @@ public class ClickyPipelineConfigController implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         String pipelineName = request.params("pipeline_name");
-        Map<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Pipeline");
-            put("meta", meta(pipelineName));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Pipeline",
+            "meta", meta(pipelineName)
+        );
         return new ModelAndView(object, null);
     }
 

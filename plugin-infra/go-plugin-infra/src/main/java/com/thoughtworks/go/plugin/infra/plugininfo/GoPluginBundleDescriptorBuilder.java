@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNullElse;
 
 @Slf4j
@@ -59,7 +58,7 @@ public class GoPluginBundleDescriptorBuilder {
             log.warn("Unable to load the jar file {}", bundleOrPluginJarFile.file(), e);
             final String message = requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName());
             String cause = e.getCause() != null ? format("%s. Cause: %s", message, e.getCause().getMessage()) : message;
-            goPluginBundleDescriptor.markAsInvalid(singletonList(format("Plugin with ID (%s) is not valid: %s", defaultId, cause)), e);
+            goPluginBundleDescriptor.markAsInvalid(List.of(format("Plugin with ID (%s) is not valid: %s", defaultId, cause)), e);
         }
 
         return goPluginBundleDescriptor;

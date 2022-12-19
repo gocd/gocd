@@ -19,14 +19,15 @@ import com.thoughtworks.go.domain.TaskProperty;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class NantTaskTest {
     @Test
-    public void describeTest() throws Exception {
+    public void describeTest() {
         NantTask task = new NantTask();
         task.setBuildFile("default.build");
         task.setTarget("test");
@@ -38,12 +39,12 @@ public class NantTaskTest {
     }
 
     @Test
-    public void shouldUpdateAllItsAttributes() throws Exception {
+    public void shouldUpdateAllItsAttributes() {
         NantTask nant = new NantTask();
-        nant.setConfigAttributes(m(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "/usr/bin/nant"));
+        nant.setConfigAttributes(Map.of(BuildTask.BUILD_FILE, "foo/build.xml", NantTask.NANT_PATH, "/usr/bin/nant"));
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
         assertThat(nant.getNantPath(), is("/usr/bin/nant"));
-        nant.setConfigAttributes(m());
+        nant.setConfigAttributes(Map.of());
         assertThat(nant.getBuildFile(), is("foo/build.xml"));
         assertThat(nant.getNantPath(), is("/usr/bin/nant"));
         nant.setConfigAttributes(null);
@@ -52,9 +53,12 @@ public class NantTaskTest {
     }
 
     @Test
-    public void shouldNotUpdateAllItsAttributesWhenNotPassedInAsAttributes() throws Exception {
+    public void shouldNotUpdateAllItsAttributesWhenNotPassedInAsAttributes() {
         NantTask nant = new NantTask();
-        nant.setConfigAttributes(m(BuildTask.BUILD_FILE, null, NantTask.NANT_PATH, null));
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(BuildTask.BUILD_FILE, null);
+        attributes.put(NantTask.NANT_PATH, null);
+        nant.setConfigAttributes(attributes);
         assertThat(nant.getBuildFile(), is(nullValue()));
         assertThat(nant.getNantPath(), is(nullValue()));
     }

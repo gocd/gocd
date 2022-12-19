@@ -36,7 +36,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,11 +94,11 @@ class GoCDFreeMarkerViewTest {
 
     @Test
     public void shouldShowAnalyticsDashboardForAdminIfPluginInstalled() throws Exception {
-        List<SupportedAnalytics> supportedAnalytics = Collections.singletonList(new SupportedAnalytics("dashboard", "id", "foo"));
+        List<SupportedAnalytics> supportedAnalytics = List.of(new SupportedAnalytics("dashboard", "id", "foo"));
         AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(supportedAnalytics), null);
 
         when(securityService.isUserAdmin(any())).thenReturn(true);
-        when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
+        when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo(info)));
 
         view.exposeHelpers(context, request);
 
@@ -108,11 +107,11 @@ class GoCDFreeMarkerViewTest {
 
     @Test
     public void shouldNotShowAnalyticsDashboardForNonAdminEvenIfPluginInstalled() throws Exception {
-        List<SupportedAnalytics> supportedAnalytics = Collections.singletonList(new SupportedAnalytics("dashboard", "id", "foo"));
+        List<SupportedAnalytics> supportedAnalytics = List.of(new SupportedAnalytics("dashboard", "id", "foo"));
         AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(supportedAnalytics), null);
 
         when(securityService.isUserAdmin(any())).thenReturn(false);
-        lenient().when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
+        lenient().when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(List.of(new CombinedPluginInfo(info)));
 
         view.exposeHelpers(context, request);
 

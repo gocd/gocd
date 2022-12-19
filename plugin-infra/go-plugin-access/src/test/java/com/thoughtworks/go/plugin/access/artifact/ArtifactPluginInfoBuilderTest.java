@@ -22,12 +22,11 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ArtifactPluginInfoBuilderTest {
@@ -53,7 +52,7 @@ public class ArtifactPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithStoreSettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("S3_BUCKET", new Metadata(true, false)),
                 new PluginConfiguration("AWS_ACCESS_KEY_ID", new Metadata(true, true))
         );
@@ -69,7 +68,7 @@ public class ArtifactPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithPublishArtifactConfigSettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("FILENAME", new Metadata(true, false))
         );
 
@@ -84,7 +83,7 @@ public class ArtifactPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithFetchArtifactConfigSettings() {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
-        List<PluginConfiguration> pluginConfigurations = Arrays.asList(
+        List<PluginConfiguration> pluginConfigurations = List.of(
                 new PluginConfiguration("FILENAME", new Metadata(true, false)),
                 new PluginConfiguration("SECURE", new Metadata(true, true))
         );

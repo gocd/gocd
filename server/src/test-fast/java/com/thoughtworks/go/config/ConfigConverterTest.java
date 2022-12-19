@@ -55,9 +55,9 @@ import java.util.*;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.GoConfigMother.defaultCruiseConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -330,7 +330,7 @@ class ConfigConverterTest {
     void shouldConvertFetchPluggableArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
         CRConfigurationProperty crConfigurationProperty = new CRConfigurationProperty("k1", "v1", null);
         final CRConfigurationProperty[] crConfigurationProperties = new CRConfigurationProperty[]{crConfigurationProperty};
-        final List<CRConfigurationProperty> crConfigurationProperties1 = Arrays.asList(crConfigurationProperties);
+        final List<CRConfigurationProperty> crConfigurationProperties1 = List.of(crConfigurationProperties);
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
                 null, "stage", "job", "artifactId", crConfigurationProperties1);
 
@@ -346,7 +346,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertFetchPluggableArtifactTaskWhenConfigurationIsNotSet() {
         final CRConfigurationProperty[] crConfigurationProperties = new CRConfigurationProperty[]{};
-        final List<CRConfigurationProperty> crConfigurationProperties1 = Arrays.asList(crConfigurationProperties);
+        final List<CRConfigurationProperty> crConfigurationProperties1 = List.of(crConfigurationProperties);
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
                 null, "stage", "job", "artifactId", crConfigurationProperties1);
 
@@ -1017,7 +1017,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertToPluggableArtifactConfigWithRightConfiguration() {
         final CRConfigurationProperty[] filenames = new CRConfigurationProperty[]{new CRConfigurationProperty("filename", "who-cares")};
-        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", Arrays.asList(filenames)));
+        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", List.of(filenames)));
 
         assertThat(pluggableArtifactConfig.getId()).isEqualTo("id");
         assertThat(pluggableArtifactConfig.getStoreId()).isEqualTo("storeId");

@@ -37,7 +37,6 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.HashMap;
@@ -83,14 +82,11 @@ public class ScheduleHelper {
     }
 
     public Pipeline schedule(final PipelineConfig pipelineConfig, final BuildCause buildCause, final String approvedBy, final SchedulingContext schedulingContext) {
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                materialRepository.save(buildCause.getMaterialRevisions());
-                Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, schedulingContext, "md5-test", new TimeProvider());
-                pipeline = pipelineService.save(pipeline);
-                return pipeline;
-            }
+        return (Pipeline) transactionTemplate.execute((TransactionCallback) status -> {
+            materialRepository.save(buildCause.getMaterialRevisions());
+            Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, schedulingContext, "md5-test", new TimeProvider());
+            pipeline = pipelineService.save(pipeline);
+            return pipeline;
         });
     }
 

@@ -107,7 +107,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
       @Test
       void "should return analytics data"() {
         AnalyticsData expected = new AnalyticsData(GSON.toJson([1, 2, 3]), "/path/to/template")
-        when(analyticsExtension.getAnalytics("pluginId", "pipeline", "metric", Collections.singletonMap("pipeline_name", getPipelineName()))).thenReturn(expected)
+        when(analyticsExtension.getAnalytics("pluginId", "pipeline", "metric", Map.of("pipeline_name", getPipelineName()))).thenReturn(expected)
         get(controller.controllerPath("pluginId", "pipeline", "metric") + "?pipeline_name=" + getPipelineName())
 
         assertThatResponse().isOk().hasJsonBody(expected.toMap())

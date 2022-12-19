@@ -46,11 +46,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -108,7 +107,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnCorrectNumberOfMaterialRevisionsAndMaterials() throws Exception {
+    public void shouldReturnCorrectNumberOfMaterialRevisionsAndMaterials() {
         File file1 = new File("file1");
         File file2 = new File("file2");
         File file3 = new File("file3");
@@ -116,7 +115,7 @@ public class PipelineServiceIntegrationTest {
         Material hg = new HgMaterial("url", "Dest");
         String[] hgRevs = new String[]{"h1"};
 
-        u.checkinFiles(hg, "h1", a(file1, file2, file3, file4), ModifiedAction.added);
+        u.checkinFiles(hg, "h1", List.of(file1, file2, file3, file4), ModifiedAction.added);
 
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg));
 
@@ -128,7 +127,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnModificationsInCorrectOrder() throws Exception {
+    public void shouldReturnModificationsInCorrectOrder() {
         File file1 = new File("file1");
         File file2 = new File("file2");
         File file3 = new File("file3");
@@ -138,8 +137,8 @@ public class PipelineServiceIntegrationTest {
 
         Date latestModification = new Date();
         Date older = DateUtils.addDays(latestModification, -1);
-        u.checkinFiles(hg1, "hg1_1", a(file1, file2, file3, file4), ModifiedAction.added, older);
-        u.checkinFiles(hg1, "hg1_2", a(file1, file2, file3, file4), ModifiedAction.modified, latestModification);
+        u.checkinFiles(hg1, "hg1_1", List.of(file1, file2, file3, file4), ModifiedAction.added, older);
+        u.checkinFiles(hg1, "hg1_2", List.of(file1, file2, file3, file4), ModifiedAction.modified, latestModification);
 
 
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1));
@@ -153,7 +152,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnPMRsInCorrectOrder() throws Exception {
+    public void shouldReturnPMRsInCorrectOrder() {
         File file1 = new File("file1");
         File file2 = new File("file2");
         File file3 = new File("file3");
@@ -163,8 +162,8 @@ public class PipelineServiceIntegrationTest {
         String[] hgRevs = new String[]{"h1","h2"};
 
         Date latestModification = new Date();
-        u.checkinFiles(hg2, "h2", a(file1, file2, file3, file4), ModifiedAction.added,  org.apache.commons.lang3.time.DateUtils.addDays(latestModification, -1));
-        u.checkinFiles(hg1, "h1", a(file1, file2, file3, file4), ModifiedAction.added, latestModification);
+        u.checkinFiles(hg2, "h2", List.of(file1, file2, file3, file4), ModifiedAction.added,  org.apache.commons.lang3.time.DateUtils.addDays(latestModification, -1));
+        u.checkinFiles(hg1, "h1", List.of(file1, file2, file3, file4), ModifiedAction.added, latestModification);
 
         ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1),u.m(hg2));
         u.runAndPass(pair01, hgRevs);
@@ -178,11 +177,11 @@ public class PipelineServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateTheCorrectPipelineCounterAfterDuplicatesHaveBeenDeleted() throws SQLException {
+    public void shouldUpdateTheCorrectPipelineCounterAfterDuplicatesHaveBeenDeleted() {
         String pipelineName = "Pipeline-Name";
         File file1 = new File("file1");
         Material hg = new HgMaterial("url", "Dest");
-        u.checkinFiles(hg, "h1", a(file1), ModifiedAction.added);
+        u.checkinFiles(hg, "h1", List.of(file1), ModifiedAction.added);
         ScheduleTestUtil.AddedPipeline addedPipeline = u.saveConfigWith(pipelineName, "stageName", u.m(hg));
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap());
         pipelineSqlMapDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap());
@@ -198,7 +197,7 @@ public class PipelineServiceIntegrationTest {
         assertThat(pipelineInstance.getCounter(), is(31));
     }
 
-    @Test public void returnPipelineForBuildDetailViewShouldContainOnlyMods() throws Exception {
+    @Test public void returnPipelineForBuildDetailViewShouldContainOnlyMods() {
         Pipeline pipeline = createPipelineWithStagesAndMods();
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
 
@@ -209,7 +208,7 @@ public class PipelineServiceIntegrationTest {
     }
 
     @Test
-    public void shouldApplyLabelFromPreviousPipeline() throws Exception {
+    public void shouldApplyLabelFromPreviousPipeline() {
         String oldLabel = createNewPipeline().getLabel();
         String newLabel = createNewPipeline().getLabel();
         assertThat(newLabel, is(greaterThan(oldLabel)));

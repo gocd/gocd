@@ -51,7 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.sql.SQLException;
@@ -60,7 +59,6 @@ import java.util.*;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.stream.Collectors.toList;
@@ -266,7 +264,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     @Test
     public void findByJobIdShouldLoadOriginalJobWhenCopiedForJobRerun() {
         Stage firstOldStage = savedPipeline.getStages().get(0);
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(firstOldStage, a(JOB_NAME), new DefaultSchedulingContext("loser", new Agents()), pipelineConfig.get(0), new TimeProvider(), "md5");
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(firstOldStage, List.of(JOB_NAME), new DefaultSchedulingContext("loser", new Agents()), pipelineConfig.get(0), new TimeProvider(), "md5");
 
         stageDao.saveWithJobs(savedPipeline, newStage);
         dbHelper.passStage(newStage);
@@ -334,18 +332,15 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
-        return (JobInstance) transactionTemplate.execute(new TransactionCallback() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
-                jobInstance.setRunOnAllAgents(runOnAllAgents);
-                jobInstance.setRunMultipleInstance(runMultipleInstance);
-                jobInstanceService.save(savedStage.getIdentifier(), stageId, jobInstance);
-                jobInstance.changeState(JobState.Building);
-                jobInstance.setAgentUuid(uuid);
-                jobInstanceDao.updateStateAndResult(jobInstance);
-                return jobInstance;
-            }
+        return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
+            JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
+            jobInstance.setRunOnAllAgents(runOnAllAgents);
+            jobInstance.setRunMultipleInstance(runMultipleInstance);
+            jobInstanceService.save(savedStage.getIdentifier(), stageId, jobInstance);
+            jobInstance.changeState(JobState.Building);
+            jobInstance.setAgentUuid(uuid);
+            jobInstanceDao.updateStateAndResult(jobInstance);
+            return jobInstance;
         });
     }
 
@@ -634,7 +629,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         assertThat(jobPlans.get(1).getIdentifier().getRerunOfCounter(), is(nullValue()));
 
         dbHelper.passStage(savedStage);
-        Stage stage = instanceFactory.createStageForRerunOfJobs(savedStage, a(JOB_NAME), schedulingContext, pipelineConfig.getStage(new CaseInsensitiveString(STAGE_NAME)), new TimeProvider(), "md5");
+        Stage stage = instanceFactory.createStageForRerunOfJobs(savedStage, List.of(JOB_NAME), schedulingContext, pipelineConfig.getStage(new CaseInsensitiveString(STAGE_NAME)), new TimeProvider(), "md5");
         dbHelper.saveStage(savedPipeline, stage, stage.getOrderId() + 1);
 
         jobPlans = jobInstanceDao.orderedScheduledBuilds();
@@ -759,8 +754,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
 
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "clusterId", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
-        ClusterProfile clusterProfile = new ClusterProfile("clusterId", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "clusterId", List.of(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
+        ClusterProfile clusterProfile = new ClusterProfile("clusterId", "cd.go.elastic-agent:docker", List.of(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
 
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
                 instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
@@ -806,7 +801,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     private EnvironmentVariables environmentVariables(String name, String value) {
-        return new EnvironmentVariables(Arrays.asList(new EnvironmentVariable(name, value, false)));
+        return new EnvironmentVariables(List.of(new EnvironmentVariable(name, value, false)));
     }
 
     @Test
@@ -956,13 +951,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         buildingJob3.setAgentUuid("uuid3");
         jobInstanceDao.save(stageId, buildingJob3);
 
-        List<String> liveAgentIds = new ArrayList<String>() {
-            {
-                add("uuid1");
-                add("uuid2");
-            }
-        };
-        JobInstances list = jobInstanceDao.findHungJobs(liveAgentIds);
+        JobInstances list = jobInstanceDao.findHungJobs(List.of("uuid1", "uuid2"));
         assertThat(list.size(), is(1));
         JobInstance reloaded = list.get(0);
         assertThat(reloaded, hasSameId(buildingJob3));

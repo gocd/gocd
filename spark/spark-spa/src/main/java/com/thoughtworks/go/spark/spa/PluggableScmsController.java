@@ -24,35 +24,36 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
 
 public class PluggableScmsController implements SparkController {
-  private final SPAAuthenticationHelper authenticationHelper;
-  private final TemplateEngine engine;
-  public PluggableScmsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-    this.authenticationHelper = authenticationHelper;
-    this.engine = engine;
-  }
+    private final SPAAuthenticationHelper authenticationHelper;
+    private final TemplateEngine engine;
 
-  @Override
-  public String controllerBasePath() {
+    public PluggableScmsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+        this.authenticationHelper = authenticationHelper;
+        this.engine = engine;
+    }
+
+    @Override
+    public String controllerBasePath() {
         return Routes.SCM.SPA_BASE;
-  }
+    }
 
-  @Override
-  public void setupRoutes() {
-     path(controllerBasePath(), () -> {
-        before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-        get("", this::index, engine);
-    });
-  }
-  public ModelAndView index(Request request, Response response) {
-      Map<Object, Object> object = new HashMap<>() {{
-          put("viewTitle", "Pluggable SCMs");
-      }};
-      return new ModelAndView(object, null);
-  }
+    @Override
+    public void setupRoutes() {
+        path(controllerBasePath(), () -> {
+            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            get("", this::index, engine);
+        });
+    }
+
+    public ModelAndView index(Request request, Response response) {
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Pluggable SCMs"
+        );
+        return new ModelAndView(object, null);
+    }
 }

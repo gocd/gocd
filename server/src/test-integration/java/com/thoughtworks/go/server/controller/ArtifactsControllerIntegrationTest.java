@@ -60,7 +60,8 @@ import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -686,7 +687,7 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private TypeSafeMatcher<File> exists() {
-        return new TypeSafeMatcher<File>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(File file) {
                 return file.exists();
@@ -700,7 +701,7 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private TypeSafeMatcher<File> directory() {
-        return new TypeSafeMatcher<File>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(File file) {
                 return file.isDirectory();

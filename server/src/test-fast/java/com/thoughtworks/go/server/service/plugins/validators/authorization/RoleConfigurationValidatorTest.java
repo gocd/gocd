@@ -26,12 +26,12 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class RoleConfigurationValidatorTest {
@@ -53,7 +53,7 @@ public class RoleConfigurationValidatorTest {
 
         validator.validate(roleConfig, "pluginId");
 
-        verify(extension).validateRoleConfiguration("pluginId", Collections.singletonMap("username", "view"));
+        verify(extension).validateRoleConfiguration("pluginId", Map.of("username", "view"));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class RoleConfigurationValidatorTest {
         ValidationResult result = new ValidationResult();
 
         result.addError(new ValidationError("username", "username format is incorrect"));
-        when(extension.validateRoleConfiguration("pluginId", Collections.singletonMap("username", "view"))).thenReturn(result);
+        when(extension.validateRoleConfiguration("pluginId", Map.of("username", "view"))).thenReturn(result);
 
         validator.validate(roleConfig, "pluginId");
 
@@ -78,7 +78,7 @@ public class RoleConfigurationValidatorTest {
         ValidationResult result = new ValidationResult();
 
         result.addError(new ValidationError("password", "password is required"));
-        when(extension.validateRoleConfiguration("pluginId", Collections.singletonMap("username", "view"))).thenReturn(result);
+        when(extension.validateRoleConfiguration("pluginId", Map.of("username", "view"))).thenReturn(result);
 
         validator.validate(roleConfig, "pluginId");
 
@@ -92,7 +92,7 @@ public class RoleConfigurationValidatorTest {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
 
-        when(extension.validateRoleConfiguration("pluginId", Collections.singletonMap("username", "view"))).thenThrow(new RecordNotFoundException("not found"));
+        when(extension.validateRoleConfiguration("pluginId", Map.of("username", "view"))).thenThrow(new RecordNotFoundException("not found"));
 
         validator.validate(roleConfig, "pluginId");
 

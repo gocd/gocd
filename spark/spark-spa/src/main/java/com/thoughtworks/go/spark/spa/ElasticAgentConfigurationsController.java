@@ -23,7 +23,7 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -51,9 +51,9 @@ public class ElasticAgentConfigurationsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Elastic Agent Configurations");
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Elastic Agent Configurations"
+        );
 
         return new ModelAndView(object, null);
     }

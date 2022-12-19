@@ -38,10 +38,10 @@ import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PipelineGroupsTest {
 
@@ -125,7 +125,7 @@ public class PipelineGroupsTest {
 
         pipelineGroups.validate(null);
 
-        List<String> expectedSources = asList(pipeline1.getOriginDisplayName(), pipeline2.getOriginDisplayName(), pipeline3.getOriginDisplayName(), pipeline4.getOriginDisplayName());
+        List<String> expectedSources = List.of(pipeline1.getOriginDisplayName(), pipeline2.getOriginDisplayName(), pipeline3.getOriginDisplayName(), pipeline4.getOriginDisplayName());
         assertDuplicateNameErrorOnPipeline(pipeline1, expectedSources, 3);
         assertDuplicateNameErrorOnPipeline(pipeline2, expectedSources, 3);
         assertDuplicateNameErrorOnPipeline(pipeline3, expectedSources, 3);
@@ -189,7 +189,7 @@ public class PipelineGroupsTest {
         PipelineGroups groups = new PipelineGroups();
         PipelineConfigs groupOne = new BasicPipelineConfigs(p1);
         PipelineConfigs groupTwo = new BasicPipelineConfigs(p2);
-        groups.addAll(asList(groupOne, groupTwo));
+        groups.addAll(List.of(groupOne, groupTwo));
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap = groups.getPackageUsageInPipelines();
 
@@ -207,7 +207,7 @@ public class PipelineGroupsTest {
         final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(packageTwo), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
 
         PipelineGroups groups = new PipelineGroups();
-        groups.addAll(asList(new BasicPipelineConfigs(p1), new BasicPipelineConfigs(p2)));
+        groups.addAll(List.of(new BasicPipelineConfigs(p1), new BasicPipelineConfigs(p2)));
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> result1 = groups.getPackageUsageInPipelines();
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> result2 = groups.getPackageUsageInPipelines();
@@ -224,7 +224,7 @@ public class PipelineGroupsTest {
         PipelineGroups groups = new PipelineGroups();
         PipelineConfigs groupOne = new BasicPipelineConfigs(p1);
         PipelineConfigs groupTwo = new BasicPipelineConfigs(p2);
-        groups.addAll(asList(groupOne, groupTwo));
+        groups.addAll(List.of(groupOne, groupTwo));
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesOne = groups.getPluggableSCMMaterialUsageInPipelines();
 

@@ -47,12 +47,8 @@ public class StageXmlRepresenter implements XmlRepresentable {
             .textNode("result", stage.getResult().toString())
             .textNode("state", stage.status())
             .cdataNode("approvedBy", stage.getApprovedBy())
-            .node("jobs", jobsBuilder -> {
-                stage.getJobInstances().forEach(job -> {
-                    jobsBuilder.node("job", jobBuilder -> jobBuilder
-                        .attr("href", ctx.jobXmlLink(job.getIdentifier())));
-                });
-            }).build();
+            .node("jobs", jobsBuilder -> stage.getJobInstances().forEach(job -> jobsBuilder.node("job", jobBuilder -> jobBuilder
+                    .attr("href", ctx.jobXmlLink(job.getIdentifier()))))).build();
     }
 
     @Override

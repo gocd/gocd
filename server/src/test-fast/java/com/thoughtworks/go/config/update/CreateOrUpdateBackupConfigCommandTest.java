@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,7 +49,7 @@ class CreateOrUpdateBackupConfigCommandTest {
         assertThat(command.isValid(cruiseConfig)).isFalse();
         assertThat(newBackupConfig.errors())
                 .hasSize(1)
-                .containsEntry("schedule", Collections.singletonList("Invalid cron syntax for backup configuration at offset 0: Illegal characters for this position: 'BAD'"));
+                .containsEntry("schedule", List.of("Invalid cron syntax for backup configuration at offset 0: Illegal characters for this position: 'BAD'"));
 
         assertThat(command.getPreprocessedEntityConfig()).isSameAs(newBackupConfig);
     }

@@ -50,9 +50,9 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -142,10 +142,10 @@ public class ChangesetServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween(
-                Arrays.asList(pipelineRevRange(pipelineOne, pipelineThree), pipelineRevRange(pipelineSvnOne, pipelineSvnThree)),
+                List.of(pipelineRevRange(pipelineOne, pipelineThree), pipelineRevRange(pipelineSvnOne, pipelineSvnThree)),
                 loser, result);
 
-        List<MaterialRevision> expectedRevisions = Arrays.asList(
+        List<MaterialRevision> expectedRevisions = List.of(
                 new MaterialRevision(hg, hgCommit3, hgCommit2),
                 new MaterialRevision(git, gitCommit3, gitCommit2),
                 new MaterialRevision(svn, svnCommit4, svnCommit3, svnCommit2));
@@ -184,7 +184,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineThree = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit3),
                 dbHelper.addRevisionsWithModifications(git, gitCommit3));
 
-        List<MaterialRevision> expectedRevisions = Arrays.asList(
+        List<MaterialRevision> expectedRevisions = List.of(
                 new MaterialRevision(hg, hgCommit3, hgCommit2),
                 new MaterialRevision(git, gitCommit3, gitCommit2));
 
@@ -210,7 +210,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineFour = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, materialRevision);
 
 
-        List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1));
+        List<MaterialRevision> expectedRevisions = List.of(new MaterialRevision(hg, hgCommit1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result, false);
@@ -229,7 +229,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit1),
                 dbHelper.addRevisionsWithModifications(git, gitCommit1));
 
-        List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1), new MaterialRevision(git, gitCommit1));
+        List<MaterialRevision> expectedRevisions = List.of(new MaterialRevision(hg, hgCommit1), new MaterialRevision(git, gitCommit1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", 0, pipelineOne.getCounter(), loser, result, false);
@@ -248,7 +248,7 @@ public class ChangesetServiceIntegrationTest {
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit1),
                 dbHelper.addRevisionsWithModifications(git, gitCommit1));
 
-        List<MaterialRevision> expectedRevisions = Arrays.asList(new MaterialRevision(hg, hgCommit1), new MaterialRevision(git, gitCommit1));
+        List<MaterialRevision> expectedRevisions = List.of(new MaterialRevision(hg, hgCommit1), new MaterialRevision(git, gitCommit1));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineOne.getCounter(), loser, result, false);
@@ -310,11 +310,11 @@ public class ChangesetServiceIntegrationTest {
         //when to counter is a bisect
         List<MaterialRevision> revisionList = changesetService.
                 revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(stringRevisions(revisionList), is(Arrays.asList("5", "2", "3", "4")));
+        assertThat(stringRevisions(revisionList), is(List.of("5", "2", "3", "4")));
 
         //When from counter is a bisect
         revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(stringRevisions(revisionList), is(Arrays.asList("6", "5", "2")));
+        assertThat(stringRevisions(revisionList), is(List.of("6", "5", "2")));
     }
 
     @Test
@@ -869,7 +869,7 @@ public class ChangesetServiceIntegrationTest {
         Modification mod2 = new Modification("user1", "comment", "email", new Date(), "revision");
         mod2.setMaterialInstance(new SvnMaterialInstance("url", "user1", "flyweight1", false));
 
-        Map<Material, Modifications> map = changesetService.groupModsByMaterial(Arrays.asList(mod1, mod2));
+        Map<Material, Modifications> map = changesetService.groupModsByMaterial(List.of(mod1, mod2));
         assertThat(map.size(), is(1));
         assertThat(map.get(first), is(new Modifications(mod1, mod2)));
     }

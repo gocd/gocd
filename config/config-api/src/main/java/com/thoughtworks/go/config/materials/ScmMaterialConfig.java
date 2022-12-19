@@ -339,9 +339,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        pipelinesWithThisMaterial.forEach((key, value) -> {
-            builder.append(format("%s (%s),\n ", key, getAutoUpdateStatus(value)));
-        });
+        pipelinesWithThisMaterial.forEach((key, value) -> builder.append(format("%s (%s),\n ", key, getAutoUpdateStatus(value))));
 
         return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }

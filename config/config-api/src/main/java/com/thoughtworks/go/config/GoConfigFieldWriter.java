@@ -24,7 +24,6 @@ import org.springframework.beans.TypeMismatchException;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.*;
@@ -32,10 +31,10 @@ import static java.text.MessageFormat.format;
 
 public class GoConfigFieldWriter {
     private final ConfigUtil configUtil = new ConfigUtil("magic");
-    private Field configField;
+    private final Field configField;
     private final Object value;
-    private SimpleTypeConverter typeConverter;
-    private ConfigCache configCache;
+    private final SimpleTypeConverter typeConverter;
+    private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
     public GoConfigFieldWriter(Field declaredField, Object value, SimpleTypeConverter converter, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
@@ -89,7 +88,7 @@ public class GoConfigFieldWriter {
         try {
             if (!attribute.allowNull()) {
                 bombIfNull(field.get(instance),
-                        "Field '" + field.getName() + "' is still set to null. "
+                    () -> "Field '" + field.getName() + "' is still set to null. "
                                 + "Must give a default value.");
             }
         } catch (IllegalAccessException e) {
@@ -108,23 +107,24 @@ public class GoConfigFieldWriter {
         }
     }
 
-private Collection parseCollection(Element e, Class<?> collectionType) {
+@SuppressWarnings({"DataFlowIssue", "unchecked"})
+private Collection<?> parseCollection(Element e, Class<?> collectionType) {
         ConfigCollection collection = collectionType.getAnnotation(ConfigCollection.class);
         Class<?> type = collection.value();
 
 
         Object o = newInstance(collectionType);
         bombUnless(o instanceof Collection,
-                "Must be some sort of list. Was: " + collectionType.getName());
+            () -> "Must be some sort of list. Was: " + collectionType.getName());
 
-        Collection baseCollection = (Collection) o;
-        for (Element childElement : (List<Element>) e.getChildren()) {
+        Collection<Object> baseCollection = (Collection<Object>) o;
+        for (Element childElement : e.getChildren()) {
             if (isInCollection(childElement, type)) {
                 baseCollection.add(parseType(childElement, type));
             }
         }
         bombIf(baseCollection.size() < collection.minimum(),
-                "Required at least " + collection.minimum() + " subelements to '" + e.getName() + "'. "
+            () -> "Required at least " + collection.minimum() + " subelements to '" + e.getName() + "'. "
                         + "Found " + baseCollection.size() + ".");
         return baseCollection;
     }
@@ -216,7 +216,7 @@ private Collection parseCollection(Element e, Class<?> collectionType) {
     }
 
     private ConfigTag configTag(Class<?> type) {
-        bombIf(!ConfigCache.isAnnotationPresent(type, ConfigTag.class), "Invalid type '" + type + "' to autoload. Must have ConfigTag annotation.");
+        bombIf(!ConfigCache.isAnnotationPresent(type, ConfigTag.class), () -> "Invalid type '" + type + "' to autoload. Must have ConfigTag annotation.");
         return ConfigCache.annotationFor(type, ConfigTag.class);
     }
 

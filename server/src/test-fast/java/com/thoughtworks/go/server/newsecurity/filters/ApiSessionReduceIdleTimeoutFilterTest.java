@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -49,12 +47,9 @@ public class ApiSessionReduceIdleTimeoutFilterTest {
 
         assertThat(request.getSession(false)).isNull();
 
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                request.getSession(true);
-                return null;
-            }
+        doAnswer(invocation -> {
+            request.getSession(true);
+            return null;
         }).when(filterChain).doFilter(request, response);
 
         new ApiSessionReduceIdleTimeoutFilter(systemEnvironment).doFilter(request, response, filterChain);

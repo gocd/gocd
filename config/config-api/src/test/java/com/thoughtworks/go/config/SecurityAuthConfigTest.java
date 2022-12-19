@@ -29,12 +29,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SecurityAuthConfigTest {
     private AuthorizationMetadataStore store = AuthorizationMetadataStore.instance();
@@ -49,7 +50,7 @@ public class SecurityAuthConfigTest {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"));
 
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
-        authConfig.addConfigurations(Arrays.asList(property));
+        authConfig.addConfigurations(List.of(property));
 
         assertThat(authConfig.size(), is(1));
         assertThat(authConfig, contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"))));
@@ -60,7 +61,7 @@ public class SecurityAuthConfigTest {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"));
 
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
-        authConfig.addConfigurations(Arrays.asList(property));
+        authConfig.addConfigurations(List.of(property));
 
         assertThat(authConfig.size(), is(1));
         assertThat(authConfig, contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"))));
@@ -68,12 +69,12 @@ public class SecurityAuthConfigTest {
 
     @Test
     public void addConfiguration_shouldEncryptASecureVariable() throws Exception {
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
-        authConfig.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+        authConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(authConfig.size(), is(1));
         assertTrue(authConfig.first().isSecure());
@@ -85,7 +86,7 @@ public class SecurityAuthConfigTest {
 
         store.setPluginInfo(pluginInfo);
         SecurityAuthConfig authConfig = new SecurityAuthConfig("id", "plugin_id");
-        authConfig.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
+        authConfig.addConfigurations(List.of(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(authConfig.size(), is(1));
         assertFalse(authConfig.first().isSecure());
@@ -94,7 +95,7 @@ public class SecurityAuthConfigTest {
 
     @Test
     public void postConstruct_shouldEncryptSecureConfigurations() throws Exception {
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(List.of(new PluginConfiguration("password", new Metadata(true, true))));
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);

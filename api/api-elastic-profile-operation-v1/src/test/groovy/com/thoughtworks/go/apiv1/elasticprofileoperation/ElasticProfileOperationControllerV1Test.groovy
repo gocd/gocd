@@ -79,7 +79,7 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
 
       @Test
       void 'should list jobs associated with a profile id'() {
-        def elasticProfileUsages = Arrays.asList(
+        def elasticProfileUsages = List.of(
           new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr", "config_repo"),
           new ElasticProfileUsage("LinuxPR", "build", "test", "linux-pr", "config_repo"),
 

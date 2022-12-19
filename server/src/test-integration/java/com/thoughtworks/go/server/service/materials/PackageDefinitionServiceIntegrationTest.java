@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.service.materials;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CachedGoPartials;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -35,7 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static java.util.Arrays.asList;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -83,14 +87,11 @@ public class PackageDefinitionServiceIntegrationTest {
         Configuration configuration = new Configuration();
         configuration.add(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
         npmRepo.setConfiguration(configuration);
-        goConfigService.updateConfig(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.setPackageRepositories(new PackageRepositories(npmRepo));
-                return cruiseConfig;
-            }
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.setPackageRepositories(new PackageRepositories(npmRepo));
+            return cruiseConfig;
         });
-        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
+        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(List.of(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
     }
 
@@ -102,7 +103,7 @@ public class PackageDefinitionServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheExactLocalizeMessageIfItFailsToCreatePackageDefinition() throws Exception {
+    public void shouldReturnTheExactLocalizeMessageIfItFailsToCreatePackageDefinition() {
         String packageUuid = "random-uuid";
         String packageName = "prettyjson";
         Configuration configuration = new Configuration();
@@ -122,7 +123,7 @@ public class PackageDefinitionServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeletePackageDefinition() throws Exception {
+    public void shouldDeletePackageDefinition() {
         String packageUuid = "random-uuid";
         String packageName = "prettyjson";
         Configuration configuration = new Configuration();

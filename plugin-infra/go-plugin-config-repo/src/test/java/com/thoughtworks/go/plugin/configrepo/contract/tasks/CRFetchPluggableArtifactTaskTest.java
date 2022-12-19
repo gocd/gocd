@@ -19,12 +19,12 @@ import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPluggableArtifactTask> {
 
@@ -39,14 +39,14 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
     public CRFetchPluggableArtifactTaskTest() {
         CRConfigurationProperty crConfigurationProperty = new CRConfigurationProperty("k1", "v1", null);
 
-        fetch = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", Arrays.asList(crConfigurationProperty));
-        fetchFromPipe = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", Arrays.asList(crConfigurationProperty));
+        fetch = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", List.of(crConfigurationProperty));
+        fetchFromPipe = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", List.of(crConfigurationProperty));
         fetchFromPipe.setPipeline("pipeline1");
 
         invalidFetchNoStoreId = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", null, null);
         invalidFetchNoJob = new CRFetchPluggableArtifactTask(null, null, null, "build", null, "storeId", null);
         invalidFetchNoStage = new CRFetchPluggableArtifactTask(null, null, null, null, "buildjob", "storeId", null);
-        invalidFetchWithDuplicateProperties = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", Arrays.asList(crConfigurationProperty, crConfigurationProperty));
+        invalidFetchWithDuplicateProperties = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", List.of(crConfigurationProperty, crConfigurationProperty));
     }
 
     @Override

@@ -37,8 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -99,7 +99,7 @@ public class AssetsContextHandlerTest {
     }
 
     private Matcher<? super String> isSameFileAs(final String expected) {
-        return new BaseMatcher<String>() {
+        return new BaseMatcher<>() {
             @Override
             public boolean matches(Object o) {
                 String actualFile = (String) o;

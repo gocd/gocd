@@ -43,7 +43,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -121,7 +121,7 @@ public class PipelineWithTwoStages implements PreCondition {
         MaterialConfigs materialConfigs = MaterialConfigsMother.mockMaterialConfigs(svnTestRepo.projectRepositoryUrl());
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.first();
         svnMaterialConfig.setName(new CaseInsensitiveString(DEFAULT_MATERIAL));
-        svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "default-folder"));
+        svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "default-folder"));
         configHelper.addPipelineWithGroup(groupName, pipelineName, materialConfigs, devStage, jobsOfDevStage);
         configHelper.addStageToPipeline(pipelineName, ftStage, JOB_FOR_FT_STAGE);
         configHelper.setPipelineLabelTemplate(pipelineName, "label-${COUNT}");
@@ -163,8 +163,7 @@ public class PipelineWithTwoStages implements PreCondition {
 
     public Pipeline createPipelineWithFirstStageScheduled() {
         Pipeline mostRecent = dbHelper.getPipelineDao().mostRecentPipeline(pipelineName);
-        bombIf(mostRecent.getStages().byName(devStage).isActive(),
-                "Can not schedule new pipeline: the first stage is still running");
+        bombIf(mostRecent.getStages().byName(devStage).isActive(), "Can not schedule new pipeline: the first stage is still running");
 
         Pipeline pipeline = schedulePipeline();
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);

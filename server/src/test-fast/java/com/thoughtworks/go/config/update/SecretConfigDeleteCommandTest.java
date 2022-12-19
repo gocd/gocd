@@ -25,14 +25,12 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -70,15 +68,13 @@ public class SecretConfigDeleteCommandTest {
     public void shouldNotValidateIfSecretConfigIsInUseByPipeline() {
         SecretConfig secretConfig = new SecretConfig("foo", "file-based");
 
-        Set<SecretConfigUsage> usageInfo = new HashSet<>(Arrays.asList(
+        Set<SecretConfigUsage> usageInfo = Set.of(
                 new SecretConfigUsage("gocd", "P1", "S1", "J1", "template1")
-        ));
+        );
 
         SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(null, secretConfig, usageInfo, null, null, new HttpLocalizedOperationResult());
 
-        GoConfigInvalidException goConfigInvalidException = assertThrows(GoConfigInvalidException.class, () -> {
-            command.isValid(cruiseConfig);
-        });
+        GoConfigInvalidException goConfigInvalidException = assertThrows(GoConfigInvalidException.class, () -> command.isValid(cruiseConfig));
 
         assertThat(goConfigInvalidException.getMessage(), is("The secret config 'foo' is being referenced by pipeline(s): P1."));
     }

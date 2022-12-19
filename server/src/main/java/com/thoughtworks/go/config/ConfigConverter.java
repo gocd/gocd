@@ -92,9 +92,7 @@ public class ConfigConverter {
 
     private void validatePartialConfigEnvironments(PartialConfig partialConfig) {
         HashSet<String> uniqueAgentUuids = new HashSet<>(agentService.getAllRegisteredAgentUUIDs());
-        partialConfig.getEnvironments().forEach(environmentConfig -> {
-            environmentConfig.validateContainsAgentUUIDsFrom(uniqueAgentUuids);
-        });
+        partialConfig.getEnvironments().forEach(environmentConfig -> environmentConfig.validateContainsAgentUUIDsFrom(uniqueAgentUuids));
     }
 
     public Map<String, List<CRPipeline>> groupPipelinesByGroupName(Collection<CRPipeline> pipelines) {

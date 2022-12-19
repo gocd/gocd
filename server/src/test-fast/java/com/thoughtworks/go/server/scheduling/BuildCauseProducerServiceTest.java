@@ -24,11 +24,8 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -58,16 +55,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.util.*;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
@@ -174,12 +172,9 @@ public class BuildCauseProducerServiceTest {
         Username user = Username.ANONYMOUS;
         final HttpOperationResult result = new HttpOperationResult();
 
-        lenient().when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocationOnMock) throws Throwable {
-                result.accepted("junk", "junk", healthStateType);
-                return true;
-            }
+        lenient().when(mockSchedulingCheckerService.canTriggerManualPipeline(pipelineConfig, CaseInsensitiveString.str(user.getUsername()), operationResult)).thenAnswer((Answer<Boolean>) invocationOnMock -> {
+            result.accepted("junk", "junk", healthStateType);
+            return true;
         });
 
         buildCauseProducerService.markPipelineAsAlreadyTriggered(pipelineConfig);
@@ -246,12 +241,9 @@ public class BuildCauseProducerServiceTest {
     private MaterialUpdateStatusListener extractMaterialListenerInstanceFromRegisterCall() {
         final MaterialUpdateStatusListener[] listener = new MaterialUpdateStatusListener[1];
         verify(mockMaterialUpdateStatusNotifier).registerListenerFor(any(PipelineConfig.class),
-                argThat(new ArgumentMatcher<MaterialUpdateStatusListener>() {
-                    @Override
-                    public boolean matches(MaterialUpdateStatusListener o) {
-                        listener[0] = o;
-                        return true;
-                    }
+                argThat(o -> {
+                    listener[0] = o;
+                    return true;
                 }));
         return listener[0];
     }
@@ -316,7 +308,7 @@ public class BuildCauseProducerServiceTest {
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs(pipelineConfig.materialConfigs());
 
         MaterialRevision specificMaterialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream-pipeline/2/stage/1", "MOCK_LABEL-12", null));
-        when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"))))
+        when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"))))
                 .thenReturn(new MaterialRevisions(specificMaterialRevision));
         when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString("pipeline"))).thenReturn(BuildCause.createNeverRun());
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(svnMaterial, svnModifications)));
@@ -328,7 +320,7 @@ public class BuildCauseProducerServiceTest {
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
         final HashMap<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
-                new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
+                new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
                         stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
 
         verify(pipelineScheduleQueue).schedule(eq(new CaseInsensitiveString("pipeline")), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
@@ -337,12 +329,12 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void shouldHandleCaseWhereSpecifiedRevisionDoesNotExist() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
-        when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
+        when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new RuntimeException("Invalid specified revision"));
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
         final HashMap<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
-                new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"),
+                new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"),
                         stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
         verify(mockServerHealthService).update(argThat(hasErrorHealthState("Error while scheduling pipeline: pipeline", "Invalid specified revision")));
     }
@@ -350,12 +342,12 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void shouldHandleCaseWhenExceptionWithoutMessageIsRaised() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream-pipeline"), new CaseInsensitiveString("stage"));
-        when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
+        when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new NullPointerException());
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
         final HashMap<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
-                new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"), stringStringHashMap, new HashMap<>()),
+                new ScheduleOptions(Map.of(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"), stringStringHashMap, new HashMap<>()),
                 new ServerHealthStateOperationResult(), 12345);
         verify(mockServerHealthService).update(argThat(hasErrorHealthState("Error while scheduling pipeline: pipeline", "Details not available, please check server logs.")));
     }
@@ -510,7 +502,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     private ArgumentMatcher<ServerHealthState> hasErrorHealthState(final String message, final String description) {
-        return new ArgumentMatcher<ServerHealthState>() {
+        return new ArgumentMatcher<>() {
             @Override
             public boolean matches(ServerHealthState item) {
                 assertThat("isSuccess", item.isSuccess(), is(false));
@@ -527,7 +519,7 @@ public class BuildCauseProducerServiceTest {
     }
 
     private ArgumentMatcher<BuildCause> containsRevisions(final MaterialRevision... revisions) {
-        return new ArgumentMatcher<BuildCause>() {
+        return new ArgumentMatcher<>() {
             @Override
             public boolean matches(BuildCause item) {
                 for (MaterialRevision revision : revisions) {

@@ -30,8 +30,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -132,7 +132,7 @@ public class ZipArtifactCacheTest {
     }
 
     private TypeSafeMatcher<ZipArtifactCache> cacheCreated(final ArtifactFolder artifactFolder) {
-        return new TypeSafeMatcher<ZipArtifactCache>() {
+        return new TypeSafeMatcher<>() {
             @Override
             public boolean matchesSafely(ZipArtifactCache item) {
                 try {

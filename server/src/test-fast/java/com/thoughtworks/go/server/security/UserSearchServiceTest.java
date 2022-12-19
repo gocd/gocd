@@ -40,9 +40,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,7 +61,7 @@ public class UserSearchServiceTest  {
     @Test
     public void shouldSearchUserUsingPlugins() throws Exception {
         final String searchTerm = "foo";
-        List<String> pluginIds = asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
+        List<String> pluginIds = List.of("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
 
         addPluginSupportingUserSearch(pluginIds.get(0));
         addPluginSupportingUserSearch(pluginIds.get(1));
@@ -70,10 +69,10 @@ public class UserSearchServiceTest  {
         addPluginSupportingUserSearch(pluginIds.get(3));
         when(authorizationExtension.canHandlePlugin(anyString())).thenReturn(true);
         when(goConfigService.security()).thenReturn(new SecurityConfig());
-        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(asList(getPluginUser(1)));
-        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm, Collections.emptyList())).thenReturn(asList(getPluginUser(2), getPluginUser(3)));
+        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(List.of(getPluginUser(1)));
+        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm, Collections.emptyList())).thenReturn(List.of(getPluginUser(2), getPluginUser(3)));
         when(authorizationExtension.searchUsers("plugin-id-3", searchTerm, Collections.emptyList())).thenReturn(new ArrayList<>());
-        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(asList(new User("username-" + 4, null, null)));
+        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(List.of(new User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 

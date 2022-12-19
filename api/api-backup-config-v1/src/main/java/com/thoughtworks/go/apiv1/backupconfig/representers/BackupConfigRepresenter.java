@@ -25,10 +25,8 @@ import java.util.Collections;
 
 public class BackupConfigRepresenter {
     public static void toJSON(OutputWriter outputWriter, BackupConfig backupConfig) {
-        outputWriter.addLinks(outputLinkWriter -> {
-            outputLinkWriter.addAbsoluteLink("doc", Routes.BackupConfig.DOC)
-                    .addLink("self", Routes.BackupConfig.BASE);
-        })
+        outputWriter.addLinks(outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.BackupConfig.DOC)
+                .addLink("self", Routes.BackupConfig.BASE))
                 .add("email_on_failure", backupConfig.isEmailOnFailure())
                 .add("email_on_success", backupConfig.isEmailOnSuccess())
                 .add("post_backup_script", backupConfig.getPostBackupScript())

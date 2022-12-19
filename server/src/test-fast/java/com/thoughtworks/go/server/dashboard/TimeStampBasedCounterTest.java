@@ -42,13 +42,7 @@ public class TimeStampBasedCounterTest {
         when(clock.currentTimeMillis()).thenReturn(0L);
         TimeStampBasedCounter provider = new TimeStampBasedCounter(clock);
         for (int i = 0; i < 10; i++) {
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    provider.getNext();
-//                    System.out.println("provider.getNext() = " + provider.getNext() + " id: " + finalI);
-                }
-            }, "Thread"+i);
+            Thread thread = new Thread(provider::getNext, "Thread" + i);
             list.add(thread);
 
         }

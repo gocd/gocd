@@ -26,13 +26,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +54,7 @@ public class PluginInfoProviderTest {
     @Test
     public void shouldGetPluginInformationAsJson() {
         when(pluginManager.plugins())
-                .thenReturn(Arrays.asList(passwordFilePluginDescriptor(), ldapPluginDescriptor()));
+                .thenReturn(List.of(passwordFilePluginDescriptor(), ldapPluginDescriptor()));
         when(pluginInfoFinder.pluginInfoFor("cd.go.authentication.passwordfile"))
                 .thenReturn(new CombinedPluginInfo(
                         new PluginInfo(passwordFilePluginDescriptor(), "authorization", null, null)));
@@ -63,7 +63,7 @@ public class PluginInfoProviderTest {
         Map<String, Object> expectedJson = new LinkedHashMap<>();
         Map<String, Object> passwordFilePluginJson = new LinkedHashMap<>();
         passwordFilePluginJson.put("id", "cd.go.authentication.passwordfile");
-        passwordFilePluginJson.put("type", Collections.singletonList("authorization"));
+        passwordFilePluginJson.put("type", List.of("authorization"));
         passwordFilePluginJson.put("version", "1.0.1-48");
         passwordFilePluginJson.put("bundled_plugin", true);
         passwordFilePluginJson.put("status", passwordFilePluginDescriptor().getStatus());
@@ -75,7 +75,7 @@ public class PluginInfoProviderTest {
         ldapPluginJson.put("bundled_plugin", true);
         ldapPluginJson.put("status", ldapPluginDescriptor().getStatus());
 
-        expectedJson.put("plugins", Arrays.asList(passwordFilePluginJson, ldapPluginJson));
+        expectedJson.put("plugins", List.of(passwordFilePluginJson, ldapPluginJson));
 
         assertThat(json, is(expectedJson));
     }

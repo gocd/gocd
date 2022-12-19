@@ -36,10 +36,9 @@ import java.util.Map;
 import static com.thoughtworks.go.config.BuildArtifactConfig.DEST;
 import static com.thoughtworks.go.config.BuildArtifactConfig.SRC;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -126,7 +125,7 @@ public class ArtifactTypeConfigsTest {
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
 
 
-        HashMap<Object, Object> configurationMap1 = new HashMap<>();
+        Map<Object, Object> configurationMap1 = new HashMap<>();
         configurationMap1.put("Image", "gocd/gocd-server");
         configurationMap1.put("Tag", "v18.6.0");
 
@@ -154,15 +153,15 @@ public class ArtifactTypeConfigsTest {
 
     @Test
     public void setConfigAttributes_shouldSetConfigurationAsIsIfPluginIdIsBlank() throws CryptoException {
-        HashMap<Object, Object> imageMap = new HashMap<>();
+        Map<Object, Object> imageMap = new HashMap<>();
         imageMap.put("value", new GoCipher().encrypt("some-encrypted-value"));
         imageMap.put("isSecure", "true");
 
-        HashMap<Object, Object> tagMap = new HashMap<>();
+        Map<Object, Object> tagMap = new HashMap<>();
         tagMap.put("value", "18.6.0");
         tagMap.put("isSecure", "false");
 
-        HashMap<Object, Object> configurationMap1 = new HashMap<>();
+        Map<Object, Object> configurationMap1 = new HashMap<>();
         configurationMap1.put("Image", imageMap);
         configurationMap1.put("Tag", tagMap);
 

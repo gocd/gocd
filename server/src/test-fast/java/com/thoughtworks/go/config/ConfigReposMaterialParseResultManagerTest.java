@@ -39,8 +39,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static com.thoughtworks.go.config.ConfigReposMaterialParseResultManager.ConfigRepoReparseListener;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -72,7 +72,7 @@ class ConfigReposMaterialParseResultManagerTest {
         HealthStateScope scope = HealthStateScope.forPartialConfigRepo(fingerprint);
         ServerHealthState error = ServerHealthState.error("boom", "bang!", HealthStateType.general(scope));
 
-        when(serverHealthService.filterByScope(scope)).thenReturn(Collections.singletonList(error));
+        when(serverHealthService.filterByScope(scope)).thenReturn(List.of(error));
 
         Modification modification = modificationFor("rev1");
         manager.parseFailed(fingerprint, modification, new Exception());
@@ -107,7 +107,7 @@ class ConfigReposMaterialParseResultManagerTest {
     @Test
     void shouldCheckForErrorsRelatedToConfigRepoMaterialWithtinServerHealthScope() {
         ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
-        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
+        when(serverHealthService.filterByScope(any())).thenReturn(List.of(serverHealthState));
         String fingerprint = "repo1";
 
 
@@ -124,7 +124,7 @@ class ConfigReposMaterialParseResultManagerTest {
     @Test
     void shouldClearGoodModificationInCaseGoodModificationIsSameAsOfLastParsedModificationAsHealthServiceHasErrors() {
         ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
-        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
+        when(serverHealthService.filterByScope(any())).thenReturn(List.of(serverHealthState));
         String fingerprint = "repo1";
 
 
@@ -140,7 +140,7 @@ class ConfigReposMaterialParseResultManagerTest {
     @Test
     void shouldAddAnErrorFromHealthStateWhenNoResultExistsForTheConfigRepo() {
         ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
-        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
+        when(serverHealthService.filterByScope(any())).thenReturn(List.of(serverHealthState));
         String fingerprint = "repo1";
 
         String expectedBeautifiedMessage = String.format("%s\n%s", serverHealthState.getMessage().toUpperCase(), serverHealthState.getDescription());
@@ -152,7 +152,7 @@ class ConfigReposMaterialParseResultManagerTest {
     @Test
     void shouldAddAnErrorFromHealthStateWhenNoResultExistsForTheConfigRepoWithoutAddingModification() {
         ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
-        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
+        when(serverHealthService.filterByScope(any())).thenReturn(List.of(serverHealthState));
         String fingerprint = "repo1";
 
         assertFalse(manager.get(fingerprint).isSuccessful());

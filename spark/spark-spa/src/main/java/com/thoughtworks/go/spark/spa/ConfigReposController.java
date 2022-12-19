@@ -23,7 +23,7 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -50,9 +50,9 @@ public class ConfigReposController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Config Repos");
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Config Repos"
+        );
 
         return new ModelAndView(object, null);
     }

@@ -23,7 +23,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRBuildTask;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
@@ -46,7 +46,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         CRBuildTask rakeTask = CRBuildTask.rake();
         CRJob buildRake = new CRJob("build");
         buildRake.addTask(rakeTask);
-        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "gitrepo", "feature12", true);
+        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, List.of("externals", "tools"), "gitrepo", "feature12", true);
 
         buildStage = new CRStage("build");
         buildStage.addJob(buildRake);
@@ -108,7 +108,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
 
-        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), null, "feature12", true);
+        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, List.of("externals", "tools"), null, "feature12", true);
         p.addMaterial(invalidGit);
         // plugin may voluntarily set this
         p.setLocation("pipe4.json");

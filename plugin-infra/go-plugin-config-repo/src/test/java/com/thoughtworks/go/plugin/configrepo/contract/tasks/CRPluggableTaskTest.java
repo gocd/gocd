@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPluginConfiguration;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
 
     public CRPluggableTaskTest() {
         CRPluginConfiguration crPluginConfiguration = new CRPluginConfiguration("curl.task.plugin", "1");
-        List<CRConfigurationProperty> properties = Arrays.asList(
+        List<CRConfigurationProperty> properties = List.of(
                 new CRConfigurationProperty("Url", "http://www.google.com"),
                 new CRConfigurationProperty("SecureConnection", "no"),
                 new CRConfigurationProperty("RequestType", "no")
@@ -47,7 +46,7 @@ public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
         CRPluginConfiguration examplePluginConfiguration = new CRPluginConfiguration("example.task.plugin", "1");
         example = new CRPluggableTask(null, null, examplePluginConfiguration, null);
 
-        List<CRConfigurationProperty> invalidProperties = Arrays.asList(
+        List<CRConfigurationProperty> invalidProperties = List.of(
                 new CRConfigurationProperty("Url", "http://www.google.com"),
                 new CRConfigurationProperty("Url", "http://www.gg.com")
         );

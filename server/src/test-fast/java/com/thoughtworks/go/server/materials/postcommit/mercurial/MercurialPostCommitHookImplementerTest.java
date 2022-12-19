@@ -22,10 +22,12 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
@@ -39,7 +41,7 @@ public class MercurialPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldPruneMercurialMaterialsWhichMatchIncomingURL() throws Exception {
+    public void shouldPruneMercurialMaterialsWhichMatchIncomingURL() {
         HgMaterial material1 = mock(HgMaterial.class);
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("http://repo1.something.local"));
         HgMaterial material2 = mock(HgMaterial.class);
@@ -48,8 +50,8 @@ public class MercurialPostCommitHookImplementerTest {
         when(material3.getUrlArgument()).thenReturn(new UrlArgument("ssh://repo1.something.local"));
         GitMaterial material4 = mock(GitMaterial.class);
         when(material4.getUrlArgument()).thenReturn(new UrlArgument("http://repo1.something.local"));
-        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2, material3, material4));
-        Map params = new HashMap();
+        Set<Material> materials = Set.of(material1, material2, material3, material4);
+        Map<String, String> params = new HashMap<>();
         params.put(MercurialPostCommitHookImplementer.REPO_URL_PARAM_KEY, "http://repo1.something.local");
 
         Set<Material> actual = implementer.prune(materials, params);
@@ -64,9 +66,9 @@ public class MercurialPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnEmptyListWhenURLIsSpecified() throws Exception {
+    public void shouldReturnEmptyListWhenURLIsSpecified() {
         HgMaterial material = mock(HgMaterial.class);
-        HashSet<Material> materials = new HashSet<>(Arrays.asList(material));
+        Set<Material> materials = Set.of(material);
 
         Set<Material> actual = implementer.prune(materials, new HashMap());
 
@@ -75,67 +77,67 @@ public class MercurialPostCommitHookImplementerTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenURLIsAnExactMatch() throws Exception {
+    public void shouldReturnTrueWhenURLIsAnExactMatch() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://repo-url", "dest"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() throws Exception {
+    public void shouldReturnTrueWhenBasicAuthIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user:passW)rD@repo-url", "dest"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() throws Exception {
+    public void shouldReturnTrueWhenBasicAuthWithoutPasswordIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user:@repo-url", "dest"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() throws Exception {
+    public void shouldReturnTrueWhenBasicAuthWithOnlyUsernameIsProvidedInURL() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user@repo-url", "dest"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnFalseWhenProtocolIsDifferent() throws Exception {
+    public void shouldReturnFalseWhenProtocolIsDifferent() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("https://repo-url", "dest"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseWhenNoValidatorCouldParseUrl() throws Exception {
+    public void shouldReturnFalseWhenNoValidatorCouldParseUrl() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("something.completely.random", "dest"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseWhenNoProtocolIsGiven() throws Exception {
+    public void shouldReturnFalseWhenNoProtocolIsGiven() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url#foo", new HgMaterial("repo-url#foo", "dest"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseForEmptyURLField() throws Exception {
+    public void shouldReturnFalseForEmptyURLField() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://", "dest"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldReturnFalseForEmptyURLFieldWithAuth() throws Exception {
+    public void shouldReturnFalseForEmptyURLFieldWithAuth() {
         boolean isEqual = implementer.isUrlEqual("http://repo-url", new HgMaterial("http://user:password@", "dest"));
         assertThat(isEqual, is(false));
     }
 
     @Test
-    public void shouldMatchFileBasedAccessWithoutAuth() throws Exception {
+    public void shouldMatchFileBasedAccessWithoutAuth() {
         boolean isEqual = implementer.isUrlEqual("/tmp/foo/repo-git", new HgMaterial("/tmp/foo/repo-git", "dest"));
         assertThat(isEqual, is(true));
     }
 
     @Test
-    public void shouldReturnTrueWhenIncomingUrlDoesNotHaveAuthDetails() throws Exception {
+    public void shouldReturnTrueWhenIncomingUrlDoesNotHaveAuthDetails() {
         boolean isEqual = implementer.isUrlEqual("http://foo.bar/#foo", new HgMaterial("http://user:password@foo.bar/#foo", "dest"));
         assertThat(isEqual, is(true));
     }

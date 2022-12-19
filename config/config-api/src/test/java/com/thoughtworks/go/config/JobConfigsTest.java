@@ -18,35 +18,36 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
+import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class JobConfigsTest {
 
     @Test
-    public void shouldAddJobsGivenInTheAttributesMapAfterClearingExistingJobs() throws Exception{
+    public void shouldAddJobsGivenInTheAttributesMapAfterClearingExistingJobs() {
         JobConfigs jobs = new JobConfigs();
         jobs.add(new JobConfig("quux"));
-        jobs.setConfigAttributes(a(m(JobConfig.NAME, "foo"), m(JobConfig.NAME, "bar")));
+        jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "bar")));
         assertThat(jobs.get(0).name(), is(new CaseInsensitiveString("foo")));
         assertThat(jobs.get(1).name(), is(new CaseInsensitiveString("bar")));
         assertThat(jobs.size(), is(2));
     }
 
     @Test
-    public void shouldNotFailForRepeatedJobNames_shouldInsteedSetErrorsOnValidation() throws Exception{
+    public void shouldNotFailForRepeatedJobNames_shouldInsteadSetErrorsOnValidation() {
         CruiseConfig config = new BasicCruiseConfig();
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
         config.addPipeline("grp", pipelineConfig);
         JobConfigs jobs = pipelineConfig.get(0).getJobs();
         jobs.add(new JobConfig("quux"));
-        jobs.setConfigAttributes(a(m(JobConfig.NAME, "foo"), m(JobConfig.NAME, "foo")));
+        jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "foo")));
         assertThat(jobs.size(), is(2));
 
         JobConfig firstFoo = jobs.get(0);
@@ -63,11 +64,11 @@ public class JobConfigsTest {
     }
 
     @Test
-    public void shouldValidateTree() throws Exception{
+    public void shouldValidateTree() throws Exception {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
         JobConfigs jobs = pipelineConfig.get(0).getJobs();
         jobs.add(new JobConfig("quux"));
-        jobs.setConfigAttributes(a(m(JobConfig.NAME, "foo"), m(JobConfig.NAME, "foo")));
+        jobs.setConfigAttributes(List.of(Map.of(JobConfig.NAME, "foo"), Map.of(JobConfig.NAME, "foo")));
         assertThat(jobs.size(), is(2));
 
         JobConfig firstFoo = jobs.get(0);
@@ -84,7 +85,7 @@ public class JobConfigsTest {
     }
 
     @Test
-    public void shouldReturnTrueIfAllDescendentsAreValid(){
+    public void shouldReturnTrueIfAllDescendentsAreValid() {
         JobConfig jobConfig = mock(JobConfig.class);
         when(jobConfig.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
@@ -96,7 +97,7 @@ public class JobConfigsTest {
     }
 
     @Test
-    public void shouldReturnFalseIfAnyDescendentIsInvalid(){
+    public void shouldReturnFalseIfAnyDescendentIsInvalid() {
         JobConfig jobConfig = mock(JobConfig.class);
         when(jobConfig.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
@@ -108,7 +109,7 @@ public class JobConfigsTest {
     }
 
     @Test
-    public void shouldClearExistingJobsWhenNullGivenAsAttributeMap() throws Exception{
+    public void shouldClearExistingJobsWhenNullGivenAsAttributeMap() {
         JobConfigs jobs = new JobConfigs();
         jobs.add(new JobConfig("quux"));
         jobs.setConfigAttributes(null);

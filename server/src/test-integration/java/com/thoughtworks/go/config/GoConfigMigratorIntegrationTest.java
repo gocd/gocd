@@ -68,7 +68,6 @@ import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -120,12 +119,7 @@ public class GoConfigMigratorIntegrationTest {
         resetCipher.setupAESCipherFile();
         exceptions = new ArrayList<>();
         MagicalGoConfigXmlLoader xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
-        goConfigMigrator = new GoConfigMigrator(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow, xmlLoader, new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService, new GoConfigMigrator.UpgradeFailedHandler() {
-            @Override
-            public void handle(Exception e) {
-                exceptions.add(e);
-            }
-        });
+        goConfigMigrator = new GoConfigMigrator(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow, xmlLoader, new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService, e -> exceptions.add(e));
     }
 
     @AfterEach
@@ -562,12 +556,17 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(packageRepositories.get(0).getPackages().size()).isEqualTo(1);
 
         assertConfiguration(packageRepositories.get(0).getConfiguration(),
-                asList(new List[]{asList("url", Boolean.FALSE, "http://fake-yum-repo"), asList("username", Boolean.FALSE, "godev"), asList("password", Boolean.FALSE, "password")}));
+                List.of(
+                    List.of("url", Boolean.FALSE, "http://fake-yum-repo"),
+                    List.of("username", Boolean.FALSE, "godev"),
+                    List.of("password", Boolean.FALSE, "password")
+                )
+        );
 
         assertThat(packageRepositories.get(0).getPackages().get(0).getId()).isEqualTo("go-server");
         assertThat(packageRepositories.get(0).getPackages().get(0).getName()).isEqualTo("go-server");
         assertConfiguration(packageRepositories.get(0).getPackages().get(0).getConfiguration(),
-                asList(new List[]{asList("name", Boolean.FALSE, "go-server-13.2.0-1-i386")}));
+                List.of(List.of("name", Boolean.FALSE, "go-server-13.2.0-1-i386")));
 
     }
 
@@ -598,8 +597,12 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(packageRepositories.get(0).getPackages().size()).isEqualTo(0);
 
         assertConfiguration(packageRepositories.get(0).getConfiguration(),
-                asList(new List[]{asList("url", Boolean.FALSE, "http://fake-yum-repo"), asList("username", Boolean.FALSE, "godev"), asList("password", Boolean.FALSE, "password")}));
-
+                List.of(
+                    List.of("url", Boolean.FALSE, "http://fake-yum-repo"),
+                    List.of("username", Boolean.FALSE, "godev"),
+                    List.of("password", Boolean.FALSE, "password")
+                )
+        );
     }
 
     @Test

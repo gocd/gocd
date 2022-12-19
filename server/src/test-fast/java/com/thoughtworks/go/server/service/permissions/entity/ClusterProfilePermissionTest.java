@@ -31,15 +31,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.config.policy.SupportedAction.ADMINISTER;
 import static com.thoughtworks.go.config.policy.SupportedAction.VIEW;
 import static com.thoughtworks.go.config.policy.SupportedEntity.CLUSTER_PROFILE;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
@@ -99,8 +95,8 @@ public class ClusterProfilePermissionTest {
         Map<String, Object> permissions = permission.permissions(username);
 
         Map<String, Object> clusterProfile = new LinkedHashMap<>();
-        clusterProfile.put("view", asList("dev_cluster", "prod_cluster"));
-        clusterProfile.put("administer", asList("dev_cluster"));
+        clusterProfile.put("view", List.of("dev_cluster", "prod_cluster"));
+        clusterProfile.put("administer", List.of("dev_cluster"));
 
         assertThat(permissions).isEqualTo(clusterProfile);
     }

@@ -30,14 +30,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,7 +61,7 @@ public class CcTrayStageStatusLoaderTest {
 
     @Test
     public void shouldConvertToStatusesIfAStageIsFoundInDB() throws Exception {
-        List<ProjectStatus> expectedStatuses = asList(new ProjectStatus("pipeline1 :: stage1", "Sleeping", "some-status", "some-label", new Date(), "some-url"));
+        List<ProjectStatus> expectedStatuses = List.of(new ProjectStatus("pipeline1 :: stage1", "Sleeping", "some-status", "some-label", new Date(), "some-url"));
         List<Stage> stages = setupStagesInDB(new StageIdentity("pipeline1", "stage1", 12L), new StageIdentity("pipeline2", "stage2", 14L));
         when(stageChangeHandler.statusesOfStageAndItsJobsFor(stages.get(0))).thenReturn(expectedStatuses);
 
@@ -86,7 +82,7 @@ public class CcTrayStageStatusLoaderTest {
     }
 
     private List<Stage> setupStagesInDB(StageIdentity... stageIdentities) {
-        when(stageDao.findLatestStageInstances()).thenReturn(asList(stageIdentities));
+        when(stageDao.findLatestStageInstances()).thenReturn(Arrays.asList(stageIdentities));
 
         List<Stage> stages = new ArrayList<>();
         for (StageIdentity identity : stageIdentities) {

@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import static java.util.Arrays.asList;
-
 import com.thoughtworks.go.helper.PipelineHistoryItemMother;
 import com.thoughtworks.go.helper.StageHistoryItemMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class PipelineHistoryGroupTest {
 
@@ -38,7 +38,7 @@ public class PipelineHistoryGroupTest {
     @Test
     public void shouldMatchSpecifiedItem() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
-        group.getStages().addAll(asList(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
+        group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(true));
@@ -47,7 +47,7 @@ public class PipelineHistoryGroupTest {
     @Test
     public void shouldNotMatchSpecifiedItemIfNameNotMatched() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
-        group.getStages().addAll(asList(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
+        group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage3", false));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(false));
@@ -56,7 +56,7 @@ public class PipelineHistoryGroupTest {
     @Test
     public void shouldNotMatchSpecifiedItemIfApprovalTypeNotMatched() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
-        group.getStages().addAll(asList(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
+        group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", true));
         assertThat(group.hasSameStagesAs(pipelineInstanceModel), is(false));
@@ -65,7 +65,7 @@ public class PipelineHistoryGroupTest {
     @Test
     public void shouldNotMatchSpecifiedItemIfSizeNotMatched() throws Exception {
         PipelineInstanceGroupModel group = new PipelineInstanceGroupModel();
-        group.getStages().addAll(asList(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
+        group.getStages().addAll(List.of(new SimpleInfo("stage1", true), new SimpleInfo("stage2", false)));
         PipelineInstanceModel pipelineInstanceModel = PipelineHistoryItemMother.custom(
                 StageHistoryItemMother.custom("stage1", true), StageHistoryItemMother.custom("stage2", false),
                 StageHistoryItemMother.custom("stage3", false));

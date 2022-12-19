@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.thoughtworks.go.spark.spa;
+
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -21,35 +22,37 @@ import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
-import java.util.HashMap;
+
 import java.util.Map;
+
 import static spark.Spark.*;
 
 public class AdminPipelinesController implements SparkController {
-  private final SPAAuthenticationHelper authenticationHelper;
-  private final TemplateEngine engine;
-  public AdminPipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-    this.authenticationHelper = authenticationHelper;
-    this.engine = engine;
-  }
+    private final SPAAuthenticationHelper authenticationHelper;
+    private final TemplateEngine engine;
 
-  @Override
-  public String controllerBasePath() {
+    public AdminPipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+        this.authenticationHelper = authenticationHelper;
+        this.engine = engine;
+    }
+
+    @Override
+    public String controllerBasePath() {
         return Routes.AdminPipelines.SPA_BASE;
-  }
+    }
 
-  @Override
-  public void setupRoutes() {
-     path(controllerBasePath(), () -> {
-        before("", authenticationHelper::checkPipelineGroupAdminOfAnyGroup);
-        get("", this::index, engine);
-    });
-  }
+    @Override
+    public void setupRoutes() {
+        path(controllerBasePath(), () -> {
+            before("", authenticationHelper::checkPipelineGroupAdminOfAnyGroup);
+            get("", this::index, engine);
+        });
+    }
 
-  public ModelAndView index(Request request, Response response) {
-      Map<Object, Object> object = new HashMap<>() {{
-          put("viewTitle", "Pipelines");
-      }};
-      return new ModelAndView(object, null);
-  }
+    public ModelAndView index(Request request, Response response) {
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Pipelines"
+        );
+        return new ModelAndView(object, null);
+    }
 }

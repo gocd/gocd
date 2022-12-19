@@ -33,7 +33,7 @@ class UsersRepresenterTest {
     def gocdRole = new RoleConfig()
     gocdRole.setName(new CaseInsensitiveString("gocdRole"))
 
-    def users = Arrays.asList(UserToRepresent.from(UsersMother.withName("Bob"), true, new RolesConfig(gocdRole)))
+    def users = List.of(UserToRepresent.from(UsersMother.withName("Bob"), true, new RolesConfig(gocdRole)))
     def json = toObject({ UsersRepresenter.toJSON(it, users) })
 
     def expectedJson = [

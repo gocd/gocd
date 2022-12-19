@@ -29,8 +29,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.Map;
 
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FetchTaskTest {
@@ -196,14 +196,14 @@ class FetchTaskTest {
     }
 
     @Test
-    void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
+    void validate_shouldNotTryAndValidateWhenWithinTemplate() {
         FetchTask task = new FetchTask(new CaseInsensitiveString("dummy"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest");
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
         assertThat(task.errors().isEmpty()).isTrue();
     }
 
     @Test
-    void validate_shouldValidateBlankStageAndJobWhenWithinTemplate() throws Exception {
+    void validate_shouldValidateBlankStageAndJobWhenWithinTemplate() {
         FetchTask task = new FetchTask(new CaseInsensitiveString("dummy"), new CaseInsensitiveString(""), new CaseInsensitiveString(""), "src", "dest");
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
         assertThat(task.errors().isEmpty()).isFalse();
@@ -447,72 +447,72 @@ class FetchTaskTest {
     }
 
     @Test
-    void shouldReturnSrcFileWhenSrcFileIsNotEmpty() throws Exception {
+    void shouldReturnSrcFileWhenSrcFileIsNotEmpty() {
         FetchTask fetchTask = new FetchTask();
         fetchTask.setSrcfile("a.jar");
         assertThat(fetchTask.getSrc()).isEqualTo("a.jar");
     }
 
     @Test
-    void shouldReturnSrcDirWhenSrcDirIsNotEmpty() throws Exception {
+    void shouldReturnSrcDirWhenSrcDirIsNotEmpty() {
         FetchTask fetchTask = new FetchTask();
         fetchTask.setSrcdir("folder");
         assertThat(fetchTask.getSrc()).isEqualTo("folder");
     }
 
     @Test
-    void shouldNormalizeDest() throws Exception {
+    void shouldNormalizeDest() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise-output/console.log",
                 "dest\\subfolder");
         assertThat(fetchTask.getDest()).isEqualTo("dest/subfolder");
     }
 
     @Test
-    void shouldNormalizeSrcFile() throws Exception {
+    void shouldNormalizeSrcFile() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise-output\\console.log",
                 "dest\\subfolder");
         assertThat(fetchTask.getSrc()).isEqualTo("cruise-output/console.log");
     }
 
     @Test
-    void shouldNormalizeSrcDir() throws Exception {
+    void shouldNormalizeSrcDir() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "", "dest\\subfolder");
         fetchTask.setSrcdir("testfolder\\subfolder");
         assertThat(fetchTask.getSrc()).isEqualTo("testfolder/subfolder");
     }
 
     @Test
-    void describeTestForSrcFile() throws Exception {
+    void describeTestForSrcFile() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         assertThat(fetchTask.describe()).isEqualTo("fetch artifact [cruise.zip] => [dest/subfolder] from [mingle/dev/windows-3]");
     }
 
     @Test
-    void describeTestForSrcDir() throws Exception {
+    void describeTestForSrcDir() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "", "dest\\subfolder");
         fetchTask.setSrcdir("cruise-output");
         assertThat(fetchTask.describe()).isEqualTo("fetch artifact [cruise-output] => [dest/subfolder] from [mingle/dev/windows-3]");
     }
 
     @Test
-    void describeTestForSrcDirAndSrcFile() throws Exception {
+    void describeTestForSrcDirAndSrcFile() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         fetchTask.setSrcdir("cruise-output");
         assertThat(fetchTask.describe()).isEqualTo("fetch artifact [cruise.zip] => [dest/subfolder] from [mingle/dev/windows-3]");
     }
 
     @Test
-    void shouldUpdateItsAttributesFromAttributeMap() throws Exception {
+    void shouldUpdateItsAttributesFromAttributeMap() {
         FetchTask fetchTask = new FetchTask();
         fetchTask.setConfigAttributes(
-                m(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.SRC, "src_file", FetchTask.DEST, "dest_dir", FetchTask.IS_SOURCE_A_FILE, "1"));
+                Map.of(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.SRC, "src_file", FetchTask.DEST, "dest_dir", FetchTask.IS_SOURCE_A_FILE, "1"));
         assertThat(fetchTask.getTargetPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline_foo"));
         assertThat(fetchTask.getStage()).isEqualTo(new CaseInsensitiveString("stage_bar"));
         assertThat(fetchTask.getJob().toString()).isEqualTo("job_baz");
         assertThat(fetchTask.getSrcfile()).isEqualTo("src_file");
         assertThat(fetchTask.getSrcdir()).isNull();
         assertThat(fetchTask.getDest()).isEqualTo("dest_dir");
-        fetchTask.setConfigAttributes(m(FetchTask.PIPELINE_NAME, "", FetchTask.STAGE, "", FetchTask.JOB, "", FetchTask.SRC, "", FetchTask.IS_SOURCE_A_FILE, "1", FetchTask.DEST, ""));
+        fetchTask.setConfigAttributes(Map.of(FetchTask.PIPELINE_NAME, "", FetchTask.STAGE, "", FetchTask.JOB, "", FetchTask.SRC, "", FetchTask.IS_SOURCE_A_FILE, "1", FetchTask.DEST, ""));
         assertThat(fetchTask.getTargetPipelineName()).isEqualTo(new CaseInsensitiveString(""));
         assertThat(fetchTask.getStage()).isEqualTo(new CaseInsensitiveString(""));
         assertThat(fetchTask.getJob().toString()).isEqualTo("");
@@ -522,10 +522,10 @@ class FetchTaskTest {
     }
 
     @Test
-    void shouldSetSrcFileToNullIfSrcDirIsDefined() throws Exception {
+    void shouldSetSrcFileToNullIfSrcDirIsDefined() {
         FetchTask fetchTask = new FetchTask();
         fetchTask.setConfigAttributes(
-                m(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.IS_SOURCE_A_FILE, "0", FetchTask.SRC, "src_dir", FetchTask.DEST,
+                Map.of(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.IS_SOURCE_A_FILE, "0", FetchTask.SRC, "src_dir", FetchTask.DEST,
                         "dest_dir"));
 
         assertThat(fetchTask.getSrcfile()).isNull();
@@ -536,7 +536,7 @@ class FetchTaskTest {
     void shouldSetSrcFileToNullWhenSrcDirIsUpdated() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("pname"), new CaseInsensitiveString("sname"), new CaseInsensitiveString("jname"), "sfile", "dest");
         fetchTask.setConfigAttributes(
-                m(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.IS_SOURCE_A_FILE, "0", FetchTask.SRC, "src_dir", FetchTask.DEST,
+                Map.of(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.IS_SOURCE_A_FILE, "0", FetchTask.SRC, "src_dir", FetchTask.DEST,
                         "dest_dir"));
 
         assertThat(fetchTask.getSrcfile()).isNull();
@@ -544,12 +544,11 @@ class FetchTaskTest {
     }
 
     @Test
-    void shouldNotUpdateItsAttributesFromAttributeMapWhenKeysNotPresent() throws Exception {
+    void shouldNotUpdateItsAttributesFromAttributeMapWhenKeysNotPresent() {
         FetchTask fetchTask = new FetchTask();
         fetchTask.setConfigAttributes(
-                m(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.SRC, "src_file", FetchTask.IS_SOURCE_A_FILE, "1", FetchTask.SRC, "src_file", FetchTask.DEST,
-                        "dest_dir"));
-        fetchTask.setConfigAttributes(m());
+                Map.of(FetchTask.PIPELINE_NAME, "pipeline_foo", FetchTask.STAGE, "stage_bar", FetchTask.JOB, "job_baz", FetchTask.SRC, "src_file", FetchTask.IS_SOURCE_A_FILE, "1", FetchTask.DEST, "dest_dir"));
+        fetchTask.setConfigAttributes(Map.of());
         assertThat(fetchTask.getTargetPipelineName()).isEqualTo(new CaseInsensitiveString("pipeline_foo"));
         assertThat(fetchTask.getStage()).isEqualTo(new CaseInsensitiveString("stage_bar"));
         assertThat(fetchTask.getJob().toString()).isEqualTo("job_baz");
@@ -561,7 +560,7 @@ class FetchTaskTest {
     @Test
     void shouldUpdateDestToNullIfDestIsEmptyInAttributeMap_SoThatItDoesNotGetSerializedInXml() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest");
-        fetchTask.setConfigAttributes(m(FetchTask.DEST, ""));
+        fetchTask.setConfigAttributes(Map.of(FetchTask.DEST, ""));
         assertThat(fetchTask).isEqualTo(new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", null));
     }
 

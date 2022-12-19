@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -193,9 +192,9 @@ public class PipelineConfigsServiceIntegrationTest {
         com.thoughtworks.go.plugin.domain.common.PluginConfiguration registryUrl = new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("RegistryURL", new Metadata(true, false));
         com.thoughtworks.go.plugin.domain.common.PluginConfiguration username = new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("Username", new Metadata(false, false));
         com.thoughtworks.go.plugin.domain.common.PluginConfiguration password = new PluginConfiguration("Password", new Metadata(false, true));
-        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList(registryUrl, username, password));
-        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(buildFile, image, tag));
-        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(fetchProperty, fetchTag));
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(List.of(registryUrl, username, password));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(List.of(buildFile, image, tag));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(List.of(fetchProperty, fetchTag));
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
     }

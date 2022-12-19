@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
@@ -39,9 +40,6 @@ import static com.thoughtworks.go.domain.JobResult.Unknown;
 import static com.thoughtworks.go.domain.JobState.Completed;
 import static com.thoughtworks.go.domain.JobState.Scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
-import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -110,8 +108,8 @@ class InstanceFactoryTest {
 
         Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, ModificationsMother.forceBuild(pipelineConfig), context, "some-md5", new TimeProvider());
 
-        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(asList(new EnvironmentVariable("foo", "foo")))));
-        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(asList(new EnvironmentVariable("foo", "bar")))));
+        assertThat(instance.findStage("stage").findJob("foo").getPlan().getVariables(), is(new EnvironmentVariables(List.of(new EnvironmentVariable("foo", "foo")))));
+        assertThat(instance.findStage("stage").findJob("bar").getPlan().getVariables(), is(new EnvironmentVariables(List.of(new EnvironmentVariable("foo", "bar")))));
     }
 
     @Test
@@ -181,7 +179,7 @@ class InstanceFactoryTest {
         Stage stage = stage(9, rails, java);
         assertThat(stage.hasRerunJobs(), is(false));
 
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
         assertThat(stage.hasRerunJobs(), is(false));
 
@@ -204,7 +202,7 @@ class InstanceFactoryTest {
         Stage stage = stage(9, rails, java);
         stage.setCounter(2);
 
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
         newStage.setCounter(3);
         assertThat(newStage.getId(), is(-1l));
@@ -218,7 +216,7 @@ class InstanceFactoryTest {
         //set id, to assert if original ends up pointing to copied job's id
         newJava.setId(18l);
 
-        newStage = instanceFactory.createStageForRerunOfJobs(newStage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
+        newStage = instanceFactory.createStageForRerunOfJobs(newStage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
         newStage.setCounter(4);
         assertThat(newStage.getId(), is(-1l));
@@ -252,7 +250,7 @@ class InstanceFactoryTest {
         JobInstance secondJob = new JobInstance("second-job", timeProvider);
         JobInstances jobInstances = new JobInstances(firstJob, secondJob);
         Stage stage = StageMother.custom("test", jobInstances);
-        Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, asList("first-job"), new DefaultSchedulingContext("loser", new Agents()),
+        Stage clonedStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("first-job"), new DefaultSchedulingContext("loser", new Agents()),
                 StageConfigMother.custom("test", "first-job", "second-job"),
                 new TimeProvider(),
                 "latest");
@@ -374,9 +372,9 @@ class InstanceFactoryTest {
         JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
         javaConfig.setRunInstanceCount(2);
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", List.of("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", List.of("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
@@ -421,7 +419,7 @@ class InstanceFactoryTest {
 
         CannotRerunJobException exception = null;
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"), new TimeProvider(),
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"), new TimeProvider(),
                     "md5");
             fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
@@ -437,7 +435,7 @@ class InstanceFactoryTest {
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
         assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid(), is(nullValue()));
         assertThat(newStage.getJobInstances().getByName("java").getAgentUuid(), is(not(nullValue())));
@@ -461,7 +459,7 @@ class InstanceFactoryTest {
 
         CannotRerunJobException exception = null;
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should not schedule since job config changed to run multiple instance");
         } catch (CannotRerunJobException e) {
             exception = e;
@@ -553,9 +551,9 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", List.of("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", List.of("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
@@ -566,7 +564,7 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(false);
 
         try {
-            instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("Cannot schedule multiple instances of job named 'rails'."));
@@ -582,9 +580,9 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", List.of("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", List.of("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
@@ -593,7 +591,7 @@ class InstanceFactoryTest {
 
         railsConfig.setRunOnAllAgents(false);
 
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
 
         assertThat(newStage.getJobInstances().size(), is(3));
 
@@ -621,11 +619,11 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", List.of("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", List.of("crapyagent"));
         DefaultSchedulingContext context = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
-        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), context, stageConfig, new TimeProvider(), "md5");
+        Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails"), context, stageConfig, new TimeProvider(), "md5");
 
         assertThat(newStage.getJobInstances().size(), is(3));
 
@@ -651,9 +649,9 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", List.of("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", List.of("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
@@ -664,7 +662,7 @@ class InstanceFactoryTest {
 
         CannotRerunJobException exception = null;
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"),
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "java"),
                     new TimeProvider(), "md5");
             fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
@@ -683,9 +681,9 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", singletonList("foobar"));
-        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", asList("baz", "foobar"));
-        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", singletonList("crapyagent"));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", List.of("foobar"));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", List.of("baz", "foobar"));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", List.of("crapyagent"));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
@@ -699,7 +697,7 @@ class InstanceFactoryTest {
 
         CannotRerunJobException exception = null;
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should not schedule since job config changed to run multiple instance");
         } catch (CannotRerunJobException e) {
             exception = e;
@@ -771,7 +769,7 @@ class InstanceFactoryTest {
 
         Stage stage = createStageInstance(old, jobs);
 
-        Stage stageForRerun = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1", "rails-runInstance-2"), schedulingContext, stageConfig, clock, "md5");
+        Stage stageForRerun = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runInstance-1", "rails-runInstance-2"), schedulingContext, stageConfig, clock, "md5");
         JobInstances jobsForRerun = stageForRerun.getJobInstances();
 
         assertThat(jobsForRerun.get(0).getName(), is("rails-runInstance-3"));
@@ -809,7 +807,7 @@ class InstanceFactoryTest {
 
         CannotRerunJobException exception = null;
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, StageConfigMother.custom("dev", "java"),
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runInstance-1"), schedulingContext, StageConfigMother.custom("dev", "java"),
                     new TimeProvider(), "md5");
             fail("should not schedule when job config does not exist anymore");
         } catch (CannotRerunJobException e) {
@@ -841,7 +839,7 @@ class InstanceFactoryTest {
 
         CannotRerunJobException exception = null;
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should not schedule since job config changed to run multiple instance");
         } catch (CannotRerunJobException e) {
             exception = e;
@@ -853,7 +851,7 @@ class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(false);
 
         try {
-            newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
+            newStage = instanceFactory.createStageForRerunOfJobs(stage, List.of("rails-runInstance-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should not schedule since job config changed to run multiple instance");
         } catch (CannotRerunJobException e) {
             exception = e;

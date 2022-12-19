@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.util;
 
-import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class PaginationTest {
@@ -139,30 +139,30 @@ public class PaginationTest {
 
     @Test
     public void shouldReturnAllPagesIfLessThan9() {
-        assertThat(Pagination.pageByNumber(1, 8, 1).getPages(), is(Arrays.asList(Pagination.currentPage(1), Pagination.page(2), Pagination.page(3), Pagination.page(4), Pagination.page(5), Pagination.page(6), Pagination.page(7), Pagination.page(8), Pagination.page(2, "next"))));
-        assertThat(Pagination.pageByNumber(1, 3, 1).getPages(), is(Arrays.asList(Pagination.currentPage(1), Pagination.page(2), Pagination.page(3), Pagination.page(2, "next"))));
+        assertThat(Pagination.pageByNumber(1, 8, 1).getPages(), is(List.of(Pagination.currentPage(1), Pagination.page(2), Pagination.page(3), Pagination.page(4), Pagination.page(5), Pagination.page(6), Pagination.page(7), Pagination.page(8), Pagination.page(2, "next"))));
+        assertThat(Pagination.pageByNumber(1, 3, 1).getPages(), is(List.of(Pagination.currentPage(1), Pagination.page(2), Pagination.page(3), Pagination.page(2, "next"))));
     }
 
     @Test
     public void shouldShowDotsIfMoreThan8Pages() {
-        assertThat(Pagination.pageByNumber(5, 9, 1).getPages(), is(Arrays.asList(Pagination.page(4, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(3), Pagination.page(4), Pagination.currentPage(5), Pagination.page(6), Pagination.page(7), Pagination.PageNumber.DOTS, Pagination.page(9), Pagination.page(6, "next"))));
-        assertThat(Pagination.pageByNumber(5, 100, 1).getPages(), is(Arrays.asList(Pagination.page(4, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(3), Pagination.page(4), Pagination.currentPage(5), Pagination.page(6), Pagination.page(7), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(6, "next"))));
+        assertThat(Pagination.pageByNumber(5, 9, 1).getPages(), is(List.of(Pagination.page(4, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(3), Pagination.page(4), Pagination.currentPage(5), Pagination.page(6), Pagination.page(7), Pagination.PageNumber.DOTS, Pagination.page(9), Pagination.page(6, "next"))));
+        assertThat(Pagination.pageByNumber(5, 100, 1).getPages(), is(List.of(Pagination.page(4, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(3), Pagination.page(4), Pagination.currentPage(5), Pagination.page(6), Pagination.page(7), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(6, "next"))));
     }
 
     @Test
     public void shouldShowDotsAtEndIfOnFirst4Pages() {
-        assertThat(Pagination.pageByNumber(1, 100, 1).getPages(), is(Arrays.asList(Pagination.currentPage(1), Pagination.page(2), Pagination.page(3), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(2, "next"))));
-        assertThat(Pagination.pageByNumber(2, 100, 1).getPages(), is(Arrays.asList(Pagination.page(1, "prev"), Pagination.page(1), Pagination.currentPage(2), Pagination.page(3), Pagination.page(4), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(3, "next"))));
-        assertThat(Pagination.pageByNumber(3, 100, 1).getPages(), is(Arrays.asList(Pagination.page(2, "prev"), Pagination.page(1), Pagination.page(2), Pagination.currentPage(3), Pagination.page(4), Pagination.page(5), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(4, "next"))));
-        assertThat(Pagination.pageByNumber(4, 100, 1).getPages(), is(Arrays.asList(Pagination.page(3, "prev"), Pagination.page(1), Pagination.page(2), Pagination.page(3), Pagination.currentPage(4), Pagination.page(5), Pagination.page(6), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(5, "next"))));
+        assertThat(Pagination.pageByNumber(1, 100, 1).getPages(), is(List.of(Pagination.currentPage(1), Pagination.page(2), Pagination.page(3), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(2, "next"))));
+        assertThat(Pagination.pageByNumber(2, 100, 1).getPages(), is(List.of(Pagination.page(1, "prev"), Pagination.page(1), Pagination.currentPage(2), Pagination.page(3), Pagination.page(4), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(3, "next"))));
+        assertThat(Pagination.pageByNumber(3, 100, 1).getPages(), is(List.of(Pagination.page(2, "prev"), Pagination.page(1), Pagination.page(2), Pagination.currentPage(3), Pagination.page(4), Pagination.page(5), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(4, "next"))));
+        assertThat(Pagination.pageByNumber(4, 100, 1).getPages(), is(List.of(Pagination.page(3, "prev"), Pagination.page(1), Pagination.page(2), Pagination.page(3), Pagination.currentPage(4), Pagination.page(5), Pagination.page(6), Pagination.PageNumber.DOTS, Pagination.page(100), Pagination.page(5, "next"))));
     }
 
     @Test
     public void shouldShowDotsAtStartIfOnLast4Pages() {
-        assertThat(Pagination.pageByNumber(97, 100, 1).getPages(), is(Arrays.asList(Pagination.page(96, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(95), Pagination.page(96), Pagination.currentPage(97), Pagination.page(98), Pagination.page(99), Pagination.page(100), Pagination.page(98, "next"))));
-        assertThat(Pagination.pageByNumber(98, 100, 1).getPages(), is(Arrays.asList(Pagination.page(97, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(96), Pagination.page(97), Pagination.currentPage(98), Pagination.page(99), Pagination.page(100), Pagination.page(99, "next"))));
-        assertThat(Pagination.pageByNumber(99, 100, 1).getPages(), is(Arrays.asList(Pagination.page(98, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(97), Pagination.page(98), Pagination.currentPage(99), Pagination.page(100), Pagination.page(100, "next"))));
-        assertThat(Pagination.pageByNumber(100, 100, 1).getPages(), is(Arrays.asList(Pagination.page(99, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(98), Pagination.page(99), Pagination.currentPage(100))));
+        assertThat(Pagination.pageByNumber(97, 100, 1).getPages(), is(List.of(Pagination.page(96, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(95), Pagination.page(96), Pagination.currentPage(97), Pagination.page(98), Pagination.page(99), Pagination.page(100), Pagination.page(98, "next"))));
+        assertThat(Pagination.pageByNumber(98, 100, 1).getPages(), is(List.of(Pagination.page(97, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(96), Pagination.page(97), Pagination.currentPage(98), Pagination.page(99), Pagination.page(100), Pagination.page(99, "next"))));
+        assertThat(Pagination.pageByNumber(99, 100, 1).getPages(), is(List.of(Pagination.page(98, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(97), Pagination.page(98), Pagination.currentPage(99), Pagination.page(100), Pagination.page(100, "next"))));
+        assertThat(Pagination.pageByNumber(100, 100, 1).getPages(), is(List.of(Pagination.page(99, "prev"), Pagination.page(1), Pagination.PageNumber.DOTS, Pagination.page(98), Pagination.page(99), Pagination.currentPage(100))));
     }
 
     @Test

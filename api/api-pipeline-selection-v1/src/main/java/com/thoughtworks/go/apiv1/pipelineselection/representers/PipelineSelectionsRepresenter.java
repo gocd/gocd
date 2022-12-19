@@ -40,9 +40,7 @@ public class PipelineSelectionsRepresenter {
         public JsonElement serialize(PipelineSelectionResponse src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject serialized = new JsonObject();
             JsonArray filters = new JsonArray();
-            src.filters().filters().forEach((f) -> {
-                filters.add(context.serialize(f, DashboardFilter.class));
-            });
+            src.filters().filters().forEach((f) -> filters.add(context.serialize(f, DashboardFilter.class)));
             serialized.add("filters", filters);
             return serialized;
         }

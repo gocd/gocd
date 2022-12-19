@@ -33,8 +33,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
-
 @Service
 public class SchedulingCheckerService {
     private final GoConfigService goConfigService;
@@ -71,7 +69,7 @@ public class SchedulingCheckerService {
     }
 
     public boolean canTriggerManualPipeline(PipelineConfig pipelineConfig, String username, OperationResult result) {
-        CompositeChecker checker = buildScheduleCheckers(asList(manualTriggerCheckers(pipelineConfig, username), diskCheckers()));
+        CompositeChecker checker = buildScheduleCheckers(List.of(manualTriggerCheckers(pipelineConfig, username), diskCheckers()));
         checker.check(result);
         return result.canContinue();
     }
@@ -82,12 +80,12 @@ public class SchedulingCheckerService {
     }
 
     public void canTriggerPipelineWithTimer(PipelineConfig pipelineConfig, OperationResult operationResult) {
-        CompositeChecker compositeChecker = buildScheduleCheckers(asList(timerTriggerCheckers(pipelineConfig)));
+        CompositeChecker compositeChecker = buildScheduleCheckers(List.of(timerTriggerCheckers(pipelineConfig)));
         compositeChecker.check(operationResult);
     }
 
     public boolean canSchedule(OperationResult result) {
-        CompositeChecker checker = buildScheduleCheckers(asList(diskCheckers()));
+        CompositeChecker checker = buildScheduleCheckers(List.of(diskCheckers()));
         checker.check(result);
         return result.canContinue();
     }
@@ -99,13 +97,13 @@ public class SchedulingCheckerService {
     }
 
     public boolean canManuallyTrigger(PipelineConfig pipelineConfig, String username, OperationResult result) {
-        SchedulingChecker checker = buildScheduleCheckers(asList(manualTriggerCheckers(pipelineConfig, username)));
+        SchedulingChecker checker = buildScheduleCheckers(List.of(manualTriggerCheckers(pipelineConfig, username)));
         checker.check(result);
         return result.getServerHealthState().isSuccess();
     }
 
     public boolean pipelineCanBeTriggeredManually(PipelineConfig pipelineConfig) {
-        SchedulingChecker checker = buildScheduleCheckers(asList(manualTriggerCheckersWithoutPermissionsCheck(pipelineConfig)));
+        SchedulingChecker checker = buildScheduleCheckers(List.of(manualTriggerCheckersWithoutPermissionsCheck(pipelineConfig)));
         OperationResult result = new HttpOperationResult();
         checker.check(result);
         return result.canContinue();
@@ -115,7 +113,7 @@ public class SchedulingCheckerService {
         OperationResult result = new ServerHealthStateOperationResult();
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
         String stageName = CaseInsensitiveString.str(pipelineConfig.getFirstStageConfig().name());
-        SchedulingChecker checker = buildScheduleCheckers(asList(new PipelinePauseChecker(pipelineName, pipelinePauseService), new PipelineLockChecker(pipelineName, pipelineLockService),
+        SchedulingChecker checker = buildScheduleCheckers(List.of(new PipelinePauseChecker(pipelineName, pipelinePauseService), new PipelineLockChecker(pipelineName, pipelineLockService),
                 new StageActiveChecker(pipelineName, stageName, stageService)));
         checker.check(result);
         return result.getServerHealthState().isSuccess();
@@ -124,7 +122,7 @@ public class SchedulingCheckerService {
     public void canAutoTriggerProducer(PipelineConfig pipelineConfig, OperationResult operationResult) {
         String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
 
-        SchedulingChecker checker = buildScheduleCheckers(asList(
+        SchedulingChecker checker = buildScheduleCheckers(List.of(
                 new PipelineLockChecker(pipelineName, pipelineLockService),
                 new ManualPipelineChecker(pipelineConfig),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
@@ -136,7 +134,7 @@ public class SchedulingCheckerService {
                                  OperationResult result) {
         String pipelineName = pipelineIdentifier.getName();
 
-        SchedulingChecker canRerunChecker = buildScheduleCheckers(asList(
+        SchedulingChecker canRerunChecker = buildScheduleCheckers(List.of(
                 new StageAuthorizationChecker(pipelineName, stageName, username, securityService),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
                 new PipelineActiveChecker(stageService, pipelineIdentifier),
@@ -150,7 +148,7 @@ public class SchedulingCheckerService {
     public boolean canScheduleStage(PipelineIdentifier pipelineIdentifier, String stageName, String username,
                                     final OperationResult result) {
         String pipelineName = pipelineIdentifier.getName();
-        CompositeChecker checker = buildScheduleCheckers(asList(
+        CompositeChecker checker = buildScheduleCheckers(List.of(
                 new StageAuthorizationChecker(pipelineName, stageName, username, securityService),
                 new StageLockChecker(pipelineIdentifier, pipelineLockService),
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),

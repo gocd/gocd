@@ -147,7 +147,7 @@ public class DashBoardController {
             dashboardContent.put("userName", usernamePassword.getUsername());
             if (!primaryServerCommunicationService.ableToConnect()) {
                 dashboardContent.put("setupStatus", "incomplete");
-                dashboardContent.put("syncErrors", Collections.singletonList("Unable to connect to primary, please check that the business-continuity-token file is identical on primary and secondary, and that this server can connect to the primary server."));
+                dashboardContent.put("syncErrors", List.of("Unable to connect to primary, please check that the business-continuity-token file is identical on primary and secondary, and that this server can connect to the primary server."));
             } else {
                 dashboardContent.put("setupStatus", "success");
                 dashboardContent.put("primaryServerDetails", primaryServerDetails());

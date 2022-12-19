@@ -32,7 +32,6 @@ import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
@@ -258,7 +257,7 @@ class P4OutputParserTest {
                 + "Affected files ...\n"
                 + "");
 
-        List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+        List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modifications.size()).isEqualTo(20);
     }
 
@@ -271,7 +270,7 @@ class P4OutputParserTest {
 
             when(p4Client.describe(any(Long.class))).thenReturn(description);
 
-            List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+            List<Modification> modifications = parser.modifications(new ConsoleResult(0, List.of(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             assertThat(modifications.size()).isEqualTo(0);
             assertThat(logging.getLog()).contains(description);
         }

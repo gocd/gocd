@@ -28,7 +28,7 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
@@ -68,12 +68,12 @@ public class NewDashboardController implements SparkController {
             response.redirect("/go/admin/pipelines/create?group=defaultGroup");
             return null;
         }
-        HashMap<Object, Object> object = new HashMap<>() {{
-            put("viewTitle", "Dashboard");
-            put("showEmptyPipelineGroups", Toggles.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD));
-            put("shouldShowAnalyticsIcon", showAnalyticsIcon());
-            put("testDrive", Toggles.isToggleOn(Toggles.TEST_DRIVE));
-        }};
+        Map<String, Object> object = Map.of(
+            "viewTitle", "Dashboard",
+            "showEmptyPipelineGroups", Toggles.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD),
+            "shouldShowAnalyticsIcon", showAnalyticsIcon(),
+            "testDrive", Toggles.isToggleOn(Toggles.TEST_DRIVE)
+        );
         return new ModelAndView(object, "new_dashboard/index.ftlh");
     }
 

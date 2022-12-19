@@ -22,17 +22,13 @@ import java.io.File;
 
 
 public enum ConfigFileType {
-    CRUISE_CONFIG_XML(systemEnvironment -> {
-        return new File(systemEnvironment.getCruiseConfigFile());
-    }),
+    CRUISE_CONFIG_XML(systemEnvironment -> new File(systemEnvironment.getCruiseConfigFile())),
 
     AES_CIPHER(SystemEnvironment::getAESCipherFile),
 
     JETTY_XML(SystemEnvironment::getJettyConfigFile),
 
-    USER_FEATURE_TOGGLE(systemEnvironment -> {
-        return new File(systemEnvironment.getConfigDir(), systemEnvironment.get(SystemEnvironment.USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR));
-    });
+    USER_FEATURE_TOGGLE(systemEnvironment -> new File(systemEnvironment.getConfigDir(), systemEnvironment.get(SystemEnvironment.USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR)));
 
     private final ConfigFileOperations configFileOperations;
 

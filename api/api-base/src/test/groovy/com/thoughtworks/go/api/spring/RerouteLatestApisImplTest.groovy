@@ -249,7 +249,7 @@ class RerouteLatestApisImplTest {
             RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features)
             rerouteLatestApis.setApplicationContext(context)
             when(context.getBeansWithAnnotation(ToggleRegisterLatest.class)).thenReturn(
-                    Collections.singletonMap(TestControllerV2.class.name, controller2)
+                    Map.of(TestControllerV2.class.name, controller2)
             )
 
             when(features.isToggleOn("testv2")).thenReturn(false)
@@ -295,7 +295,7 @@ class RerouteLatestApisImplTest {
             RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider, features)
             rerouteLatestApis.setApplicationContext(context)
             when(context.getBeansWithAnnotation(ToggleRegisterLatest.class)).thenReturn(
-                    Collections.singletonMap(TestControllerV2.class.name, controller2)
+                    Map.of(TestControllerV2.class.name, controller2)
             )
 
             when(features.isToggleOn("testv2")).thenReturn(true)

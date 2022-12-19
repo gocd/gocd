@@ -54,7 +54,7 @@ public class ArtifactFolder implements JsonAware, Comparable {
     }
 
     public DirectoryEntries allEntries() {
-        bombUnless(rootFolder.isDirectory(), rootFolder + " is not a folder");
+        bombUnless(rootFolder.isDirectory(), () -> rootFolder + " is not a folder");
         return new DirectoryReader(jobIdentifier).listEntries(rootFolder, relativePath);
     }
 

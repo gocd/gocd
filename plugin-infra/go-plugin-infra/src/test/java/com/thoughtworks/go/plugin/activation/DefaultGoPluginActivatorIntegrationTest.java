@@ -354,7 +354,7 @@ class DefaultGoPluginActivatorIntegrationTest {
         throw new RuntimeException("Class type not found: " + type);
     }
 
-    private Bundle installBundleWithClasses(Class... classesToBeLoaded) throws IOException {
+    private Bundle installBundleWithClasses(Class<?>... classesToBeLoaded) throws IOException {
         return installBundleFoundInDirectory(createBundleWithActivator(BUNDLE_DIR_WHICH_HAS_PROPER_ACTIVATOR, classesToBeLoaded));
     }
 
@@ -374,14 +374,14 @@ class DefaultGoPluginActivatorIntegrationTest {
         return bundle.getBundleContext();
     }
 
-    private File createBundleWithActivator(String destinationDir, Class... classesToBeAdded) throws IOException {
+    private File createBundleWithActivator(String destinationDir, Class<?>... classesToBeAdded) throws IOException {
         TinyBundle bundleBeingBuilt = TinyBundles.bundle()
                 .add(GoPluginActivator.class)
                 .add(DefaultGoPluginActivator.class, InnerClassStrategy.ALL)
                 .set(Constants.BUNDLE_ACTIVATOR, DefaultGoPluginActivator.class.getCanonicalName())
                 .set(Constants.BUNDLE_CLASSPATH, ".,lib/dependency.jar")
                 .set(Constants.BUNDLE_SYMBOLICNAME, GO_TEST_DUMMY_SYMBOLIC_NAME);
-        for (Class aClass : classesToBeAdded) {
+        for (Class<?> aClass : classesToBeAdded) {
             bundleBeingBuilt.add(aClass, InnerClassStrategy.NONE);
         }
         ZipInputStream src = new ZipInputStream(bundleBeingBuilt.build());

@@ -31,13 +31,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -79,7 +79,7 @@ public class PluginSettingsRequestProcessorTest {
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
 
-        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
+        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", List.of("1.0")));
         apiRequest.setRequestBody("expected-request");
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
 
@@ -95,7 +95,7 @@ public class PluginSettingsRequestProcessorTest {
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new NullPlugin());
 
-        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
+        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", List.of("1.0")));
         apiRequest.setRequestBody(requestBody);
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);
 
@@ -110,7 +110,7 @@ public class PluginSettingsRequestProcessorTest {
         when(pluginDescriptor.id()).thenReturn(PLUGIN_ID);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenThrow(new RuntimeException());
 
-        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
+        DefaultGoApiRequest apiRequest = new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "1.0", new GoPluginIdentifier("extension1", List.of("1.0")));
         apiRequest.setRequestBody("expected-request");
 
         GoApiResponse response = processor.process(pluginDescriptor, apiRequest);

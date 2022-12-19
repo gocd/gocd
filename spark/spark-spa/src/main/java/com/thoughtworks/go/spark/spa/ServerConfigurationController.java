@@ -23,35 +23,36 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
 
 public class ServerConfigurationController implements SparkController {
-  private final SPAAuthenticationHelper authenticationHelper;
-  private final TemplateEngine engine;
-  public ServerConfigurationController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
-    this.authenticationHelper = authenticationHelper;
-    this.engine = engine;
-  }
+    private final SPAAuthenticationHelper authenticationHelper;
+    private final TemplateEngine engine;
 
-  @Override
-  public String controllerBasePath() {
+    public ServerConfigurationController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+        this.authenticationHelper = authenticationHelper;
+        this.engine = engine;
+    }
+
+    @Override
+    public String controllerBasePath() {
         return Routes.ServerConfiguration.SPA_BASE;
-  }
+    }
 
-  @Override
-  public void setupRoutes() {
-     path(controllerBasePath(), () -> {
-        before("", authenticationHelper::checkAdminUserAnd403);
-        get("", this::index, engine);
-    });
-  }
-  public ModelAndView index(Request request, Response response) {
-      Map<Object, Object> object = new HashMap<>() {{
-          put("viewTitle", "ServerConfiguration");
-      }};
-      return new ModelAndView(object, null);
-  }
+    @Override
+    public void setupRoutes() {
+        path(controllerBasePath(), () -> {
+            before("", authenticationHelper::checkAdminUserAnd403);
+            get("", this::index, engine);
+        });
+    }
+
+    public ModelAndView index(Request request, Response response) {
+        Map<String, Object> object = Map.of(
+            "viewTitle", "ServerConfiguration"
+        );
+        return new ModelAndView(object, null);
+    }
 }

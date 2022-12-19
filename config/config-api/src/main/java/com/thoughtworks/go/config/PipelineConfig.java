@@ -50,7 +50,6 @@ import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.substringsBetween;
 
@@ -75,7 +74,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String LOCK_VALUE_LOCK_ON_FAILURE = "lockOnFailure";
     public static final String LOCK_VALUE_UNLOCK_WHEN_FINISHED = "unlockWhenFinished";
     public static final String LOCK_VALUE_NONE = "none";
-    public static final List<String> VALID_LOCK_VALUES = asList(LOCK_VALUE_LOCK_ON_FAILURE, LOCK_VALUE_UNLOCK_WHEN_FINISHED, LOCK_VALUE_NONE);
+    public static final List<String> VALID_LOCK_VALUES = List.of(LOCK_VALUE_LOCK_ON_FAILURE, LOCK_VALUE_UNLOCK_WHEN_FINISHED, LOCK_VALUE_NONE);
 
     public static final String CONFIGURATION_TYPE = "configurationType";
     public static final String CONFIGURATION_TYPE_STAGES = "configurationType_stages";
@@ -685,7 +684,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void ensureNoStagesDefined(CaseInsensitiveString newTemplateName) {
-        bombIf(!isEmpty(), format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", newTemplateName, name));
+        bombIf(!isEmpty(), () -> format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", newTemplateName, name));
     }
 
     public PipelineConfig getCopyForEditing() {

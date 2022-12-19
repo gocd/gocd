@@ -24,18 +24,14 @@ class ServerUrlValidatorTest {
 
     @Test
     void shouldValidateByParsingUrl() {
-        assertThatCode(() -> {
-            new ServerUrlValidator().validate("foo", "bad-url");
-        })
+        assertThatCode(() -> new ServerUrlValidator().validate("foo", "bad-url"))
                 .isOfAnyClassIn(ParameterException.class)
                 .hasMessageContaining("is not a valid url");
     }
 
     @Test
     void shouldNotAllowUrlEndingWithoutGo() {
-        assertThatCode(() -> {
-            new ServerUrlValidator().validate("foo", "https://example.com");
-        })
+        assertThatCode(() -> new ServerUrlValidator().validate("foo", "https://example.com"))
                 .isOfAnyClassIn(ParameterException.class)
                 .hasMessageContaining("must end with '/go' (http://localhost:8153/go)");
     }
@@ -48,9 +44,7 @@ class ServerUrlValidatorTest {
 
     @Test
     void shouldNotAllowNonHttpUrlEndingWithGo() {
-        assertThatCode(() -> {
-            new ServerUrlValidator().validate("foo", "file://example.com/go");
-        })
+        assertThatCode(() -> new ServerUrlValidator().validate("foo", "file://example.com/go"))
                 .isOfAnyClassIn(ParameterException.class)
                 .hasMessageContaining("foo must use http or https protocol");
     }

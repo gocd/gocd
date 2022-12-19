@@ -40,11 +40,9 @@ import java.util.List;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
 import static com.thoughtworks.go.server.service.TimerScheduler.PIPELINE_TRIGGGER_TIMER_GROUP;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
-
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerKey.triggerKey;
@@ -67,7 +65,7 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRegisterJobsWithSchedulerForEachPipelineWithTimerOnInit() throws Exception {
-        List<PipelineConfig> pipelineConfigs = asList(
+        List<PipelineConfig> pipelineConfigs = List.of(
                 pipelineConfigWithTimer("uat", "0 15 10 ? * MON-FRI"),
                 pipelineConfig("dist"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
@@ -88,7 +86,7 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldUpdateServerHealthStatusWhenCronSpecCantBeParsed() throws Exception {
-        when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "bad cron spec!!!")));
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(List.of(pipelineConfigWithTimer("uat", "bad cron spec!!!")));
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
@@ -102,7 +100,7 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldScheduleOtherPipelinesEvenIfOneHasAnInvalidCronSpec() throws Exception {
-        List<PipelineConfig> pipelineConfigs = asList(
+        List<PipelineConfig> pipelineConfigs = List.of(
                 pipelineConfigWithTimer("uat", "---- bad cron spec!"),
                 pipelineConfigWithTimer("dist", "0 15 10 ? * MON-FRI"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
@@ -129,7 +127,7 @@ public class TimerSchedulerTest {
         when(scheduler.scheduleJob(any(JobDetail.class), any(Trigger.class))).thenThrow(
                 new SchedulerException("scheduling failed!"));
 
-        when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "* * * * * ?")));
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(List.of(pipelineConfigWithTimer("uat", "* * * * * ?")));
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 

@@ -41,7 +41,6 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -64,7 +63,7 @@ public class PipelineLockServiceTest {
     public void shouldLockPipeline() throws Exception {
         when(goConfigService.isLockable("mingle")).thenReturn(true);
 
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
         pipelineLockService.lockIfNeeded(pipeline);
         verify(pipelineStateDao).lockPipeline(eq(pipeline), any(AfterCompletionCallback.class));
     }
@@ -73,7 +72,7 @@ public class PipelineLockServiceTest {
     public void shouldNotLockPipelineWhenNotLockable() throws Exception {
         when(goConfigService.isLockable("mingle")).thenReturn(false);
 
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
         pipelineLockService.lockIfNeeded(pipeline);
         verify(pipelineStateDao, never()).lockPipeline(pipeline);
     }
@@ -97,7 +96,7 @@ public class PipelineLockServiceTest {
 
     @Test
     public void shouldAllowStageFromCurrentPipelineToBeScheduled() throws Exception {
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
         when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), pipeline.getStages().get(0).getIdentifier()));
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
@@ -108,7 +107,7 @@ public class PipelineLockServiceTest {
 
     @Test
     public void shouldNotAllowStageFromLockedPipelineToBeScheduled() throws Exception {
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
         PipelineState pipelineState = new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1"));
         pipelineState.lock(1);
@@ -121,7 +120,7 @@ public class PipelineLockServiceTest {
 
     @Test
     public void shouldAllowStageFromAnotherPipelineIfThePipelineIsNotLockabler() throws Exception {
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
 
         when(pipelineStateDao.pipelineStateFor("mingle")).thenReturn(new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1")));
@@ -133,7 +132,7 @@ public class PipelineLockServiceTest {
 
     @Test
     public void shouldAllowStageFromAnotherPipelineIfThePipelineIsLockable() throws Exception {
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", List.of("dev", "ft"), List.of("test"));
 
         when(pipelineStateDao.pipelineStateFor(pipeline.getName())).thenReturn(null);
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
@@ -146,7 +145,7 @@ public class PipelineLockServiceTest {
     public void shouldUnlockAnyCurrentlyLockedPipelinesThatAreNoLongerLockable() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(true);
         when(cruiseConfig.isPipelineLockable("mingle")).thenReturn(true);
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
@@ -162,7 +161,7 @@ public class PipelineLockServiceTest {
     public void shouldUnlockAnyCurrentlyLockedPipelinesThatNoLongerExist() throws Exception {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);
         when(cruiseConfig.isPipelineLockable("mingle")).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "mingle"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
@@ -189,7 +188,7 @@ public class PipelineLockServiceTest {
         EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
-        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("locked_pipeline", "other_pipeline"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("locked_pipeline", "other_pipeline"));
         when(pipelineConfig.isLockable()).thenReturn(false);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
@@ -204,7 +203,7 @@ public class PipelineLockServiceTest {
         EntityConfigChangedListener<PipelineConfig> changedListener = getPipelineConfigEntityConfigChangedListener();
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
 
-        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("locked_pipeline"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("locked_pipeline"));
         when(pipelineConfig.isLockable()).thenReturn(true);
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("locked_pipeline"));
 
@@ -229,7 +228,7 @@ public class PipelineLockServiceTest {
 
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
 
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("pipeline1", asList("stage1", "stage2"), asList("job1"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("pipeline1", List.of("stage1", "stage2"), List.of("job1"));
         pipelineLockService.registerListener(lockStatusChangeListener);
         pipelineLockService.lockIfNeeded(pipeline);
 
@@ -247,7 +246,7 @@ public class PipelineLockServiceTest {
 
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
 
-        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("pipeline1", asList("stage1", "stage2"), asList("job1"));
+        Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("pipeline1", List.of("stage1", "stage2"), List.of("job1"));
         pipelineLockService.registerListener(lockStatusChangeListener);
         pipelineLockService.lockIfNeeded(pipeline);
 
@@ -289,7 +288,7 @@ public class PipelineLockServiceTest {
         PipelineLockStatusChangeListener lockStatusChangeListener = mock(PipelineLockStatusChangeListener.class);
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
 
-        when(pipelineStateDao.lockedPipelines()).thenReturn(asList("pipeline1"));
+        when(pipelineStateDao.lockedPipelines()).thenReturn(List.of("pipeline1"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
         when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "pipeline1"));
         doAnswer(invocation -> {

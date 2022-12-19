@@ -35,10 +35,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SCM_EXTENSION;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -79,7 +79,7 @@ public class SCMExtensionTest {
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SCM_EXTENSION, asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SCM_EXTENSION, List.of("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(SCM_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SCM_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
     }

@@ -15,18 +15,17 @@
  */
 package com.thoughtworks.go.domain.feed;
 
-import java.util.Arrays;
-import java.util.Date;
-
-import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageIdentifier;
+import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.lessThan;
 import org.joda.time.DateTime;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.jupiter.api.Test;
+
+import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class FeedEntriesTest {
     private static final Date LATER_DATE = new DateTime().withDate(2000, 12, 24).toDate();
@@ -39,7 +38,7 @@ public class FeedEntriesTest {
     }
 
     private FeedEntries feedEntries() {
-        return new FeedEntries(Arrays.asList(entry(12L, LATER_DATE), entry(15L, EARLIER_DATE)));
+        return new FeedEntries(List.of(entry(12L, LATER_DATE), entry(15L, EARLIER_DATE)));
     }
 
     private FeedEntry entry(long entryId, Date updatedDate) {

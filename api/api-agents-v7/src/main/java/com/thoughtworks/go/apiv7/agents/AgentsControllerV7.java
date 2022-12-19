@@ -66,8 +66,6 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toCollection;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -220,7 +218,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
     }
 
     public String deleteAgent(Request request, Response response) throws IOException {
-        List<String> uuids = singletonList(request.params("uuid"));
+        List<String> uuids = Collections.singletonList(request.params("uuid"));
         return deleteAgents(request, response, uuids);
     }
 
@@ -260,7 +258,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
     }
 
     private void checkSecurityOr403(Request request, Response response) {
-        if (asList("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
+        if (List.of("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
             apiAuthenticationHelper.checkUserAnd403(request, response);
             return;
         }

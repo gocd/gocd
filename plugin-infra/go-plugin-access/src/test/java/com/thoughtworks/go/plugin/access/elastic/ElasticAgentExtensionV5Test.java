@@ -64,7 +64,7 @@ public class ElasticAgentExtensionV5Test {
     @BeforeEach
     public void setUp() throws Exception {
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        final List<String> goSupportedVersions = Arrays.asList("3.0", "4.0", "5.0");
+        final List<String> goSupportedVersions = List.of("3.0", "4.0", "5.0");
 
         when(descriptor.id()).thenReturn(PLUGIN_ID);
 
@@ -194,8 +194,8 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldMakeCreateAgentCall() {
-        final Map<String, String> profile = Collections.singletonMap("Image", "alpine:latest");
-        final Map<String, String> clusterProfile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Map.of("Image", "alpine:latest");
+        final Map<String, String> clusterProfile = Map.of("ServerURL", "https://example.com/go");
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
@@ -227,8 +227,8 @@ public class ElasticAgentExtensionV5Test {
     public void shouldMakeJobCompletionCall() {
         final String elasticAgentId = "ea1";
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
-        final Map<String, String> profile = Collections.singletonMap("Image", "alpine:latest");
-        final Map<String, String> clusterProfile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Map.of("Image", "alpine:latest");
+        final Map<String, String> clusterProfile = Map.of("ServerURL", "https://example.com/go");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
         extensionV5.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, profile, clusterProfile);
@@ -259,7 +259,7 @@ public class ElasticAgentExtensionV5Test {
     public void shouldMakeClusterProfileChangedCall() {
         ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.CREATED;
         Map<String, String> oldClusterProfile = null;
-        Map<String, String> newClusterProfile = Collections.singletonMap("key1", "key2");
+        Map<String, String> newClusterProfile = Map.of("key1", "key2");
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
@@ -277,9 +277,9 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldSendServerPing() {
-        final Map<String, String> clusterProfileProperties = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> clusterProfileProperties = Map.of("ServerURL", "https://example.com/go");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
-        extensionV5.serverPing(PLUGIN_ID, Arrays.asList(clusterProfileProperties));
+        extensionV5.serverPing(PLUGIN_ID, List.of(clusterProfileProperties));
 
         String expectedRequestBody = "{\n" +
                 "  \"all_cluster_profile_properties\": [{\n" +
@@ -292,8 +292,8 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldMakeShouldAssignWorkCall() {
-        final Map<String, String> profile = Collections.singletonMap("Image", "alpine:latest");
-        final Map<String, String> clusterProfileProperties = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Map.of("Image", "alpine:latest");
+        final Map<String, String> clusterProfileProperties = Map.of("ServerURL", "https://example.com/go");
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
         final boolean shouldAssignWork = extensionV5.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, clusterProfileProperties, new JobIdentifier());
@@ -361,7 +361,7 @@ public class ElasticAgentExtensionV5Test {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
 
-        Map<String, String> clusterProfile = Collections.singletonMap("go-server-url", "server-url-value");
+        Map<String, String> clusterProfile = Map.of("go-server-url", "server-url-value");
 
         extensionV5.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37", clusterProfile);
 
@@ -408,7 +408,7 @@ public class ElasticAgentExtensionV5Test {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
 
-        Map<String, String> clusterProfile = Collections.singletonMap("key1", "value1");
+        Map<String, String> clusterProfile = Map.of("key1", "value1");
         extensionV5.getClusterStatusReport(PLUGIN_ID, clusterProfile);
 
         final String requestBody = "{\n" +

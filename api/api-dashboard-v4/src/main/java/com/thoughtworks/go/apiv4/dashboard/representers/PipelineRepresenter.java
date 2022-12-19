@@ -58,26 +58,18 @@ public class PipelineRepresenter {
         if (model.getTrackingTool().isPresent()) {
             TrackingTool trackingTool = model.getTrackingTool().get();
 
-            jsonOutputWriter.addChild("tracking_tool", childWriter -> {
-                childWriter
-                        .add("regex", trackingTool.getRegex())
-                        .add("link", trackingTool.getLink());
-            });
+            jsonOutputWriter.addChild("tracking_tool", childWriter -> childWriter
+                    .add("regex", trackingTool.getRegex())
+                    .add("link", trackingTool.getLink()));
         }
 
-        jsonOutputWriter.addChild("_embedded", childWriter -> {
-            childWriter.addChildList("instances", writeInstances(model, username));
-        });
+        jsonOutputWriter.addChild("_embedded", childWriter -> childWriter.addChildList("instances", writeInstances(model, username)));
     }
 
     private static Consumer<OutputListWriter> writeInstances(GoDashboardPipeline model, Username username) {
-        return listWriter -> {
-            model.model().getActivePipelineInstances().stream()
-                    .filter(instanceModel -> !(instanceModel instanceof EmptyPipelineInstanceModel))
-                    .forEach(instanceModel -> {
-                        listWriter.addChild(childWriter -> PipelineInstanceRepresenter.toJSON(childWriter, instanceModel, model, username));
-                    });
-        };
+        return listWriter -> model.model().getActivePipelineInstances().stream()
+                .filter(instanceModel -> !(instanceModel instanceof EmptyPipelineInstanceModel))
+                .forEach(instanceModel -> listWriter.addChild(childWriter -> PipelineInstanceRepresenter.toJSON(childWriter, instanceModel, model, username)));
     }
 
     private static Consumer<OutputWriter> getPauseInfoNEW(GoDashboardPipeline model) {

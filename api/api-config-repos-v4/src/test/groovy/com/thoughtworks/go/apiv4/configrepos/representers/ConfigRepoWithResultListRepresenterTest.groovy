@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
-import static java.util.Arrays.asList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ConfigRepoWithResultListRepresenterTest {
@@ -37,8 +36,8 @@ class ConfigRepoWithResultListRepresenterTest {
   void toJSON() {
     List<ConfigRepoWithResult> repos = [repo("foo"), repo("bar")]
     def autoSuggestions = new HashMap<String, List<String>>()
-    autoSuggestions.put("key1", asList("val1", "val2"))
-    autoSuggestions.put("key2", asList("val3", "val3"))
+    autoSuggestions.put("key1", List.of("val1", "val2"))
+    autoSuggestions.put("key2", List.of("val3", "val3"))
     String json = toObjectString({ w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos, autoSuggestions) })
 
     assertThatJson(json).isEqualTo([

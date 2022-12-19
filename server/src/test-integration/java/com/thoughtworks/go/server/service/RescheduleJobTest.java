@@ -38,8 +38,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -151,7 +151,7 @@ public class RescheduleJobTest {
         dbHelper.cancelStage(stage);
 
         ResourceConfigs resourceConfigs = new ResourceConfigs(new ResourceConfig("r1"), new ResourceConfig("r2"));
-        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs(Arrays.asList(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs(List.of(new BuildArtifactConfig("s1", "d1"), new BuildArtifactConfig("s2", "d2")));
         configHelper.addAssociatedEntitiesForAJob(PIPELINE_NAME, STAGE_NAME, JOB_NAME, resourceConfigs, artifactTypeConfigs);
 
         dbHelper.schedulePipeline(configHelper.currentConfig().getPipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME)), new TimeProvider());

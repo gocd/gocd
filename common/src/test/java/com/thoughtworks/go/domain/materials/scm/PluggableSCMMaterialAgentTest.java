@@ -164,7 +164,7 @@ class PluggableSCMMaterialAgentTest {
         when(scmExtension.checkout(eq("pluginid"), any(), eq(destinationFolder), any()))
                 .thenReturn(new Result().withErrorMessages("No such revision."));
 
-        assertThatCode(() -> pluggableSCMMaterialAgent.prepare())
+        assertThatCode(pluggableSCMMaterialAgent::prepare)
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Material scm-name checkout failed: No such revision.");
 
@@ -189,7 +189,7 @@ class PluggableSCMMaterialAgentTest {
         PluggableSCMMaterialAgent pluggableSCMMaterialAgent = new PluggableSCMMaterialAgent(scmExtension, revision, new File(pipelineFolder), consumer);
         when(scmExtension.checkout(eq("pluginid"), any(), eq(destinationFolder), any())).thenThrow(new RuntimeException("some message from plugin"));
 
-        assertThatCode(() -> pluggableSCMMaterialAgent.prepare())
+        assertThatCode(pluggableSCMMaterialAgent::prepare)
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("some message from plugin");
 

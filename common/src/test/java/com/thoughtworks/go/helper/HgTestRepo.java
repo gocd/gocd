@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
-import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -32,8 +31,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -43,10 +42,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class HgTestRepo extends TestRepo {
     private File remoteRepo;
     private static final String HG_BUNDLE_FILE = "../common/src/test/resources/data/hgrepo.hgbundle";
-
-    public static final StringRevision REVISION_0 = new StringRevision("b61d12de515d82d3a377ae3aae6e8abe516a2651");
-    public static final StringRevision REVISION_1 = new StringRevision("35ff2159f303ecf986b3650fc4299a6ffe5a14e1");
-    public static final StringRevision REVISION_2 = new StringRevision("ca3ebb67f527c0ad7ed26b789056823d8b9af23f");
 
     private final HgCommand hgCommand;
 
@@ -124,7 +119,7 @@ public class HgTestRepo extends TestRepo {
 
     public HgMaterialConfig createMaterialConfig(String dest) {
         HgMaterialConfig materialConfig = materialConfig();
-        materialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, dest));
+        materialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, dest));
         return materialConfig;
     }
 

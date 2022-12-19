@@ -27,10 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collections;
+import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
@@ -88,7 +88,7 @@ public class AdminsConfigServiceIntegrationTest {
         CONFIG_HELPER.addRole(qas);
 
         CONFIG_HELPER.addAdminRoles("devs");
-        assertTrue(adminsConfigService.systemAdmins().has(null, Collections.singletonList(devs)));
+        assertTrue(adminsConfigService.systemAdmins().has(null, List.of(devs)));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String hashForEntity = entityHashingService.hashForEntity(adminsConfigService.systemAdmins());
@@ -97,7 +97,7 @@ public class AdminsConfigServiceIntegrationTest {
 
         assertThat(result.httpCode(), is(200));
         assertThat(adminsConfigService.systemAdmins().size(), is(1));
-        assertTrue(adminsConfigService.systemAdmins().has(null, Collections.singletonList(qas)));
+        assertTrue(adminsConfigService.systemAdmins().has(null, List.of(qas)));
     }
 
     @Test

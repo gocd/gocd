@@ -67,7 +67,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldGetModifiedTimeFromTheLatestModification() throws Exception {
+    public void shouldGetModifiedTimeFromTheLatestModification() {
         final MaterialRevision materialRevision = new MaterialRevision(MaterialsMother.hgMaterial(), multipleModificationsInHg());
         assertThat(materialRevision.getDateOfLatestModification(), is(ModificationsMother.TODAY_CHECKIN));
     }
@@ -194,7 +194,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldMarkRevisionChangeFalseIfNoNewChangesAvailable() throws Exception {
+    public void shouldMarkRevisionChangeFalseIfNoNewChangesAvailable() {
         Modification modificationForRevisionTip = new Modification(new Date(), REVISION_2.getRevision(), "MOCK_LABEL-12", null);
         MaterialRevision revision = new MaterialRevision(hgMaterial, modificationForRevisionTip);
         MaterialRevision unchangedRevision = findNewRevision(revision, hgMaterial, workingFolder, new TestSubprocessExecutionContext());
@@ -203,7 +203,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldReturnOnlyLatestModificationIfNoNewChangesAvailable() throws Exception {
+    public void shouldReturnOnlyLatestModificationIfNoNewChangesAvailable() {
         Modification modificationForRevisionTip = new Modification("Unknown", "Unknown", null, new Date(), REVISION_2.getRevision());
         Modification olderModification = new Modification("Unknown", "Unknown", null, new Date(), REVISION_0.getRevision());
         MaterialRevision revision = new MaterialRevision(hgMaterial, modificationForRevisionTip, olderModification);
@@ -244,7 +244,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldUseLatestMaterial() throws Exception {
+    public void shouldUseLatestMaterial() {
         MaterialRevision original = new MaterialRevision(hgMaterial,
                 hgMaterial.modificationsSince(workingFolder, REVISION_0, new TestSubprocessExecutionContext()));
 
@@ -256,7 +256,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldDetectLatestAndOldestModification() throws Exception {
+    public void shouldDetectLatestAndOldestModification() {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
 
         assertThat(materialRevision.getLatestModification(), is(modification("3")));
@@ -264,19 +264,19 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldDetectLatestRevision() throws Exception {
+    public void shouldDetectLatestRevision() {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
         assertThat(materialRevision.getRevision(), is(new StringRevision("3")));
     }
 
     @Test
-    public void shouldDetectOldestScmRevision() throws Exception {
+    public void shouldDetectOldestScmRevision() {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
         assertThat(materialRevision.getOldestRevision(), is(new StringRevision("1")));
     }
 
     @Test
-    public void shouldDetectOldestAndLatestDependencyRevision() throws Exception {
+    public void shouldDetectOldestAndLatestDependencyRevision() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
         MaterialRevision materialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/3/stage/1", "1.3-3", null),
                 new Modification(new Date(), "upstream/2/stage/1", "1.3-2", null));
@@ -285,14 +285,14 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldReturnNullRevisionWhenThereIsNoMaterial() throws Exception {
+    public void shouldReturnNullRevisionWhenThereIsNoMaterial() {
         Revision revision = new MaterialRevision(null).getRevision();
         assertThat(revision, is(not(nullValue())));
         assertThat(revision.getRevision(), is(""));
     }
 
     @Test
-    public void shouldReturnFullRevisionForTheLatestModification() throws Exception {
+    public void shouldReturnFullRevisionForTheLatestModification() {
         assertThat(hgRevision().getLatestRevisionString(), is("012345678901234567890123456789"));
     }
 
@@ -301,37 +301,37 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldReturnShortRevisionForTheLatestModification() throws Exception {
+    public void shouldReturnShortRevisionForTheLatestModification() {
         assertThat(hgRevision().getLatestShortRevision(), is("012345678901"));
     }
 
     @Test
-    public void shouldReturnMaterialName() throws Exception {
+    public void shouldReturnMaterialName() {
         assertThat(hgRevision().getMaterialName(), Matchers.is(hgMaterial.getDisplayName()));
     }
 
     @Test
-    public void shouldReturnTruncatedMaterialName() throws Exception {
+    public void shouldReturnTruncatedMaterialName() {
         assertThat(hgRevision().getTruncatedMaterialName(), Matchers.is(hgMaterial.getTruncatedDisplayName()));
     }
 
     @Test
-    public void shouldReturnMaterialType() throws Exception {
+    public void shouldReturnMaterialType() {
         assertThat(hgRevision().getMaterialType(), is("Mercurial"));
     }
 
     @Test
-    public void shouldReturnLatestComments() throws Exception {
+    public void shouldReturnLatestComments() {
         assertThat(hgRevision().getLatestComment(), is("Checkin 012345678901234567890123456789"));
     }
 
     @Test
-    public void shouldReturnLatestUser() throws Exception {
+    public void shouldReturnLatestUser() {
         assertThat(hgRevision().getLatestUser(), is("user"));
     }
 
     @Test
-    public void shouldRecomputeIsChanged() throws Exception {
+    public void shouldRecomputeIsChanged() {
         MaterialRevision original = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2"), oneModifiedFile("rev1")).getMaterialRevision(0);
         MaterialRevision recomputed = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev1")).getMaterialRevision(0);
         MaterialRevision recomputedAnother = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev0")).getMaterialRevision(0);
@@ -349,7 +349,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldRemoveFromThisWhateverModificationIsPresentInThePassedInRevision() throws Exception {
+    public void shouldRemoveFromThisWhateverModificationIsPresentInThePassedInRevision() {
         MaterialRevision revision = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2"), oneModifiedFile("rev1")).getMaterialRevision(0);
         MaterialRevision passedIn = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev1")).getMaterialRevision(0);
 
@@ -359,7 +359,7 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldReturnCurrentIfThePassedInDoesNotHaveAnythingThatCurrentHas() throws Exception {
+    public void shouldReturnCurrentIfThePassedInDoesNotHaveAnythingThatCurrentHas() {
         MaterialRevision revision = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2")).getMaterialRevision(0);
         MaterialRevision passedIn = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev1")).getMaterialRevision(0);
 

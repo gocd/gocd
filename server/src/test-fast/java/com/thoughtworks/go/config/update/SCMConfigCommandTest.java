@@ -31,11 +31,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class SCMConfigCommandTest {
@@ -79,7 +79,7 @@ public class SCMConfigCommandTest {
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(scm.errors().getAllOn("name"), is(Arrays.asList("Please provide name")));
+        assertThat(scm.errors().getAllOn("name"), is(List.of("Please provide name")));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(scm.errors().getAllOn("name"), is(Arrays.asList("Invalid SCM name '+!@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(scm.errors().getAllOn("name"), is(List.of("Invalid SCM name '+!@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
 
     }
 
@@ -116,7 +116,7 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(duplicateSCM, pluggableScmService, result, currentUser, goConfigService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(duplicateSCM.errors().getAllOn("scmId"), is(Arrays.asList("Cannot save SCM, found duplicate SCMs. material, duplicate.material")));
+        assertThat(duplicateSCM.errors().getAllOn("scmId"), is(List.of("Cannot save SCM, found duplicate SCMs. material, duplicate.material")));
     }
 
     @Test
@@ -129,7 +129,7 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(duplicateSCM, pluggableScmService, result, currentUser, goConfigService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(duplicateSCM.errors().getAllOn("name"), is(Arrays.asList("Cannot save SCM, found multiple SCMs called 'material'. SCM names are case-insensitive and must be unique.")));
+        assertThat(duplicateSCM.errors().getAllOn("name"), is(List.of("Cannot save SCM, found multiple SCMs called 'material'. SCM names are case-insensitive and must be unique.")));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(duplicateSCM, pluggableScmService, result, currentUser, goConfigService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(duplicateSCM.errors().getAllOn("scmId"), is(Arrays.asList("Cannot save SCM, found duplicate SCMs. material, another.material")));
+        assertThat(duplicateSCM.errors().getAllOn("scmId"), is(List.of("Cannot save SCM, found duplicate SCMs. material, another.material")));
     }
 
 }

@@ -25,10 +25,10 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
@@ -208,7 +208,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
     @Override
     protected RuleAwarePluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
         RuleAwarePluginProfile profile = new ConfigRepoConfig().setId(id).setPluginId(pluginId);
-        profile.addConfigurations(Arrays.asList(configurationProperties));
+        profile.addConfigurations(List.of(configurationProperties));
         ((ConfigRepoConfig) profile).setRepo(new GitMaterialConfig());
         return profile;
     }

@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 import static org.apache.commons.lang3.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,12 +52,7 @@ class DefaultPluginLoggingServiceTest {
 
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("plugin." + pluginId);
         ArrayList<Appender<ILoggingEvent>> appenders = new ArrayList<>();
-        logger.iteratorForAppenders().forEachRemaining(new Consumer<Appender<ILoggingEvent>>() {
-            @Override
-            public void accept(Appender<ILoggingEvent> iLoggingEventAppender) {
-                appenders.add(iLoggingEventAppender);
-            }
-        });
+        logger.iteratorForAppenders().forEachRemaining(appenders::add);
 
         String loggingDirectory = loggingService.getCurrentLogDirectory();
         assertThat(appenders.size()).isEqualTo(1);

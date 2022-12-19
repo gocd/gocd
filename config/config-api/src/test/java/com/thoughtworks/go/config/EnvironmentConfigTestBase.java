@@ -22,7 +22,9 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -131,14 +133,14 @@ public abstract class EnvironmentConfigTestBase {
     @Test
     void shouldUpdatePipelines() {
         environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
-        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(Collections.singletonMap("name", "foo"), Collections.singletonMap("name", "bar"))));
-        assertThat(environmentConfig.getPipelineNames()).isEqualTo(Arrays.asList(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar")));
+        environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.PIPELINES_FIELD, List.of(Map.of("name", "foo"), Map.of("name", "bar"))));
+        assertThat(environmentConfig.getPipelineNames()).isEqualTo(List.of(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar")));
     }
 
     @Test
     void shouldUpdateAgents() {
         environmentConfig.addAgent("uuid-1");
-        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.AGENTS_FIELD, Arrays.asList(Collections.singletonMap("uuid", "uuid-2"), Collections.singletonMap("uuid", "uuid-3"))));
+        environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.AGENTS_FIELD, List.of(Map.of("uuid", "uuid-2"), Map.of("uuid", "uuid-3"))));
         EnvironmentAgentsConfig expectedAgents = new EnvironmentAgentsConfig();
         expectedAgents.add(new EnvironmentAgentConfig("uuid-2"));
         expectedAgents.add(new EnvironmentAgentConfig("uuid-3"));
@@ -148,7 +150,7 @@ public abstract class EnvironmentConfigTestBase {
     @Test
     void shouldUpdateEnvironmentVariables() {
         environmentConfig.addEnvironmentVariable("hello", "world");
-        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
+        environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.VARIABLES_FIELD, List.of(envVar("foo", "bar"), envVar("baz", "quux"))));
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("foo", "bar"));
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("baz", "quux"));
         assertThat(environmentConfig.getVariables().size()).isEqualTo(2);
@@ -156,7 +158,7 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     void shouldNotSetEnvironmentVariableFromConfigAttributesIfNameAndValueIsEmpty() {
-        environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("", "anything"), envVar("", ""))));
+        environmentConfig.setConfigAttributes(Map.of(BasicEnvironmentConfig.VARIABLES_FIELD, List.of(envVar("", "anything"), envVar("", ""))));
         assertThat(environmentConfig.errors().isEmpty()).isTrue();
         assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("", "anything"));
         assertThat(environmentConfig.getVariables().size()).isEqualTo(1);

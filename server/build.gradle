@@ -285,7 +285,6 @@ dependencies {
     implementation project.deps.commonsFileUpload
   }
   implementation project.deps.aspectj
-  implementation project.deps.aspectjWeaver
   implementation project.deps.urlrewrite
 
   implementation project.deps.freemarker
@@ -808,7 +807,6 @@ task verifyWar(type: VerifyJarTask) {
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
-        "aspectjrt-${project.versions.aspectj}.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
         "checker-qual-3.12.0.jar",

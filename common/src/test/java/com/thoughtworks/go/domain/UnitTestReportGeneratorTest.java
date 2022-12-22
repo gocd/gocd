@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.TempDirUtils;
-import com.thoughtworks.go.work.DefaultGoPublisher;
+import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,12 +39,12 @@ public class UnitTestReportGeneratorTest {
 
     private File testFolder;
     private UnitTestReportGenerator generator;
-    private DefaultGoPublisher publisher;
+    private GoPublisher publisher;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws IOException {
         testFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
-        publisher = mock(DefaultGoPublisher.class);
+        publisher = mock(GoPublisher.class);
         generator = new UnitTestReportGenerator(publisher, testFolder);
     }
 
@@ -123,7 +123,7 @@ public class UnitTestReportGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateReportForNUnitGivenMutipleInputFiles() throws IOException, ArtifactPublishingException {
+    public void shouldGenerateReportForNUnitGivenMultipleInputFiles() throws IOException, ArtifactPublishingException {
         copyAndClose(source("TestReport-Integration.xml"), target("test-result1.xml"));
         copyAndClose(source("TestReport-Unit.xml"), target("test-result2.xml"));
 

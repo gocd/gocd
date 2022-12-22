@@ -29,7 +29,7 @@ final Map<String, String> libraries = [
   activeMQ            : 'org.apache.activemq:activemq-broker:5.17.3',
   apacheAnt           : 'org.apache.ant:ant:1.10.12',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
-  aspectj             : 'org.aspectj:aspectjrt:1.9.9.1',
+  aspectj             : 'org.aspectj:aspectjrt:1.9.19',
   assertJ             : 'org.assertj:assertj-core:3.23.1',
   assertJ_DB          : 'org.assertj:assertj-db:2.0.2',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.72',

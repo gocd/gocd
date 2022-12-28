@@ -200,7 +200,9 @@
 
   <suppress>
     <notes><![CDATA[
-   False positive - Angus Core is not the same thing as Apache Sling Commons Messaging Mail
+   GoCD is not vulnerable to this, as the GoSmtpMailSender ensures server identity is verified in properties. Note that
+   confusingly the CVE is raised against Apache Sling, but OSSIndex reports against Eclipse Angus Mail despite the
+   misleading description.
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus\-core@.*$</packageUrl>
     <vulnerabilityName>CVE-2021-44549</vulnerabilityName>

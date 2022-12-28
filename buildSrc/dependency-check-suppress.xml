@@ -200,6 +200,14 @@
 
   <suppress>
     <notes><![CDATA[
+   False positive - Angus Core is not the same thing as Apache Sling Commons Messaging Mail
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus\-core@.*$</packageUrl>
+    <vulnerabilityName>CVE-2021-44549</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

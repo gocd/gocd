@@ -60,15 +60,15 @@ enum Distro implements DistroBehavior {
       // More detail at https://github.com/adoptium/temurin-build/issues/2688 and https://github.com/adoptium/containers/issues/1
       // Unfortunately, these do not work for GoCD due to the Tanuki Wrapper which does not currently work with musl libc,
       // nor alternate compatibility layers such as libc6-compat or gcompat.
+      //
+      // zlib/libz.so.1 is required by the JRE, and we need a glibc-linked version. Can probably be latest available version.
       return [
-        '# install glibc/gcc-libs/zlib for the Tanuki Wrapper, and use by glibc-linked Adoptium JREs',
+        '# install glibc/zlib for the Tanuki Wrapper, and use by glibc-linked Adoptium JREs',
         '  apk add --no-cache tzdata --virtual .build-deps curl binutils zstd',
         '  GLIBC_VER="2.34-r0"',
         '  ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"',
-        '  GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-10.2.0-6-x86_64.pkg.tar.zst"',
-        '  GCC_LIBS_SHA256="e33b45e4a10ef26259d6acf8e7b5dd6dc63800641e41eb67fa6588d061f79c1c"',
-        '  ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.12-2-x86_64.pkg.tar.zst"',
-        '  ZLIB_SHA256=506577ab283c0e5dafaa61d645994c38560234a871fbc9ef2b45327a9a965d66',
+        '  ZLIB_URL="https://archive.archlinux.org/packages/z/zlib/zlib-1%3A1.2.13-2-x86_64.pkg.tar.zst"',
+        '  ZLIB_SHA256=c4f394724b20b84d7304b23bbb58442b6ef53e5cbac89eb51e39d7f0a46abafd',
         '  curl -LfsS https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub',
         '  SGERRAND_RSA_SHA256="823b54589c93b02497f1ba4dc622eaef9c813e6b0f0ebbb2f771e32adf9f4ef2"',
         '  echo "${SGERRAND_RSA_SHA256} */etc/apk/keys/sgerrand.rsa.pub" | sha256sum -c -',
@@ -80,13 +80,6 @@ enum Distro implements DistroBehavior {
         '  apk add --no-cache /tmp/glibc-i18n-${GLIBC_VER}.apk',
         '  /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 "$LANG" || true',
         '  echo "export LANG=$LANG" > /etc/profile.d/locale.sh',
-        '  curl -LfsS ${GCC_LIBS_URL} -o /tmp/gcc-libs.tar.zst',
-        '  echo "${GCC_LIBS_SHA256} */tmp/gcc-libs.tar.zst" | sha256sum -c -',
-        '  mkdir /tmp/gcc',
-        '  zstd -d /tmp/gcc-libs.tar.zst --output-dir-flat /tmp',
-        '  tar -xf /tmp/gcc-libs.tar -C /tmp/gcc',
-        '  mv /tmp/gcc/usr/lib/libgcc* /tmp/gcc/usr/lib/libstdc++* /usr/glibc-compat/lib',
-        '  strip /usr/glibc-compat/lib/libgcc_s.so.* /usr/glibc-compat/lib/libstdc++.so*',
         '  curl -LfsS ${ZLIB_URL} -o /tmp/libz.tar.zst',
         '  echo "${ZLIB_SHA256} */tmp/libz.tar.zst" | sha256sum -c -',
         '  mkdir /tmp/libz',
@@ -94,8 +87,8 @@ enum Distro implements DistroBehavior {
         '  tar -xf /tmp/libz.tar -C /tmp/libz',
         '  mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib',
         '  apk del --purge .build-deps glibc-i18n',
-        '  rm -rf /tmp/*.apk /tmp/gcc /tmp/gcc-libs.tar* /tmp/libz /tmp/libz.tar* /var/cache/apk/*',
-        '# end installing glibc/gcc-libs/zlib',
+        '  rm -rf /tmp/*.apk /tmp/libz /tmp/libz.tar* /var/cache/apk/*',
+        '# end installing glibc/zlib',
       ] + super.getInstallJavaCommands(project)
     }
   },

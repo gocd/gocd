@@ -18,14 +18,14 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
 import com.thoughtworks.go.util.SystemUtil;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.MimeMessage;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_TIMEOUT;
@@ -33,6 +33,13 @@ import static jakarta.mail.Message.RecipientType.TO;
 
 @EqualsAndHashCode
 public class GoSmtpMailSender implements GoMailSender {
+    static final String FROM_PROPERTY = "mail.from";
+    static final String TRANSPORT_PROTOCOL_PROPERTY = "mail.transport.protocol";
+    static final String TIMEOUT_PROPERTY = "mail.smtp.timeout";
+    static final String CONNECTION_TIMEOUT_PROPERTY = "mail.smtp.connectiontimeout";
+    static final String STARTTLS_PROPERTY = "mail.smtp.starttls.enable";
+    static final String TLS_CHECK_SERVER_IDENTITY_PROPERTY = "mail.smtp.ssl.checkserveridentity";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GoSmtpMailSender.class);
     private final MailHost mailHost;
 
@@ -73,22 +80,25 @@ public class GoSmtpMailSender implements GoMailSender {
 
     private Properties mailProperties() {
         Properties props = new Properties();
-        props.put("mail.from", mailHost.getFrom());
+        props.put(FROM_PROPERTY, mailHost.getFrom());
 
-        if (!System.getProperties().containsKey("mail.smtp.connectiontimeout")) {
-            props.put("mail.smtp.connectiontimeout", DEFAULT_TIMEOUT);
+        if (!System.getProperties().containsKey(CONNECTION_TIMEOUT_PROPERTY)) {
+            props.put(CONNECTION_TIMEOUT_PROPERTY, DEFAULT_TIMEOUT);
         }
 
-        if (!System.getProperties().containsKey("mail.smtp.timeout")) {
-            props.put("mail.smtp.timeout", DEFAULT_TIMEOUT);
+        if (!System.getProperties().containsKey(TIMEOUT_PROPERTY)) {
+            props.put(TIMEOUT_PROPERTY, DEFAULT_TIMEOUT);
         }
 
-        if (System.getProperties().containsKey("mail.smtp.starttls.enable")) {
-            props.put("mail.smtp.starttls.enable", "true");
+        if (System.getProperties().containsKey(STARTTLS_PROPERTY)) {
+            props.put(STARTTLS_PROPERTY, "true");
         }
 
-        String mailProtocol = mailHost.isTls() ? "smtps" : "smtp";
-        props.put("mail.transport.protocol", mailProtocol);
+        if (!System.getProperties().containsKey(TLS_CHECK_SERVER_IDENTITY_PROPERTY)) {
+            props.put(TLS_CHECK_SERVER_IDENTITY_PROPERTY, "true");
+        }
+
+        props.put(TRANSPORT_PROTOCOL_PROPERTY, mailHost.isTls() ? "smtps" : "smtp");
 
         return props;
     }

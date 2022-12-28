@@ -19,27 +19,22 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
+import jakarta.mail.Address;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import jakarta.mail.Address;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
+import static com.thoughtworks.go.config.GoSmtpMailSender.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 class GoSmtpMailSenderTest {
-    private static final String SMTP_CONNECTIONTIMEOUT_PROPERTY = "mail.smtp.connectiontimeout";
-    private static final String SMTP_TIMEOUT_PROPERTY = "mail.smtp.timeout";
-    private static final String MAIL_FROM_PROPERTY = "mail.from";
-    private static final String MAIL_TRANSPORT_PROTOCOL_PROPERTY = "mail.transport.protocol";
-    private static final String MAIL_SMTP_STARTTLS_PROPERTY = "mail.smtp.starttls.enable";
-
     private final String hostName = "smtp.company.test";
     private final String from = "from.cruise.test@gmail.com";
     private final String to = "cruise.test.admin@gmail.com";
@@ -61,7 +56,7 @@ class GoSmtpMailSenderTest {
     }
 
     @Test
-    void testShouldNotSendOutTestEmailToAdminstrator() {
+    void testShouldNotSendOutTestEmailToAdministrator() {
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost.setPort(465));
         ValidationBean bean = sender.send(subject, body, to);
 
@@ -90,7 +85,7 @@ class GoSmtpMailSenderTest {
     }
 
     @Test
-    void shouldSet_MailFrom_Property() throws Exception {
+    void shouldSetMailFromProperty() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost);
@@ -98,11 +93,11 @@ class GoSmtpMailSenderTest {
 
         assertThat(bean).isEqualTo(ValidationBean.valid());
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(MAIL_FROM_PROPERTY, from);
+        mailSession.verifyProperty(FROM_PROPERTY, from);
     }
 
     @Test
-    void shouldSetDefaultMailTimeoutPropertiesWhenNoOverridingValuesAreProvided() throws Exception {
+    void shouldSetDefaultPropertiesWhenNoOverridingValuesAreProvided() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost);
@@ -110,36 +105,48 @@ class GoSmtpMailSenderTest {
 
         assertThat(bean).isEqualTo(ValidationBean.valid());
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(SMTP_CONNECTIONTIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
-        mailSession.verifyProperty(SMTP_TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyProperty(TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyProperty(TLS_CHECK_SERVER_IDENTITY_PROPERTY, "true");
     }
 
     @Test
-    void shouldNotOverrideSMTPConnectionTimeoutPropertyIfItIsSetAtSystemLevel() throws Exception {
+    void shouldNotOverrideSmtpConnectionTimeoutPropertyIfItIsSetAtSystemLevel() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost);
-        sendMailWithPropertySetTo(sender, SMTP_CONNECTIONTIMEOUT_PROPERTY, "12345");
+        sendMailWithPropertySetTo(sender, CONNECTION_TIMEOUT_PROPERTY, "12345");
 
         mailSession.verifyMessageWasSent();
-        mailSession.verifyPropertyDoesNotExist(SMTP_CONNECTIONTIMEOUT_PROPERTY);
-        mailSession.verifyProperty(SMTP_TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyPropertyDoesNotExist(CONNECTION_TIMEOUT_PROPERTY);
+        mailSession.verifyProperty(TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
     }
 
     @Test
-    void shouldNotOverrideSMTPTimeoutPropertyIfItIsSetAtSystemLevel() throws Exception {
+    void shouldNotOverrideSmtpTimeoutPropertyIfItIsSetAtSystemLevel() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost);
-        sendMailWithPropertySetTo(sender, SMTP_TIMEOUT_PROPERTY, "12345");
+        sendMailWithPropertySetTo(sender, TIMEOUT_PROPERTY, "12345");
 
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(SMTP_CONNECTIONTIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
-        mailSession.verifyPropertyDoesNotExist(SMTP_TIMEOUT_PROPERTY);
+        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyPropertyDoesNotExist(TIMEOUT_PROPERTY);
     }
 
     @Test
-    void shouldSetProtocolToSMTPSWhenSMTPSIsEnabled() throws Exception {
+    void shouldNotOverrideSmtpCheckServerIdentityPropertyIfItIsSetAtSystemLevel() throws Exception {
+        FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
+
+        GoSmtpMailSender sender = new GoSmtpMailSender(mailHost);
+        sendMailWithPropertySetTo(sender, TLS_CHECK_SERVER_IDENTITY_PROPERTY, "false");
+
+        mailSession.verifyMessageWasSent();
+        mailSession.verifyPropertyDoesNotExist(TLS_CHECK_SERVER_IDENTITY_PROPERTY);
+    }
+
+    @Test
+    void shouldSetProtocolToSmtpsWhenSmtpsIsEnabled() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost);
@@ -147,11 +154,11 @@ class GoSmtpMailSenderTest {
 
         assertThat(bean).isEqualTo(ValidationBean.valid());
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(MAIL_TRANSPORT_PROTOCOL_PROPERTY, "smtps");
+        mailSession.verifyProperty(TRANSPORT_PROTOCOL_PROPERTY, "smtps");
     }
 
     @Test
-    void shouldSetProtocolToSMTPWhenSMTPSIsDisabled() throws Exception {
+    void shouldSetProtocolToSMTPWhenSmtpsIsDisabled() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost.setTls(false));
@@ -159,29 +166,29 @@ class GoSmtpMailSenderTest {
 
         assertThat(bean).isEqualTo(ValidationBean.valid());
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(MAIL_TRANSPORT_PROTOCOL_PROPERTY, "smtp");
+        mailSession.verifyProperty(TRANSPORT_PROTOCOL_PROPERTY, "smtp");
     }
 
     @Test
-    void shouldEnableSMTPS_With_StartTLS_WhenThePropertyIsSet() throws Exception {
+    void shouldEnableSmtpsWithStartTlsWhenThePropertyIsSet() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost.setTls(false));
-        sendMailWithPropertySetTo(sender, MAIL_SMTP_STARTTLS_PROPERTY, "any-non-null-value");
+        sendMailWithPropertySetTo(sender, STARTTLS_PROPERTY, "any-non-null-value");
 
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(MAIL_SMTP_STARTTLS_PROPERTY, "true");
+        mailSession.verifyProperty(STARTTLS_PROPERTY, "true");
     }
 
     @Test
-    void shouldNotEnableSMTPS_With_StartTLS_WhenThePropertyIsNotSet() throws Exception {
+    void shouldNotEnableSmtpsWithStartTlsWhenThePropertyIsNotSet() throws Exception {
         FakeMailSession mailSession = FakeMailSession.setupFor(username, password, from, to, subject, body);
 
         GoSmtpMailSender sender = new GoSmtpMailSender(mailHost.setTls(false));
-        sendMailWithPropertySetTo(sender, MAIL_SMTP_STARTTLS_PROPERTY, null);
+        sendMailWithPropertySetTo(sender, STARTTLS_PROPERTY, null);
 
         mailSession.verifyMessageWasSent();
-        mailSession.verifyPropertyDoesNotExist(MAIL_SMTP_STARTTLS_PROPERTY);
+        mailSession.verifyPropertyDoesNotExist(STARTTLS_PROPERTY);
     }
 
     @Test

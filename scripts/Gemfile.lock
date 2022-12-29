@@ -8,6 +8,7 @@ GEM
     ruby2_keywords (0.0.5)
 
 PLATFORMS
+  arm64-darwin-22
   x86_64-darwin-22
   x86_64-linux
 

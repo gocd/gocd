@@ -27,24 +27,14 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import java.security.SecureRandom
 import java.util.stream.Collectors
 
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-
-  dependencies {
-    classpath 'org.owasp:dependency-check-gradle:7.4.2'
-    classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1'
-    classpath 'com.github.jk1:gradle-license-report:2.1'
-  }
+plugins {
+  id 'base'
+  id 'org.owasp.dependencycheck' version '7.4.2'
+  id 'com.github.hierynomus.license-base' version '0.16.1'
+  id 'com.github.jk1.dependency-license-report' version '2.1'
 }
 
 apply from: 'dependencies.gradle'
-apply plugin: 'base'
-apply plugin: 'com.github.jk1.dependency-license-report'
-apply plugin: 'org.owasp.dependencycheck'
 
 if (file('build-ext.gradle').exists()) {
   apply from: 'build-ext.gradle'
@@ -97,7 +87,7 @@ List<String> partitionFiles(Collection originalFiles) {
   def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
   def currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX')?.toInteger() ?: 1
 
-  Integer testsPerBucket = Math.ceil((double) files.size() / totalWorkers)
+  Integer testsPerBucket = (Integer) Math.ceil((double) files.size() / totalWorkers)
 
   rootProject.logger.quiet("Partitioning ${files.size()} files into ${totalWorkers} buckets with approx ${testsPerBucket} files per bucket. Using seed ${seed}.")
   rootProject.logger.quiet("To reproduce the test failure, run with:")
@@ -108,7 +98,7 @@ List<String> partitionFiles(Collection originalFiles) {
 
   def allPartitions = files.collate(testsPerBucket)
   def currentPartition = allPartitions[currentWorkerIndex - 1]
-  return currentPartition ?: [] as List<String>
+  return (currentPartition ?: []) as List<String>
 }
 
 def GO_VERSION_PREVIOUS = '22.3.0'
@@ -162,7 +152,7 @@ project.ext.compilerOptions = [
 ]
 
 project.ext.toolchains = [
-  compilerVersion: 17,
+  compilerVersion    : 17,
   testLauncherVersion: 17,
 ]
 
@@ -509,7 +499,7 @@ subprojects {
     options.warnings = false
     options.encoding = "UTF-8"
     options.compilerArgs += '-Xlint:-deprecation'
-    options.release = project.compilerOptions.release
+    options.release.set(project.compilerOptions.release as Integer)
 
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(project.toolchains.compilerVersion)
@@ -1014,7 +1004,9 @@ task newApi {
            * limitations under the License.
            */
 
-          apply plugin: 'groovy'
+          plugins {
+            id 'groovy'
+          }
 
           dependencies {
             implementation project(':api:api-base')
@@ -1285,7 +1277,7 @@ task upgradeApi {
 
 }
 
-private void addUrlRewriteRule(String name) {
+private void addUrlRewriteRule(String spaName) {
   String rule =
     """
         <rule>

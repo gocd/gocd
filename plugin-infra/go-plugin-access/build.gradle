@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-description = 'APIs to allow GoCD to communicate with GoCD Plugins'
+plugins {
+  id 'groovy'
+}
 
-apply plugin: 'groovy'
+description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
 dependencies {
   api project(':plugin-infra:go-plugin-activator')

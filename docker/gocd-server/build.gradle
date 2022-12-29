@@ -21,7 +21,9 @@ import org.apache.tools.ant.util.TeeOutputStream
  * limitations under the License.
  */
 
-apply plugin: 'base'
+plugins {
+  id 'base'
+}
 
 subprojects {
   apply plugin: 'base'

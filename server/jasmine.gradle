@@ -27,7 +27,7 @@ OperatingSystem currentOS = OperatingSystem.current()
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
   chromedriver: '108.0.5359.71',
-  geckodriver: '0.32.0',
+  geckodriver : '0.32.0',
 ]
 
 def execute = { String path, String... argv ->
@@ -36,9 +36,9 @@ def execute = { String path, String... argv ->
   try {
     project.exec {
       def pathVariable = 'PATH'
-      if(currentOS.isWindows()) {
+      if (currentOS.isWindows()) {
         // because windows PATH variable is case-insensitive :-/
-        pathVariable = environment.keySet().find {eachKey -> eachKey.toUpperCase().equals("PATH")}
+        pathVariable = environment.keySet().find { eachKey -> eachKey.toUpperCase().equals("PATH") }
       }
       environment[pathVariable] = path
       executable = argv.head()
@@ -47,7 +47,7 @@ def execute = { String path, String... argv ->
       // it instead looks up executable on the PATH of the caller.
       def executableName = currentOS.getExecutableName(executable)
 
-      for(String entryInPath : path.split(Pattern.quote(File.pathSeparator))) {
+      for (String entryInPath : path.split(Pattern.quote(File.pathSeparator))) {
         def candidateExecutable = new File(entryInPath, executableName)
         if (candidateExecutable.isFile() && candidateExecutable.canExecute()) {
           executable = candidateExecutable;
@@ -79,7 +79,7 @@ def browserExecutable = { String path ->
   def separator = "=" * 72
   println "Browser versions"
   println(separator)
-  switch(browser()) {
+  switch (browser()) {
     case 'chrome':
       println("       chrome: ${execute(path, "google-chrome", "--version")}")
       println(" chromedriver: ${execute(path, "chromedriver", "--version").readLines().first()}")
@@ -92,7 +92,7 @@ def browserExecutable = { String path ->
 }
 
 def driverImpl = { ->
-  switch(browser()) {
+  switch (browser()) {
     case 'chrome':
       return downloadChromeDriver
     default:
@@ -106,7 +106,7 @@ task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
   packageVersion = seleniumDrivers.geckodriver
 
   String osURIPart;
-  String archiveExtension  = currentOS.isWindows() ? 'zip' : 'tar.gz';
+  String archiveExtension = currentOS.isWindows() ? 'zip' : 'tar.gz';
 
   switch (currentOS) {
     case OperatingSystem.MacOs:

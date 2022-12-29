@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-apply plugin: 'groovy'
+plugins {
+  id 'groovy'
+}
+
 dependencies {
   implementation project(':app-server')
   api project(':common')

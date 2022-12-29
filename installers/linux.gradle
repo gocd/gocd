@@ -24,7 +24,7 @@ import org.apache.tools.ant.filters.ConcatFilter
 
 enum PackageType {
 
-  deb {
+  deb{
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
       List<String> fpmArgs = []
       fpmArgs += ['-t', 'deb']
@@ -56,7 +56,7 @@ enum PackageType {
       return fpmArgs
     }
   },
-  rpm {
+  rpm{
     List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
       List<String> fpmArgs = []
 

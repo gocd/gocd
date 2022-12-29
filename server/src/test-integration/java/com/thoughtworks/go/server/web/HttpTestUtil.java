@@ -55,6 +55,10 @@ public class HttpTestUtil {
 
     private static final String STORE_PASSWORD = "tlb";
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     private Server server;
     private Thread blocker;
     private File serverKeyStore;
@@ -104,7 +108,6 @@ public class HttpTestUtil {
     }
 
     public HttpTestUtil(final ContextCustomizer customizer) throws Exception {
-        Security.addProvider(new BouncyCastleProvider());
         serverKeyStore = createTempFile("server.jks");
         prepareCertStore(serverKeyStore);
         server = new Server();

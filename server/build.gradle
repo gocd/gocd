@@ -647,22 +647,6 @@ tasks.withType(Test) {
   }
 
   onOutput { TestDescriptor descriptor, TestOutputEvent event ->
-    if (event.message.startsWith("Compiler warnings:")) {
-      return
-    }
-
-    if (event.message.startsWith("  WARNING:  'org.apache.xerces.jaxp.SAXParserImpl:")) {
-      return
-    }
-
-    if (event.message.startsWith("Warning:  org.apache.xerces.parsers.SAXParser:")) {
-      return
-    }
-
-    if (event.message.startsWith("Warning:  org.apache.xerces.jaxp.SAXParserImpl\$JAXPSAXParser")) {
-      return
-    }
-
     if (event.destination == TestOutputEvent.Destination.StdOut) {
       logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  OUT: ")))
     } else if (event.destination == TestOutputEvent.Destination.StdErr) {
@@ -749,13 +733,13 @@ task war(type: Jar) {
      *   [1, 2] + [5] - [5] + [5] == [1, 2, 5] // so far, so good
      *   [1, 2] + [5] + [5] - [5] == [1, 2]    // surprise! subtracting [5] removes all instances of 5
      */
-      project.configurations.packagingOnly + (
-      project.configurations.allApis +
-      project.configurations.spark +
-      project.configurations.compileClasspath -
-      project.configurations.doNotPackage
+    project.configurations.packagingOnly + (
+      project.configurations.allApis
+        + project.configurations.spark
+        + project.configurations.compileClasspath
+        - project.configurations.doNotPackage
     )
-  ).collect {f -> f.toString()}.toSet()
+  ).collect { f -> f.toString() }.toSet()
 
   // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
   classpath.removeAll([project(':app-server').jar.archiveFile.get().toString(), jar.archiveFile.get().toString()])

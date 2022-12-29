@@ -16,8 +16,11 @@
 
 import groovy.json.JsonOutput
 
+plugins {
+  id 'base'
+}
+
 description = 'GoCD Installers'
-apply plugin: 'base'
 
 configurations {
   agentBootstrapperJar {

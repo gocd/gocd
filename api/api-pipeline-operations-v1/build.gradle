@@ -15,7 +15,9 @@
  */
 
 
-apply plugin: 'groovy'
+plugins {
+  id 'groovy'
+}
 
 dependencies {
   implementation project(':config:config-api')

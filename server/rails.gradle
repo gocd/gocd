@@ -61,7 +61,7 @@ task createJRubyBinstubs {
   inputs.dir("script-templates")
   inputs.properties([
     bundledGemDir: project.bundledGemDir,
-    railsRoot: project.railsRoot
+    railsRoot    : project.railsRoot
   ])
 
   def jrubyJar = project.configurations.compileClasspath.files { it.name == 'jruby-complete' }.first()
@@ -113,9 +113,9 @@ task initializeRailsGems {
   inputs.file("${project.railsRoot}/Gemfile.lock")
   inputs.file("${project.railsRoot}/.bundle/config")
   inputs.properties([
-    jrubyVersion: project.deps.jruby,
+    jrubyVersion : project.deps.jruby,
     bundledGemDir: project.bundledGemDir,
-    railsRoot: project.railsRoot
+    railsRoot    : project.railsRoot
   ])
 
   outputs.dir(project.bundledGemDir)
@@ -207,7 +207,7 @@ task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {
   outputs.dir(publicAssetsDir)
 
   environment += [
-    'RAILS_ENV' : 'test',
+    'RAILS_ENV'   : 'test',
     'RAILS_GROUPS': 'assets',
   ]
 

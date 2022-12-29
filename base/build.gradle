@@ -59,10 +59,10 @@ task generateResources {
   outputs.dir(generatedResourcesOutput)
 
   def props = [
-    'goVersion': rootProject.goVersion,
-    'distVersion': rootProject.distVersion,
-    'fullVersion': rootProject.fullVersion,
-    'gitRevision': rootProject.gitRevision,
+    'goVersion'    : rootProject.goVersion,
+    'distVersion'  : rootProject.distVersion,
+    'fullVersion'  : rootProject.fullVersion,
+    'gitRevision'  : rootProject.gitRevision,
     'copyrightYear': rootProject.copyrightYear,
   ]
 

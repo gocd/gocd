@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'base'
+plugins {
+  id 'base'
+}
 
 subprojects {
   apply plugin: 'base'

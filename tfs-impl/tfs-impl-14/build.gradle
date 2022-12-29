@@ -81,10 +81,10 @@ task fatJar(type: Jar) {
 task verifyJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
-      "lib": [
-          "tfs-impl-14-${project.version}-classes.jar",
-          "com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar",
-      ]
+    "lib": [
+      "tfs-impl-14-${project.version}-classes.jar",
+      "com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar",
+    ]
   ]
 }
 

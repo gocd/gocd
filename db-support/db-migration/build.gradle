@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-apply plugin: 'java'
+plugins {
+  id 'java'
+}
 
 configurations.all {
   // Test containers depends on legacy junit, see https://github.com/testcontainers/testcontainers-java/issues/970

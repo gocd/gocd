@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
@@ -46,11 +45,11 @@ public abstract class AgentController {
     private AgentRuntimeInfo agentRuntimeInfo;
     private AgentAutoRegistrationProperties agentAutoRegistrationProperties;
     private AgentIdentifier identifier;
-    private SslInfrastructureService sslInfrastructureService;
-    private SystemEnvironment systemEnvironment;
-    private AgentRegistry agentRegistry;
-    private SubprocessLogger subprocessLogger;
-    private AgentUpgradeService agentUpgradeService;
+    private final SslInfrastructureService sslInfrastructureService;
+    private final SystemEnvironment systemEnvironment;
+    private final AgentRegistry agentRegistry;
+    private final SubprocessLogger subprocessLogger;
+    private final AgentUpgradeService agentUpgradeService;
     private final AgentHealthHolder agentHealthHolder;
     private final String hostName;
     private final String ipAddress;
@@ -128,9 +127,9 @@ public abstract class AgentController {
     }
 
     // Executed when Spring initializes this bean
-    void init() throws IOException {
+    void init() {
         initPipelinesFolder();
-        initSslInfratructure();
+        initSslInfrastructure();
         initAgentIdentifier();
         initRuntimeInfo();
         initSubProcessLogger();
@@ -140,7 +139,7 @@ public abstract class AgentController {
         subprocessLogger.registerAsExitHook("Following processes were alive at shutdown: ");
     }
 
-    private void initSslInfratructure() throws IOException {
+    private void initSslInfrastructure() {
         sslInfrastructureService.createSslInfrastructure();
     }
 

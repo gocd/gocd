@@ -226,10 +226,10 @@ public class HttpTestUtil {
 
     private KeyPair generateKeyPair() {
         try {
-            KeyPair seed = KeyPairGenerator.getInstance("RSA", "BC").generateKeyPair();
+            KeyPair seed = KeyPairGenerator.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME).generateKeyPair();
             RSAPrivateKey privateSeed = (RSAPrivateKey) seed.getPrivate();
             RSAPublicKey publicSeed = (RSAPublicKey) seed.getPublic();
-            KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
+            KeyFactory fact = KeyFactory.getInstance("RSA", BouncyCastleProvider.PROVIDER_NAME);
             RSAPrivateKeySpec privateKeySpec = new RSAPrivateKeySpec(privateSeed.getModulus(), privateSeed.getPrivateExponent());
             RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(publicSeed.getModulus(), publicSeed.getPublicExponent());
             return new KeyPair(fact.generatePublic(publicKeySpec), fact.generatePrivate(privateKeySpec));

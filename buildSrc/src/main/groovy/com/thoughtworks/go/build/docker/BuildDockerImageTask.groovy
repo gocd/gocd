@@ -83,48 +83,42 @@ class BuildDockerImageTask extends DefaultTask {
     writeTemplateToFile(templateFile(), dockerfile)
 
     if (!project.hasProperty('skipDockerBuild')) {
-      def targetArch = distro.dockerTargetArchitecture(project.hasProperty('dockerBuildIgnoreLocalArch'))
-
-      logger.lifecycle("Building ${distro} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).\n")
+      logger.lifecycle("Building ${distro} image for ${distro.supportedArchitectures}. (Current build architecture is ${Architecture.current()}).")
 
       // build image
-      executeInGitRepo("docker", "build",
+      project.mkdir(imageTarFile.parentFile)
+      executeInGitRepo("docker", "buildx", "build",
         "--pull",
-        "--platform", "linux/${targetArch.dockerAlias}",
-        "--build-arg", "TARGETARCH=${targetArch.dockerAlias}", // For backward compatibility with non buildx builds
+        "--platform", supportedPlatforms.join(","),
+        "--output", "type=oci,dest=${imageTarFile}",
         ".",
         "--tag", imageNameWithTag
       )
 
-      logger.lifecycle("\nVerifying ${imageNameWithTag} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).\n")
-
       // verify image
-      if (verifyHelper != null) {
-        verifyHelper.call(targetArch == Architecture.current())
+      def isNativeVerify = distro.dockerVerifyArchitecture == Architecture.current()
+      if (verifyHelper != null && (isNativeVerify || !project.hasProperty('dockerBuildSkipNonNativeVerify'))) {
+        // Load image  into local docker from buildx for sanity checking
+        executeInGitRepo("docker", "buildx", "build",
+          "--quiet",
+          "--load",
+          "--platform", "linux/${distro.dockerVerifyArchitecture.dockerAlias}",
+          ".",
+          "--tag", imageNameWithTag
+        )
+
+        logger.lifecycle("\nVerifying ${imageNameWithTag} image for ${distro.dockerVerifyArchitecture}. (Current build architecture is ${Architecture.current()}).\n")
+        verifyHelper.call(isNativeVerify)
+        logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${distro.dockerVerifyArchitecture} successful.")
       }
+    }
 
-      logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${targetArch} successful. Exporting...\n")
-
-      // export to tar
-      project.mkdir(imageTarFile.parentFile)
-
+    logger.lifecycle("Cleaning up...")
+    // delete the image, to save space
+    if (!project.hasProperty('dockerBuildKeepImages')) {
       project.exec {
         workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "save", imageNameWithTag, "--output", imageTarFile]
-      }
-
-      // compress the tar
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["gzip", "--force", imageTarFile]
-      }
-
-      // delete the image, to save space
-      if (!project.hasProperty('dockerBuildKeepImages')) {
-        project.exec {
-          workingDir = project.rootProject.projectDir
-          commandLine = ["docker", "rmi", imageNameWithTag]
-        }
+        commandLine = ["docker", "rmi", imageNameWithTag]
       }
     }
 
@@ -149,6 +143,11 @@ class BuildDockerImageTask extends DefaultTask {
   @Internal
   GString getImageNameWithTag() {
     "${dockerImageName}:${imageTag}"
+  }
+
+  @Internal
+  Set<GString> getSupportedPlatforms() {
+    distro.supportedArchitectures.collect {"linux/${it.dockerAlias}" }
   }
 
   @Input

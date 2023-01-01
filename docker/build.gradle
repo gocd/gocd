@@ -22,4 +22,20 @@ subprojects {
   apply plugin: 'base'
 }
 
+tasks.register('initializeBuildx') {
+  doFirst {
+    // Need to do once before everything (not in parallel) see https://github.com/docker/buildx/issues/344
+    def builderName = 'gocd-builder'
+    logger.lifecycle("Initializing docker buildx builder [$builderName]...")
+
+    project.exec { commandLine = ['docker', 'buildx', 'version'] }
+    project.exec {
+      commandLine = ['docker', 'buildx', 'rm', '--force', '--keep-state', builderName]
+      ignoreExitValue = true
+    }
+    project.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName] }
+    project.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
+  }
+}
+
 assemble.dependsOn(subprojects.tasks*.getByName('assemble'))

@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.DownloadFile
-import com.thoughtworks.go.build.InstallerMetadataTask
-import com.thoughtworks.go.build.InstallerType
+
+import com.thoughtworks.go.build.*
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.tools.ant.filters.FixCrLfFilter
 
@@ -26,13 +24,13 @@ private File destFile(String url) {
 }
 
 task downloadWindowsJreChecksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.windows)
+  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
 }
 
 task downloadWindowsJre(type: DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.windows)
+  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.windows, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }

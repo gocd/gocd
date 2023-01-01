@@ -17,6 +17,7 @@
 package com.thoughtworks.go.build.docker
 
 
+import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.OperatingSystem
 import org.gradle.api.Project
 
@@ -40,7 +41,7 @@ trait DistroBehavior {
   DistroVersion getVersion(String version) {
     return (supportedVersions.find { supportedVersion ->
       supportedVersion.version == version
-    }) ?: {throw new RuntimeException("Version [${version}] is not defined for this distro.")}()
+    }) ?: { throw new RuntimeException("Version [${version}] is not defined for this distro.") }()
   }
 
   List<String> getCreateUserAndGroupCommands() {
@@ -54,10 +55,10 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
-    def downloadUrl = project.packaging.adoptiumJavaVersion.toDownloadURLFor(getOperatingSystem())
+    def downloadUrl = project.packaging.adoptiumJavaVersion.toDownloadURLFor(getOperatingSystem(), Architecture.dockerDynamic)
 
     return [
-      "curl --fail --location --silent --show-error '${downloadUrl}' --output /tmp/jre.tar.gz",
+      "curl --fail --location --silent --show-error \"${downloadUrl}\" --output /tmp/jre.tar.gz",
       'mkdir -p /gocd-jre',
       'tar -xf /tmp/jre.tar.gz -C /gocd-jre --strip 1',
       'rm -rf /tmp/jre.tar.gz'
@@ -66,6 +67,21 @@ trait DistroBehavior {
 
   OperatingSystem getOperatingSystem() {
     OperatingSystem.linux
+  }
+
+  Set<Architecture> getSupportedArchitectures() {
+    [Architecture.x64]
+  }
+
+  Architecture dockerTargetArchitecture(boolean ignoreLocalArchitecture) {
+    if (ignoreLocalArchitecture) {
+      return supportedArchitectures.first()
+    } else if (Architecture.current() in supportedArchitectures) {
+      return Architecture.current()
+    } else {
+       throw new RuntimeException("Local architecture ${Architecture.current()} is not supported by distro $this (supports $supportedArchitectures).\n" +
+         "Pass -PdockerBuildIgnoreLocalArch to build for non-native target arch anyway.")
+    }
   }
 
   Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {

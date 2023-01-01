@@ -19,6 +19,7 @@
 
 FROM curlimages/curl:latest as gocd-agent-unzip
 USER root
+ARG TARGETARCH
 ARG UID=1000
 <#if useFromArtifact >
 COPY go-agent-${fullVersion}.zip /tmp/go-agent-${fullVersion}.zip
@@ -26,12 +27,23 @@ RUN \
 <#else>
 RUN curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-agent-${fullVersion}.zip" > /tmp/go-agent-${fullVersion}.zip && \
 </#if>
-    unzip /tmp/go-agent-${fullVersion}.zip -d / && \
-    mv /go-agent-${goVersion} /go-agent && \
-    chown -R ${r"${UID}"}:0 /go-agent && \
-    chmod -R g=u /go-agent
+    unzip -q /tmp/go-agent-${fullVersion}.zip -d / && \
+    mkdir -p /go-agent/wrapper /go-agent/bin && \
+    mv -v /go-agent-${goVersion}/LICENSE /go-agent/LICENSE && \
+    mv -v /go-agent-${goVersion}/*.md /go-agent && \
+    mv -v /go-agent-${goVersion}/bin/go-agent /go-agent/bin/go-agent && \
+    mv -v /go-agent-${goVersion}/lib /go-agent/lib && \
+    mv -v /go-agent-${goVersion}/logs /go-agent/logs && \
+    mv -v /go-agent-${goVersion}/run /go-agent/run && \
+    mv -v /go-agent-${goVersion}/wrapper-config /go-agent/wrapper-config && \
+    WRAPPERARCH=${dockerAliasToWrapperArchAsShell} && \
+    mv -v /go-agent-${goVersion}/wrapper/wrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersion}/wrapper/libwrapper-linux-$WRAPPERARCH* /go-agent/wrapper/ && \
+    mv -v /go-agent-${goVersion}/wrapper/wrapper.jar /go-agent/wrapper/ && \
+    chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 
 FROM ${distro.getBaseImageLocation(distroVersion)}
+ARG TARGETARCH
 
 LABEL gocd.version="${goVersion}" \
   description="GoCD agent based on ${distro.getBaseImageLocation(distroVersion)}" \

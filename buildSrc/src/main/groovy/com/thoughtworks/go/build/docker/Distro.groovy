@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.build.docker
 
+import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.OperatingSystem
 import org.gradle.api.Project
 
 enum Distro implements DistroBehavior {
 
   alpine{
-    @Override
-    OperatingSystem getOperatingSystem() {
-      OperatingSystem.linux
-    }
-
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
@@ -95,6 +91,11 @@ enum Distro implements DistroBehavior {
 
   centos{
     @Override
+    Set<Architecture> getSupportedArchitectures() {
+      [Architecture.x64, Architecture.aarch64]
+    }
+
+    @Override
     String getBaseImageRegistry(DistroVersion v) {
       v.lessThan(8) ? super.baseImageRegistry : "quay.io/centos"
     }
@@ -109,8 +110,8 @@ enum Distro implements DistroBehavior {
 
       String git = gitPackageFor(v)
       commands += "${pkg} install -y ${git} mercurial subversion openssh-clients bash unzip procps" +
-          (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
-          (v.lessThan(9) ? ' curl' : ' curl-minimal')
+        (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
+        (v.lessThan(9) ? ' curl' : ' curl-minimal')
 
       if (v.lessThan(8)) {
         commands += "cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh"
@@ -155,6 +156,11 @@ enum Distro implements DistroBehavior {
 
   debian{
     @Override
+    Set<Architecture> getSupportedArchitectures() {
+      [Architecture.x64, Architecture.aarch64]
+    }
+
+    @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         'apt-get update',
@@ -176,6 +182,11 @@ enum Distro implements DistroBehavior {
   },
 
   ubuntu{
+    @Override
+    Set<Architecture> getSupportedArchitectures() {
+      debian.supportedArchitectures
+    }
+
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return debian.getInstallPrerequisitesCommands(v)

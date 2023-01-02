@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.build.docker
 
+import com.thoughtworks.go.build.Architecture
 import freemarker.cache.ClassTemplateLoader
 import freemarker.core.PlainTextOutputFormat
 import freemarker.template.Configuration
@@ -82,16 +83,27 @@ class BuildDockerImageTask extends DefaultTask {
     writeTemplateToFile(templateFile(), dockerfile)
 
     if (!project.hasProperty('skipDockerBuild')) {
+      def targetArch = distro.dockerTargetArchitecture(project.hasProperty('dockerBuildIgnoreLocalArch'))
+
+      logger.lifecycle("Building ${distro} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).\n")
+
       // build image
-      executeInGitRepo("docker", "build", "--pull", ".", "--tag", imageNameWithTag)
+      executeInGitRepo("docker", "build",
+        "--pull",
+        "--platform", "linux/${targetArch.dockerAlias}",
+        "--build-arg", "TARGETARCH=${targetArch.dockerAlias}", // For backward compatibility with non buildx builds
+        ".",
+        "--tag", imageNameWithTag
+      )
+
+      logger.lifecycle("\nVerifying ${imageNameWithTag} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).\n")
 
       // verify image
       if (verifyHelper != null) {
-        verifyHelper.call()
+        verifyHelper.call(targetArch == Architecture.current())
       }
 
-      // give docker some some to stop the container (from the verify helper)
-      Thread.sleep(10000)
+      logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${targetArch} successful. Exporting...\n")
 
       // export to tar
       project.mkdir(imageTarFile.parentFile)
@@ -142,7 +154,7 @@ class BuildDockerImageTask extends DefaultTask {
   }
 
   @Internal
-  protected GString getImageNameWithTag() {
+  GString getImageNameWithTag() {
     "${dockerImageName}:${imageTag}"
   }
 
@@ -167,23 +179,24 @@ class BuildDockerImageTask extends DefaultTask {
 
     Template template = configuration.getTemplate(templateFile, "utf-8")
 
-    def map = [
-      distro         : distro,
-      distroVersion  : distroVersion,
-      project        : project,
-      goVersion      : project.goVersion,
-      fullVersion    : project.fullVersion,
-      gitRevision    : project.gitRevision,
-      additionalFiles: additionalFiles,
-      imageName      : dockerImageName,
-      copyrightYear  : project.copyrightYear,
-      useFromArtifact: !project.hasProperty('dockerGitPush')
+    def templateVars = [
+      distro                         : distro,
+      distroVersion                  : distroVersion,
+      project                        : project,
+      goVersion                      : project.goVersion,
+      fullVersion                    : project.fullVersion,
+      gitRevision                    : project.gitRevision,
+      additionalFiles                : additionalFiles,
+      imageName                      : dockerImageName,
+      copyrightYear                  : project.copyrightYear,
+      useFromArtifact                : !project.hasProperty('dockerGitPush'),
+      dockerAliasToWrapperArchAsShell: Architecture.dockerAliasToWrapperArchAsShell(),
     ]
 
     project.mkdir(project.buildDir)
 
     outputFile.withWriter("utf-8") { writer ->
-      template.process(map, writer)
+      template.process(templateVars, writer)
     }
   }
 
@@ -237,7 +250,7 @@ class BuildDockerImageTask extends DefaultTask {
   Map<String, Map<String, String>> getAdditionalFiles() {
     return [
       '/usr/local/sbin/tini': [
-        url  : "https://github.com/krallin/tini/releases/download/v${tiniVersion}/tini-static-amd64".toString(),
+        url  : "https://github.com/krallin/tini/releases/download/v${tiniVersion}/tini-static-\${TARGETARCH}".toString(),
         mode : '0755',
         owner: 'root',
         group: 'root'

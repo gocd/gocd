@@ -53,13 +53,13 @@ class AdoptiumVersion implements Serializable {
     update == null ? '' : 'U'
   }
 
-  def toDownloadURLFor(OperatingSystem os, Architecture arch = Architecture.x64) {
+  def toDownloadURLFor(OperatingSystem os, Architecture arch) {
     "https://github.com/adoptium/temurin${feature}-binaries/releases/download/" +
       "jdk-${urlSafeDisplayVersion()}/" +
       "OpenJDK${feature}${featureSuffix()}-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
   }
 
-  def toSha256SumURLFor(OperatingSystem os, Architecture arch = Architecture.x64) {
+  def toSha256SumURLFor(OperatingSystem os, Architecture arch) {
     "${toDownloadURLFor(os, arch)}.sha256.txt"
   }
 

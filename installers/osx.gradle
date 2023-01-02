@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.Architecture
-import com.thoughtworks.go.build.DownloadFile
-import com.thoughtworks.go.build.InstallerMetadataTask
-import com.thoughtworks.go.build.InstallerType
+
+import com.thoughtworks.go.build.*
 import org.apache.commons.codec.digest.DigestUtils
 
 private File destFile(String url) {
@@ -25,25 +23,25 @@ private File destFile(String url) {
 }
 
 task downloadMacJreX64Checksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
+  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.x64)
   dest destFile(src.toString())
 }
 
 task downloadMacJreX64(type: DownloadFile) {
   dependsOn downloadMacJreX64Checksum
-  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac)
+  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.x64)
   dest destFile(src.toString())
   checksum = { downloadMacJreX64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 task downloadMacJreArm64Checksum(type: DownloadFile) {
-  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(com.thoughtworks.go.build.OperatingSystem.mac, Architecture.aarch64)
+  src project.packaging.adoptiumJavaVersion.toSha256SumURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
 }
 
 task downloadMacJreArm64(type: DownloadFile) {
   dependsOn downloadMacJreArm64Checksum
-  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(com.thoughtworks.go.build.OperatingSystem.mac, Architecture.aarch64)
+  src project.packaging.adoptiumJavaVersion.toDownloadURLFor(OperatingSystem.mac, Architecture.aarch64)
   dest destFile(src.toString())
   checksum = { downloadMacJreArm64Checksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }

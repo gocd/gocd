@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.InstallerMetadataTask
 import com.thoughtworks.go.build.InstallerType
 import org.apache.tools.ant.filters.ConcatFilter
@@ -242,7 +243,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
   }
 
   zipTask.finalizedBy(project.tasks.create("${zipTask.name}Metadata", InstallerMetadataTask.class) {
-    architecture = com.thoughtworks.go.build.Architecture.all
+    architecture = Architecture.all
     packageTask = zipTask
     type = installerType
   })

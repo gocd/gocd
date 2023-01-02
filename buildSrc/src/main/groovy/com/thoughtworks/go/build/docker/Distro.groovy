@@ -169,7 +169,7 @@ enum Distro implements DistroBehavior {
         'apt-get clean all',
         'rm -rf /var/lib/apt/lists/*',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'
-      ]
+      ].collect {cmd -> cmd.startsWith('apt-get') ? "DEBIAN_FRONTEND=noninteractive $cmd" : cmd }
     }
 
     @Override

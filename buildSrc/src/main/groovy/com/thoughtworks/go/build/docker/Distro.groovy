@@ -104,6 +104,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       def pkg = v.lessThan(8) ? 'yum' : 'dnf'
       def commands = [
+        "echo 'fastestmirror=1' >> /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
         "${pkg} update -y",
         "${pkg} upgrade -y",
       ]
@@ -120,6 +121,7 @@ enum Distro implements DistroBehavior {
       commands += [
         "${pkg} clean all",
         "rm -rf /var/cache/${pkg}",
+        "sed -i -e s/fastestmirror=1//g /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
       ]
 
       return commands

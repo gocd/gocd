@@ -85,7 +85,7 @@ class BuildDockerImageTask extends DefaultTask {
     if (!project.hasProperty('skipDockerBuild')) {
       def targetArch = distro.dockerTargetArchitecture(project.hasProperty('dockerBuildIgnoreLocalArch'))
 
-      logger.lifecycle("Building ${distro} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).")
+      logger.lifecycle("Building ${distro} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).\n")
 
       // build image
       executeInGitRepo("docker", "build",
@@ -96,13 +96,14 @@ class BuildDockerImageTask extends DefaultTask {
         "--tag", imageNameWithTag
       )
 
+      logger.lifecycle("\nVerifying ${imageNameWithTag} image for ${targetArch}. (Current build architecture is ${Architecture.current()}).\n")
+
       // verify image
       if (verifyHelper != null) {
         verifyHelper.call()
       }
 
-      // give docker some some to stop the container (from the verify helper)
-      Thread.sleep(10000)
+      logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${targetArch} successful. Exporting...\n")
 
       // export to tar
       project.mkdir(imageTarFile.parentFile)

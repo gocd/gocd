@@ -100,7 +100,7 @@ class BuildDockerImageTask extends DefaultTask {
 
       // verify image
       if (verifyHelper != null) {
-        verifyHelper.call()
+        verifyHelper.call(targetArch == Architecture.current())
       }
 
       logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${targetArch} successful. Exporting...\n")

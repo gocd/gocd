@@ -92,10 +92,19 @@ subprojects {
       }
     }
 
-    task.verifyHelper = {
-      // test image
+    // test image
+    task.verifyHelper = { boolean isNative ->
+      def cleanContainer = {     // remove the container
+        project.exec {
+          workingDir = project.rootProject.projectDir
+          commandLine = ["docker", "rm", "--force", docker.dockerImageName]
+          standardOutput = System.out
+          errorOutput = System.err
+        }
+      }
 
       // daemonize the container
+      cleanContainer.call() // Clean-up after any previous aborted runs
       project.exec {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "run", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
@@ -103,16 +112,11 @@ subprojects {
         errorOutput = System.err
       }
 
-      Thread.sleep(10000)
-
-      ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "logs", docker.dockerImageName]
-        standardOutput = containerOutput
-        errorOutput = containerOutput
-        ignoreExitValue = true
-      }
+      // Need to wait for start. Would be better to have some polling mechanism here with a timeout.
+      def sleep = isNative ? 10000 : 15000
+      logger.lifecycle("\nWaiting ${sleep}ms for ${isNative ? 'native' : 'emulated'} agent container to start...")
+      Thread.sleep(sleep)
+      logger.lifecycle("Should be started now...")
 
       // run a `ps aux`
       ByteArrayOutputStream psOutput = new ByteArrayOutputStream()
@@ -124,19 +128,23 @@ subprojects {
         ignoreExitValue = true
       }
 
-      // remove the container
+      ByteArrayOutputStream containerOutput = new ByteArrayOutputStream()
       project.exec {
         workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "rm", "--force", docker.dockerImageName]
-        standardOutput = System.out
-        errorOutput = System.err
+        commandLine = ["docker", "logs", docker.dockerImageName]
+        standardOutput = containerOutput
+        errorOutput = containerOutput
+        ignoreExitValue = true
       }
 
+      // remove the container
+      cleanContainer.call()
+
       // assert if process was running
-      def expectedString = "lib/go.jar"
+      def expectedProcess = "lib/go.jar"
       def processList = psOutput.toString()
-      if (!processList.contains(expectedString)) {
-        throw new GradleException("Expected process output to contain ${expectedString}, but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
+      if (!processList.contains(expectedProcess)) {
+        throw new GradleException("Expected process output to contain ${expectedProcessg}, but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
       }
     }
   }

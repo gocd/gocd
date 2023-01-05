@@ -182,6 +182,32 @@ public class UnitTestReportGeneratorTest {
         }
 
         @Test
+        public void shouldGenerateReportForMinifiedJunit() throws Exception {
+            copyAndClose(source("junit-minified-from-pytest.xml"), target("junit-minified-from-pytest.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("15.839");
+        }
+
+        @Test
+        public void shouldGenerateReportForMinifiedJunitWithoutDeclaration() throws Exception {
+            copyAndClose(source("junit-minified-from-pytest-no-decl.xml"), target("junit-minified-from-pytest.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("15.839");
+        }
+
+        @Test
         public void shouldGenerateReportForJUnitWithMultipleFiles() throws Exception {
             copyAndClose(source("junit-result-four-tests.xml"), target("junit-result-four-tests.xml"));
             copyAndClose(source("junit-result-single-test.xml"), target("junit-result-single-test.xml"));
@@ -193,6 +219,20 @@ public class UnitTestReportGeneratorTest {
             assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
             assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
             assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("1.286");
+        }
+
+        @Test
+        public void shouldGenerateReportForMinifiedMixedWithOthersJunit() throws Exception {
+            copyAndClose(source("junit-minified-from-pytest.xml"), target("junit-minified-from-pytest.xml"));
+            copyAndClose(source("junit-result-four-tests.xml"), target("junit-result-single-test.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("5");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("16.669");
         }
     }
 

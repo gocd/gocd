@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite errors="0" failures="0" hostname="57ceaf161752" name="pytest" skipped="0" tests="1" time="17.323" timestamp="2023-01-04T17:55:43.134227"><testcase classname="tests.auth_test.SimpleAuthTest" file="tests/auth_test.py" line="24" name="test_backup_via_unprivileged_user" time="15.839"></testcase></testsuite></testsuites>

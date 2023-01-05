@@ -210,6 +210,15 @@
 
   <suppress>
     <notes><![CDATA[
+   This is a false positive. The Jolt JSON Utils project is not the same thing as fredsmith utils. See
+   https://github.com/jeremylong/DependencyCheck/issues/5213 and https://github.com/jeremylong/DependencyCheck/issues/5218
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.bazaarvoice\.jolt/json\-utils@.*$</packageUrl>
+    <cpe>cpe:/a:utils_project:utils</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

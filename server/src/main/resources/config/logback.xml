@@ -81,6 +81,7 @@
 
   <!-- Change to INFO to enable request logging -->
   <logger name="org.eclipse.jetty.server.RequestLog" level="WARN"/>
+  <logger name="liquibase.changelog.visitor.UpdateVisitor" level="DEBUG"/>
 
   <!-- make sure this is the last line in the config -->
   <include optional="true" file="${cruise.config.dir:-config}/logback-include.xml"/>

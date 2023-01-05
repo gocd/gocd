@@ -39,7 +39,6 @@
     </triggeringPolicy>
   </appender>
 
-  <logger name="org.springframework.security.userdetails.memory" level="WARN"/>
   <logger name="org.hibernate" level="DEBUG"/>
   <logger name="java.sql.Statement" level="DEBUG"/>
   <logger name="java.sql.PreparedStatement" level="DEBUG"/>

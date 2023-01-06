@@ -1283,10 +1283,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
-"@types/mithril@2.0.11":
-  version "2.0.11"
-  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.11.tgz#090fb16e5ffcc616f7f409a2b3d50a90427f8b97"
-  integrity sha512-2tYTImXc7RzWkPpgcbnSKpV46DQI4Bm8CfgmkrIbst8MJlX6d8hdgy2yQCEf5NZYLGNyK4xbzb4rr8VPmk0iXQ==
+"@types/mithril@2.0.12":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.12.tgz#3391c691617c79e2e8e60dfa97527fc948cf07db"
+  integrity sha512-vedzt04n3EB7rcnfSLCv3+w3qJLkGWdsNRBKvelTqhSJSfg73Roq9b+rcnn9zeqGYtQAMqNcO6vNBR/w0OzipQ==
 
 "@types/node@*", "@types/node@>=10.0.0", "@types/node@^18.11.10":
   version "18.11.10"

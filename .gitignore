@@ -358,10 +358,6 @@ api/api-internal-environments-v1/out/
 api/api-internal-environments-v1/target/
 api/api-internal-environments-v1/logs/
 api/api-internal-environments-v1/config/
-api/api-shared-v9/out/
-api/api-shared-v9/target/
-api/api-shared-v9/logs/
-api/api-shared-v9/config/
 api/api-shared-v10/out/
 api/api-shared-v10/target/
 api/api-shared-v10/logs/

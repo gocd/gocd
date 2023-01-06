@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -46,6 +47,7 @@ import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAM
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v3, successorApiVersion = ApiVersion.v4, deprecatedIn = "19.10.0", removalIn = "23.2.0", entityName = "Dashboard")
 public class DashboardControllerV3 extends ApiController implements SparkSpringController {
 
     private static final String BEING_PROCESSED = MessageJson.create("Dashboard is being processed, this may take a few seconds. Please check back later.");

@@ -106,7 +106,7 @@
     "mini-css-extract-plugin": "^1.6.2",
     "mockdate": "^3.0.5",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
-    "patch-package": "^6.5.0",
+    "patch-package": "^6.5.1",
     "postinstall-postinstall": "^2.1.0",
     "sass": "^1.57.1",
     "sass-loader": "^10.4.1",

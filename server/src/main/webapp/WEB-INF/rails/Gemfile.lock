@@ -127,7 +127,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
       spoon (~> 0.0)
-    pry-debugger-jruby (2.1.0-java)
+    pry-debugger-jruby (2.1.1-java)
       pry (>= 0.13, < 0.15)
       ruby-debug-base (>= 0.10.4, < 0.12)
     public_suffix (5.0.1)

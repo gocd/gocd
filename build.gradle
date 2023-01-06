@@ -934,7 +934,7 @@ task removeApi {
     file('settings.gradle').withWriter { out ->
       def newContents = settingsFileContents
         .stream()
-        .filter({ eachLine -> !eachLine.contains("api:${newProjectName}") })
+        .filter({ eachLine -> !eachLine.contains("':api:${newProjectName}'") })
         .collect(Collectors.joining("\n"))
         .trim() + "\n"
       out.println(newContents)

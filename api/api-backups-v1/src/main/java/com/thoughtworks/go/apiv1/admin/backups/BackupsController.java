@@ -23,6 +23,7 @@ import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.BackupService;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -38,6 +39,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseDeprecate
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "19.3.0", removalIn = "23.2.0", entityName = "Backups")
 public class BackupsController extends ApiController implements SparkSpringController {
     private static final HeaderConstraint HEADER_CONSTRAINT = new HeaderConstraint(new SystemEnvironment());
 

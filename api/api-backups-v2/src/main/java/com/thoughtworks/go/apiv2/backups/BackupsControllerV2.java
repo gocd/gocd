@@ -45,7 +45,7 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
     private static final String RUNNING = "running";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private BackupService backupService;
+    private final BackupService backupService;
 
     @Autowired
     public BackupsControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, BackupService backupService) {
@@ -98,7 +98,7 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
             }
         }
 
-        if (!backup.isPresent()) {
+        if (backup.isEmpty()) {
             throw new RecordNotFoundException(EntityType.Backup, backupId);
         }
         return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup.get()));

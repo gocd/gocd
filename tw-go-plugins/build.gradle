@@ -39,13 +39,6 @@ def dependencies = [
     checksum: 'f8603c66007feb5bccda62a7a9169a7d1c6dabad2775277fcd9b8641f4687065'
   ),
   new GithubArtifact(
-    user: 'gocd',
-    repo: 'gocd-yum-repository-poller-plugin',
-    tagName: 'v2.0.6-135',
-    asset: 'gocd-yum-repo-plugin-2.0.6-135.jar',
-    checksum: '5988384979750c4f450896ab52af8729f4a8602ec2c37ed45da5482a13539654'
-  ),
-  new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
     tagName: '0.14.1',

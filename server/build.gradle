@@ -1013,7 +1013,6 @@ task licenseReportAggregate {
                                  'gocd-yaml-config-plugin.jar',
                                  'gocd-filebased-authentication-plugin.jar',
                                  'gocd-ldap-authentication-plugin.jar',
-                                 'gocd-yum-repository-poller-plugin.jar',
                                  'gocd-file-based-secrets-plugin.jar']
 
   def getAllJarDependencies = {

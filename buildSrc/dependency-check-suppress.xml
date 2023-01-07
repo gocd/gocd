@@ -27,9 +27,9 @@
   </suppress>
   <suppress>
     <notes><![CDATA[
-   GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
-   body content to make it vulnerable to CVE-2022-21230.
-   ]]></notes>
+    GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
+    body content to make it vulnerable to CVE-2022-21230.
+    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
     <cve>CVE-2022-21230</cve>
   </suppress>
@@ -189,10 +189,10 @@
 
   <suppress>
     <notes><![CDATA[
-   https://nvd.nist.gov/vuln/detail/CVE-2022-1471 appears to be a dubious vulnerability and not mitigatable. To our
-   knowledge GoCD and its dependencies does not use SnakeYaml in a vulnerable way here, so suppressing this as a false
-   positive.
-   ]]></notes>
+    https://nvd.nist.gov/vuln/detail/CVE-2022-1471 appears to be a dubious vulnerability and not mitigatable. To our
+    knowledge GoCD and its dependencies does not use SnakeYaml in a vulnerable way here, so suppressing this as a false
+    positive.
+    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
     <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
     <cve>CVE-2022-1471</cve>
@@ -200,19 +200,27 @@
 
   <suppress>
     <notes><![CDATA[
-   GoCD is not vulnerable to this, as the GoSmtpMailSender ensures server identity is verified in properties. Note that
-   confusingly the CVE is raised against Apache Sling, but OSSIndex reports against Eclipse Angus Mail despite the
-   misleading description.
-   ]]></notes>
+    False Positive per https://github.com/jeremylong/DependencyCheck/issues/5233
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+    <cpe>cpe:/a:yaml_project:yaml</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    GoCD is not vulnerable to this, as the GoSmtpMailSender ensures server identity is verified in properties. Note that
+    confusingly the CVE is raised against Apache Sling, but OSSIndex reports against Eclipse Angus Mail despite the
+    misleading description.
+    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus\-core@.*$</packageUrl>
     <vulnerabilityName>CVE-2021-44549</vulnerabilityName>
   </suppress>
 
   <suppress>
     <notes><![CDATA[
-   This is a false positive. The Jolt JSON Utils project is not the same thing as fredsmith utils. See
-   https://github.com/jeremylong/DependencyCheck/issues/5213 and https://github.com/jeremylong/DependencyCheck/issues/5218
-   ]]></notes>
+    This is a false positive. The Jolt JSON Utils project is not the same thing as fredsmith utils. See
+    https://github.com/jeremylong/DependencyCheck/issues/5213 and https://github.com/jeremylong/DependencyCheck/issues/5218
+    ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.bazaarvoice\.jolt/json\-utils@.*$</packageUrl>
     <cpe>cpe:/a:utils_project:utils</cpe>
   </suppress>
@@ -222,7 +230,7 @@
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on
-   ]]></notes>
+    ]]></notes>
     <packageUrl regex="true">^pkg:(npm|javascript)/angularjs@.*$</packageUrl>
     <cve>CVE-2019-14863</cve>
     <cve>CVE-2020-7676</cve>
@@ -236,10 +244,10 @@
 
   <suppress>
     <notes><![CDATA[
-   GoCD is not vulnerable to these issues as it does not use jQuery in a vulnerable way.
-   (no user controlled use of `jQuery(strInput)`, no use of cross-site AJAX requests, no use of `jquery.extend`,
-   no ability to pass untrusted code to `.html()`, `.append()`, no ability for users to control boolean attribute names)
-   ]]></notes>
+    GoCD is not vulnerable to these issues as it does not use jQuery in a vulnerable way.
+    (no user controlled use of `jQuery(strInput)`, no use of cross-site AJAX requests, no use of `jquery.extend`,
+    no ability to pass untrusted code to `.html()`, `.append()`, no ability for users to control boolean attribute names)
+    ]]></notes>
     <packageUrl regex="true">^pkg:(npm|javascript)/jquery@.*$</packageUrl>
 
     <cve>CVE-2012-6708</cve>
@@ -263,10 +271,10 @@
 
   <suppress>
     <notes><![CDATA[
-   GoCD is not vulnerable to these issues as it does not use Bootstrap in a vulnerable way.
-   (does not use `data-parent` attribute, does not use `scrollspy.data-target`, does not use `tooltip.data-container` or
-   `data-template`
-   ]]></notes>
+    GoCD is not vulnerable to these issues as it does not use Bootstrap in a vulnerable way.
+    (does not use `data-parent` attribute, does not use `scrollspy.data-target`, does not use `tooltip.data-container` or
+    `data-template`
+    ]]></notes>
     <packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
     <cve>CVE-2018-14040</cve>
     <cve>CVE-2018-14041</cve>
@@ -276,9 +284,9 @@
 
   <suppress>
     <notes><![CDATA[
-   GoCD is not vulnerable to these issues as it does not use the relevant widgets of jQuery UI in a vulnerable way.
-   (does not use `dialog.closeText`, `datepicker`, `element.position()` with `of` parameter or `checkboxradio`.
-   ]]></notes>
+    GoCD is not vulnerable to these issues as it does not use the relevant widgets of jQuery UI in a vulnerable way.
+    (does not use `dialog.closeText`, `datepicker`, `element.position()` with `of` parameter or `checkboxradio`.
+    ]]></notes>
     <packageUrl regex="true">^pkg:javascript/jquery\-ui\-dialog@.*$</packageUrl>
     <cve>CVE-2016-7103</cve>
     <cve>CVE-2021-41182</cve>

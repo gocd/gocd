@@ -15,36 +15,49 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.domain.exception.ArtifactPublishingException;
 import com.thoughtworks.go.util.TempDirUtils;
+import com.thoughtworks.go.util.XpathUtils;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.AbstractStringAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.TestUtils.copyAndClose;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@MockitoSettings
 public class UnitTestReportGeneratorTest {
+    private static final String CSS_TOTAL_TEST_COUNT = "tests_total_count";
+    private static final String CSS_FAILED_TEST_COUNT = "tests_failed_count";
+    private static final String CSS_IGNORED_TEST_COUNT = "tests_ignored_count";
+    private static final String CSS_TEST_TIME = "tests_total_duration";
 
     private File testFolder;
     private UnitTestReportGenerator generator;
+
+    @Mock
     private GoPublisher publisher;
+
+    @Captor
+    private ArgumentCaptor<File> uploadedFile;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws IOException {
         testFolder = TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
-        publisher = mock(GoPublisher.class);
         generator = new UnitTestReportGenerator(publisher, testFolder);
     }
 
@@ -54,97 +67,128 @@ public class UnitTestReportGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateReportForNUnit() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("TestResult.xml"), target("test-result.xml"));
+    public void shouldGenerateReportForNUnit() throws Exception {
+        copyAndClose(source("nunit-result-206.xml"), target("test-result.xml"));
         generator.generate(testFolder.listFiles(), "testoutput");
-        assertThat(testFolder.listFiles().length, is(2));
-        verify(publisher).upload(any(File.class), any(String.class));
+        assertThat(testFolder.listFiles().length).isEqualTo(2);
+        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("206");
+        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("NaN");
+    }
+
+    private AbstractStringAssert<?> assertTestReportCssFor(String cssClass) throws XPathExpressionException, IOException {
+        return assertThat(XpathUtils.evaluate(uploadedFile.getValue(), xpathFor(cssClass)));
+    }
+
+    private static String xpathFor(String cssClass) {
+        return "//div/p/span[@class='" + cssClass + "']";
     }
 
     @Test
-    public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws ArtifactPublishingException {
+    public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws Exception {
         generator.generate(testFolder.listFiles(), "testoutput");
         expectZeroedProperties();
     }
 
     @Test
-    public void shouldNotGenerateAnyReportIfTestResultIsEmpty() throws IOException, ArtifactPublishingException {
+    public void shouldNotGenerateAnyReportIfTestResultIsEmpty() throws Exception {
         copyAndClose(source("empty.xml"), target("empty.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).consumeLine("Ignoring file empty.xml - it is not a recognised test file.");
-        verify(publisher).upload(any(File.class), any(String.class));
+        expectZeroedProperties();
     }
 
-    private void expectZeroedProperties() throws ArtifactPublishingException {
-        verify(publisher).upload(any(File.class), any(String.class));
+    private void expectZeroedProperties() throws Exception {
+        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo(".000");
     }
 
     @Test
-    public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("InvalidTestResult.xml"), target("Invalid.xml"));
+    public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws Exception {
+        copyAndClose(source("invalid-nunit.xml"), target("Invalid.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
         verify(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
-        verify(publisher).upload(any(File.class), any(String.class));
+        expectZeroedProperties();
     }
 
     //This is bug #2319
     @Test
-    public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("xml_samples/Coverage.xml"), target("Coverage.xml"));
+    public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws Exception {
+        copyAndClose(source("ncover-report.xml"), target("ncover-report.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
-        verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
-        verify(publisher).upload(any(File.class), any(String.class));
+        verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
+        expectZeroedProperties();
     }
 
     @Test
-    public void shouldGenerateReportForJUnitAlso() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("SerializableProjectConfigUtilTest.xml"), target("AgentTest.xml"));
+    public void shouldGenerateReportForJUnitAlso() throws Exception {
+        copyAndClose(source("junit-result-single-test.xml"), target("AgentTest.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
-        verify(publisher).upload(any(File.class), any(String.class));
+        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
+        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo(".456");
     }
 
     @Test
-    public void shouldGenerateReportForJUnitWithMultipleFiles() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("UnitTestReportGeneratorTest.xml"), target("UnitTestReportGeneratorTest.xml"));
-        copyAndClose(source("SerializableProjectConfigUtilTest.xml"),
-                target("SerializableProjectConfigUtilTest.xml"));
+    public void shouldGenerateReportForJUnitWithMultipleFiles() throws Exception {
+        copyAndClose(source("junit-result-four-tests.xml"), target("junit-result-four-tests.xml"));
+        copyAndClose(source("junit-result-single-test.xml"), target("junit-result-single-test.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
-        verify(publisher).upload(any(File.class), any(String.class));
+        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("5");
+        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
+        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("1.286");
     }
 
     @Test
-    public void shouldGenerateReportForNUnitGivenMultipleInputFiles() throws IOException, ArtifactPublishingException {
-        copyAndClose(source("TestReport-Integration.xml"), target("test-result1.xml"));
-        copyAndClose(source("TestReport-Unit.xml"), target("test-result2.xml"));
+    public void shouldGenerateReportForNUnitGivenMultipleInputFiles() throws Exception {
+        copyAndClose(source("nunit-result-integration.xml"), target("test-result1.xml"));
+        copyAndClose(source("nunit-result-unit.xml"), target("test-result2.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
-        verify(publisher).upload(any(File.class), any(String.class));
+        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("2762");
+        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("120");
+        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("221.766");
     }
 
     @Test
-    public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws ArtifactPublishingException, IOException {
+    public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws Exception {
         File reports = new File(testFolder.getAbsoluteFile(), "reports");
         reports.mkdir();
         File module = new File(reports, "module");
         module.mkdir();
-        copyAndClose(source("xml_samples/Coverage.xml"), target("reports/module/Coverage.xml"));
-        copyAndClose(source("xml_samples/TestResult.xml"), target("reports/TestResult.xml"));
+        copyAndClose(source("ncover-report.xml"), target("reports/module/ncover-report.xml"));
+        copyAndClose(source("nunit-result-204.xml"), target("reports/nunit-result-204.xml"));
 
         generator.generate(testFolder.listFiles(), "testoutput");
 
-        verify(publisher).consumeLine("Ignoring file Coverage.xml - it is not a recognised test file.");
-        verify(publisher).upload(any(File.class), any(String.class));
+        verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
+        verify(publisher).upload(uploadedFile.capture(), any(String.class));
+        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("204");
+        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("6");
+        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("80.231");
     }
 
     private OutputStream target(String targetFile) throws FileNotFoundException {
@@ -152,7 +196,7 @@ public class UnitTestReportGeneratorTest {
     }
 
     private InputStream source(String filename) throws IOException {
-        return new ClassPathResource(File.separator + "data" + File.separator + filename).getInputStream();
+        return new ClassPathResource(Path.of("data", "test-results", filename).toString()).getInputStream();
     }
 
 

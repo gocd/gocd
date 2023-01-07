@@ -114,7 +114,7 @@ subprojects {
 
       // Need to wait for start. Would be better to have some polling mechanism here with a timeout.
       def sleep = isNative ? 10000 : 15000
-      logger.lifecycle("\nWaiting ${sleep}ms for ${isNative ? 'native' : 'emulated'} agent container to start...")
+      logger.lifecycle("\nWaiting ${sleep}ms for ${isNative ? 'native' : 'emulated'} container to start...")
       Thread.sleep(sleep)
       logger.lifecycle("Should be started now...")
 

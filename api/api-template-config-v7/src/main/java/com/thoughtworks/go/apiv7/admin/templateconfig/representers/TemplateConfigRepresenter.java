@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv7.admin.templateconfig.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv10.admin.shared.representers.stages.StageRepresenter;
+import com.thoughtworks.go.apiv11.admin.shared.representers.stages.StageRepresenter;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.spark.Routes;
 
@@ -32,10 +32,7 @@ public class TemplateConfigRepresenter {
                 .addAbsoluteLink("doc", Routes.PipelineTemplateConfig.DOC)
                 .addLink("find", Routes.PipelineTemplateConfig.find()));
         if (!pipelineTemplateConfig.errors().isEmpty()) {
-            jsonWriter.addChild("errors", errorWriter -> {
-                HashMap<String, String> errorMapping = new HashMap<>();
-                new ErrorGetter(new HashMap<>()).toJSON(errorWriter, pipelineTemplateConfig);
-            });
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(new HashMap<>()).toJSON(errorWriter, pipelineTemplateConfig));
         }
 
         jsonWriter.add("name", pipelineTemplateConfig.name());

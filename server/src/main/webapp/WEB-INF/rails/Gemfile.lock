@@ -179,7 +179,7 @@ GEM
       rspec-support (~> 3.12.0)
     rspec-instafail (1.0.0)
       rspec
-    rspec-mocks (3.12.1)
+    rspec-mocks (3.12.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-rails (6.0.1)
@@ -197,6 +197,8 @@ GEM
     sass-embedded (1.57.1)
       google-protobuf (~> 3.21)
       rake (>= 10.0.0)
+    sass-embedded (1.57.1-x86_64-linux-gnu)
+      google-protobuf (~> 3.21)
     sassc-embedded (1.54.0)
       sass-embedded (~> 1.54)
       sassc (~> 2.0)

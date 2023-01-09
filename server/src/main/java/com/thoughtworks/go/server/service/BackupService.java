@@ -75,9 +75,9 @@ public class BackupService implements BackupStatusProvider {
     private final ArtifactsDirHolder artifactsDirHolder;
 
     private final GoConfigService goConfigService;
-    private ServerBackupRepository serverBackupRepository;
+    private final ServerBackupRepository serverBackupRepository;
     private final TimeProvider timeProvider;
-    private ServerBackupQueue backupQueue;
+    private final ServerBackupQueue backupQueue;
     private final SystemEnvironment systemEnvironment;
     private final ConfigRepository configRepository;
     private final Database databaseStrategy;
@@ -109,11 +109,7 @@ public class BackupService implements BackupStatusProvider {
     }
 
     public void initialize() {
-        if (systemEnvironment.isServerInStandbyMode()) {
-            LOGGER.info("GoCD server in 'standby' mode, not changing 'in-progress' backups to 'aborted'.");
-        } else {
-            serverBackupRepository.markInProgressBackupsAsAborted(ABORTED_BACKUPS_MESSAGE);
-        }
+        serverBackupRepository.markInProgressBackupsAsAborted(ABORTED_BACKUPS_MESSAGE);
     }
 
     public ServerBackup scheduleBackup(Username username) {
@@ -135,7 +131,7 @@ public class BackupService implements BackupStatusProvider {
 
     public Optional<ServerBackup> startBackupWithId(long id) {
         Optional<ServerBackup> backup = serverBackupRepository.getBackup(id);
-        if (!backup.isPresent()) {
+        if (backup.isEmpty()) {
             LOGGER.error("Cannot find backup with id: {}. Skipping backup generation", id);
             return Optional.empty();
         }
@@ -381,10 +377,10 @@ public class BackupService implements BackupStatusProvider {
 }
 
 
-class DirectoryStructureWalker extends DirectoryWalker {
+class DirectoryStructureWalker extends DirectoryWalker<Void> {
     private final String configDirectory;
     private final ZipOutputStream zipStream;
-    private final ArrayList<String> excludeFiles;
+    private final List<String> excludeFiles;
 
     public DirectoryStructureWalker(String configDirectory, ZipOutputStream zipStream, File... excludeFiles) {
         this.excludeFiles = new ArrayList<>();
@@ -397,7 +393,7 @@ class DirectoryStructureWalker extends DirectoryWalker {
     }
 
     @Override
-    protected boolean handleDirectory(File directory, int depth, Collection results) throws IOException {
+    protected boolean handleDirectory(File directory, int depth, Collection<Void> results) throws IOException {
         if (!directory.getAbsolutePath().equals(configDirectory)) {
             ZipEntry e = new ZipEntry(fromRoot(directory) + "/");
             zipStream.putNextEntry(e);
@@ -406,7 +402,7 @@ class DirectoryStructureWalker extends DirectoryWalker {
     }
 
     @Override
-    protected void handleFile(File file, int depth, Collection results) throws IOException {
+    protected void handleFile(File file, int depth, Collection<Void> results) throws IOException {
         if (excludeFiles.contains(file.getAbsolutePath())) {
             return;
         }

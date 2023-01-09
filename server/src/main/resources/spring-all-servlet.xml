@@ -28,7 +28,6 @@
 
   <context:annotation-config/>
   <import resource="freemarker-config.xml"/>
-  <context:component-scan base-package="com.thoughtworks.go.addon"/>
   <context:component-scan base-package="com.thoughtworks.go.util"/>
   <context:component-scan base-package="com.thoughtworks.go.server.controller"/>
   <context:component-scan base-package="com.thoughtworks.go.server.ui"/>

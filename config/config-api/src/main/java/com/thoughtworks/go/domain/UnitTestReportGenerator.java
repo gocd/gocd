@@ -31,7 +31,9 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 
-public class UnitTestReportGenerator implements TestReportGenerator {
+public class UnitTestReportGenerator {
+    private static final String TEST_RESULTS_FILE = "index.html";
+
     private final File folderToUpload;
     private GoPublisher publisher;
     private static Templates templates;
@@ -51,7 +53,6 @@ public class UnitTestReportGenerator implements TestReportGenerator {
         this.folderToUpload = folderToUpload;
     }
 
-    @Override
     public void generate(File[] allTestFiles, String uploadDestPath) {
         File mergedResults = new File(folderToUpload.getAbsolutePath() + File.separator + TEST_RESULTS_FILE);
         File mergedResource = null;

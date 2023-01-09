@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.assertj.core.api.AbstractStringAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
@@ -67,26 +68,6 @@ public class UnitTestReportGeneratorTest {
     }
 
     @Test
-    public void shouldGenerateReportForNUnit() throws Exception {
-        copyAndClose(source("nunit-result-206.xml"), target("test-result.xml"));
-        generator.generate(testFolder.listFiles(), "testoutput");
-        assertThat(testFolder.listFiles().length).isEqualTo(2);
-        verify(publisher).upload(uploadedFile.capture(), any(String.class));
-        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("206");
-        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("NaN");
-    }
-
-    private AbstractStringAssert<?> assertTestReportCssFor(String cssClass) throws XPathExpressionException, IOException {
-        return assertThat(XpathUtils.evaluate(uploadedFile.getValue(), xpathFor(cssClass)));
-    }
-
-    private static String xpathFor(String cssClass) {
-        return "//div/p/span[@class='" + cssClass + "']";
-    }
-
-    @Test
     public void shouldNotGenerateAnyReportIfNoTestResultsWereFound() throws Exception {
         generator.generate(testFolder.listFiles(), "testoutput");
         expectZeroedProperties();
@@ -102,6 +83,119 @@ public class UnitTestReportGeneratorTest {
         expectZeroedProperties();
     }
 
+    @Nested
+    class Nunit {
+        @Test
+        public void shouldGenerateReportForNUnit() throws Exception {
+            copyAndClose(source("nunit-result-206.xml"), target("test-result.xml"));
+            generator.generate(testFolder.listFiles(), "testoutput");
+            assertThat(testFolder.listFiles().length).isEqualTo(2);
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("206");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("NaN");
+        }
+
+
+        @Test
+        public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws Exception {
+            copyAndClose(source("invalid-nunit.xml"), target("Invalid.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
+            expectZeroedProperties();
+        }
+
+        //This is bug #2319
+        @Test
+        public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws Exception {
+            copyAndClose(source("ncover-report.xml"), target("ncover-report.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
+            expectZeroedProperties();
+        }
+
+        @Test
+        public void shouldGenerateReportForNUnitGivenMultipleInputFiles() throws Exception {
+            copyAndClose(source("nunit-result-integration.xml"), target("test-result1.xml"));
+            copyAndClose(source("nunit-result-unit.xml"), target("test-result2.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("2762");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("120");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("221.766");
+        }
+        @Test
+        public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws Exception {
+            File reports = new File(testFolder.getAbsoluteFile(), "reports");
+            reports.mkdir();
+            File module = new File(reports, "module");
+            module.mkdir();
+            copyAndClose(source("ncover-report.xml"), target("reports/module/ncover-report.xml"));
+            copyAndClose(source("nunit-result-204.xml"), target("reports/nunit-result-204.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("204");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("6");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("80.231");
+        }
+    }
+
+    @Nested
+    class Junit {
+
+        @Test
+        public void shouldGenerateReportForJUnit() throws Exception {
+            copyAndClose(source("junit-result-single-test.xml"), target("AgentTest.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo(".456");
+        }
+
+        @Test
+        public void shouldGenerateReportForJUnitWithoutDeclaration() throws Exception {
+            copyAndClose(source("junit-result-no-decl.xml"), target("AgentTest.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("15.839");
+        }
+
+        @Test
+        public void shouldGenerateReportForJUnitWithMultipleFiles() throws Exception {
+            copyAndClose(source("junit-result-four-tests.xml"), target("junit-result-four-tests.xml"));
+            copyAndClose(source("junit-result-single-test.xml"), target("junit-result-single-test.xml"));
+
+            generator.generate(testFolder.listFiles(), "testoutput");
+
+            verify(publisher).upload(uploadedFile.capture(), any(String.class));
+            assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("5");
+            assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
+            assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
+            assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("1.286");
+        }
+    }
+
     private void expectZeroedProperties() throws Exception {
         verify(publisher).upload(uploadedFile.capture(), any(String.class));
         assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("0");
@@ -110,85 +204,12 @@ public class UnitTestReportGeneratorTest {
         assertTestReportCssFor(CSS_TEST_TIME).isEqualTo(".000");
     }
 
-    @Test
-    public void shouldNotGenerateAnyReportIfTestReportIsInvalid() throws Exception {
-        copyAndClose(source("invalid-nunit.xml"), target("Invalid.xml"));
-
-        generator.generate(testFolder.listFiles(), "testoutput");
-
-        verify(publisher).consumeLine("Ignoring file Invalid.xml - it is not a recognised test file.");
-        expectZeroedProperties();
+    private AbstractStringAssert<?> assertTestReportCssFor(String cssClass) throws XPathExpressionException, IOException {
+        return assertThat(XpathUtils.evaluate(uploadedFile.getValue(), xpathFor(cssClass)));
     }
 
-    //This is bug #2319
-    @Test
-    public void shouldStillUploadResultsIfReportIsIllegalBug2319() throws Exception {
-        copyAndClose(source("ncover-report.xml"), target("ncover-report.xml"));
-
-        generator.generate(testFolder.listFiles(), "testoutput");
-
-        verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
-        expectZeroedProperties();
-    }
-
-    @Test
-    public void shouldGenerateReportForJUnitAlso() throws Exception {
-        copyAndClose(source("junit-result-single-test.xml"), target("AgentTest.xml"));
-
-        generator.generate(testFolder.listFiles(), "testoutput");
-
-        verify(publisher).upload(uploadedFile.capture(), any(String.class));
-        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("1");
-        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo(".456");
-    }
-
-    @Test
-    public void shouldGenerateReportForJUnitWithMultipleFiles() throws Exception {
-        copyAndClose(source("junit-result-four-tests.xml"), target("junit-result-four-tests.xml"));
-        copyAndClose(source("junit-result-single-test.xml"), target("junit-result-single-test.xml"));
-
-        generator.generate(testFolder.listFiles(), "testoutput");
-
-        verify(publisher).upload(uploadedFile.capture(), any(String.class));
-        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("5");
-        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("3");
-        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("1.286");
-    }
-
-    @Test
-    public void shouldGenerateReportForNUnitGivenMultipleInputFiles() throws Exception {
-        copyAndClose(source("nunit-result-integration.xml"), target("test-result1.xml"));
-        copyAndClose(source("nunit-result-unit.xml"), target("test-result2.xml"));
-
-        generator.generate(testFolder.listFiles(), "testoutput");
-
-        verify(publisher).upload(uploadedFile.capture(), any(String.class));
-        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("2762");
-        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("120");
-        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("221.766");
-    }
-
-    @Test
-    public void shouldGenerateReportForXmlFilesRecursivelyInAFolder() throws Exception {
-        File reports = new File(testFolder.getAbsoluteFile(), "reports");
-        reports.mkdir();
-        File module = new File(reports, "module");
-        module.mkdir();
-        copyAndClose(source("ncover-report.xml"), target("reports/module/ncover-report.xml"));
-        copyAndClose(source("nunit-result-204.xml"), target("reports/nunit-result-204.xml"));
-
-        generator.generate(testFolder.listFiles(), "testoutput");
-
-        verify(publisher).consumeLine("Ignoring file ncover-report.xml - it is not a recognised test file.");
-        verify(publisher).upload(uploadedFile.capture(), any(String.class));
-        assertTestReportCssFor(CSS_TOTAL_TEST_COUNT).isEqualTo("204");
-        assertTestReportCssFor(CSS_FAILED_TEST_COUNT).isEqualTo("0");
-        assertTestReportCssFor(CSS_IGNORED_TEST_COUNT).isEqualTo("6");
-        assertTestReportCssFor(CSS_TEST_TIME).isEqualTo("80.231");
+    private static String xpathFor(String cssClass) {
+        return "//div/p/span[@class='" + cssClass + "']";
     }
 
     private OutputStream target(String targetFile) throws FileNotFoundException {

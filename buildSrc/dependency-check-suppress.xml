@@ -253,20 +253,15 @@
     <cve>CVE-2012-6708</cve>
 
     <cve>CVE-2015-9251</cve>
-    <vulnerabilityName>1069923</vulnerabilityName>
+    <vulnerabilityName>1087804</vulnerabilityName>
 
     <cve>CVE-2019-11358</cve>
-    <vulnerabilityName>CVE-2019-11358</vulnerabilityName>
-    <vulnerabilityName>1069969</vulnerabilityName>
+    <vulnerabilityName>1085771</vulnerabilityName>
 
     <cve>CVE-2020-11022</cve>
-    <vulnerabilityName>CVE-2020-11022</vulnerabilityName>
     <vulnerabilityName>1081826</vulnerabilityName>
     <cve>CVE-2020-11023</cve>
-    <vulnerabilityName>CVE-2020-11023</vulnerabilityName>
     <vulnerabilityName>1081827</vulnerabilityName>
-
-    <vulnerabilityName>1070211</vulnerabilityName>
   </suppress>
 
   <suppress>

@@ -327,8 +327,6 @@ dependencies {
 
   testImplementation project(':test:http-mocks')
 
-  testImplementation project.deps.httpClientMock
-
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params
   testRuntimeOnly project.deps.junit5Engine

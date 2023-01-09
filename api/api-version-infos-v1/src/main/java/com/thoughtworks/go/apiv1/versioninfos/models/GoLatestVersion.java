@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
@@ -59,13 +58,13 @@ public class GoLatestVersion {
         }
     }
 
-    private boolean signingPublicKeyTampered() throws IOException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+    private boolean signingPublicKeyTampered() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         File publicKeyPath = new File(systemEnvironment.getUpdateServerPublicKeyPath());
         String publicKey = FileUtils.readFileToString(publicKeyPath, UTF_8);
         return !EncryptionHelper.verifyRSASignature(signingPublicKey, signingPublicKeySignature, publicKey);
     }
 
-    private boolean messageTampered() throws NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
+    private boolean messageTampered() throws NoSuchAlgorithmException, IOException, SignatureException, InvalidKeyException, InvalidKeySpecException {
         return !EncryptionHelper.verifyRSASignature(message, messageSignature, signingPublicKey);
     }
 }

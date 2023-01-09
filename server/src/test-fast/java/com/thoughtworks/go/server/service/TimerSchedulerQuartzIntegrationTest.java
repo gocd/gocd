@@ -67,7 +67,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService);
         timerScheduler.initialize();
 
         pauseForScheduling();
@@ -90,7 +90,7 @@ public class TimerSchedulerQuartzIntegrationTest {
         serverMaintenanceMode.setMaintenanceMode(true);
         maintenanceModeService.update(serverMaintenanceMode);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService);
         timerScheduler.initialize();
 
         pauseForScheduling();
@@ -109,7 +109,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService);
         timerScheduler.initialize();
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

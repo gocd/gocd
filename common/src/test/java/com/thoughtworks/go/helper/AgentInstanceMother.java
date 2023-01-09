@@ -42,10 +42,6 @@ public class AgentInstanceMother {
         return AgentInstance.createFromAgent(new Agent("uuid-local", "localhost", "127.0.0.1"), systemEnvironment, null);
     }
 
-    public static AgentInstance localInstance(SystemEnvironment systemEnvironment, String uuid, String hostname) {
-        return AgentInstance.createFromAgent(new Agent(uuid, hostname, "127.0.0.1"), systemEnvironment, null);
-    }
-
     public static AgentInstance idle() {
         return idle(new Date(), "CCeDev01");
     }
@@ -153,18 +149,11 @@ public class AgentInstanceMother {
         return agentInstance;
     }
 
-    public static AgentInstance updateSpace(AgentInstance agentInstance, Long freespace) {
-        return updateUsableSpace(agentInstance, freespace);
-    }
 
     public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freespace) {
         Agent agent = agentInstance.getAgent();
         agentInstance.update(fromServer(agent, true, agentInstance.getLocation(), freespace, "linux"));
         return agentInstance;
-    }
-
-    public static AgentInstance updateOperatingSystem(AgentInstance agentInstance, String operatingSystem) {
-        return updateOS(agentInstance, operatingSystem);
     }
 
     public static AgentInstance updateOS(AgentInstance agentInstance, String operatingSystem) {

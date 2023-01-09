@@ -429,13 +429,4 @@ class SystemEnvironmentTest {
         System.setProperty("go.config.repo.gc.periodic", "some-value");
         assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isFalse();
     }
-
-    @Test
-    void shouldBeInStandByModeIfGoServerModeIsSetToStandby() {
-        assertThat(new SystemEnvironment().isServerInStandbyMode()).isFalse();
-
-        System.setProperty("go.server.mode", "StandBy");
-
-        assertThat(new SystemEnvironment().isServerInStandbyMode()).isTrue();
-    }
 }

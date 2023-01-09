@@ -24,7 +24,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,8 +53,6 @@ public class TimerSchedulerTest {
     @Mock
     private GoConfigService goConfigService;
     @Mock
-    private SystemEnvironment systemEnvironment;
-    @Mock
     private MaintenanceModeService maintenanceModeService;
 
     @AfterEach
@@ -70,7 +67,7 @@ public class TimerSchedulerTest {
                 pipelineConfig("dist"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService);
         timerScheduler.initialize();
 
         JobDetail expectedJob = JobBuilder.newJob()
@@ -90,7 +87,7 @@ public class TimerSchedulerTest {
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, maintenanceModeService);
         timerScheduler.initialize();
 
         verify(serverHealthService).update(
@@ -105,7 +102,7 @@ public class TimerSchedulerTest {
                 pipelineConfigWithTimer("dist", "0 15 10 ? * MON-FRI"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, mock(ServerHealthService.class), maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, mock(ServerHealthService.class), maintenanceModeService);
         timerScheduler.initialize();
 
         JobDetail expectedJob = JobBuilder.newJob()
@@ -131,7 +128,7 @@ public class TimerSchedulerTest {
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, maintenanceModeService);
         timerScheduler.initialize();
 
         verify(serverHealthService).update(
@@ -142,7 +139,7 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRegisterAsACruiseConfigChangeListener() throws Exception {
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService);
 
         timerScheduler.initialize();
 
@@ -153,7 +150,7 @@ public class TimerSchedulerTest {
     public void shouldRescheduleTimerTriggerPipelineWhenItsConfigChanges() throws SchedulerException {
         String pipelineName = "timer-based-pipeline";
         when(scheduler.getJobDetail(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP))).thenReturn(mock(JobDetail.class));
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
         timerScheduler.initialize();
@@ -177,17 +174,5 @@ public class TimerSchedulerTest {
         verify(scheduler).unscheduleJob(triggerKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
         verify(scheduler).deleteJob(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
         verify(scheduler).scheduleJob(jobDetailArgumentCaptor.getValue(), triggerArgumentCaptor.getValue());
-    }
-
-    @Test
-    public void shouldNotScheduleJobsForAServerInStandbyMode() {
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
-
-        when(systemEnvironment.isServerInStandbyMode()).thenReturn(true);
-
-        timerScheduler.initialize();
-
-        verifyNoInteractions(scheduler);
-        verifyNoInteractions(goConfigService);
     }
 }

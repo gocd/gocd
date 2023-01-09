@@ -36,7 +36,6 @@ public class CreateSessionFilterChain extends FilterChainProxy {
                 .addFilterChain("/admin/agent/token", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/admin/agent-plugins.zip", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/cctray.xml", apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
-                .addFilterChain("/add-on/*/api/**", apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/api/**", apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/**", alwaysCreateSessionFilter)
                 .build()

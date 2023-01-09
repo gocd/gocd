@@ -118,9 +118,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 // any other APIs require `ROLE_USER`
                 .addAuthorityFilterChain("/api/**", apiAccessDeniedHandler, ROLE_USER)
 
-                // addons will be expected to do their own authentication/authorization
-                .addFilterChain("/add-on/**", allowAllAccessFilter)
-
                 .addAuthorityFilterChain("/**", genericAccessDeniedHandler, ROLE_USER)
                 .build());
     }

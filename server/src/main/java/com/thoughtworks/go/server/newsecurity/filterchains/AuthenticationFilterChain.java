@@ -39,9 +39,6 @@ public class AuthenticationFilterChain extends FilterChainProxy {
                 // X509 for agent remoting
                 .addFilterChain("/remoting/**", x509AuthenticationFilter)
 
-                // For addons
-                .addFilterChain("/add-on/**", assumeAnonymousUserFilter)
-
                 // For API authentication
                 .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
                 .addFilterChain("/cctray.xml", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, accessTokenAuthenticationFilter)

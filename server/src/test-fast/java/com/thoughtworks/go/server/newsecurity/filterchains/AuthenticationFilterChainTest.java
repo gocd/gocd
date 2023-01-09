@@ -161,8 +161,8 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/add-on/blah", "/api/webhooks/bitbucket/notify", "/api/webhooks/github/notify", "/api/webhooks/foo/notify"})
-        void shouldAllowAnonymousAccessForWebhookAndAddonApis(String url) throws IOException, ServletException {
+        @ValueSource(strings = {"/api/webhooks/bitbucket/notify", "/api/webhooks/github/notify", "/api/webhooks/foo/notify"})
+        void shouldAllowAnonymousAccessForWebhookApis(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url)
                     .build();
 

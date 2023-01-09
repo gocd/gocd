@@ -27,7 +27,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +51,11 @@ import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 public class TimerScheduler implements ConfigChangedListener {
     private static final Logger LOG = LoggerFactory.getLogger(TimerScheduler.class);
 
-    private GoConfigService goConfigService;
-    private BuildCauseProducerService buildCauseProducerService;
-    private ServerHealthService serverHealthService;
-    private MaintenanceModeService maintenanceModeService;
-    private SystemEnvironment systemEnvironment;
-    private Scheduler quartzScheduler;
+    private final GoConfigService goConfigService;
+    private final BuildCauseProducerService buildCauseProducerService;
+    private final ServerHealthService serverHealthService;
+    private final MaintenanceModeService maintenanceModeService;
+    private final Scheduler quartzScheduler;
     protected static final String PIPELINE_TRIGGGER_TIMER_GROUP = "PIPELINE_TRIGGGER_TIMER_GROUP";
     protected static final String BUILD_CAUSE_PRODUCER_SERVICE = "BuildCauseProducerService";
     protected static final String MAINTENANCE_MODE_SERVICE = "MaintenanceModeService";
@@ -67,22 +65,15 @@ public class TimerScheduler implements ConfigChangedListener {
     public TimerScheduler(Scheduler scheduler, GoConfigService goConfigService,
                           BuildCauseProducerService buildCauseProducerService,
                           ServerHealthService serverHealthService,
-                          MaintenanceModeService maintenanceModeService,
-                          SystemEnvironment systemEnvironment) {
+                          MaintenanceModeService maintenanceModeService) {
         this.goConfigService = goConfigService;
         this.buildCauseProducerService = buildCauseProducerService;
         this.quartzScheduler = scheduler;
         this.serverHealthService = serverHealthService;
         this.maintenanceModeService = maintenanceModeService;
-        this.systemEnvironment = systemEnvironment;
     }
 
     public void initialize() {
-        if (systemEnvironment.isServerInStandbyMode()) {
-            LOG.info("GoCD server in 'standby' mode, skipping scheduling timer triggered pipelines.");
-            return;
-        }
-
         scheduleAllJobs(goConfigService.getAllPipelineConfigs());
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());

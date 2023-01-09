@@ -36,13 +36,13 @@ import java.util.function.Function;
 public class Database {
 
     private final ConnectionManager connectionManager;
-    private SystemEnvironment systemEnvironment;
-    private DatabaseMigrator databaseMigrator;
+    private final SystemEnvironment systemEnvironment;
+    private final DatabaseMigrator databaseMigrator;
 
     @Autowired
     public Database(SystemEnvironment systemEnvironment) {
         this(systemEnvironment, new ConnectionManager(System.getProperties(), systemEnvironment.configDir(), decryptionFunction()),
-                new DatabaseMigrator());
+            new DatabaseMigrator());
     }
 
     public Database(SystemEnvironment systemEnvironment, ConnectionManager connectionManager, DatabaseMigrator databaseMigrator) {
@@ -68,12 +68,8 @@ public class Database {
             new DbDeploySchemaVerifier().verify(connection, systemEnvironment.getConfigDir());
         }
 
-        if (!systemEnvironment.isServerInStandbyMode()) {
-            try (Connection connection = dataSource.getConnection()) {
-                databaseMigrator.migrate(connection);
-            }
-        } else {
-            log.info("Skipping database upgrade as the server is running in Standby mode.");
+        try (Connection connection = dataSource.getConnection()) {
+            databaseMigrator.migrate(connection);
         }
 
         return dataSource;

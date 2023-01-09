@@ -27,7 +27,8 @@ import java.io.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class XpathUtilsTest {
     @TempDir
@@ -35,11 +36,11 @@ public class XpathUtilsTest {
 
     private File testFile;
     private static final String XML = "<root>\n"
-            + "<son>\n"
-            + "<grandson name=\"someone\"/>\n"
-            + "<grandson name=\"anyone\" address=\"\"></grandson>\n"
-            + "</son>\n"
-            + "</root>";
+        + "<son>\n"
+        + "<grandson name=\"someone\"/>\n"
+        + "<grandson name=\"anyone\" address=\"\"></grandson>\n"
+        + "</son>\n"
+        + "</root>";
 
     @AfterEach
     public void tearDown() throws Exception {
@@ -85,7 +86,7 @@ public class XpathUtilsTest {
     }
 
     @Test
-    public void shouldthrowExceptionForBadXML() {
+    public void shouldThrowExceptionForBadXML() {
         String attribute = "//badxpath";
         try {
             XpathUtils.evaluate(getTestFile("NOT XML"), attribute);
@@ -117,29 +118,16 @@ public class XpathUtilsTest {
     }
 
     public static void saveUtfFileWithBOM(File file, String content) throws IOException {
-        BufferedWriter bw = null;
-        OutputStreamWriter osw = null;
-
-        FileOutputStream fos = new FileOutputStream(file);
-        try {
+        try (FileOutputStream fos = new FileOutputStream(file);
+             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, UTF_8))) {
             // write UTF8 BOM mark if file is empty
             if (file.length() < 1) {
                 final byte[] bom = new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
                 fos.write(bom);
             }
 
-            osw = new OutputStreamWriter(fos, UTF_8);
-            bw = new BufferedWriter(osw);
             if (content != null) {
                 bw.write(content);
-            }
-        } catch (IOException ex) {
-            throw ex;
-        } finally {
-            try {
-                bw.close();
-                fos.close();
-            } catch (Exception ex) {
             }
         }
     }
@@ -147,7 +135,7 @@ public class XpathUtilsTest {
     @Test
     public void shouldEvaluateXpathOfCustomer() throws Exception {
         String xpath = "//coverageReport2/project/@coverage";
-        File file = new File("../../common/src/test/resources/data/customer/CoverageSummary.xml");
+        File file = new File("src/test/resources/data/customer/CoverageSummary.xml");
         InputSource inputSource = new InputSource(file.getPath());
         assertThat(XpathUtils.nodeExists(inputSource, xpath), is(true));
         String value = XpathUtils.evaluate(file, xpath);

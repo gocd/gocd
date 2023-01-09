@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// Copied verbatim from gradle's source
+// Copied verbatim from gradle's source and unused bits removed.
+// https://github.com/gradle/gradle/blob/master/subprojects/base-services/src/main/java/org/gradle/api/JavaVersion.java
 package com.thoughtworks.gocd;
 
 import java.util.ArrayList;
@@ -29,12 +29,116 @@ public enum JavaVersion {
     VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4,
     VERSION_1_5, VERSION_1_6, VERSION_1_7, VERSION_1_8,
     VERSION_1_9, VERSION_1_10,
-    VERSION_11, VERSION_12, VERSION_13, VERSION_14,
-    VERSION_15, VERSION_16, VERSION_17,
+    /**
+     * Java 11 major version.
+     *
+     * @since 4.7
+     */
+    VERSION_11,
+
+    /**
+     * Java 12 major version.
+     *
+     * @since 5.0
+     */
+    VERSION_12,
+
+    /**
+     * Java 13 major version.
+     *
+     * @since 6.0
+     */
+    VERSION_13,
+
+    /**
+     * Java 14 major version.
+     *
+     * @since 6.3
+     */
+    VERSION_14,
+
+    /**
+     * Java 15 major version.
+     *
+     * @since 6.3
+     */
+    VERSION_15,
+
+    /**
+     * Java 16 major version.
+     *
+     * @since 6.3
+     */
+    VERSION_16,
+
+    /**
+     * Java 17 major version.
+     *
+     * @since 6.3
+     */
+    VERSION_17,
+
+    /**
+     * Java 18 major version.
+     *
+     * @since 7.0
+     */
+    VERSION_18,
+
+    /**
+     * Java 19 major version.
+     *
+     * @since 7.0
+     */
+    VERSION_19,
+
+    /**
+     * Java 20 major version.
+     * Not officially supported by Gradle. Use at your own risk.
+     *
+     * @since 7.0
+     */
+    VERSION_20,
+
+    /**
+     * Java 21 major version.
+     * Not officially supported by Gradle. Use at your own risk.
+     *
+     * @since 7.6
+     */
+    VERSION_21,
+
+    /**
+     * Java 22 major version.
+     * Not officially supported by Gradle. Use at your own risk.
+     *
+     * @since 7.6
+     */
+    VERSION_22,
+
+    /**
+     * Java 23 major version.
+     * Not officially supported by Gradle. Use at your own risk.
+     *
+     * @since 7.6
+     */
+    VERSION_23,
+
+    /**
+     * Java 24 major version.
+     * Not officially supported by Gradle. Use at your own risk.
+     *
+     * @since 7.6
+     */
+    VERSION_24,
+
+    /**
+     * Higher version of Java.
+     * @since 4.7
+     */
     VERSION_HIGHER;
     // Since Java 9, version should be X instead of 1.X
-    // However, to keep backward compatibility, we change from 11
-    private static final int FIRST_MAJOR_VERSION_ORDINAL = 10;
+    private static final int FIRST_MAJOR_VERSION_ORDINAL = 9 - 1;
     private static JavaVersion currentJavaVersion;
     private final String versionName;
 
@@ -55,6 +159,9 @@ public enum JavaVersion {
         }
         if (value instanceof JavaVersion) {
             return (JavaVersion) value;
+        }
+        if (value instanceof Integer) {
+            return getVersionForMajor((Integer) value);
         }
 
         String name = value.toString();
@@ -84,6 +191,14 @@ public enum JavaVersion {
         return currentJavaVersion;
     }
 
+    /**
+     * Returns if this version is compatible with the given version
+     *
+     * @since 6.0
+     */
+    public boolean isCompatibleWith(JavaVersion otherVersion) {
+        return this.compareTo(otherVersion) >= 0;
+    }
 
     @Override
     public String toString() {

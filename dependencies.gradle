@@ -100,7 +100,7 @@ final Map<String, String> libraries = [
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   tokenBucket         : 'org.isomorphism:token-bucket:1.7',
   urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
-  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.9.0',
+  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.9.1',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',
 ]
 

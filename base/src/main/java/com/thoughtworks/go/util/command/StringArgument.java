@@ -27,9 +27,6 @@ public class StringArgument extends CommandArgument {
         return value;
     }
 
-    /**
-     * This is final to prevent subclasses from exposing data they shouldn't in logs etc.
-     */
     @Override
     public String forDisplay() {
         return value;

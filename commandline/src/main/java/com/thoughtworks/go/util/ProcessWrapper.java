@@ -31,12 +31,12 @@ import java.util.List;
 public class ProcessWrapper {
 
     private final Process process;
-    private StreamPumper processOutputStream;
-    private StreamPumper processErrorStream;
-    private PrintWriter processInputStream;
-    private long startTime;
-    private ProcessTag processTag;
-    private String command;
+    private final StreamPumper processOutputStream;
+    private final StreamPumper processErrorStream;
+    private final PrintWriter processInputStream;
+    private final long startTime;
+    private final ProcessTag processTag;
+    private final String command;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
     ProcessWrapper(Process process, ProcessTag processTag, String command, ConsoleOutputStreamConsumer consumer, Charset encoding, String errorPrefix) {
@@ -82,7 +82,7 @@ public class ProcessWrapper {
         if (processOutputStream == null) {
             return processErrorStream.getLastHeard();
         }
-        return processOutputStream.getLastHeard() < processErrorStream.getLastHeard() ? processOutputStream.getLastHeard() : processErrorStream.getLastHeard();
+        return Math.min(processOutputStream.getLastHeard(), processErrorStream.getLastHeard());
     }
 
 

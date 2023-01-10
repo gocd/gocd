@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.util.command;
 
-public interface ConsoleOutputStreamConsumer<T extends StreamConsumer, T2 extends StreamConsumer> {
+public interface ConsoleOutputStreamConsumer {
     void stdOutput(String line);
 
     void errOutput(String line);

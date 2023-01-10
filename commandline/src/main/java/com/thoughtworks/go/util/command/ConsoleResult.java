@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConsoleResult {
-    private int returnValue;
-    private List<String> output;
-    private List<String> error;
+    private final int returnValue;
+    private final List<String> output;
+    private final List<String> error;
     private final List<CommandArgument> arguments;
     private final List<SecretString> secrets;
-    private boolean failOnNonZeroReturn;
+    private final boolean failOnNonZeroReturn;
 
     public ConsoleResult(int returnValue, List<String> output, List<String> error, List<CommandArgument> arguments, List<SecretString> secrets) {
         this(returnValue, output, error, arguments, secrets, true);
@@ -37,7 +37,7 @@ public class ConsoleResult {
     public ConsoleResult(int returnValue, List<String> output, List<String> error, List<CommandArgument> arguments, List<SecretString> secrets, boolean failOnNonZeroReturn) {
         this.returnValue = returnValue;
         this.output = output;
-        this.error = error;
+        this.error = new ArrayList<>(error);
         this.arguments = arguments;
         this.secrets = secrets;
         this.failOnNonZeroReturn = failOnNonZeroReturn;
@@ -111,9 +111,7 @@ public class ConsoleResult {
     }
 
     public static ConsoleResult unknownResult() {
-        ArrayList<String> list = new ArrayList<>();
-        list.add("Unknown result.");
-        return new ConsoleResult(-1, new ArrayList<>(), list, new ArrayList<>(), new ArrayList<>());
+        return new ConsoleResult(-1, List.of(), List.of("Unknown result."), List.of(), List.of());
     }
 
     public Exception smudgedException(Exception rawException) {

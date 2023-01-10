@@ -28,7 +28,6 @@ import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.jupiter.api.AfterEach;
@@ -85,7 +84,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldInvokeTheTaskExecutorOfThePlugin() throws Exception {
+    public void shouldInvokeTheTaskExecutorOfThePlugin() {
         final int[] executeTaskCalled = new int[1];
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
@@ -101,7 +100,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldBuildExecutorConfigPlusExecutionContextAndInvokeTheTaskExecutorWithIt() throws Exception {
+    public void shouldBuildExecutorConfigPlusExecutionContextAndInvokeTheTaskExecutorWithIt() {
         Task task = mock(Task.class);
 
         TaskConfig defaultTaskConfig = mock(TaskConfig.class);
@@ -136,7 +135,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldReturnDefaultValueInExecConfigWhenNoConfigValueIsProvided() throws Exception {
+    public void shouldReturnDefaultValueInExecConfigWhenNoConfigValueIsProvided() {
         Map<String, Map<String, String>> configMap = new HashMap<>();
         PluggableTask task = mock(PluggableTask.class);
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
@@ -155,7 +154,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldReturnDefaultValueInExecConfigWhenConfigValueIsNull() throws Exception {
+    public void shouldReturnDefaultValueInExecConfigWhenConfigValueIsNull() {
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
@@ -176,7 +175,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldReturnDefaultValueInExecConfigWhenConfigValueIsEmptyString() throws Exception {
+    public void shouldReturnDefaultValueInExecConfigWhenConfigValueIsEmptyString() {
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
@@ -200,7 +199,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldReturnConfigValueInExecConfig() throws Exception {
+    public void shouldReturnConfigValueInExecConfig() {
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
@@ -223,7 +222,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldReturnPluggableTaskContext() throws Exception {
+    public void shouldReturnPluggableTaskContext() {
         PluggableTask task = mock(PluggableTask.class);
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
 
@@ -236,8 +235,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldPublishErrorMessageIfPluginThrowsAnException() throws CruiseControlException {
-        PluggableTask task = mock(PluggableTask.class);
+    public void shouldPublishErrorMessageIfPluginThrowsAnException() {
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
@@ -258,8 +256,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldPublishErrorMessageIfPluginReturnsAFailureResponse() throws CruiseControlException {
-        PluggableTask task = mock(PluggableTask.class);
+    public void shouldPublishErrorMessageIfPluginReturnsAFailureResponse() {
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, TEST_PLUGIN_ID, "test-directory") {
             @Override
             protected ExecutionResult executeTask(Task task, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
@@ -279,7 +276,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldRegisterTaskConfigDuringExecutionAndUnregisterOnSuccessfulCompletion() throws CruiseControlException {
+    public void shouldRegisterTaskConfigDuringExecutionAndUnregisterOnSuccessfulCompletion() {
         final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
         taskExtension = mock(TaskExtension.class);
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
@@ -289,7 +286,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldUnsetTaskExecutionContextFromJobConsoleLoggerWhenTaskExecutionFails() throws CruiseControlException {
+    public void shouldUnsetTaskExecutionContextFromJobConsoleLoggerWhenTaskExecutionFails() {
         final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
 
         taskExtension = mock(TaskExtension.class);
@@ -304,7 +301,7 @@ public class PluggableTaskBuilderTest {
     }
 
     @Test
-    public void shouldUnsetTaskExecutionContextFromJobConsoleLoggerWhenTaskExecutionThrowsException() throws CruiseControlException {
+    public void shouldUnsetTaskExecutionContextFromJobConsoleLoggerWhenTaskExecutionThrowsException() {
         final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
 
         taskExtension = mock(TaskExtension.class);

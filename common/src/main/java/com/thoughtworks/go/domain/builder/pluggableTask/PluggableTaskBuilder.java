@@ -62,7 +62,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, (task, pluginDescriptor) -> executeTask(task, publisher, environmentVariableContext, consoleLogCharset));

@@ -295,9 +295,14 @@ subprojects {
     exclude '**/logs/**'
     exclude '**/log/**'
     exclude '**/reset-fonts-grids.scss'
-    exclude '**/JavaVersion.java'
     exclude '**/robots.txt'
     exclude '**/rails/bin/**'
+
+    // Code borrowed from other projects
+    exclude '**/JavaVersion.java'
+    exclude '**/CommandLine.java'
+    exclude '**/StreamPumper.java'
+    exclude '**/StreamConsumer.java'
 
     // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
     exclude '**/freemarker_implicit.ftl'

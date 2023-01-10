@@ -19,7 +19,6 @@ description = 'GoCD Model Contract for (de)Serializing GoCD data structures'
 dependencies {
   implementation project(':base')
   implementation project(':config:config-api')
-  implementation project(':domain')
   implementation project.deps.gson
   annotationProcessor project.deps.lombok
   testImplementation project.deps.hamcrest

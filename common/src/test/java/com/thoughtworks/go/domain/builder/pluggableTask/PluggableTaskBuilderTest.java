@@ -43,10 +43,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -96,7 +94,7 @@ public class PluggableTaskBuilderTest {
 
         taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
 
-        assertThat(executeTaskCalled[0], is(1));
+        assertThat(executeTaskCalled[0]).isEqualTo(1);
     }
 
     @Test
@@ -131,7 +129,7 @@ public class PluggableTaskBuilderTest {
         verify(task).executor();
         verify(taskExecutor).execute(executorTaskConfig, taskExecutionContext);
 
-        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(not(nullValue())));
+        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNotNull();
     }
 
     @Test
@@ -150,7 +148,7 @@ public class PluggableTaskBuilderTest {
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
         TaskConfig config = taskBuilder.buildTaskConfig(defaultTaskConfig);
-        assertThat(config.getValue(propertyName), is(defaultValue));
+        assertThat(config.getValue(propertyName)).isEqualTo(defaultValue);
     }
 
     @Test
@@ -171,7 +169,7 @@ public class PluggableTaskBuilderTest {
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
         TaskConfig config = taskBuilder.buildTaskConfig(defaultTaskConfig);
-        assertThat(config.getValue(propertyName), is(defaultValue));
+        assertThat(config.getValue(propertyName)).isEqualTo(defaultValue);
     }
 
     @Test
@@ -195,7 +193,7 @@ public class PluggableTaskBuilderTest {
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
         TaskConfig config = taskBuilder.buildTaskConfig(defaultTaskConfig);
-        assertThat(config.getValue(propertyName), is(defaultValue));
+        assertThat(config.getValue(propertyName)).isEqualTo(defaultValue);
     }
 
     @Test
@@ -218,7 +216,7 @@ public class PluggableTaskBuilderTest {
         defaultTaskConfig.addProperty(propertyName).withDefault(defaultValue);
 
         TaskConfig config = taskBuilder.buildTaskConfig(defaultTaskConfig);
-        assertThat(config.getValue(propertyName), is(configValue.get("value")));
+        assertThat(config.getValue(propertyName)).isEqualTo(configValue.get("value"));
     }
 
     @Test
@@ -230,8 +228,8 @@ public class PluggableTaskBuilderTest {
         PluggableTaskBuilder taskBuilder = new PluggableTaskBuilder(runIfConfigs, cancelBuilder, task, TEST_PLUGIN_ID, workingDir);
         TaskExecutionContext taskExecutionContext = taskBuilder.buildTaskContext(goPublisher, variableContext, UTF_8);
 
-        assertThat(taskExecutionContext instanceof PluggableTaskContext, is(true));
-        assertThat(taskExecutionContext.workingDir(), is(workingDir));
+        assertThat(taskExecutionContext instanceof PluggableTaskContext).isEqualTo(true);
+        assertThat(taskExecutionContext.workingDir()).isEqualTo(workingDir);
     }
 
     @Test
@@ -243,16 +241,13 @@ public class PluggableTaskBuilderTest {
             }
         };
 
-        try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-            fail("expected exception to be thrown");
-        } catch (Exception e) {
-            ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-            verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
-            String error = "Error: err";
-            assertThat(captor.getValue(), is(error));
-            assertThat(e.getMessage(), is(new RuntimeException("err").toString()));
-        }
+
+        assertThatThrownBy(() -> taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("err");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
+        assertThat(captor.getValue()).isEqualTo("Error: err");
     }
 
     @Test
@@ -264,15 +259,12 @@ public class PluggableTaskBuilderTest {
             }
         };
 
-        try {
-            taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-            fail("expected exception to be thrown");
-        } catch (Exception e) {
-            ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-            verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
-            assertThat(captor.getValue(), is("err"));
-            assertThat(e.getMessage(), is("err"));
-        }
+        assertThatThrownBy(() -> taskBuilder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("err");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(goPublisher).taggedConsumeLine(eq(DefaultGoPublisher.ERR), captor.capture());
+        assertThat(captor.getValue()).isEqualTo("err");
     }
 
     @Test
@@ -282,7 +274,7 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
 
         builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
+        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 
     @Test
@@ -292,12 +284,9 @@ public class PluggableTaskBuilderTest {
         taskExtension = mock(TaskExtension.class);
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
 
-        try {
-            builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-            fail("should throw exception");
-        } catch (Exception e) {
-            assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
-        }
+        assertThatThrownBy(() -> builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
+            .hasMessage("oh no");
+        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 
     @Test
@@ -307,11 +296,8 @@ public class PluggableTaskBuilderTest {
         taskExtension = mock(TaskExtension.class);
 
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
-        try {
-            builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-            fail("should throw exception");
-        } catch (Exception e) {
-            assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
-        }
+        assertThatThrownBy(() -> builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
+            .hasMessage("something");
+        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 }

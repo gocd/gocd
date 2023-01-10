@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.domain.builder;
 
+import com.google.common.base.Throwables;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
-import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public abstract class Builder implements Serializable {
         return conditions.match(previousStatus);
     }
 
-    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) throws CruiseControlException;
+    public abstract void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset);
 
     public String getDescription() {
         return description;
@@ -110,16 +111,17 @@ public abstract class Builder implements Serializable {
         }
     }
 
-    protected void logException(DefaultGoPublisher publisher, Exception e) throws CruiseControlException {
+    protected void logException(DefaultGoPublisher publisher, Exception e) {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
-        throw new CruiseControlException(e);
+        Throwables.throwIfUnchecked(e);
+        throw new CommandLineException(e);
     }
 
-    protected void logError(DefaultGoPublisher publisher, String message) throws CruiseControlException {
+    protected void logError(DefaultGoPublisher publisher, String message) {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
         LOGGER.error(message);
-        throw new CruiseControlException(message);
+        throw new CommandLineException(message);
     }
 
     public RunIfConfig resolvedRunIfConfig() {

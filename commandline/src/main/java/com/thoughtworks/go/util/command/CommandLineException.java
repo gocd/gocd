@@ -18,6 +18,11 @@ package com.thoughtworks.go.util.command;
 public class CommandLineException extends RuntimeException {
     private final ConsoleResult result;
 
+    public CommandLineException(Throwable cause) {
+        super(cause);
+        this.result = ConsoleResult.unknownResult();
+    }
+
     public CommandLineException(String message) {
         super(message);
         this.result = ConsoleResult.unknownResult();

@@ -56,7 +56,7 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
         return paths;
     }
 
-    protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String... executableArgs) throws CheckedCommandLineException {
+    protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String... executableArgs) {
         assertThatExecutableOutputIncludesArgs(executableLocation, new String[0], executableArgs);
     }
 
@@ -68,7 +68,7 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
      * Will likely only work correctly with certain executables or shell built-ins, such as `attrib`, `ls`, `dir`, `tar`
      * etc that print their args in the output and can validate that the args were interpreted successfully.
      */
-    protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String[] executableFlags, String... executableArgs) throws CheckedCommandLineException {
+    protected void assertThatExecutableOutputIncludesArgs(String executableLocation, String[] executableFlags, String... executableArgs) {
         ExecScript script = new ExecScript("");
         InMemoryConsumer output = new InMemoryConsumer();
         commandFor(executableLocation, ArrayUtils.addAll(executableFlags, executableArgs))

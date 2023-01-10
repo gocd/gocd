@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.fail;
 class CommandLineScriptRunnerTest {
     @Test
     @EnabledOnOs(OS.LINUX)
-    void shouldReplaceSecretsOnTheOutputUnderLinux() throws CheckedCommandLineException {
+    void shouldReplaceSecretsOnTheOutputUnderLinux() {
         CommandLine command = CommandLine.createCommandLine("echo").withArg("My password is ").withArg(
                 new PasswordArgument("secret")).withEncoding(UTF_8);
         InMemoryConsumer output = new InMemoryConsumer();
@@ -38,7 +38,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void shouldReplaceSecretsOnTheOutputUnderWindows() throws CheckedCommandLineException {
+    void shouldReplaceSecretsOnTheOutputUnderWindows() {
         CommandLine command = CommandLine.createCommandLine("cmd")
                 .withArg("/c")
                 .withArg("echo")
@@ -67,7 +67,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldBeAbleToSpecifyEncoding() throws CheckedCommandLineException {
+    void shouldBeAbleToSpecifyEncoding() {
         String chrisWasHere = "司徒空在此";
         CommandLine command = CommandLine.createCommandLine("echo").withArg(chrisWasHere).withEncoding(UTF_8);
         InMemoryConsumer output = new InMemoryConsumer();
@@ -79,7 +79,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldMaskOutOccurrenceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
+    void shouldMaskOutOccurrenceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
         CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding(UTF_8);
@@ -93,7 +93,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void shouldMaskOutOccurrenceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
+    void shouldMaskOutOccurrenceOfSecureEnvironmentVariablesValuesInTheScriptOutput() {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
         CommandLine command = CommandLine.createCommandLine("cmd")

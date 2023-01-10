@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,19 +35,20 @@ import java.io.File;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class AntTaskBuilderTest {
     private AntTask antTask;
     private static final String DEFAULT_WORKING_DIRECTORY = "default/working/directory";
     private static final String PIPELINE_LABEL = "label";
-    private Pipeline pipeline = ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, DEFAULT_WORKING_DIRECTORY);
+    private final Pipeline pipeline = ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, DEFAULT_WORKING_DIRECTORY);
 
     private UpstreamPipelineResolver resolver;
     private AntTaskBuilder antTaskBuilder;
     private BuilderFactory builderFactory;
     private ExecTaskBuilder execTaskBuilder;
-    private TaskExtension taskEntension;
+    private TaskExtension taskExtension;
 
     @BeforeEach
     void setup() {
@@ -56,7 +57,7 @@ class AntTaskBuilderTest {
         execTaskBuilder = new ExecTaskBuilder();
         builderFactory = mock(BuilderFactory.class);
         resolver = mock(UpstreamPipelineResolver.class);
-        taskEntension = mock(TaskExtension.class);
+        taskExtension = mock(TaskExtension.class);
     }
 
     @AfterEach
@@ -88,11 +89,10 @@ class AntTaskBuilderTest {
         antTask.setTarget(target);
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
-        try {
-            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null, UTF_8);
-        } catch (CruiseControlException e) {
-            assertThat(e.getMessage()).contains("Build failed. Command ant reported [BUILD FAILED].");
-        }
+        assertThatThrownBy(() -> builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskExtension, null, null, UTF_8))
+            .isInstanceOf(CommandLineException.class)
+            .hasMessageContaining("Build failed. Command ant reported [BUILD FAILED].");
+
     }
 
     @Test

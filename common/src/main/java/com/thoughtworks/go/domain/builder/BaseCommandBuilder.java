@@ -44,14 +44,13 @@ public abstract class BaseCommandBuilder extends Builder {
     }
 
     @Override
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset)
-            throws CruiseControlException {
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, Charset consoleLogCharset) {
 
         if (!workingDir.isDirectory()) {
             String message = "Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory!";
             publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
-            setBuildError(message);
-            throw new CruiseControlException(message);
+            LOG.warn(message);
+            throw new IllegalStateException(message);
         }
 
         ExecScript execScript = new ExecScript(errorString);
@@ -69,18 +68,17 @@ public abstract class BaseCommandBuilder extends Builder {
 
             if (execScript.foundError()) {
                 // detected the error string in the command output
-                String message = "Build failed. Command " + this.command + " reported ["
-                        + errorString + "].";
-                setBuildError(message);
-                throw new CruiseControlException(message);
+                String message = "Build failed. Command " + this.command + " reported [" + errorString + "].";
+                LOG.warn(message);
+                throw new CommandLineException(message);
             } else if (SUCCESS_EXIT_CODE != execScript.getExitCode()) {
                 String message = "return code is " + execScript.getExitCode();
-                setBuildError(message);
-                throw new CruiseControlException(message);
+                LOG.warn(message);
+                throw new CommandLineException(message);
             }
-        } catch (CheckedCommandLineException ex) {
-            setBuildError("exec error");
-            setTaskError("Could not execute command: " + commandLine.toStringForDisplay());
+        } catch (CommandLineException ex) {
+            LOG.warn("exec error");
+            LOG.warn("Could not execute command: " + commandLine.toStringForDisplay());
             throw ex;
         }
     }
@@ -101,14 +99,6 @@ public abstract class BaseCommandBuilder extends Builder {
     }
 
     protected abstract String[] argList();
-
-    private void setTaskError(String errorMessage) {
-        LOG.warn(errorMessage);
-    }
-
-    private void setBuildError(String errorMessage) {
-        LOG.warn(errorMessage);
-    }
 
     @Override
     public String toString() {

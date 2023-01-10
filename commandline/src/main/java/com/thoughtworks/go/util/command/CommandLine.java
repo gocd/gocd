@@ -163,8 +163,8 @@ public class CommandLine {
 
     public String describe() {
         String description = "--- Command ---\n" + this
-                + "\n--- Environment ---\n" + env + "\n"
-                + "--- INPUT ----\n" + StringUtils.join(inputs, ",") + "\n";
+            + "\n--- Environment ---\n" + env + "\n"
+            + "--- INPUT ----\n" + StringUtils.join(inputs, ",") + "\n";
         for (CommandArgument argument : arguments) {
             description = argument.replaceSecretInfo(description);
         }
@@ -233,7 +233,7 @@ public class CommandLine {
         }
         double seconds = timeout / 1000.0;
         ExceptionUtils.bomb("Timeout after " + seconds + " seconds waiting for command '" + toStringForDisplay() + "'\n"
-                + "Last output was:\n" + lastResult.describe());
+            + "Last output was:\n" + lastResult.describe());
     }
 
     public String getExecutable() {
@@ -312,7 +312,7 @@ public class CommandLine {
     }
 
     public void runScript(Script script, StreamConsumer buildOutputConsumer,
-                          EnvironmentVariableContext environmentVariableContext, ProcessTag processTag) throws CheckedCommandLineException {
+                          EnvironmentVariableContext environmentVariableContext, ProcessTag processTag) {
         LOG.info("Running command: {}", toStringForDisplay());
 
         CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR, StreamLogger.getWarnLogger(LOG), buildOutputConsumer);
@@ -322,11 +322,10 @@ public class CommandLine {
         ProcessWrapper process;
         int exitCode;
 
-        SafeOutputStreamConsumer streamConsumer = null;
+        SafeOutputStreamConsumer streamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(outputStreamConsumer, errorStreamConsumer));
+        streamConsumer.addArguments(getArguments());
+        streamConsumer.addSecrets(environmentVariableContext.secrets());
         try {
-            streamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(outputStreamConsumer, errorStreamConsumer));
-            streamConsumer.addArguments(getArguments());
-            streamConsumer.addSecrets(environmentVariableContext.secrets());
             process = startProcess(environmentVariableContext, streamConsumer, processTag);
         } catch (CommandLineException e) {
             String message = String.format("Error happened while attempting to execute '%s'. \nPlease make sure [%s] can be executed on this agent.\n", toStringForDisplay(), getExecutable());
@@ -334,11 +333,11 @@ public class CommandLine {
             streamConsumer.errOutput(message);
             streamConsumer.errOutput(String.format("[Debug Information] Environment variable PATH: %s", path));
             LOG.error("[Command Line] {}. Path: {}", message, path);
-            throw new CheckedCommandLineException(message, e);
+            throw new CommandLineException(message, e);
         } catch (IOException e) {
             String msg = String.format("Encountered an IO exception while attempting to execute '%s'. Go cannot continue.\n", toStringForDisplay());
             streamConsumer.errOutput(msg);
-            throw new CheckedCommandLineException(msg, e);
+            throw new CommandLineException(msg, e);
         }
 
         exitCode = process.waitForExit();
@@ -428,14 +427,14 @@ public class CommandLine {
                 throw new CommandLineException("Working directory \"" + dir.getAbsolutePath() + "\" does not exist!");
             } else if (!dir.isDirectory()) {
                 throw new CommandLineException("Path \"" + dir.getAbsolutePath() + "\" does not specify a "
-                        + "directory.");
+                    + "directory.");
             }
         }
     }
 
     private ProcessWrapper createProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag, String errorPrefix) {
         return ProcessManager.getInstance().createProcess(getCommandLine(), toString(getCommandLineForDisplay(), true), workingDir, env, environmentVariableContext, consumer, processTag, encoding,
-                errorPrefix);
+            errorPrefix);
     }
 
     private ProcessWrapper startProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag) throws IOException {

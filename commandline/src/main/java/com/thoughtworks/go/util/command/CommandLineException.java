@@ -33,7 +33,6 @@ public class CommandLineException extends RuntimeException {
         this.result = result;
     }
 
-
     public ConsoleResult getResult() {
         return result;
     }

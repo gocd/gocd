@@ -761,7 +761,6 @@ task war(type: Jar) {
   from(project.project(':config:config-server').sourceSets.main.resources.srcDirs) {
     into('/') include('cruise-config.xsd')
   }
-  from("messages/message.properties") { into('/') }
 
   from({ compileAssets }) { into '/WEB-INF/rails/public/assets' }
 

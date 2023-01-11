@@ -289,4 +289,13 @@
     <cve>CVE-2021-41184</cve>
     <cve>CVE-2022-31160</cve>
   </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    False positive duplicate, already fixed in 2.6.9. See https://github.com/github/advisory-database/pull/1600 and
+    https://github.com/debug-js/debug/issues/924
+    ]]></notes>
+    <packageUrl regex="true">^pkg:npm/debug@2\.6\.9$</packageUrl>
+    <vulnerabilityName>1087958</vulnerabilityName>
+  </suppress>
 </suppressions>

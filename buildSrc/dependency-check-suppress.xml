@@ -218,6 +218,15 @@
 
   <suppress>
     <notes><![CDATA[
+    False positive, Jakarta Projects are not the Eclipse IDE: see https://github.com/jeremylong/DependencyCheck/issues/5287
+    and https://github.com/jeremylong/DependencyCheck/issues/5290
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/jakarta\.(activation|mail)/jakarta\.(activation|mail)\-api@.*$</packageUrl>
+    <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     This is a false positive. The Jolt JSON Utils project is not the same thing as fredsmith utils. See
     https://github.com/jeremylong/DependencyCheck/issues/5213 and https://github.com/jeremylong/DependencyCheck/issues/5218
     ]]></notes>

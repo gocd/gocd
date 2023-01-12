@@ -259,9 +259,9 @@
     <vulnerabilityName>1085771</vulnerabilityName>
 
     <cve>CVE-2020-11022</cve>
-    <vulnerabilityName>1081826</vulnerabilityName>
+    <vulnerabilityName>1088299</vulnerabilityName>
     <cve>CVE-2020-11023</cve>
-    <vulnerabilityName>1081827</vulnerabilityName>
+    <vulnerabilityName>1088300</vulnerabilityName>
   </suppress>
 
   <suppress>
@@ -288,14 +288,5 @@
     <cve>CVE-2021-41183</cve>
     <cve>CVE-2021-41184</cve>
     <cve>CVE-2022-31160</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    False positive duplicate, already fixed in 2.6.9. See https://github.com/github/advisory-database/pull/1600 and
-    https://github.com/debug-js/debug/issues/924
-    ]]></notes>
-    <packageUrl regex="true">^pkg:npm/debug@2\.6\.9$</packageUrl>
-    <vulnerabilityName>1087958</vulnerabilityName>
   </suppress>
 </suppressions>

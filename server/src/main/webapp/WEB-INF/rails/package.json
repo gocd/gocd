@@ -56,7 +56,7 @@
     "@babel/preset-env": "^7",
     "@babel/preset-react": "^7",
     "@types/awesomplete": "^1.1.10",
-    "@types/fs-extra": "^9.0.13",
+    "@types/fs-extra": "^11.0.1",
     "@types/html-webpack-plugin": "^3.2.5",
     "@types/jasmine": "^4.3.1",
     "@types/jasmine-ajax": "^3.3.2",

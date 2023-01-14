@@ -132,11 +132,6 @@ describe ApplicationHelper do
   end
 
   describe 'submit button' do
-    before :each do
-      expect(self).to receive(:system_environment).and_return(env = double('sys_env'))
-      expect(env).to receive(:isServerActive).at_most(:twice).and_return(true)
-    end
-
     it "should have class 'image' and type 'submit' for image button" do
       expect(submit_button("name", :type => 'image', :id=> 'id', :class=> "class", :onclick => "onclick", :disabled => "true")).to eq(
               "<button type=\"submit\" id=\"id\" class=\"class image submit disabled\" onclick=\"onclick\" disabled=\"disabled\" value=\"name\" title=\"name\">" +
@@ -203,17 +198,6 @@ describe ApplicationHelper do
 
     it "should add onclick handler with the passed in onclick_lambda" do
       expect(submit_button("name", :onclick_lambda => 'pavan_likes_this')).to match(/.*?function\(evt\) \{ pavan_likes_this\(evt\).*/)
-    end
-  end
-
-  describe 'disable submit button' do
-    before :each do
-      expect(self).to receive(:system_environment).and_return(env = double('sys_env'))
-      expect(env).to receive(:isServerActive).and_return(false)
-    end
-
-    it "should make submit button disabled if server is in passive state" do
-      expect(submit_button("name")).to eq("<button type=\"submit\" disabled=\"disabled\" value=\"name\" class=\"submit disabled\"><span>NAME</span></button>")
     end
   end
 

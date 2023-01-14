@@ -22,7 +22,6 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
 /**
  * @understands localized operation result for http
- * We suck at this
  */
 public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     private String message;
@@ -103,7 +102,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
 
     @Override
     public boolean isSuccessful() {
-        return 200 <= httpCode && httpCode < 300; // I hate java
+        return 200 <= httpCode && httpCode < 300;
     }
 
     @Override

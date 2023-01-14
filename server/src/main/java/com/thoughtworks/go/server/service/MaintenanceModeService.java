@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.util.DateUtils.UTC;
@@ -34,9 +35,9 @@ import static com.thoughtworks.go.util.DateUtils.UTC;
 @Service
 public class MaintenanceModeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaintenanceModeService.class);
-    private static ConcurrentHashMap<String, MaterialPerformingMDU> runningMDUs = new ConcurrentHashMap<>();
-    private ServerMaintenanceMode serverMaintenanceMode;
-    private TimeProvider timeProvider;
+    private static final Map<String, MaterialPerformingMDU> runningMDUs = new ConcurrentHashMap<>();
+    private final TimeProvider timeProvider;
+    private volatile ServerMaintenanceMode serverMaintenanceMode;
 
     @Autowired
     public MaintenanceModeService(TimeProvider timeProvider, SystemEnvironment systemEnvironment) {
@@ -91,7 +92,7 @@ public class MaintenanceModeService {
         runningMDUs.remove(material.getFingerprint());
     }
 
-    public class MaterialPerformingMDU {
+    public static class MaterialPerformingMDU {
         private final Material material;
         private final Timestamp timestamp;
 

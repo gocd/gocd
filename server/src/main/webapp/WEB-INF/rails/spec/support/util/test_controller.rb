@@ -22,22 +22,9 @@ unless defined? NonApiController
       _routes.clear!
       Go::Application.routes_reloader.paths.each{ |path| load(path) }
       _routes.draw do
-        match 'rails/foo', via: :all, to: 'api/test#not_found_action'
-        match 'rails/bar', via: :all, to: 'api/test#unauthorized_action'
-        match 'rails/baz', via: :all, to: 'api/test#another_not_found_action'
-        match 'rails/bang', via: :all, to: 'api/test#localized_not_found_action'
-        match 'rails/quux', via: :all, to: 'api/test#localized_not_found_action_with_message_ending_in_newline'
-        match 'rails/boom', via: :all, to: 'api/test#localized_operation_result_without_message'
-        match 'rails/test/test_action', via: :all, to: 'api/test#test_action'
-
         match 'rails/non_api_404', via: :all, to: 'non_api#not_found_action'
         match 'rails/non_api_localized_404', via: :all, to: 'non_api#localized_not_found_action'
-        match 'rails/exception_out', via: :all, to: 'non_api#exception_out'
-        match 'rails/double_render', via: :all, to: 'non_api#double_render'
-        match 'rails/render_and_redirect', via: :all, to: 'non_api#redirect_after_render'
         match 'rails/double_render_without_error', via: :all, to: 'non_api#double_render_without_error'
-        match 'rails/encoded_param_user', via: :all, to: 'non_api#encoded_param_user_action'
-        match 'rails/non_encoded_param_user', via: :all, to: 'non_api#non_encoded_param_user_action'
         match 'rails/unresolved', via: :all, to: 'api/test#unresolved'
       end
       ActiveSupport.on_load(:action_controller) { _routes.finalize! }
@@ -71,42 +58,3 @@ class NonApiController < ApplicationController
   end
 end
 
-defined?(Api) && defined?(Api::TestController) && Api.send(:remove_const, :TestController)
-
-module Api
-  class TestController < ApplicationController
-    helper FlashMessagesHelper
-    layout nil, except: [:not_found_action, :localized_not_found_action, :unresolved]
-    def not_found_action
-      hor = HttpOperationResult.new()
-      hor.notFound("it was not found", 'description', HealthStateType.general(HealthStateScope::GLOBAL))
-      render_operation_result(hor)
-    end
-
-    def unauthorized_action
-      hor = HttpOperationResult.new()
-      hor.forbidden("you are not allowed", 'description', HealthStateType.general(HealthStateScope::GLOBAL))
-      render_operation_result(hor)
-    end
-
-    def localized_not_found_action
-      hor = HttpLocalizedOperationResult.new()
-      hor.notFound(com.thoughtworks.go.i18n.LocalizedMessage::forbiddenToViewPipeline("mingle"), HealthStateType.general(HealthStateScope::GLOBAL))
-      render_localized_operation_result(hor)
-    end
-
-    def localized_not_found_action_with_message_ending_in_newline
-      hor = HttpLocalizedOperationResult.new()
-      hor.notFound("Message with newline.\n", HealthStateType.general(HealthStateScope::GLOBAL))
-      render_localized_operation_result(hor)
-    end
-
-    def localized_operation_result_without_message
-      hor = HttpLocalizedOperationResult.new()
-      render_localized_operation_result(hor)
-    end
-
-    def test_action
-    end
-  end
-end

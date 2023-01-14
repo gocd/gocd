@@ -233,7 +233,7 @@ class AgentServiceTest {
             @Test
             void shouldBulkEnableAgents() {
                 Username username = new Username(new CaseInsensitiveString("test"));
-                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", "20.3.0-1234", "20.5.0-2345");
+                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", "20.3.0-1234", "20.5.0-2345", () -> "My OS");
                 AgentInstance pending = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
                 Agent agent = new Agent("UUID2", "remote-host", "50.40.30.20");
@@ -887,7 +887,7 @@ class AgentServiceTest {
 
         @Test
         void requestRegistrationShouldReturnValidRegistrationWhenCalledWithRegisteredAgent() {
-            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux");
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0L, "linux");
             AgentInstance agentInstance = mock(AgentInstance.class);
             Agent agent = mock(Agent.class);
 
@@ -914,7 +914,7 @@ class AgentServiceTest {
             AgentInstance mockAgentInstance = mock(AgentInstance.class);
             Agent mockAgent = mock(Agent.class);
 
-            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux");
+            AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0L, "linux");
 
             when(agentInstances.register(runtimeInfo)).thenReturn(mockAgentInstance);
             when(mockAgentInstance.assignCertification()).thenReturn(false);
@@ -1423,11 +1423,11 @@ class AgentServiceTest {
             SystemEnvironment sysEnv = new SystemEnvironment();
 
             Agent agent1 = new Agent("uuid-1", "host-1", "192.168.1.2");
-            AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100l, "linux");
+            AgentRuntimeInfo runtimeInfo1 = fromServer(agent1, true, "/foo/bar", 100L, "linux");
             AgentInstance instance1 = createFromLiveAgent(runtimeInfo1, sysEnv, null);
 
             Agent agent3 = new Agent("uuid-3", "host-3", "192.168.1.4");
-            AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300l, "linux");
+            AgentRuntimeInfo runtimeInfo3 = fromServer(agent3, true, "/baz/quux", 300L, "linux");
             AgentInstance instance3 = createFromLiveAgent(runtimeInfo3, sysEnv, null);
 
             List<String> uuids = List.of("uuid-1", "uuid-3");

@@ -329,16 +329,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return System.getProperty(property);
     }
 
-    public String getOperatingSystemFamilyName() {
-        return OperatingSystem.getFamilyName();
-    }
-
-    public String getOperatingSystemCompleteName() {
-        return OperatingSystem.getCompleteName();
-    }
-
-    public String getOperatingSystemName() {
-        return getPropertyImpl("os.name");
+    public String getOperatingSystemFamilyJvmName() {
+        return System.getProperty("os.name").startsWith("Windows") ? "Windows" : System.getProperty("os.name");
     }
 
     public int getActivemqQueuePrefetch() {

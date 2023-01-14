@@ -17,6 +17,7 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
+import com.thoughtworks.go.agent.service.SystemInfo;
 import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
@@ -46,7 +47,6 @@ public abstract class AgentController {
     private AgentAutoRegistrationProperties agentAutoRegistrationProperties;
     private AgentIdentifier identifier;
     private final SslInfrastructureService sslInfrastructureService;
-    private final SystemEnvironment systemEnvironment;
     private final AgentRegistry agentRegistry;
     private final SubprocessLogger subprocessLogger;
     private final AgentUpgradeService agentUpgradeService;
@@ -62,7 +62,6 @@ public abstract class AgentController {
                            AgentUpgradeService agentUpgradeService,
                            AgentHealthHolder agentHealthHolder) {
         this.sslInfrastructureService = sslInfrastructureService;
-        this.systemEnvironment = systemEnvironment;
         this.agentRegistry = agentRegistry;
         this.subprocessLogger = subprocessLogger;
         this.agentUpgradeService = agentUpgradeService;
@@ -99,16 +98,8 @@ public abstract class AgentController {
 
     protected abstract void work();
 
-    protected AgentRegistry getAgentRegistry() {
-        return agentRegistry;
-    }
-
     protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
         return agentAutoRegistrationProperties;
-    }
-
-    protected SystemEnvironment getSystemEnvironment() {
-        return systemEnvironment;
     }
 
     protected AgentIdentifier agentIdentifier() {
@@ -153,11 +144,23 @@ public abstract class AgentController {
         String agentVersion = getClass().getPackage().getImplementationVersion();
 
         if (agentAutoRegistrationProperties.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                    agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId(),
-                    bootstrapperVersion, agentVersion);
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(
+                identifier,
+                AgentRuntimeStatus.Idle,
+                currentWorkingDirectory(),
+                agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(),
+                agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId(),
+                bootstrapperVersion,
+                agentVersion,
+                SystemInfo::getOperatingSystemCompleteName);
         } else {
-            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), bootstrapperVersion, agentVersion);
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(
+                identifier,
+                AgentStatus.Idle.getRuntimeStatus(),
+                currentWorkingDirectory(),
+                bootstrapperVersion,
+                agentVersion,
+                SystemInfo::getOperatingSystemCompleteName);
         }
     }
 
@@ -168,6 +171,7 @@ public abstract class AgentController {
     private void initPipelinesFolder() {
         File pipelines = new File(currentWorkingDirectory(), "pipelines");
         if (!pipelines.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             pipelines.mkdirs();
         }
     }

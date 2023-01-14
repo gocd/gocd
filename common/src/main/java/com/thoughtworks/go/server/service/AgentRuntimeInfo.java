@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.DiskSpace;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Building;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Cancelled;
@@ -39,7 +39,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class AgentRuntimeInfo implements Serializable {
-    private static Logger LOGGER = LoggerFactory.getLogger(AgentRuntimeInfo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentRuntimeInfo.class);
 
     @Expose
     private AgentIdentifier identifier;
@@ -68,9 +68,9 @@ public class AgentRuntimeInfo implements Serializable {
         this.cookie = cookie;
     }
 
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, String agentBootstrapperVersion, String agentVersion) {
+    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, String agentBootstrapperVersion, String agentVersion, Supplier<String> operatingSystemNameSupplier) {
         return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null)
-                .refreshOperatingSystem()
+                .refreshOperatingSystem(operatingSystemNameSupplier)
                 .refreshUsableSpace()
                 .updateBootstrapperVersion(agentBootstrapperVersion)
                 .updateAgentVersion(agentVersion);
@@ -196,8 +196,8 @@ public class AgentRuntimeInfo implements Serializable {
         this.location = location;
     }
 
-    public AgentRuntimeInfo refreshOperatingSystem() {
-        setOperatingSystem(new SystemEnvironment().getOperatingSystemCompleteName());
+    public AgentRuntimeInfo refreshOperatingSystem(Supplier<String> operatingSystemNameSupplier) {
+        setOperatingSystem(operatingSystemNameSupplier.get());
         return this;
     }
 

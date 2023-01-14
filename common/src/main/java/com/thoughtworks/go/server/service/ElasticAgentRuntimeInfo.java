@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 
 import java.io.Serializable;
+import java.util.function.Supplier;
 
 public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Serializable {
     @Expose
@@ -47,10 +48,10 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
 
     public static ElasticAgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus,
                                                     String workingDir, String elasticAgentId, String pluginId,
-                                                    String agentBootstrapperVersion, String agentVersion) {
+                                                    String agentBootstrapperVersion, String agentVersion, Supplier<String> operatingSystemNameSupplier) {
         ElasticAgentRuntimeInfo runtimeInfo = new ElasticAgentRuntimeInfo(identifier, runtimeStatus, workingDir, null, elasticAgentId, pluginId);
         return (ElasticAgentRuntimeInfo) runtimeInfo
-                .refreshOperatingSystem()
+                .refreshOperatingSystem(operatingSystemNameSupplier)
                 .refreshUsableSpace()
                 .updateBootstrapperVersion(agentBootstrapperVersion)
                 .updateAgentVersion(agentVersion);

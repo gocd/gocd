@@ -62,7 +62,7 @@ public class AssetsContextHandlerTest {
     }
 
     @Test
-    public void shouldSetHeadersAndBaseDirectory() throws IOException {
+    public void shouldSetHeadersAndBaseDirectory() {
         assertThat(handler.getContextPath(), is("/go/assets"));
         assertThat(((HandlerWrapper) handler.getHandler()).getHandler() instanceof AssetsContextHandler.AssetsHandler, is(true));
         AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) ((HandlerWrapper) handler.getHandler()).getHandler();

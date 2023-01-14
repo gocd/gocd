@@ -54,10 +54,9 @@ class PingRequestRepresenterTest {
 
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0")
+                "20.1.0", "20.9.0", () -> "Mac OS X")
         expectedRuntimeInfo.setUsableSpace(10L)
         expectedRuntimeInfo.setLocation("/some/random/location")
-        expectedRuntimeInfo.setOperatingSystem("Mac OS X")
 
         def request = PingRequestRepresenter.fromJSON(requestJSON)
 
@@ -90,10 +89,9 @@ class PingRequestRepresenterTest {
                 "}"
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0")
+          "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")
         expectedRuntimeInfo.setUsableSpace(10L)
         expectedRuntimeInfo.setLocation("/some/random/location")
-        expectedRuntimeInfo.setOperatingSystem("Mac OS X")
 
         def request = PingRequestRepresenter.fromJSON(requestJSON)
 
@@ -104,7 +102,7 @@ class PingRequestRepresenterTest {
     void 'should ensure the serialized and deserialized objects are same'() {
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0")
+                "20.1.0", "20.9.0", () -> "Mac OS X")
         runtimeInfo.setUsableSpace(10L)
         runtimeInfo.setLocation("/some/random/location")
 

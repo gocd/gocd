@@ -56,13 +56,7 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldUnderstandOperatingSystem() {
-        assertThat(systemEnvironment.getOperatingSystemName()).isEqualTo(System.getProperty("os.name"));
-    }
-
-
-    @Test
-    void shouldUnderstandWetherToUseCompressedJs() {
+    void shouldUnderstandWhetherToUseCompressedJs() {
         assertThat(systemEnvironment.useCompressedJs()).isTrue();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.FALSE.toString());
         assertThat(systemEnvironment.useCompressedJs()).isFalse();

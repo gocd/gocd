@@ -27,6 +27,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -103,11 +104,7 @@ public class AssetsContextHandlerTest {
             @Override
             public boolean matches(Object o) {
                 String actualFile = (String) o;
-
-                if ("Windows".equals(new SystemEnvironment().getOperatingSystemFamilyName())) {
-                    return expected.equalsIgnoreCase(actualFile);
-                }
-                return expected.equals(actualFile);
+                return OS.WINDOWS.equals(OS.current()) ? expected.equalsIgnoreCase(actualFile) : expected.equals(actualFile);
             }
 
             @Override

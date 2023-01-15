@@ -22,10 +22,9 @@ module ApplicationHelper
 
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
-  def url_for_path(java_path, options = {})
+  def url_for_path(java_path)
     path = java_path.sub(/^\//, "")
-    url = ((options[:only_path] == false) ? root_url : root_path)
-    url, params = url.split("?")
+    url, params = root_path.split("?")
     url = "#{url.gsub(/\/$/, "")}/#{path}"
     if params
       if url =~ /\?/
@@ -50,8 +49,8 @@ module ApplicationHelper
     url_for_job_identifier(job.getIdentifier())
   end
 
-  def url_for_pipeline(pipeline_name, options = {})
-    url_for_path("/pipeline/activity/#{pipeline_name}", options)
+  def url_for_pipeline(pipeline_name)
+    url_for_path("/pipeline/activity/#{pipeline_name}")
   end
 
   def path_for_stage(stage_identifier)
@@ -101,7 +100,6 @@ module ApplicationHelper
     # DESIGN TODO: this is used for action/submit buttons on environments, pipeline dashboard, etc.  Probably not 100% complete to match the features above
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(type: 'submit')
-    options.merge!(disabled: 'disabled') unless system_environment.isServerActive()
     options[:value] ||= name
     lambda_text, options_without_onclick = onclick_lambda(options)
     if options[:type] == "image"

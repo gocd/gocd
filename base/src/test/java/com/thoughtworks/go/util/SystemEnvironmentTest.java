@@ -49,19 +49,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldDisableNewFeaturesByDefault() {
-        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature")).isFalse();
-    }
-
-    @Test
-    void shouldBeAbletoEnableAllNewFeatures() {
-        Properties properties = new Properties();
-        properties.setProperty(SystemEnvironment.CRUISE_EXPERIMENTAL_ENABLE_ALL, "true");
-        SystemEnvironment systemEnvironment = new SystemEnvironment(properties);
-        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature")).isTrue();
-    }
-
-    @Test
     void shouldFindJettyConfigInTheConfigDir() {
         assertThat(systemEnvironment.getJettyConfigFile()).isEqualTo(new File(systemEnvironment.getConfigDir(), "jetty.xml"));
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty-old.xml");
@@ -252,55 +239,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldFindGoServerStatusToBeActiveByDefault() {
-        assertThat(systemEnvironment.isServerActive()).isTrue();
-    }
-
-    @Test
-    void shouldPutServerInActiveMode() {
-        String key = "go.server.state";
-        try {
-            System.setProperty(key, "passive");
-            systemEnvironment.switchToActiveState();
-            assertThat(systemEnvironment.isServerActive()).isTrue();
-        } finally {
-            System.clearProperty(key);
-        }
-    }
-
-    @Test
-    void shouldPutServerInPassiveMode() {
-        String key = "go.server.state";
-        try {
-            System.setProperty(key, "active");
-            systemEnvironment.switchToPassiveState();
-            assertThat(systemEnvironment.isServerActive()).isFalse();
-        } finally {
-            System.clearProperty(key);
-        }
-    }
-
-    @Test
-    void shouldFindGoServerStatusToBePassive() {
-        try {
-            SystemEnvironment systemEnvironment = new SystemEnvironment();
-            System.setProperty("go.server.state", "passive");
-            assertThat(systemEnvironment.isServerActive()).isFalse();
-        } finally {
-            System.clearProperty("go.server.state");
-        }
-    }
-
-    @Test
-    void shouldUseJetty9ByDefault() {
-        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER)).isEqualTo(SystemEnvironment.JETTY9);
-        assertThat(systemEnvironment.usingJetty9()).isTrue();
-
-        systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
-        assertThat(systemEnvironment.usingJetty9()).isFalse();
-    }
-
-    @Test
     void shouldGetDefaultLandingPageAsPipelines() {
         String landingPage = systemEnvironment.landingPage();
         assertThat(landingPage).isEqualTo("/pipelines");
@@ -368,11 +306,11 @@ class SystemEnvironmentTest {
     @Test
     void shouldGetMaxNumberOfRequestsForEncryptionApi() {
         assertThat(SystemEnvironment.GO_ENCRYPTION_API_MAX_REQUESTS.propertyName()).isEqualTo("go.encryption.api.max.requests");
-        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(30);
+        assertThat(SystemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(30);
 
         System.setProperty("go.encryption.api.max.requests", "50");
 
-        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(50);
+        assertThat(SystemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(50);
     }
 
     @Test

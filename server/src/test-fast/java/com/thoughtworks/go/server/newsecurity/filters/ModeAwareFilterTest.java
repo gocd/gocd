@@ -57,7 +57,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldNotBlockNonGetRequestWhenInActiveStateAndNotUnderMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         request = HttpRequestBuilder.GET("/foo").build();
@@ -82,24 +81,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldNotBlockGetOrHeadRequestWhenInPassiveState() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(false);
-        lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
-
-        request = HttpRequestBuilder.GET("/foo").build();
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain, times(1)).doFilter(request, response);
-
-        request = HttpRequestBuilder.HEAD("/foo").build();
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain, times(1)).doFilter(request, response);
-    }
-
-    @Test
     void shouldNotBlockGetOrHeadRequestWhenInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.GET("/foo").build();
@@ -114,28 +96,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldBlockNonGetRequestWhenInPassiveState() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(false);
-        lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
-
-        request = HttpRequestBuilder.POST("/foo").build();
-        filter.doFilter(request, response, filterChain);
-
-        request = HttpRequestBuilder.PUT("/foo").build();
-        filter.doFilter(request, response, filterChain);
-
-        request = HttpRequestBuilder.DELETE("/foo").build();
-        filter.doFilter(request, response, filterChain);
-
-        request = HttpRequestBuilder.PATCH("/foo").build();
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain, never()).doFilter(request, response);
-    }
-
-    @Test
     void shouldBlockNonGetRequestWhenInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.updatedBy()).thenReturn("Bob");
         when(maintenanceModeService.updatedOn()).thenReturn("date");
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
@@ -156,22 +117,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldAllowLoginPostRequestInPassiveState() throws Exception {
-        request = HttpRequestBuilder.POST("/auth/security_check").build();
-
-        when(systemEnvironment.isServerActive()).thenReturn(false);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
     void shouldAllowLoginPostRequestInMaintenanceMode() throws Exception {
         request = HttpRequestBuilder.POST("/auth/security_check").build();
 
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
 
@@ -181,33 +129,7 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldAllowSwitchToActiveStateChangePostRequestInPassiveState() throws Exception {
-        request = HttpRequestBuilder.POST("/api/state/active").build();
-
-        when(systemEnvironment.isServerActive()).thenReturn(false);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain).doFilter(request, response);
-    }
-
-    @Test
-    void shouldRedirectToPassiveServerErrorPageForNonGetRequestWhenInPassiveState() throws Exception {
-        request = HttpRequestBuilder.POST("/foo").build();
-
-        when(systemEnvironment.isServerActive()).thenReturn(false);
-        when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain, never()).doFilter(request, response);
-        verify(response).sendRedirect("/go/errors/inactive");
-    }
-
-    @Test
     void shouldReturn503WhenPOSTCallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.updatedBy()).thenReturn("Bob");
         when(maintenanceModeService.updatedOn()).thenReturn("date");
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
@@ -225,7 +147,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowStageCancelPOSTCallWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/stages/1/cancel").build();
@@ -237,7 +158,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/stages/up42_pipeline/up42_stage/cancel").build();
@@ -249,7 +169,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowMaintenanceModeTogglePOSTCallWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/admin/maintenance_mode/settings").build();
@@ -261,7 +180,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowBackupsPOSTApiCallWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/backups").build();
@@ -273,7 +191,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowBackupsPOSTCallInvokedViaUIWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/admin/backup").build();
@@ -285,7 +202,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowAgentRemotingPOSTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/remoting/foo").build();
@@ -297,7 +213,6 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowAgentRemotingPUTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         lenient().when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.PUT("/remoting/files/up42/4/up42_stage/1/up42_job/cruise-output/console.log?attempt=1&buildId=5").build();
@@ -309,12 +224,11 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.updatedBy()).thenReturn("Bob");
         when(maintenanceModeService.updatedOn()).thenReturn("date");
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
-        request = HttpRequestBuilder.POST("/api/state/active").withHeader("content-type", "application/json").build();
+        request = HttpRequestBuilder.POST("/api/users").withHeader("content-type", "application/json").build();
 
         filter.doFilter(request, response, filterChain);
 

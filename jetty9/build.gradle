@@ -31,7 +31,6 @@ dependencies {
   providedAtPackageTime project.deps.jettyDeploy
   providedAtPackageTime project.deps.jettyWebsocket
 
-  testImplementation project(':common')
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params

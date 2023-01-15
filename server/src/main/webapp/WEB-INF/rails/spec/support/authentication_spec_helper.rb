@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-module ApiSpecHelper
+module AuthenticationSpecHelper
   def login_as_user
     enable_security
     allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))

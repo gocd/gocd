@@ -48,7 +48,7 @@ final Map<String, String> libraries = [
   dom4j               : 'org.dom4j:dom4j:2.1.3',
   ehcache             : 'net.sf.ehcache:ehcache:2.10.9.2',
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
-  freemarker          : 'org.freemarker:freemarker:2.3.31',
+  freemarker          : 'org.freemarker:freemarker:2.3.32',
   gradleDownload      : 'de.undercouch:gradle-download-task:5.3.0',
   grolifant           : 'org.ysb33r.gradle:grolifant70:1.3.3',
   gson                : 'com.google.code.gson:gson:2.10.1',

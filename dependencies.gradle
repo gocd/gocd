@@ -30,7 +30,7 @@ final Map<String, String> libraries = [
   apacheAnt           : 'org.apache.ant:ant:1.10.13',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
   aspectj             : 'org.aspectj:aspectjweaver:1.9.19',
-  assertJ             : 'org.assertj:assertj-core:3.24.1',
+  assertJ             : 'org.assertj:assertj-core:3.24.2',
   assertJ_DB          : 'org.assertj:assertj-db:2.0.2',
   bouncyCastle        : 'org.bouncycastle:bcprov-jdk18on:1.72',
   cloning             : 'io.github.kostaskougios:cloning:1.10.3',

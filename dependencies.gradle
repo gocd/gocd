@@ -72,7 +72,7 @@ final Map<String, String> libraries = [
   jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.36.0',
   jsoup               : 'org.jsoup:jsoup:1.15.3',
   junit5Bom           : 'org.junit:junit-bom:5.9.2',
-  liquibase           : 'org.liquibase:liquibase-core:4.18.0',
+  liquibase           : 'org.liquibase:liquibase-core:4.19.0',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:4.1.0',
   logback             : 'ch.qos.logback:logback-classic:1.2.11',
   lombok              : 'org.projectlombok:lombok:1.18.24',

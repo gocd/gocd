@@ -20,7 +20,12 @@ dependencies {
     api project.deps.commonsPool
     api project.deps.commonsCollections
     api project.deps.objenesis
-    api project.deps.slf4j
+    api('org.slf4j:slf4j-api') {
+      version {
+        // Prevent early upgrade from transitive dependencies due to lack of slf4J BOM to declare as an enforcedPlatform
+        strictly(project.versions.slf4j as String)
+      }
+    }
   }
 
   api enforcedPlatform(project.deps.junit5Bom)

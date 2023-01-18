@@ -45,7 +45,7 @@ public class SystemUtil {
         }
     }
 
-    public static String getLocalhostNameOrRandomNameIfNotFound() {
+    public static synchronized String getLocalhostNameOrRandomNameIfNotFound() {
         if (hostName != null) {
             return hostName;
         }

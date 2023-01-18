@@ -19,7 +19,6 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.URLService;
 import org.apache.commons.io.IOUtils;
@@ -147,7 +146,7 @@ public class SslInfrastructureService {
                     .addParameter("uuid", agentRegistry.uuid())
                     .addParameter("location", SystemUtil.currentWorkingDirectory())
                     .addParameter("usablespace", String.valueOf(AgentRuntimeInfo.usableSpace(SystemUtil.currentWorkingDirectory())))
-                    .addParameter("operatingSystem", new SystemEnvironment().getOperatingSystemCompleteName())
+                    .addParameter("operatingSystem", SystemInfo.getOperatingSystemCompleteName())
                     .addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey())
                     .addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources())
                     .addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments())

@@ -26,9 +26,10 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InOrder;
 
@@ -44,8 +45,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsPublisherTest {
-
-    private static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
     @TempDir
     File workingFolder;
@@ -167,9 +166,8 @@ public class ArtifactsPublisherTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldErrorOutWhenFailedToCreateFolderToWritePluggableArtifactMetadata() {
-        Assumptions.assumeFalse(IS_WINDOWS, "Do not run on windows.");
-
         final ArtifactStore artifactStore = new ArtifactStore("s3", "cd.go.s3", create("Foo", false, "Bar"));
         final ArtifactStores artifactStores = new ArtifactStores(artifactStore);
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3", create("Baz", true, "Car")));

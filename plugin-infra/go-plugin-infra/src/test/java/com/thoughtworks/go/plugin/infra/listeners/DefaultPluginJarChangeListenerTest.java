@@ -62,7 +62,7 @@ class DefaultPluginJarChangeListenerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("defaultFiles/go-plugin-activator.jar");
         when(systemEnvironment.get(PLUGIN_WORK_DIR)).thenReturn(bundleDir.getAbsolutePath());
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
+        when(systemEnvironment.getOperatingSystemFamilyJvmName()).thenReturn("Linux");
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
     }
@@ -459,7 +459,7 @@ class DefaultPluginJarChangeListenerTest {
         final GoPluginDescriptor pluginDescriptor2 = getPluginDescriptor("some.old.id.2", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, null, "Linux", "Mac OS X");
         GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
 
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
+        when(systemEnvironment.getOperatingSystemFamilyJvmName()).thenReturn("Windows");
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
@@ -489,7 +489,7 @@ class DefaultPluginJarChangeListenerTest {
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, false, pluginWorkDir))).thenReturn(newBundleDescriptor);
 
         GoPluginBundleDescriptor oldPluginDescriptor = new GoPluginBundleDescriptor(getPluginDescriptor(pluginID, "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), true, null, "Linux", "Mac OS X"));
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
+        when(systemEnvironment.getOperatingSystemFamilyJvmName()).thenReturn("Linux");
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(newBundleDescriptor);
         when(registry.unloadPlugin(newBundleDescriptor)).thenReturn(oldPluginDescriptor);
 
@@ -512,7 +512,7 @@ class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(getPluginDescriptor("some.old.id", "1.0", pluginJarFile.getAbsolutePath(),
                 new File(PLUGIN_JAR_FILE_NAME), false, null, "Windows", "Linux"));
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
+        when(systemEnvironment.getOperatingSystemFamilyJvmName()).thenReturn("Windows");
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
@@ -528,7 +528,7 @@ class DefaultPluginJarChangeListenerTest {
 
         copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(getPluginDescriptor("some.old.id", "1.0", pluginJarFile.getAbsolutePath(), new File(PLUGIN_JAR_FILE_NAME), false, null));
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
+        when(systemEnvironment.getOperatingSystemFamilyJvmName()).thenReturn("Windows");
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(descriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
@@ -597,7 +597,7 @@ class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginWorkDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = getPluginDescriptor("some.old.id", "1.0", null,
                 new File(PLUGIN_JAR_FILE_NAME), false, null, "Windows", "Linux");
-        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
+        when(systemEnvironment.getOperatingSystemFamilyJvmName()).thenReturn("Windows");
         when(goPluginBundleDescriptorBuilder.build(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir))).thenReturn(new GoPluginBundleDescriptor(descriptor));
     }
 

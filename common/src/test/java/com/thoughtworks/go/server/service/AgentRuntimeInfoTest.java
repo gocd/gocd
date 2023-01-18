@@ -47,7 +47,7 @@ public class AgentRuntimeInfoTest {
     }
 
     @Test
-    public void shouldThrowOnEmptyLocation() throws Exception {
+    public void shouldThrowOnEmptyLocation() {
         assertThatThrownBy(() -> AgentRuntimeInfo.fromServer(new Agent("uuid", "localhost", "127.0.0.1"), false, "", 0L, "linux"))
                 .isExactlyInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Agent should not register without installation path");
@@ -105,20 +105,20 @@ public class AgentRuntimeInfoTest {
     }
 
     @Test
-    public void shouldHaveRelevantFieldsInDebugString() throws Exception {
+    public void shouldHaveRelevantFieldsInDebugString() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         assertThat(agentRuntimeInfo.agentInfoDebugString(), is("Agent [localhost, 127.0.0.1, uuid, cookie]"));
     }
 
     @Test
-    public void shouldHaveBeautifulPhigureLikeDisplayString() throws Exception {
+    public void shouldHaveBeautifulPhigureLikeDisplayString() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/nim/appan/mane");
         assertThat(agentRuntimeInfo.agentInfoForDisplay(), is("Agent located at [localhost, 127.0.0.1, /nim/appan/mane]"));
     }
 
     @Test
-    public void shouldTellIfHasCookie() throws Exception {
+    public void shouldTellIfHasCookie() {
         assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("cookie"), is(false));
         assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie").hasDuplicateCookie("different"), is(true));
         assertThat(new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null).hasDuplicateCookie("cookie"), is(false));

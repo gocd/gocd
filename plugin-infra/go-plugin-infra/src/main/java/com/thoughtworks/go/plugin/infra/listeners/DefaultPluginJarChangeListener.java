@@ -39,12 +39,12 @@ import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PA
 @Component
 public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private static final String ACTIVATOR_JAR_NAME = GoPluginOSGiManifest.ACTIVATOR_JAR_NAME;
-    private static Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarChangeListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarChangeListener.class);
     private final DefaultPluginRegistry registry;
     private final GoPluginOSGiManifestGenerator osgiManifestGenerator;
     private final PluginLoader pluginLoader;
+    private final GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder;
     private final SystemEnvironment systemEnvironment;
-    private GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder;
 
     @Autowired
     public DefaultPluginJarChangeListener(DefaultPluginRegistry registry,
@@ -151,7 +151,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     }
 
     private void validatePluginCompatibilityWithCurrentOS(GoPluginBundleDescriptor bundleDescriptor) {
-        String currentOS = systemEnvironment.getOperatingSystemFamilyName();
+        String currentOS = systemEnvironment.getOperatingSystemFamilyJvmName();
 
         for (GoPluginDescriptor pluginDescriptor : bundleDescriptor.descriptors()) {
             if (!pluginDescriptor.isCurrentOSValidForThisPlugin(currentOS)) {

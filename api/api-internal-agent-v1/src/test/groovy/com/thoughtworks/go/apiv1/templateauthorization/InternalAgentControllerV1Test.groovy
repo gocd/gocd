@@ -56,7 +56,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should return an agent instruction'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
 
       when(buildRepositoryMessageProducer.ping(runtimeInfo)).thenReturn(AgentInstruction.NONE)
       def headers = [
@@ -75,7 +75,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def headers = [
               'accept'      : controller.mimeType,
               'content-type': 'application/json',
@@ -94,7 +94,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should report current status'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -116,7 +116,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -139,7 +139,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should report completing'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -161,7 +161,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -184,7 +184,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should report completed'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -206,7 +206,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -229,7 +229,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should check if a job is ignored'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -252,7 +252,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
       def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
               "1", "some_job", 1111L)
 
@@ -276,7 +276,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should fetch a cookie'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
 
       when(buildRepositoryMessageProducer.getCookie(runtimeInfo)).thenReturn("cookie")
 
@@ -297,9 +297,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
-      def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
-              "1", "some_job", 1111L)
+              "20.1.0", "20.9.0", () -> "Mac OS X")
 
       def headers = [
               'accept'      : controller.mimeType,
@@ -320,7 +318,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'should get work for an agent'() {
       def agent = new Agent("uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
+              "20.1.0", "20.9.0", () -> "Mac OS X")
 
       when(buildRepositoryMessageProducer.getWork(runtimeInfo)).thenReturn(new NoWork())
 
@@ -341,9 +339,7 @@ class InternalAgentControllerV1Test implements ControllerTrait<InternalAgentCont
     void 'ensure agent is making a request for itself'() {
       def agent = new Agent("different_agent_uuid", "localhost", "176.19.4.1")
       def runtimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-              "20.1.0", "20.9.0")
-      def jobIdentifier = new JobIdentifier("up_42", 100, "100", "up42_stage",
-              "1", "some_job", 1111L)
+              "20.1.0", "20.9.0", () -> "Mac OS X")
 
       def headers = [
               'accept'      : controller.mimeType,

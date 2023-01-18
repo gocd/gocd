@@ -52,10 +52,9 @@ class GetWorkRequestRepresenterTest {
 
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def expectedRuntimeInfo = AgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "20.1.0", "20.9.0")
+                "20.1.0", "20.9.0", () -> "Mac OS X")
         expectedRuntimeInfo.setUsableSpace(10L)
         expectedRuntimeInfo.setLocation("/some/random/location")
-        expectedRuntimeInfo.setOperatingSystem("Mac OS X")
 
         def request = GetWorkRequestRepresenter.fromJSON(requestJSON)
 
@@ -88,10 +87,9 @@ class GetWorkRequestRepresenterTest {
                 "}"
         def agent = new Agent("uuid", "localhost", "176.19.4.1")
         def expectedRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(),
-                "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0")
+          "elastic_agent_id", "plugin_id", "20.1.0", "20.9.0", () -> "Mac OS X")
         expectedRuntimeInfo.setUsableSpace(10L)
         expectedRuntimeInfo.setLocation("/some/random/location")
-        expectedRuntimeInfo.setOperatingSystem("Mac OS X")
 
         def request = GetWorkRequestRepresenter.fromJSON(requestJSON)
 

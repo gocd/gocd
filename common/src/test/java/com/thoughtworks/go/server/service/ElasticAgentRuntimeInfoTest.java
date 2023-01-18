@@ -18,17 +18,20 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class ElasticAgentRuntimeInfoTest {
 
+    private static final Supplier<String> TEST_OS_SUPPLIER = () -> "My OS 10.1";
+
     @Test
-    public void shouldUpdateSelfForAnIdleAgent() throws Exception {
+    public void shouldUpdateSelfForAnIdleAgent() {
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
         agentRuntimeInfo.updateAgentVersion("old.version.1");
         agentRuntimeInfo.updateBootstrapperVersion("old.version.2");
@@ -50,18 +53,17 @@ public class ElasticAgentRuntimeInfoTest {
     }
 
     @Test
-    public void shouldRefreshOperatingSystemOfAgent() throws Exception {
+    public void shouldRefreshOperatingSystemOfAgent() {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", "20.3.0-1234", "20.5.0-2345");
-        String os = new SystemEnvironment().getOperatingSystemCompleteName();
-        assertThat(runtimeInfo.getOperatingSystem(), is(os));
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", "20.3.0-1234", "20.5.0-2345", TEST_OS_SUPPLIER);
+        assertThat(runtimeInfo.getOperatingSystem(), is("My OS 10.1"));
     }
 
     @Test
-    public void shouldRefreshUsableSpaceOfAgent() throws Exception {
+    public void shouldRefreshUsableSpaceOfAgent() {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
         String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, "20.3.0-1234", "20.5.0-2345");
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, "20.3.0-1234", "20.5.0-2345", TEST_OS_SUPPLIER);
         long space = ElasticAgentRuntimeInfo.usableSpace(workingDirectory);
         assertThat(runtimeInfo.getUsableSpace(), is(space));
     }
@@ -70,7 +72,7 @@ public class ElasticAgentRuntimeInfoTest {
     public void shouldUpdateAgentAndBootstrapperVersions() {
         AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
         String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
-        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, "20.3.0-1234", "20.5.0-2345");
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, "20.3.0-1234", "20.5.0-2345", TEST_OS_SUPPLIER);
 
         assertThat(runtimeInfo.getAgentVersion(), is("20.5.0-2345"));
         assertThat(runtimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));

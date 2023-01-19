@@ -165,10 +165,6 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           eachLine = newLines.join('\n')
         }
 
-        if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
-          eachLine = 'wrapper.java.additional.auto_bits=FALSE'
-        }
-
         if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
           eachLine = [
             'wrapper.java.classpath.1=wrapper/wrapper.jar',

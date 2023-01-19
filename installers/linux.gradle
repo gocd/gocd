@@ -227,10 +227,6 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
               eachLine = newLines.join('\n')
             }
 
-            if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
-              eachLine = 'wrapper.java.additional.auto_bits=FALSE'
-            }
-
             if (eachLine == 'wrapper.java.command=java') {
               eachLine = "wrapper.java.command=/usr/share/${installerType.baseName}/jre/bin/java"
             }

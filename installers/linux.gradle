@@ -204,7 +204,8 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
             if (eachLine == '#encoding=UTF-8') {
               def newLines = [
                 '#encoding=UTF-8',
-                "wrapper.working.dir=/var/lib/${installerType.baseName}"
+                "wrapper.working.dir=/var/lib/${installerType.baseName}",
+                'wrapper.disable_console_input=TRUE'
               ]
 
               (installerType.additionalEnvVars + installerType.additionalLinuxEnvVars).forEach { k, v ->

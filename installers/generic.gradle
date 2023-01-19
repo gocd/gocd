@@ -145,7 +145,8 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
         if (eachLine == '#encoding=UTF-8') {
           def newLines = [
             '#encoding=UTF-8',
-            'wrapper.working.dir=..'
+            'wrapper.working.dir=..',
+            'wrapper.disable_console_input=TRUE'
           ]
 
           installerType.additionalEnvVars.forEach { k, v ->
@@ -163,10 +164,6 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           }
 
           eachLine = newLines.join('\n')
-        }
-
-        if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
-          eachLine = 'wrapper.java.additional.auto_bits=FALSE'
         }
 
         if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {

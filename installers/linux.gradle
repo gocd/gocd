@@ -204,7 +204,8 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
             if (eachLine == '#encoding=UTF-8') {
               def newLines = [
                 '#encoding=UTF-8',
-                "wrapper.working.dir=/var/lib/${installerType.baseName}"
+                "wrapper.working.dir=/var/lib/${installerType.baseName}",
+                'wrapper.disable_console_input=TRUE'
               ]
 
               (installerType.additionalEnvVars + installerType.additionalLinuxEnvVars).forEach { k, v ->
@@ -225,10 +226,6 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
 
               eachLine = newLines.join('\n')
-            }
-
-            if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
-              eachLine = 'wrapper.java.additional.auto_bits=FALSE'
             }
 
             if (eachLine == 'wrapper.java.command=java') {

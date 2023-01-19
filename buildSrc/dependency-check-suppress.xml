@@ -200,38 +200,11 @@
 
   <suppress>
     <notes><![CDATA[
-    False Positive per https://github.com/jeremylong/DependencyCheck/issues/5233
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-    <cpe>cpe:/a:yaml_project:yaml</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not vulnerable to this, as the GoSmtpMailSender ensures server identity is verified in properties. Note that
-    confusingly the CVE is raised against Apache Sling, but OSSIndex reports against Eclipse Angus Mail despite the
-    misleading description.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus\-core@.*$</packageUrl>
-    <vulnerabilityName>CVE-2021-44549</vulnerabilityName>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     False positive, Jakarta Projects are not the Eclipse IDE: see https://github.com/jeremylong/DependencyCheck/issues/5287
     and https://github.com/jeremylong/DependencyCheck/issues/5290
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/jakarta\.(activation|mail)/jakarta\.(activation|mail)\-api@.*$</packageUrl>
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    This is a false positive. The Jolt JSON Utils project is not the same thing as fredsmith utils. See
-    https://github.com/jeremylong/DependencyCheck/issues/5213 and https://github.com/jeremylong/DependencyCheck/issues/5218
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.bazaarvoice\.jolt/json\-utils@.*$</packageUrl>
-    <cpe>cpe:/a:utils_project:utils</cpe>
   </suppress>
 
   <suppress>

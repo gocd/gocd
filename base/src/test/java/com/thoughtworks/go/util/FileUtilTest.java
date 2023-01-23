@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -26,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
@@ -58,14 +56,6 @@ public class FileUtilTest {
     void shouldUseDefaultIfActualIsNull() {
         final File baseFile = new File("xyz");
         assertThat(FileUtil.applyBaseDirIfRelative(baseFile, null)).isEqualTo(baseFile);
-    }
-
-    @Test
-    void shouldCreateUniqueHashForFolders() {
-        File file = new File("c:a/b/c/d/e");
-        File file2 = new File("c:foo\\bar\\baz");
-        assertThat(FileUtil.filesystemSafeFileHash(file).matches("[0-9a-zA-Z\\.\\-]*")).isTrue();
-        assertThat(FileUtil.filesystemSafeFileHash(file2)).isNotEqualTo(FileUtil.filesystemSafeFileHash(file));
     }
 
     @Test
@@ -120,12 +110,5 @@ public class FileUtilTest {
         assertThatThrownBy(() -> FileUtil.getCanonicalPath(spyFile))
                 .isExactlyInstanceOf(RuntimeException.class)
                 .hasCause(canonicalPathException);
-    }
-
-    @Test
-    void shouldCalculateSha1Digest() throws IOException {
-        File tempFile = folder.toPath().resolve("testFile.txt").toFile();
-        FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
-        assertThat(FileUtil.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
     }
 }

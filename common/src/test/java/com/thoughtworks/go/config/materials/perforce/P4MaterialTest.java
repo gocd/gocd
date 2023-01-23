@@ -81,6 +81,14 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
+    void shouldCreateUniqueHashForFolders() {
+        File file = new File("c:a/b/c/d/e");
+        File file2 = new File("c:foo\\bar\\baz");
+        assertThat(P4Material.filesystemSafeFileHash(file).matches("[0-9a-zA-Z.\\-]*")).isTrue();
+        assertThat(P4Material.filesystemSafeFileHash(file2)).isNotEqualTo(P4Material.filesystemSafeFileHash(file));
+    }
+
+    @Test
     void shouldNotDisplayPasswordInStringRepresentation() {
         P4Material p4 = new P4Material("host:10", "beautiful");
         p4.setUsername("user");

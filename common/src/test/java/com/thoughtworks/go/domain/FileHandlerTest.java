@@ -20,20 +20,21 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class FileHandlerTest {
+
+    @TempDir
+    File tempDir;
 
     private File artifact;
     private ArtifactMd5Checksums checksums;
@@ -61,8 +62,8 @@ public class FileHandlerTest {
         fileHandler.handle(new ByteArrayInputStream("Hello world".getBytes()));
         fileHandler.handleResult(200, goPublisher);
 
-        assertThat(FileUtils.readFileToString(artifact, UTF_8), is("Hello world"));
-        assertThat(goPublisher.getMessage(), containsString("Saved artifact to [foo] after verifying the integrity of its contents."));
+        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo("Hello world");
+        assertThat(goPublisher.getMessage()).contains("Saved artifact to [foo] after verifying the integrity of its contents.");
         verify(checksums).md5For("src/file/path");
         verifyNoMoreInteractions(checksums);
     }
@@ -73,9 +74,9 @@ public class FileHandlerTest {
 
         fileHandler.handleResult(200, goPublisher);
 
-        assertThat(goPublisher.getMessage(), containsString("Saved artifact to [foo] without verifying the integrity of its contents."));
-        assertThat(goPublisher.getMessage(), not(containsString("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents.")));
-        assertThat(FileUtils.readFileToString(artifact, UTF_8), is("Hello world"));
+        assertThat(goPublisher.getMessage()).contains("Saved artifact to [foo] without verifying the integrity of its contents.");
+        assertThat(goPublisher.getMessage()).doesNotContain("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents.");
+        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo("Hello world");
     }
 
     @Test
@@ -87,9 +88,9 @@ public class FileHandlerTest {
 
         fileHandler.handleResult(200, goPublisher);
 
-        assertThat(goPublisher.getMessage(), containsString("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents."));
-        assertThat(goPublisher.getMessage(), containsString("Saved artifact to [foo] without verifying the integrity of its contents"));
-        assertThat(FileUtils.readFileToString(artifact, UTF_8), is("Hello world"));
+        assertThat(goPublisher.getMessage()).contains("[WARN] The md5checksum value of the artifact [src/file/path] was not found on the server. Hence, Go could not verify the integrity of its contents.");
+        assertThat(goPublisher.getMessage()).contains("Saved artifact to [foo] without verifying the integrity of its contents");
+        assertThat(FileUtils.readFileToString(artifact, UTF_8)).isEqualTo("Hello world");
     }
 
     @Test
@@ -102,9 +103,8 @@ public class FileHandlerTest {
             fileHandler.handleResult(200, goPublisher);
             fail("Should throw exception when checksums do not match.");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Artifact download failed for [src/file/path]"));
-            assertThat(goPublisher.getMessage(),
-                    containsString("[ERROR] Verification of the integrity of the artifact [src/file/path] failed. The artifact file on the server may have changed since its original upload."));
+            assertThat(e.getMessage()).isEqualTo("Artifact download failed for [src/file/path]");
+            assertThat(goPublisher.getMessage()).contains("[ERROR] Verification of the integrity of the artifact [src/file/path] failed. The artifact file on the server may have changed since its original upload.");
         }
     }
 
@@ -122,11 +122,17 @@ public class FileHandlerTest {
                 fileHandler.handleResult(200, goPublisher);
                 fail("Should throw exception when checksums do not match.");
             } catch (RuntimeException e) {
-                assertThat(e.getMessage(), is("Artifact download failed for [src/file/path]"));
-                assertThat(goPublisher.getMessage(),
-                        containsString("[ERROR] Verification of the integrity of the artifact [src/file/path] failed. The artifact file on the server may have changed since its original upload."));
+                assertThat(e.getMessage()).isEqualTo("Artifact download failed for [src/file/path]");
+                assertThat(goPublisher.getMessage()).contains("[ERROR] Verification of the integrity of the artifact [src/file/path] failed. The artifact file on the server may have changed since its original upload.");
             }
         }
+    }
+
+    @Test
+    void shouldCalculateSha1Digest() throws IOException {
+        File tempFile = tempDir.toPath().resolve("testFile.txt").toFile();
+        FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
+        assertThat(FileHandler.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
     }
 
 }

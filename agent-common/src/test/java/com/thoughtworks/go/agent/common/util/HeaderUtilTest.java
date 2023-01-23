@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.agent.common.util;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.message.BasicHeader;
 import org.junit.jupiter.api.Test;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +52,7 @@ public class HeaderUtilTest {
     }
 
     private void assertExtraProperties(String actualHeaderValueBeforeBase64, Map<String, String> expectedProperties) {
-        String headerValueInBase64 = Base64.encodeBase64String(actualHeaderValueBeforeBase64.getBytes(UTF_8));
+        String headerValueInBase64 = Base64.getEncoder().encodeToString(actualHeaderValueBeforeBase64.getBytes(UTF_8));
         assertExtraPropertiesWithoutBase64(headerValueInBase64, expectedProperties);
     }
 

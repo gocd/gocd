@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
-import java.util.Base64;
 import java.util.UUID;
 
 public class FileUtil {
@@ -87,12 +86,6 @@ public class FileUtil {
 
     public static String toFileURI(String path) {
         return toFileURI(new File(path));
-    }
-
-    public static String filesystemSafeFileHash(File folder) {
-        String hash = Base64.getEncoder().encodeToString(DigestUtils.sha1(folder.getAbsolutePath().getBytes()));
-        hash = hash.replaceAll("[^0-9a-zA-Z\\.\\-]", "");
-        return hash;
     }
 
     public static boolean isSubdirectoryOf(File parent, File subdirectory) throws IOException {
@@ -162,15 +155,6 @@ public class FileUtil {
             return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
         }
         return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
-    }
-
-    public static String sha1Digest(File file) {
-        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
-            byte[] hash = DigestUtils.sha1(is);
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (IOException e) {
-            throw ExceptionUtils.bomb(e);
-        }
     }
 }
 

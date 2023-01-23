@@ -15,14 +15,13 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
-import org.apache.commons.codec.binary.Base64;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER;
 
@@ -43,7 +42,7 @@ public class AgentBinariesServlet extends HttpServlet {
 
             final String extraPropertiesHeaderValue = fakeGoServer.getExtraPropertiesHeaderValue();
             if (extraPropertiesHeaderValue != null) {
-                response.setHeader(AGENT_EXTRA_PROPERTIES_HEADER, Base64.encodeBase64String(extraPropertiesHeaderValue.getBytes(StandardCharsets.UTF_8)));
+                response.setHeader(AGENT_EXTRA_PROPERTIES_HEADER, Base64.getEncoder().encodeToString(extraPropertiesHeaderValue.getBytes(StandardCharsets.UTF_8)));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

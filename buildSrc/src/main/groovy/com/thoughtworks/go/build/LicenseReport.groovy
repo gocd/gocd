@@ -28,13 +28,7 @@ import static com.thoughtworks.go.build.SpdxLicense.*
 
 class LicenseReport {
 
-  private static Set<String> LICENSE_EXCEPTIONS = [
-    'Bouncy Castle Licence',
-    'Similar to Apache License but with the acknowledgment clause removed', // JDOM2
-    'The OpenSymphony Software License 1.1',
-  ]
-
-  private static Set<String> ALLOWED_LICENSES = (LICENSE_EXCEPTIONS + [
+  private static final Set<String> ALLOWED_LICENSES = [
     APACHE_1_1,
     APACHE_2_0,
     BSD_0,
@@ -48,16 +42,17 @@ class LicenseReport {
     EPL_2_0,
     GPL_2_0_CLASSPATH_EXCEPTION,
     GPL_2_0_UNIVERSAL_FOSS_EXCEPTION,
+    ISC,
     LGPL_2_1,
     LGPL_3_0,
     LGPL_3_0_ONLY,
     MIT,
     MPL_1_1,
     MPL_2_0_EPL_1_0,
-    UNLICENSE,
+    PLEXUS,
     PUBLIC_DOMAIN,
-    ISC
-  ].collect { it.id })
+    UNLICENSE,
+  ].collect { it.id }
 
   private final Project project
   private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
@@ -162,17 +157,15 @@ class LicenseReport {
 
             p {
               strong("Manifest license URL(s):")
-              moduleLicenseData.moduleLicenses.each { license ->
-                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense))
+              moduleLicenseData.moduleLicenses.findAll { it.moduleLicenseUrl && !it.moduleLicenseUrl.isEmpty() }.each { license ->
+                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense as String))
               }
             }
           } else {
             throw new GradleException("Missing license information for ${moduleName}:${moduleLicenseData.moduleVersion}")
           }
 
-          def string = "${reportDir}/${moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}"
-          def embeddedLicenseFiles = project.fileTree(string).files
-
+          def embeddedLicenseFiles = project.fileTree("${reportDir}/${moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}").files
           if (!embeddedLicenseFiles.isEmpty()) {
             p {
               strong("Embedded license file(s):")

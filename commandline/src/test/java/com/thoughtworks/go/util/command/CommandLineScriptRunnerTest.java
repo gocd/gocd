@@ -121,7 +121,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.LINUX)
-    void shouldCropLongLinesUnderLinux() throws CheckedCommandLineException {
+    void shouldCropLongLinesUnderLinux() {
         System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
 
         CommandLine command = CommandLine.createCommandLine("echo")
@@ -136,7 +136,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void shouldCropLongLinesUnderWindows() throws CheckedCommandLineException {
+    void shouldCropLongLinesUnderWindows() {
         System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
 
         CommandLine command = CommandLine.createCommandLine("cmd")
@@ -153,7 +153,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.LINUX)
-    void shouldReplaceSecretsInCroppedOutputUnderLinux() throws CheckedCommandLineException {
+    void shouldReplaceSecretsInCroppedOutputUnderLinux() {
         System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "40");
 
         CommandLine command = CommandLine.createCommandLine("echo")
@@ -170,7 +170,7 @@ class CommandLineScriptRunnerTest {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void shouldReplaceSecretsInCroppedOutputUnderWindows() throws CheckedCommandLineException {
+    void shouldReplaceSecretsInCroppedOutputUnderWindows() {
         System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "42");
 
         CommandLine command = CommandLine.createCommandLine("cmd")

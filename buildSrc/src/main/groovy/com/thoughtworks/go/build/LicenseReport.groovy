@@ -28,13 +28,7 @@ import static com.thoughtworks.go.build.SpdxLicense.*
 
 class LicenseReport {
 
-  private static Set<String> LICENSE_EXCEPTIONS = [
-    'Bouncy Castle Licence',
-    'Similar to Apache License but with the acknowledgment clause removed', // JDOM2
-    'The OpenSymphony Software License 1.1',
-  ]
-
-  private static Set<String> ALLOWED_LICENSES = (LICENSE_EXCEPTIONS + [
+  private static final Set<String> ALLOWED_LICENSES = [
     APACHE_1_1,
     APACHE_2_0,
     BSD_0,
@@ -58,9 +52,7 @@ class LicenseReport {
     PLEXUS,
     PUBLIC_DOMAIN,
     UNLICENSE,
-    PUBLIC_DOMAIN,
-    ISC
-  ].collect { it.id })
+  ].collect { it.id }
 
   private final Project project
   private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies

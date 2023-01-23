@@ -157,17 +157,15 @@ class LicenseReport {
 
             p {
               strong("Manifest license URL(s):")
-              moduleLicenseData.moduleLicenses.each { license ->
-                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense))
+              moduleLicenseData.moduleLicenses.findAll { it.moduleLicenseUrl && !it.moduleLicenseUrl.isEmpty() }.each { license ->
+                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense as String))
               }
             }
           } else {
             throw new GradleException("Missing license information for ${moduleName}:${moduleLicenseData.moduleVersion}")
           }
 
-          def string = "${reportDir}/${moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}"
-          def embeddedLicenseFiles = project.fileTree(string).files
-
+          def embeddedLicenseFiles = project.fileTree("${reportDir}/${moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}").files
           if (!embeddedLicenseFiles.isEmpty()) {
             p {
               strong("Embedded license file(s):")

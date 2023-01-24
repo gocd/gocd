@@ -56,7 +56,7 @@ public class ValueStreamMapService {
     private final DownstreamInstancePopulator downstreamInstancePopulator;
     private final RunStagesPopulator runStagesPopulator;
     private final UnrunStagesPopulator unrunStagePopulator;
-    private SecurityService securityService;
+    private final SecurityService securityService;
     private static final Logger LOGGER = LoggerFactory.getLogger(ValueStreamMapService.class);
 
     @Autowired
@@ -112,7 +112,7 @@ public class ValueStreamMapService {
             return null;
         }
         addInstanceInformationToTheGraph(valueStreamMap);
-        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username, result);
+        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
 
         valueStreamMap.addWarningIfBuiltFromInCompatibleRevisions();
 
@@ -168,11 +168,7 @@ public class ValueStreamMapService {
                 return null;
             }
 
-            ValueStreamMap valueStreamMap = buildValueStreamMap(material, materialInstance, modification, downstreamPipelines, username, result);
-            if (valueStreamMap == null) {
-                return null;
-            }
-            return valueStreamMap.presentationModel();
+            return buildValueStreamMap(material, materialInstance, modification, downstreamPipelines, username).presentationModel();
         } catch (Exception e) {
             result.internalServerError("Value Stream Map of material with fingerprint '" + materialFingerprint + "' with revision '" + revision + "' can not be rendered. Please check the server log for details.");
             LOGGER.error("[Value Stream Map] Material {} with revision {} could not be rendered.", materialFingerprint, revision, e);
@@ -180,7 +176,7 @@ public class ValueStreamMapService {
         }
     }
 
-    private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username, LocalizedOperationResult result) {
+    private ValueStreamMap buildValueStreamMap(Material material, MaterialInstance materialInstance, Modification modification, List<PipelineConfig> downstreamPipelines, Username username) {
         CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
         ValueStreamMap valueStreamMap = new ValueStreamMap(material, materialInstance, modification);
         Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
@@ -188,11 +184,11 @@ public class ValueStreamMapService {
         traverseDownstream(new CaseInsensitiveString(material.getFingerprint()), downstreamPipelines, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
 
         addInstanceInformationToTheGraph(valueStreamMap);
-        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username, result);
+        removeRevisionsBasedOnPermissionAndCurrentConfig(valueStreamMap, username);
         return valueStreamMap;
     }
 
-    private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username, LocalizedOperationResult result) {
+    private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
         for (Node node : valueStreamMap.allNodes()) {
             if (node instanceof PipelineDependencyNode) {
                 String pipelineName = node.getName();

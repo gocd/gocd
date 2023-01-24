@@ -73,6 +73,7 @@ dependencies {
   implementation project.deps.commonsConfiguration
   implementation project.deps.nanohttpd
   implementation project.deps.oshi
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project(path: ':common', configuration: 'testOutput')
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')

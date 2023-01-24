@@ -53,14 +53,14 @@ import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceM
 @Component
 public class GoDashboardCurrentStateLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoDashboardCurrentStateLoader.class);
-    private PipelineDao pipelineDao;
-    private TriggerMonitor triggerMonitor;
-    private PipelinePauseService pipelinePauseService;
-    private PipelineLockService pipelineLockService;
-    private PipelineUnlockApiService pipelineUnlockApiService;
-    private SchedulingCheckerService schedulingCheckerService;
-    private GoConfigPipelinePermissionsAuthority permissionsAuthority;
-    private TimeStampBasedCounter timeStampBasedCounter;
+    private final PipelineDao pipelineDao;
+    private final TriggerMonitor triggerMonitor;
+    private final PipelinePauseService pipelinePauseService;
+    private final PipelineLockService pipelineLockService;
+    private final PipelineUnlockApiService pipelineUnlockApiService;
+    private final SchedulingCheckerService schedulingCheckerService;
+    private final GoConfigPipelinePermissionsAuthority permissionsAuthority;
+    private final TimeStampBasedCounter timeStampBasedCounter;
     private boolean everLoadedCurrentState = false;
     private PipelineInstanceModels historyForDashboard = PipelineInstanceModels.createPipelineInstanceModels();
     private Set<CaseInsensitiveString> lastKnownPipelineNames = new HashSet<>();

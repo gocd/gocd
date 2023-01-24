@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import javax.annotation.PostConstruct;
 import java.util.Objects;
@@ -243,12 +242,12 @@ public class ServerConfig implements Validatable {
         this.mailHost = mailHost;
     }
 
-    @VisibleForTesting
+    @TestOnly
     public void setSiteUrl(String siteUrl) {
         getSiteUrls().setSiteUrl(StringUtils.isBlank(siteUrl) ? new SiteUrl() : new SiteUrl(siteUrl));
     }
 
-    @VisibleForTesting
+    @TestOnly
     public void setSecureSiteUrl(String secureSiteUrl) {
         getSiteUrls().setSecureSiteUrl(StringUtils.isBlank(secureSiteUrl) ? new SecureSiteUrl() : new SecureSiteUrl(secureSiteUrl));
     }

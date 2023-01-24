@@ -38,13 +38,13 @@ public enum ApiVersion {
 
     public static final String LATEST_VERSION_MIMETYPE = "application/vnd.go.cd+json";
 
-    private static Set<String> VALID_HEADERS =
+    private static final Set<String> VALID_HEADERS =
             ImmutableSet.<String>builder()
                     .add(LATEST_VERSION_MIMETYPE)
                     .addAll(Arrays.stream(ApiVersion.values()).map(ApiVersion::mimeType).collect(Collectors.toSet()))
                     .build();
 
-    private static Map<String, ApiVersion> HEADER_TO_VERSION_MAP = new LinkedHashMap<>();
+    private static final Map<String, ApiVersion> HEADER_TO_VERSION_MAP = new LinkedHashMap<>();
 
     static {
         Arrays.stream(ApiVersion.values()).forEach(apiVersion -> HEADER_TO_VERSION_MAP.put(apiVersion.mimeType(), apiVersion));

@@ -38,7 +38,6 @@ dependencies {
   testImplementation project(path: ':domain', configuration: 'testOutput')
   testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
-  testImplementation project.deps.guava
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Params

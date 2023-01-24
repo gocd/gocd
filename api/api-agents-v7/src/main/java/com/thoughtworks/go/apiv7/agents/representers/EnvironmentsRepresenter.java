@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv7.agents.representers;
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -26,26 +25,27 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.spark.Routes;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static java.util.stream.Collectors.toList;
 
 public class EnvironmentsRepresenter {
     public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments, AgentInstance agentInstance) {
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         envConfigs.addAll(environments);
-        Set<String> agentEnvAssociationFromDB = new HashSet<>(agentInstance.getAgent().getEnvironmentsAsList());
-        Set<String> agentEnvAssociationFromConfigRepo = envConfigs.stream()
+        Stream<String> agentEnvAssociationFromDB = agentInstance.getAgent().getEnvironmentsAsList().stream();
+        Stream<String> agentEnvAssociationFromConfigRepo = envConfigs.stream()
                 .filter(environmentConfig -> !environmentConfig.isLocal())
-                .map(environmentConfig -> environmentConfig.name().toString())
-                .collect(Collectors.toSet());
-        Set<String> allAgentEnvAssociations = Sets.union(agentEnvAssociationFromDB, agentEnvAssociationFromConfigRepo);
-        List<String> sortedEnvNames = allAgentEnvAssociations.stream()
+                .map(environmentConfig -> environmentConfig.name().toString());
+        List<String> sortedEnvNames = Stream.concat(agentEnvAssociationFromDB, agentEnvAssociationFromConfigRepo)
+                .collect(Collectors.toSet())
+                .stream()
                 .sorted()
-                .collect(toList());
+                .collect(Collectors.toList());
 
         for (String envName : sortedEnvNames) {
             EnvironmentConfig envConfig = envConfigs.find(new CaseInsensitiveString(envName));

@@ -290,8 +290,8 @@ dependencies {
 
   implementation project.deps.freemarker
   implementation project.deps.guava
-  implementation project.deps.mail
-  implementation project.deps.mailSmtp
+  implementation project.deps.jakartaMail
+  implementation project.deps.angusMailSmtp
 
   implementation project.deps.slf4j
   implementation(project.deps.jgitServer) {
@@ -783,8 +783,8 @@ task verifyWar(type: VerifyJarTask) {
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
-        "angus-activation-${project.versions.mailSmtp}.jar",
-        "angus-core-${project.versions.mailSmtp}.jar",
+        "angus-activation-${project.versions.angusMailSmtp}.jar",
+        "angus-core-${project.versions.angusMailSmtp}.jar",
         "animal-sniffer-annotations-1.9.jar",
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
@@ -845,7 +845,7 @@ task verifyWar(type: VerifyJarTask) {
         "jackson-databind-${project.versions.jacksonBom}.jar",
         "jakarta.activation-api-2.1.1.jar",
         "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
-        "jakarta.mail-api-${project.versions.mail}.jar",
+        "jakarta.mail-api-${project.versions.jakartaMail}.jar",
         "jakarta.servlet-api-${project.versions.servletApi}.jar",
         "jakarta.xml.bind-api-4.0.0.jar",
         "javassist-${project.versions.javassist}.jar",
@@ -879,7 +879,7 @@ task verifyWar(type: VerifyJarTask) {
         "rack_hack-${project.version}.jar",
         "semantic-version-${project.versions.semanticVersion}.jar",
         "slf4j-api-${project.versions.slf4j}.jar",
-        "smtp-${project.versions.mailSmtp}.jar",
+        "smtp-${project.versions.angusMailSmtp}.jar",
         "spark-core-${project.versions.spark}.jar",
         "spring-aop-${project.versions.spring}.jar",
         "spring-beans-${project.versions.spring}.jar",

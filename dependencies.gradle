@@ -27,6 +27,7 @@ final Map<String, String> libraries = [
   // DO NOT interpolate version variables here because Dependabot is not smart enough to understand those. Dependabot's
   // version parsing is simply regex matching and never actually evaluates a gradle script.
   activeMQ            : 'org.apache.activemq:activemq-broker:5.17.3',
+  angusMailSmtp       : 'org.eclipse.angus:smtp:1.1.0',
   apacheAnt           : 'org.apache.ant:ant:1.10.13',
   apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.14',
   aspectj             : 'org.aspectj:aspectjweaver:1.9.19',
@@ -58,6 +59,7 @@ final Map<String, String> libraries = [
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
   jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.14.1',
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',
+  jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.1',
   javassist           : 'javassist:javassist:3.12.1.GA',
   jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.1',
   jaxen               : 'jaxen:jaxen:2.0.0',
@@ -76,8 +78,6 @@ final Map<String, String> libraries = [
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:4.1.0',
   logback             : 'ch.qos.logback:logback-classic:1.2.11',
   lombok              : 'org.projectlombok:lombok:1.18.24',
-  mail                : 'jakarta.mail:jakarta.mail-api:2.1.1',
-  mailSmtp            : 'org.eclipse.angus:smtp:1.1.0',
   mockitoBom          : 'org.mockito:mockito-bom:5.0.0',
   mybatis             : 'org.mybatis:mybatis:3.5.11',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.0.7',
@@ -108,6 +108,7 @@ final Map<String, String> libraries = [
 // Export versions that are needed outside of this file (and elsewhere within)
 final Map<String, String> v = [
   activeMQ            : versionOf(libraries.activeMQ),
+  angusMailSmtp       : versionOf(libraries.angusMailSmtp),
   apacheAnt           : versionOf(libraries.apacheAnt),
   apacheHttpComponents: versionOf(libraries.apacheHttpComponents),
   aspectj             : versionOf(libraries.aspectj),
@@ -135,6 +136,7 @@ final Map<String, String> v = [
   jacksonBom          : versionOf(libraries.jacksonBom),
   javassist           : versionOf(libraries.javassist),
   jakartaAnnotation   : versionOf(libraries.jakartaAnnotation),
+  jakartaMail         : versionOf(libraries.jakartaMail),
   jaxb                : versionOf(libraries.jaxbBom),
   jaxen               : versionOf(libraries.jaxen),
   jcommander          : versionOf(libraries.jcommander),
@@ -147,8 +149,6 @@ final Map<String, String> v = [
   liquibase           : versionOf(libraries.liquibase),
   liquibaseSlf4j      : versionOf(libraries.liquibaseSlf4j),
   logback             : versionOf(libraries.logback),
-  mail                : versionOf(libraries.mail),
-  mailSmtp            : versionOf(libraries.mailSmtp),
   mybatis             : versionOf(libraries.mybatis),
   mybatisSpring       : versionOf(libraries.mybatisSpring),
   mysql               : versionOf(libraries.mysql),
@@ -182,6 +182,7 @@ final Map<String, String> v = [
 // with dependencies declared above that are parseable by Dependabot, or are managed by platforms.
 // This is just a workaround to be DRY while still benefiting from Dependabot's automatic PR upgrades.
 final Map<String, String> related = [
+  angusActivation         : "org.eclipse.angus:angus-activation:${v.angusMailSmtp}",
   apacheHttpMime          : "org.apache.httpcomponents:httpmime:${v.apacheHttpComponents}",
   bouncyCastlePkix        : "org.bouncycastle:bcpkix-jdk18on:${v.bouncyCastle}",
   jacksonCore             : "com.fasterxml.jackson.core:jackson-core",

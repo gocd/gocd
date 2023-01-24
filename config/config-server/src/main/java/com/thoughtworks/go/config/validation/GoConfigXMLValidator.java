@@ -19,5 +19,5 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import org.jdom2.Element;
 
 public interface GoConfigXMLValidator {
-    void validate(Element element, ConfigElementImplementationRegistry registry) throws Exception;
+    void validate(Element element, ConfigElementImplementationRegistry registry);
 }

@@ -43,7 +43,6 @@ import static org.mockito.Mockito.*;
 public class FullConfigSaveMergeFlowTest {
     private MagicalGoConfigXmlLoader loader;
     private MagicalGoConfigXmlWriter writer;
-    private ConfigElementImplementationRegistry configElementImplementationRegistry;
     private FullConfigSaveMergeFlow flow;
     private FullConfigUpdateCommand updateConfigCommand;
     private CruiseConfig configForEdit;
@@ -65,7 +64,7 @@ public class FullConfigSaveMergeFlowTest {
         timeProvider = mock(TimeProvider.class);
         configRepository = mock(ConfigRepository.class);
         cachedGoPartials = mock(CachedGoPartials.class);
-        configElementImplementationRegistry = mock(ConfigElementImplementationRegistry.class);
+        ConfigElementImplementationRegistry configElementImplementationRegistry = mock(ConfigElementImplementationRegistry.class);
         partials = new ArrayList<>();
 
         flow = new FullConfigSaveMergeFlow(loader, writer, configElementImplementationRegistry, timeProvider,
@@ -106,7 +105,7 @@ public class FullConfigSaveMergeFlowTest {
 
     @Test
     public void shouldErrorOutIfPreprocessOrValidateFails() throws Exception {
-        when(loader.preprocessAndValidate(configForEdit)).thenThrow(new Exception());
+        when(loader.preprocessAndValidate(configForEdit)).thenThrow(new IllegalArgumentException());
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 

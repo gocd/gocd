@@ -30,7 +30,7 @@ public class FetchArtifactViewHelper {
     private final CaseInsensitiveString stageName;
     private final boolean template;
 
-    private static final String NULL_STR = new String();
+    private static final String NULL_STR = "";
 
     public FetchArtifactViewHelper(SystemEnvironment systemEnvironment, CruiseConfig cruiseConfig, CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, boolean template) {
         this.systemEnvironment = systemEnvironment;

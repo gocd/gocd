@@ -91,7 +91,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
             if (!isJsonContentType(request)) {
                 throw haltBecauseJsonContentTypeExpected();
             }
-        } else if (request.headers().stream().noneMatch(headerName -> headerName.toLowerCase().equals("x-gocd-confirm"))) {
+        } else if (request.headers().stream().noneMatch(headerName -> headerName.equalsIgnoreCase("x-gocd-confirm"))) {
             throw haltBecauseConfirmHeaderMissing();
         }
     }

@@ -280,7 +280,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
      * sure that tests are using the same behaviour as the real code.
      */
     @TestOnly
-    @Override
     public Pipeline saveWithStages(Pipeline pipeline) {
         updateCounter(pipeline);
         Pipeline savedPipeline = save(pipeline);

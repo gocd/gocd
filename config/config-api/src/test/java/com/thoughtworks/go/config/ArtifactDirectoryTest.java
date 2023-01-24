@@ -28,7 +28,7 @@ class ArtifactDirectoryTest {
 
 
     @Test
-    void shouldAddErrorsIfArtifactsDirIsEmpty() throws Exception {
+    void shouldAddErrorsIfArtifactsDirIsEmpty() {
         String message = "Please provide a not empty value for artifactsdir";
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.server().setArtifactsDir("");
@@ -36,7 +36,7 @@ class ArtifactDirectoryTest {
         ArtifactDirValidator artifactDirValidator = mock(ArtifactDirValidator.class);
         ValidationContext validationContext = new ConfigSaveValidationContext(cruiseConfig);
 
-        doThrow(new Exception(message)).when(artifactDirValidator).validate(cruiseConfig);
+        doThrow(new IllegalArgumentException(message)).when(artifactDirValidator).validate(cruiseConfig);
 
         artifactDir.validate(validationContext);
 

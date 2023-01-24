@@ -24,7 +24,7 @@ public class MaterialUrl {
         url = url.trim();
         url = url.endsWith("/") ? (url.substring(0, url.length() - "/".length())) : url;
         url = URLDecoder.decode(url);
-        url = url.toLowerCase().startsWith("file://") ? (url.substring("file://".length(), url.length())) : url;
+        url = url.toLowerCase().startsWith("file://") ? (url.substring("file://".length())) : url;
         this.url = url;
     }
 

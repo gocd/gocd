@@ -50,7 +50,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private GoCache goCache;
     private final AccessTokenDao accessTokenDao;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
-    protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY".intern();
+    protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY";
 
     @Autowired
     public UserSqlMapDao(SessionFactory sessionFactory,

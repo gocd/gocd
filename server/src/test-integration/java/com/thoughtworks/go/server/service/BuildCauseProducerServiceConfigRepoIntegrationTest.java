@@ -38,6 +38,7 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.*;
@@ -88,7 +89,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Autowired
     private ScheduleHelper scheduleHelper;
     @Autowired
-    private PipelineDao pipelineDao;
+    private PipelineSqlMapDao pipelineDao;
     @Autowired
     private PipelineTimeline pipelineTimeline;
     @Autowired

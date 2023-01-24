@@ -123,7 +123,7 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
     }
 
     private static String join(List<String> c, String join) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (String s : c) {
             sb.append(s);
             sb.append(join);

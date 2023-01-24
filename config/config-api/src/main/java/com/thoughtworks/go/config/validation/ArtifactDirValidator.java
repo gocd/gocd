@@ -15,26 +15,27 @@
  */
 package com.thoughtworks.go.config.validation;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class ArtifactDirValidator implements GoConfigValidator {
     @Override
-    public void validate(CruiseConfig cruiseConfig) throws Exception {
+    public void validate(CruiseConfig cruiseConfig) {
         ServerConfig serverConfig = cruiseConfig.server();
         String artifactDir = serverConfig.artifactsDir();
 
         if (isEmpty(artifactDir)) {
-            throw new Exception("Please provide a not empty value for artifactsdir");
+            throw new RuntimeException("Please provide a not empty value for artifactsdir");
         }
 
         if (StringUtils.equals(".", artifactDir) || new File("").getAbsolutePath().equals(
                 new File(artifactDir).getAbsolutePath())) {
-            throw new Exception("artifactsdir should not point to the root of sand box [" +
+            throw new RuntimeException("artifactsdir should not point to the root of sand box [" +
                     new File(artifactDir).getAbsolutePath()
                     + "]");
         }

@@ -36,6 +36,7 @@ import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
@@ -77,7 +78,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineDao pipelineDao;
+    @Autowired private PipelineSqlMapDao pipelineDao;
     @Autowired private PipelineScheduler buildCauseProducer;
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private ScheduleHelper scheduleHelper;
@@ -176,7 +177,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         verifyBuildCauseHasModificationsWith(pipelineScheduleQueue.toBeScheduled(), true);
     }
 
-    private SvnMaterialConfig setUpPipelineWithTwoMaterials() throws Exception {
+    private SvnMaterialConfig setUpPipelineWithTwoMaterials() {
         SvnMaterialConfig svnMaterialConfig = svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
         svnMaterialConfig.setConfigAttributes(Map.of(ScmMaterialConfig.FOLDER, "svnDir"));
         MaterialConfigs materialConfigs = new MaterialConfigs(svnMaterialConfig, hgTestRepo.createMaterialConfig("hgDir"));
@@ -184,13 +185,12 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         return svnMaterialConfig;
     }
 
-    private void consume(final BuildCause buildCause) throws SQLException {
+    private void consume(final BuildCause buildCause) {
         dbHelper.saveRevs(buildCause.getMaterialRevisions());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
                 Pipeline latestPipeline = pipelineScheduleQueue.createPipeline(buildCause, mingleConfig, new DefaultSchedulingContext(buildCause.getApprover(), new Agents()), "md5",
                         new TimeProvider());
-//        Pipeline latestPipeline = PipelineMother.schedule(mingleConfig, buildCause);
                 pipelineDao.saveWithStages(latestPipeline);
                 dbHelper.passStage(latestPipeline.getStages().first());
             }

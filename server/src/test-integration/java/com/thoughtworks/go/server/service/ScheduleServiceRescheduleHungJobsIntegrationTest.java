@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -67,7 +68,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineDao pipelineDao;
+    @Autowired private PipelineSqlMapDao pipelineDao;
     @Autowired private StageDao stageDao;
     @Autowired private JobInstanceDao jobInstanceDao;
     @Autowired private BuildAssignmentService buildAssignmentService;
@@ -108,7 +109,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     }
 
     @Test
-    public void shouldNotRescheduleCancelledBuilds() throws SQLException {
+    public void shouldNotRescheduleCancelledBuilds() {
         String agentId = "uuid";
         final Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifySomeFiles(evolveConfig), new DefaultSchedulingContext(
                 DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
@@ -130,7 +131,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
     }
 
     @Test
-    public void shouldRescheduleHungBuildWhenAgentTryToGetWorkWithSameUuid() throws Exception {
+    public void shouldRescheduleHungBuildWhenAgentTryToGetWorkWithSameUuid() {
         Agent agent = AgentMother.localAgent();
         AgentInstance instance = agent(agent);
         BuildCause buildCause = modifySomeFiles(evolveConfig);

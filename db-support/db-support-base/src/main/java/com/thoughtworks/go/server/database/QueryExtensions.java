@@ -64,7 +64,7 @@ public abstract class QueryExtensions {
     }
 
     protected <T> String joinWithQuotesForSql(T[] array) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
             T t = array[i];
             buffer.append(getQuotedString(t.toString()));

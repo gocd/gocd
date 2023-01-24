@@ -151,14 +151,19 @@ class LicenseReport {
             }
           }
 
-          if (moduleLicenseData.moduleLicenses != null && !moduleLicenseData.moduleLicenses.moduleLicenses.isEmpty()) {
+          if (moduleLicenseData.moduleLicenses != null && !moduleLicenseData.moduleLicenses.isEmpty()) {
 
             checkIfLicensesAreAllowed(moduleLicenseData.moduleLicenses, moduleName, moduleLicenseData.moduleVersion)
 
             p {
-              strong("Manifest license URL(s):")
-              moduleLicenseData.moduleLicenses.findAll { it.moduleLicenseUrl && !it.moduleLicenseUrl.isEmpty() }.each { license ->
-                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense as String))
+              strong("Manifest license(s):")
+              moduleLicenseData.moduleLicenses.each { license ->
+                def licenseIdentifier = normalizeLicense(license.moduleLicense as String)
+                if (license.moduleLicenseUrl != null && !license.moduleLicenseUrl.isBlank()) {
+                  a(href: license.moduleLicenseUrl, licenseIdentifier)
+                } else {
+                  span(licenseIdentifier)
+                }
               }
             }
           } else {

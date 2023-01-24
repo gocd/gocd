@@ -56,7 +56,7 @@ body {
   padding-left: 10px;
 }
 
-.module-info span {
+.module-header span {
   color:       #333;
   font-family: monospace;
 }

@@ -155,7 +155,8 @@
     ],
     "moduleLicenses": [
       {
-        "moduleLicense": "MIT"
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
       }
     ]
   },

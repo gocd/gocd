@@ -41,6 +41,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -189,11 +190,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         environments = mergeStrategy.mergeEnvironmentConfigs();
     }
 
-    // for tests
+    @TestOnly
     public BasicCruiseConfig(PipelineConfigs... groups) {
-        for (PipelineConfigs pipelineConfigs : groups) {
-            this.groups.add(pipelineConfigs);
-        }
+        Collections.addAll(this.groups, groups);
         strategy = new BasicStrategy();
     }
 
@@ -932,8 +931,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         return groups.findPipeline(groupName, pipelineIndex);
     }
 
-    //only for test
-
+    @TestOnly
     @Override
     public int numberOfPipelines() {
         return pipelinesFromAllGroups().size();

@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,14 +63,14 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
     }
 
     public List<String> getFilterList() {
-        if (filter == null)
-            return null;
+        if (filter == null) return null;
         return filter.getList();
     }
 
     public boolean isWhitelist() {
-        if (this.filter != null)
+        if (this.filter != null) {
             return this.filter.isIncluded();
+        }
         return false;
     }
 
@@ -80,11 +81,13 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
 
     protected void getCommonErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        if (this.filter != null)
+        if (this.filter != null) {
             this.filter.getErrors(errors, location);
+        }
     }
 
-    public void setIncludesNoCheck(String... filters) { //for tests
+    @TestOnly
+    public void setIncludesNoCheck(String... filters) {
         this.filter.setIncludesNoCheck(Arrays.asList(filters));
     }
 

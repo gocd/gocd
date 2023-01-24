@@ -21,6 +21,8 @@ dependencies {
   implementation project(':config:config-api')
   implementation project.deps.gson
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.jetBrainsAnnotations
+
   testImplementation project.deps.hamcrest
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5

@@ -50,7 +50,7 @@ public abstract class GoConfigDaoTestBase {
     protected CachedGoConfig cachedGoConfig;
 
     @Test
-    public void shouldCreateCruiseConfigFromBasicConfigFile() throws Exception {
+    public void shouldCreateCruiseConfigFromBasicConfigFile() {
         CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
         assertThat(cruiseConfig, is(notNullValue()));
@@ -67,7 +67,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldThrowExceptionIfFileIsInvalid() throws Exception {
+    public void shouldThrowExceptionIfFileIsInvalid() {
         try {
             useConfigString("invalid config file");
             goConfigDao.load();
@@ -79,7 +79,7 @@ public abstract class GoConfigDaoTestBase {
 
 
     @Test
-    public void shouldGetArtifactsFromBuildPlan() throws Exception {
+    public void shouldGetArtifactsFromBuildPlan() {
         CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
         final ArtifactTypeConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
@@ -89,7 +89,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldAddPipelineToConfigFile() throws Exception {
+    public void shouldAddPipelineToConfigFile() {
         CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.numberOfPipelines();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
@@ -102,7 +102,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldFailToAddDuplicatePipelineToConfigFile() throws Exception {
+    public void shouldFailToAddDuplicatePipelineToConfigFile() {
         CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.numberOfPipelines();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring", "ut",
@@ -125,7 +125,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldFailWhenConfigUpdateCannotBeMergedWithLatestRevision() throws Exception {
+    public void shouldFailWhenConfigUpdateCannotBeMergedWithLatestRevision() {
         final String originalMd5 = goConfigDao.load().getMd5();
         goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "stage1", "build1"));
         final String md5WhenPipelineIsAdded = goConfigDao.load().getMd5();
@@ -139,7 +139,7 @@ public abstract class GoConfigDaoTestBase {
                 }
 
                 @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                public CruiseConfig update(CruiseConfig cruiseConfig) {
                     deletePipeline(cruiseConfig);
                     return cruiseConfig;
                 }
@@ -156,7 +156,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldNotFailNoOverwriteUpdateWhenEditingUnmodifiedCopy() throws Exception {
+    public void shouldNotFailNoOverwriteUpdateWhenEditingUnmodifiedCopy() {
         final String md5 = goConfigDao.md5OfConfigFile();
         try {
             ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
@@ -166,7 +166,7 @@ public abstract class GoConfigDaoTestBase {
                 }
 
                 @Override
-                public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                public CruiseConfig update(CruiseConfig cruiseConfig) {
                     cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
                     return cruiseConfig;
                 }
@@ -178,7 +178,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() throws Exception {
+    public void shouldNotFailUpdateWithOverwritePermittedWhenEditingStaleCopy() {
         try {
             goConfigDao.updateConfig(cruiseConfig -> {
                 cruiseConfig.getEnvironments().add(new BasicEnvironmentConfig(new CaseInsensitiveString("foo")));
@@ -191,11 +191,11 @@ public abstract class GoConfigDaoTestBase {
 
 
     @Test
-    public void shouldFeedCloneOfConfigBackToCommand() throws Exception {
+    public void shouldFeedCloneOfConfigBackToCommand() {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true) {
 
             @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
                 PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("foo"), "#{bar}-${COUNT}", null, false, new MaterialConfigs(hg("url", null)),
                         List.of(StageConfigMother.custom("stage", "job")));
                 pipelineConfig.addParam(new ParamConfig("bar", "baz"));
@@ -212,7 +212,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() throws Exception {
+    public void shouldNotUpdateIfCannotContinueIfTheCommandIsPreprocessable() {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), false);
         try {
             goConfigDao.updateConfig(command);
@@ -224,7 +224,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldPerformUpdateIfCanContinue() throws Exception {
+    public void shouldPerformUpdateIfCanContinue() {
         CheckedTestUpdateCommand command = new CheckedTestUpdateCommand(cachedGoConfig.loadForEditing().getMd5(), true);
         goConfigDao.updateConfig(command);
         assertThat(command.wasUpdated, is(true));
@@ -241,7 +241,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldAddEnvironmentToConfigFile() throws Exception {
+    public void shouldAddEnvironmentToConfigFile() {
         CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.getEnvironments().size();
         goConfigDao.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("foo-environment")));
@@ -251,7 +251,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldAddPipelineOnTheTopOfSameGroupWhenGivenGroupExist() throws Exception {
+    public void shouldAddPipelineOnTheTopOfSameGroupWhenGivenGroupExist() {
         PipelineConfig springConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring",
                 "ut", "www.spring.com");
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("mingle",
@@ -266,7 +266,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldAddPipelineToTheNewGroupWhenGivenGroupDoesNotExist() throws Exception {
+    public void shouldAddPipelineToTheNewGroupWhenGivenGroupDoesNotExist() {
         PipelineConfig springConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring",
                 "ut", "www.spring.com");
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("mingle",
@@ -281,7 +281,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldAddPipelineToDefaultGroupWhenNoGroupNameSpecified() throws Exception {
+    public void shouldAddPipelineToDefaultGroupWhenNoGroupNameSpecified() {
         PipelineConfig springConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("spring",
                 "ut", "www.spring.com");
 
@@ -312,7 +312,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldNotAddInvalidPipelineToConfigFile() throws Exception {
+    public void shouldNotAddInvalidPipelineToConfigFile() {
         CruiseConfig cruiseConfig = goConfigDao.load();
         int oldsize = cruiseConfig.numberOfPipelines();
         PipelineConfig pipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("", "ut",
@@ -346,7 +346,7 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldNotConfigMultipleTrackingTools() throws Exception {
+    public void shouldNotConfigMultipleTrackingTools() {
         try {
             FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
             goConfigDao.forceReload();

@@ -42,6 +42,7 @@ import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.TestOnly;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,10 +132,11 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         }
     }
 
+    /**
+     * Please call pipelineService.save(aPipeline) instead
+     */
+    @TestOnly
     @Override
-    @Deprecated
-    // This is only used in test for legacy purpose.
-    // Please call pipelineService.save(aPipeline) instead
     public Stage saveWithJobs(Pipeline pipeline, Stage stage) {
         if (stage.getState() == null) {
             stage.building();

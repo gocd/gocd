@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.service.NoModificationsPresentForDependentMate
 import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.CollectionUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.*;
 
@@ -130,7 +131,7 @@ public class FanInGraph {
         this.fanInEventListener = fanInEventListener;
     }
 
-    //Used in test Only
+    @TestOnly
     List<ScmMaterialConfig> getScmMaterials() {
         List<ScmMaterialConfig> scmMaterials = new ArrayList<>();
         for (FanInNode node : nodes.values()) {

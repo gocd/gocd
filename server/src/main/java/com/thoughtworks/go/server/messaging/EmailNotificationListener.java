@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.config.GoSmtpMailSender;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +40,7 @@ public class EmailNotificationListener implements GoMessageListener<SendEmailMes
         emailNotificationTopic.addListener(this);
     }
 
-    /**
-     * only used for test
-     *
-     * @deprecated
-     */
+    @TestOnly
     EmailNotificationListener(GoConfigService goConfigService, GoMailSenderFactory factory) {
         this.goConfigService = goConfigService;
         this.factory = factory;

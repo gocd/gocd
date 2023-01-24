@@ -55,8 +55,10 @@ import com.thoughtworks.go.util.SystemTimeClock;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.jdom2.input.JDOMParseException;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +118,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         this.xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
-    //for testing
+    @TestOnly
     public GoConfigService(GoConfigDao goConfigDao,
                            Clock clock,
                            GoConfigMigration upgrader,
@@ -324,14 +326,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return timeout != null && !"0".equals(timeout);
     }
 
-    private void setMD5(String md5, CruiseConfig badConfig) {
-        try {
-            MagicalGoConfigXmlLoader.setMd5(badConfig, md5);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // Ignore
-        }
-    }
-
+    @TestOnly
     public ConfigSaveState updateServerConfig(final MailHost mailHost,
                                               final String md5,
                                               final String artifactsDir,
@@ -339,24 +334,23 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                                               final Double purgeUpto,
                                               final String jobTimeout,
                                               final String siteUrl,
-                                              final String secureSiteUrl,
-                                              final String taskRepositoryLocation) {
+                                              final String secureSiteUrl) {
         final List<ConfigSaveState> result = new ArrayList<>();
         result.add(updateConfig(
                 new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
                         goConfigDao.mailHostUpdater(mailHost),
-                        serverConfigUpdater(artifactsDir, purgeStart, purgeUpto, jobTimeout, siteUrl, secureSiteUrl, taskRepositoryLocation))));
+                        serverConfigUpdater(artifactsDir, purgeStart, purgeUpto, jobTimeout, siteUrl, secureSiteUrl))));
         //should not reach here with empty result
         return result.get(0);
     }
 
+    @TestOnly
     private UpdateConfigCommand serverConfigUpdater(final String artifactsDir,
                                                     final Double purgeStart,
                                                     final Double purgeUpto,
                                                     final String jobTimeout,
                                                     final String siteUrl,
-                                                    final String secureSiteUrl,
-                                                    final String taskRepositoryLocation) {
+                                                    final String secureSiteUrl) {
         return cruiseConfig -> {
             ServerConfig server = cruiseConfig.server();
             server.setArtifactsDir(artifactsDir);
@@ -962,7 +956,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    // for test
+    @TestOnly
     public void forceNotifyListeners() {
         goConfigDao.reloadListeners();
     }
@@ -1005,7 +999,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             Element root = document.getRootElement();
 
             Element configElement = ((Element) root.selectSingleNode(getXpath()));
-            List nodes = configElement.getParent().content();
+            List<Node> nodes = configElement.getParent().content();
             int index = nodes.indexOf(configElement);
 
             LOGGER.debug("[Config Save] Converting to object");

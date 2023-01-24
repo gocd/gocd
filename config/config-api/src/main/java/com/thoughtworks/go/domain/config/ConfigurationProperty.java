@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -78,7 +79,7 @@ public class ConfigurationProperty implements Serializable, Validatable, SecretP
         this.setEncryptedValue(encryptedValue);
     }
 
-    //for tests only
+    @TestOnly
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue, EncryptedConfigurationValue encryptedValue, GoCipher cipher) {
         this.cipher = cipher == null ? new GoCipher() : cipher;
         this.configurationKey = configurationKey;

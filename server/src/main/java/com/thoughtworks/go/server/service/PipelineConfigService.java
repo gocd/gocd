@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.util.Node;
@@ -52,7 +51,7 @@ public class PipelineConfigService {
     private final SecurityService securityService;
     private final PluggableTaskService pluggableTaskService;
     private final EntityHashingService entityHashingService;
-    private ExternalArtifactsService externalArtifactsService;
+    private final ExternalArtifactsService externalArtifactsService;
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigService.class);
 
     @Autowired
@@ -143,7 +142,6 @@ public class PipelineConfigService {
         }
     }
 
-
     public void updatePipelineConfig(final Username currentUser,
                                      final PipelineConfig pipelineConfig,
                                      String updatedGroupName,
@@ -152,14 +150,6 @@ public class PipelineConfigService {
         validatePluggableTasks(pipelineConfig);
         UpdatePipelineConfigCommand updatePipelineConfigCommand = new UpdatePipelineConfigCommand(goConfigService, entityHashingService, pipelineConfig, updatedGroupName, currentUser, md5, result, externalArtifactsService);
         update(currentUser, pipelineConfig, result, updatePipelineConfigCommand);
-    }
-
-    //called from rails
-    //Result a result object instead of mutating the arg, to make it easier to test
-    public LocalizedOperationResult updatePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, String updatedGroupName, final String md5) {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        updatePipelineConfig(currentUser, pipelineConfig, updatedGroupName, md5, result);
-        return result;
     }
 
     public PipelineGroups viewableGroupsFor(Username username) {
@@ -210,11 +200,6 @@ public class PipelineConfigService {
         if (result.isSuccessful()) {
             result.setMessage(EntityType.Pipeline.deleteSuccessful(pipelineConfig.name()));
         }
-    }
-
-    private boolean hasViewOrOperatePermissionForGroup(Username username, String group) {
-        return securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(username.getUsername()), group) ||
-                securityService.hasOperatePermissionForGroup(username.getUsername(), group);
     }
 
     private void validatePluggableTasks(PipelineConfig config) {

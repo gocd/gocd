@@ -73,7 +73,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         P4Material p4Material = new P4Material("server:10", "out-of-the-window");
         ReflectionUtil.setField(p4Material, "folder", "crapy_dir");
 
-        P4Client p4Client = p4Material._p4(workingDir, new InMemoryStreamConsumer(), false);
+        P4Client p4Client = p4Material.p4(workingDir, new InMemoryStreamConsumer(), false);
 
         assertThat(p4Client).isNotNull();
         String client = (String) ReflectionUtil.getField(p4Client, "p4ClientName");

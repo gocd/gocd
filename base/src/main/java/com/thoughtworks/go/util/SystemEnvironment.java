@@ -17,6 +17,7 @@ package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,7 +275,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return get(CONSOLE_OUT_TO_STDOUT);
     }
 
-    //Used in Tests
+    @TestOnly
     public void setDiskSpaceCacheRefresherInterval(long interval) {
         diskSpaceCacheRefresherInterval = interval;
     }

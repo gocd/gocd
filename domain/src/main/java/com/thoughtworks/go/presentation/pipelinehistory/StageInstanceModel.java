@@ -19,6 +19,7 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.server.presentation.models.StageConfigurationModel;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Date;
 
@@ -55,20 +56,19 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     private boolean selected;
 
-    // for test
     public StageInstanceModel(String name, String counter, JobHistory jobHistory) {
         this.name = name;
         this.jobHistory = jobHistory;
         this.counter = counter;
     }
 
-    // for test
+    @TestOnly
     public StageInstanceModel(String name, String counter, JobHistory jobHistory, StageIdentifier identifier) {
         this(name, counter, jobHistory);
         this.identifier = identifier;
     }
 
-
+    @TestOnly
     public StageInstanceModel(String name, String counter, StageResult result, StageIdentifier identifier) {
         this(name, counter, new JobHistory(), identifier);
         this.result = result;

@@ -23,6 +23,7 @@ description = 'GoCD TFS SDK wrapper v14'
 dependencies {
   implementation project(':common')
   implementation files("${project.buildDir}/tfssdk/lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar")
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

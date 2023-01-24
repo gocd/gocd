@@ -36,6 +36,8 @@ dependencies {
   implementation project.deps.commonsCodec
   implementation project.deps.gson
   implementation project.deps.springContext
+  compileOnly project.deps.jetBrainsAnnotations
+
   testImplementation localGroovy()
   testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')

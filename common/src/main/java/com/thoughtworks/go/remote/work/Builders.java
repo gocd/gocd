@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.jetbrains.annotations.TestOnly;
 
 import java.nio.charset.Charset;
 import java.time.Duration;
@@ -129,7 +130,7 @@ public class Builders {
         }
     }
 
-    //Used only for tests
+    @TestOnly
     void setIsCancelled(boolean isCancelled) {
         this.cancelStarted = isCancelled;
     }

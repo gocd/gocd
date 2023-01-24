@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 
@@ -44,9 +45,10 @@ public interface PipelineDao {
 
     void updateComment(String pipelineName, int pipelineCounter, String comment);
 
-    @Deprecated
-    // This is only used in test for legacy purpose.
-    // Please call pipelineService.save(aPipeline) instead
+    /**
+     * Please call pipelineService.save(aPipeline) instead
+     */
+    @TestOnly
     Pipeline saveWithStages(Pipeline pipeline);
 
     PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName);

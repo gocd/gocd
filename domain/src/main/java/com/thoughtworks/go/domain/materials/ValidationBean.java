@@ -40,17 +40,11 @@ public class ValidationBean implements JsonAware {
         return message.replaceFirst("(.)*Exception:(\\s)+", "");
     }
 
-    @Deprecated
-    /*
-        * Used in tests
-     */
-    public String getMessage() {
-        return message;
-    }
 
     /**
-     * @deprecated This method is obsolete
+     * This method is obsolete
      */
+    @Deprecated
     @Override
     public Map<String, Object> toJson() {
         Map<String, Object> jsonMap = new LinkedHashMap<>();

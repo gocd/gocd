@@ -60,12 +60,10 @@ public class ServerConfig implements Validatable {
     @ConfigAttribute(value = "tokenGenerationKey", allowNull = true)
     private String tokenGenerationKey;
 
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
 
     public static final String JOB_TIMEOUT = "JOB_TIMEOUT";
 
-    public static final String NEVER_TIMEOUT = "neverTimeout";
-    public static final String OVERRIDE_TIMEOUT = "overrideTimeout";
     public static final String PURGE_START = "purgeStart";
     public static final String PURGE_UPTO = "purgeUpto";
     public static final String ARTIFACT_DIR = "artifactsDir";
@@ -229,11 +227,6 @@ public class ServerConfig implements Validatable {
         return Objects.hash(artifactConfig, jobTimeout, agentAutoRegisterKey, webhookSecret, serverId, siteUrls, securityConfig, mailHost, backupConfig, tokenGenerationKey, errors);
     }
 
-    /**
-     * only used for test
-     *
-     * @deprecated
-     */
     public void setArtifactsDir(String artifactsDir) {
         this.artifactConfig.setArtifactsDir(new ArtifactDirectory(artifactsDir));
     }
@@ -331,13 +324,8 @@ public class ServerConfig implements Validatable {
         return jobTimeout;
     }
 
-    @TestOnly
     public void setJobTimeout(String jobTimeout) {
         this.jobTimeout = jobTimeout;
-    }
-
-    public String getTimeoutType() {
-        return "0".equals(jobTimeout) ? NEVER_TIMEOUT : OVERRIDE_TIMEOUT;
     }
 
     public String getAgentAutoRegisterKey() {

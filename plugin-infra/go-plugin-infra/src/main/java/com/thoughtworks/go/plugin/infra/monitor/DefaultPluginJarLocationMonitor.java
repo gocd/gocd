@@ -38,12 +38,12 @@ import static com.thoughtworks.go.util.SystemEnvironment.*;
 @Component
 public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarLocationMonitor.class);
-    private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListeners = new CopyOnWriteArrayList<>();
+    private final List<WeakReference<PluginJarChangeListener>> pluginJarChangeListeners = new CopyOnWriteArrayList<>();
 
-    private File bundledPluginDirectory;
+    private final File bundledPluginDirectory;
     private final File externalPluginDirectory;
     private PluginLocationMonitorThread monitorThread;
-    private SystemEnvironment systemEnvironment;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public DefaultPluginJarLocationMonitor(SystemEnvironment systemEnvironment) {
@@ -155,11 +155,11 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         private Set<BundleOrPluginFileDetails> knownBundledBundleOrPluginFileDetails = new HashSet<>();
         private Set<BundleOrPluginFileDetails> knownExternalBundleOrPluginFileDetails = new HashSet<>();
         private final PluginChangeNotifier pluginChangeNotifier = new PluginChangeNotifier();
-        private File bundledPluginDirectory;
-        private File externalPluginDirectory;
-        private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
-        private SystemEnvironment systemEnvironment;
-        private long lastRun; //used for tests
+        private final File bundledPluginDirectory;
+        private final File externalPluginDirectory;
+        private final List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
+        private final SystemEnvironment systemEnvironment;
+        private long lastRun;
 
         public PluginLocationMonitorThread(File bundledPluginDirectory,
                                            File externalPluginDirectory,
@@ -226,7 +226,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         }
 
         public static class DoOnAllListeners implements PluginJarChangeListener {
-            private List<WeakReference<PluginJarChangeListener>> listeners;
+            private final List<WeakReference<PluginJarChangeListener>> listeners;
 
             public DoOnAllListeners(List<WeakReference<PluginJarChangeListener>> listeners) {
                 this.listeners = listeners;

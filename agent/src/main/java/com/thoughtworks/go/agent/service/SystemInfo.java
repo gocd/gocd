@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.software.os.OperatingSystem;
@@ -32,10 +31,9 @@ public class SystemInfo {
         return OS_COMPLETE_NAME;
     }
 
-    @TestOnly
     static String determineOperatingSystemCompleteName() {
         try {
-            OperatingSystem os = getSystemInfo().getOperatingSystem();
+            OperatingSystem os = newSystemInfo().getOperatingSystem();
             return String.format("%s %s%s",
                 os.getFamily(),
                 os.getVersionInfo().getVersion(),
@@ -47,8 +45,7 @@ public class SystemInfo {
         }
     }
 
-    @TestOnly
-    static oshi.SystemInfo getSystemInfo() {
+    static oshi.SystemInfo newSystemInfo() {
         return new oshi.SystemInfo();
     }
 

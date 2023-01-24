@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.TestOnly;
 
 @EqualsAndHashCode
 public abstract class CRBase implements Locatable {
@@ -38,8 +39,8 @@ public abstract class CRBase implements Locatable {
     }
 
 
-    public ErrorCollection getErrors() // shorthand for tests
-    {
+    @TestOnly
+    public ErrorCollection getErrors() {
         ErrorCollection errors = new ErrorCollection();
         getErrors(errors, "Unknown");
         return errors;

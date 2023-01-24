@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,12 +122,12 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         };
     }
 
-    //    for integration tests
+    @TestOnly
     public void disableUpdates() {
         this.skipUpdate = true;
     }
 
-    //    for integration tests
+    @TestOnly
     public void enableUpdates() {
         this.skipUpdate = false;
     }

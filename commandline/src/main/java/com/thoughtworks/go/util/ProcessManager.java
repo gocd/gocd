@@ -18,6 +18,7 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class ProcessManager {
         return System.getenv().keySet();
     }
 
-    //should be used only for tests
+    @TestOnly
     ConcurrentMap<Process, ProcessWrapper> getProcessMap() {
         return processMap;
     }

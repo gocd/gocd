@@ -49,7 +49,7 @@ class SystemInfoTest {
     @Test
     public void shouldFallbackToJvmFamilyOnLibraryError() {
         try (MockedStatic<SystemInfo> systemInfo = mockStatic(SystemInfo.class, Answers.CALLS_REAL_METHODS)) {
-            systemInfo.when(SystemInfo::getSystemInfo).thenThrow(new IllegalArgumentException("Cannot determine OS"));
+            systemInfo.when(SystemInfo::newSystemInfo).thenThrow(new IllegalArgumentException("Cannot determine OS"));
 
             assertThat(SystemInfo.determineOperatingSystemCompleteName()).isEqualTo(new SystemEnvironment().getOperatingSystemFamilyJvmName());
         }

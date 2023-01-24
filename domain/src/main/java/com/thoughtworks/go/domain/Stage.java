@@ -368,11 +368,7 @@ public class Stage extends PersistentObject {
         if (createdTime != null ? !createdTime.equals(stage.createdTime) : stage.createdTime != null) {
             return false;
         }
-//TODO: ChrisS We need to fix this once all the tests are saving JobInstances correctly.
-//see PipelineDao.saveWithStages to see why we can't do this
-//        if (jobInstances != null ? !jobInstances.equals(stage.jobInstances) : stage.jobInstances != null) {
-//            return false;
-//        }
+
         if (name != null ? !name.equals(stage.name) : stage.name != null) {
             return false;
         }

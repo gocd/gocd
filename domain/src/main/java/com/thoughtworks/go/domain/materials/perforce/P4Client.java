@@ -184,7 +184,6 @@ public class P4Client extends SCMCommand {
     /**
      * returns the output stream as is, without smudging password arguments, this is security problem, and
      * should not be used in production code as is
-     * This is left here only for tests
      */
     @TestOnly
     public String admin(String command) {

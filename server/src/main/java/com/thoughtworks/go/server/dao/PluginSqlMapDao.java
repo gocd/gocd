@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -92,7 +93,7 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         return cacheKeyGenerator.generate("plugin_settings", pluginId);
     }
 
-    // used in tests
+    @TestOnly
     @SuppressWarnings("unchecked")
     @Override
     public List<Plugin> getAllPlugins() {
@@ -103,7 +104,7 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
         });
     }
 
-    // used in tests
+    @TestOnly
     @Override
     public void deleteAllPlugins() {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {

@@ -32,6 +32,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -73,7 +74,7 @@ public class PackageRepository implements Serializable, Validatable, SecretParam
     public PackageRepository() {
     }
 
-    //used in tests
+    @TestOnly
     public PackageRepository(String repoId, String name, PluginConfiguration pluginConfiguration, Configuration configurationProperties) {
         this.id = repoId;
         this.name = name;

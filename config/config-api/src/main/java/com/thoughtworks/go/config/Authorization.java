@@ -140,7 +140,6 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         this.viewConfig = viewConfig;
     }
 
-    //only for test
     public ViewConfig getViewConfig() {
         return viewConfig;
     }

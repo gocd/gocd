@@ -22,7 +22,6 @@ package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.*;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -215,7 +214,6 @@ public class CommandLine {
     /**
      * This should not be used outside of this CommandLine(in production code), as using it directly can bypass smudging of sensitive data
      */
-    @TestOnly
     public ProcessWrapper execute(ConsoleOutputStreamConsumer outputStreamConsumer, EnvironmentVariableContext environmentVariableContext, ProcessTag processTag) {
         ProcessWrapper process = createProcess(environmentVariableContext, outputStreamConsumer, processTag, ERROR_STREAM_PREFIX_FOR_CMDS);
         process.typeInputToConsole(inputs);

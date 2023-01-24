@@ -32,7 +32,7 @@ dependencies {
   implementation project.deps.jettyUtil
   implementation project.deps.jettyServlet
   api project.deps.jettyWebapp
-  implementation project.deps.mail
+  implementation project.deps.jakartaMail
 
   api project.deps.assertJ
   api project.deps.hamcrest

@@ -17,8 +17,13 @@ dependencies {
   api platform(project.deps.jaxbBom)
 
   constraints {
+    api project.deps.angusActivation
+    api project.deps.commonsCodec
+    api project.deps.commonsIO
     api project.deps.commonsPool
     api project.deps.commonsCollections
+    api project.deps.guava
+    api project.deps.jetBrainsAnnotations
     api project.deps.objenesis
     api('org.slf4j:slf4j-api') {
       version {

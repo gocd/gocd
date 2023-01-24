@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import org.assertj.core.util.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.google.common.collect.Streams.stream;
-
 /**
  * A test component which helps in verifying multi-threaded scenarios related to agents
  * Usage: add the following line as a test. Make sure that the service objects passed are autowired ones.
@@ -49,10 +48,10 @@ public class AgentPerformanceVerifier {
     private static final int DEFAULT_NO_OF_THREADS_TO_USE = 5;
 
     private final GoConfigService goConfigService;
-    private int noOfThreadsToUse;
-    private AgentService agentService;
+    private final int noOfThreadsToUse;
+    private final AgentService agentService;
     private final AgentDao agentDao;
-    private EnvironmentConfigService environmentConfigService;
+    private final EnvironmentConfigService environmentConfigService;
 
     public AgentPerformanceVerifier(AgentService agentService, AgentDao agentDao, EnvironmentConfigService environmentConfigService, GoConfigService goConfigService, int threadCount) {
         this.agentService = agentService;
@@ -125,7 +124,7 @@ public class AgentPerformanceVerifier {
     }
 
     private void doAssertAgentAndItsAssociationInDBAndCache() {
-        stream(agentService.getAgentInstances())
+        Streams.stream(agentService.getAgentInstances())
                 .filter(agentInstance -> agentInstance.getUuid().startsWith("Perf-Test-Agent-"))
                 .forEach(agentInstance -> {
                     Agent agentInCache = agentInstance.getAgent();

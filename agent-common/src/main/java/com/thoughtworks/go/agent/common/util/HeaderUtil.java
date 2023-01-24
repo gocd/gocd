@@ -15,16 +15,12 @@
  */
 package com.thoughtworks.go.agent.common.util;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -38,7 +34,7 @@ public class HeaderUtil {
         }
 
         try {
-            final String headerValue = new String(Base64.decodeBase64(extraPropertiesHeader.getValue()), UTF_8);
+            final String headerValue = new String(Base64.getDecoder().decode(extraPropertiesHeader.getValue()), UTF_8);
 
             if (StringUtils.isBlank(headerValue)) {
                 return new HashMap<>();

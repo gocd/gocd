@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.internalpipelinegroups;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
@@ -56,11 +55,11 @@ public class InternalPipelineGroupsControllerV1 extends ApiController implements
                                               EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.pipelineGroupAuthorizationRegistry = ImmutableMap.<String, Supplier<PipelineGroups>>builder()
-                .put("view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()))
-                .put("operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()))
-                .put("administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername()))
-                .build();
+        this.pipelineGroupAuthorizationRegistry = Map.of(
+                "view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()),
+                "operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()),
+                "administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername())
+        );
         this.environmentConfigService = environmentConfigService;
     }
 

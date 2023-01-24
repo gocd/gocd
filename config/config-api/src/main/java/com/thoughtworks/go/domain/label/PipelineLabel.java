@@ -56,7 +56,7 @@ public class PipelineLabel implements Serializable {
 
     private String interpolateLabel(Map<CaseInsensitiveString, String> materialRevisions, int pipelineCounter) {
         final Matcher matcher = PATTERN.matcher(this.label);
-        final StringBuffer buffer = new StringBuffer();
+        final StringBuilder buffer = new StringBuilder();
 
         while (matcher.find()) {
             String token = matcher.group("name");

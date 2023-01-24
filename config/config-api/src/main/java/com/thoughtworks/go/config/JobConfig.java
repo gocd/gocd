@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 import java.util.Map;
@@ -284,7 +285,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 '}';
     }
 
-    // only called from tests
+    @TestOnly
     public void addVariable(String name, String value) {
         variables.add(name, value);
     }

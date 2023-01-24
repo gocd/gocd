@@ -17,6 +17,7 @@ package com.thoughtworks.go.serverhealth;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.CruiseConfigProvider;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -100,7 +101,7 @@ public class ServerHealthService implements ApplicationContextAware {
         removeExpiredMessages();
     }
 
-    @Deprecated(forRemoval = true) // Remove once we get rid of SpringJUnitTestRunner
+    @TestOnly // Remove once we get rid of SpringJUnitTestRunner
     public void removeAllLogs() {
         serverHealth.clear();
     }

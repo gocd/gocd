@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.label.PipelineLabel;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.util.Date;
@@ -136,9 +137,8 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
 
     /**
      * Will not apply template logic; to be used only in testing or by iBatis
-     *
-     * @param label
      */
+    @TestOnly
     public void setLabel(String label) {
         this.pipelineLabel.setLabel(label);
     }

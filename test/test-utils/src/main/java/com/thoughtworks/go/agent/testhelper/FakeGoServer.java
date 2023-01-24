@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.agent.testhelper;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
+import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -58,7 +58,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
                     IOUtils.copy(digest, new NullOutputStream());
                 }
-                return Hex.encodeHexString(digester.digest()).toLowerCase();
+                return Hexadecimals.toHexString(digester.digest()).toLowerCase();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

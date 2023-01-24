@@ -202,8 +202,6 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return this.approval.isAuthorizationDefined();
     }
 
-    // only called from tests
-
     public void setVariables(EnvironmentVariablesConfig variables) {
         this.variables = variables;
     }

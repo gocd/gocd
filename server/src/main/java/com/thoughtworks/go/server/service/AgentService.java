@@ -42,6 +42,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.Timeout;
 import com.thoughtworks.go.util.TriState;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private final SystemEnvironment systemEnvironment;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
-    private AgentStatusChangeNotifier agentStatusChangeNotifier;
+    private final AgentStatusChangeNotifier agentStatusChangeNotifier;
     private final AgentDao agentDao;
 
     private AgentInstances agentInstances;
@@ -108,15 +109,9 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentDao.registerDatabaseAgentEntityChangeListener(this);
     }
 
-    /**
-     * not for use externally, created for testing whether listeners are correctly registered or not
-     */
+    @TestOnly
     void setAgentChangeListeners(Set<AgentChangeListener> setOfListener) {
-        if (setOfListener == null) {
-            this.listeners = new HashSet<>();
-        } else {
-            this.listeners = setOfListener;
-        }
+        this.listeners = Objects.requireNonNullElseGet(setOfListener, HashSet::new);
     }
 
     public AgentInstances getAgentInstances() {
@@ -260,7 +255,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return registration;
     }
 
-    @Deprecated
+    @TestOnly
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
         boolean doesAgentExistAndIsRegistered = isRegistered(agentInstance.getUuid());

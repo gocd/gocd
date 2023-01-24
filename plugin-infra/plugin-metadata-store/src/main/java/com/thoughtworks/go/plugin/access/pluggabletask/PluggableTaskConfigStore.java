@@ -17,19 +17,19 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 import com.thoughtworks.go.plugin.api.config.Option;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Set;
 
 @Deprecated
 public class PluggableTaskConfigStore extends PluginPreferenceStore<TaskPreference> {
-    private static PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
+    private static final PluggableTaskConfigStore PLUGGABLE_TASK_CONFIG_STORE = new PluggableTaskConfigStore();
 
     public static PluggableTaskConfigStore store() {
         return PLUGGABLE_TASK_CONFIG_STORE;
     }
 
-    @Deprecated
-    // only for test usage
+    @TestOnly
     public void clear() {
         Set<String> plugins = pluginIds();
         for (String pluginId : plugins) {

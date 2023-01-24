@@ -244,6 +244,7 @@ dependencies {
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnlyTestData project(':test:test-agent')
 
+  implementation project.deps.commonsCodec
   implementation project.deps.commonsDbcp
   api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')

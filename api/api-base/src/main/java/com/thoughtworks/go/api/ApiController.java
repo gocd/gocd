@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.api;
 
-import com.google.common.collect.Sets;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
@@ -92,7 +91,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
             if (!isJsonContentType(request)) {
                 throw haltBecauseJsonContentTypeExpected();
             }
-        } else if (request.headers().stream().noneMatch(headerName -> headerName.toLowerCase().equals("x-gocd-confirm"))) {
+        } else if (request.headers().stream().noneMatch(headerName -> headerName.equalsIgnoreCase("x-gocd-confirm"))) {
             throw haltBecauseConfirmHeaderMissing();
         }
     }
@@ -129,7 +128,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
 
     protected static Filter onlyOn(Filter filter, String... allowedMethods) {
         return (request, response) -> {
-            if (Sets.newHashSet(allowedMethods).contains(request.requestMethod())) {
+            if (Set.of(allowedMethods).contains(request.requestMethod())) {
                 filter.handle(request, response);
             }
         };

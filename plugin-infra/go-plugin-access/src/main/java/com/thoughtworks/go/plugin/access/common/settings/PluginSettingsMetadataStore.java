@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.common.settings;
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.Property;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,8 +88,7 @@ public final class PluginSettingsMetadataStore extends PluginPreferenceStore<Plu
         return preferenceFor(pluginId).extensionTypeWhichHandlesThis();
     }
 
-    @Deprecated
-    // only for test usage
+    @TestOnly
     public void clear() {
         Set<String> plugins = pluginIds();
         for (String pluginId : plugins) {

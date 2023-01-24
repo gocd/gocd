@@ -73,11 +73,19 @@ public class P4MaterialTest extends P4MaterialTestBase {
         P4Material p4Material = new P4Material("server:10", "out-of-the-window");
         ReflectionUtil.setField(p4Material, "folder", "crapy_dir");
 
-        P4Client p4Client = p4Material._p4(workingDir, new InMemoryStreamConsumer(), false);
+        P4Client p4Client = p4Material.p4(workingDir, new InMemoryStreamConsumer(), false);
 
         assertThat(p4Client).isNotNull();
         String client = (String) ReflectionUtil.getField(p4Client, "p4ClientName");
         assertThat(client).isEqualTo(p4Material.clientName(workingDir));
+    }
+
+    @Test
+    void shouldCreateUniqueHashForFolders() {
+        File file = new File("c:a/b/c/d/e");
+        File file2 = new File("c:foo\\bar\\baz");
+        assertThat(P4Material.filesystemSafeFileHash(file).matches("[0-9a-zA-Z.\\-]*")).isTrue();
+        assertThat(P4Material.filesystemSafeFileHash(file2)).isNotEqualTo(P4Material.filesystemSafeFileHash(file));
     }
 
     @Test

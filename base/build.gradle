@@ -22,7 +22,6 @@ dependencies {
 
   api project.deps.commonsIO
   api project.deps.commonsLang3
-  api project.deps.commonsCodec
   api(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
@@ -30,6 +29,8 @@ dependencies {
   api project.deps.jodaTime
   api project.deps.slf4jJcl
   api project.deps.logback
+
+  compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

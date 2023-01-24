@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TimeProvider;
+import org.jetbrains.annotations.TestOnly;
 import org.joda.time.Duration;
 
 import java.io.Serializable;
@@ -121,7 +122,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return result;
     }
 
-    @Deprecated //Only for iBatis & Mothers / Tests
+    @TestOnly
     public void setResult(JobResult result) {
         this.result = result;
     }

@@ -77,7 +77,6 @@ public class GoConfigServiceTest {
 
     private GoConfigDao goConfigDao;
     private GoConfigService goConfigService;
-    private PipelineRepository pipelineRepository;
     private static final String PIPELINE = "pipeline1";
     private static final String STAGE = "stage1";
     private static final String JOB = "Job1";
@@ -94,7 +93,6 @@ public class GoConfigServiceTest {
 
         configRepo = mock(ConfigRepository.class);
         goConfigDao = mock(GoConfigDao.class);
-        pipelineRepository = mock(PipelineRepository.class);
         systemEnvironment = mock(SystemEnvironment.class);
 
         cruiseConfig = unchangedConfig();
@@ -110,7 +108,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldUnderstandIfAnEnvironmentVariableIsConfiguredForAPipeline() throws Exception {
+    public void shouldUnderstandIfAnEnvironmentVariableIsConfiguredForAPipeline() {
         final PipelineConfigs newPipeline = new BasicPipelineConfigs();
 
         PipelineConfig otherPipeline = createPipelineConfig("pipeline_other", "stage_other", "plan_other");
@@ -151,7 +149,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldUnderstandIfAStageHasFetchMaterialsConfigured() throws Exception {
+    public void shouldUnderstandIfAStageHasFetchMaterialsConfigured() {
         PipelineConfig pipeline = createPipelineConfig("cruise", "dev", "test");
         StageConfig stage = pipeline.first();
         stage.setFetchMaterials(false);
@@ -175,7 +173,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldGetAllStagesWithOne() throws Exception {
+    public void shouldGetAllStagesWithOne() {
         final PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
@@ -184,7 +182,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldTellIfAnUSerIsGroupAdministrator() throws Exception {
+    public void shouldTellIfAnUSerIsGroupAdministrator() {
         final PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         newPipeline.add(pipelineConfig);
@@ -195,7 +193,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldTellIfAnEnvironmentExists() throws Exception {
+    public void shouldTellIfAnEnvironmentExists() {
         BasicEnvironmentConfig first = new BasicEnvironmentConfig(new CaseInsensitiveString("first"));
         BasicEnvironmentConfig second = new BasicEnvironmentConfig(new CaseInsensitiveString("second"));
         CruiseConfig config = new BasicCruiseConfig();
@@ -210,7 +208,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() throws Exception {
+    public void shouldReturnTrueIfStageHasTestsAndFalseIfItDoesnt() {
         PipelineConfigs newPipelines = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.add(StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.test));
@@ -222,7 +220,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldGetCommentRenderer() throws Exception {
+    public void shouldGetCommentRenderer() {
         PipelineConfigs newPipeline = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setTrackingTool(new TrackingTool("link", "regex"));
@@ -238,7 +236,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldUnderstandIfAPipelineIsLockable() throws Exception {
+    public void shouldUnderstandIfAPipelineIsLockable() {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
@@ -332,7 +330,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldNotThrowExceptionWhenUpgradeFailsForConfigFileUpdate() throws Exception {
+    public void shouldNotThrowExceptionWhenUpgradeFailsForConfigFileUpdate() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(true);
         GoConfigValidity validity = saver.saveXml("some_junk", "junk_md5");
@@ -341,7 +339,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldProvideDetailsWhenXmlConfigDomIsInvalid() throws Exception {
+    public void shouldProvideDetailsWhenXmlConfigDomIsInvalid() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
@@ -354,7 +352,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void xmlPartialSaverShouldReturnTheRightXMLThroughAsXml() throws Exception {
+    public void xmlPartialSaverShouldReturnTheRightXMLThroughAsXml() {
         expectLoadForEditing(new GoConfigMother().defaultCruiseConfig());
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(true);
         assertThat(saver.asXml(), containsString(String.format("schemaVersion=\"%s\"", GoConstants.CONFIG_SCHEMA_VERSION)));
@@ -370,7 +368,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldFixJobNameCase() throws Exception {
+    public void shouldFixJobNameCase() {
         expectLoad(unchangedConfig());
         JobConfigIdentifier translated = goConfigService.translateToActualCase(
                 new JobConfigIdentifier(PIPELINE.toUpperCase(), STAGE.toUpperCase(), JOB.toUpperCase()));
@@ -378,7 +376,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldNotLoseUUIDWhenRunOnAllAgents() throws Exception {
+    public void shouldNotLoseUUIDWhenRunOnAllAgents() {
         expectLoad(unchangedConfigWithRunOnAllAgents());
         JobConfigIdentifier translated = goConfigService.translateToActualCase(
                 new JobConfigIdentifier(PIPELINE.toUpperCase(), STAGE.toUpperCase(), RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker(JOB.toUpperCase(), 2)));
@@ -386,7 +384,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldNotBeInstanceOfWhenRunOnAllAgentsWithMissingAgent() throws Exception {
+    public void shouldNotBeInstanceOfWhenRunOnAllAgentsWithMissingAgent() {
         expectLoad(unchangedConfigWithRunOnAllAgents());
         String missingJobName = JOB + "-missing";
         try {
@@ -404,7 +402,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldThrowJobNotFoundExceptionWhenJobDoesNotExist() throws Exception {
+    public void shouldThrowJobNotFoundExceptionWhenJobDoesNotExist() {
         expectLoad(unchangedConfig());
         try {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, STAGE, "invalid-job"));
@@ -416,7 +414,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldThrowStageNotFoundExceptionWhenStageDoesNotExist() throws Exception {
+    public void shouldThrowStageNotFoundExceptionWhenStageDoesNotExist() {
         expectLoad(unchangedConfig());
         try {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, "invalid-stage", JOB));
@@ -428,7 +426,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldThrowRecordNotFoundExceptionWhenStageDoesNotExist() throws Exception {
+    public void shouldThrowRecordNotFoundExceptionWhenStageDoesNotExist() {
         expectLoad(unchangedConfig());
         try {
             goConfigService.translateToActualCase(new JobConfigIdentifier("invalid-pipeline", STAGE, JOB));
@@ -441,7 +439,7 @@ public class GoConfigServiceTest {
 
 
     @Test
-    public void shouldThrowIfCruiseHasNoReadPermissionOnArtifactsDir() throws Exception {
+    public void shouldThrowIfCruiseHasNoReadPermissionOnArtifactsDir() {
         if (SystemUtils.IS_OS_WINDOWS) {
             return;
         }
@@ -463,7 +461,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldThrowIfCruiseHasNoWritePermissionOnArtifactsDir() throws Exception {
+    public void shouldThrowIfCruiseHasNoWritePermissionOnArtifactsDir() {
         if (SystemUtils.IS_OS_WINDOWS) {
             return;
         }
@@ -564,7 +562,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldDetermineIfStageExistsInCurrentConfig() throws Exception {
+    public void shouldDetermineIfStageExistsInCurrentConfig() {
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.add(createPipelineConfig("pipeline", "stage", "job"));
         expectLoad(new BasicCruiseConfig(pipelineConfigs));
@@ -693,7 +691,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnValidOnUpdateXml() throws Exception {
+    public void shouldReturnValidOnUpdateXml() {
         String groupName = "group_name";
         String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
@@ -746,7 +744,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldUpdateXmlUsingNewFlowIfEnabled() throws Exception {
+    public void shouldUpdateXmlUsingNewFlowIfEnabled() {
         String groupName = "group_name";
         String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
@@ -775,7 +773,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnInvalidWhenPipelineGroupPartialIsInvalid() throws Exception {
+    public void shouldReturnInvalidWhenPipelineGroupPartialIsInvalid() {
         String groupName = "group_name";
         String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
@@ -792,7 +790,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnInvalidWhenPipelineGroupPartialHasInvalidAttributeValue() throws Exception {
+    public void shouldReturnInvalidWhenPipelineGroupPartialHasInvalidAttributeValue() {
         String groupName = "group_name";
         String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
@@ -809,7 +807,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnInvalidWhenPipelineGroupPartialXmlIsInvalid() throws Exception {
+    public void shouldReturnInvalidWhenPipelineGroupPartialXmlIsInvalid() {
         String groupName = "group_name";
         String md5 = "md5";
         cruiseConfig = new BasicCruiseConfig();
@@ -826,7 +824,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldFindConfigChangesForGivenConfigMd5() throws Exception {
-        goConfigService.configChangesFor("md5-5", "md5-4", new HttpLocalizedOperationResult());
+        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", new HttpLocalizedOperationResult()), is(nullValue()));
         verify(configRepo).configChangesFor("md5-5", "md5-4");
     }
 
@@ -834,7 +832,7 @@ public class GoConfigServiceTest {
     public void shouldUpdateResultAsConfigRevisionNotFoundWhenConfigChangeIsNotFound() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new IllegalArgumentException("something"));
-        goConfigService.configChangesFor("md5-5", "md5-4", result);
+        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_BAD_REQUEST));
         assertThat(result.message(), is("Historical configuration is not available for this stage run."));
@@ -844,7 +842,7 @@ public class GoConfigServiceTest {
     public void shouldUpdateResultAsCouldNotRetrieveConfigDiffWhenGenericExceptionOccurs() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(configRepo.configChangesFor("md5-5", "md5-4")).thenThrow(new RuntimeException("something"));
-        goConfigService.configChangesFor("md5-5", "md5-4", result);
+        assertThat(goConfigService.configChangesFor("md5-5", "md5-4", result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_INTERNAL_SERVER_ERROR));
         assertThat(result.message(), is("Could not retrieve config changes for this revision."));
@@ -855,7 +853,7 @@ public class GoConfigServiceTest {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
         when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.any())).thenReturn(expectedSaveState);
         ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), "md5", null, null, null, null, "http://site",
-                "https://site", "location");
+                "https://site");
         assertThat(configSaveState, is(expectedSaveState));
     }
 
@@ -869,7 +867,7 @@ public class GoConfigServiceTest {
 
 
     @Test
-    public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() throws Exception {
+    public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         pipelineConfig.setOrigin(new RepoConfigOrigin());
@@ -879,7 +877,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void pipelineEditableViaUI_shouldReturnTrueWhenPipelineIsLocal() throws Exception {
+    public void pipelineEditableViaUI_shouldReturnTrueWhenPipelineIsLocal() {
         PipelineConfigs group = new BasicPipelineConfigs();
         PipelineConfig pipelineConfig = createPipelineConfig("pipeline", "name", "plan");
         group.add(pipelineConfig);
@@ -888,7 +886,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldTellIfAnUserIsAdministrator() throws Exception {
+    public void shouldTellIfAnUserIsAdministrator() {
         final Username user = new Username(new CaseInsensitiveString("user"));
         expectLoad(mock(BasicCruiseConfig.class));
         goConfigService.isAdministrator(user.getUsername());
@@ -989,7 +987,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldIncludeAllLocalPipelinesWithSpecificFingerprint() throws Exception {
+    public void shouldIncludeAllLocalPipelinesWithSpecificFingerprint() {
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "pipeline_name", "stage_name", "job_name");
@@ -1004,7 +1002,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldIncludeAllRemotePipelinesWithSpecificFingerprint() throws Exception {
+    public void shouldIncludeAllRemotePipelinesWithSpecificFingerprint() {
         cruiseConfig = new BasicCruiseConfig();
         expectLoad(cruiseConfig);
         PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "pipeline_name", "stage_name", "job_name");
@@ -1027,7 +1025,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldFindGroupByPipelineName() throws Exception {
+    public void shouldFindGroupByPipelineName() {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
@@ -1041,7 +1039,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldFindPipelineByPipelineName() throws Exception {
+    public void shouldFindPipelineByPipelineName() {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
@@ -1055,7 +1053,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnNullIfNoPipelineExistByPipelineName() throws Exception {
+    public void shouldReturnNullIfNoPipelineExistByPipelineName() {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
@@ -1067,7 +1065,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnSecretConfigBySecretConfigId() throws Exception {
+    public void shouldReturnSecretConfigBySecretConfigId() {
         Rules rules = new Rules(new Allow("refer", "pipeline_group", "default"));
         SecretConfig secretConfig = new SecretConfig("secret_config_id", "plugin_id", rules);
         GoConfigMother configMother = new GoConfigMother();
@@ -1079,7 +1077,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnNullIfNoSecretConfigExistBySecretConfigId() throws Exception {
+    public void shouldReturnNullIfNoSecretConfigExistBySecretConfigId() {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
@@ -1089,7 +1087,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnAllPipelinesForASuperAdmin() throws Exception {
+    public void shouldReturnAllPipelinesForASuperAdmin() {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         GoConfigMother.enableSecurityWithPasswordFilePlugin(config);
@@ -1104,7 +1102,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnSpecificPipelinesForAGroupAdmin() throws Exception {
+    public void shouldReturnSpecificPipelinesForAGroupAdmin() {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
         GoConfigMother.enableSecurityWithPasswordFilePlugin(config);

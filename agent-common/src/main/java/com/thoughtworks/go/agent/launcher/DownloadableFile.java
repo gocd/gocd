@@ -22,12 +22,11 @@ import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
-
-import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 public enum DownloadableFile {
     AGENT("admin/agent", Downloader.AGENT_BINARY),
@@ -63,7 +62,7 @@ public enum DownloadableFile {
         return subPath;
     }
 
-    protected static boolean matchChecksum(File localFile, String expectedSignature) {
+    static boolean matchChecksum(File localFile, String expectedSignature) {
         try (FileInputStream input = new FileInputStream(localFile)) {
             MessageDigest digester = MessageDigest.getInstance("MD5");
             try (DigestInputStream digest = new DigestInputStream(input, digester)) {
@@ -73,6 +72,10 @@ public enum DownloadableFile {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String encodeHexString(byte[] bytes) {
+        return String.format("%0" + (bytes.length << 1) + "x", new BigInteger(1, bytes));
     }
 
     public boolean isChecksumEquals(String expectedSignature) {

@@ -20,6 +20,8 @@ dependencies {
   implementation project.deps.commonsLang3
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-domain')
+  compileOnly project.deps.jetBrainsAnnotations
+
   testImplementation project.deps.mockitoCore
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api

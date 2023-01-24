@@ -44,11 +44,6 @@ public interface PipelineDao {
 
     void updateComment(String pipelineName, int pipelineCounter, String comment);
 
-    @Deprecated
-    // This is only used in test for legacy purpose.
-    // Please call pipelineService.save(aPipeline) instead
-    Pipeline saveWithStages(Pipeline pipeline);
-
     PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName);
 
     Integer getCounterForPipeline(String name);

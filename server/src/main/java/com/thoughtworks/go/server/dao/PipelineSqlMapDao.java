@@ -49,6 +49,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -272,16 +273,13 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     /**
-     * This is only used in test for legacy purpose. Please call pipelineService.save(aPipeline) instead.
+     * Please call pipelineService.save(aPipeline) instead.
      * <p/>
      * This is particularly bad as it does NOT do the same as what the system does in the real code.
      * In particular it does not save the JobInstances correctly. We need to remove this method and make
      * sure that tests are using the same behaviour as the real code.
-     *
-     * @see { Mingle #2867}
-     * @deprecated
      */
-    @Override
+    @TestOnly
     public Pipeline saveWithStages(Pipeline pipeline) {
         updateCounter(pipeline);
         Pipeline savedPipeline = save(pipeline);

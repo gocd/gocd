@@ -158,7 +158,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
 
     @Override
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, SubprocessExecutionContext execCtx) {
-        // do nothing. used in tests.
+        // do nothing.
     }
 
     @Override

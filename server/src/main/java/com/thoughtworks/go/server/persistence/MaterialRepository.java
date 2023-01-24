@@ -438,7 +438,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         return materialInstance;
     }
 
-    // Used in tests
+    @TestOnly
     public void saveModification(MaterialInstance materialInstance, Modification modification) {
         modification.setMaterialInstance(materialInstance);
         try {

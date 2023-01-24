@@ -48,6 +48,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,8 +94,7 @@ public class ElasticAgentPluginService {
     private final ElasticAgentMetadataStore elasticAgentMetadataStore;
     private ClusterProfilesService clusterProfilesService;
 
-    @Deprecated
-    // for test only
+    @TestOnly
     public void setElasticPluginHeartBeatInterval(long elasticPluginHeartBeatInterval) {
         this.elasticPluginHeartBeatInterval = elasticPluginHeartBeatInterval;
     }
@@ -166,20 +166,17 @@ public class ElasticAgentPluginService {
         }
     }
 
-    @Deprecated
-    // for test only
+    @TestOnly
     public void setElasticAgentPluginRegistry(ElasticAgentPluginRegistry elasticAgentPluginRegistry) {
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
     }
 
-    @Deprecated
-    // for test only
+    @TestOnly
     public void setCreateAgentQueue(CreateAgentQueueHandler createAgentQueue) {
         this.createAgentQueue = createAgentQueue;
     }
 
-    @Deprecated
-    // for test only
+    @TestOnly
     protected void setEphemeralAutoRegisterKeyService(EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
         this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
     }

@@ -36,6 +36,7 @@ import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.plugins.validators.elastic.ElasticAgentProfileConfigurationValidator;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,7 +141,7 @@ public class ElasticProfileService {
                 .collect(Collectors.toMap(ElasticProfile::getId, Function.identity(), (a, b) -> b, HashMap::new));
     }
 
-    //used only from tests
+    @TestOnly
     public void setProfileConfigurationValidator(ElasticAgentProfileConfigurationValidator profileConfigurationValidator) {
         this.profileConfigurationValidator = profileConfigurationValidator;
     }

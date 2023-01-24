@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.VisibleForTesting;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ class TfsSDKCommandBuilder {
         this.sdkLoader = initSdkLoader();
     }
 
-    @VisibleForTesting
+    @TestOnly
     TfsSDKCommandBuilder(ClassLoader sdkLoader) {
         this.sdkLoader = sdkLoader;
     }

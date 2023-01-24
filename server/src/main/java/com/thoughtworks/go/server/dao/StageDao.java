@@ -23,6 +23,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.util.Pagination;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
 
@@ -32,9 +33,10 @@ public interface StageDao extends JobDurationStrategy {
 
     Stage save(Pipeline pipeline, Stage stage);
 
-    @Deprecated
-        // This is only used in test for legacy purpose.
-        // Please call pipelineService.save(aPipeline) instead
+    /**
+     * Please call pipelineService.save(aPipeline) instead
+     */
+    @TestOnly
     Stage saveWithJobs(Pipeline pipeline, Stage stage);
 
     int getCount(String pipelineName, String stageName);

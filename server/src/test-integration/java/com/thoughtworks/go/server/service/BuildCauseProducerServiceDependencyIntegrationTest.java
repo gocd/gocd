@@ -38,6 +38,7 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
@@ -79,7 +80,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
-    private PipelineDao pipelineDao;
+    private PipelineSqlMapDao pipelineDao;
     @Autowired
     private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired
@@ -100,7 +101,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
     public GitTestRepo gitTestRepo;
     public static SvnTestRepo svnRepository;
@@ -111,7 +112,6 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
     private static final String MINGLE_PIPELINE_NAME = "mingle";
     private static final String GO_PIPELINE_NAME = "go";
     private MaterialRevisions svnMaterialRevs;
-    private HttpOperationResult result;
     private SvnMaterial svnMaterial;
     private GitMaterial gitMaterial;
 
@@ -128,11 +128,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             pipelineScheduleQueue.clear();
         }
 
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs) throws Exception {
+        MaterialRevisions runAndPassWith(MaterialRevisions newRevs) {
             return runAndPassWith(newRevs, null);
         }
 
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs, MaterialRevisions revsAfterFoo) throws Exception {
+        MaterialRevisions runAndPassWith(MaterialRevisions newRevs, MaterialRevisions revsAfterFoo) {
             if (revsAfterFoo != null) {
                 for (MaterialRevision newRev : newRevs) {
                     newRev.addModifications(revsAfterFoo.getModifications(newRev.getMaterial()));
@@ -163,11 +163,11 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
             pipelineScheduleQueue.clear();
         }
 
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs) throws Exception {
+        MaterialRevisions runAndPassWith(MaterialRevisions newRevs) {
             return runAndPassWith(newRevs, null);
         }
 
-        MaterialRevisions runAndPassWith(MaterialRevisions newRevs, MaterialRevisions revsAfterFoo) throws Exception {
+        MaterialRevisions runAndPassWith(MaterialRevisions newRevs, MaterialRevisions revsAfterFoo) {
             if (revsAfterFoo != null) {
                 for (MaterialRevision newRev : newRevs) {
                     newRev.addModifications(revsAfterFoo.getModifications(newRev.getMaterial()));
@@ -223,7 +223,6 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
 
         minglePipeline.setup(buildCause);
         goPipeline.setup(buildCause);
-        result = new HttpOperationResult();
     }
 
     @AfterEach

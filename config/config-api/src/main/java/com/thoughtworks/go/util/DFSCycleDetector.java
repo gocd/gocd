@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Stack;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
 
 public class DFSCycleDetector {
     public final void topoSort(final CaseInsensitiveString root, final PipelineDependencyState pipelineDependencyState) throws Exception {
@@ -71,7 +71,7 @@ public class DFSCycleDetector {
 
     private void validateRootExists(CaseInsensitiveString root, PipelineDependencyState pipelineDependencyState, Stack<CaseInsensitiveString> visiting) throws Exception {
         if (!pipelineDependencyState.hasPipeline(root)) {
-            StringBuffer sb = new StringBuffer("Pipeline '");
+            StringBuilder sb = new StringBuilder("Pipeline '");
             sb.append(root);
             sb.append("' does not exist.");
             visiting.pop();
@@ -86,7 +86,7 @@ public class DFSCycleDetector {
     }
 
     private static void throwCircularException(CaseInsensitiveString end, Stack<CaseInsensitiveString> stk) throws Exception {
-        StringBuffer sb = new StringBuffer("Circular dependency: ");
+        StringBuilder sb = new StringBuilder("Circular dependency: ");
         sb.append(end);
         CaseInsensitiveString c;
         do {
@@ -97,7 +97,7 @@ public class DFSCycleDetector {
         throw new Exception(new String(sb));
     }
 
-    private static enum CycleState {
+    private enum CycleState {
         VISITED, VISITING
     }
 }

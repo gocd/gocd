@@ -402,7 +402,7 @@ public class GoConfigFileHelper {
         writeConfigFile(cruiseConfig);
     }
 
-    public PipelineConfig addPipeline(String pipelineName, String stageName, Subversion repository, Filter filter, String... buildNames) throws Exception {
+    public PipelineConfig addPipeline(String pipelineName, String stageName, Subversion repository, Filter filter, String... buildNames) {
         return addPipeline(pipelineName, stageName, svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), filter, buildNames);
     }
 
@@ -421,19 +421,18 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
-    public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) throws Exception {
+    public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, pipelineName, stageName, materialConfigs, buildNames);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }
 
-    public PipelineConfig addStageToPipeline(String pipelineName, String stageName) throws Exception {
+    public PipelineConfig addStageToPipeline(String pipelineName, String stageName) {
         return addStageToPipeline(pipelineName, stageName, "unit");
     }
 
-    public PipelineConfig addStageToPipeline(String pipelineName, String stageName, String... buildNames)
-            throws Exception {
+    public PipelineConfig addStageToPipeline(String pipelineName, String stageName, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addStageToPipeline(cruiseConfig, pipelineName, stageName,
                 buildNames);
@@ -474,7 +473,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfig addStageToPipeline(String pipelineName, String stageName, int stageindex,
-                                             String... buildNames) throws Exception {
+                                             String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addStageToPipeline(
                 cruiseConfig, pipelineName, stageName, stageindex, buildNames);
@@ -616,7 +615,7 @@ public class GoConfigFileHelper {
         return addSecurityWithPasswordFile();
     }
 
-    public void addSecurityWithAdminConfig() throws Exception {
+    public void addSecurityWithAdminConfig() {
         enableSecurity();
         addAdmins("admin1");
     }
@@ -666,7 +665,7 @@ public class GoConfigFileHelper {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             getXml(cruiseConfig, buffer);
-            saveFullConfig(new String(buffer.toByteArray()), false);
+            saveFullConfig(buffer.toString(), false);
         } catch (Exception e) {
             throw bomb(e);
         }
@@ -948,7 +947,7 @@ public class GoConfigFileHelper {
             }
 
             @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
                 cruiseConfig.addPipeline("g1", PipelineConfigMother.pipelineConfig(pipelineName, StageConfigMother.custom(stageName, jobName)));
                 return cruiseConfig;
             }
@@ -963,7 +962,7 @@ public class GoConfigFileHelper {
             }
 
             @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
                 cruiseConfig.addPipeline("g1", pipelineConfig);
                 return cruiseConfig;
             }
@@ -978,7 +977,7 @@ public class GoConfigFileHelper {
             }
 
             @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
                 JobConfig job = cruiseConfig.findJob(pipelineName, stageName, oldJobName);
                 ReflectionUtil.setField(job, "jobName", new CaseInsensitiveString(newJobName));
                 return cruiseConfig;
@@ -1004,7 +1003,7 @@ public class GoConfigFileHelper {
     }
 
     private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,
-                                       String... buildNames) throws Exception {
+                                       String... buildNames) {
         svnMaterialConfig.setFilter(filter);
         return addPipeline(pipelineName, stageName, svnMaterialConfig, buildNames);
     }

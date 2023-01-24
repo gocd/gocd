@@ -83,7 +83,7 @@ public class MagicalGoConfigXmlLoader {
         }
     }
 
-    public static void validateDom(Element element, final ConfigElementImplementationRegistry registry) throws Exception {
+    public static void validateDom(Element element, final ConfigElementImplementationRegistry registry) {
         for (GoConfigXMLValidator xmlValidator : XML_VALIDATORS) {
             xmlValidator.validate(element, registry);
         }
@@ -115,7 +115,7 @@ public class MagicalGoConfigXmlLoader {
         return configForEdit;
     }
 
-    public CruiseConfig preprocessAndValidate(CruiseConfig config) throws Exception {
+    public CruiseConfig preprocessAndValidate(CruiseConfig config) {
         LOGGER.debug("[Config Validation] In preprocessAndValidate: Cloning.");
         CruiseConfig cloned = CLONER.deepClone(config);
         LOGGER.debug("[Config Validation] In preprocessAndValidate: Validating.");
@@ -125,7 +125,7 @@ public class MagicalGoConfigXmlLoader {
         return cloned;
     }
 
-    public CruiseConfig validateCruiseConfig(CruiseConfig config) throws Exception {
+    public CruiseConfig validateCruiseConfig(CruiseConfig config) {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {

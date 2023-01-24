@@ -44,6 +44,7 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialDatabaseUpdater;
@@ -99,7 +100,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Autowired
     private GoConfigService goConfigService;
     @Autowired
-    private PipelineDao pipelineDao;
+    private PipelineSqlMapDao pipelineDao;
     @Autowired
     private PipelineScheduler buildCauseProducer;
     @Autowired

@@ -20,6 +20,7 @@ import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +70,7 @@ public class JobRunner {
         return isJobCancelled;
     }
 
-    //Used for tests only
-
+    @TestOnly
     void setWork(Work work) {
         this.work = work;
     }

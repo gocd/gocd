@@ -140,7 +140,6 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         this.viewConfig = viewConfig;
     }
 
-    //only for test
     public ViewConfig getViewConfig() {
         return viewConfig;
     }
@@ -265,7 +264,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
             UserType type = UserType.valueOf((String) userMap.get(TYPE));
             Admin admin = type.makeUser(name);
             for (Map.Entry<String, String> privilegeEntry : ((Map<String, String>) ((List) userMap.get(PRIVILEGES)).get(0)).entrySet()) {
-                PrivilegeType privilegeType = PrivilegeType.valueOf(privilegeEntry.getKey().toString().toUpperCase());
+                PrivilegeType privilegeType = PrivilegeType.valueOf(privilegeEntry.getKey().toUpperCase());
                 AdminsConfig privilegeGroup = privilegeType.group(this);
                 PrivilegeState state = PrivilegeState.valueOf(privilegeEntry.getValue());
                 state.apply(privilegeGroup, admin);

@@ -62,7 +62,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
     }
 
     public SCM findByName(final String name) {
-        return stream().filter(scm -> scm.getName().toLowerCase().equals(name.toLowerCase())).findFirst().orElse(null);
+        return stream().filter(scm -> scm.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override

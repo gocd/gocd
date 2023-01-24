@@ -28,6 +28,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.Timeout;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,8 +113,7 @@ public class ClusterProfilesChangedPluginNotifier extends EntityConfigChangedLis
         this.existingClusterProfiles = newCruiseConfig.getElasticConfig().getClusterProfiles();
     }
 
-    @Deprecated
-        //used only for tests
+    @TestOnly
     ClusterProfiles getExistingClusterProfiles() {
         return existingClusterProfiles;
     }

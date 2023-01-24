@@ -73,7 +73,7 @@ public class CachedGoConfig {
         return validationErrors;
     }
 
-    //used in tests
+    @TestOnly
     public void throwExceptionIfExists() {
         if (lastException != null) {
             throw bomb("Invalid config file", lastException);

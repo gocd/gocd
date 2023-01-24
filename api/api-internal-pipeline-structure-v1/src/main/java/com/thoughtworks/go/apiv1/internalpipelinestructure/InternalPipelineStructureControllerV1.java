@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.apiv1.internalpipelinestructure;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
@@ -49,7 +48,7 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final Map<String, Supplier<PipelineGroups>> pipelineGroupAuthorizationRegistry;
-    private final ImmutableMap<String, Supplier<TemplatesConfig>> templateAuthorizationRegistry;
+    private final Map<String, Supplier<TemplatesConfig>> templateAuthorizationRegistry;
     private final UserService userService;
     private final GoConfigService goConfigService;
     private final EnvironmentConfigService environmentConfigService;
@@ -61,16 +60,16 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
                                                  GoConfigService goConfigService, EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.pipelineGroupAuthorizationRegistry = ImmutableMap.<String, Supplier<PipelineGroups>>builder()
-                .put("view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()))
-                .put("operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()))
-                .put("administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername()))
-                .build();
+        this.pipelineGroupAuthorizationRegistry = Map.of(
+                "view", () -> pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername()),
+                "operate", () -> pipelineConfigService.viewableOrOperatableGroupsForIncludingConfigRepos(currentUsername()),
+                "administer", () -> pipelineConfigService.adminGroupsForIncludingConfigRepos(currentUsername())
+        );
 
-        this.templateAuthorizationRegistry = ImmutableMap.<String, Supplier<TemplatesConfig>>builder()
-                .put("view", () -> templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername()))
-                .put("administer", () -> templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername()))
-                .build();
+        this.templateAuthorizationRegistry = Map.of(
+                "view", () -> templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername()),
+                "administer", () -> templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername())
+        );
         this.userService = userService;
         this.goConfigService = goConfigService;
         this.environmentConfigService = environmentConfigService;

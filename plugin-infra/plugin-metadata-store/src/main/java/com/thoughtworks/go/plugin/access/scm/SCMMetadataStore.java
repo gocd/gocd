@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 import com.thoughtworks.go.plugin.api.config.Option;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,8 +103,7 @@ public class SCMMetadataStore extends PluginPreferenceStore<SCMPreference> {
         return hasPreferenceFor(pluginId);
     }
 
-    @Deprecated
-    // only for test usage
+    @TestOnly
     public void clear() {
         Set<String> plugins = pluginIds();
         for (String pluginId : plugins) {

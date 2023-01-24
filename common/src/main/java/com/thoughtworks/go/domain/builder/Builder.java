@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.builder;
 
-import com.google.common.base.Throwables;
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
@@ -114,7 +113,7 @@ public abstract class Builder implements Serializable {
     protected void logException(DefaultGoPublisher publisher, Exception e) {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
-        Throwables.throwIfUnchecked(e);
+        if (e instanceof RuntimeException) throw (RuntimeException)e;
         throw new CommandLineException(e);
     }
 
@@ -122,10 +121,6 @@ public abstract class Builder implements Serializable {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
         LOGGER.error(message);
         throw new CommandLineException(message);
-    }
-
-    public RunIfConfig resolvedRunIfConfig() {
-        return this.conditions.resolveToSingle();
     }
 
     public int getExitCode() {

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.Map;
 
@@ -69,15 +70,9 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         return view == null ? null : view.getValue();
     }
 
-    //USED IN RSPEC TESTS
+    @TestOnly
     public P4MaterialViewConfig getP4MaterialView() {
         return view;
-    }
-
-    //USED IN RSPEC TESTS
-    public void setP4MaterialView(P4MaterialViewConfig view) {
-        resetCachedIdentityAttributes();
-        this.view = view;
     }
 
     @Override

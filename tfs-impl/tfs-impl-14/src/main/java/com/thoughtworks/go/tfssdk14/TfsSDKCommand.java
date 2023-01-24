@@ -33,6 +33,7 @@ import com.thoughtworks.go.tfssdk14.wrapper.GoTfsWorkspace;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
+import org.jetbrains.annotations.TestOnly;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
         systemEnvironment = new SystemEnvironment();
     }
 
-    // Used in tests only
+    @TestOnly
     TfsSDKCommand(GoTfsVersionControlClient client, TFSTeamProjectCollection collection, String materialFingerprint, CommandArgument url, String domain, String userName, String password, String workspace, String projectPath) {
         this(materialFingerprint, url, domain, userName, password, workspace, projectPath);
         this.client = client;

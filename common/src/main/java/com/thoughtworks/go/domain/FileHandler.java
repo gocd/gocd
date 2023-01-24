@@ -15,23 +15,23 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Date;
 
 import static java.lang.String.format;
@@ -55,7 +55,7 @@ public class FileHandler implements FetchHandler {
         boolean fileExist = artifact.exists();
         LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
         if (fileExist && artifact.isFile()) {
-            String sha1 = FileUtil.sha1Digest(artifact);
+            String sha1 = sha1Digest(artifact);
             return format("%s/%s/%s/%s?sha1=%s", remoteHost, "remoting", "files", workingUrl,
                     URLEncoder.encode(sha1, StandardCharsets.UTF_8));
         } else {
@@ -117,5 +117,13 @@ public class FileHandler implements FetchHandler {
     @Override
     public int hashCode() {
         return artifact != null ? artifact.hashCode() : 0;
+    }
+
+    public static String sha1Digest(File file) {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+            return Base64.getEncoder().encodeToString(DigestUtils.sha1(is));
+        } catch (IOException e) {
+            throw ExceptionUtils.bomb(e);
+        }
     }
 }

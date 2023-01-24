@@ -77,7 +77,7 @@ public class PathFromAncestor {
             return null;
         }
         int index = stringPath.lastIndexOf(DELIMITER);
-        return index == -1 ? path : new CaseInsensitiveString(stringPath.substring(index + 1, stringPath.length()));
+        return index == -1 ? path : new CaseInsensitiveString(stringPath.substring(index + 1));
     }
 
     private List<CaseInsensitiveString> pathToAncestor(int upTill) {

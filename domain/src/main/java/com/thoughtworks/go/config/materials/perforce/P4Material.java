@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.TempFiles;
@@ -32,14 +31,12 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -90,6 +87,12 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         setView(view);
         this.userName = userName;
         this.folder = folder;
+    }
+
+    public static String filesystemSafeFileHash(File folder) {
+        String hash = Base64.getEncoder().encodeToString(DigestUtils.sha1(folder.getAbsolutePath().getBytes()));
+        hash = hash.replaceAll("[^0-9a-zA-Z\\.\\-]", "");
+        return hash;
     }
 
     @Override
@@ -206,13 +209,10 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     P4Client p4(File baseDir, ConsoleOutputStreamConsumer consumer) throws Exception {
-        return _p4(baseDir, consumer, true);
+        return p4(baseDir, consumer, true);
     }
 
-    /**
-     * not for use externally, created for testing convenience
-     */
-    P4Client _p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+    P4Client p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
         String clientName = clientName(workDir);
         return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, passwordForCommandLine(), clientName, this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }
@@ -300,7 +300,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     public String clientName(File workingDir) {
-        String hash = FileUtil.filesystemSafeFileHash(workingDir);
+        String hash = filesystemSafeFileHash(workingDir);
         return "cruise-" + SystemUtil.getLocalhostName()
                 + "-" + workingDir.getName()
                 + "-" + hash;

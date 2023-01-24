@@ -189,7 +189,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     public String toString() {
         SimpleDateFormat formatter =
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (materialInstance != null) {
             sb.append("Material: ").append(materialInstance).append('\n');
         }

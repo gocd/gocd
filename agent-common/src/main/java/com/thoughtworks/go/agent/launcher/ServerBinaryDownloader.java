@@ -48,7 +48,7 @@ public class ServerBinaryDownloader implements Downloader {
 
     private static final String MD5_HEADER = "Content-MD5";
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
-    private GoAgentServerHttpClientBuilder httpClientBuilder;
+    private final GoAgentServerHttpClientBuilder httpClientBuilder;
     private Map<String, String> extraProperties;
 
     protected ServerBinaryDownloader(GoAgentServerHttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator) {

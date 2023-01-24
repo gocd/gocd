@@ -22,13 +22,13 @@ import com.thoughtworks.go.agent.testhelper.FakeGoServerExtension;
 import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.assertj.core.util.Hexadecimals;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,7 +72,7 @@ public class ServerBinaryDownloaderTest {
             try (DigestInputStream digest = new DigestInputStream(stream, digester)) {
                 IOUtils.copy(digest, new NullOutputStream());
             }
-            assertThat(downloader.getMd5(), is(Hex.encodeHexString(digester.digest()).toLowerCase()));
+            assertThat(downloader.getMd5(), is(Hexadecimals.toHexString(digester.digest()).toLowerCase()));
         }
     }
 

@@ -21,6 +21,7 @@ import com.thoughtworks.go.util.CommandUtils;
 import com.thoughtworks.go.util.FilenameUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.TestOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         this.args = args;
     }
 
-    //used for test
+    @TestOnly
     public ExecTask(String args, Arguments argList) {
         this("echo", args, argList);//TODO: delete me, there is a validation that enforces not both attributes are populated - shilpa / jj
     }

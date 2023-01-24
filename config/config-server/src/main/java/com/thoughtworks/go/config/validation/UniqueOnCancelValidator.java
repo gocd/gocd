@@ -25,7 +25,7 @@ import java.util.List;
 
 public class UniqueOnCancelValidator implements GoConfigXMLValidator {
     @Override
-    public void validate(Element element, ConfigElementImplementationRegistry registry) throws Exception {
+    public void validate(Element element, ConfigElementImplementationRegistry registry) {
         XPathFactory xPathFactory = XPathFactory.instance();
         List<String> tasks = ConfigUtil.allTasks(registry);
         for (String task : tasks) {
@@ -33,7 +33,7 @@ public class UniqueOnCancelValidator implements GoConfigXMLValidator {
             for (Element taskNode : taskNodes) {
                 List<Element> list = xPathFactory.compile("oncancel", Filters.element()).evaluate(taskNode);
                 if (list.size() > 1) {
-                    throw new Exception("Task [" + task + "] should not contain more than 1 oncancel task");
+                    throw new RuntimeException("Task [" + task + "] should not contain more than 1 oncancel task");
                 }
             }
         }

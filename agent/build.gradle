@@ -128,7 +128,7 @@ task verifyJar(type: VerifyJarTask) {
     "lib": [
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
-      "angus-activation-1.0.0.jar",
+      "angus-activation-${project.versions.angusMailSmtp}.jar",
       "animal-sniffer-annotations-1.9.jar",
       "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",
@@ -168,7 +168,7 @@ task verifyJar(type: VerifyJarTask) {
       "jackson-annotations-${project.versions.jacksonBom}.jar",
       "jackson-core-${project.versions.jacksonBom}.jar",
       "jackson-databind-${project.versions.jacksonBom}.jar",
-      "jakarta.activation-api-2.1.0.jar",
+      "jakarta.activation-api-2.1.1.jar",
       "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
       "jakarta.servlet-api-${project.versions.servletApi}.jar",
       "jakarta.xml.bind-api-4.0.0.jar",

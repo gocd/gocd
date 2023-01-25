@@ -35,13 +35,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
-import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
 
 @Service
 public class ServerConfigService implements BaseUrlProvider {
-    private GoConfigService goConfigService;
+    private static final String TEST_EMAIL_SUBJECT = "Go Email Notification";
 
-    private GoMailSenderProvider provider = GoMailSenderProvider.DEFAULT_PROVIDER;
+    private final GoConfigService goConfigService;
+
+    private final GoMailSenderProvider provider = GoMailSenderProvider.DEFAULT_PROVIDER;
 
 
     @Autowired
@@ -117,9 +118,6 @@ public class ServerConfigService implements BaseUrlProvider {
         return goConfigService.getCurrentConfig().server();
     }
 
-    public String getAutoregisterKey() {
-        return serverConfig().getAgentAutoRegisterKey();
-    }
 
     public String getWebhookSecret() {
         return serverConfig().getWebhookSecret();

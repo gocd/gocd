@@ -17,7 +17,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
-import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import lombok.EqualsAndHashCode;
 import org.slf4j.Logger;
@@ -27,15 +26,12 @@ import org.slf4j.LoggerFactory;
 public class BackgroundMailSender implements GoMailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundMailSender.class);
 
-    private static final Integer CRUISE_MAIL_SENDER_TIMEOUT = Integer.parseInt(
-            SystemEnvironment.getProperty("cruise.mail.sender.timeout", String.valueOf(GoConstants.DEFAULT_TIMEOUT)));
-
-    private ValidationBean validation;
-    private GoMailSender mailSender;
-    private int timeout;
+    private final GoMailSender mailSender;
+    private final int timeout;
+    private volatile ValidationBean validation;
 
     public BackgroundMailSender(GoMailSender sender) {
-        this(sender, CRUISE_MAIL_SENDER_TIMEOUT);
+        this(sender, new SystemEnvironment().getMailSenderTimeoutMillis());
     }
 
     public BackgroundMailSender(GoMailSender sender, int timeout) {

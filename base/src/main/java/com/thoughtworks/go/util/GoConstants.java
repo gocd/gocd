@@ -50,8 +50,6 @@ public class GoConstants {
     public static final String APPROVAL_SUCCESS = "success";
     public static final String APPROVAL_MANUAL = "manual";
     public static final int PUBLISH_MAX_RETRIES = 3;
-    public static final String TEST_EMAIL_SUBJECT = "Go Email Notification";
-    public static final int DEFAULT_TIMEOUT = 60 * 1000;
     public static final long MEGABYTES_IN_GIGABYTE = 1024;
     public static final long MEGA_BYTE = 1024 * 1024;
     public static final long GIGA_BYTE = MEGABYTES_IN_GIGABYTE * MEGA_BYTE;

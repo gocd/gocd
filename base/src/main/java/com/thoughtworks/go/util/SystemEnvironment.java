@@ -101,6 +101,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     static final String UNRESPONSIVE_JOB_WARNING_THRESHOLD = "cruise.unresponsive.job.warning";
 
+    public static final int DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS = 60 * 1000;
+    private static final GoSystemProperty<Integer> MAIL_SENDER_TIMEOUT_MILLIS = new GoIntSystemProperty("cruise.mail.sender.timeout", DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+
     public static final GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));
     public static final GoSystemProperty<Integer> MATERIAL_UPDATE_INACTIVE_TIMEOUT = new CachedProperty<>(new GoIntSystemProperty("material.update.inactive.timeout", 15));
 
@@ -254,6 +257,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getListenHost() {
         return getPropertyImpl(CRUISE_LISTEN_HOST);
+    }
+
+    public int getMailSenderTimeoutMillis() {
+        return get(MAIL_SENDER_TIMEOUT_MILLIS);
     }
 
     public long getArtifactRepositoryFullLimit() {

@@ -291,7 +291,7 @@ dependencies {
   implementation project.deps.freemarker
   implementation project.deps.guava
   implementation project.deps.jakartaMail
-  implementation project.deps.angusMailSmtp
+  runtimeOnly project.deps.angusMailSmtp
 
   implementation project.deps.slf4j
   implementation(project.deps.jgitServer) {

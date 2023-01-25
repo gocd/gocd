@@ -27,14 +27,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BackgroundEmailSenderTest {
+public class BackgroundMailSenderTest {
 
     GoMailSender neverReturns = new GoMailSender() {
         @Override
         public ValidationBean send(String subject, String body, String to) {
             try {
                 Thread.sleep(10000000);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignore) {
+                Thread.currentThread().interrupt();
             }
             return null;
         }
@@ -53,7 +54,7 @@ public class BackgroundEmailSenderTest {
     }
 
     @Test
-    public void shouldReturnNotValidIfSendingTimesout() {
+    public void shouldReturnNotValidIfSendingTimesOut() {
         BackgroundMailSender background = new BackgroundMailSender(neverReturns, 1);
         ValidationBean validationBean = background.send("Subject", "body", "to@someone");
         assertThat(validationBean.isValid(), is(false));

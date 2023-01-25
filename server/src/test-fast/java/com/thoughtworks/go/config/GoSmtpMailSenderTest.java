@@ -18,7 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
 import jakarta.mail.Address;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.MimeMessage;
@@ -105,8 +105,8 @@ class GoSmtpMailSenderTest {
 
         assertThat(bean).isEqualTo(ValidationBean.valid());
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
-        mailSession.verifyProperty(TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+        mailSession.verifyProperty(TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
         mailSession.verifyProperty(TLS_CHECK_SERVER_IDENTITY_PROPERTY, "true");
     }
 
@@ -119,7 +119,7 @@ class GoSmtpMailSenderTest {
 
         mailSession.verifyMessageWasSent();
         mailSession.verifyPropertyDoesNotExist(CONNECTION_TIMEOUT_PROPERTY);
-        mailSession.verifyProperty(TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyProperty(TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
     }
 
     @Test
@@ -130,7 +130,7 @@ class GoSmtpMailSenderTest {
         sendMailWithPropertySetTo(sender, TIMEOUT_PROPERTY, "12345");
 
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, GoConstants.DEFAULT_TIMEOUT);
+        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
         mailSession.verifyPropertyDoesNotExist(TIMEOUT_PROPERTY);
     }
 

@@ -41,25 +41,24 @@ import static com.thoughtworks.go.domain.AgentStatus.fromRuntime;
 import static com.thoughtworks.go.remote.AgentInstruction.*;
 import static java.lang.String.format;
 
-//TODO put the logic back to the AgentRuntimeInfo for all the sync method
-
 /**
  * @understands runtime and configuration information of a builder machine
  */
 public class AgentInstance implements Comparable<AgentInstance> {
-    private AgentType agentType;
-    protected Agent agent;
+    private final AgentType agentType;
+    private final AgentStatusChangeListener agentStatusChangeListener;
+    private final TimeProvider timeProvider;
+    private final SystemEnvironment systemEnvironment;
+    private final ConfigErrors errors = new ConfigErrors();
+
+    private Agent agent;
     private AgentRuntimeInfo agentRuntimeInfo;
-    private AgentStatusChangeListener agentStatusChangeListener;
 
     private AgentConfigStatus agentConfigStatus;
 
+    private volatile boolean killRunningTasks;
     private volatile Date lastHeardTime;
     private volatile Date cancelledAt;
-    private TimeProvider timeProvider;
-    private SystemEnvironment systemEnvironment;
-    private ConfigErrors errors = new ConfigErrors();
-    private boolean killRunningTasks;
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener, TimeProvider timeProvider) {
@@ -89,10 +88,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public String getUuid() {
         return getAgent().getUuid();
-    }
-
-    public Date getCancelledAt() {
-        return cancelledAt;
     }
 
     @Override
@@ -161,10 +156,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public void killRunningTasks() throws InvalidAgentInstructionException {
         if (!isCancelled()) {
             throw new InvalidAgentInstructionException(format("The agent should be in cancelled state before attempting " +
-                    "to kill running tasks. Current Agent state is: '%s'", agentRuntimeInfo.getRuntimeStatus().buildState().name()));
+                "to kill running tasks. Current Agent state is: '%s'", agentRuntimeInfo.getRuntimeStatus().buildState().name()));
         }
 
-        if(killRunningTasks) {
+        if (killRunningTasks) {
             throw new InvalidAgentInstructionException("There is a pending request to kill running task.");
         }
 
@@ -181,8 +176,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public AgentStatus getStatus() {
         return agentConfigStatus == Enabled
-                ? fromRuntime(agentRuntimeInfo.getRuntimeStatus())
-                : fromConfig(agentConfigStatus);
+            ? fromRuntime(agentRuntimeInfo.getRuntimeStatus())
+            : fromConfig(agentConfigStatus);
     }
 
     public AgentConfigStatus getAgentConfigStatus() {
@@ -203,15 +198,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public boolean canDisable() {
         return agentConfigStatus != Disabled;
-    }
-
-    /**
-     * Used only from the old ui. New ui does not have the notion of "approved" agents only "enabled" ones.
-     *
-     * @deprecated
-     */
-    public boolean canApprove() {
-        return agentConfigStatus != Enabled && !agent.isDisabled();
     }
 
     public void refresh() {
@@ -271,14 +257,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public String getLocation() {
         return agentRuntimeInfo.getLocation();
-    }
-
-
-    /**
-     * @deprecated use freeDiskSpace instead
-     */
-    public Long getUsableSpace() {
-        return agentRuntimeInfo.getUsableSpace();
     }
 
     public boolean isRegistered() {
@@ -354,10 +332,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getBuildingInfo().getBuildLocator();
     }
 
-    public boolean canEnable() {
-        return agentConfigStatus != Enabled;
-    }
-
     public DiskSpace freeDiskSpace() {
         return agentRuntimeInfo.freeDiskSpace();
     }
@@ -414,13 +388,12 @@ public class AgentInstance implements Comparable<AgentInstance> {
             return KILL_RUNNING_TASKS;
         }
 
-        if(isCancelled()) {
+        if (isCancelled()) {
             return CANCEL;
         }
 
         return NONE;
     }
-
 
     enum AgentType {
         LOCAL, REMOTE

@@ -158,7 +158,7 @@ public class AgentInstanceTest {
     void shouldNotifyAgentChangeListenerOnEnablingAgent() {
         AgentInstance instance = AgentInstanceMother.disabled();
 
-        AgentInstance disabledAgent = new AgentInstance(instance.agent, instance.getType(), systemEnvironment, agentStatusChangeListener);
+        AgentInstance disabledAgent = new AgentInstance(instance.getAgent(), instance.getType(), systemEnvironment, agentStatusChangeListener);
 
         disabledAgent.enable();
 
@@ -178,7 +178,7 @@ public class AgentInstanceTest {
     void shouldNotifyAgentChangeListenerOnConfigSync() {
         AgentInstance instance = AgentInstanceMother.disabled();
 
-        AgentInstance agentInstance = new AgentInstance(instance.agent, instance.getType(), systemEnvironment, agentStatusChangeListener);
+        AgentInstance agentInstance = new AgentInstance(instance.getAgent(), instance.getType(), systemEnvironment, agentStatusChangeListener);
 
         agentInstance.syncAgentFrom(agent);
 
@@ -235,9 +235,9 @@ public class AgentInstanceTest {
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         newRuntimeInfo.setUsableSpace(1000L);
 
-        assertThat(agentInstance.getUsableSpace()).isNotEqualTo(newRuntimeInfo.getUsableSpace());
+        assertThat(agentInstance.freeDiskSpace().space()).isNotEqualTo(newRuntimeInfo.getUsableSpace());
         agentInstance.update(newRuntimeInfo);
-        assertThat(agentInstance.getUsableSpace()).isEqualTo(newRuntimeInfo.getUsableSpace());
+        assertThat(agentInstance.freeDiskSpace().space()).isEqualTo(newRuntimeInfo.getUsableSpace());
     }
 
     @Test
@@ -367,7 +367,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    void pendingAgentshouldNotBeRegistered() {
+    void pendingAgentShouldNotBeRegistered() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         AgentInstance instance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
                 mock(AgentStatusChangeListener.class));
@@ -375,7 +375,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    void deniedAgentshouldBeRegistered() {
+    void deniedAgentShouldBeRegistered() {
         agent.disable();
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
 
@@ -546,6 +546,7 @@ public class AgentInstanceTest {
         AgentInstance agentA = new AgentInstance(new Agent("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment, null);
         AgentInstance agentB = new AgentInstance(new Agent("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment, null);
 
+        //noinspection EqualsWithItself
         assertThat(agentA.compareTo(agentA)).isEqualTo(0);
         assertThat(agentA.compareTo(agentB)).isLessThan(0);
         assertThat(agentB.compareTo(agentA)).isGreaterThan(0);
@@ -644,7 +645,6 @@ public class AgentInstanceTest {
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.LostContact).freeDiskSpace()).isEqualTo(DiskSpace.unknownDiskSpace());
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.Idle).freeDiskSpace()).isEqualTo(new DiskSpace(1024L));
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), null), AgentRuntimeStatus.Idle).freeDiskSpace()).isEqualTo(DiskSpace.unknownDiskSpace());
-
     }
 
     @Test
@@ -968,7 +968,7 @@ public class AgentInstanceTest {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), Building, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
-        agentRuntimeInfo.setUsableSpace(10 * 1024l);
+        agentRuntimeInfo.setUsableSpace(10 * 1024L);
         AgentInstance agentInstance = new AgentInstance(idleAgentConfig, LOCAL, new SystemEnvironment(), mock(AgentStatusChangeListener.class), timeProvider);
         agentInstance.enable();
         return agentInstance;

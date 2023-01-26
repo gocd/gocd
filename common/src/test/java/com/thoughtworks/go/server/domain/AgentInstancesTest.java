@@ -457,7 +457,7 @@ class AgentInstancesTest {
 
     @Test
     void shouldBeAbleToCreateAgentInstancesWithNullArrayOfAgentInstance() {
-        AgentInstances agentInstances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), null);
+        AgentInstances agentInstances = new AgentInstances(systemEnvironment, mock(AgentStatusChangeListener.class), (AgentInstance[]) null);
 
         assertThat(agentInstances, is(not(nullValue())));
         assertThat(agentInstances.size(), is(0));

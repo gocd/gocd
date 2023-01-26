@@ -77,7 +77,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public static AgentRuntimeInfo fromServer(Agent agent, boolean registeredAlready, String location,
-                                              Long usablespace, String operatingSystem ) {
+                                              Long freeDiskSpace, String operatingSystem ) {
 
         if (isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
@@ -91,7 +91,7 @@ public class AgentRuntimeInfo implements Serializable {
         AgentRuntimeStatus runtimeStatus = status.getRuntimeStatus();
         AgentIdentifier identifier = agent.getAgentIdentifier();
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, runtimeStatus, location, null);
-        runtimeInfo.setUsableSpace(usablespace);
+        runtimeInfo.setUsableSpace(freeDiskSpace);
         runtimeInfo.operatingSystemName = operatingSystem;
         return runtimeInfo;
     }

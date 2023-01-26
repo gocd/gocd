@@ -21,12 +21,11 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands how to report results of common operations to the user
- * @deprecated Use LocalizedOperationResult interface instead
  */
 public class ServerHealthServiceUpdatingOperationResult implements OperationResult {
 
     private final ServerHealthService serverHealthService;
-    boolean canContinue = true;
+    private boolean canContinue = true;
     private ServerHealthState state;
 
     private ServerHealthState kickMe(ServerHealthState whatWentWrong, boolean isEverythingOk) {
@@ -63,10 +62,6 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
     @Override
     public ServerHealthState success(HealthStateType healthStateType) {
         return kickMe(ServerHealthState.success(healthStateType), true);
-    }
-
-    public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
-        throw new RuntimeException("Not yet implemented");
     }
 
     @Override
@@ -115,7 +110,7 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
     }
 
     @Override
-    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+    public void unprocessableEntity(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }
 

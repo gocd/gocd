@@ -20,7 +20,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands the current status of a given task.
- * @deprecated Use LocalizedOperationResult instead
  */
 public interface OperationResult {
 
@@ -58,6 +57,6 @@ public interface OperationResult {
 
     void notAcceptable(String message, String description, HealthStateType type);
 
-    void unprocessibleEntity(String message, String description, HealthStateType healthStateType);
+    void unprocessableEntity(String message, String description, HealthStateType healthStateType);
 
 }

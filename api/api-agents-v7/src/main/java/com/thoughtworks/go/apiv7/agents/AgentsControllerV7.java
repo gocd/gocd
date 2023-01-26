@@ -287,7 +287,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
         if (updatedAgentInstance != null) {
             Agent agent = updatedAgentInstance.getAgent();
             if (agent.hasErrors()) {
-                result.unprocessibleEntity("Updating agent failed.", "", general(GLOBAL));
+                result.unprocessableEntity("Updating agent failed.", "", general(GLOBAL));
             } else {
                 result.ok(format("Updated agent with uuid %s.", agent.getUuid()));
             }

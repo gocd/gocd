@@ -21,7 +21,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands updating server health information relating to disk space
- * @deprecated Use LocalizedOperationResult interface instead
  */
 public class DiskSpaceOperationResult implements OperationResult {
     private final ServerHealthService serverHealthService;
@@ -62,10 +61,6 @@ public class DiskSpaceOperationResult implements OperationResult {
     @Override
     public boolean canContinue() {
         return canContinue;
-    }
-
-    public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
-        throw new RuntimeException("Not yet implemented");
     }
 
     @Override
@@ -114,7 +109,7 @@ public class DiskSpaceOperationResult implements OperationResult {
     }
 
     @Override
-    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+    public void unprocessableEntity(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 

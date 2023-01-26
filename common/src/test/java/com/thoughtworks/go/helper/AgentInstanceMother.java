@@ -16,10 +16,7 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
@@ -87,7 +84,7 @@ public class AgentInstanceMother {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
-        agentRuntimeInfo.setUsableSpace(10 * 1024l);
+        agentRuntimeInfo.setUsableSpace(10 * 1024L);
         AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.idle();
         agentInstance.update(agentRuntimeInfo);
@@ -150,15 +147,15 @@ public class AgentInstanceMother {
     }
 
 
-    public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freespace) {
+    public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freeDiskSpace) {
         Agent agent = agentInstance.getAgent();
-        agentInstance.update(fromServer(agent, true, agentInstance.getLocation(), freespace, "linux"));
+        agentInstance.update(fromServer(agent, true, agentInstance.getLocation(), freeDiskSpace, "linux"));
         return agentInstance;
     }
 
     public static AgentInstance updateOS(AgentInstance agentInstance, String operatingSystem) {
         Agent agent = agentInstance.getAgent();
-        AgentRuntimeInfo newRuntimeInfo = fromServer(agent, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), operatingSystem);
+        AgentRuntimeInfo newRuntimeInfo = fromServer(agent, true, agentInstance.getLocation(), agentInstance.freeDiskSpace().space(), operatingSystem);
         newRuntimeInfo.setStatus(agentInstance.getStatus());
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
@@ -169,10 +166,9 @@ public class AgentInstanceMother {
         return agentInstance;
     }
 
-
     public static AgentInstance updateLocation(AgentInstance agentInstance, String location) {
         Agent agent = agentInstance.getAgent();
-        agentInstance.update(fromServer(agent, true, location, agentInstance.getUsableSpace(), "linux"));
+        agentInstance.update(fromServer(agent, true, location, agentInstance.freeDiskSpace().space(), "linux"));
         return agentInstance;
     }
 
@@ -200,10 +196,14 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateRuntimeStatus(AgentInstance agentInstance, AgentRuntimeStatus status) {
         Agent agent = agentInstance.getAgent();
-        AgentRuntimeInfo newRuntimeInfo = fromServer(agent, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), "linux");
+        AgentRuntimeInfo newRuntimeInfo = fromServer(agent, true, agentInstance.getLocation(), spaceFor(agentInstance), "linux");
         newRuntimeInfo.setRuntimeStatus(status);
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
+    }
+
+    private static Long spaceFor(AgentInstance agentInstance) {
+        return agentInstance.freeDiskSpace().isNullDiskspace() ? null : agentInstance.freeDiskSpace().space();
     }
 
     public static AgentInstance disabled() {

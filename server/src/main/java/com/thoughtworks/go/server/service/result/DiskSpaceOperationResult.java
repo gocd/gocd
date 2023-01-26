@@ -21,7 +21,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands updating server health information relating to disk space
- * @deprecated Use LocalizedOperationResult interface instead
  */
 public class DiskSpaceOperationResult implements OperationResult {
     private final ServerHealthService serverHealthService;

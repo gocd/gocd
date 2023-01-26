@@ -20,7 +20,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands the current status of a given task.
- * @deprecated Use LocalizedOperationResult instead
  */
 public interface OperationResult {
 

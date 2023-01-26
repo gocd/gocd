@@ -21,7 +21,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands how to report results of common operations to the user
- * @deprecated Use LocalizedOperationResult interface instead
  */
 public class ServerHealthServiceUpdatingOperationResult implements OperationResult {
 

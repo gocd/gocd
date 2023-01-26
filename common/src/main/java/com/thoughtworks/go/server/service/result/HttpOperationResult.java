@@ -23,7 +23,6 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
 /**
  * @understands how to turn the problems that can occur during api calls into human-readable form and http codes
- * @deprecated Use LocalizedOperationResult interface instead
  */
 public class HttpOperationResult implements OperationResult {
 

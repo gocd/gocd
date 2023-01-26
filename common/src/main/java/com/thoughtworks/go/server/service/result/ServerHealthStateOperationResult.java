@@ -20,7 +20,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
  * @understands the current status of the Server Health.
- * @deprecated Use LocalizedOperationResult interface instead
  */
 public class ServerHealthStateOperationResult implements OperationResult {
     private ServerHealthState lastHealthState = null;

@@ -218,7 +218,7 @@ public class BuildCauseProducerService {
         } catch (Exception e) {
             String message = "Error while scheduling pipeline: " + pipelineName;
             LOGGER.error(message, e);
-            result.unprocessibleEntity(message, e.getMessage() != null ? e.getMessage() : message, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.unprocessableEntity(message, e.getMessage() != null ? e.getMessage() : message, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return showError(pipelineName, message, e.getMessage());
         }
     }

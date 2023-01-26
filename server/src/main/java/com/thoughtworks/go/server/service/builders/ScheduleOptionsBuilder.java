@@ -71,12 +71,12 @@ public class ScheduleOptionsBuilder {
                 try {
                     MaterialConfig material = goConfigService.materialForPipelineWithFingerprint(pipelineName, materialForScheduling.getFingerprint());
                     if (StringUtils.isBlank(materialForScheduling.getRevision())) {
-                        result.unprocessibleEntity("Request to schedule pipeline rejected", String.format("Material [%s] has empty revision", materialForScheduling.getFingerprint()), HealthStateType.general(HealthStateScope.GLOBAL));
+                        result.unprocessableEntity("Request to schedule pipeline rejected", String.format("Material [%s] has empty revision", materialForScheduling.getFingerprint()), HealthStateType.general(HealthStateScope.GLOBAL));
                         return;
                     }
                     scheduleOptions.getSpecifiedRevisions().put(material.getPipelineUniqueFingerprint(), materialForScheduling.getRevision());
                 } catch (Exception e) {
-                    result.unprocessibleEntity("Request to schedule pipeline rejected", String.format("Pipeline '%s' does not contain the following material(s): [%s].", pipelineName, materialForScheduling.getFingerprint()), healthStateType);
+                    result.unprocessableEntity("Request to schedule pipeline rejected", String.format("Pipeline '%s' does not contain the following material(s): [%s].", pipelineName, materialForScheduling.getFingerprint()), healthStateType);
                     return;
                 }
             }
@@ -106,7 +106,7 @@ public class ScheduleOptionsBuilder {
             for (EnvironmentVariableConfig environmentVariable : pipelineScheduleOptions.getPlainTextEnvironmentVariables()) {
                 if (!goConfigService.hasVariableInScope(pipelineName, environmentVariable.getName())) {
                     String variableUnconfiguredMessage = String.format("Variable '%s' has not been configured for pipeline '%s'", environmentVariable.getName(), pipelineName);
-                    result.unprocessibleEntity("Request to schedule pipeline rejected", variableUnconfiguredMessage, healthStateType);
+                    result.unprocessableEntity("Request to schedule pipeline rejected", variableUnconfiguredMessage, healthStateType);
                     return;
                 }
                 scheduleOptions.getVariables().add(environmentVariable);
@@ -126,12 +126,12 @@ public class ScheduleOptionsBuilder {
             for (EnvironmentVariableConfig environmentVariable : pipelineScheduleOptions.getSecureEnvironmentVariables()) {
                 if (!goConfigService.hasVariableInScope(pipelineName, environmentVariable.getName())) {
                     String variableUnconfiguredMessage = String.format("Variable '%s' has not been configured for pipeline '%s'", environmentVariable.getName(), pipelineName);
-                    result.unprocessibleEntity("Request to schedule pipeline rejected", variableUnconfiguredMessage, healthStateType);
+                    result.unprocessableEntity("Request to schedule pipeline rejected", variableUnconfiguredMessage, healthStateType);
                     return;
                 }
                 environmentVariable.validate(null);
                 if (!environmentVariable.errors().isEmpty()) {
-                    result.unprocessibleEntity("Request to schedule pipeline rejected", environmentVariable.errors().asString(), healthStateType);
+                    result.unprocessableEntity("Request to schedule pipeline rejected", environmentVariable.errors().asString(), healthStateType);
                     return;
                 }
                 scheduleOptions.getVariables().add(environmentVariable);

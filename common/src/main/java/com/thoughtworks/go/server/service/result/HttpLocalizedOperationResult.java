@@ -26,7 +26,7 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     private String message;
     private HealthStateType healthStateType;
-    private int httpCode = 200;
+    private int httpCode = HttpStatus.SC_OK;
 
     @Override
     public void setMessage(String message) {
@@ -102,7 +102,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
 
     @Override
     public boolean isSuccessful() {
-        return 200 <= httpCode && httpCode < 300;
+        return httpCode >= HttpStatus.SC_OK && httpCode < HttpStatus.SC_MULTIPLE_CHOICES;
     }
 
     @Override
@@ -145,9 +145,9 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     @Override
     public String toString() {
         return "HttpLocalizedOperationResult{" +
-                "message=" + message +
-                ", healthStateType=" + healthStateType +
-                ", httpCode=" + httpCode +
-                '}';
+            "message=" + message +
+            ", healthStateType=" + healthStateType +
+            ", httpCode=" + httpCode +
+            '}';
     }
 }

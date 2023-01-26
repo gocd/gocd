@@ -64,10 +64,6 @@ public class DiskSpaceOperationResult implements OperationResult {
         return canContinue;
     }
 
-    public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
-        throw new RuntimeException("Not yet implemented");
-    }
-
     @Override
     public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         throw new RuntimeException("Not yet implemented");
@@ -114,7 +110,7 @@ public class DiskSpaceOperationResult implements OperationResult {
     }
 
     @Override
-    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+    public void unprocessableEntity(String message, String description, HealthStateType healthStateType) {
         throw new RuntimeException("Not yet implemented");
     }
 

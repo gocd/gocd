@@ -58,6 +58,6 @@ public interface OperationResult {
 
     void notAcceptable(String message, String description, HealthStateType type);
 
-    void unprocessibleEntity(String message, String description, HealthStateType healthStateType);
+    void unprocessableEntity(String message, String description, HealthStateType healthStateType);
 
 }

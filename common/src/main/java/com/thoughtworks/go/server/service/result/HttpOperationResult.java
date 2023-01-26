@@ -28,9 +28,9 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 public class HttpOperationResult implements OperationResult {
 
     private static final String BLANK_STRING = "";
-    int httpCode = 200;
+    private int httpCode = 200;
     private String message;
-    final private ServerHealthStateOperationResult serverHealthStateOperationResult = new ServerHealthStateOperationResult();
+    private final ServerHealthStateOperationResult serverHealthStateOperationResult = new ServerHealthStateOperationResult();
 
 
     @Override
@@ -59,7 +59,7 @@ public class HttpOperationResult implements OperationResult {
     }
 
     @Override
-    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+    public void unprocessableEntity(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
         httpCode = 422;
     }
@@ -147,7 +147,7 @@ public class HttpOperationResult implements OperationResult {
     public String fullMessage() {
         ServerHealthState serverHealthState = serverHealthStateOperationResult.getServerHealthState();
         String desc = BLANK_STRING;
-        if(serverHealthState != null && !StringUtils.equals(serverHealthState.getDescription(), message)) {
+        if (serverHealthState != null && !StringUtils.equals(serverHealthState.getDescription(), message)) {
             desc = serverHealthState.getDescription();
         }
 

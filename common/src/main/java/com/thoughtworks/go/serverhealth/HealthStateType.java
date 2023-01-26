@@ -22,10 +22,10 @@ import java.util.Set;
 
 public class HealthStateType implements Comparable<HealthStateType> {
 
-    private String name;
+    private final String name;
     private final int httpCode;
     private final HealthStateScope scope;
-    private String subkey;
+    private final String subkey;
 
     private HealthStateType(String name, int httpCode, HealthStateScope scope, String subkey) {
         this.name = name;
@@ -48,9 +48,6 @@ public class HealthStateType implements Comparable<HealthStateType> {
 
     public static HealthStateType invalidConfig() {
         return new HealthStateType("INVALID_CONFIG", 406, HealthStateScope.GLOBAL, null);
-    }
-    public static HealthStateType invalidConfigMerge() {
-        return new HealthStateType("INVALID_CONFIG_MERGE", 406, HealthStateScope.GLOBAL, null);
     }
 
     public static HealthStateType forbiddenForPipeline(String pipelineName) {

@@ -96,7 +96,7 @@ public class ServerHealthStateOperationResult implements OperationResult {
     }
 
     @Override
-    public void unprocessibleEntity(String message, String description, HealthStateType healthStateType) {
+    public void unprocessableEntity(String message, String description, HealthStateType healthStateType) {
         error(message, description, healthStateType);
     }
 

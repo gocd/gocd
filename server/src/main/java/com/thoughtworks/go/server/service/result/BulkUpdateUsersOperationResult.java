@@ -18,18 +18,15 @@ package com.thoughtworks.go.server.service.result;
 import java.util.ArrayList;
 import java.util.List;
 public class BulkUpdateUsersOperationResult extends HttpLocalizedOperationResult {
-    private List<String> nonExistentUsers;
-    private List<String> enabledUsers;
+    private final List<String> nonExistentUsers;
+    private final List<String> enabledUsers;
 
     public BulkUpdateUsersOperationResult() {
-        nonExistentUsers = new ArrayList<>();
-        enabledUsers = new ArrayList<>();
+        this(new ArrayList<>(), new ArrayList<>());
     }
 
     public BulkUpdateUsersOperationResult(List<String> nonExistentUsers, List<String> enabledUsers) {
-        this.nonExistentUsers = new ArrayList<>();
         this.nonExistentUsers = nonExistentUsers;
-        this.enabledUsers = new ArrayList<>();
         this.enabledUsers = enabledUsers;
     }
 

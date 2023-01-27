@@ -783,7 +783,7 @@ task verifyWar(type: VerifyJarTask) {
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
-        "angus-activation-${project.versions.angusMailSmtp}.jar",
+        "angus-activation-${project.versions.angusActivation}.jar",
         "angus-core-${project.versions.angusMailSmtp}.jar",
         "animal-sniffer-annotations-1.9.jar",
         "ant-${project.versions.apacheAnt}.jar",

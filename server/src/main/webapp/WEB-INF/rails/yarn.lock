@@ -2124,10 +2124,10 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
 
-bourbon@^7.2.0:
-  version "7.2.0"
-  resolved "https://registry.yarnpkg.com/bourbon/-/bourbon-7.2.0.tgz#32bc40fd368383e4b7b82bb832c34c67584282bd"
-  integrity sha512-Zx/lY/YzMkSyFC7yYPp9QcI2OCWnUHQdSrXvRtfnaUGT/edKNh44mVPYkP7QEyk6yQOLCJottsuTnidqKcpbNg==
+bourbon@^7.3.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/bourbon/-/bourbon-7.3.0.tgz#0b7b7dc74064c7ea4c534830dd2b54bef992e919"
+  integrity sha512-u9ZUqmaX7K7nkarKODlFT4/XYfWafLRoadlv2Lye8hytrIA4Urg/50rav1eFdbdbO6o9GnK9a6qf7zwq808atA==
 
 brace-expansion@^1.1.7:
   version "1.1.11"

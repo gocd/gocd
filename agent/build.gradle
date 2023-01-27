@@ -128,7 +128,7 @@ task verifyJar(type: VerifyJarTask) {
     "lib": [
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
-      "angus-activation-${project.versions.angusMailSmtp}.jar",
+      "angus-activation-${project.versions.angusActivation}.jar",
       "animal-sniffer-annotations-1.9.jar",
       "ant-${project.versions.apacheAnt}.jar",
       "base-${project.version}.jar",

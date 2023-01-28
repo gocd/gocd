@@ -241,9 +241,9 @@
     <vulnerabilityName>1085771</vulnerabilityName>
 
     <cve>CVE-2020-11022</cve>
-    <vulnerabilityName>1088299</vulnerabilityName>
+    <vulnerabilityName>1089070</vulnerabilityName>
     <cve>CVE-2020-11023</cve>
-    <vulnerabilityName>1088300</vulnerabilityName>
+    <vulnerabilityName>1089071</vulnerabilityName>
   </suppress>
 
   <suppress>

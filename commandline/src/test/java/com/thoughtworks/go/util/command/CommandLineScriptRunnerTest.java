@@ -15,16 +15,25 @@
  */
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import static com.thoughtworks.go.util.SystemEnvironment.CONSOLE_LOG_MAX_LINE_LENGTH;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 class CommandLineScriptRunnerTest {
+
+    @AfterEach
+    public void tearDown() {
+        System.clearProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName());
+    }
+
     @Test
     @EnabledOnOs(OS.LINUX)
     void shouldReplaceSecretsOnTheOutputUnderLinux() {
@@ -108,5 +117,72 @@ class CommandLineScriptRunnerTest {
         command.runScript(script, output, environmentVariableContext, null);
         assertThat(script.getExitCode()).isEqualTo(0);
         assertThat(output.contains("the_secret_password")).as(output.toString()).isFalse();
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void shouldCropLongLinesUnderLinux() {
+        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
+
+        CommandLine command = CommandLine.createCommandLine("echo")
+            .withArg("This is a fairly ridiculously long line.")
+            .withEncoding(UTF_8);
+        InMemoryConsumer output = new InMemoryConsumer();
+
+        command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
+
+        assertThat(output.toString()).isEqualTo("This is ...[ cropped by GoCD ]");
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldCropLongLinesUnderWindows() {
+        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
+
+        CommandLine command = CommandLine.createCommandLine("cmd")
+            .withArg("/c")
+            .withArg("echo")
+            .withArg("This is a fairly ridiculously long line.")
+            .withEncoding(UTF_8);
+        InMemoryConsumer output = new InMemoryConsumer();
+
+        command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
+
+        assertThat(output.toString()).isEqualTo("\"This is...[ cropped by GoCD ]");
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
+    void shouldReplaceSecretsInCroppedOutputUnderLinux() {
+        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "40");
+
+        CommandLine command = CommandLine.createCommandLine("echo")
+            .withArg("My password is")
+            .withArg(new PasswordArgument("secret"))
+            .withArg("and I really like it")
+            .withEncoding(UTF_8);
+        InMemoryConsumer output = new InMemoryConsumer();
+
+        command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
+        System.out.println(output.toString());
+        assertThat(output.toString()).isEqualTo("My password is ***...[ cropped by GoCD ]");
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldReplaceSecretsInCroppedOutputUnderWindows() {
+        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "42");
+
+        CommandLine command = CommandLine.createCommandLine("cmd")
+            .withArg("/c")
+            .withArg("echo")
+            .withArg("My password is ")
+            .withArg(new PasswordArgument("secret"))
+            .withArg("and I really like it")
+            .withEncoding(UTF_8);
+        InMemoryConsumer output = new InMemoryConsumer();
+
+        command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
+        assertThat(output.toString()).isEqualTo("\"My password is \" **...[ cropped by GoCD ]");
     }
 }

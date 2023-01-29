@@ -24,18 +24,14 @@ import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 public class JobRunner {
+    private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
+    private final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
     private volatile boolean cancelHandled = false;
     private volatile boolean killRunningTasksHandled = false;
     private volatile boolean isJobCancelled = false;
     private volatile boolean running = false;
-    private final CountDownLatch doneSignal = new CountDownLatch(1);
-    private Work work;
-    private final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-    private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
+    private volatile Work work;
 
     public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
         if (shouldCancelJob(instruction)) {
@@ -54,16 +50,7 @@ public class JobRunner {
             work.doWork(environmentVariableContext, agentWorkContext);
         } finally {
             running = false;
-            doneSignal.countDown();
         }
-    }
-
-    public boolean isRunning() {
-        return running;
-    }
-
-    public void waitUntilDone(long seconds) throws InterruptedException {
-        doneSignal.await(seconds, TimeUnit.SECONDS);
     }
 
     public boolean isJobCancelled() {
@@ -82,7 +69,6 @@ public class JobRunner {
                 ", killRunningTasksHandled=" + killRunningTasksHandled +
                 ", isJobCancelled=" + isJobCancelled +
                 ", running=" + running +
-                ", doneSignal=" + doneSignal +
                 ", work=" + work +
                 ", environmentVariableContext=" + environmentVariableContext +
                 '}';

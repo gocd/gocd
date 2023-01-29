@@ -245,7 +245,7 @@ public class ScheduleServiceStageTriggerTest {
         StageService stageService = mock(StageService.class);
         when(stageService.stageById(stage.getId())).thenReturn(stage);
 
-        Mockito.doAnswer(invocationOnMock -> {
+        doAnswer(invocationOnMock -> {
             throw new RuntimeException();
         }).when(stageService).cancelStage(stage, null);
 

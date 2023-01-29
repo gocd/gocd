@@ -28,6 +28,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -36,11 +37,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(ArtifactsDiskIsFull.class)
 public class ArtifactsDiskSpaceFullCheckerTest {
     private GoConfigService goConfigService;
     private EmailSender emailSender;
     private ArtifactsDiskSpaceFullChecker checker;
-    private ArtifactsDiskIsFull full;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -48,35 +49,31 @@ public class ArtifactsDiskSpaceFullCheckerTest {
         when(goConfigService.artifactsDir()).thenReturn(new File("."));
         emailSender = mock(EmailSender.class);
         checker = new ArtifactsDiskSpaceFullChecker(new SystemEnvironment(), emailSender, goConfigService, new SystemDiskSpaceChecker());
-        full = new ArtifactsDiskIsFull();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        full.onTearDown();
         verifyNoMoreInteractions(emailSender);
     }
 
     @Test
-    public void shouldSendEmailOnlyOnce() throws Exception {
+    public void shouldSendEmailOnlyOnce() {
         when(goConfigService.adminEmail()).thenReturn("admin@tw.com");
-        full.onSetUp();
         checker.check(new ServerHealthStateOperationResult());
         checker.check(new ServerHealthStateOperationResult()); // call once more
         verify(emailSender).sendEmail(any(SendEmailMessage.class));
     }
 
     @Test
-    public void shouldSendEmailAgainIfProblemOccuresAgain() throws Exception {
+    public void shouldSendEmailAgainIfProblemOccursAgain() {
         when(goConfigService.adminEmail()).thenReturn("admin@tw.com");
 
-        full.onSetUp();
         checker.check(new ServerHealthStateOperationResult()); //should send email this time
-        full.onTearDown();
+        new ArtifactsDiskIsFull().afterEach(null);
 
         checker.check(new ServerHealthStateOperationResult()); //should not send email
 
-        full.onSetUp();
+        new ArtifactsDiskIsFull().beforeEach(null);
         checker.check(new ServerHealthStateOperationResult()); //should send email again
         verify(emailSender, times(2)).sendEmail(any(SendEmailMessage.class));
     }

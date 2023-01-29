@@ -44,6 +44,7 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceDeleteSuccessful
+
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer

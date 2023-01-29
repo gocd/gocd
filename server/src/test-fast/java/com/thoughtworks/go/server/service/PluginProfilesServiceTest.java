@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -32,6 +31,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PluginProfilesServiceTest {
@@ -61,7 +61,7 @@ class PluginProfilesServiceTest {
     void shouldAddExceptionsThrownByPluginInfraErrorOnPluginProfile() {
         ClusterProfile pluginProfile = new ClusterProfile();
         String errorMessage = "Plugin is missing!";
-        Mockito.when(command.validateUsingExtension(any(), anyMap())).thenThrow(new GoPluginFrameworkException(errorMessage));
+        when(command.validateUsingExtension(any(), anyMap())).thenThrow(new GoPluginFrameworkException(errorMessage));
 
         assertThat(pluginProfile.hasErrors()).isFalse();
 
@@ -75,7 +75,7 @@ class PluginProfilesServiceTest {
     void shouldAddNotFoundExceptionsThrownOnPluginProfile() {
         ClusterProfile pluginProfile = new ClusterProfile("foo", "plugin-id");
         String errorMessage = "Plugin with id `plugin-id` is not found.";
-        Mockito.when(command.validateUsingExtension(any(), anyMap())).thenThrow(new RecordNotFoundException("Boom!"));
+        when(command.validateUsingExtension(any(), anyMap())).thenThrow(new RecordNotFoundException("Boom!"));
 
         assertThat(pluginProfile.hasErrors()).isFalse();
 

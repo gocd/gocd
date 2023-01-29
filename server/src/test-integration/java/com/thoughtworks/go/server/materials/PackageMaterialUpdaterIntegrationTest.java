@@ -44,6 +44,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(ClearSingleton.class)
 @ExtendWith(SpringExtension.class)
@@ -66,7 +67,7 @@ public class PackageMaterialUpdaterIntegrationTest {
     @BeforeEach
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        scmMaterialUpdater = Mockito.mock(ScmMaterialUpdater.class);
+        scmMaterialUpdater = mock(ScmMaterialUpdater.class);
         packageMaterialUpdater = new PackageMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
     }
 

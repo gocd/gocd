@@ -64,7 +64,7 @@ public class GoConfigFileHelper {
     private final File configFile;
     private final String originalXml;
 
-    private GoConfigMother goConfigMother = new GoConfigMother();
+    private final GoConfigMother goConfigMother = new GoConfigMother();
     private File passwordFile = null;
     private GoConfigDao goConfigDao;
     private CachedGoConfig cachedGoConfig;
@@ -248,10 +248,6 @@ public class GoConfigFileHelper {
     public GoConfigFileHelper usingCruiseConfigDao(GoConfigDao goConfigDao) {
         assignFileDao(goConfigDao);
         return this;
-    }
-
-    public void usingEmptyConfigFileWithLicenseAllowsTwoAgents() {
-        writeToFileAndDB(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
     }
 
     public void writeXmlToConfigFile(String xml) {

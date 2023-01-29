@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.*;
 
@@ -57,7 +56,7 @@ public class TimerSchedulerTest {
 
     @AfterEach
     public void teardown() {
-        Mockito.verifyNoMoreInteractions(scheduler);
+        verifyNoMoreInteractions(scheduler);
     }
 
     @Test

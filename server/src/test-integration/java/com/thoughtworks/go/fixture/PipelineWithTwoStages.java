@@ -108,6 +108,7 @@ public class PipelineWithTwoStages implements PreCondition {
         }
     }
 
+    @Override
     public void onSetUp() throws Exception {
         configHelper.onSetUp();
 

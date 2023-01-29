@@ -36,7 +36,6 @@ import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -53,6 +52,7 @@ import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class ArtifactsServiceTest {
@@ -94,7 +94,7 @@ public class ArtifactsServiceTest {
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
         artifactsService.saveFile(destFile.getParentFile(), stream, true, 1);
 
-        Mockito.verify(zipUtil).unzip(any(ZipInputStream.class), eq(destFile.getParentFile()));
+        verify(zipUtil).unzip(any(ZipInputStream.class), eq(destFile.getParentFile()));
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ArtifactsServiceTest {
         final IOException ioException = new IOException();
 
         assumeArtifactsRoot(logsDir);
-        doThrow(ioException).when(zipUtil).unzip(Mockito.any(ZipInputStream.class), Mockito.any(File.class));
+        doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
 
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -142,7 +142,7 @@ public class ArtifactsServiceTest {
                 buildInstanceId + File.separator + "generated" + File.separator + LOG_XML_NAME);
         final IOException ioException = new IOException();
 
-        Mockito.doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
+        doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
 
         try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
@@ -375,7 +375,7 @@ public class ArtifactsServiceTest {
     }
 
     private void assumeArtifactsRoot(final File artifactsRoot) {
-        Mockito.when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsRoot);
+        when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsRoot);
     }
 
     void willCleanUp(File file) {

@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
-import com.thoughtworks.go.fixture.ConfigWithFreeEditionLicense;
-import com.thoughtworks.go.fixture.PreCondition;
 import com.thoughtworks.go.fixture.TwoPipelineGroups;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
@@ -58,20 +56,18 @@ public class AutoSchedulerIntegrationTest {
     @Autowired private GoConfigService configService;
     @Autowired private DatabaseAccessHelper dbHelper;
 
-    private PreCondition configWithFreeEditionLicense;
     private TwoPipelineGroups twoPipelineGroups;
+    private GoConfigFileHelper configFileHelper;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
-        GoConfigFileHelper configFileHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
+        configFileHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
 
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
 
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
-        configWithFreeEditionLicense = new ConfigWithFreeEditionLicense(configFileHelper);
-        configWithFreeEditionLicense.onSetUp();
         configService.forceNotifyListeners();
 
         twoPipelineGroups = new TwoPipelineGroups(configFileHelper, tempDir);
@@ -81,9 +77,9 @@ public class AutoSchedulerIntegrationTest {
 
     @AfterEach
     public void tearDown() throws Exception {
+        configFileHelper.onTearDown();
         dbHelper.onTearDown();
         twoPipelineGroups.onTearDown();
-        configWithFreeEditionLicense.onTearDown();
     }
 
     @Test
@@ -100,10 +96,9 @@ public class AutoSchedulerIntegrationTest {
     }
 
     @Test
+    @ExtendWith(ArtifactsDiskIsFull.class)
     public void shouldLogErrorIntoServerHealthServiceWhenArtifactsDiskSpaceIsFull() throws Exception {
         serverHealthService.removeAllLogs();
-        ArtifactsDiskIsFull full = new ArtifactsDiskIsFull();
-        full.onSetUp();
         if (!configService.artifactsDir().exists()) {
             configService.artifactsDir().createNewFile();
         }
@@ -112,7 +107,6 @@ public class AutoSchedulerIntegrationTest {
             HealthStateType healthStateType = HealthStateType.artifactsDiskFull();
             assertThat(serverHealthService, containsState(healthStateType, HealthStateLevel.ERROR, "GoCD Server has run out of artifacts disk space. Scheduling has been stopped"));
         } finally {
-            full.onTearDown();
             configService.artifactsDir().delete();
         }
     }

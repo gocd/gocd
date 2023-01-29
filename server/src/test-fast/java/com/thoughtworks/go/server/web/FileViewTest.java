@@ -21,7 +21,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -39,8 +38,7 @@ import static com.thoughtworks.go.util.TempDirUtils.newFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FileViewTest {
     @TempDir
@@ -75,8 +73,8 @@ public class FileViewTest {
         HttpServletResponse responseMock = mock(HttpServletResponse.class);
         view.setContentLength(false, fourGBfile, responseMock);
 
-        Mockito.verify(responseMock).addHeader("Content-Length", "4658798592");
-        Mockito.verifyNoMoreInteractions(responseMock);
+        verify(responseMock).addHeader("Content-Length", "4658798592");
+        verifyNoMoreInteractions(responseMock);
     }
 
     @Test

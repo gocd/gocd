@@ -34,7 +34,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -209,8 +208,8 @@ class EnvironmentConfigServiceTest {
         Agent agentUnderEnv = new Agent("uat-agent", "localhost", "127.0.0.1");
         Agent omnipresentAgent = new Agent(OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
-        Mockito.when(agentService.getAgentByUUID("uat-agent")).thenReturn(agentUnderEnv);
-        Mockito.when(agentService.getAgentByUUID(OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
+        when(agentService.getAgentByUUID("uat-agent")).thenReturn(agentUnderEnv);
+        when(agentService.getAgentByUUID(OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size(), is(2));
         assertTrue(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).contains(agentUnderEnv));
@@ -225,7 +224,7 @@ class EnvironmentConfigServiceTest {
         Agents agents = new Agents();
         agents.add(noEnvAgent);
         agents.add(new Agent(OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
-        Mockito.when(agentService.agents()).thenReturn(agents);
+        when(agentService.agents()).thenReturn(agents);
 
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size(), is(1));

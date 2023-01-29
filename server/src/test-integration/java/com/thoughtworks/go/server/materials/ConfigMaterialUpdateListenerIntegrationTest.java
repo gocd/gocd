@@ -110,7 +110,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         configHelper.addConfigRepo(config);
 
         TestingEmailSender emailSender = new TestingEmailSender();
-        SystemDiskSpaceChecker mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);
+        SystemDiskSpaceChecker mockDiskSpaceChecker = mock(SystemDiskSpaceChecker.class);
         StageService stageService = mock(StageService.class);
         ConfigDbStateRepository configDbStateRepository = mock(ConfigDbStateRepository.class);
         GoDiskSpaceMonitor goDiskSpaceMonitor = new GoDiskSpaceMonitor(goConfigService, systemEnvironment,

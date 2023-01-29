@@ -21,9 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import org.mockito.Mockito;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StageLockCheckerTest {
     private PipelineLockService lockService;
@@ -33,22 +34,22 @@ public class StageLockCheckerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        lockService = Mockito.mock(PipelineLockService.class);
+        lockService = mock(PipelineLockService.class);
         pipeline = new PipelineIdentifier("mingle", 10, "2.0.10");
         checker = new StageLockChecker(pipeline, lockService);
         result = new HttpOperationResult();
     }
 
     @Test
-    public void shouldAllowStagesInTheSamePipelineInstance() throws Exception {
-        Mockito.when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(true);
+    public void shouldAllowStagesInTheSamePipelineInstance() {
+        when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(true);
         checker.check(result);
         assertThat(result.canContinue(), is(true));
     }
 
     @Test
-    public void shouldNotAllowStagesIfThePipelineIsLocked() throws Exception {
-        Mockito.when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(false);
+    public void shouldNotAllowStagesIfThePipelineIsLocked() {
+        when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(false);
         checker.check(result);
         assertThat(result.canContinue(), is(false));
         assertThat(result.message(), containsString("is locked"));

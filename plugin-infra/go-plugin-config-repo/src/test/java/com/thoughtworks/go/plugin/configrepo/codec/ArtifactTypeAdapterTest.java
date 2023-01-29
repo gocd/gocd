@@ -23,10 +23,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
+
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class ArtifactTypeAdapterTest {
@@ -40,34 +41,34 @@ public class ArtifactTypeAdapterTest {
     private Type type;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         artifactTypeAdapter = new ArtifactTypeAdapter();
     }
 
     @Test
-    public void shouldInstantiateATaskOfTypeExec() throws Exception {
+    public void shouldInstantiateATaskOfTypeExec() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "build");
         artifactTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRBuiltInArtifact.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRBuiltInArtifact.class);
     }
 
     @Test
-    public void shouldInstantiateATaskOfTypeAnt() throws Exception {
+    public void shouldInstantiateATaskOfTypeAnt() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "test");
         artifactTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRBuiltInArtifact.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRBuiltInArtifact.class);
     }
 
     @Test
-    public void shouldInstantiateATaskForTypeNant() throws Exception {
+    public void shouldInstantiateATaskForTypeNant() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "external");
         artifactTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRPluggableArtifact.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRPluggableArtifact.class);
     }
 }

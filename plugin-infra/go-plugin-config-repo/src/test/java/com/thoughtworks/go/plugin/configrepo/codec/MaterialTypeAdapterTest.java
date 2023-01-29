@@ -22,10 +22,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
+
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class MaterialTypeAdapterTest {
@@ -49,7 +50,7 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "git");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRGitMaterial.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRGitMaterial.class);
     }
 
     @Test
@@ -58,7 +59,7 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "hg");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRHgMaterial.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRHgMaterial.class);
     }
 
     @Test
@@ -67,7 +68,7 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "p4");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRP4Material.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRP4Material.class);
     }
 
     @Test
@@ -76,7 +77,7 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "tfs");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRTfsMaterial.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRTfsMaterial.class);
     }
 
     @Test
@@ -85,7 +86,7 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "svn");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRSvnMaterial.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRSvnMaterial.class);
     }
 
     @Test
@@ -94,7 +95,7 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "package");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRPackageMaterial.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRPackageMaterial.class);
     }
 
     @Test
@@ -103,6 +104,6 @@ public class MaterialTypeAdapterTest {
         jsonObject.addProperty("type", "plugin");
         materialTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRPluggableScmMaterial.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRPluggableScmMaterial.class);
     }
 }

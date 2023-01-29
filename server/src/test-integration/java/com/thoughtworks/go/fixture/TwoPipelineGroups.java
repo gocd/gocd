@@ -25,7 +25,7 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 public class TwoPipelineGroups implements PreCondition {
-    private GoConfigFileHelper configHelper;
+    private final GoConfigFileHelper configHelper;
     private TestRepo svnTestRepo;
     private boolean isSetup = false;
     private final Path tempDir;

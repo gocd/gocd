@@ -23,12 +23,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskTypeAdapterTest {
@@ -52,7 +52,7 @@ public class TaskTypeAdapterTest {
         jsonObject.addProperty("type", "exec");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRExecTask.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRExecTask.class);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TaskTypeAdapterTest {
         jsonObject.addProperty("type", "ant");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRBuildTask.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRBuildTask.class);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class TaskTypeAdapterTest {
         jsonObject.addProperty("type", "nant");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRNantTask.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRNantTask.class);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TaskTypeAdapterTest {
         jsonObject.addProperty("type", "rake");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRBuildTask.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRBuildTask.class);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class TaskTypeAdapterTest {
         jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "gocd");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchArtifactTask.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchArtifactTask.class);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TaskTypeAdapterTest {
         jsonObject.addProperty(TypeAdapter.ARTIFACT_ORIGIN, "external");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
-        Mockito.verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchPluggableArtifactTask.class);
+        verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchPluggableArtifactTask.class);
     }
 
     @Test

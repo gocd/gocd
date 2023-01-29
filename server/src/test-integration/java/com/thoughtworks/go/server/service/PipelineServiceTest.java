@@ -50,7 +50,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -107,20 +106,20 @@ public class PipelineServiceTest {
     }
 
     @Test
-    public void shouldTellPipelineMaterialModificationsToUpdateItselfOnSave() throws Exception {
+    public void shouldTellPipelineMaterialModificationsToUpdateItselfOnSave() {
         Pipeline pipeline = PipelineMother.pipeline("cruise");
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         service.save(pipeline);
-        Mockito.verify(pipelineTimeline).update();
+        verify(pipelineTimeline).update();
     }
 
     @Test
-    public void shouldNotNotifyStatusListenersWhenTransactionRollsback() throws Exception {
+    public void shouldNotNotifyStatusListenersWhenTransactionRollsback() {
         StageStatusListener stageStatusListener = mock(StageStatusListener.class);
         JobStatusListener jobStatusListener = mock(JobStatusListener.class);
         Pipeline pipeline = stubPipelineSaveForStatusListener(stageStatusListener, jobStatusListener);
-        Mockito.doThrow(new RuntimeException()).when(pipelineTimeline).update();
+        doThrow(new RuntimeException()).when(pipelineTimeline).update();
 
         try {
             service.save(pipeline);
@@ -132,7 +131,7 @@ public class PipelineServiceTest {
     }
 
     @Test
-    public void shouldNotifyStageStatusListenersOnlyWhenTransactionCommits() throws Exception {
+    public void shouldNotifyStageStatusListenersOnlyWhenTransactionCommits() {
         StageStatusListener stageStatusListener = mock(StageStatusListener.class);
         JobStatusListener jobStatusListener = mock(JobStatusListener.class);
         Pipeline pipeline = stubPipelineSaveForStatusListener(stageStatusListener, jobStatusListener);
@@ -166,7 +165,7 @@ public class PipelineServiceTest {
     }
 
     @Test
-    public void shouldUpdateTheToAndFromRevisionOfThePipelineAfterThePipelineBeingSaved() throws Exception {
+    public void shouldUpdateTheToAndFromRevisionOfThePipelineAfterThePipelineBeingSaved() {
         MaterialRevisions scheduleTime = createHgMaterialWithMultipleRevisions(1L, first);
         scheduleTime.addAll(createSvnMaterialWithMultipleRevisions(2, first));
 
@@ -186,7 +185,7 @@ public class PipelineServiceTest {
     }
 
     @Test
-    public void shouldReturnTheOrderedListOfStageIdentifiers() throws Exception {
+    public void shouldReturnTheOrderedListOfStageIdentifiers() {
         //TODO: does it? while we trust it, may be its a good idea to validate --shilpa & jj
     }
 

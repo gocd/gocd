@@ -28,9 +28,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
+
+import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<FeedsApiControllerV1> {
@@ -45,7 +46,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
   @Test
   void 'should render record not found as xml response'() {
-    Mockito.when(feedService.pipelineXml(currentUsername(), "up42", 101, "http://test.host/go"))
+    when(feedService.pipelineXml(currentUsername(), "up42", 101, "http://test.host/go"))
       .thenThrow(new RecordNotFoundException("Boom!!"))
 
     getWithApiHeader(controller.controllerPath("pipelines", "up42", "101.xml"))
@@ -59,7 +60,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
   @Test
   void 'should render not authorized as xml response'() {
-    Mockito.when(feedService.pipelineXml(currentUsername(), "up42", 101, "http://test.host/go"))
+    when(feedService.pipelineXml(currentUsername(), "up42", 101, "http://test.host/go"))
       .thenThrow(new NotAuthorizedException("Boom!!"))
 
     getWithApiHeader(controller.controllerPath("pipelines", "up42", "101.xml"))
@@ -96,8 +97,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get pipelines xml'() {
       getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.PIPELINES_XML))
 
-      Mockito.verify(feedService).pipelinesXml(currentUsername(), "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).pipelinesXml(currentUsername(), "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
   }
 
@@ -126,8 +127,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get pipeline xml with pipeline name and id'() {
       getWithApiHeader(controller.controllerPath("pipelines", "up42", "101.xml"))
 
-      Mockito.verify(feedService).pipelineXml(currentUsername(), "up42", 101, "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).pipelineXml(currentUsername(), "up42", 101, "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
   }
 
@@ -155,16 +156,16 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get stages xml'() {
       getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML).replaceAll(":pipeline_name", "up42"))
 
-      Mockito.verify(feedService).stagesXml(currentUsername(), "up42", null, "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).stagesXml(currentUsername(), "up42", null, "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
 
     @Test
     void 'should call feed service to get stages xml before id'() {
       getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML.replaceAll(":pipeline_name", "up42") + "?before=100"))
 
-      Mockito.verify(feedService).stagesXml(currentUsername(), "up42", 100, "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).stagesXml(currentUsername(), "up42", 100, "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
   }
 
@@ -193,8 +194,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get stage xml'() {
       getWithApiHeader(controller.controllerPath("/pipelines/up42/1/unit-tests/1"))
 
-      Mockito.verify(feedService).stageXml(currentUsername(), "up42", 1, "unit-tests", 1, "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).stageXml(currentUsername(), "up42", 1, "unit-tests", 1, "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
   }
 
@@ -223,8 +224,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get job xml'() {
       getWithApiHeader(controller.controllerPath("/pipelines/up42/1/unit-tests/1/junit.xml"))
 
-      Mockito.verify(feedService).jobXml(currentUsername(), "up42", 1, "unit-tests", 1, "junit", "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).jobXml(currentUsername(), "up42", 1, "unit-tests", 1, "junit", "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
   }
 
@@ -253,8 +254,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get stage xml'() {
       getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.SCHEDULED_JOB_XML))
 
-      Mockito.verify(feedService).waitingJobPlansXml("http://test.host/go", currentUsername())
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).waitingJobPlansXml("http://test.host/go", currentUsername())
+      verifyNoMoreInteractions(feedService)
     }
   }
 
@@ -286,8 +287,8 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
       def fingerprint = "04JDSASD"
       getWithApiHeader(controller.controllerPath("materials", pipelineName, pipelineCounter, fingerprint + ".xml"))
 
-      Mockito.verify(feedService).materialXml(currentUsername(), pipelineName, pipelineCounter, fingerprint, "http://test.host/go")
-      Mockito.verifyNoMoreInteractions(feedService)
+      verify(feedService).materialXml(currentUsername(), pipelineName, pipelineCounter, fingerprint, "http://test.host/go")
+      verifyNoMoreInteractions(feedService)
     }
   }
 }

@@ -15,22 +15,15 @@
  */
 package com.thoughtworks.go.domain.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class NodeLevelMap {
 
-
-    private HashMap<Integer,List<Node>> map = new HashMap<>();
+    private Map<Integer,List<Node>> map = new HashMap<>();
 
     public void add(Node node) {
         int level = node.getLevel();
-        if (map.get(level) == null) {
-            map.put(level, new ArrayList<>());
-        }
-        map.get(level).add(node);
+        map.computeIfAbsent(level, k -> new ArrayList<>()).add(node);
     }
 
 

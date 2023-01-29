@@ -18,8 +18,6 @@ package com.thoughtworks.go.serverhealth;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.CruiseConfigProvider;
 import org.jetbrains.annotations.TestOnly;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -30,15 +28,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ServerHealthService implements ApplicationContextAware {
-    private static final Logger LOG = LoggerFactory.getLogger(ServerHealthService.class);
-
-    private HashMap<ServerHealthState, Set<String>> pipelinesWithErrors;
-    private Map<HealthStateType, ServerHealthState> serverHealth;
+    private final Map<HealthStateType, ServerHealthState> serverHealth;
     private ApplicationContext applicationContext;
 
     public ServerHealthService() {
         this.serverHealth = new ConcurrentHashMap<>();
-        this.pipelinesWithErrors = new HashMap<>();
     }
 
     public void removeByScope(HealthStateScope scope) {
@@ -67,9 +61,7 @@ public class ServerHealthService implements ApplicationContextAware {
     public HealthStateType update(ServerHealthState serverHealthState) {
         HealthStateType type = serverHealthState.getType();
         if (serverHealthState.getLogLevel() == HealthStateLevel.OK) {
-            if (serverHealth.containsKey(type)) {
-                serverHealth.remove(type);
-            }
+            serverHealth.remove(type);
             return null;
         } else {
             serverHealth.put(type, serverHealthState);
@@ -81,19 +73,6 @@ public class ServerHealthService implements ApplicationContextAware {
     public synchronized void onTimer() {
         CruiseConfig currentConfig = applicationContext.getBean(CruiseConfigProvider.class).getCurrentConfig();
         purgeStaleHealthMessages(currentConfig);
-        LOG.debug("Recomputing material to pipeline mappings.");
-
-        HashMap<ServerHealthState, Set<String>> erroredPipelines = new HashMap<>();
-
-        for (Map.Entry<HealthStateType, ServerHealthState> entry : serverHealth.entrySet()) {
-            erroredPipelines.put(entry.getValue(), entry.getValue().getPipelineNames(currentConfig));
-        }
-        pipelinesWithErrors = erroredPipelines;
-        LOG.debug("Done recomputing material to pipeline mappings.");
-    }
-
-    public Set<String> getPipelinesWithErrors(ServerHealthState serverHealthState) {
-        return pipelinesWithErrors.get(serverHealthState);
     }
 
     void purgeStaleHealthMessages(CruiseConfig cruiseConfig) {
@@ -137,7 +116,7 @@ public class ServerHealthService implements ApplicationContextAware {
 
     private List<Map.Entry<HealthStateType, ServerHealthState>> sortedEntries() {
         List<Map.Entry<HealthStateType, ServerHealthState>> entries = new ArrayList<>(serverHealth.entrySet());
-        entries.sort(Comparator.comparing(Map.Entry::getKey));
+        entries.sort(Map.Entry.comparingByKey());
         return entries;
     }
 

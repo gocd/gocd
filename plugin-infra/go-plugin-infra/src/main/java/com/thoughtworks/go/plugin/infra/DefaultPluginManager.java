@@ -142,12 +142,8 @@ public class DefaultPluginManager implements PluginManager {
 
     private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin, String extensionType) {
         synchronized (initializedPluginsWithTheirExtensionTypes) {
-            if (initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor) == null) {
-                initializedPluginsWithTheirExtensionTypes.put(pluginDescriptor, new HashSet<>());
-            }
-
-            Set<String> initializedExtensions = initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor);
-            if (initializedExtensions == null || initializedExtensions.contains(extensionType)) {
+            Set<String> initializedExtensions = initializedPluginsWithTheirExtensionTypes.computeIfAbsent(pluginDescriptor, k -> new HashSet<>());
+            if (initializedExtensions.contains(extensionType)) {
                 return;
             }
             initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor).add(extensionType);

@@ -25,6 +25,7 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.ModelAndView;
 import spark.Request;
@@ -41,7 +42,7 @@ import static java.lang.String.format;
 import static spark.Spark.*;
 
 public class AnalyticsController implements SparkController {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AnalyticsController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnalyticsController.class);
     private static final Gson GSON = new Gson();
 
     private final SPAAuthenticationHelper authenticationHelper;

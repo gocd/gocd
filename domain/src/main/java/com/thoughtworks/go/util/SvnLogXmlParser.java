@@ -96,7 +96,7 @@ public class SvnLogXmlParser {
      *
      * @param date with format "yyyy-MM-dd'T'HH:mm:ss.SSS" + "...Z"
      * @return converted date
-     * @throws java.text.ParseException if specified date doesn't match the expected format
+     * @throws ParseException if specified date doesn't match the expected format
      */
     static Date convertDate(String date) throws ParseException {
         final int zIndex = date.indexOf('Z');

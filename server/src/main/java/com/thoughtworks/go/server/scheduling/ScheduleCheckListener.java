@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 
 public class ScheduleCheckListener implements GoMessageListener<ScheduleCheckMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleCheckListener.class);
-    private BuildCauseProducerService producer;
-    private ScheduleCheckCompletedTopic checkCompletedTopic;
-    private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private final BuildCauseProducerService producer;
+    private final ScheduleCheckCompletedTopic checkCompletedTopic;
+    private final SchedulingPerformanceLogger schedulingPerformanceLogger;
 
     public ScheduleCheckListener(ScheduleCheckCompletedTopic checkCompletedTopic,
                                  BuildCauseProducerService producer,

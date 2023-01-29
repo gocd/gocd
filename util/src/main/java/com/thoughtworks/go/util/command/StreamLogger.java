@@ -22,8 +22,8 @@ import org.slf4j.event.Level;
  * Logs the content of a Stream line by line.
  */
 public final class StreamLogger implements StreamConsumer {
-    private Logger logger;
-    private Level level;
+    private final Logger logger;
+    private final Level level;
 
     private StreamLogger(Logger log, Level level) {
         this.logger = log;

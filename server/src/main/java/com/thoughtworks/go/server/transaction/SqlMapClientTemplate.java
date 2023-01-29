@@ -17,17 +17,18 @@ package com.thoughtworks.go.server.transaction;
 
 import com.thoughtworks.go.server.cache.GoCache;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 
 import java.util.List;
 
 public class SqlMapClientTemplate {
     private GoCache goCache;
-    private final org.mybatis.spring.SqlSessionTemplate delegate;
+    private final SqlSessionTemplate delegate;
 
     public SqlMapClientTemplate(GoCache goCache, SqlSessionFactory sqlSessionFactory) {
         this.goCache = goCache;
-        this.delegate = new org.mybatis.spring.SqlSessionTemplate(sqlSessionFactory);
+        this.delegate = new SqlSessionTemplate(sqlSessionFactory);
     }
 
     public Object queryForObject(String statementName, Object parameter) {

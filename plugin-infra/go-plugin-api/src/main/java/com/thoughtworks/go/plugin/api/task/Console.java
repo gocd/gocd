@@ -37,7 +37,7 @@ public interface Console {
      * This is used to connect the output of a process, to the build log. This is usually used as:
      * console.readErrorOf(process.getErrorStream());
      * <p></p>
-     * where the "process" object is of type {@link java.lang.Process}.
+     * where the "process" object is of type {@link Process}.
      *
      * @param in The input stream to read as standard error.
      */
@@ -49,7 +49,7 @@ public interface Console {
      * This is used to connect the output of a process, to the build log. This is usually used as:
      * console.readOutputOf(process.getInputStream());
      * <p></p>
-     * where the "process" object is of type {@link java.lang.Process}.
+     * where the "process" object is of type {@link Process}.
      *
      * @param in The input stream to read as standard output.
      */
@@ -59,7 +59,7 @@ public interface Console {
      * Print details about the environment specified in the argument into the build log.
      *
      * @param environment Environment to print details of.
-     * @param secureEnvVarSpecifier {@link com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier}
+     * @param secureEnvVarSpecifier {@link Console.SecureEnvVarSpecifier}
      */
     void printEnvironment(Map<String, String> environment, SecureEnvVarSpecifier secureEnvVarSpecifier);
 

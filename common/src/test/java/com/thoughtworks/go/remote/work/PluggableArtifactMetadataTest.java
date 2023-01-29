@@ -52,7 +52,7 @@ public class PluggableArtifactMetadataTest {
         pluggableArtifactMetadata.addMetadata("docker", "centos", Map.of("image", "centos"));
         pluggableArtifactMetadata.addMetadata("docker", "alpine", Map.of("image", "alpine"));
 
-        final Map<String, Map> docker = pluggableArtifactMetadata.getMetadataPerPlugin().get("docker");
+        final Map<String, Map<String, Object>> docker = pluggableArtifactMetadata.getMetadataPerPlugin().get("docker");
         assertNotNull(docker);
         assertThat(docker, Matchers.hasEntry("centos", Map.of("image", "centos")));
         assertThat(docker, Matchers.hasEntry("alpine", Map.of("image", "alpine")));

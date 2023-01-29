@@ -40,12 +40,13 @@ import java.util.*;
 /* Added as a part of the go-plugin-activator dependency JAR into each plugin.
  * Responsible for loading all classes in the plugin which are not in the dependency directory and registering services for the plugin extensions. */
 public class DefaultGoPluginActivator implements GoPluginActivator {
-    private List<String> errors = new ArrayList<>();
-    private List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<>();
+    private final List<String> errors = new ArrayList<>();
+    private final List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<>();
     private PluginRegistryService pluginRegistryService;
     private static String bundleSymbolicName;
-    private static String pluginId; /* Used through reflection (see Logger class). */
-    private static PluginContext DUMMY_PLUGIN_CONTEXT = new PluginContext() {
+    @SuppressWarnings("unused") /* Used through reflection (see Logger class). */
+    private static String pluginId;
+    private static final PluginContext DUMMY_PLUGIN_CONTEXT = new PluginContext() {
     };
 
     @Override
@@ -86,25 +87,25 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                 unloadMethodInvoker.invokeUnloadMethod();
             } catch (InvocationTargetException e) {
                 errors.add(String.format("Invocation of unload method [%s]. Reason: %s.",
-                        unloadMethodInvoker.unloadMethod, e.getTargetException().toString()));
+                    unloadMethodInvoker.unloadMethod, e.getTargetException().toString()));
             } catch (Throwable e) {
                 errors.add(String.format("Invocation of unload method [%s]. Reason: [%s].",
-                        unloadMethodInvoker.unloadMethod, e.toString()));
+                    unloadMethodInvoker.unloadMethod, e));
             }
             reportErrorsToHealthService();
         }
     }
 
     void getImplementersAndRegister(BundleContext bundleContext, Bundle bundle, List<String> declaredExtensionClasses) {
-        List<Class> candidateGoExtensionClasses = getCandidateGoExtensionClasses(bundle, declaredExtensionClasses);
+        List<Class<?>> candidateGoExtensionClasses = getCandidateGoExtensionClasses(bundle, declaredExtensionClasses);
 
         if (!errors.isEmpty()) {
             return;
         }
 
-        List<HashMap<Class, List<Object>>> toRegister = new ArrayList<>();
-        for (Class candidateGoExtensionClass : candidateGoExtensionClasses) {
-            HashMap<Class, List<Object>> interfaceToImplementations = getAllInterfaceToImplementationsMap(candidateGoExtensionClass);
+        List<Map<Class<?>, List<Object>>> toRegister = new ArrayList<>();
+        for (Class<?> candidateGoExtensionClass : candidateGoExtensionClasses) {
+            Map<Class<?>, List<Object>> interfaceToImplementations = getAllInterfaceToImplementationsMap(candidateGoExtensionClass);
             if (!interfaceToImplementations.isEmpty()) {
                 toRegister.add(interfaceToImplementations);
             }
@@ -113,23 +114,23 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         registerAllServicesImplementedBy(bundleContext, toRegister);
     }
 
-    private void informIfNoExtensionFound(List<HashMap<Class, List<Object>>> toRegister) {
-        if(toRegister.isEmpty()){
+    private void informIfNoExtensionFound(List<Map<Class<?>, List<Object>>> toRegister) {
+        if (toRegister.isEmpty()) {
             errors.add("No extensions found in this plugin. Please check for @Extension annotations");
         }
     }
 
-    private void registerAllServicesImplementedBy(BundleContext bundleContext, List<HashMap<Class, List<Object>>> toRegister) {
-        for (HashMap<Class, List<Object>> classListHashMap : toRegister) {
-            for (Map.Entry<Class, List<Object>> entry : classListHashMap.entrySet()) {
-                Class serviceInterface = entry.getKey();
+    private void registerAllServicesImplementedBy(BundleContext bundleContext, List<Map<Class<?>, List<Object>>> toRegister) {
+        for (Map<Class<?>, List<Object>> classListHashMap : toRegister) {
+            for (Map.Entry<Class<?>, List<Object>> entry : classListHashMap.entrySet()) {
+                Class<?> serviceInterface = entry.getKey();
                 for (Object serviceImplementation : entry.getValue()) {
                     String extensionType = findTypeOfExtensionOrAddErrorIfNotFound(serviceImplementation);
 
-                    final String extensionClassCannonicalName = serviceImplementation.getClass().getCanonicalName();
-                    final String pluginID = pluginRegistryService.pluginIDFor(bundleSymbolicName, extensionClassCannonicalName);
+                    final String extensionClassCanonicalName = serviceImplementation.getClass().getCanonicalName();
+                    final String pluginID = pluginRegistryService.pluginIDFor(bundleSymbolicName, extensionClassCanonicalName);
                     if (pluginID == null) {
-                        errors.add(MessageFormat.format("Unable to find plugin ID for extension class ({0}) in bundle {1}", extensionClassCannonicalName, bundleSymbolicName));
+                        errors.add(MessageFormat.format("Unable to find plugin ID for extension class ({0}) in bundle {1}", extensionClassCanonicalName, bundleSymbolicName));
                         continue;
                     }
 
@@ -138,44 +139,42 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                         serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
                         serviceProperties.put(Constants.BUNDLE_CATEGORY, extensionType);
                         serviceProperties.put("PLUGIN_ID", pluginID);
-                        bundleContext.registerService(serviceInterface, serviceImplementation, serviceProperties);
+                        //noinspection unchecked
+                        bundleContext.registerService((Class<Object>) serviceInterface, serviceImplementation, serviceProperties);
                     }
                 }
             }
         }
     }
 
-    private HashMap<Class, List<Object>> getAllInterfaceToImplementationsMap(Class candidateGoExtensionClass) {
-        HashMap<Class, List<Object>> interfaceAndItsImplementations = new HashMap<>();
-        Set<Class> interfaces = findAllInterfacesInHierarchy(candidateGoExtensionClass);
+    private Map<Class<?>, List<Object>> getAllInterfaceToImplementationsMap(Class<?> candidateGoExtensionClass) {
+        Map<Class<?>, List<Object>> interfaceAndItsImplementations = new HashMap<>();
+        Set<Class<?>> interfaces = findAllInterfacesInHierarchy(candidateGoExtensionClass);
         Object implementation = createImplementationOf(candidateGoExtensionClass);
         if (implementation == null) {
             return interfaceAndItsImplementations;
         }
-        for (Class anInterface : interfaces) {
+        for (Class<?> anInterface : interfaces) {
             if (isGoExtensionPointInterface(anInterface)) {
-                List<Object> implementations = interfaceAndItsImplementations.get(anInterface);
-                if (implementations == null) {
-                    implementations = new ArrayList<>();
-                    interfaceAndItsImplementations.put(anInterface, implementations);
-                }
-                implementations.add(implementation);
+                interfaceAndItsImplementations
+                    .computeIfAbsent(anInterface, k -> new ArrayList<>())
+                    .add(implementation);
             }
         }
         return interfaceAndItsImplementations;
     }
 
-    private Object createImplementationOf(Class candidateGoExtensionClass) {
+    private Object createImplementationOf(Class<?> candidateGoExtensionClass) {
         Object implementation = null;
 
         try {
             implementation = createInstance(candidateGoExtensionClass);
         } catch (InvocationTargetException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be constructed. Reason: %s.",
-                    candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
+                candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
         } catch (Throwable e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be constructed. Reason: [%s].",
-                    candidateGoExtensionClass.getSimpleName(), e.getCause()));
+                candidateGoExtensionClass.getSimpleName(), e.getCause()));
         }
 
         if (implementation != null) {
@@ -185,18 +184,18 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return implementation;
     }
 
-    private void validateAndLoad(Class candidateGoExtensionClass, Object implementation) {
+    private void validateAndLoad(Class<?> candidateGoExtensionClass, Object implementation) {
         try {
             processLoadAndUnloadAnnotatedMethods(implementation);
         } catch (InvocationTargetException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be registered. Reason: %s.",
-                    candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
+                candidateGoExtensionClass.getSimpleName(), e.getTargetException().toString()));
         } catch (IllegalAccessException | RuntimeException e) {
             errors.add(String.format("Class [%s] is annotated with @Extension will not be registered. Reason: %s.",
-                    candidateGoExtensionClass.getSimpleName(), e.toString()));
+                candidateGoExtensionClass.getSimpleName(), e.toString()));
         } catch (Throwable e) {
             errors.add(String.format("Class [%s] is annotated with @Extension but cannot be constructed or registered. Reason: [%s].",
-                    candidateGoExtensionClass.getSimpleName(), e.getCause()));
+                candidateGoExtensionClass.getSimpleName(), e.getCause()));
         }
     }
 
@@ -218,47 +217,42 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
         if (methods.length > 1) {
             throw new RuntimeException("More than one method with @" + annotation.getSimpleName()
-                    + " annotation not allowed. Methods Found: " + Arrays.toString(methods));
+                + " annotation not allowed. Methods Found: " + Arrays.toString(methods));
         }
         return methods[0];
     }
 
     private Method[] getMethodsWithAnnotation(Object extensionObject, Class<? extends Annotation> annotation) {
         // public,non-static,non-inherited zero-argument with @Load annotation
-        Class<? extends Object> extnPointClass = extensionObject.getClass();
+        Class<?> extnPointClass = extensionObject.getClass();
         ArrayList<Method> methodsWithLoadAnnotation = new ArrayList<>();
         for (Method method : extnPointClass.getDeclaredMethods()) {
             boolean annotated = hasAnnotation(annotation, method);
             if (annotated
-                    && isPublic(method)
-                    && isNonStatic(method)
-                    && hasOneArgOfPluginContextType(method)) {
+                && isPublic(method)
+                && isNonStatic(method)
+                && hasOneArgOfPluginContextType(method)) {
                 methodsWithLoadAnnotation.add(method);
             } else if (annotated) {
                 reportWarningsForAnnotatedMethod(method, annotation);
             }
         }
-        return methodsWithLoadAnnotation.toArray(new Method[methodsWithLoadAnnotation.size()]);
+        return methodsWithLoadAnnotation.toArray(new Method[0]);
     }
 
     private void reportWarningsForAnnotatedMethod(Method method, Class<? extends Annotation> annotation) {
         if (!isPublic(method)) {
             reportWarningToHealthService(
-                    String.format("Ignoring method [%s] tagged with @%s since its not 'public'",
-                            method, annotation.getSimpleName()));
-            return;
-        }
-        if (!isNonStatic(method)) {
+                String.format("Ignoring method [%s] tagged with @%s since its not 'public'",
+                    method, annotation.getSimpleName()));
+        } else if (!isNonStatic(method)) {
             reportWarningToHealthService(
-                    String.format("Ignoring method [%s] tagged with @%s since its 'static' method",
-                            method, annotation.getSimpleName()));
-            return;
-        }
-        if (!hasOneArgOfPluginContextType(method)) {
+                String.format("Ignoring method [%s] tagged with @%s since its 'static' method",
+                    method, annotation.getSimpleName()));
+        } else if (!hasOneArgOfPluginContextType(method)) {
             reportWarningToHealthService(
-                    String.format("Ignoring method [%s] tagged with @%s since it does not have one argument of type PluginContext. Argument Type: []",
-                            method, annotation.getSimpleName(), Arrays.toString(method.getParameterTypes())));
-            return;
+                String.format("Ignoring method [%s] tagged with @%s since it does not have one argument of type PluginContext. Argument Types: [%s]",
+                    method, annotation.getSimpleName(), Arrays.toString(method.getParameterTypes())));
         }
     }
 
@@ -278,7 +272,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return method.getAnnotation(annotation) != null;
     }
 
-    private List<Class> getCandidateGoExtensionClasses(Bundle bundle, List<String> declaredExtensionClasses) {
+    private List<Class<?>> getCandidateGoExtensionClasses(Bundle bundle, List<String> declaredExtensionClasses) {
         if (declaredExtensionClasses.isEmpty()) {
             return allPossibleCandidateClassesInBundle(bundle);
         } else {
@@ -286,8 +280,8 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
     }
 
-    private List<Class> classesForAllDeclaredExtensions(List<String> declaredExtensionClasses) {
-        List<Class> results = new ArrayList<>();
+    private List<Class<?>> classesForAllDeclaredExtensions(List<String> declaredExtensionClasses) {
+        List<Class<?>> results = new ArrayList<>();
 
         for (String extensionClass : declaredExtensionClasses) {
             try {
@@ -300,8 +294,8 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return results;
     }
 
-    private List<Class> allPossibleCandidateClassesInBundle(Bundle bundle) {
-        List<Class> candidateClasses = new ArrayList<>();
+    private List<Class<?>> allPossibleCandidateClassesInBundle(Bundle bundle) {
+        List<Class<?>> candidateClasses = new ArrayList<>();
         Enumeration<URL> entries = bundle.findEntries("/", "*.class", true);
 
         while (entries.hasMoreElements()) {
@@ -355,15 +349,14 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             return isInstantiable(candidateClass);
         } catch (NoSuchMethodException e) {
             errors.add(String.format(
-                    "Class [%s] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor.", candidateClass.getSimpleName()));
+                "Class [%s] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor.", candidateClass.getSimpleName()));
             return false;
         }
     }
 
     private boolean isInstantiable(Class<?> candidateClass) throws NoSuchMethodException {
         if (!isANonStaticInnerClass(candidateClass)) {
-            boolean hasPublicDefaultConstructor = candidateClass.getConstructor() != null;
-            return hasPublicDefaultConstructor;
+            return candidateClass.getConstructor() != null;
         }
 
         boolean hasAConstructorWhichTakesMyOuterClass = candidateClass.getConstructor(candidateClass.getDeclaringClass()) != null;
@@ -374,13 +367,13 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return candidateClass.isMemberClass() && !Modifier.isStatic(candidateClass.getModifiers());
     }
 
-    private Set<Class> findAllInterfacesInHierarchy(Class candidateGoExtensionClass) {
-        Stack<Class> classesInHierarchy = new Stack<>();
+    private Set<Class<?>> findAllInterfacesInHierarchy(Class<?> candidateGoExtensionClass) {
+        Stack<Class<?>> classesInHierarchy = new Stack<>();
         classesInHierarchy.add(candidateGoExtensionClass);
 
-        Set<Class> interfaces = new HashSet<>();
+        Set<Class<?>> interfaces = new HashSet<>();
         while (!classesInHierarchy.empty()) {
-            Class classToCheckFor = classesInHierarchy.pop();
+            Class<?> classToCheckFor = classesInHierarchy.pop();
             if (classToCheckFor.isInterface()) {
                 interfaces.add(classToCheckFor);
             }
@@ -394,17 +387,17 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return interfaces;
     }
 
-    private Object createInstance(Class candidateGoExtensionClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private Object createInstance(Class<?> candidateGoExtensionClass) throws ReflectiveOperationException {
         if (isANonStaticInnerClass(candidateGoExtensionClass)) {
-            Class declaringClass = candidateGoExtensionClass.getDeclaringClass();
+            Class<?> declaringClass = candidateGoExtensionClass.getDeclaringClass();
             Object declaringClassInstance = createInstance(candidateGoExtensionClass.getDeclaringClass());
             return candidateGoExtensionClass.getConstructor(declaringClass).newInstance(declaringClassInstance);
         }
-        Constructor constructor = candidateGoExtensionClass.getConstructor();
+        Constructor<?> constructor = candidateGoExtensionClass.getConstructor();
         return constructor.newInstance();
     }
 
-    private boolean isGoExtensionPointInterface(Class anInterface) {
+    private boolean isGoExtensionPointInterface(Class<?> anInterface) {
         boolean hasGoPluginApiMarkerAnnotation = anInterface.getAnnotation(GoPluginApiMarker.class) != null;
         boolean isAnInterfaceWhichHasBeenLeakedFromGoSystemBundle = GoPluginApiMarker.class.getClassLoader() == anInterface.getClassLoader();
         return isAnInterfaceWhichHasBeenLeakedFromGoSystemBundle && hasGoPluginApiMarkerAnnotation;
@@ -416,10 +409,10 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
             return plugin.pluginIdentifier().getExtension();
         } catch (Throwable e) {
             errors.add("Unable to find extension type from plugin identifier in class " + serviceImplementation.getClass().getCanonicalName() + ".\nError: \"" + e.getMessage() + "\".\nA valid plugin identifier looks like this:\n" +
-                    "  @Override\n" +
-                    "  public GoPluginIdentifier pluginIdentifier() {\n" +
-                    "      return new GoPluginIdentifier(\"extension-type\", List.of(\"1.0\"));\n" +
-                    "  }\n");
+                "  @Override\n" +
+                "  public GoPluginIdentifier pluginIdentifier() {\n" +
+                "      return new GoPluginIdentifier(\"extension-type\", List.of(\"1.0\"));\n" +
+                "  }\n");
         }
         return null;
     }

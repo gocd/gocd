@@ -20,6 +20,7 @@ import com.google.common.cache.CacheBuilder;
 import com.thoughtworks.go.util.pool.DigestObjectPools;
 import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.binary.StringUtils;
 
 import java.io.InputStream;
 
@@ -73,7 +74,7 @@ public class CachedDigestUtils {
 
     private static String compute(final String string, String algorithm) {
         return objectPools.computeDigest(algorithm, digest -> {
-            digest.update(org.apache.commons.codec.binary.StringUtils.getBytesUtf8(string));
+            digest.update(StringUtils.getBytesUtf8(string));
             return Hex.encodeHexString(digest.digest());
         });
     }

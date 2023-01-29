@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.PluginProfileCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.server.domain.Username;
@@ -76,7 +77,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
 
     protected void addErrorsToConfiguration(ValidationResult result, PluginProfile newSecurityAuthConfig) {
         if (!result.isSuccessful()) {
-            for (com.thoughtworks.go.plugin.api.response.validation.ValidationError validationError : result.getErrors()) {
+            for (ValidationError validationError : result.getErrors()) {
                 ConfigurationProperty property = newSecurityAuthConfig.getProperty(validationError.getKey());
 
                 if (property != null) {

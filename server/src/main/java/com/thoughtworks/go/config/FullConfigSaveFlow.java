@@ -97,7 +97,7 @@ public abstract class FullConfigSaveFlow {
         return loader.preprocessAndValidate(configForEdit);
     }
 
-    protected org.jdom2.Document documentFrom(CruiseConfig configForEdit) {
+    protected Document documentFrom(CruiseConfig configForEdit) {
         LOGGER.debug("[Config Save] Building Document from CruiseConfig object: Starting.");
         Document document = writer.documentFrom(configForEdit);
         LOGGER.debug("[Config Save] Building Document from CruiseConfig object: Done.");

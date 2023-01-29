@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,11 +49,10 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 public class TemplateConfigService {
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
-    private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
-    private GoConfigCloner cloner = new GoConfigCloner();
-    private EntityHashingService entityHashingService;
-    private PluggableTaskService pluggableTaskService;
-    private ExternalArtifactsService externalArtifactsService;
+    private final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
+    private final EntityHashingService entityHashingService;
+    private final PluggableTaskService pluggableTaskService;
+    private final ExternalArtifactsService externalArtifactsService;
 
     @Autowired
     public TemplateConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, PluggableTaskService pluggableTaskService, ExternalArtifactsService externalArtifactsService) {

@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.ValidationError;
+import com.thoughtworks.go.plugin.domain.common.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -92,12 +93,12 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         } catch (RecordNotFoundException e) {
             String message = String.format("Unable to verify connection, missing plugin: %s", pluginId);
 
-            return new VerifyConnectionResponse("failure", message, new com.thoughtworks.go.plugin.domain.common.ValidationResult());
+            return new VerifyConnectionResponse("failure", message, new ValidationResult());
         }
     }
 
     private void mapErrors(VerifyConnectionResponse response, SecurityAuthConfig authConfig) {
-        com.thoughtworks.go.plugin.domain.common.ValidationResult validationResult = response.getValidationResult();
+        ValidationResult validationResult = response.getValidationResult();
 
         if (validationResult == null) {
             return;

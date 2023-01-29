@@ -39,10 +39,10 @@ import static java.lang.String.format;
 
 @Component
 public class PluginLoader {
-    private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
-    private List<PluginPostLoadHook> pluginPostLoadHooks = new ArrayList<>();
-    private GoPluginOSGiFramework pluginOSGiFramework;
-    private Logger LOGGER = LoggerFactory.getLogger(PluginLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginLoader.class);
+    private final Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
+    private final List<PluginPostLoadHook> pluginPostLoadHooks = new ArrayList<>();
+    private final GoPluginOSGiFramework pluginOSGiFramework;
 
     @Autowired
     public PluginLoader(GoPluginOSGiFramework pluginOSGiFramework) {

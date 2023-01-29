@@ -25,7 +25,9 @@ import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.User;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -39,12 +41,12 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
     private static final Gson GSON = new Gson();
 
     @Override
-    public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
+    public Capabilities getCapabilitiesFromResponseBody(String responseBody) {
         return CapabilitiesDTO.fromJSON(responseBody).toDomainModel();
     }
 
     @Override
-    public com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
+    public Image getImageResponseFromBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
     }
 

@@ -19,7 +19,9 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.User;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 
@@ -27,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface AuthorizationMessageConverter {
-    com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilitiesFromResponseBody(String responseBody);
+    Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
-    com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody);
+    Image getImageResponseFromBody(String responseBody);
 
     List<PluginConfiguration> getPluginConfigMetadataResponseFromBody(String responseBody);
 

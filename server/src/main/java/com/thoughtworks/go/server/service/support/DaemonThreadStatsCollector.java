@@ -35,9 +35,7 @@ public class DaemonThreadStatsCollector {
     }
 
     public void clearStats(long threadId) {
-        if (cpuInfoConcurrentHashMap.containsKey(threadId)) {
-            cpuInfoConcurrentHashMap.remove(threadId);
-        }
+        cpuInfoConcurrentHashMap.remove(threadId);
     }
 
     public Map<String, Object> statsFor(long threadId) {

@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +77,7 @@ class ElasticAgentExtensionConverterV5 {
     }
 
 
-    com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
+    Image getImageResponseFromBody(String responseBody) {
         return new ImageDeserializer().fromJSON(responseBody);
     }
 

@@ -20,10 +20,10 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class StageAuthorizationChecker implements SchedulingChecker {
-    private String pipelineName;
-    private String stageName;
-    private String username;
-    private SecurityService securityService;
+    private final String pipelineName;
+    private final String stageName;
+    private final String username;
+    private final SecurityService securityService;
 
     public StageAuthorizationChecker(String pipelineName, String stageName, String username,
                                       SecurityService securityService) {

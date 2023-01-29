@@ -16,9 +16,10 @@
 package com.thoughtworks.go.util;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PerfTimer {
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(PerfTimer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PerfTimer.class);
 
     public static PerfTimer start(String message) {
         return start(message, new SystemTimeClock());

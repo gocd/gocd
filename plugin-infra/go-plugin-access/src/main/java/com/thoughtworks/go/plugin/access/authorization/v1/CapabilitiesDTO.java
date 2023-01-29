@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 
 class CapabilitiesDTO {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
@@ -61,9 +63,9 @@ class CapabilitiesDTO {
         return canAuthorize;
     }
 
-    public com.thoughtworks.go.plugin.domain.authorization.Capabilities toDomainModel() {
-        com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType = com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.valueOf(this.supportedAuthType.name());
-        return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch, canAuthorize, false);
+    public Capabilities toDomainModel() {
+        SupportedAuthType supportedAuthType = SupportedAuthType.valueOf(this.supportedAuthType.name());
+        return new Capabilities(supportedAuthType, canSearch, canAuthorize, false);
     }
 
     @Override

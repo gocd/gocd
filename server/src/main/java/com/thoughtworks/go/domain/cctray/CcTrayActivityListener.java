@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CcTrayActivityListener implements Initializer, JobStatusListener, StageStatusListener, ConfigChangedListener {
-    private static Logger LOGGER = LoggerFactory.getLogger(CcTrayActivityListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CcTrayActivityListener.class);
     private final GoConfigService goConfigService;
     private final CcTrayJobStatusChangeHandler jobStatusChangeHandler;
     private final CcTrayStageStatusChangeHandler stageStatusChangeHandler;

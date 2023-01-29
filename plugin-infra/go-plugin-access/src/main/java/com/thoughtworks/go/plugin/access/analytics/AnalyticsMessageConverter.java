@@ -16,12 +16,13 @@
 package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
+import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.Image;
 
 import java.util.Map;
 
 public interface AnalyticsMessageConverter {
-    com.thoughtworks.go.plugin.domain.analytics.Capabilities getCapabilitiesFromResponseBody(String responseBody);
+    Capabilities getCapabilitiesFromResponseBody(String responseBody);
 
     String getAnalyticsRequestBody(String type, String metricId, Map params);
 

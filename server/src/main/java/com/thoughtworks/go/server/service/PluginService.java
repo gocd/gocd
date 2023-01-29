@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,13 +45,13 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 @Service
 public class PluginService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
     private final List<GoPluginExtension> extensions;
     private final PluginDao pluginDao;
-    private SecurityService securityService;
-    private EntityHashingService entityHashingService;
-    private DefaultPluginInfoFinder defaultPluginInfoFinder;
+    private final SecurityService securityService;
+    private final EntityHashingService entityHashingService;
+    private final DefaultPluginInfoFinder defaultPluginInfoFinder;
     private final PluginManager pluginManager;
-    private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
 
     @Autowired
     public PluginService(List<GoPluginExtension> extensions, PluginDao pluginDao, SecurityService securityService,

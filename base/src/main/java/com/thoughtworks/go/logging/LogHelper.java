@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.logging;
 
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.core.rolling.RollingFileAppender;
@@ -51,7 +52,7 @@ public class LogHelper {
         rollingPolicy.start();
     }
 
-    public static ch.qos.logback.classic.Logger rootLogger() {
-        return (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+    public static Logger rootLogger() {
+        return (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     }
 }

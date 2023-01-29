@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
 import com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentExtensionV5;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -90,7 +91,7 @@ public class ElasticAgentExtension extends AbstractExtension {
         return getVersionedElasticAgentExtension(pluginId).validateClusterProfile(pluginId, configuration);
     }
 
-    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+    Image getIcon(String pluginId) {
         return getVersionedElasticAgentExtension(pluginId).getIcon(pluginId);
     }
 

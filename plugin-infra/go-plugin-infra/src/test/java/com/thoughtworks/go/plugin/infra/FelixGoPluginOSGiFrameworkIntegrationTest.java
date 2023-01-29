@@ -37,7 +37,7 @@ import org.osgi.framework.ServiceReference;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,8 +60,8 @@ class FelixGoPluginOSGiFrameworkIntegrationTest {
         registry = new DefaultPluginRegistry();
         pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
-            protected HashMap<String, String> generateOSGiFrameworkConfig() {
-                HashMap<String, String> config = super.generateOSGiFrameworkConfig();
+            protected Map<String, String> generateOSGiFrameworkConfig() {
+                Map<String, String> config = super.generateOSGiFrameworkConfig();
                 config.put(FelixConstants.RESOLVER_PARALLELISM, "1");
                 return config;
             }

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Container for {@link com.thoughtworks.go.plugin.api.config.Option}
+ * Container for {@link Option}
  */
 @Deprecated
 //Will be moved to internal scope

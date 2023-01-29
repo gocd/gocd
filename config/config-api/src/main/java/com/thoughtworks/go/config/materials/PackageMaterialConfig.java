@@ -38,7 +38,7 @@ public class PackageMaterialConfig extends AbstractMaterialConfig {
 
     @IgnoreTraversal
     @ConfigReferenceElement(referenceAttribute = "ref", referenceCollection = "packages")
-    private com.thoughtworks.go.domain.packagerepository.PackageDefinition packageDefinition;
+    private PackageDefinition packageDefinition;
 
     public PackageMaterialConfig() {
         super(TYPE);

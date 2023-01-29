@@ -48,7 +48,7 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
         return pluginRequestHelper.submitRequest(pluginId, SecretsPluginConstants.REQUEST_GET_PLUGIN_ICON,
             new DefaultPluginInteractionCallback<>() {
                 @Override
-                public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String,
+                public Image onSuccess(String responseBody, Map<String,
                     String> responseHeaders, String resolvedExtensionVersion) {
                     return secretsMessageConverterV1.getImageFromResponseBody(responseBody);
                 }

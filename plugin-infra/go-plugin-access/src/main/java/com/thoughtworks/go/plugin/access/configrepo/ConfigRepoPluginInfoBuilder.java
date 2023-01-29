@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
@@ -43,7 +44,7 @@ public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepo
         return extension.getCapabilities(pluginId);
     }
 
-    private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {
+    private Image image(String pluginId) {
         return extension.getIcon(pluginId);
     }
 

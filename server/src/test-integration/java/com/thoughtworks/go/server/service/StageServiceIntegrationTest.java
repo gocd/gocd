@@ -302,7 +302,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldGetStageHistoryByPageNumber() throws Exception {
+    public void shouldGetStageHistoryByPageNumber() {
         StageHistoryEntry[] stages = createFiveStages();
 
         StageHistoryPage history = stageService.findStageHistoryPageByNumber(PIPELINE_NAME, STAGE_NAME, 2, 3);
@@ -313,7 +313,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSaveStageWithStateBuilding() throws Exception {
+    public void shouldSaveStageWithStateBuilding() {
         Stage stage = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonumous"), md5, new TimeProvider());
         stageService.save(savedPipeline, stage);
         Stage latestStage = stageService.findLatestStage(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(pipelineConfig.first().name()));
@@ -321,7 +321,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldIgnoreErrorsWhenNotifyingListenersDuringSave() throws Exception {
+    public void shouldIgnoreErrorsWhenNotifyingListenersDuringSave() {
         List<StageStatusListener> original = new ArrayList<>(stageService.getStageStatusListeners());
 
         try {
@@ -342,7 +342,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWhenStageScheduled() throws Exception {
+    public void shouldNotifyListenersWhenStageScheduled() {
         StageStatusListener listener = mock(StageStatusListener.class);
         stageService.addStageStatusListener(listener);
 
@@ -430,7 +430,7 @@ public class StageServiceIntegrationTest {
 
     @Test
     // #2328
-    public void shouldGetDurationBasedOnPipelineNameStageNameJobNameAndAgentUUID() throws Exception {
+    public void shouldGetDurationBasedOnPipelineNameStageNameJobNameAndAgentUUID() {
         String pipelineName = "Cruise";
         configFileHelper.addPipeline(pipelineName, STAGE_NAME);
         Stage saveStage = dbHelper.saveTestPipeline(pipelineName, STAGE_NAME).getStages().first();
@@ -561,7 +561,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() throws Exception {
+    public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() {
         PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
         configFileHelper.turnOffSecurity();
         List<Pipeline> completedPipelines = new ArrayList<>();
@@ -571,32 +571,32 @@ public class StageServiceIntegrationTest {
             dbHelper.pass(pipeline);
             completedPipelines.add(pipeline);
         }
-        StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4, new Username(new CaseInsensitiveString("loser")));
+        StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4);
         assertThat(stages.size(), is(4));
         assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(16));
-        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 3, 4, new Username(new CaseInsensitiveString("loser")));
+        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 3, 4);
         assertThat(stages.size(), is(4));
         assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(8));
         assertThat(stages.getPagination().getTotalPages(), is(4));
     }
 
     @Test
-    public void findStageHistoryForChart_shouldNotRetrieveCancelledStagesAndStagesWithRerunJobs() throws Exception {
+    public void findStageHistoryForChart_shouldNotRetrieveCancelledStagesAndStagesWithRerunJobs() {
         PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
         configFileHelper.turnOffSecurity();
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.pass(pipeline);
-        StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
+        StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10);
         assertThat(stages.size(), is(1));
 
         scheduleService.rerunJobs(pipeline.getFirstStage(), List.of(CaseInsensitiveString.str(pipelineConfig.first().getJobs().first().name())), new HttpOperationResult());
-        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
+        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10);
 
         assertThat(stages.size(), is(1)); //should not retrieve stages with rerun jobs
 
         pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.cancelStage(pipeline.getFirstStage());
-        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
+        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10);
 
         assertThat(stages.size(), is(1)); //should not retrieve cancelled stages
     }
@@ -626,7 +626,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotLoadStageAuthors_fromUpstreamInvisibleToUser() throws Exception {
+    public void shouldNotLoadStageAuthors_fromUpstreamInvisibleToUser() {
         PipelineConfig downstream = setup2DependentInstances();
 
         configFileHelper.enableSecurity();
@@ -649,7 +649,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadStageAuthors_forFirstPageOfFeed() throws Exception {
+    public void shouldLoadStageAuthors_forFirstPageOfFeed() {
         PipelineConfig downstream = setup2DependentInstances();
 
         FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
@@ -658,7 +658,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadStageAuthors_forSubsequentPages() throws Exception {
+    public void shouldLoadStageAuthors_forSubsequentPages() {
         PipelineConfig downstream = setup2DependentInstances();
 
         FeedEntries feed = stageService.feedBefore(Integer.MAX_VALUE, downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));

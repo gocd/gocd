@@ -29,13 +29,13 @@ public interface EnvironmentVariables {
     Map<String, String> asMap();
 
     /**
-     * Write the environment variables to a {@link com.thoughtworks.go.plugin.api.task.Console}.
+     * Write the environment variables to a {@link Console}.
      * @param console to write
      */
     void writeTo(Console console);
 
     /**
-     * @return the {@link com.thoughtworks.go.plugin.api.task.Console.SecureEnvVarSpecifier}
+     * @return the {@link Console.SecureEnvVarSpecifier}
      */
     Console.SecureEnvVarSpecifier secureEnvSpecifier();
 }

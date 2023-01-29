@@ -85,16 +85,16 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private final ConfigElementImplementationRegistry registry;
     private final CachedGoPartials cachedGoPartials;
-    private GoConfigDao goConfigDao;
-    private GoConfigMigration upgrader;
-    private GoCache goCache;
-    private ConfigRepository configRepository;
-    private ConfigCache configCache;
-    private GoConfigCloner cloner = new GoConfigCloner();
+    private final GoConfigDao goConfigDao;
+    private final GoConfigMigration upgrader;
+    private final GoCache goCache;
+    private final ConfigRepository configRepository;
+    private final ConfigCache configCache;
+    private final GoConfigCloner cloner = new GoConfigCloner();
     private Clock clock = new SystemTimeClock();
-    private InstanceFactory instanceFactory;
-    private SystemEnvironment systemEnvironment;
-    private MagicalGoConfigXmlLoader xmlLoader;
+    private final InstanceFactory instanceFactory;
+    private final SystemEnvironment systemEnvironment;
+    private final MagicalGoConfigXmlLoader xmlLoader;
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao,
@@ -983,7 +983,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;
-        private SystemEnvironment systemEnvironment;
+        private final SystemEnvironment systemEnvironment;
         private String md5;
 
         protected XmlPartialSaver(ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {

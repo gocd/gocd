@@ -104,7 +104,7 @@ public class EntityHashes implements DigestMixin {
         };
 
         /**
-         * Custom serializer to simplify JSON and prevent errors while serializing {@link com.thoughtworks.go.plugin.api.info.PluginDescriptor}
+         * Custom serializer to simplify JSON and prevent errors while serializing {@link PluginDescriptor}
          */
         JsonSerializer<PluginInfo> PLUGIN_INFO = (src, typeOfSrc, context) -> {
             final JsonObject result = new JsonObject();

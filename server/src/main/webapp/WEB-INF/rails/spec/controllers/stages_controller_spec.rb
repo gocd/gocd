@@ -506,7 +506,7 @@ describe StagesController do
       allow(@status).to receive(:canContinue).and_return(true)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
       expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
-      expect(@stage_service).to receive(:findStageHistoryForChart).with("pipeline-name", "stage", 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models = StageSummaryModels.new)
+      expect(@stage_service).to receive(:findStageHistoryForChart).with("pipeline-name", "stage", 2, StagesController::STAGE_DURATION_RANGE).and_return(models = StageSummaryModels.new)
 
       get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
 
@@ -552,7 +552,7 @@ describe StagesController do
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
       allow(@status).to receive(:canContinue).and_return(true)
       allow(controller).to receive(:load_stage_history).with(no_args)
-      expect(@stage_service).to receive(:findStageHistoryForChart).with(stage_iden.getPipelineName(), stage_iden.getStageName(), 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models)
+      expect(@stage_service).to receive(:findStageHistoryForChart).with(stage_iden.getPipelineName(), stage_iden.getStageName(), 2, StagesController::STAGE_DURATION_RANGE).and_return(models)
     end
   end
 

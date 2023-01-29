@@ -129,7 +129,7 @@ public class JobStatusCacheTest {
 
         assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));
 
-        Mockito.verify(dao, times(1)).mostRecentJobsForStage("cruise", "dev");
+        verify(dao, times(1)).mostRecentJobsForStage("cruise", "dev");
     }
 
     @Test
@@ -142,7 +142,7 @@ public class JobStatusCacheTest {
         assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).isEmpty(), is(true));
 
         assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "random")).get(0), is(random));
-        Mockito.verify(dao, times(2)).mostRecentJobsForStage("cruise", "dev");
+        verify(dao, times(2)).mostRecentJobsForStage("cruise", "dev");
     }
 
     @Test
@@ -157,7 +157,7 @@ public class JobStatusCacheTest {
         cache.jobStatusChanged(instance);
 
         assertThat(cache.currentJobs(new JobConfigIdentifier("cruise", "dev", "linux-firefox")).get(0), is(instance));
-        Mockito.verify(dao, times(1)).mostRecentJobsForStage("cruise", "dev");
+        verify(dao, times(1)).mostRecentJobsForStage("cruise", "dev");
     }
 
     private JobInstance jobInstance(String jobConfigName) {

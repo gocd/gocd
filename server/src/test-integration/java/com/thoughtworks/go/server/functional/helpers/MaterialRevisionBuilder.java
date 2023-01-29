@@ -35,6 +35,8 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 
 import java.util.*;
 
+import static org.mockito.Mockito.when;
+
 public class MaterialRevisionBuilder {
 
     private final PipelineSqlMapDao pipelineDao;
@@ -80,8 +82,8 @@ public class MaterialRevisionBuilder {
             DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, counter, "label", STAGE_NAME, 1);
             instanceToRevision.put(key, revision.convert(material, modifiedTime));
             final long id = getNextId();
-            org.mockito.Mockito.when(pipelineDao.findPipelineByNameAndCounter(pipelineName, counter)).thenReturn(pipeline(id));
-            org.mockito.Mockito.when(materialRepository.findMaterialRevisionsForPipeline(id)).thenReturn(buildCauseOfThisPipeline(buildCause));
+            when(pipelineDao.findPipelineByNameAndCounter(pipelineName, counter)).thenReturn(pipeline(id));
+            when(materialRepository.findMaterialRevisionsForPipeline(id)).thenReturn(buildCauseOfThisPipeline(buildCause));
         }
         MaterialRevision materialRevision = instanceToRevision.get(key);
         Materials materials = new Materials();

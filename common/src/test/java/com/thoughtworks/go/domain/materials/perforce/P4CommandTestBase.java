@@ -25,14 +25,12 @@ import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 abstract class P4CommandTestBase extends PerforceFixture {
     private static final String EMPTY_VIEW = "//depot/dir1/old.* //cws/renamed/new.*";
@@ -109,8 +107,8 @@ abstract class P4CommandTestBase extends PerforceFixture {
 
     @Test
     void shouldBombForNonZeroReturnCode() {
-        ProcessOutputStreamConsumer outputStreamConsumer = Mockito.mock(ProcessOutputStreamConsumer.class);
-        CommandLine line = Mockito.mock(CommandLine.class);
+        ProcessOutputStreamConsumer outputStreamConsumer = mock(ProcessOutputStreamConsumer.class);
+        CommandLine line = mock(CommandLine.class);
         when(line.run(outputStreamConsumer, new MaterialFingerprintTag(null), "foo")).thenReturn(1);
         try {
             p4.execute(line, "foo", outputStreamConsumer, true);

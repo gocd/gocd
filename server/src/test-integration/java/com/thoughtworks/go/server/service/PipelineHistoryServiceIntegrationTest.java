@@ -86,10 +86,9 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithMultipleStages pipelineOne;
     private PipelineWithTwoStages pipelineTwo;
-    private ArtifactsDiskIsFull diskIsFull;
 
 
     @BeforeEach
@@ -101,7 +100,6 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         pipelineTwo.setGroupName("group2");
 
-        diskIsFull = new ArtifactsDiskIsFull();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
 
@@ -121,7 +119,6 @@ public class PipelineHistoryServiceIntegrationTest {
     @AfterEach
     public void tearDown() throws Exception {
         notifier.enableUpdates();
-        diskIsFull.onTearDown();
         dbHelper.onTearDown();
         pipelineOne.onTearDown();
         configHelper.onTearDown();
@@ -201,8 +198,8 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
+    @ExtendWith(ArtifactsDiskIsFull.class)
     public void shouldMakePipelineInstanceCanRunFalseWhenDiskSpaceIsEmpty(@TempDir Path tempDir) throws Exception {
-        diskIsFull.onSetUp();
         configHelper.updateArtifactRoot(TempDirUtils.createTempDirectoryIn(tempDir, "serverlogs").toAbsolutePath().toString());
         pipelineOne.createdPipelineWithAllStagesPassed();
         PipelineInstanceModels history = pipelineHistoryService.load(pipelineOne.pipelineName,
@@ -219,7 +216,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotLoadDuplicatPlaceholderStages() {
+    public void shouldNotLoadDuplicatePlaceholderStages() {
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job"), "pipeline-group");
 
         PipelineInstanceModels history = pipelineHistoryService.load("pipeline", Pagination.pageStartingAt(0, 1, 10), "anyone", true);

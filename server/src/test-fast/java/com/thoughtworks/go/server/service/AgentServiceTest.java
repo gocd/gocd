@@ -223,7 +223,7 @@ class AgentServiceTest {
                 when(agentInstances.findAgent("uuid1")).thenReturn(agentInstance1);
                 when(agentInstances.findAgent("uuid2")).thenReturn(agentInstance2);
 
-                AgentService agentServiceSpy = Mockito.spy(agentService);
+                AgentService agentServiceSpy = spy(agentService);
                 assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(List.of("uuid1", "uuid2"), List.of("R1", "R2"), emptyStrList, List.of("test", "prod"), emptyStrList, TRUE, environmentConfigService));
 
                 verify(agentDao).bulkUpdateAgents(anyList());
@@ -246,7 +246,7 @@ class AgentServiceTest {
                 when(agentInstances.findAgent("UUID2")).thenReturn(fromConfigFile);
 
                 List<String> uuids = List.of(pending.getUuid(), fromConfigFile.getUuid());
-                AgentService agentServiceSpy = Mockito.spy(agentService);
+                AgentService agentServiceSpy = spy(agentService);
                 assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, emptyStrList, emptyStrList, TRUE, environmentConfigService));
 
                 verify(agentDao).bulkUpdateAgents(anyList());
@@ -324,7 +324,7 @@ class AgentServiceTest {
 
                 when(environmentConfigService.find(configEnvName)).thenReturn(remoteEnvConfig);
 
-                AgentService agentServiceSpy = Mockito.spy(agentService);
+                AgentService agentServiceSpy = spy(agentService);
 
                 assertDoesNotThrow(() -> agentServiceSpy.bulkUpdateAgentAttributes(uuids, emptyStrList, emptyStrList, List.of("env1", configEnvName), emptyStrList, TRUE, environmentConfigService));
                 verify(agentDao).getAgentsByUUIDs(uuids);
@@ -1254,7 +1254,7 @@ class AgentServiceTest {
         void WhenMultipleAgentsAreUpdatedInDBBulkEntitiesChangedMethodShouldCallEntityChangedMethodForEachUpdatedAgent() {
             Agents listOf2UpdatedAgents = createTwoAgentsAndAddItToListOfAgents();
 
-            AgentService agentServiceSpy = Mockito.spy(agentService);
+            AgentService agentServiceSpy = spy(agentService);
             doNothing().when(agentServiceSpy).entityChanged(nullable(Agent.class));
 
             agentServiceSpy.bulkEntitiesChanged(listOf2UpdatedAgents);
@@ -1264,7 +1264,7 @@ class AgentServiceTest {
 
         @Test
         void WhenMultipleAgentsAreDeletedInDBBulkEntitiesDeletedMethodShouldCallEntityDeletedMethodForEachDeletedAgent() {
-            AgentService agentServiceSpy = Mockito.spy(agentService);
+            AgentService agentServiceSpy = spy(agentService);
             doNothing().when(agentServiceSpy).entityDeleted(anyString());
 
             List<String> deletedUUIDs = List.of("uuid1", "uuid2");

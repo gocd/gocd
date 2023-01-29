@@ -103,7 +103,7 @@ public class StageStatusCacheTest {
 
     @Test
     public void shouldQueryTheDbOnlyOnceForStagesThatHaveNeverBeenBuilt() {
-        final StageDao stageDao = Mockito.mock(StageDao.class);
+        final StageDao stageDao = mock(StageDao.class);
         final StageConfigIdentifier identifier = new StageConfigIdentifier("cruise", "dev");
 
         StageStatusCache cache = new StageStatusCache(stageDao);
@@ -117,7 +117,7 @@ public class StageStatusCacheTest {
 
     @Test
     public void shouldRemoveNeverBeenBuiltWhenTheStageIsBuiltForTheFirstTime() {
-        final StageDao stageDao = Mockito.mock(StageDao.class);
+        final StageDao stageDao = mock(StageDao.class);
         final StageConfigIdentifier identifier = new StageConfigIdentifier("cruise", "dev");
         final Stage instance = StageMother.failingStage("dev");
         instance.setIdentifier(new StageIdentifier("cruise", 1, "dev", "1"));

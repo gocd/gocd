@@ -40,6 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
+@ExtendWith(DatabaseDiskIsFull.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
         "classpath:/applicationContext-dataLocalAccess.xml",
@@ -54,9 +55,8 @@ public class DatabaseDiskSpaceFullTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private TransactionTemplate transactionTemplate;
 
-    private DatabaseDiskIsFull diskIsFull = new DatabaseDiskIsFull();
     private PipelineWithTwoStages fixture;
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -66,19 +66,17 @@ public class DatabaseDiskSpaceFullTest {
         serverHealthService.removeAllLogs();
         fixture.usingConfigHelper(configHelper).usingDbHelper(databaseAccessHelper).onSetUp();
         configHelper.setupMailHost();
-        diskIsFull.onSetUp();
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        diskIsFull.onTearDown();
         serverHealthService.removeAllLogs();
         fixture.onTearDown();
         configHelper.onTearDown();
     }
 
     @Test
-    public void shouldNotRerunStageIfDiskspaceIsFull() throws Exception {
+    public void shouldNotRerunStageIfDiskspaceIsFull() {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), fixture.devStage, "anyone", result), is(false));
@@ -86,8 +84,7 @@ public class DatabaseDiskSpaceFullTest {
     }
 
     @Test
-    public void shouldNotManualTriggerIfDiskspaceIsFull() throws Exception {
-        diskIsFull.onSetUp();
+    public void shouldNotManualTriggerIfDiskspaceIsFull() {
         fixture.createdPipelineWithAllStagesPassed();
         assertThat(schedulingChecker.canManuallyTrigger(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult()), is(false));
         assertThat(schedulingChecker.canTriggerManualPipeline(fixture.pipelineConfig(), "anyone", new ServerHealthStateOperationResult()), is(false));

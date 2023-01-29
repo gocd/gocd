@@ -36,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
@@ -94,10 +93,10 @@ public class Jetty9ServerTest {
             serverLevelHandler.setServer((Server) invocation.getMock());
             return null;
         };
-        Mockito.lenient().doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
+        lenient().doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
 
         appCaptor = ArgumentCaptor.forClass(App.class);
-        Mockito.doNothing().when(deploymentManager).addApp(appCaptor.capture());
+        doNothing().when(deploymentManager).addApp(appCaptor.capture());
 
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.getWebappContextPath()).thenReturn("context");

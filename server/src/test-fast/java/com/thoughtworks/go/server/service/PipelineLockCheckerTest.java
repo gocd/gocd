@@ -20,9 +20,8 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+
+import static org.mockito.Mockito.*;
 
 public class PipelineLockCheckerTest  {
     protected PipelineLockService pipelineLockService;
@@ -34,12 +33,12 @@ public class PipelineLockCheckerTest  {
         HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forPipeline("blahPipeline"));
         when(pipelineLockService.isLocked("blahPipeline")).thenReturn(true);
         pipelineLockChecker.check(operationResult);
-        Mockito.verify(operationResult).conflict("Pipeline blahPipeline cannot be scheduled",
+        verify(operationResult).conflict("Pipeline blahPipeline cannot be scheduled",
                 "Pipeline blahPipeline is locked as another instance of this pipeline is running.",
                 healthStateType);
         when(pipelineLockService.isLocked("blahPipeline")).thenReturn(false);
         pipelineLockChecker.check(operationResult);
-        Mockito.verify(operationResult).success(healthStateType);
+        verify(operationResult).success(healthStateType);
     }
 
     @BeforeEach

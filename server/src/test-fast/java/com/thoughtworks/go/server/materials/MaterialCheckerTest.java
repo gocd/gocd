@@ -35,7 +35,6 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Date;
 import java.util.List;
@@ -45,8 +44,7 @@ import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class MaterialCheckerTest {
     private MaterialRepository materialRepository;
@@ -55,19 +53,19 @@ public class MaterialCheckerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        materialRepository = Mockito.mock(MaterialRepository.class);
-        mockMaterial = Mockito.mock(ScmMaterial.class);
+        materialRepository = mock(MaterialRepository.class);
+        mockMaterial = mock(ScmMaterial.class);
         materialChecker = new MaterialChecker(materialRepository);
     }
 
     @Test
-    public void shouldUseFlyweightWorkingFolderForLatestModificationCheck() throws Exception {
+    public void shouldUseFlyweightWorkingFolderForLatestModificationCheck() {
         Modification modification = new Modification();
-        Mockito.when(materialRepository.findLatestModification(mockMaterial)).thenReturn(revisions(mockMaterial, modification));
+        when(materialRepository.findLatestModification(mockMaterial)).thenReturn(revisions(mockMaterial, modification));
 
         materialChecker.findLatestRevisions(new MaterialRevisions(), new Materials(mockMaterial));
 
-        Mockito.verify(materialRepository).findLatestModification(mockMaterial);
+        verify(materialRepository).findLatestModification(mockMaterial);
     }
 
     private MaterialRevisions revisions(Material material, Modification modification) {
@@ -75,7 +73,7 @@ public class MaterialCheckerTest {
     }
 
     @Test
-    public void shouldUseLatestPipelineInstanceForDependentPipelineGivenThePreviousRevision() throws Exception {
+    public void shouldUseLatestPipelineInstanceForDependentPipelineGivenThePreviousRevision() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
@@ -90,19 +88,19 @@ public class MaterialCheckerTest {
     }
 
     @Test
-    public void shouldUseLatestPipelineInstanceForDependentPipeline() throws Exception {
+    public void shouldUseLatestPipelineInstanceForDependentPipeline() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0");
 
-        Mockito.when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(revisions(dependencyMaterial,modification));
+        when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(revisions(dependencyMaterial,modification));
 
         materialChecker.findLatestRevisions(new MaterialRevisions(), new Materials(dependencyMaterial));
 
-        Mockito.verify(materialRepository).findLatestModification(dependencyMaterial);
+        verify(materialRepository).findLatestModification(dependencyMaterial);
     }
 
-    @Test public void shouldSkipLatestRevisionsForMaterialsThatWereAlreadyChecked() throws Exception {
+    @Test public void shouldSkipLatestRevisionsForMaterialsThatWereAlreadyChecked() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
@@ -110,21 +108,21 @@ public class MaterialCheckerTest {
         Modification dependencyModification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0");
         Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
 
-        Mockito.when(materialRepository.findLatestModification(svnMaterial)).thenReturn(revisions(dependencyMaterial, svnModification));
+        when(materialRepository.findLatestModification(svnMaterial)).thenReturn(revisions(dependencyMaterial, svnModification));
         materialChecker.findLatestRevisions(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification)),
                 new Materials(dependencyMaterial, svnMaterial));
 
-        Mockito.verify(materialRepository, never()).findLatestModification(dependencyMaterial);
-        Mockito.verify(materialRepository).findLatestModification(svnMaterial);
+        verify(materialRepository, never()).findLatestModification(dependencyMaterial);
+        verify(materialRepository).findLatestModification(svnMaterial);
     }
 
     @Test
-    public void shouldFindSpecificRevisionForDependentPipeline() throws Exception {
+    public void shouldFindSpecificRevisionForDependentPipeline() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1/stage-name/0");
 
-        Mockito.when(materialRepository.findModificationWithRevision(dependencyMaterial,"pipeline-name/1/stage-name/0")).thenReturn(modification);
+        when(materialRepository.findModificationWithRevision(dependencyMaterial,"pipeline-name/1/stage-name/0")).thenReturn(modification);
 
         MaterialRevision actualRevision = materialChecker.findSpecificRevision(dependencyMaterial, "pipeline-name/1/stage-name/0");
         assertThat(actualRevision.getModifications().size(), is(1));
@@ -132,9 +130,9 @@ public class MaterialCheckerTest {
         assertThat(actualRevision.getModification(0).getRevision(), is("pipeline-name/1/stage-name/0"));
     }
 
-    @Test public void shouldThrowExceptionIfSpecifiedRevisionDoesNotExist() throws Exception {
+    @Test public void shouldThrowExceptionIfSpecifiedRevisionDoesNotExist() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        Mockito.when(materialRepository.findModificationWithRevision(dependencyMaterial,"pipeline-name/500/stage-name/0")).thenReturn(null);
+        when(materialRepository.findModificationWithRevision(dependencyMaterial,"pipeline-name/500/stage-name/0")).thenReturn(null);
 
         try {
             materialChecker.findSpecificRevision(dependencyMaterial, "pipeline-name/500/stage-name/0");
@@ -144,7 +142,7 @@ public class MaterialCheckerTest {
         }
     }
 
-    @Test public void shouldThrowExceptionIfRevisionIsNotSpecified() throws Exception {
+    @Test public void shouldThrowExceptionIfRevisionIsNotSpecified() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         try {
@@ -156,7 +154,7 @@ public class MaterialCheckerTest {
     }
 
     @Test
-    public void shouldSkipFindingRevisionsSinceForMaterialsThatWereAlreadyChecked() throws Exception {
+    public void shouldSkipFindingRevisionsSinceForMaterialsThatWereAlreadyChecked() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
@@ -166,18 +164,18 @@ public class MaterialCheckerTest {
         MaterialRevision previousSvnRevision = new MaterialRevision(svnMaterial, mod(1L));
         Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "2");
 
-        Mockito.when(materialRepository.findModificationsSince(svnMaterial, previousSvnRevision)).thenReturn(modifications(svnModification));
+        when(materialRepository.findModificationsSince(svnMaterial, previousSvnRevision)).thenReturn(modifications(svnModification));
         MaterialRevisions alreadyFoundRevisions = new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification));
         MaterialRevisions latestRevisions = new MaterialRevisions(); //will not be used, as no new materials have appeared
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(alreadyFoundRevisions, new Materials(dependencyMaterial, svnMaterial), new MaterialRevisions(previousDependantRevision, previousSvnRevision), latestRevisions);
         assertThat(revisionsSince, is(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification), new MaterialRevision(svnMaterial, svnModification))));
 
-        Mockito.verify(materialRepository, never()).findLatestModification(dependencyMaterial);
-        Mockito.verify(materialRepository).findModificationsSince(svnMaterial, previousSvnRevision);
+        verify(materialRepository, never()).findLatestModification(dependencyMaterial);
+        verify(materialRepository).findModificationsSince(svnMaterial, previousSvnRevision);
     }
 
     @Test
-    public void shouldUseLatestMaterialDuringCreationOfNewRevisionsSince_bug7486() throws Exception {
+    public void shouldUseLatestMaterialDuringCreationOfNewRevisionsSince_bug7486() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         PackageMaterial oldPkgMaterial = MaterialsMother.packageMaterial("repo-id", "repo-old-name", "pkg-id", "pkg-old-name", ConfigurationPropertyMother.create("key", false, "value"));
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
@@ -190,7 +188,7 @@ public class MaterialCheckerTest {
         PackageMaterial newPkgMaterial = MaterialsMother.packageMaterial("repo-id", "repo-new-name", "pkg-id", "pkg-new-name", ConfigurationPropertyMother.create("key", false, "value"));
         Modification newPkgMod = mod(2L);
 
-        Mockito.when(materialRepository.findModificationsSince(oldPkgMaterial, previousPkgRevision)).thenReturn(modifications(newPkgMod));
+        when(materialRepository.findModificationsSince(oldPkgMaterial, previousPkgRevision)).thenReturn(modifications(newPkgMod));
         MaterialRevisions alreadyFoundRevisions = new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification));
         MaterialRevisions latestRevisions = new MaterialRevisions(); //will not be used, as no new materials have appeared
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(alreadyFoundRevisions, new Materials(dependencyMaterial, newPkgMaterial), new MaterialRevisions(previousDependantRevision, previousPkgRevision), latestRevisions);
@@ -200,12 +198,12 @@ public class MaterialCheckerTest {
         assertThat(((PackageMaterial)revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getName(), is("pkg-new-name"));
         assertThat(((PackageMaterial)revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getRepository().getName(), is("repo-new-name"));
 
-        Mockito.verify(materialRepository, never()).findLatestModification(dependencyMaterial);
-        Mockito.verify(materialRepository).findModificationsSince(oldPkgMaterial, previousPkgRevision);
+        verify(materialRepository, never()).findLatestModification(dependencyMaterial);
+        verify(materialRepository).findModificationsSince(oldPkgMaterial, previousPkgRevision);
     }
 
     @Test
-    public void shouldNOTSkipFindingRevisionsSinceForMaterialsThatAreNewlyAdded() throws Exception {
+    public void shouldNOTSkipFindingRevisionsSinceForMaterialsThatAreNewlyAdded() {
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
         SvnMaterial svnExternalMaterial = new SvnMaterial("svnExternalUrl", null, null, false);
 
@@ -216,11 +214,11 @@ public class MaterialCheckerTest {
 
         MaterialRevisions latestRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, svnModification), new MaterialRevision(svnExternalMaterial, svnExternalModification));
 
-        Mockito.when(materialRepository.findModificationsSince(svnMaterial, previousSvnRevision)).thenReturn(modifications(svnModification));
+        when(materialRepository.findModificationsSince(svnMaterial, previousSvnRevision)).thenReturn(modifications(svnModification));
         MaterialRevisions revisionsSince = materialChecker.findRevisionsSince(new MaterialRevisions(), new Materials(svnMaterial, svnExternalMaterial), new MaterialRevisions(previousSvnRevision), latestRevisions);
         assertThat(revisionsSince, is(new MaterialRevisions(new MaterialRevision(svnMaterial, svnModification), new MaterialRevision(svnExternalMaterial, svnExternalModification))));
 
-        Mockito.verify(materialRepository).findModificationsSince(svnMaterial, previousSvnRevision);
+        verify(materialRepository).findModificationsSince(svnMaterial, previousSvnRevision);
     }
 
     @Test

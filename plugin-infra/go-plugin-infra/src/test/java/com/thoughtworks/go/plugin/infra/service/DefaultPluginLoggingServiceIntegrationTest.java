@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +76,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
     @Test
     void shouldGetLogLocationFromRootLoggerFileAppender() {
         DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
-        DefaultPluginLoggingService spy = Mockito.spy(service);
+        DefaultPluginLoggingService spy = spy(service);
 
         spy.info(pluginID(1), "LoggingClass", "message");
 
@@ -90,7 +89,7 @@ class DefaultPluginLoggingServiceIntegrationTest {
         FileAppender fileAppender = new FileAppender();
         fileAppender.setFile("/var/log/go-server/go-server.log");
 
-        DefaultPluginLoggingService service = Mockito.spy(new DefaultPluginLoggingService(systemEnvironment));
+        DefaultPluginLoggingService service = spy(new DefaultPluginLoggingService(systemEnvironment));
         doReturn(fileAppender).when(service).getGoServerLogFileAppender();
 
         String currentLogDirectory = service.getCurrentLogDirectory();

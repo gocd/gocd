@@ -147,7 +147,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToPersistAMaterial() throws Exception {
+    public void shouldBeAbleToPersistAMaterial() {
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         repo.saveOrUpdate(original);
 
@@ -327,7 +327,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFindMaterialInstanceIfExists() throws Exception {
+    public void shouldFindMaterialInstanceIfExists() {
         Material svn = MaterialsMother.svnMaterial();
         MaterialInstance material1 = repo.findOrCreateFrom(svn);
         MaterialInstance material2 = repo.findOrCreateFrom(svn);
@@ -336,7 +336,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void materialShouldNotBeSameIfOneFieldIsNull() throws Exception {
+    public void materialShouldNotBeSameIfOneFieldIsNull() {
         Material svn1 = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
         MaterialInstance material1 = repo.findOrCreateFrom(svn1);
 
@@ -381,7 +381,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void findOrCreateFrom_shouldCacheMaterialInstanceOnCreate() throws Exception {
+    public void findOrCreateFrom_shouldCacheMaterialInstanceOnCreate() {
         Material svn = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
 
         MaterialInstance instance = repo.findOrCreateFrom(svn);
@@ -397,7 +397,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void findMaterialInstance_shouldCacheMaterialInstance() throws Exception {
+    public void findMaterialInstance_shouldCacheMaterialInstance() {
         Material svn1 = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
         repo.saveOrUpdate(svn1.createMaterialInstance());
 
@@ -419,7 +419,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToPersistAMaterialWithNullBooleans() throws Exception {
+    public void shouldBeAbleToPersistAMaterialWithNullBooleans() {
         P4Material p4Material = new P4Material("serverAndPort", "view");
 
         MaterialInstance original = p4Material.createMaterialInstance();
@@ -432,7 +432,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistModificationsWithMaterials() throws Exception {
+    public void shouldPersistModificationsWithMaterials() {
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), false);
         repo.saveOrUpdate(original);
 
@@ -441,7 +441,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistModifiedFiles() throws Exception {
+    public void shouldPersistModifiedFiles() {
         MaterialInstance original = new SvnMaterialInstance("url", "username", UUID.randomUUID().toString(), true);
         Modification modification = new Modification("user", "comment", "email", new Date(), ModificationsMother.nextRevision());
         modification.createModifiedFile("file1", "folder1", ModifiedAction.added);
@@ -453,7 +453,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldBeAbleToFindModificationsSinceAPreviousChange() throws Exception {
+    public void shouldBeAbleToFindModificationsSinceAPreviousChange() {
         SvnMaterial original = MaterialsMother.svnMaterial();
 
         MaterialRevision originalRevision = saveOneScmModification(original, "user1", "file1");
@@ -465,7 +465,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFindNoModificationsSinceLatestChange() throws Exception {
+    public void shouldFindNoModificationsSinceLatestChange() {
         SvnMaterial original = MaterialsMother.svnMaterial();
 
         MaterialRevision originalRevision = saveOneScmModification(original, "user", "file1");
@@ -627,7 +627,7 @@ public class MaterialRepositoryIntegrationTest {
 
         GoCache spyGoCache = spy(goCache);
         when(spyGoCache.get(any(String.class))).thenCallRealMethod();
-        Mockito.doCallRealMethod().when(spyGoCache).put(any(String.class), any(Object.class));
+        doCallRealMethod().when(spyGoCache).put(any(String.class), any(Object.class));
         repo = new MaterialRepository(sessionFactory, spyGoCache, 2, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
 
         pipelineSqlMapDao.save(pipeline);
@@ -643,37 +643,37 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldSavePipelineMaterialRevisions() throws Exception {
+    public void shouldSavePipelineMaterialRevisions() {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("gitUrl", "folder", "user", "pass", true, "*.doc");
         assertCanLoadAndSaveMaterialRevisionsFor(svnMaterialConfig);
     }
 
     @Test
-    public void shouldSaveGitPipelineMaterialRevisions() throws Exception {
+    public void shouldSaveGitPipelineMaterialRevisions() {
         GitMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("gitUrl", "submoduleFolder", "branch", false);
         assertCanLoadAndSaveMaterialRevisionsFor(gitMaterialConfig);
     }
 
     @Test
-    public void shouldSaveHgPipelineMaterialRevisions() throws Exception {
+    public void shouldSaveHgPipelineMaterialRevisions() {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig("hgUrl", "dest");
         assertCanLoadAndSaveMaterialRevisionsFor(hgMaterialConfig);
     }
 
     @Test
-    public void shouldSaveP4PipelineMaterialRevisions() throws Exception {
+    public void shouldSaveP4PipelineMaterialRevisions() {
         P4MaterialConfig p4MaterialConfig = MaterialConfigsMother.p4MaterialConfig("serverAndPort", "user", "pwd", "view", true);
         assertCanLoadAndSaveMaterialRevisionsFor(p4MaterialConfig);
     }
 
     @Test
-    public void shouldSaveDependencyPipelineMaterialRevisions() throws Exception {
+    public void shouldSaveDependencyPipelineMaterialRevisions() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
         assertCanLoadAndSaveMaterialRevisionsFor(dependencyMaterialConfig);
     }
 
     @Test
-    public void shouldReturnModificationForASpecificRevision() throws Exception {
+    public void shouldReturnModificationForASpecificRevision() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage"));
         MaterialRevision originalRevision = saveOneDependencyModification(dependencyMaterial, "blahPipeline/3/blahStage/1");
 
@@ -684,7 +684,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPickupTheRightFromAndToForMaterialRevisions() throws Exception {
+    public void shouldPickupTheRightFromAndToForMaterialRevisions() {
         HgMaterial material = new HgMaterial("sdg", null);
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("6")));
         saveMaterialRev(firstRevision);
@@ -700,7 +700,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldUseToAndFromAsRangeForSCMMaterialRevisionWhileSavingAndUpdating() throws Exception {
+    public void shouldUseToAndFromAsRangeForSCMMaterialRevisionWhileSavingAndUpdating() {
         HgMaterial material = new HgMaterial("sdg", null);
         final MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("10"), modification("9"), modification("8")));
         saveMaterialRev(firstRevision);
@@ -734,7 +734,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFixToAsFromForDependencyMaterialRevisionWhileSavingAndUpdating() throws Exception {
+    public void shouldFixToAsFromForDependencyMaterialRevisionWhileSavingAndUpdating() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/10/stage_name/1"), modification("pipeline_name/9/stage_name/2"), modification("pipeline_name/8/stage_name/2")));
         saveMaterialRev(firstRevision);
@@ -766,7 +766,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistActualFromRevisionSameAsFromForSCMMaterial() throws Exception {
+    public void shouldPersistActualFromRevisionSameAsFromForSCMMaterial() {
         HgMaterial material = new HgMaterial("sdg", null);
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("10"), modification("9"), modification("8")));
         saveMaterialRev(firstRevision);
@@ -777,7 +777,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistActualFromRevisionUsingTheRealFromForDependencyMaterial() throws Exception {
+    public void shouldPersistActualFromRevisionUsingTheRealFromForDependencyMaterial() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         Modification from = modification("pipeline_name/10/stage_name/1");
@@ -792,7 +792,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldUseTheFromIdAsActualFromIdWhenThePipelineIsBeingBuiltForTheFirstTime() throws Exception {
+    public void shouldUseTheFromIdAsActualFromIdWhenThePipelineIsBeingBuiltForTheFirstTime() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(modification("pipeline_name/9/stage_name/2"), actualFrom));
@@ -816,7 +816,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldPersistActualFromRevisionForSameRevisionOfDependencyMaterialModifications() throws Exception {
+    public void shouldPersistActualFromRevisionForSameRevisionOfDependencyMaterialModifications() {
         Material material = new DependencyMaterial(new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
         Modification actualFrom = modification("pipeline_name/8/stage_name/2");
         MaterialRevision firstRevision = new MaterialRevision(material, new Modifications(actualFrom));
@@ -834,7 +834,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldUpdatePipelineMaterialRevisions() throws Exception {
+    public void shouldUpdatePipelineMaterialRevisions() {
         HgMaterial material = new HgMaterial("sdg", null);
         Modification first = modification("6");
         Modification second = modification("7");
@@ -854,7 +854,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnMaterialRevisionsWithEmptyModificationsWhenNoModifications() throws Exception {
+    public void shouldReturnMaterialRevisionsWithEmptyModificationsWhenNoModifications() {
         Material material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevisions materialRevisions = repo.findLatestRevisions(new MaterialConfigs(material.config()));
@@ -865,7 +865,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnMatchedRevisionsForAGivenSearchString() throws Exception {
+    public void shouldReturnMatchedRevisionsForAGivenSearchString() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision materialRevision = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -877,7 +877,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldMatchPipelineLabelForDependencyModifications() throws Exception {
+    public void shouldMatchPipelineLabelForDependencyModifications() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneDependencyModification(material, "pipeline-name/1/stage-name/3", "my-random-label-123");
@@ -896,7 +896,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldMatchSearchStringAcrossColumn() throws Exception {
+    public void shouldMatchSearchStringAcrossColumn() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -915,7 +915,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldMatchSearchStringInDecreasingOrder() throws Exception {
+    public void shouldMatchSearchStringInDecreasingOrder() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -928,7 +928,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldConsiderFieldToBeEmptyWhenRevisionOrUsernameOrCommentIsNull() throws Exception {
+    public void shouldConsiderFieldToBeEmptyWhenRevisionOrUsernameOrCommentIsNull() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision userIsNullRevision = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, null, "meet_you_in_hell.txt", "bring it on!");
@@ -948,7 +948,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldFindLatestRevision() throws Exception {
+    public void shouldFindLatestRevision() {
         ScmMaterial material = material();
         repo.saveOrUpdate(material.createMaterialInstance());
         MaterialRevision first = saveOneScmModification("40c95a3c41f54b5fb3107982cf2acd08783f102a", material, "pavan", "meet_you_in_hell.txt", "comment");
@@ -962,7 +962,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldCacheModificationCountsForMaterialCorrectly() throws Exception {
+    public void shouldCacheModificationCountsForMaterialCorrectly() {
         ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -978,7 +978,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldCacheModificationsForMaterialCorrectly() throws Exception {
+    public void shouldCacheModificationsForMaterialCorrectly() {
         final ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -1008,7 +1008,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldGetPaginatedModificationsForMaterialCorrectly() throws Exception {
+    public void shouldGetPaginatedModificationsForMaterialCorrectly() {
         ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
@@ -1033,7 +1033,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldCachePaginatedModificationsForMaterialCorrectly() throws Exception {
+    public void shouldCachePaginatedModificationsForMaterialCorrectly() {
         final ScmMaterial material = material();
         MaterialInstance materialInstance = material.createMaterialInstance();
         repo.saveOrUpdate(materialInstance);

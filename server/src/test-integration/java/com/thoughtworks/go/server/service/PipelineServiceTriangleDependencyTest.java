@@ -51,7 +51,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -62,9 +61,10 @@ import java.util.HashMap;
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.helper.GoConfigMother.createPipelineConfigWithMaterialConfig;
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -114,7 +114,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldCopyMissingRevisionsForSameMaterialThatsUsedMoreThanOnce() throws Exception {
+    public void shouldCopyMissingRevisionsForSameMaterialThatsUsedMoreThanOnce() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last");
         pipelineConfig.materialConfigs().clear();
         HgMaterialConfig onDirOne = MaterialConfigsMother.hgMaterialConfig("google.com", "dirOne");
@@ -132,32 +132,29 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldTellPipelineMaterialModificationsToUpdateItselfOnSave() throws Exception {
+    public void shouldTellPipelineMaterialModificationsToUpdateItselfOnSave() {
         Pipeline pipeline = PipelineMother.pipeline("cruise");
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         service.save(pipeline);
-        Mockito.verify(pipelineTimeline).update();
+        verify(pipelineTimeline).update();
     }
 
     @Test
-    public void shouldNotNotifyStatusListenersWhenTransactionRollsback() throws Exception {
+    public void shouldNotNotifyStatusListenersWhenTransactionRollsBack() {
         StageStatusListener stageStatusListener = mock(StageStatusListener.class);
         JobStatusListener jobStatusListener = mock(JobStatusListener.class);
         Pipeline pipeline = stubPipelineSaveForStatusListener(stageStatusListener, jobStatusListener);
-        Mockito.doThrow(new RuntimeException()).when(pipelineTimeline).update();
+        doThrow(new RuntimeException()).when(pipelineTimeline).update();
 
-        try {
-            service.save(pipeline);
-        } catch (RuntimeException e) {
-            //ignore
-        }
+        assertThatThrownBy(() -> service.save(pipeline))
+            .isInstanceOf(NullPointerException.class);
         verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
         verify(jobStatusListener, never()).jobStatusChanged(any(JobInstance.class));
     }
 
     @Test
-    public void shouldNotifyStageStatusListenersOnlyWhenTransactionCommits() throws Exception {
+    public void shouldNotifyStageStatusListenersOnlyWhenTransactionCommits() {
         StageStatusListener stageStatusListener = mock(StageStatusListener.class);
         JobStatusListener jobStatusListener = mock(JobStatusListener.class);
         Pipeline pipeline = stubPipelineSaveForStatusListener(stageStatusListener, jobStatusListener);
@@ -192,7 +189,7 @@ public class PipelineServiceTriangleDependencyTest {
 
 
     @Test
-    public void shouldUpdateTheToAndFromRevisionOfThePipelineAfterThePipelineBeingSaved() throws Exception {
+    public void shouldUpdateTheToAndFromRevisionOfThePipelineAfterThePipelineBeingSaved() {
         MaterialRevisions scheduleTime = createHgMaterialWithMultipleRevisions(1L, first);
         scheduleTime.addAll(createSvnMaterialWithMultipleRevisions(2, first));
 
@@ -212,7 +209,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterial() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterial() {
         MaterialRevisions expected = new MaterialRevisions();
         MaterialRevision up1Revision = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
         up1Revision.markAsChanged();
@@ -239,7 +236,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineFor2SameMaterial() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineFor2SameMaterial() {
         MaterialRevision up1Revision = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
         up1Revision.markAsChanged();
 
@@ -267,7 +264,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldChooseTheRevisionFromThirdWhenSecondIsNotModified() throws Exception {
+    public void shouldChooseTheRevisionFromThirdWhenSecondIsNotModified() {
         //      Third* <- Second
         //         |     /
         //         |   /
@@ -291,12 +288,12 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldChooseTheRevisionFromSecondWhenThirdIsNotModified() throws Exception {
+    public void shouldChooseTheRevisionFromSecondWhenThirdIsNotModified() {
         //      Third <- Second*
         //         |     /
         //         |   /
@@ -321,12 +318,12 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldChooseTheRevisionFromSecondWhenThirdIsNotModifiedInspiteOfSecondBeingFirstMaterialInConfig() throws Exception {
+    public void shouldChooseTheRevisionFromSecondWhenThirdIsNotModifiedInspiteOfSecondBeingFirstMaterialInConfig() {
         //      Third <- Second*
         //         |     /
         //         |   /
@@ -351,12 +348,12 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldChooseTheRevisionFromThirdWhenBothThirdAndSecondAreModified() throws Exception {
+    public void shouldChooseTheRevisionFromThirdWhenBothThirdAndSecondAreModified() {
         //      Third* <- Second*
         //         |     /
         //         |   /
@@ -380,12 +377,12 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldChooseTheRevisionFromThirdWhenSecondComesBeforeThirdInConfiguration() throws Exception {
+    public void shouldChooseTheRevisionFromThirdWhenSecondComesBeforeThirdInConfiguration() {
         //      Third* <- Second*
         //         |     /
         //         |   /
@@ -410,12 +407,12 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldChooseTheRevisionFromSecondInAComplexSituation() throws Exception {
+    public void shouldChooseTheRevisionFromSecondInAComplexSituation() {
         // hg -> First          git
         //  |      \             |
         //  |      Third  <- Second*
@@ -445,12 +442,12 @@ public class PipelineServiceTriangleDependencyTest {
         MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(graph, actual);
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldIgnoreUpstreamPipelineWhenThereIsNothingInCommon() throws Exception {
+    public void shouldIgnoreUpstreamPipelineWhenThereIsNothingInCommon() {
         MaterialRevision up1Revision = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
         up1Revision.markAsChanged();
 
@@ -504,7 +501,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldGetTheRevisionsForDependencyMaterialFromUpStreamPipeline() throws Exception {
+    public void shouldGetTheRevisionsForDependencyMaterialFromUpStreamPipeline() {
         Date modifiedTime = new Date();
 
         MaterialRevisions expected = new MaterialRevisions();
@@ -533,12 +530,12 @@ public class PipelineServiceTriangleDependencyTest {
 
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldGetTheRevisionsForDependencyMaterial_WithSharedParentInMiddleOfTheTree() throws Exception {
+    public void shouldGetTheRevisionsForDependencyMaterial_WithSharedParentInMiddleOfTheTree() {
         Date modifiedTime = new Date();
 
         MaterialRevisions expected = new MaterialRevisions();
@@ -578,12 +575,12 @@ public class PipelineServiceTriangleDependencyTest {
 
         assertThat(finalRevisions, is(expected));
         for (int i = 0; i < expected.numberOfRevisions(); i++) {
-            assertTrue(finalRevisions.getMaterialRevision(i) == actual.getMaterialRevision(i));
+            assertSame(finalRevisions.getMaterialRevision(i), actual.getMaterialRevision(i));
         }
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineBasedOnCurrentConfiguration() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineBasedOnCurrentConfiguration() {
         MaterialRevisions expectedIfPegged = createHgMaterialWithMultipleRevisions(1L, first);
         MaterialRevision up1Revision = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
         up1Revision.markAsChanged();
@@ -603,7 +600,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheNearestUpStreamPipeline() throws Exception {
+    public void shouldGetTheRevisionsFromTheNearestUpStreamPipeline() {
         MaterialRevisions uppestRevision = createHgMaterialWithMultipleRevisions(1L, first);
         MaterialRevisions secondHgRevision = createHgMaterialWithMultipleRevisions(1L, second);
         ((HgMaterial) secondHgRevision.getMaterialRevision(0).getMaterial()).setFolder("mother");
@@ -639,7 +636,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldNotGetTheRevisionsFromUpStreamPipelineIfTheDependencyMaterialHasNotChanged() throws Exception {
+    public void shouldNotGetTheRevisionsFromUpStreamPipelineIfTheDependencyMaterialHasNotChanged() {
         MaterialRevisions expected = createHgMaterialWithMultipleRevisions(1L, first);
         MaterialRevision up1Revision = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
         expected.addRevision(up1Revision);
@@ -659,7 +656,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterialEvenIfItIsNotADirectMaterial() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterialEvenIfItIsNotADirectMaterial() {
         MaterialRevisions uppestRevision = createHgMaterialWithMultipleRevisions(1L, first);
         MaterialRevisions upRevision = new MaterialRevisions(dependencyMaterialRevision("up0", 2, "label", "stage", 1, new Date()));
 
@@ -692,7 +689,7 @@ public class PipelineServiceTriangleDependencyTest {
     }
 
     @Test
-    public void shouldReturnTheOrderedListOfStageIdentifiers() throws Exception {
+    public void shouldReturnTheOrderedListOfStageIdentifiers() {
         //TODO: does it? while we trust it, may be its a good idea to validate --shilpa & jj
     }
 

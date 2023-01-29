@@ -34,7 +34,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -489,7 +488,7 @@ class AgentInstancesTest {
         String uuid = "uuid";
 
         AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();
-        AgentInstances agentInstancesSpy = Mockito.spy(agentInstances);
+        AgentInstances agentInstancesSpy = spy(agentInstances);
         AgentInstance mockAgentInstance = mock(AgentInstance.class);
         when(agentInstancesSpy.findAgentAndRefreshStatus(uuid)).thenReturn(mockAgentInstance);
 

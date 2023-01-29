@@ -15,24 +15,25 @@
  */
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import static com.thoughtworks.go.util.SystemEnvironment.CONSOLE_LOG_MAX_LINE_LENGTH;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+@ExtendWith(SystemStubsExtension.class)
 class CommandLineScriptRunnerTest {
 
-    @AfterEach
-    public void tearDown() {
-        System.clearProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName());
-    }
+    @SystemStub
+    private final SystemProperties systemProperties = new SystemProperties();
 
     @Test
     @EnabledOnOs(OS.LINUX)
@@ -122,7 +123,7 @@ class CommandLineScriptRunnerTest {
     @Test
     @EnabledOnOs(OS.LINUX)
     void shouldCropLongLinesUnderLinux() {
-        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
+        systemProperties.set(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
 
         CommandLine command = CommandLine.createCommandLine("echo")
             .withArg("This is a fairly ridiculously long line.")
@@ -137,7 +138,7 @@ class CommandLineScriptRunnerTest {
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void shouldCropLongLinesUnderWindows() {
-        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
+        systemProperties.set(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "30");
 
         CommandLine command = CommandLine.createCommandLine("cmd")
             .withArg("/c")
@@ -154,7 +155,7 @@ class CommandLineScriptRunnerTest {
     @Test
     @EnabledOnOs(OS.LINUX)
     void shouldReplaceSecretsInCroppedOutputUnderLinux() {
-        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "40");
+        systemProperties.set(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "40");
 
         CommandLine command = CommandLine.createCommandLine("echo")
             .withArg("My password is")
@@ -171,7 +172,7 @@ class CommandLineScriptRunnerTest {
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void shouldReplaceSecretsInCroppedOutputUnderWindows() {
-        System.setProperty(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "42");
+        systemProperties.set(CONSOLE_LOG_MAX_LINE_LENGTH.propertyName(), "42");
 
         CommandLine command = CommandLine.createCommandLine("cmd")
             .withArg("/c")

@@ -50,12 +50,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,12 +97,12 @@ public class JobInstanceServiceTest {
 
     @AfterEach
     public void after() {
-        Mockito.verifyNoMoreInteractions(jobInstanceDao, stageDao);
+        verifyNoMoreInteractions(jobInstanceDao, stageDao);
     }
 
     @Test
-    public void shouldNotifyListenerWhenJobStatusChanged() throws Exception {
-        final JobStatusListener listener = Mockito.mock(JobStatusListener.class);
+    public void shouldNotifyListenerWhenJobStatusChanged() {
+        final JobStatusListener listener = mock(JobStatusListener.class);
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService, listener);
@@ -115,9 +113,9 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldNotifyAllListenersWhenUpdateJobStatus() throws Exception {
-        final JobStatusListener listener1 = Mockito.mock(JobStatusListener.class, "listener1");
-        final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
+    public void shouldNotifyAllListenersWhenUpdateJobStatus() {
+        final JobStatusListener listener1 = mock(JobStatusListener.class, "listener1");
+        final JobStatusListener listener2 = mock(JobStatusListener.class, "listener2");
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService, listener1, listener2);
@@ -129,9 +127,9 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldNotifyListenerWhenUpdateAssignedInfo() throws Exception {
-        final JobStatusListener listener1 = Mockito.mock(JobStatusListener.class, "listener1");
-        final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
+    public void shouldNotifyListenerWhenUpdateAssignedInfo() {
+        final JobStatusListener listener1 = mock(JobStatusListener.class, "listener1");
+        final JobStatusListener listener2 = mock(JobStatusListener.class, "listener2");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
             null, null, goConfigService, null, serverHealthService, listener1, listener2);
@@ -148,9 +146,9 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldNotifyAllListenersWhenSaveJob() throws Exception {
-        final JobStatusListener listener1 = Mockito.mock(JobStatusListener.class, "listener1");
-        final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
+    public void shouldNotifyAllListenersWhenSaveJob() {
+        final JobStatusListener listener1 = mock(JobStatusListener.class, "listener1");
+        final JobStatusListener listener2 = mock(JobStatusListener.class, "listener2");
         final Pipeline pipeline = new NullPipeline();
         final Stage stage = new Stage();
         stage.setId(1);
@@ -170,9 +168,9 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldIgnoreErrorsWhenNotifyingListenersDuringSave() throws Exception {
-        final JobStatusListener failingListener = Mockito.mock(JobStatusListener.class, "listener1");
-        final JobStatusListener passingListener = Mockito.mock(JobStatusListener.class, "listener2");
+    public void shouldIgnoreErrorsWhenNotifyingListenersDuringSave() {
+        final JobStatusListener failingListener = mock(JobStatusListener.class, "listener1");
+        final JobStatusListener passingListener = mock(JobStatusListener.class, "listener2");
         doThrow(new RuntimeException("Should not be rethrown by save")).when(failingListener).jobStatusChanged(job);
         final Pipeline pipeline = new NullPipeline();
         final Stage stage = new Stage();
@@ -364,7 +362,7 @@ public class JobInstanceServiceTest {
     }
 
     @Test
-    public void shouldRegisterANewListener() throws SQLException {
+    public void shouldRegisterANewListener() {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
             null, serverHealthService);
         JobStatusListener listener = mock(JobStatusListener.class);

@@ -56,8 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -87,8 +86,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         goCache.clear();
-        dependencyMaterialSourceDao = Mockito.mock(DependencyMaterialSourceDao.class);
-        healthService = Mockito.mock(ServerHealthService.class);
+        dependencyMaterialSourceDao = mock(DependencyMaterialSourceDao.class);
+        healthService = mock(ServerHealthService.class);
         dependencyMaterialUpdater = new DependencyMaterialUpdater(dependencyMaterialSourceDao, materialRepository);
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, legacyMaterialChecker, subprocessExecutionContext, materialService);
         updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService, goConfigService);
@@ -119,7 +118,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         RuntimeException runtimeException = new RuntimeException("Description of error");
-        Mockito.when(dependencyMaterialSourceDao.getPassedStagesByName(new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")),
+        when(dependencyMaterialSourceDao.getPassedStagesByName(new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")),
                 Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
                 .thenThrow(runtimeException);
 
@@ -132,20 +131,20 @@ public class MaterialDatabaseDependencyUpdaterTest {
 
         HealthStateType scope = HealthStateType.general(HealthStateScope.forMaterial(dependencyMaterial));
         ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name [ stage-name ]\nNo pipelines are affected by this material, perhaps this material is unused.", "Description of error", scope);
-        Mockito.verify(healthService).update(state);
+        verify(healthService).update(state);
     }
 
     @Test
     public void shouldClearServerHealthIfCheckSucceeds() throws Exception {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
-        Mockito.when(dependencyMaterialSourceDao.getPassedStagesByName(new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")),
+        when(dependencyMaterialSourceDao.getPassedStagesByName(new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")),
                 Pagination.pageStartingAt(0, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
                 .thenReturn(new ArrayList<>());
 
         updater.updateMaterial(dependencyMaterial);
 
-        Mockito.verify(healthService).removeByScope(HealthStateScope.forMaterial(dependencyMaterial));
+        verify(healthService).removeByScope(HealthStateScope.forMaterial(dependencyMaterial));
     }
 
     @Test
@@ -178,7 +177,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
                 StageIdentifier id = stage.getIdentifier();
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
-            Mockito.when(dependencyMaterialSourceDao.getPassedStagesAfter(identifier.stageLocator(),
+            when(dependencyMaterialSourceDao.getPassedStagesAfter(identifier.stageLocator(),
                     material,
                     Pagination.pageStartingAt(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
             )).thenReturn(mods);
@@ -256,8 +255,8 @@ public class MaterialDatabaseDependencyUpdaterTest {
         // update subsequently should hit database
         updater.updateMaterial(dependencyMaterial);
 
-        Mockito.verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(String.class), any(DependencyMaterial.class), any(Pagination.class));
-        Mockito.verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(DependencyMaterial.class), any(Pagination.class));
+        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(String.class), any(DependencyMaterial.class), any(Pagination.class));
+        verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(DependencyMaterial.class), any(Pagination.class));
     }
 
     private Stages stages(int... pipelineCounters) {
@@ -282,11 +281,11 @@ public class MaterialDatabaseDependencyUpdaterTest {
                 StageIdentifier id = stage.getIdentifier();
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
-            Mockito.when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
+            when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
                     Pagination.pageStartingAt(i * MaterialDatabaseUpdater.STAGES_PER_PAGE, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)))
                     .thenReturn(mods);
         }
-        Mockito.when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
+        when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
                 Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
         )).thenReturn(new ArrayList<>());
     }

@@ -56,7 +56,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
@@ -113,7 +112,7 @@ public class MaterialUpdateServiceTest {
     private HttpLocalizedOperationResult result;
     private PostCommitHookMaterialType validMaterialType;
     private PostCommitHookMaterialType invalidMaterialType;
-    private SystemEnvironment systemEnvironment = new SystemEnvironment();
+    private final SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @BeforeEach
     void setUp() {
@@ -125,8 +124,8 @@ public class MaterialUpdateServiceTest {
         service.registerMaterialUpdateCompleteListener(scmMaterialSource);
         service.registerMaterialUpdateCompleteListener(dependencyMaterialUpdateNotifier);
 
-        HashSet<MaterialConfig> materialConfigs = new HashSet(Set.of(MATERIAL_CONFIG));
-        HashSet<Material> materials = new HashSet(Set.of(svnMaterial));
+        Set<MaterialConfig> materialConfigs = new HashSet<>(Set.of(MATERIAL_CONFIG));
+        Set<Material> materials = new HashSet<>(Set.of(svnMaterial));
         lenient().when(goConfigService.getSchedulableMaterials()).thenReturn(materialConfigs);
         lenient().when(materialConfigConverter.toMaterials(materialConfigs)).thenReturn(materials);
         username = new Username(new CaseInsensitiveString("loser"));
@@ -187,8 +186,8 @@ public class MaterialUpdateServiceTest {
         void shouldPostUpdateMessageOnUpdateQueueForNonConfigMaterial() {
             assertThat(service.updateMaterial(svnMaterial)).isTrue();
 
-            Mockito.verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
-            Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
+            verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
         }
 
         @Test
@@ -197,8 +196,8 @@ public class MaterialUpdateServiceTest {
 
             assertThat(service.updateMaterial(svnMaterial)).isTrue();
 
-            Mockito.verify(configQueue).post(matchMaterialUpdateMessage(svnMaterial));
-            Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(configQueue).post(matchMaterialUpdateMessage(svnMaterial));
+            verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
         }
 
         @Test
@@ -207,9 +206,9 @@ public class MaterialUpdateServiceTest {
 
             assertThat(service.updateMaterial(dependencyMaterial)).isTrue();
 
-            Mockito.verify(dependencyMaterialUpdateQueue).post(matchMaterialUpdateMessage(dependencyMaterial));
-            Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
-            Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(dependencyMaterialUpdateQueue).post(matchMaterialUpdateMessage(dependencyMaterial));
+            verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
+            verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
         }
 
         @Test
@@ -367,13 +366,13 @@ public class MaterialUpdateServiceTest {
             when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
             final Material svnMaterial = mock(Material.class);
-            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(List.of(svnMaterial)));
+            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet<>(List.of(svnMaterial)));
             when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
 
             service.notifyMaterialsForUpdate(username, params, result);
 
             verify(svnPostCommitHookImplementer).prune(anySet(), eq(params));
-            Mockito.verify(queue, times(1)).post(matchMaterialUpdateMessage(svnMaterial));
+            verify(queue, times(1)).post(matchMaterialUpdateMessage(svnMaterial));
 
             HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
             acceptedResult.accepted("The material is now scheduled for an update. Please check relevant pipeline(s) for status.");

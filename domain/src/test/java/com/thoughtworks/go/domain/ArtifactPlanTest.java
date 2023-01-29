@@ -24,7 +24,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.util.Arrays;
@@ -35,6 +34,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class ArtifactPlanTest {
@@ -55,7 +55,7 @@ public class ArtifactPlanTest {
 
     @Test
     public void shouldPublishArtifacts() {
-        final GoPublisher publisher = Mockito.mock(GoPublisher.class);
+        final GoPublisher publisher = mock(GoPublisher.class);
         final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
 
         artifactPlan.publishBuiltInArtifacts(publisher, testFolder);

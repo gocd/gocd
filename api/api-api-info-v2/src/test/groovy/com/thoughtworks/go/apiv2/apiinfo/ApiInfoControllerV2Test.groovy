@@ -28,11 +28,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 import spark.RouteImpl
 import spark.route.HttpMethod
+
+import static org.mockito.Mockito.when
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ApiInfoControllerV2Test implements SecurityServiceTrait, ControllerTrait<ApiInfoControllerV2> {
@@ -56,7 +57,7 @@ class ApiInfoControllerV2Test implements SecurityServiceTrait, ControllerTrait<A
     void 'should return list of api routes'() {
       def entries = List.of(new RouteEntry(HttpMethod.get, "/api/:foo/:bar", "application/vnd.go.cd+v2.json",
               RouteImpl.create("", () -> null)))
-      Mockito.when(provider.getRoutes()).thenReturn(entries)
+      when(provider.getRoutes()).thenReturn(entries)
 
       getWithApiHeader(controller.controllerBasePath())
 

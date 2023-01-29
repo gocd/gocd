@@ -29,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoSettings;
 
 import javax.jms.JMSException;
@@ -80,7 +79,7 @@ public class JMSMessageListenerAdapterTest {
     public void tearDown() throws Exception {
         // We must reset the consumer to ensure it returns null and the threads exit or they will go-on forever
         // creating a memory leak on the mock invocations
-        Mockito.reset(consumer);
+        reset(consumer);
     }
 
     @Test

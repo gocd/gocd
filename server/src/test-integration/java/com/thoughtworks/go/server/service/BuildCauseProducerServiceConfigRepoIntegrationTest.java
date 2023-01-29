@@ -159,7 +159,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         logger = mock(MDUPerformanceLogger.class);
 
         TestingEmailSender emailSender = new TestingEmailSender();
-        SystemDiskSpaceChecker mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);
+        SystemDiskSpaceChecker mockDiskSpaceChecker = mock(SystemDiskSpaceChecker.class);
         StageService stageService = mock(StageService.class);
         ConfigDbStateRepository configDbStateRepository = mock(ConfigDbStateRepository.class);
         goDiskSpaceMonitor = new GoDiskSpaceMonitor(goConfigService, systemEnvironment,

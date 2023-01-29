@@ -17,22 +17,24 @@ package com.thoughtworks.go.fixture;
 
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class DatabaseDiskIsLow implements PreCondition {
+public class DatabaseDiskIsLow implements BeforeEachCallback, AfterEachCallback {
     @Override
-    public void onSetUp() throws Exception {
+    public void beforeEach(ExtensionContext context) {
         new SystemEnvironment().setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "1m");
         new SystemEnvironment().setProperty(SystemEnvironment.DATABASE_WARNING_SIZE_LIMIT, "11222334m");
     }
 
     @Override
-    public void onTearDown() throws Exception {
+    public void afterEach(ExtensionContext context) {
         new SystemEnvironment().clearProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT);
         new SystemEnvironment().clearProperty(SystemEnvironment.DATABASE_WARNING_SIZE_LIMIT);
     }
 
-    public long getLowLimit() {
+    public static long limitBytes() {
         return 1 * GoConstants.MEGA_BYTE;
     }
-
 }

@@ -22,11 +22,10 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
 
 public class MaterialUpdateStatusNotifierTest {
     private MaterialUpdateCompletedTopic mockTopic;
@@ -34,54 +33,54 @@ public class MaterialUpdateStatusNotifierTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        mockTopic = Mockito.mock(MaterialUpdateCompletedTopic.class);
+        mockTopic = mock(MaterialUpdateCompletedTopic.class);
         materialUpdateStatusNotifier = new MaterialUpdateStatusNotifier(mockTopic);
     }
 
     @Test
-    public void shouldAddItselfToATheUpdateCompletedTopicOnConstruction() throws Exception {
+    public void shouldAddItselfToATheUpdateCompletedTopicOnConstruction() {
 
         MaterialUpdateStatusNotifier updateStatusNotifier = new MaterialUpdateStatusNotifier(mockTopic);
 
-        Mockito.verify(mockTopic).addListener(updateStatusNotifier);
+        verify(mockTopic).addListener(updateStatusNotifier);
     }
 
     @Test
-    public void shouldKnowAboutAListenerBasedOnAPipelineConfig() throws Exception {
+    public void shouldKnowAboutAListenerBasedOnAPipelineConfig() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
-        materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, Mockito.mock(MaterialUpdateStatusListener.class));
+        materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, mock(MaterialUpdateStatusListener.class));
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(true));
         materialUpdateStatusNotifier.removeListenerFor(pipelineConfig);
         assertThat(materialUpdateStatusNotifier.hasListenerFor(pipelineConfig), is(false));
     }
 
     @Test
-    public void shouldNotifyListenerWhenItsMaterialIsUpdated() throws Exception {
+    public void shouldNotifyListenerWhenItsMaterialIsUpdated() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
-        MaterialUpdateStatusListener mockStatusListener = Mockito.mock(MaterialUpdateStatusListener.class);
+        MaterialUpdateStatusListener mockStatusListener = mock(MaterialUpdateStatusListener.class);
         when(mockStatusListener.isListeningFor(material)).thenReturn(true);
 
         materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, mockStatusListener);
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(material, 123));
-        Mockito.verify(mockStatusListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material, 123));
+        verify(mockStatusListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material, 123));
     }
 
     @Test
-    public void shouldNotNotifyListenerWhenUnknownMaterialIsUpdated() throws Exception {
+    public void shouldNotNotifyListenerWhenUnknownMaterialIsUpdated() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
-        MaterialUpdateStatusListener mockStatusListener = Mockito.mock(MaterialUpdateStatusListener.class);
+        MaterialUpdateStatusListener mockStatusListener = mock(MaterialUpdateStatusListener.class);
 
         materialUpdateStatusNotifier.registerListenerFor(pipelineConfig, mockStatusListener);
 
         HgMaterial material = new HgMaterial("url", null);
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(material, 1234));
-        Mockito.verify(mockStatusListener, Mockito.never()).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material, 1234));
+        verify(mockStatusListener, never()).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material, 1234));
     }
 
     @Test
-    public void shouldBeAbleToUnregisterAListenerDuringACallback() throws Exception {
+    public void shouldBeAbleToUnregisterAListenerDuringACallback() {
         final PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
         Material material = new HgMaterial("url", null);
         pipelineConfig.addMaterialConfig(material.config());
@@ -104,7 +103,7 @@ public class MaterialUpdateStatusNotifierTest {
     }
 
     @Test
-    public void shouldNotifyListenerWhenItsMaterialIsUpdatedEvenIfAnotherListenerThrowsAnException() throws Exception {
+    public void shouldNotifyListenerWhenItsMaterialIsUpdatedEvenIfAnotherListenerThrowsAnException() {
         Material sharedMaterial = new HgMaterial("url", null);
 
         PipelineConfig pipelineConfig1 = new PipelineConfig(new CaseInsensitiveString("config"), new MaterialConfigs());
@@ -114,10 +113,10 @@ public class MaterialUpdateStatusNotifierTest {
 
         pipelineConfig2.addMaterialConfig(sharedMaterial.config());
 
-        MaterialUpdateStatusListener badListener = Mockito.mock(MaterialUpdateStatusListener.class);
-        Mockito.doThrow(new RuntimeException("foo")).when(badListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
+        MaterialUpdateStatusListener badListener = mock(MaterialUpdateStatusListener.class);
+        doThrow(new RuntimeException("foo")).when(badListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
 
-        MaterialUpdateStatusListener goodListener = Mockito.mock(MaterialUpdateStatusListener.class);
+        MaterialUpdateStatusListener goodListener = mock(MaterialUpdateStatusListener.class);
 
         when(badListener.isListeningFor(sharedMaterial)).thenReturn(true);
         when(goodListener.isListeningFor(sharedMaterial)).thenReturn(true);
@@ -126,7 +125,7 @@ public class MaterialUpdateStatusNotifierTest {
 
         materialUpdateStatusNotifier.onMessage(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
 
-        Mockito.verify(badListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
-        Mockito.verify(goodListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
+        verify(badListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
+        verify(goodListener).onMaterialUpdate(new MaterialUpdateSuccessfulMessage(sharedMaterial, 123));
     }
 }

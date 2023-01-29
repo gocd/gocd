@@ -148,7 +148,7 @@ public class PipelineServiceTriangleDependencyTest {
         doThrow(new RuntimeException()).when(pipelineTimeline).update();
 
         assertThatThrownBy(() -> service.save(pipeline))
-            .isInstanceOf(NullPointerException.class);
+            .isExactlyInstanceOf(RuntimeException.class);
         verify(stageStatusListener, never()).stageStatusChanged(any(Stage.class));
         verify(jobStatusListener, never()).jobStatusChanged(any(JobInstance.class));
     }

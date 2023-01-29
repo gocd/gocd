@@ -53,7 +53,7 @@ class StagesController < ApplicationController
 
   def stats_iframe
     page_number = params[:page_number].nil? ? 1 : params[:page_number].to_i
-    stage_summary_models = stage_service.findStageHistoryForChart(@stage.getPipelineName(), @stage.getName(), page_number, STAGE_DURATION_RANGE, current_user)
+    stage_summary_models = stage_service.findStageHistoryForChart(@stage.getPipelineName(), @stage.getName(), page_number, STAGE_DURATION_RANGE)
     @no_chart_to_render = false
     if stage_summary_models.size() > 0
       @pagination = stage_summary_models.getPagination()

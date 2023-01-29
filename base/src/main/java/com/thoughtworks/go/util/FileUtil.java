@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,7 @@ import java.util.UUID;
 public class FileUtil {
     public static final String TMP_PARENT_DIR = "data";
     private static final String CRUISE_TMP_FOLDER = "cruise" + "-" + UUID.randomUUID();
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(FileUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {}
 

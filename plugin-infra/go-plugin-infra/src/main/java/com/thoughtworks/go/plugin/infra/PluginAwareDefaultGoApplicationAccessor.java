@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class PluginAwareDefaultGoApplicationAccessor extends GoApplicationAccessor {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(PluginAwareDefaultGoApplicationAccessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginAwareDefaultGoApplicationAccessor.class);
 
     private final GoPluginDescriptor pluginDescriptor;
     private final PluginRequestProcessorRegistry requestProcessorRegistry;

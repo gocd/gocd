@@ -32,20 +32,15 @@ import static java.lang.String.format;
 
 public class PluggableArtifactMetadata {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluggableArtifactMetadata.class);
-    private Map<String, Map<String, Map>> metadataPerPlugin = new HashMap<>();
+    private final Map<String, Map<String, Map<String, Object>>> metadataPerPlugin = new HashMap<>();
 
-    public void addMetadata(String pluginId, String artifactId, Map map) {
-        Map<String, Map> metadata = metadataPerPlugin.get(pluginId);
-
-        if (metadata == null) {
-            metadata = new HashMap<>();
-            metadataPerPlugin.put(pluginId, metadata);
-        }
-
-        metadata.put(artifactId, map);
+    public void addMetadata(String pluginId, String artifactId, Map<String, Object> map) {
+        metadataPerPlugin
+            .computeIfAbsent(pluginId, k -> new HashMap<>())
+            .put(artifactId, map);
     }
 
-    public Map<String, Map<String, Map>> getMetadataPerPlugin() {
+    public Map<String, Map<String, Map<String, Object>>> getMetadataPerPlugin() {
         return metadataPerPlugin;
     }
 
@@ -60,14 +55,14 @@ public class PluggableArtifactMetadata {
             throw new RuntimeException(format("[%s] Could not create pluggable artifact metadata folder `%s`.", PRODUCT_NAME, pluggableArtifactMetadataFolder.getName()));
         }
 
-        for (Map.Entry<String, Map<String, Map>> entry : this.getMetadataPerPlugin().entrySet()) {
+        for (Map.Entry<String, Map<String, Map<String, Object>>> entry : this.getMetadataPerPlugin().entrySet()) {
             writeMetadataFile(pluggableArtifactMetadataFolder, entry.getKey(), entry.getValue());
         }
 
         return pluggableArtifactMetadataFolder;
     }
 
-    private void writeMetadataFile(File pluggableArtifactMetadataFolder, String pluginId, Map<String, Map> responseMetadata) {
+    private void writeMetadataFile(File pluggableArtifactMetadataFolder, String pluginId, Map<String, Map<String, Object>> responseMetadata) {
         if (responseMetadata == null || responseMetadata.isEmpty()) {
             LOGGER.info(String.format("No metadata to write for plugin `%s`.", pluginId));
             return;

@@ -36,7 +36,7 @@ public class TaskConfig extends Configuration {
      *
      * @param propertyName Name of the property (or key) in the configuration.
      *
-     * @return an instance of {@link com.thoughtworks.go.plugin.api.task.TaskConfigProperty}
+     * @return an instance of {@link TaskConfigProperty}
      */
     public TaskConfigProperty addProperty(String propertyName) {
         TaskConfigProperty property = new TaskConfigProperty(propertyName);

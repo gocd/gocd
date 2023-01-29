@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -292,7 +294,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      * @deprecated Remove this when we do not need to serialize these to the db and agent
      */
     @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+    private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeObject(userName);
         out.writeObject(comment);
         out.writeObject(emailAddress);
@@ -309,7 +311,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      * @deprecated Remove this when we do not need to serialize these to the db and agent
      */
     @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         userName = (String) in.readObject();
         comment = (String) in.readObject();
         emailAddress = (String) in.readObject();

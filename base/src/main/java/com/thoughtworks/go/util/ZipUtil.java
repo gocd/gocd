@@ -17,6 +17,7 @@ package com.thoughtworks.go.util;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.zip.Deflater;
@@ -27,7 +28,7 @@ import java.util.zip.ZipOutputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ZipUtil {
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZipUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZipUtil.class);
     private ZipEntryHandler zipEntryHandler = null;
 
     public ZipUtil() {

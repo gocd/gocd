@@ -17,6 +17,7 @@ package com.thoughtworks.go.util.command;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class InMemoryConsumer implements StreamConsumer {
     private final Queue<String> lines = new ConcurrentLinkedQueue<>();
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(InMemoryConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InMemoryConsumer.class);
 
     @Override
     public void consumeLine(String line) {

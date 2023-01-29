@@ -499,7 +499,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     public StageHistoryPage findStageHistoryPage(String pipelineName,
                                                  String stageName,
-                                                 Supplier<com.thoughtworks.go.server.util.Pagination> function) {
+                                                 Supplier<Pagination> function) {
         //IMPORTANT: wire cache clearing on job-state-change for me, the day StageHistoryEntry gets jobs - Sachin & JJ
         String mutex = mutexForStageHistory(pipelineName, stageName);
         readWriteLock.acquireReadLock(mutex);

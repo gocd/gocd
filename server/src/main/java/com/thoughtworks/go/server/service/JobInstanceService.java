@@ -56,6 +56,9 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobInstanceService.class);
+    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+    private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
     private final JobInstanceDao jobInstanceDao;
     private final JobResultTopic jobResultTopic;
     private final JobStatusCache jobStatusCache;
@@ -64,13 +67,10 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     private final JobResolverService jobResolverService;
     private final EnvironmentConfigService environmentConfigService;
     private final GoConfigService goConfigService;
-    private SecurityService securityService;
+    private final SecurityService securityService;
     private final ServerHealthService serverHealthService;
     private final List<JobStatusListener> listeners;
-    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
-    private static Logger LOGGER = LoggerFactory.getLogger(JobInstanceService.class);
-    private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
 
     @Autowired
     public JobInstanceService(JobInstanceDao jobInstanceDao, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,

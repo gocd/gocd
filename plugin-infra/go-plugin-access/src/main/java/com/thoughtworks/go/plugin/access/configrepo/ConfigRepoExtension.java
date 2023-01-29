@@ -186,7 +186,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });

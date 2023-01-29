@@ -27,10 +27,10 @@ import java.util.List;
 
 @Component
 public class NotificationPluginRegistrar implements PluginChangeListener {
-    private static Logger LOGGER = LoggerFactory.getLogger(NotificationPluginRegistrar.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NotificationPluginRegistrar.class);
 
-    private NotificationExtension notificationExtension;
-    private NotificationPluginRegistry notificationPluginRegistry;
+    private final NotificationExtension notificationExtension;
+    private final NotificationPluginRegistry notificationPluginRegistry;
 
     @Autowired
     public NotificationPluginRegistrar(PluginManager pluginManager, NotificationExtension notificationExtension, NotificationPluginRegistry notificationPluginRegistry) {

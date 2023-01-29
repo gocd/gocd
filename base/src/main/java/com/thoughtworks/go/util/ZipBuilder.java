@@ -24,9 +24,10 @@ import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZipBuilder {
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZipBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZipBuilder.class);
     private final int level;
     private ZipUtil zipUtil;
     private OutputStream destinationStream;

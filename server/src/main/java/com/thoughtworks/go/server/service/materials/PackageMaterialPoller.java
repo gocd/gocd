@@ -91,8 +91,8 @@ public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
         return repositoryConfiguration;
     }
 
-    private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration buildPackageConfigurations(PackageDefinition packageDefinition) {
-        com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = new com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration();
+    private PackageConfiguration buildPackageConfigurations(PackageDefinition packageDefinition) {
+        PackageConfiguration packageConfiguration = new PackageConfiguration();
         populateConfiguration(packageDefinition.getConfiguration(), packageConfiguration);
         return packageConfiguration;
     }

@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * @understands converting a {@link com.thoughtworks.go.config.VariableValueConfig } to a string and back
+ * @understands converting a {@link VariableValueConfig } to a string and back
  */
 public class VariableValueConfigTypeHandlerCallback extends StringColumnBasedTypeHandler<VariableValueConfig> {
 

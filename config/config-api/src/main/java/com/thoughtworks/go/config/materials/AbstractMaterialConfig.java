@@ -41,7 +41,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     @SkipParameterResolution
     @ConfigAttribute(value = "materialName", allowNull = true)
-    protected com.thoughtworks.go.config.CaseInsensitiveString name;
+    protected CaseInsensitiveString name;
 
     protected String type;
     protected ConfigErrors errors = new ConfigErrors();

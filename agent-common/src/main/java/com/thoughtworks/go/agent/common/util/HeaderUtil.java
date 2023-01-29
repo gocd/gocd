@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HeaderUtil {
-    private static Logger LOGGER = LoggerFactory.getLogger(HeaderUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeaderUtil.class);
 
     public static Map<String, String> parseExtraProperties(Header extraPropertiesHeader) {
         if (extraPropertiesHeader == null || StringUtils.isBlank(extraPropertiesHeader.getValue())) {

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.api.task;
 
 /**
- * Used to provide the {@link com.thoughtworks.go.plugin.api.task.TaskExecutor} with context about the
+ * Used to provide the {@link TaskExecutor} with context about the
  * environment of the task run.
  */
 @Deprecated

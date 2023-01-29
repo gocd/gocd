@@ -99,10 +99,7 @@ public class ConfigConverter {
         Map<String, List<CRPipeline>> map = new HashMap<>();
         for (CRPipeline pipe : pipelines) {
             String key = pipe.getGroup();
-            if (map.get(key) == null) {
-                map.put(key, new ArrayList<>());
-            }
-            map.get(key).add(pipe);
+            map.computeIfAbsent(key, k -> new ArrayList<>()).add(pipe);
         }
         return map;
     }
@@ -786,7 +783,7 @@ public class ConfigConverter {
         }
 
         if (jobConfig.getTimeout() != null) {
-            job.setTimeout(Integer.valueOf(jobConfig.getTimeout()));
+            job.setTimeout(Integer.parseInt(jobConfig.getTimeout()));
         }
 
         return job;

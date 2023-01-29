@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * The information is useful for plugin developers to understand
  * semantics of methods involved in the extension point.
  *
- * @see com.thoughtworks.go.plugin.api.annotation.UsedOnGoAgent
+ * @see UsedOnGoAgent
  *
  * @author GoCD Team
  */

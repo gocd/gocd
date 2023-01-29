@@ -80,7 +80,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     private ElasticConfig elasticConfig = new ElasticConfig();
     @ConfigSubtag
     @SkipParameterResolution
-    private com.thoughtworks.go.domain.packagerepository.PackageRepositories packageRepositories = new PackageRepositories();
+    private PackageRepositories packageRepositories = new PackageRepositories();
     @ConfigSubtag
     @SkipParameterResolution
     private SCMs scms = new SCMs();
@@ -105,9 +105,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     @IgnoreTraversal
     private CruiseStrategy strategy;
 
-    //This is set reflective by the MagicalGoConfigXmlLoader
+
+    @SuppressWarnings("unused") //This is set reflective by the MagicalGoConfigXmlLoader
     private String md5;
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
 
     @IgnoreTraversal
     private PipelineNameToConfigMap pipelineNameToConfigMap;
@@ -281,10 +282,8 @@ public class BasicCruiseConfig implements CruiseConfig {
          But that is done higher in services.
          */
 
-        //@IgnoreTraversal
-        //private BasicCruiseConfig main; // this might be causing cloning troubles
-        private boolean forEdit;
-        private List<PartialConfig> parts = new ArrayList<>();
+        private final boolean forEdit;
+        private final List<PartialConfig> parts = new ArrayList<>();
 
         public MergeStrategy(List<PartialConfig> parts, boolean forEdit) {
             this.forEdit = forEdit;
@@ -295,25 +294,18 @@ public class BasicCruiseConfig implements CruiseConfig {
             EnvironmentsConfig environments = new EnvironmentsConfig();
 
             //first add environment configs from main
-            List<EnvironmentConfig> allEnvConfigs = new ArrayList<>();
-            for (EnvironmentConfig envConfig : BasicCruiseConfig.this.getEnvironments()) {
-                allEnvConfigs.add(envConfig);
-            }
+            List<EnvironmentConfig> allEnvConfigs = new ArrayList<>(BasicCruiseConfig.this.getEnvironments());
             // then add from each part
             for (PartialConfig part : this.parts) {
-                for (EnvironmentConfig partPipesConf : part.getEnvironments()) {
-                    allEnvConfigs.add(partPipesConf);
-                }
+                allEnvConfigs.addAll(part.getEnvironments());
             }
 
             // lets group them by environment name
             Map<CaseInsensitiveString, List<EnvironmentConfig>> map = new LinkedHashMap<>();
             for (EnvironmentConfig env : allEnvConfigs) {
                 CaseInsensitiveString key = env.name();
-                if (map.get(key) == null) {
-                    map.put(key, new ArrayList<>());
-                }
-                map.get(key).add(env);
+                map.computeIfAbsent(key, k -> new ArrayList<>())
+                    .add(env);
             }
             for (List<EnvironmentConfig> oneEnv : map.values()) {
                 if (forEdit) {
@@ -377,15 +369,10 @@ public class BasicCruiseConfig implements CruiseConfig {
             PipelineGroups groups = new PipelineGroups();
 
             // first add pipeline configs from main part
-            List<PipelineConfigs> allPipelineConfigs = new ArrayList<>();
-            for (PipelineConfigs partPipesConf : BasicCruiseConfig.this.getGroups()) {
-                allPipelineConfigs.add(partPipesConf);
-            }
+            List<PipelineConfigs> allPipelineConfigs = new ArrayList<>(BasicCruiseConfig.this.getGroups());
             // then add from each part
             for (PartialConfig part : this.parts) {
-                for (PipelineConfigs partPipesConf : part.getGroups()) {
-                    allPipelineConfigs.add(partPipesConf);
-                }
+                allPipelineConfigs.addAll(part.getGroups());
             }
             //there may be duplicated names and conflicts in general in the PipelineConfigs
 
@@ -393,10 +380,8 @@ public class BasicCruiseConfig implements CruiseConfig {
             Map<String, List<PipelineConfigs>> map = new LinkedHashMap<>();
             for (PipelineConfigs pipes : allPipelineConfigs) {
                 String key = pipes.getGroup();
-                if (map.get(key) == null) {
-                    map.put(key, new ArrayList<>());
-                }
-                map.get(key).add(pipes);
+                map.computeIfAbsent(key, k -> new ArrayList<>())
+                    .add(pipes);
             }
 
             for (List<PipelineConfigs> oneGroup : map.values()) {
@@ -451,19 +436,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public List<PartialConfig> getMergedPartials() {
             return this.parts;
-        }
-
-        private void verifyUniqueNameInParts(PipelineConfig pipelineConfig) {
-            for (PartialConfig part : this.parts) {
-                for (PipelineConfigs partGroup : part.getGroups()) {
-                    if (partGroup.hasPipeline(pipelineConfig.name())) {
-                        throw bomb("Pipeline called '" + pipelineConfig.name() +
-                                "' is already defined in configuration repository " +
-                                part.getOrigin().displayName());
-                    }
-
-                }
-            }
         }
 
         @Override
@@ -575,8 +547,8 @@ public class BasicCruiseConfig implements CruiseConfig {
         return hashtable;
     }
 
-    private class DependencyTable implements PipelineDependencyState {
-        private Hashtable<CaseInsensitiveString, Node> targetTable;
+    private static class DependencyTable implements PipelineDependencyState {
+        private final Hashtable<CaseInsensitiveString, Node> targetTable;
 
         public DependencyTable(Hashtable<CaseInsensitiveString, Node> targetTable) {
             this.targetTable = targetTable;
@@ -1093,7 +1065,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines, boolean ignoreConfigRepos) {
         Set<MaterialConfig> materialConfigs = new HashSet<>();
-        Set<Map> uniqueMaterials = new HashSet<>();
+        Set<Map<String, Object>> uniqueMaterials = new HashSet<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
                 if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
@@ -1119,15 +1091,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         return materialConfigs;
     }
 
-    private Set<MaterialConfig> getUniqueMaterialConfigs(boolean ignoreManualPipelines) {
+    private Set<MaterialConfig> getUniqueMaterialConfigs() {
         Set<MaterialConfig> materialConfigs = new HashSet<>();
-        Set<Map> uniqueMaterials = new HashSet<>();
+        Set<Map<String, Object>> uniqueMaterials = new HashSet<>();
         for (PipelineConfig pipelineConfig : pipelinesFromAllGroups()) {
             for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
                 if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
-                    if (ignoreManualPipelines && !materialConfig.isAutoUpdate() && materialConfig instanceof ScmMaterialConfig) {
-                        continue;
-                    }
                     materialConfigs.add(materialConfig);
                     uniqueMaterials.add(materialConfig.getSqlCriteria());
                 }
@@ -1414,7 +1383,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public MaterialConfig materialConfigFor(String fingerprint) {
-        for (MaterialConfig materialConfig : getUniqueMaterialConfigs(false)) {
+        for (MaterialConfig materialConfig : getUniqueMaterialConfigs()) {
             if (materialConfig.getFingerprint().equals(fingerprint)) {
                 return materialConfig;
             }
@@ -1648,12 +1617,12 @@ public class BasicCruiseConfig implements CruiseConfig {
         return result;
     }
 
-    public class AllTemplatesWithAssociatedPipelines extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> {
+    public static class AllTemplatesWithAssociatedPipelines extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> {
     }
 
-    public class AllPipelineConfigs extends ArrayList<PipelineConfig> {
+    public static class AllPipelineConfigs extends ArrayList<PipelineConfig> {
     }
 
-    public class PipelineNameToConfigMap extends ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> {
+    public static class PipelineNameToConfigMap extends ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> {
     }
 }

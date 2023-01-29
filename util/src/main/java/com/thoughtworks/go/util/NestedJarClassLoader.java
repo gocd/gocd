@@ -18,6 +18,7 @@ package com.thoughtworks.go.util;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +36,7 @@ import java.util.jar.JarInputStream;
  */
 public class NestedJarClassLoader extends ClassLoader {
 
-    private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(NestedJarClassLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NestedJarClassLoader.class);
     private final ClassLoader jarClassLoader;
     private final String[] excludes;
     private final File jarDir;

@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.util.command.CommandArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -35,7 +36,7 @@ import java.util.List;
 
 public abstract class AbstractTfsCommand extends SCMCommand implements TfsCommand {
 
-    protected static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AbstractTfsCommand.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractTfsCommand.class);
 
     private final CommandArgument url;
     private final String domain;

@@ -27,7 +27,9 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.User;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -60,10 +62,10 @@ public class AuthorizationExtension extends AbstractExtension {
         messageHandlerMap.put(version, extensionHandler);
     }
 
-    public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilities(String pluginId) {
+    public Capabilities getCapabilities(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.authorization.Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
@@ -176,10 +178,10 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+    Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });

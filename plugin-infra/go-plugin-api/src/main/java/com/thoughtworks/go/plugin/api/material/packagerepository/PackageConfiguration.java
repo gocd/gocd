@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
 /**
- * Represents {@link com.thoughtworks.go.plugin.api.config.Configuration} specific to package
+ * Represents {@link Configuration} specific to package
  */
 @Deprecated
 //Will be moved to internal scope

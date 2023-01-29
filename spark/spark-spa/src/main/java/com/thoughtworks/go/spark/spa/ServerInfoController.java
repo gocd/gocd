@@ -34,8 +34,8 @@ import static spark.Spark.*;
 public class ServerInfoController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
-    private ArtifactsDirHolder artifactsDirHolder;
-    private PipelineConfigService pipelineConfigService;
+    private final ArtifactsDirHolder artifactsDirHolder;
+    private final PipelineConfigService pipelineConfigService;
 
     public ServerInfoController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, ArtifactsDirHolder artifactsDirHolder, PipelineConfigService pipelineConfigService) {
         this.authenticationHelper = authenticationHelper;

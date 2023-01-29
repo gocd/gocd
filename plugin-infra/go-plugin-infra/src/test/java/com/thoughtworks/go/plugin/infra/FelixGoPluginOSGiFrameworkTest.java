@@ -65,8 +65,8 @@ class FelixGoPluginOSGiFrameworkTest {
     void setUp() {
         FelixGoPluginOSGiFramework goPluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
             @Override
-            protected HashMap<String, String> generateOSGiFrameworkConfig() {
-                HashMap<String, String> config = super.generateOSGiFrameworkConfig();
+            protected Map<String, String> generateOSGiFrameworkConfig() {
+                Map<String, String> config = super.generateOSGiFrameworkConfig();
                 config.put(FelixConstants.RESOLVER_PARALLELISM, "1");
                 return config;
             }

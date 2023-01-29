@@ -19,6 +19,7 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -75,7 +76,7 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
 
         private void respondWith503(Request baseRequest, HttpServletResponse response, String contentType, String body) throws IOException {
             addHeaders(response);
-            response.setStatus(org.eclipse.jetty.http.HttpStatus.SERVICE_UNAVAILABLE_503);
+            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE_503);
             response.setContentType(contentType);
             response.getWriter().println(body);
             baseRequest.setHandled(true);

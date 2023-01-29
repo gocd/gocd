@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.materials.postcommit;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UrlMatchers {
@@ -51,7 +52,7 @@ class UrlWithFullAuthMatcher implements UrlMatcher {
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        java.util.regex.Matcher fullAuthMatcher = URL_WITH_FULL_AUTH_PATTERN.matcher(materialUrl);
+        Matcher fullAuthMatcher = URL_WITH_FULL_AUTH_PATTERN.matcher(materialUrl);
         if (fullAuthMatcher.matches()) {
             String protocolField = fullAuthMatcher.group(1);
             String urlField = fullAuthMatcher.group(4);
@@ -67,7 +68,7 @@ class UrlWithUserNameAndEmptyPasswordAuthMatcher implements UrlMatcher {
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        java.util.regex.Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
+        Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
         if (userNameAuthMatcher.matches()) {
             String protocolField = userNameAuthMatcher.group(1);
             String urlField = userNameAuthMatcher.group(3);
@@ -83,7 +84,7 @@ class UrlWithUserNameAndNoPasswordAuthMatcher implements UrlMatcher {
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        java.util.regex.Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
+        Matcher userNameAuthMatcher = URL_WITH_USERNAME_AUTH_PATTERN.matcher(materialUrl);
         if (userNameAuthMatcher.matches()) {
             String protocolField = userNameAuthMatcher.group(1);
             String urlField = userNameAuthMatcher.group(3);
@@ -99,7 +100,7 @@ class UrlWithNoAuthMatcher implements UrlMatcher {
 
     @Override
     public boolean isValid(String paramRepoUrl, String materialUrl) {
-        java.util.regex.Matcher urlMatcher = URL_WITH_NO_AUTH_PATTERN.matcher(materialUrl);
+        Matcher urlMatcher = URL_WITH_NO_AUTH_PATTERN.matcher(materialUrl);
         if (urlMatcher.matches()) {
             String protocolField = urlMatcher.group(1);
             String urlField = urlMatcher.group(2);

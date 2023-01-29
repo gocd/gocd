@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.validators.authorization.RoleConfigurationValidator;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
 @Component
 public class RoleConfigService {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RoleConfigService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleConfigService.class);
     private final AuthorizationExtension authorizationExtension;
     private final GoConfigService goConfigService;
     private final EntityHashingService hashingService;

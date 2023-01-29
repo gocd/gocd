@@ -71,23 +71,23 @@ import static com.thoughtworks.go.server.service.HistoryUtil.validateCursor;
 @Service
 public class StageService implements StageFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageService.class);
+    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
     private static final int FEED_PAGE_SIZE = 25;
     private final CacheKeyGenerator cacheKeyGenerator;
 
-    private StageDao stageDao;
-    private JobInstanceService jobInstanceService;
-    private SecurityService securityService;
-    private PipelineDao pipelineDao;
+    private final StageDao stageDao;
+    private final JobInstanceService jobInstanceService;
+    private final SecurityService securityService;
+    private final PipelineDao pipelineDao;
     private final ChangesetService changesetService;
     private final GoConfigService goConfigService;
-    private TransactionTemplate transactionTemplate;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    private List<StageStatusListener> stageStatusListeners;
-    private StageStatusTopic stageStatusTopic;
-    private StageStatusCache stageStatusCache;
-    private Cloner cloner = ClonerFactory.instance();
-    private GoCache goCache;
-    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+    private final TransactionTemplate transactionTemplate;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
+    private final List<StageStatusListener> stageStatusListeners;
+    private final StageStatusTopic stageStatusTopic;
+    private final StageStatusCache stageStatusCache;
+    private final Cloner cloner = ClonerFactory.instance();
+    private final GoCache goCache;
 
     @Autowired
     public StageService(StageDao stageDao,
@@ -197,8 +197,7 @@ public class StageService implements StageFinder {
         Stages stages = stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName());
         for (Stage stage : stages) {
             if (stage.getIdentifier().getStageCounter().equals(stageId.getStageCounter())) {
-                StageSummaryModel summaryModel = new StageSummaryModel(stage, stages, stageDao, null);
-                return summaryModel;
+                return new StageSummaryModel(stage, stages, stageDao, null);
             }
         }
         result.notFound("Stage '" + stageId + "' not found.", HealthStateType.general(HealthStateScope.GLOBAL));
@@ -350,6 +349,7 @@ public class StageService implements StageFinder {
         return stageStatusCache.currentStage(new StageConfigIdentifier(pipelineName, stageName));
     }
 
+    @SuppressWarnings("unchecked")
     public FeedEntries feed(String pipelineName, Username username) {
         String key = cacheKeyForLatestStageFeedForPipeline(pipelineName);
         List<StageFeedEntry> feedEntries = (List<StageFeedEntry>) goCache.get(key);
@@ -446,8 +446,7 @@ public class StageService implements StageFinder {
     public StageSummaryModels findStageHistoryForChart(String pipelineName,
                                                        String stageName,
                                                        int pageNumber,
-                                                       int pageSize,
-                                                       Username username) {
+                                                       int pageSize) {
         int total = stageDao.getTotalStageCountForChart(pipelineName, stageName);
 
         Pagination pagination = Pagination.pageByNumber(pageNumber, total, pageSize);

@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.elastic.VersionedElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 
@@ -42,10 +43,10 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+    public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getImageResponseFromBody(responseBody);
             }
         });

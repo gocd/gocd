@@ -40,12 +40,12 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class StatusReportsController implements SparkController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatusReportsController.class);
+    private static final String UNKNOWN_ERROR_MESSAGE = "Something went wrong while trying to fetch the Status Report. Please check the server and plugin logs for more details.";
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
-    private ElasticAgentPluginService elasticAgentPluginService;
-    private JobInstanceService jobInstanceService;
-    public static final String UNKNOWN_ERROR_MESSAGE = "Something went wrong while trying to fetch the Status Report. Please check the server and plugin logs for more details.";
-    private static Logger LOGGER = LoggerFactory.getLogger(StatusReportsController.class);
+    private final ElasticAgentPluginService elasticAgentPluginService;
+    private final JobInstanceService jobInstanceService;
 
     public StatusReportsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine,
                                    ElasticAgentPluginService elasticAgentPluginService, JobInstanceService jobInstanceService) {

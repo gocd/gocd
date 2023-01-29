@@ -38,6 +38,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,7 @@ import static java.util.stream.StreamSupport.stream;
  */
 @Service
 public class BuildAssignmentService implements ConfigChangedListener {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
     public static final NoWork NO_WORK = new NoWork();
     public static final String GO_PIPELINE_GROUP_NAME = "GO_PIPELINE_GROUP_NAME";
     public static final String GO_AGENT_RESOURCES = "GO_AGENT_RESOURCES";

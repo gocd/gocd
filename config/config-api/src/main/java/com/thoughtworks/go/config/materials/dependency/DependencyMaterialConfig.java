@@ -40,7 +40,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
     public static final String ORIGIN = "origin";
 
     @ConfigAttribute(value = "pipelineName")
-    private com.thoughtworks.go.config.CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
+    private CaseInsensitiveString pipelineName = new CaseInsensitiveString("Unknown");
 
     @ConfigAttribute(value = "stageName")
     private CaseInsensitiveString stageName = new CaseInsensitiveString("Unknown");

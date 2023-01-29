@@ -33,7 +33,7 @@ class FreeMarkerEngine extends TemplateEngine {
     private final InitialContextProvider initialContextProvider;
     private final Class<? extends SparkController> controller;
     private final Configuration configuration;
-    private LayoutTemplateProvider provider;
+    private final LayoutTemplateProvider provider;
 
     FreeMarkerEngine(Configuration configuration, LayoutTemplateProvider provider, Class<? extends SparkController> controller, InitialContextProvider initialContextProvider) {
         this.controller = controller;

@@ -46,10 +46,10 @@ import static java.util.stream.Collectors.toMap;
 
 @Component
 public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
-    private static Logger LOGGER = LoggerFactory.getLogger(FelixGoPluginOSGiFramework.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FelixGoPluginOSGiFramework.class);
     private final PluginRegistry registry;
+    private final SystemEnvironment systemEnvironment;
     private Framework framework;
-    private SystemEnvironment systemEnvironment;
 
     @Autowired
     public FelixGoPluginOSGiFramework(PluginRegistry registry, SystemEnvironment systemEnvironment) {
@@ -129,7 +129,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return frameworkFactories.get(0).newFramework(generateOSGiFrameworkConfig());
     }
 
-    protected HashMap<String, String> generateOSGiFrameworkConfig() {
+    protected Map<String, String> generateOSGiFrameworkConfig() {
         String osgiFrameworkPackage = Bundle.class.getPackage().getName();
         String goPluginApiPackage = GoPluginApiMarker.class.getPackage().getName();
         String subPackagesOfGoPluginApiPackage = goPluginApiPackage + ".*";
@@ -138,7 +138,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         String orgXmlSaxPackages = "org.xml.sax, org.xml.sax.*";
         String orgW3cDomPackages = "org.w3c.dom, org.w3c.dom.*";
 
-        HashMap<String, String> config = new HashMap<>();
+        Map<String, String> config = new HashMap<>();
         config.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
         config.put(Constants.FRAMEWORK_BOOTDELEGATION, osgiFrameworkPackage + ", " + goPluginApiPackage + ", " + subPackagesOfGoPluginApiPackage
                 + ", " + internalServicesPackage + ", " + javaxPackages + ", " + orgXmlSaxPackages + ", " + orgW3cDomPackages);

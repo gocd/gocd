@@ -27,6 +27,8 @@ import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -56,10 +58,10 @@ public class ArtifactExtension extends AbstractExtension {
         registerHandler(version, pluginSettingsJsonMessageHandler);
     }
 
-    public com.thoughtworks.go.plugin.domain.artifact.Capabilities getCapabilities(String pluginId) {
+    public Capabilities getCapabilities(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.artifact.Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
@@ -176,10 +178,10 @@ public class ArtifactExtension extends AbstractExtension {
         });
     }
 
-    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+    Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });

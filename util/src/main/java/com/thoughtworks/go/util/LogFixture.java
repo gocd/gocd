@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class LogFixture implements Closeable {
 
     private final ListAppender appender;
-    private Logger logger;
+    private final Logger logger;
 
     private LogFixture(Class aClass, Level level) {
         this((Logger) LoggerFactory.getLogger(aClass), level);

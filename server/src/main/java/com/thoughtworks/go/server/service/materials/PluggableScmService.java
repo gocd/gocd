@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,10 +45,10 @@ import static java.lang.String.format;
 
 @Service
 public class PluggableScmService {
-    private SCMExtension scmExtension;
-    private GoConfigService goConfigService;
-    private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluggableScmService.class);
-    private EntityHashingService entityHashingService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluggableScmService.class);
+    private final SCMExtension scmExtension;
+    private final GoConfigService goConfigService;
+    private final EntityHashingService entityHashingService;
     private final SecretParamResolver secretParamResolver;
 
     @Autowired

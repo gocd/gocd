@@ -28,7 +28,7 @@ public interface Task {
      * Specifies the configuration accepted and expected for the task. It has a list of configuration
      * properties (keys), with an optional default value each.
      *
-     * @return an instance of {@link com.thoughtworks.go.plugin.api.task.TaskConfig}
+     * @return an instance of {@link TaskConfig}
      */
     @UsedOnGoServer
     @UsedOnGoAgent
@@ -39,7 +39,7 @@ public interface Task {
      * has a method, which will be called by the plugin infrastructure, with enough information
      * about the configuration and environment, when the task needs to be run.
      *
-     * @return an implementation of {@link com.thoughtworks.go.plugin.api.task.TaskExecutor}
+     * @return an implementation of {@link TaskExecutor}
      */
     @UsedOnGoAgent
     TaskExecutor executor();
@@ -48,7 +48,7 @@ public interface Task {
      * The implementation of TaskView returned by this method defines the view of the plugin, both in
      * the task type dropdown of the job configuration UI as well as the modal box for the task.
      *
-     * @return an implementation of {@link com.thoughtworks.go.plugin.api.task.TaskView}
+     * @return an implementation of {@link TaskView}
      */
     @UsedOnGoAgent
     TaskView view();
@@ -59,7 +59,7 @@ public interface Task {
      *
      * @param configuration Task configuration which needs to be validated.
      *
-     * @return an instance of {@link com.thoughtworks.go.plugin.api.response.validation.ValidationResult},
+     * @return an instance of {@link ValidationResult},
      * which has any errors that need to be shown on the UI. The key against which the error is created
      * should be the same as the one in the configuration.
      */

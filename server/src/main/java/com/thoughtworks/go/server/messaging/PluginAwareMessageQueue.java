@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.server.messaging.activemq.JMSMessageListenerAdapter;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
@@ -27,7 +28,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 public class PluginAwareMessageQueue extends GoMessageQueue {
     protected final HashMap<String, ArrayList<JMSMessageListenerAdapter>> listeners = new HashMap<>();
     private final String pluginId;
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluginAwareMessageQueue.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginAwareMessageQueue.class.getName());
 
 
     public PluginAwareMessageQueue(MessagingService messaging, String pluginId, String queueName, Integer numberOfListeners, ListenerFactory listenerFactory) {

@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.api.task;
 import com.thoughtworks.go.plugin.api.config.Property;
 
 /**
- * Specialization of {@link com.thoughtworks.go.plugin.api.config.Property} class, for task configuration.
+ * Specialization of {@link Property} class, for task configuration.
  */
 @Deprecated
 //Will be moved to internal scope

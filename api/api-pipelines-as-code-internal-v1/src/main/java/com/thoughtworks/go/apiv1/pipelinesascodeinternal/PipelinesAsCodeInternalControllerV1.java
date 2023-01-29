@@ -251,7 +251,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     }
 
     /**
-     * @throws spark.HaltException when "name" is missing from JSON body
+     * @throws HaltException when "name" is missing from JSON body
      */
     private void validateNamePresent(JsonReader jsonReader) {
         jsonReader.getString("name");

@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,7 +48,7 @@ import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
  */
 @Component
 public class GoConfigMigration {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class.getName());
     private static final int XPATH_EXPRESSION_OPERATION_LIMIT = 200;
     private final String schemaVersion = "schemaVersion";
     private final TimeProvider timeProvider;

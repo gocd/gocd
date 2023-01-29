@@ -46,10 +46,7 @@ import org.osgi.framework.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,8 +66,8 @@ class DefaultGoPluginActivatorIntegrationTest {
         registry = new StubOfDefaultPluginRegistry();
         framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
-            protected HashMap<String, String> generateOSGiFrameworkConfig() {
-                HashMap<String, String> config = super.generateOSGiFrameworkConfig();
+            protected Map<String, String> generateOSGiFrameworkConfig() {
+                Map<String, String> config = super.generateOSGiFrameworkConfig();
                 config.put(FelixConstants.RESOLVER_PARALLELISM, "1");
                 return config;
             }

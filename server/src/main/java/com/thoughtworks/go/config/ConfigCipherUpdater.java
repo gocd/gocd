@@ -29,6 +29,7 @@ import org.jdom2.filter.Filters;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.xpath.XPathExpression;
 import org.jdom2.xpath.XPathFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,7 +46,7 @@ import static org.apache.commons.codec.binary.Hex.decodeHex;
 
 @Component
 public class ConfigCipherUpdater {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ConfigCipherUpdater.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigCipherUpdater.class.getName());
     private final SystemEnvironment systemEnvironment;
     private final TimeProvider timeProvider;
     protected static final String FLAWED_VALUE = "64d04c1676ce2085";

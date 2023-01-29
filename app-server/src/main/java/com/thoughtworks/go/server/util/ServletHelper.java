@@ -36,8 +36,8 @@ public abstract class ServletHelper {
         return instance;
     }
 
-    private static com.thoughtworks.go.server.util.ServletHelper getAppServerHelper(String className) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
-        return (com.thoughtworks.go.server.util.ServletHelper) Class.forName(className).getConstructor().newInstance();
+    private static ServletHelper getAppServerHelper(String className) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+        return (ServletHelper) Class.forName(className).getConstructor().newInstance();
     }
 }
 

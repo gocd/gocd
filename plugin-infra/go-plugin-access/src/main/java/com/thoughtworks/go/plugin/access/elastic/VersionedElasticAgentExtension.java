@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface VersionedElasticAgentExtension {
-    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId);
+    Image getIcon(String pluginId);
 
     Capabilities getCapabilities(String pluginId);
 

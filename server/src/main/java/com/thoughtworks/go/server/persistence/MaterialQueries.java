@@ -18,14 +18,14 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.server.dao.FeedModifier;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.dao.FeedModifier.*;
 
 public class MaterialQueries {
-    private static Map<FeedModifier, String> modificationsQueryMap;
-    private static Map<FeedModifier, String> modificationsForPatternQueryMap;
+    private static final Map<FeedModifier, String> modificationsQueryMap;
+    private static final Map<FeedModifier, String> modificationsForPatternQueryMap;
 
     private static final String latestModification =
             "SELECT * " +
@@ -85,12 +85,12 @@ public class MaterialQueries {
                     "ORDER BY id DESC";
 
     static {
-        modificationsQueryMap = new HashMap<>();
+        modificationsQueryMap = new EnumMap<>(FeedModifier.class);
         modificationsQueryMap.put(Latest, latestModification);
         modificationsQueryMap.put(After, modificationsAfter);
         modificationsQueryMap.put(Before, modificationsBefore);
 
-        modificationsForPatternQueryMap= new HashMap<>();
+        modificationsForPatternQueryMap = new EnumMap<>(FeedModifier.class);
         modificationsForPatternQueryMap.put(Latest, latestModificationForPattern);
         modificationsForPatternQueryMap.put(After, afterModificationForPattern);
         modificationsForPatternQueryMap.put(Before, beforeModificationForPattern);

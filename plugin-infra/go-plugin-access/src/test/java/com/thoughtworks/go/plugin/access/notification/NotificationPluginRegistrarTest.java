@@ -15,18 +15,19 @@
  */
 package com.thoughtworks.go.plugin.access.notification;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -101,13 +102,11 @@ public class NotificationPluginRegistrarTest {
     public void shouldLogWarningIfPluginTriesToRegisterForInvalidNotificationType() {
         NotificationPluginRegistrar notificationPluginRegistrar = new NotificationPluginRegistrar(pluginManager, notificationExtension, notificationPluginRegistry);
 
-        Logger logger = mock(Logger.class);
-        ReflectionUtil.setStaticField(NotificationPluginRegistrar.class, "LOGGER", logger);
-
-        notificationPluginRegistrar.pluginLoaded(GoPluginDescriptor.builder().id(PLUGIN_ID_1).isBundledPlugin(true).build());
-
-        verify(logger).warn("Plugin '{}' is trying to register for '{}' which is not a valid notification type. Valid notification types are: {}", "plugin-id-1", "pipeline-status", NotificationExtension.VALID_NOTIFICATION_TYPES);
-        verify(logger).warn("Plugin '{}' is trying to register for '{}' which is not a valid notification type. Valid notification types are: {}", "plugin-id-1", "job-status", NotificationExtension.VALID_NOTIFICATION_TYPES);
+        try (LogFixture logging = LogFixture.logFixtureFor(NotificationPluginRegistrar.class, Level.WARN)) {
+            notificationPluginRegistrar.pluginLoaded(GoPluginDescriptor.builder().id(PLUGIN_ID_1).isBundledPlugin(true).build());
+            assertTrue(logging.contains(Level.WARN, "Plugin 'plugin-id-1' is trying to register for 'pipeline-status' which is not a valid notification type. Valid notification types are"));
+            assertTrue(logging.contains(Level.WARN, "Plugin 'plugin-id-1' is trying to register for 'job-status' which is not a valid notification type. Valid notification types are"));
+        }
     }
 
     @Test

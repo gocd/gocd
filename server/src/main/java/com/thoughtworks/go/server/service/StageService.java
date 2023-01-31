@@ -476,23 +476,6 @@ public class StageService implements StageFinder {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
     }
 
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
-                                                                String stageName,
-                                                                Pagination pagination,
-                                                                String username,
-                                                                OperationResult result) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
-            return null;
-        }
-        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-            result.forbidden("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return null;
-        }
-
-        return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
-    }
-
     public StageInstanceModels findStageHistoryViaCursor(Username username, String pipelineName, String stageName, long afterCursor, long beforeCursor, Integer pageSize) {
         checkForExistenceAndAccess(username, pipelineName);
         StageInstanceModels stageInstanceModels;

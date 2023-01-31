@@ -125,7 +125,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                 goCache.remove(cacheKeyForStageOffset(stage));
             }
             goCache.remove(cacheKeyForStageHistories(pipelineName, stage.getName()));
-            goCache.remove(cacheKeyForDetailedStageHistories(pipelineName, stage.getName()));
             goCache.remove(cacheKeyForStageHistoryViaCursor(pipelineName, stage.getName()));
         } finally {
             readWriteLock.releaseWriteLock(mutex);
@@ -436,26 +435,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     @Override
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
-                                                                String stageName,
-                                                                final Pagination pagination) {
-        String mutex = mutexForStageHistory(pipelineName, stageName);
-        readWriteLock.acquireReadLock(mutex);
-        try {
-            String subKey = format("%s-%s", pagination.getOffset(), pagination.getPageSize());
-            String key = cacheKeyForDetailedStageHistories(pipelineName, stageName);
-            StageInstanceModels stageInstanceModels = (StageInstanceModels) goCache.get(key, subKey);
-            if (stageInstanceModels == null) {
-                stageInstanceModels = findDetailedStageHistory(pipelineName, stageName, pagination);
-                goCache.put(key, subKey, stageInstanceModels);
-            }
-            return cloner.deepClone(stageInstanceModels);
-        } finally {
-            readWriteLock.releaseReadLock(mutex);
-        }
-    }
-
-    @Override
     public StageInstanceModels findDetailedStageHistoryViaCursor(String pipelineName, String stageName, FeedModifier feedModifier, long cursor, Integer pageSize) {
         String mutex = mutexForStageHistory(pipelineName, stageName);
         readWriteLock.acquireReadLock(mutex);
@@ -536,10 +515,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return cacheKeyGenerator.generate("stageHistories", new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
     }
 
-    String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {
-        return cacheKeyGenerator.generate("detailedStageHistories", pipelineName, stageName);
-    }
-
     String cacheKeyForStageHistoryViaCursor(String pipelineName, String stageName) {
         return cacheKeyGenerator.generate("findDetailedStageHistoryViaCursor", pipelineName, stageName);
     }
@@ -562,17 +537,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             and("limit", pagination.getPageSize()).
             and("offset", pagination.getOffset()).asMap();
         return (List<StageHistoryEntry>) getSqlMapClientTemplate().queryForList("findStageHistoryPage", args);
-    }
-
-    StageInstanceModels findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
-        Map<String, Object> args = arguments("pipelineName", pipelineName).
-            and("stageName", stageName).
-            and("limit", pagination.getPageSize()).
-            and("offset", pagination.getOffset()).asMap();
-        List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistory", args);
-        StageInstanceModels stageInstanceModels = new StageInstanceModels();
-        stageInstanceModels.addAll(detailedStageHistory);
-        return stageInstanceModels;
     }
 
     private int findOffsetForStage(Stage stage) {

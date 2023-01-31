@@ -1031,7 +1031,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     public List<Modification> getLatestModificationForEachMaterial() {
         String queryString = "SELECT mods.* " +
                 "FROM (" +
-                "   SELECT MAX(id) OVER (PARTITION BY materialid) as max_id, * " +
+                "   SELECT MAX(id) OVER (PARTITION BY materialid) as max_id, modifications.* " +
                 "   FROM modifications " +
                 ") mods " +
                 "JOIN materials m ON mods.materialid=m.id " +

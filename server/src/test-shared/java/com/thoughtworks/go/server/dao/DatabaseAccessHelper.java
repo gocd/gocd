@@ -52,7 +52,6 @@ import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -550,7 +549,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Integer updateNaturalOrder(final long pipelineId, final double naturalOrder) {
-        return (Integer) getHibernateTemplate().execute((HibernateCallback) session -> PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder));
+        return getHibernateTemplate().execute(session -> PipelineRepository.updateNaturalOrderForPipeline(session, pipelineId, naturalOrder));
     }
 
     public MaterialRevision addRevisionsWithModifications(Material material, Modification... modifications) {

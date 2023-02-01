@@ -525,56 +525,7 @@ public class StageServiceTest {
         assertThat(stages).contains(stageBaz);
         assertThat(stages).contains(stageQuux);
     }
-
-    @Test
-    public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
-
-        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-        stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
-
-        verify(stageDao).findDetailedStageHistoryByOffset("pipeline", "stage", pagination);
-    }
-
-    @Test
-    public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
-
-        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-        HttpOperationResult result = new HttpOperationResult();
-        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
-
-        assertThat(stageInstanceModels).isNull();
-        assertThat(result.httpCode()).isEqualTo(404);
-    }
-
-    @Test
-    public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
-        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
-
-        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-        HttpOperationResult result = new HttpOperationResult();
-        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
-
-        assertThat(stageInstanceModels).isNull();
-        assertThat(result.httpCode()).isEqualTo(403);
-    }
-
+    
     @Test
     public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);

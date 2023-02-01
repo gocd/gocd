@@ -24,7 +24,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +39,9 @@ public class ServerBackupRepository extends HibernateDaoSupport {
         setSessionFactory(sessionFactory);
     }
 
+    @SuppressWarnings("unchecked")
     public Optional<ServerBackup> lastSuccessfulBackup() {
-        List results = (List) getHibernateTemplate().execute((HibernateCallback) session -> {
+        List<ServerBackup> results = getHibernateTemplate().execute(session -> {
             Criteria criteria = session.createCriteria(ServerBackup.class);
             criteria.add(Restrictions.eq("status", BackupStatus.COMPLETED));
             criteria.setMaxResults(1);
@@ -49,7 +49,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
             return criteria.list();
         });
 
-        return results.isEmpty() ? Optional.empty() : Optional.of((ServerBackup) results.get(0));
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     public ServerBackup save(ServerBackup serverBackup) {
@@ -58,11 +58,11 @@ public class ServerBackupRepository extends HibernateDaoSupport {
     }
 
     public void deleteAll() {
-        getHibernateTemplate().execute((HibernateCallback) session -> session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate());
+        getHibernateTemplate().execute(session -> session.createQuery(String.format("DELETE FROM %s", ServerBackup.class.getName())).executeUpdate());
     }
 
     public void markInProgressBackupsAsAborted(String message) {
-        getHibernateTemplate().execute((HibernateCallback) session -> {
+        getHibernateTemplate().execute(session -> {
             Query query = session.createQuery(String.format("UPDATE %s set status = :abortedStatus, message = :abortedMessage WHERE status = :inProgressStatus", ServerBackup.class.getName()));
             query.setParameter("abortedStatus", BackupStatus.ABORTED);
             query.setParameter("abortedMessage", message);

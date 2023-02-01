@@ -146,12 +146,12 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
 
     public PipelineState pipelineStateFor(String pipelineName) {
         String cacheKey = pipelineLockStateCacheKey(pipelineName);
-        PipelineState pipelineState = (PipelineState) goCache.get(cacheKey);
+        PipelineState pipelineState = goCache.get(cacheKey);
         if (pipelineState != null) {
             return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;
         }
         synchronized (cacheKey) {
-            pipelineState = (PipelineState) goCache.get(cacheKey);
+            pipelineState = goCache.get(cacheKey);
             if (pipelineState != null) {
                 return pipelineState.equals(PipelineState.NOT_LOCKED) ? null : pipelineState;
             }
@@ -162,7 +162,7 @@ public class PipelineStateDao extends SqlMapClientDaoSupport implements StageSta
                     .setCacheable(false).uniqueResult());
 
             if (pipelineState != null && pipelineState.isLocked()) {
-                StageIdentifier lockedBy = (StageIdentifier) getSqlMapClientTemplate().queryForObject("lockedPipeline", pipelineState.getLockedByPipelineId());
+                StageIdentifier lockedBy = getSqlMapClientTemplate().queryForObject("lockedPipeline", pipelineState.getLockedByPipelineId());
                 pipelineState.setLockedBy(lockedBy);
             }
             goCache.put(cacheKey, pipelineState == null ? PipelineState.NOT_LOCKED : pipelineState);

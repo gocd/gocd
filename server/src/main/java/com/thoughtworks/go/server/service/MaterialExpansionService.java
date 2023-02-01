@@ -100,10 +100,10 @@ public class MaterialExpansionService {
 
     private Subversion svn(SvnMaterialConfig materialConfig) {
         String cacheKey = cacheKeyForSubversionMaterialCommand(materialConfig.getFingerprint());
-        Subversion svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
+        Subversion svnLazyLoaded = goCache.get(cacheKey);
         if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(materialConfig.getUrl())) {
             synchronized (cacheKey) {
-                svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
+                svnLazyLoaded = goCache.get(cacheKey);
                 if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(materialConfig.getUrl())) {
                     svnLazyLoaded = new SvnCommand(materialConfig.getFingerprint(), materialConfig.getUrl(),
                             materialConfig.getUserName(), getResolvedPassword(materialConfig), materialConfig.isCheckExternals());

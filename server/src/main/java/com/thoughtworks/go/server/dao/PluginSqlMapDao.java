@@ -65,12 +65,12 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
     @Override
     public Plugin findPlugin(final String pluginId) {
         String cacheKey = cacheKeyForPluginSettings(pluginId);
-        Plugin plugin = (Plugin) goCache.get(cacheKey);
+        Plugin plugin = goCache.get(cacheKey);
         if (plugin != null) {
             return plugin;
         }
         synchronized (cacheKey) {
-            plugin = (Plugin) goCache.get(cacheKey);
+            plugin = goCache.get(cacheKey);
             if (plugin != null) {
                 return plugin;
             }

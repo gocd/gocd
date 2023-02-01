@@ -349,13 +349,12 @@ public class StageService implements StageFinder {
         return stageStatusCache.currentStage(new StageConfigIdentifier(pipelineName, stageName));
     }
 
-    @SuppressWarnings("unchecked")
     public FeedEntries feed(String pipelineName, Username username) {
         String key = cacheKeyForLatestStageFeedForPipeline(pipelineName);
-        List<StageFeedEntry> feedEntries = (List<StageFeedEntry>) goCache.get(key);
+        List<StageFeedEntry> feedEntries = goCache.get(key);
         if (feedEntries == null) {
             synchronized (key) {
-                feedEntries = (List<StageFeedEntry>) goCache.get(key);//Double check locking is done because the query is expensive (takes about 2 seconds)
+                feedEntries = goCache.get(key);//Double check locking is done because the query is expensive (takes about 2 seconds)
                 if (feedEntries == null) {
                     feedEntries = stageDao.findCompletedStagesFor(pipelineName, FeedModifier.Latest, -1, FEED_PAGE_SIZE);
                     populateAuthors(feedEntries, pipelineName, username);
@@ -376,11 +375,11 @@ public class StageService implements StageFinder {
         }
 
         String key = cacheKeyForLatestStageFeedForPipelineSortedByPipelineCounter(pipelineName);
-        List<StageFeedEntry> feedEntries = (List<StageFeedEntry>) goCache.get(key);
+        List<StageFeedEntry> feedEntries = goCache.get(key);
 
         if (feedEntries == null) {
             synchronized (key) {
-                feedEntries = (List<StageFeedEntry>) goCache.get(key);
+                feedEntries = goCache.get(key);
                 if (feedEntries == null) {
                     feedEntries = stageDao.findStageFeedBy(pipelineName, pipelineCounter, null, FEED_PAGE_SIZE);
                     populateAuthors(feedEntries, pipelineName, username);
@@ -474,23 +473,6 @@ public class StageService implements StageFinder {
                                                          int pageNumber,
                                                          int pageSize) {
         return stageDao.findStageHistoryPageByNumber(pipelineName, stageName, pageNumber, pageSize);
-    }
-
-    public StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName,
-                                                                String stageName,
-                                                                Pagination pagination,
-                                                                String username,
-                                                                OperationResult result) {
-        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
-            return null;
-        }
-        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-            result.forbidden("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-            return null;
-        }
-
-        return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
     }
 
     public StageInstanceModels findStageHistoryViaCursor(Username username, String pipelineName, String stageName, long afterCursor, long beforeCursor, Integer pageSize) {

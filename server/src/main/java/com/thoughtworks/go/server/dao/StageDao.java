@@ -22,7 +22,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.StageIdentity;
-import com.thoughtworks.go.server.util.Pagination;
 import org.jetbrains.annotations.TestOnly;
 
 import java.util.List;
@@ -91,8 +90,6 @@ public interface StageDao extends JobDurationStrategy {
     StageHistoryPage findStageHistoryPage(Stage stageIdentifier, int pageSize);
 
     StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize);
-
-    StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
 
     StageInstanceModels findDetailedStageHistoryViaCursor(String pipelineName, String stageName, FeedModifier feedModifier, long cursor, Integer pageSize);
 

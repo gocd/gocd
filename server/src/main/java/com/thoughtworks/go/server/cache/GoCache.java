@@ -22,7 +22,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
-import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
@@ -72,10 +71,6 @@ public class GoCache {
             .ifPresent(cm -> cm.removeCache(ehCache.getName()));
     }
 
-    public void removeListener(CacheEventListener cacheEventListener) {
-        ehCache.getCacheEventNotificationService().unregisterListener(cacheEventListener);
-    }
-
     public void addListener(CacheEventListener listener) {
         ehCache.getCacheEventNotificationService().registerListener(listener);
     }
@@ -109,6 +104,7 @@ public class GoCache {
         ehCache.put(new Element(key, value));
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getKeys() {
         return ehCache.getKeys();
     }
@@ -130,23 +126,19 @@ public class GoCache {
         }
     }
 
-    public void flush() {
-        ehCache.flush();
-    }
-
-    public Object get(String key) {
+    public <T> T get(String key) {
         if (doNotServeForTransaction()) {
             return null;
         }
         return getWithoutTransactionCheck(key);
     }
 
-    private Object getWithoutTransactionCheck(String key) {
+    private <T> T getWithoutTransactionCheck(String key) {
         Element element = ehCache.get(key);
         if (element == null) {
             return null;
         }
-        Object value = element.getObjectValue();
+        @SuppressWarnings("unchecked") T value = (T) element.getObjectValue();
         logUnsavedPersistentObjectInteraction(value, "PersistentObject {} without an id served out of cache.");
         return value;
     }
@@ -173,14 +165,6 @@ public class GoCache {
 
     public Object get(String key, String subKey) {
         return get(compositeKey(key, subKey));
-    }
-
-    public <T> T getOrDefault(String key, T def) {
-        if(isKeyInCache(key)) {
-            return (T) get(key);
-        }
-
-        return def;
     }
 
     public void put(String key, String subKey, Object value) {
@@ -229,7 +213,7 @@ public class GoCache {
     }
 
     private KeyList subKeyFamily(String parentKey) {
-        return (KeyList) get(parentKey);
+        return get(parentKey);
     }
 
     private String compositeKey(String key, String subKey) {
@@ -243,16 +227,12 @@ public class GoCache {
     public void remove(String key, String subKey) {
         synchronized (key.intern()) {
             KeyList subKeys = subKeyFamily(key);
-            if(subKeys == null) {
+            if (subKeys == null) {
                 return;
             }
             subKeys.remove(subKey);
             remove(compositeKey(key, subKey));
         }
-    }
-
-    public StatisticsGateway statistics() {
-        return ehCache.getStatistics();
     }
 
     public CacheConfiguration configuration() {

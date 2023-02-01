@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
 
 public class StageIdentifier implements Serializable, LocatableEntity {
     public static final String LATEST = "latest";
@@ -28,7 +28,8 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     private String stageCounter;
     private Long id;
 
-    public static final StageIdentifier NULL = new StageIdentifier(new NullPipeline(),new NullStage(null));
+    public static final StageIdentifier NULL = new StageIdentifier(new NullPipeline(), new NullStage(null));
+
     public StageIdentifier() {
     }
 
@@ -104,7 +105,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
     @Override
     public String toString() {
         return String.format("StageIdentifier[%s, %s, %s, %s, %s]", pipelineName, pipelineCounter, pipelineLabel,
-                stageName, stageCounter);
+            stageName, stageCounter);
     }
 
     public String getStageLocator() {
@@ -163,7 +164,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
 
     public String ccTrayLastBuildLabel() {
         return Integer.parseInt(stageCounter) > 1 ? String.format("%s :: %s", pipelineLabel,
-                stageCounter) : pipelineLabel;
+            stageCounter) : pipelineLabel;
     }
 
     public StageConfigIdentifier stageConfigIdentifier() {

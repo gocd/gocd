@@ -89,7 +89,7 @@ public class ServerVersionInfoManager {
     }
 
     public String getGoUpdate(){
-        return (String) goCache.get(GO_UPDATE);
+        return goCache.get(GO_UPDATE);
     }
 
     public boolean isUpdateCheckEnabled(){

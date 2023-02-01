@@ -48,9 +48,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.*;
 
-/**
- * @understands: StageSqlMapDaoTest
- */
 class StageSqlMapDaoTest {
     private StageSqlMapDao stageSqlMapDao;
     private GoCache goCache;
@@ -72,7 +69,7 @@ class StageSqlMapDaoTest {
     @Test
     void findLatestStageInstancesShouldCacheResults() {
         List<StageIdentity> latestStages = List.of(new StageIdentity("p1", "s1", 10L), new StageIdentity("p2", "s2", 100L));
-        when(sqlMapClientTemplate.queryForList("latestStageInstances")).thenReturn(latestStages);
+        doReturn(latestStages).when(sqlMapClientTemplate).queryForList("latestStageInstances");
 
         List<StageIdentity> firstStageInstances = stageSqlMapDao.findLatestStageInstances();
 
@@ -230,24 +227,6 @@ class StageSqlMapDaoTest {
             identifierTwo = new StageIdentifier("foo-bar", 1, "bar", "1");
             Assertions.assertThat(stageSqlMapDao.cacheKeyForStageIdentifier(identifierOne))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageIdentifier(identifierTwo));
-        }
-    }
-
-    @Nested
-    class CacheKeyForDetailedStageHistories {
-        @Test
-        void shouldGenerateCacheKey() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForDetailedStageHistories("foo", "bar_baz"))
-                    .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$detailedStageHistories.$foo.$bar_baz");
-        }
-
-        @Test
-        void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForDetailedStageHistories("foo", "bar_baz"))
-                    .isNotEqualTo(stageSqlMapDao.cacheKeyForDetailedStageHistories("foo_bar", "baz"));
-
-            Assertions.assertThat(stageSqlMapDao.cacheKeyForDetailedStageHistories("foo", "bar-baz"))
-                    .isNotEqualTo(stageSqlMapDao.cacheKeyForDetailedStageHistories("foo-bar", "baz"));
         }
     }
 

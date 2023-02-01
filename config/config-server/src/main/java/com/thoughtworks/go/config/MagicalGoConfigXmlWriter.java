@@ -213,7 +213,6 @@ public class MagicalGoConfigXmlWriter {
                     field.setAccessible(true);
                     valueString = field.get(value).toString();
                 } catch (NoSuchFieldException | IllegalAccessException e) {
-                    //noinspection ThrowableResultOfMethodCallIgnored
                     bomb(e);
                 }
             } else {

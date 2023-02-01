@@ -34,7 +34,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 /**
  * @understands collection of agents view model
  */
-@SuppressWarnings("deprecation")
 @Deprecated
 public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 

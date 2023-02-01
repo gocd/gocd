@@ -97,12 +97,12 @@ public class StageSqlMapDaoIntegrationTest {
     @Autowired
     private InstanceFactory instanceFactory;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String STAGE_DEV = "dev";
     private PipelineConfig mingleConfig;
     private static final String PIPELINE_NAME = "mingle";
     private SqlMapClientTemplate origTemplate;
-    private String md5 = "md5";
+    private final String md5 = "md5";
     private ScheduleTestUtil scheduleUtil;
 
     @BeforeEach
@@ -411,7 +411,7 @@ public class StageSqlMapDaoIntegrationTest {
         List<Stage> expected = List.of(third, second, first);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
-        when(mockTemplate.queryForList(eq("getAllRunsOfStageForPipelineInstance"), any())).thenReturn(expected);
+        doReturn(expected).when(mockTemplate).queryForList(eq("getAllRunsOfStageForPipelineInstance"), any());
 
         Stages actual = stageDao.getAllRunsOfStageForPipelineInstance("pipeline", 1, "stage");
         assertThat(actual).isEqualTo(expected);
@@ -431,7 +431,7 @@ public class StageSqlMapDaoIntegrationTest {
         List<Stage> expected = List.of(third, second, first);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
-        when(mockTemplate.queryForList(eq("getAllRunsOfStageForPipelineInstance"), any())).thenReturn(expected);
+        doReturn(expected).when(mockTemplate).queryForList(eq("getAllRunsOfStageForPipelineInstance"), any());
 
         assertThat(stageDao.getAllRunsOfStageForPipelineInstance("pipeline", 1, "stage")).isEqualTo(expected);
         stageDao.jobStatusChanged(first.getFirstJob());
@@ -452,7 +452,7 @@ public class StageSqlMapDaoIntegrationTest {
         List<Stage> expectedSecondTime = List.of(first, newStage);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
-        when(mockTemplate.queryForList(eq("getAllRunsOfStageForPipelineInstance"), any())).thenReturn(expected, expectedSecondTime);
+        doReturn(expected, expectedSecondTime).when(mockTemplate).queryForList(eq("getAllRunsOfStageForPipelineInstance"), any());
 
         stageDao.getAllRunsOfStageForPipelineInstance("pipeline", 1, "stage");
 
@@ -478,7 +478,7 @@ public class StageSqlMapDaoIntegrationTest {
         List<Stage> expectedSecondTime = List.of(first, newStage);
 
         stageDao.setSqlMapClientTemplate(mockTemplate);
-        when(mockTemplate.queryForList(eq("getAllRunsOfStageForPipelineInstance"), any())).thenReturn(expected, expectedSecondTime);
+        doReturn(expected, expectedSecondTime).when(mockTemplate).queryForList(eq("getAllRunsOfStageForPipelineInstance"), any());
 
         stageDao.getAllRunsOfStageForPipelineInstance("pipeline", 1, "stage");
 
@@ -612,7 +612,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockTemplate.queryForObject(eq("getStageHistoryCount"), any())).thenReturn(20);
         when(mockTemplate.queryForObject(eq("findOffsetForStage"), any())).thenReturn(10);
         List<StageHistoryEntry> stageList = new ArrayList<>(List.of(new StageHistoryEntry(stage, 1, 10)));
-        when(mockTemplate.queryForList(eq("findStageHistoryPage"), any())).thenReturn(stageList);
+        doReturn(stageList).when(mockTemplate).queryForList(eq("findStageHistoryPage"), any());
 
         StageHistoryPage stageHistoryPage = stageDao.findStageHistoryPage(stage, 10);
         StageHistoryPage stageHistoryPageInNextQuery = stageDao.findStageHistoryPage(stage, 10);
@@ -699,13 +699,13 @@ public class StageSqlMapDaoIntegrationTest {
         // should clear the cache
         Stage stage = StageMother.custom(pipelineName, stageName, new JobInstances());
         stageDao.stageStatusChanged(stage);
-        assertThat(goCache.get(key)).isNull();
+        assertThat((Stage) goCache.get(key)).isNull();
 
         // should requery and cache
         stageDao.mostRecentId(pipelineName, stageName);
         id = stageDao.mostRecentId(pipelineName, stageName);
         assertThat(id).isEqualTo(20L);
-        assertThat(goCache.get(key)).isEqualTo(20L);
+        assertThat((Long) goCache.get(key)).isEqualTo(20L);
 
         verify(mockTemplate, times(2)).queryForObject(eq("getMostRecentId"), any());
     }
@@ -1096,7 +1096,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldReturnZeorAsMaxCountWhenStageIsNotExist() {
+    public void shouldReturnZeroAsMaxCountWhenStageIsNotExist() {
         assertThat(stageDao.getMaxStageCounter(1, "not-exist")).isEqualTo(0);
     }
 
@@ -1137,7 +1137,7 @@ public class StageSqlMapDaoIntegrationTest {
         stageDao.setSqlMapClientTemplate(mockTemplate);
 
         List<StageFeedEntry> entries = List.of(new StageFeedEntry(1L, 1L, null, 1L, null, null));
-        when(mockTemplate.queryForList(eq("allCompletedStagesForPipeline"), any())).thenReturn(entries);
+        doReturn(entries).when(mockTemplate).queryForList(eq("allCompletedStagesForPipeline"), any());
 
         stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, 10, 100);
 
@@ -1356,7 +1356,7 @@ public class StageSqlMapDaoIntegrationTest {
         Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
         Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
         List<Stage> stages = List.of(stage1, stage2);
-        when(mockTemplate.queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap())).thenReturn(stages);
+        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
 
         Stages actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
@@ -1374,7 +1374,7 @@ public class StageSqlMapDaoIntegrationTest {
         Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
         Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
         List<Stage> stages = List.of(stage1, stage2);
-        when(mockTemplate.queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap())).thenReturn(stages);
+        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
 
         Stages actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
@@ -1395,7 +1395,7 @@ public class StageSqlMapDaoIntegrationTest {
         Stage stage1 = StageMother.passedStageInstance("first", "job", "pipeline");
         Stage stage2 = StageMother.passedStageInstance("second", "job", "pipeline");
         List<Stage> stages = List.of(stage1, stage2);
-        when(mockTemplate.queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap())).thenReturn(stages);
+        doReturn(stages).when(mockTemplate).queryForList("getStagesByPipelineNameAndCounter", arguments("pipelineName", "pipeline").and("pipelineCounter", 1).asMap());
 
         Stages actual = stageDao.findAllStagesFor("pipeline", 1);
         assertThat(actual).isEqualTo(new Stages(stages));
@@ -1464,7 +1464,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockTemplate.queryForObject(eq("getStageHistoryCount"), any())).thenReturn(20);
         when(mockTemplate.queryForObject(eq("findOffsetForStage"), any())).thenReturn(10);
         List<StageHistoryEntry> stageList = List.of(new StageHistoryEntry(stage, 1, 10));
-        when(mockTemplate.queryForList(eq("findStageHistoryPage"), any())).thenReturn(stageList);
+        doReturn(stageList).when(mockTemplate).queryForList(eq("findStageHistoryPage"), any());
 
         StageHistoryPage stageHistoryPage = stageDao.findStageHistoryPage(stage, 10);
 

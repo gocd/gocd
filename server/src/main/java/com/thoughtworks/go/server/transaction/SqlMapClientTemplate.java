@@ -23,7 +23,7 @@ import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException
 import java.util.List;
 
 public class SqlMapClientTemplate {
-    private GoCache goCache;
+    private final GoCache goCache;
     private final SqlSessionTemplate delegate;
 
     public SqlMapClientTemplate(GoCache goCache, SqlSessionFactory sqlSessionFactory) {
@@ -31,15 +31,15 @@ public class SqlMapClientTemplate {
         this.delegate = new SqlSessionTemplate(sqlSessionFactory);
     }
 
-    public Object queryForObject(String statementName, Object parameter) {
+    public <T> T queryForObject(String statementName, Object parameter) {
         return delegate.selectOne(statementName, parameter);
     }
 
-    public List queryForList(String statementName, Object parameter) {
+    public <T> List<T> queryForList(String statementName, Object parameter) {
         return delegate.selectList(statementName, parameter);
     }
 
-    public List queryForList(String statementName) {
+    public <T> List<T> queryForList(String statementName) {
         return delegate.selectList(statementName);
     }
 

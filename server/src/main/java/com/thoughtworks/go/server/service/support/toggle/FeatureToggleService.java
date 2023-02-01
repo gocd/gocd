@@ -60,13 +60,13 @@ public class FeatureToggleService {
      * @return all user toggles.
      */
     public FeatureToggles userToggles() {
-        FeatureToggles userToggles = (FeatureToggles) goCache.get(USER_DEF_TOGGLES);
+        FeatureToggles userToggles = goCache.get(USER_DEF_TOGGLES);
         if (userToggles != null) {
             return userToggles;
         }
 
         synchronized (CACHE_ACCESS_MUTEX) {
-            userToggles = (FeatureToggles) goCache.get(USER_DEF_TOGGLES);
+            userToggles = goCache.get(USER_DEF_TOGGLES);
             if (userToggles != null) {
                 return userToggles;
             }
@@ -79,12 +79,12 @@ public class FeatureToggleService {
     }
 
     public FeatureToggles allToggles() {
-        FeatureToggles allToggles = (FeatureToggles) goCache.get(KNOWN_TOGGLES);
+        FeatureToggles allToggles = goCache.get(KNOWN_TOGGLES);
         if (allToggles != null) {
             return allToggles;
         }
         synchronized (CACHE_ACCESS_MUTEX) {
-            allToggles = (FeatureToggles) goCache.get(KNOWN_TOGGLES);
+            allToggles = goCache.get(KNOWN_TOGGLES);
             if (allToggles != null) {
                 return allToggles;
             }

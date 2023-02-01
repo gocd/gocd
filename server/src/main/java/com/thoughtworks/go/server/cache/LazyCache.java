@@ -31,6 +31,7 @@ public class LazyCache {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T get(String key, Supplier<T> compute) {
         Element element = ehcache.get(key);
 

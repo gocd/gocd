@@ -252,7 +252,7 @@ public class AgentDaoTest {
             AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
             associateCookieAndVerifyThatCookieIsAssociated(agentIdentifier, "cookie");
 
-            hibernateTemplate.execute((HibernateCallback) session -> {
+            hibernateTemplate.execute(session -> {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid1'").uniqueResult();
                 agent.setCookie("updated_cookie");
                 session.update(agent);

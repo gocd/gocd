@@ -349,13 +349,12 @@ public class StageService implements StageFinder {
         return stageStatusCache.currentStage(new StageConfigIdentifier(pipelineName, stageName));
     }
 
-    @SuppressWarnings("unchecked")
     public FeedEntries feed(String pipelineName, Username username) {
         String key = cacheKeyForLatestStageFeedForPipeline(pipelineName);
-        List<StageFeedEntry> feedEntries = (List<StageFeedEntry>) goCache.get(key);
+        List<StageFeedEntry> feedEntries = goCache.get(key);
         if (feedEntries == null) {
             synchronized (key) {
-                feedEntries = (List<StageFeedEntry>) goCache.get(key);//Double check locking is done because the query is expensive (takes about 2 seconds)
+                feedEntries = goCache.get(key);//Double check locking is done because the query is expensive (takes about 2 seconds)
                 if (feedEntries == null) {
                     feedEntries = stageDao.findCompletedStagesFor(pipelineName, FeedModifier.Latest, -1, FEED_PAGE_SIZE);
                     populateAuthors(feedEntries, pipelineName, username);
@@ -376,11 +375,11 @@ public class StageService implements StageFinder {
         }
 
         String key = cacheKeyForLatestStageFeedForPipelineSortedByPipelineCounter(pipelineName);
-        List<StageFeedEntry> feedEntries = (List<StageFeedEntry>) goCache.get(key);
+        List<StageFeedEntry> feedEntries = goCache.get(key);
 
         if (feedEntries == null) {
             synchronized (key) {
-                feedEntries = (List<StageFeedEntry>) goCache.get(key);
+                feedEntries = goCache.get(key);
                 if (feedEntries == null) {
                     feedEntries = stageDao.findStageFeedBy(pipelineName, pipelineCounter, null, FEED_PAGE_SIZE);
                     populateAuthors(feedEntries, pipelineName, username);

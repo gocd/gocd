@@ -232,12 +232,12 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
         String key = pipelineSelectionForCookieKey(id);
 
         if (goCache.isKeyInCache(key)) {
-            return (PipelineSelections) goCache.get(key);
+            return goCache.get(key);
         }
 
         synchronized (key) {
             if (goCache.isKeyInCache(key)) {
-                return (PipelineSelections) goCache.get(key);
+                return goCache.get(key);
             }
 
             pipelineSelections = getHibernateTemplate().get(PipelineSelections.class, id);
@@ -264,11 +264,11 @@ public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, fina
         PipelineSelections pipelineSelections;
         String key = pipelineSelectionForUserIdKey(userId);
         if (goCache.isKeyInCache(key)) {
-            return (PipelineSelections) goCache.get(key);
+            return goCache.get(key);
         }
         synchronized (key) {
             if (goCache.isKeyInCache(key)) {
-                return (PipelineSelections) goCache.get(key);
+                return goCache.get(key);
             }
             List list = getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
             if (list.isEmpty()) {

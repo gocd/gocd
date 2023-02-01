@@ -166,7 +166,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public Integer getCounterForPipeline(String name) {
-        Integer counter = (Integer) getSqlMapClientTemplate().queryForObject("getCounterForPipeline", name);
+        Integer counter = getSqlMapClientTemplate().queryForObject("getCounterForPipeline", name);
         return counter == null ? 0 : counter;
     }
 
@@ -190,7 +190,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public void insertOrUpdatePipelineCounter(Pipeline pipeline, Integer lastCount, Integer newCount) {
         Map<String, Object> args = arguments("pipelineName", pipeline.getName()).and("count", newCount).asMap();
-        Integer hasPipelineRow = (Integer) getSqlMapClientTemplate().queryForObject("hasPipelineInfoRow", pipeline.getName());
+        Integer hasPipelineRow = getSqlMapClientTemplate().queryForObject("hasPipelineInfoRow", pipeline.getName());
         transactionTemplate.execute(status -> {
             pipelineByBuildIdCache.flushOnCommit();
             if (hasPipelineRow == 0) {
@@ -207,16 +207,16 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public Pipeline findPipelineByNameAndCounter(String name, int counter) {
         Map<String, Object> map = arguments("name", name).and("counter", counter).asMap();
-        return (Pipeline) getSqlMapClientTemplate().queryForObject("findPipelineByNameAndCounter", map);
+        return getSqlMapClientTemplate().queryForObject("findPipelineByNameAndCounter", map);
     }
 
     @Override
     public BuildCause findBuildCauseOfPipelineByNameAndCounter(String name, int counter) {
         String cacheKey = cacheKeyForBuildCauseByNameAndCounter(name, counter);
-        BuildCause buildCause = (BuildCause) goCache.get(cacheKey);
+        BuildCause buildCause = goCache.get(cacheKey);
         if (buildCause == null) {
             synchronized (cacheKey) {
-                buildCause = (BuildCause) goCache.get(cacheKey);
+                buildCause = goCache.get(cacheKey);
                 if (buildCause == null) {
                     Pipeline pipeline = findPipelineByNameAndCounter(name, counter);
                     if (pipeline == null) {
@@ -238,7 +238,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public Pipeline findPipelineByNameAndLabel(String name, String label) {
         Map<String, Object> map = arguments("name", name).and("label", label).asMap();
-        return (Pipeline) getSqlMapClientTemplate().queryForObject("findPipelineByNameAndLabel", map);
+        return getSqlMapClientTemplate().queryForObject("findPipelineByNameAndLabel", map);
     }
 
     protected void updateCachedLatestSuccessfulStage(Stage stage) {
@@ -262,13 +262,13 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public Pipeline loadPipeline(long pipelineId) {
-        Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("pipelineById", pipelineId);
+        Pipeline pipeline = getSqlMapClientTemplate().queryForObject("pipelineById", pipelineId);
         return loadAssociations(pipeline, pipeline == null ? "" : pipeline.getName());
     }
 
     @Override
     public Pipeline mostRecentPipeline(String pipelineName) {
-        Pipeline mostRecent = (Pipeline) getSqlMapClientTemplate().queryForObject("mostRecentPipeline", pipelineName);
+        Pipeline mostRecent = getSqlMapClientTemplate().queryForObject("mostRecentPipeline", pipelineName);
         return loadAssociations(mostRecent, pipelineName);
     }
 
@@ -300,7 +300,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public Pipeline pipelineWithMaterialsAndModsByBuildId(long buildId) {
         String cacheKey = this.cacheKeyGenerator.generate("getPipelineByBuildId", buildId);
         return pipelineByBuildIdCache.get(cacheKey, () -> {
-            Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("getPipelineByBuildId", buildId);
+            Pipeline pipeline = getSqlMapClientTemplate().queryForObject("getPipelineByBuildId", buildId);
             if (pipeline == null) {
                 throw new DataRetrievalFailureException("Could not load pipeline from build with id " + buildId);
             }
@@ -310,12 +310,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName) {
-        return (PipelineIdentifier) getSqlMapClientTemplate().queryForObject("mostRecentPipelineIdentifier", pipelineName);
+        return getSqlMapClientTemplate().queryForObject("mostRecentPipelineIdentifier", pipelineName);
     }
 
     @Override
     public Pipeline pipelineByIdWithMods(long pipelineId) {
-        Pipeline pipeline = (Pipeline) getSqlMapClientTemplate().queryForObject("pipelineById", pipelineId);
+        Pipeline pipeline = getSqlMapClientTemplate().queryForObject("pipelineById", pipelineId);
         if (pipeline == null) {
             throw new DataRetrievalFailureException("Could not load pipeline with id " + pipelineId);
         }
@@ -341,7 +341,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public PipelineInstanceModels loadHistory(String pipelineName) {
         return PipelineInstanceModels.createPipelineInstanceModels(
-                (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("getAllPipelineHistoryByName", arguments("name", pipelineName).asMap()));
+            getSqlMapClientTemplate().queryForList("getAllPipelineHistoryByName", arguments("name", pipelineName).asMap()));
     }
 
     @Override
@@ -353,12 +353,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private PipelineInstanceModel loadPipelineInstanceModelByNameAndCounter(String pipelineName, int pipelineCounter) {
         String cacheKey = cacheKeyForPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);
-        PipelineInstanceModel instanceModel = (PipelineInstanceModel) goCache.get(cacheKey);
+        PipelineInstanceModel instanceModel = goCache.get(cacheKey);
         if (instanceModel == null) {
             synchronized (cacheKey) {
-                instanceModel = (PipelineInstanceModel) goCache.get(cacheKey);
+                instanceModel = goCache.get(cacheKey);
                 if (instanceModel == null) {
-                    instanceModel = (PipelineInstanceModel) getSqlMapClientTemplate().queryForObject("getPipelineHistoryByNameAndCounter",
+                    instanceModel = getSqlMapClientTemplate().queryForObject("getPipelineHistoryByNameAndCounter",
                             arguments("pipelineName", pipelineName).and("pipelineCounter", pipelineCounter).asMap());
                     goCache.put(cacheKey, instanceModel);
                 }
@@ -373,7 +373,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public Pipeline findEarlierPipelineThatPassedForStage(String pipelineName, String stageName, double naturalOrder) {
-        return (Pipeline) getSqlMapClientTemplate().queryForObject("findEarlierPipelineThatPassedForStage",
+        return getSqlMapClientTemplate().queryForObject("findEarlierPipelineThatPassedForStage",
                 arguments("pipelineName", pipelineName).and("stageName", stageName).and("naturalOrder", naturalOrder).asMap());
     }
 
@@ -526,12 +526,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public PipelineInstanceModel loadHistory(long id) {
         String cacheKey = pipelineHistoryCacheKey(id);
-        PipelineInstanceModel result = (PipelineInstanceModel) goCache.get(cacheKey);
+        PipelineInstanceModel result = goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
-                result = (PipelineInstanceModel) goCache.get(cacheKey);
+                result = goCache.get(cacheKey);
                 if (result == null) {
-                    result = (PipelineInstanceModel) getSqlMapClientTemplate().queryForObject("getPipelineHistoryById", arguments("id", id).asMap());
+                    result = getSqlMapClientTemplate().queryForObject("getPipelineHistoryById", arguments("id", id).asMap());
                     if (result == null) {
                         return null;
                     }
@@ -558,7 +558,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
 
     private void syncCachedActivePipelines(Stage stage) {
-        Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds = (Map<CaseInsensitiveString, TreeSet<Long>>) goCache.get(activePipelinesCacheKey());
+        Map<CaseInsensitiveString, TreeSet<Long>> activePipelinesToIds = goCache.get(activePipelinesCacheKey());
         if (activePipelinesToIds == null) {
             return;
         }
@@ -651,13 +651,13 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 arguments("pipelineName", pipelineName)
                         .and("cursor", cursor)
                         .and("limit", pageSize).asMap();
-        return (List<Long>) getSqlMapClientTemplate().queryForList("getPipelineIds" + modifier.suffix(), params);
+        return getSqlMapClientTemplate().queryForList("getPipelineIds" + modifier.suffix(), params);
     }
 
     @Override
     public PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName) {
         Map<String, Object> params = arguments("pipelineName", pipelineName).asMap();
-        return (PipelineRunIdInfo) getSqlMapClientTemplate().queryForObject("getOldestAndLatestPipelineRun", params);
+        return getSqlMapClientTemplate().queryForObject("getOldestAndLatestPipelineRun", params);
     }
 
     @Override
@@ -674,8 +674,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 and("rawPattern", pattern.toLowerCase()).
                 and("limit", limit).asMap();
         long begin = System.currentTimeMillis();
-        List<PipelineInstanceModel> matchingPIMs = (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("findMatchingPipelineInstances", args);
-        List<PipelineInstanceModel> exactMatchingPims = (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("findExactMatchingPipelineInstances", args);
+        List<PipelineInstanceModel> matchingPIMs = getSqlMapClientTemplate().queryForList("findMatchingPipelineInstances", args);
+        List<PipelineInstanceModel> exactMatchingPims = getSqlMapClientTemplate().queryForList("findExactMatchingPipelineInstances", args);
         LOGGER.debug("[Compare Pipelines] Query initiated for pipeline {} with pattern {}. Query execution took {} milliseconds", pipelineName, pattern, System.currentTimeMillis() - begin);
         exactMatchingPims.addAll(matchingPIMs);
         return PipelineInstanceModels.createPipelineInstanceModels(exactMatchingPims);
@@ -685,10 +685,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     List<Long> findPipelineIds(String pipelineName, int limit, int offset) {
         if (wantLatestIdOnly(limit, offset)) {
             String cacheKey = cacheKeyForLatestPipelineIdByPipelineName(pipelineName);
-            List<Long> ids = (List<Long>) goCache.get(cacheKey);
+            List<Long> ids = goCache.get(cacheKey);
             if (ids == null) {
                 synchronized (cacheKey) {
-                    ids = (List<Long>) goCache.get(cacheKey);
+                    ids = goCache.get(cacheKey);
                     if (ids == null) {
                         ids = fetchPipelineIds(pipelineName, limit, offset);
                         goCache.put(cacheKey, ids);
@@ -727,7 +727,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 .and("from", Collections.min(ids))
                 .and("to", Collections.max(ids)).asMap();
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels(
-                (List<PipelineInstanceModel>) getSqlMapClientTemplate().queryForList("getPipelineHistoryByName", args));
+            getSqlMapClientTemplate().queryForList("getPipelineHistoryByName", args));
         for (PipelineInstanceModel pipelineInstanceModel : history) {
             loadPipelineHistoryBuildCause(pipelineInstanceModel);
         }
@@ -736,7 +736,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     @Override
     public int count(String pipelineName) {
-        return (Integer) getSqlMapClientTemplate().queryForObject("getPipelineHistoryCount", pipelineName);
+        return getSqlMapClientTemplate().queryForObject("getPipelineHistoryCount", pipelineName);
     }
 
     private Pipeline loadStages(Pipeline pipeline) {
@@ -794,7 +794,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         String cacheKey = cacheKeyForPauseState(pipelineName);
         synchronized (cacheKey) {
             Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", pauseCause).and("pauseBy", pauseBy).and("paused", true).and("pausedAt", timeProvider.currentTime()).asMap();
-            PipelinePauseInfo pipelinePauseInfo = (PipelinePauseInfo) getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
+            PipelinePauseInfo pipelinePauseInfo = getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
             if (pipelinePauseInfo == null) {
                 getSqlMapClientTemplate().insert("insertPipelinePauseState", args);
             } else {
@@ -816,12 +816,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     public PipelinePauseInfo pauseState(String pipelineName) {
         String cacheKey = cacheKeyForPauseState(pipelineName);
-        PipelinePauseInfo result = (PipelinePauseInfo) goCache.get(cacheKey);
+        PipelinePauseInfo result = goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
-                result = (PipelinePauseInfo) goCache.get(cacheKey);
+                result = goCache.get(cacheKey);
                 if (result == null) {
-                    result = (PipelinePauseInfo) getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
+                    result = getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
                     result = (result == null) ? PipelinePauseInfo.NULL : result;
                     goCache.put(cacheKey, result);
                 }
@@ -841,12 +841,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     @Override
     public StageIdentifier latestPassedStageIdentifier(long pipelineId, String stage) {
         String cacheKey = cacheKeyForLatestPassedStage(pipelineId, stage);
-        StageIdentifier result = (StageIdentifier) goCache.get(cacheKey);
+        StageIdentifier result = goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
-                result = (StageIdentifier) goCache.get(cacheKey);
+                result = goCache.get(cacheKey);
                 if (result == null) {
-                    result = (StageIdentifier) getSqlMapClientTemplate().queryForObject("latestPassedStageForPipelineId", arguments("id", pipelineId).and("stage", stage).asMap());
+                    result = getSqlMapClientTemplate().queryForObject("latestPassedStageForPipelineId", arguments("id", pipelineId).and("stage", stage).asMap());
                     result = (result == null) ? StageIdentifier.NULL : result;
                     goCache.put(cacheKey, result);
                 }
@@ -859,12 +859,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName,
                                                                                         PipelineIdentifier dependencyPipelineIdentifier) {
         String cacheKey = cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipelineName, dependencyPipelineIdentifier.getName(), dependencyPipelineIdentifier.getCounter());
-        List<PipelineIdentifier> pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
+        List<PipelineIdentifier> pipelineIdentifiers = goCache.get(cacheKey);
         if (pipelineIdentifiers == null) {
             synchronized (cacheKey) {
-                pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
+                pipelineIdentifiers = goCache.get(cacheKey);
                 if (pipelineIdentifiers == null) {
-                    pipelineIdentifiers = (List<PipelineIdentifier>) getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOutOfDependencyMaterial",
+                    pipelineIdentifiers = getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOutOfDependencyMaterial",
                             arguments("pipelineName", pipelineName).and("dependencyPipelineName", dependencyPipelineIdentifier.getName())
                                     .and("stageLocator", dependencyPipelineIdentifier.getName() + "/" + dependencyPipelineIdentifier.getCounter() + "/%/%")
                                     .asMap());
@@ -880,12 +880,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                                                                                         MaterialInstance materialInstance,
                                                                                         String revision) {
         String cacheKey = cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipelineName, materialInstance.getFingerprint(), revision);
-        List<PipelineIdentifier> pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
+        List<PipelineIdentifier> pipelineIdentifiers = goCache.get(cacheKey);
         if (pipelineIdentifiers == null) {
             synchronized (cacheKey) {
-                pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
+                pipelineIdentifiers = goCache.get(cacheKey);
                 if (pipelineIdentifiers == null) {
-                    pipelineIdentifiers = (List<PipelineIdentifier>) getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOffOfMaterialRevision",
+                    pipelineIdentifiers = getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOffOfMaterialRevision",
                             arguments("pipelineName", pipelineName).and("materialId", materialInstance.getId()).and("materialRevision", revision).asMap());
                     goCache.put(cacheKey, pipelineIdentifiers);
                 }
@@ -958,10 +958,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private Map<CaseInsensitiveString, TreeSet<Long>> getAllActivePipelineNamesVsTheirInstanceIDs() {
         String cacheKey = activePipelinesCacheKey();
-        Map<CaseInsensitiveString, TreeSet<Long>> result = (Map<CaseInsensitiveString, TreeSet<Long>>) goCache.get(cacheKey);
+        Map<CaseInsensitiveString, TreeSet<Long>> result = goCache.get(cacheKey);
         if (result == null) {
             synchronized (cacheKey) {
-                result = (Map<CaseInsensitiveString, TreeSet<Long>>) goCache.get(cacheKey);
+                result = goCache.get(cacheKey);
                 if (result == null) {
                     List<PipelineInstanceModel> pipelines = getAllPIMs();
                     result = groupPipelineInstanceIdsByPipelineName(pipelines);

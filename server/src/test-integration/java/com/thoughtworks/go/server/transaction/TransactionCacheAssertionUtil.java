@@ -37,9 +37,9 @@ class TransactionCacheAssertionUtil {
         final String[] cachedValueBeforeAndAfter = new String[2];
         transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallbackWithoutResult() {
             @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
-                cachedValueBeforeAndAfter[0] = (String) goCache.get("loser");
+                cachedValueBeforeAndAfter[0] = goCache.get("loser");
                 inTxn.invoke();
-                cachedValueBeforeAndAfter[1] = (String) goCache.get("loser");
+                cachedValueBeforeAndAfter[1] = goCache.get("loser");
             }
         });
 

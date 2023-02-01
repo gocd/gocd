@@ -62,7 +62,7 @@ public class ArtifactTypeConfigs extends BaseCollection<ArtifactTypeConfig> impl
     }
 
     public List<PluggableArtifactConfig> findByStoreId(String storeId) {
-        final ArrayList<PluggableArtifactConfig> pluggableArtifactConfigs = new ArrayList<>();
+        final List<PluggableArtifactConfig> pluggableArtifactConfigs = new ArrayList<>();
         for (PluggableArtifactConfig artifact : getPluggableArtifactConfigs()) {
             if (artifact.getStoreId().equals(storeId)) {
                 pluggableArtifactConfigs.add(artifact);

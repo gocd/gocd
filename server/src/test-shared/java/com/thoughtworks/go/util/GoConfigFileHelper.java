@@ -882,7 +882,7 @@ public class GoConfigFileHelper {
     }
 
     public void addEnvironments(List<String> environmentNames) {
-        addEnvironments(environmentNames.toArray(new String[environmentNames.size()]));
+        addEnvironments(environmentNames.toArray(new String[0]));
     }
 
     public void addEnvironmentVariablesToEnvironment(String environmentName, String variableName, String variableValue) {

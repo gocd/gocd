@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.domain.config;
 
-import java.util.ArrayList;
-
 import com.thoughtworks.go.config.Argument;
 import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+
+import java.util.ArrayList;
 
 @ConfigCollection(Argument.class)
 public class Arguments extends BaseCollection<Argument> implements Validatable {
@@ -54,6 +54,6 @@ public class Arguments extends BaseCollection<Argument> implements Validatable {
         for (Argument arg : this) {
             list.add(arg.getValue());
         }
-        return list.toArray(new String[list.size()]);
+        return list.toArray(new String[0]);
     }
 }

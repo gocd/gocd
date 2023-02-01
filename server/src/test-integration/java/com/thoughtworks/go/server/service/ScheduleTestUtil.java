@@ -54,8 +54,8 @@ public class ScheduleTestUtil {
     private final MaterialRepository materialRepository;
     private final DatabaseAccessHelper dbHelper;
     private final GoConfigFileHelper configHelper;
-    private Date date;
-    private Map<CaseInsensitiveString, Pipeline> triggeredPipelines;
+    private final Date date;
+    private final Map<CaseInsensitiveString, Pipeline> triggeredPipelines;
 
     public ScheduleTestUtil(TransactionTemplate transactionTemplate, MaterialRepository materialRepository, DatabaseAccessHelper dbHelper, GoConfigFileHelper configHelper) {
         this.transactionTemplate = transactionTemplate;
@@ -116,9 +116,9 @@ public class ScheduleTestUtil {
         return instance;
     }
 
-    public String runAndFail(final AddedPipeline pipeline, final Date mduAt, final String... revisions) {
+    public String runAndFail(final AddedPipeline pipeline, @SuppressWarnings("unused") final Date mduAt, final String... revisions) {
         final Pipeline instance = scheduleWith(pipeline, revisions);
-        return fail(pipeline, mduAt, instance);
+        return fail(pipeline, instance);
     }
 
     public String rerunStageAndCancel(Pipeline pipeline, StageConfig stageConfig){
@@ -141,12 +141,11 @@ public class ScheduleTestUtil {
         return new StageIdentifier(new PipelineIdentifier(instance.getName(), instance.getCounter(), instance.getName() + instance.getCounter()), pipeline.material.getStageName().toString(), "1").getStageLocator();
     }
 
-    private String fail(final AddedPipeline pipeline, final Date mduAt, final Pipeline instance) {
+    private String fail(final AddedPipeline pipeline, final Pipeline instance) {
         dbHelper.failStage(instance.getFirstStage());
-        final String dmrRevStr = new StageIdentifier(new PipelineIdentifier(instance.getName(), instance.getCounter(), instance.getName() + instance.getCounter()), CaseInsensitiveString.str(
-                pipeline.material.getStageName()), "1").getStageLocator();
         //should not add dmr to database because it failed.
-        return dmrRevStr;
+        return new StageIdentifier(new PipelineIdentifier(instance.getName(), instance.getCounter(), instance.getName() + instance.getCounter()), CaseInsensitiveString.str(
+                pipeline.material.getStageName()), "1").getStageLocator();
     }
 
     public MaterialRevisions mrs(MaterialRevision... revs) {
@@ -166,12 +165,13 @@ public class ScheduleTestUtil {
         return new TimerConfig(timerSpec, shouldTriggerOnlyOnNewMaterials);
     }
 
-    public RevisionsForMaterial[] getRevisionsForMaterials(List<String>... materialRevisions) {
+    @SafeVarargs
+    public final RevisionsForMaterial[] getRevisionsForMaterials(List<String>... materialRevisions) {
         List<RevisionsForMaterial> revisionsForMaterials = new ArrayList<>();
         for (List<String> materialRevision : materialRevisions) {
             revisionsForMaterials.add(new RevisionsForMaterial(materialRevision));
         }
-        return revisionsForMaterials.toArray(new RevisionsForMaterial[revisionsForMaterials.size()]);
+        return revisionsForMaterials.toArray(new RevisionsForMaterial[0]);
     }
 
     public AddedPipeline renamePipelineAndFirstStage(AddedPipeline pipeline, String newPipelineName, String stageName) {
@@ -241,9 +241,6 @@ public class ScheduleTestUtil {
                 List<Modification> newRange = new ArrayList<>();
                 for (Modification newMod : modificationsSince) {
                     newRange.add(0, newMod);
-                    if (newMod.equals(modifications)) {
-                        break;
-                    }
                 }
                 buildCause.addRevision(new MaterialRevision(material, newRange));
             }
@@ -257,7 +254,7 @@ public class ScheduleTestUtil {
         return materialRepository.getHibernateTemplate().execute(session -> {
             Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
             q.setParameterList("in", revision.revs);
-            List<Modification> list = q.list();
+            @SuppressWarnings("unchecked") List<Modification> list = q.list();
             if (list.isEmpty()) {
                 throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }
@@ -278,10 +275,10 @@ public class ScheduleTestUtil {
     }
 
     private Modification modForRev(final String revision) {
-        return (Modification) materialRepository.getHibernateTemplate().execute(session -> {
+        return materialRepository.getHibernateTemplate().execute(session -> {
             Query q = session.createQuery("from Modification where revision = ?");
             q.setParameter(0, revision);
-            List list = q.list();
+            @SuppressWarnings("unchecked") List<Modification> list = q.list();
             if (list.isEmpty()) {
                 throw new RuntimeException("you are trying to load revision " + revision + " which doesn't exist");
             }

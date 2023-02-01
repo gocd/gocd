@@ -40,7 +40,7 @@ public class MaterialUpdateMessage implements GoMessage {
 
     @Override
     public boolean equals(Object o) {
-        return reflectionEquals(this, o, new String[] { "trackingId" });
+        return reflectionEquals(this, o, "trackingId");
     }
 
     public long trackingId() {

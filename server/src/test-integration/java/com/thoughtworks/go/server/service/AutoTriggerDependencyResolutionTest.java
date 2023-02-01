@@ -61,12 +61,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("unused")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class AutoTriggerDependencyResolutionTest {
     public static final String STAGE_NAME = "s";
@@ -93,7 +94,7 @@ public class AutoTriggerDependencyResolutionTest {
     @Autowired
     private DependencyMaterialUpdateNotifier notifier;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
 
     @BeforeEach
@@ -116,27 +117,27 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldChooseTheAppropriateRevisionsOfAllMaterials_inAComplexMultipleDiamondDependencySituation_withDependencyMaterialsNotResolvingStrictly() throws Exception {
-        /**
-         * +-----------------------------+
-         * |             hg---------->P4 |
-         * |             |\           |  |
-         * |             | \          |  |
-         * |             |  \----\    |  |
-         * |             V        \   |  |
-         * |      /----> P3 ------\\  |  |
-         * |    /                  \\ |  |
-         * |  /                     \V|  |
-         * |/                       V V  |
-         * svn -----> P1 ---------> P6 <-+---+
-         *  \         |            ^ ^       |
-         *   \        |           /  |       |
-         *    \       V         /    |       |
-         *     \---> P2-------/      |       |
-         *          # ^              |       |
-         *            |              |       |
-         *           git----------->P5<-----git2
-         *
+    public void shouldChooseTheAppropriateRevisionsOfAllMaterials_inAComplexMultipleDiamondDependencySituation_withDependencyMaterialsNotResolvingStrictly() {
+        /*
+          +-----------------------------+
+          |             hg---------->P4 |
+          |             |\           |  |
+          |             | \          |  |
+          |             |  \----\    |  |
+          |             V        \   |  |
+          |      /----> P3 ------\\  |  |
+          |    /                  \\ |  |
+          |  /                     \V|  |
+          |/                       V V  |
+          svn -----> P1 ---------> P6 <-+---+
+           \         |            ^ ^       |
+            \        |           /  |       |
+             \       V         /    |       |
+              \---> P2-------/      |       |
+                   # ^              |       |
+                     |              |       |
+                    git----------->P5<-----git2
+
          */
         int i = 1;
         SvnMaterial svn = u.wf(new SvnMaterial("svn", "username", "password", false), "folder1");
@@ -185,23 +186,23 @@ public class AutoTriggerDependencyResolutionTest {
         String p5_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p5, u.d(i++), "g1-6", "g2-5");
 
         MaterialRevisions given = u.mrs(
-                u.mr(rel(git2, p6), true, git2_revs),
-                u.mr(rel(p5, p6), false, p5_3),
-                u.mr(rel(p2, p6), false, p2_4),
-                u.mr(rel(p1, p6), true, p1_6),
-                u.mr(rel(p3, p6), false, p3_4),
-                u.mr(rel(hg, p6), false, hg_revs),
-                u.mr(rel(p4, p6), false, p4_4),
-                u.mr(rel(svn, p6), true, svn_revs));
+            u.mr(rel(git2, p6), true, git2_revs),
+            u.mr(rel(p5, p6), false, p5_3),
+            u.mr(rel(p2, p6), false, p2_4),
+            u.mr(rel(p1, p6), true, p1_6),
+            u.mr(rel(p3, p6), false, p3_4),
+            u.mr(rel(hg, p6), false, hg_revs),
+            u.mr(rel(p4, p6), false, p4_4),
+            u.mr(rel(svn, p6), true, svn_revs));
         MaterialRevisions expected = u.mrs(
-                u.mr(rel(git2, p6), true, "g2-3"),
-                u.mr(rel(p5, p6), false, p5_2),
-                u.mr(rel(p2, p6), false, p2_2),
-                u.mr(rel(p1, p6), false, p1_2),
-                u.mr(rel(p3, p6), false, p3_2),
-                u.mr(rel(hg, p6), false, "h3"),
-                u.mr(rel(p4, p6), false, p4_2),
-                u.mr(rel(svn, p6), true, "s2"));
+            u.mr(rel(git2, p6), true, "g2-3"),
+            u.mr(rel(p5, p6), false, p5_2),
+            u.mr(rel(p2, p6), false, p2_2),
+            u.mr(rel(p1, p6), false, p1_2),
+            u.mr(rel(p3, p6), false, p3_2),
+            u.mr(rel(hg, p6), false, "h3"),
+            u.mr(rel(p4, p6), false, p4_2),
+            u.mr(rel(svn, p6), true, "s2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p6, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
@@ -238,17 +239,17 @@ public class AutoTriggerDependencyResolutionTest {
 
     @Test
     public void should_NOT_triggerWithRevisionOfUpstream_whichHasRunUsingMutuallyIncompatibleRevisions() {
-        /**
-         *                   |> P4
-         *                  /   ^
-         *                /     |
-         *              /       |
-         * git -----> P1 ----> P3 (manual)
-         *              \     ^
-         *               \    |
-         *                \   |
-         *                 V  |
-         *                  P2
+        /*
+                            |> P4
+                           /   ^
+                         /     |
+                       /       |
+          git -----> P1 ----> P3 (manual)
+                       \     ^
+                        \    |
+                         \   |
+                          V  |
+                           P2
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder");
@@ -289,15 +290,15 @@ public class AutoTriggerDependencyResolutionTest {
 
     @Test
     public void should_NOT_flip_flop_betweenTwoSetsOfAutoTriggerRevisionCombinations() {
-        /**
-         * git ---> P1
-         *  | \     |
-         *  |  \    |
-         *  |   \   |
-         *  |    \  |
-         *  V    V  V
-         * P2 ---> P3
-         *
+        /*
+          git ---> P1
+           | \     |
+           |  \    |
+           |   \   |
+           |    \  |
+           V    V  V
+          P2 ---> P3
+
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -366,14 +367,15 @@ public class AutoTriggerDependencyResolutionTest {
         int extraHours = i++;
         String p3_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(extraHours), p1_2, p2_6, "g3");
 
-        MaterialRevisions given = u.mrs(u.mr(p1, true, p1_4),
-                u.mr(p2, false, p2_6),
-                u.mr(git, true, "g7"));
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, true, p1_4),
+            u.mr(p2, false, p2_6),
+            u.mr(git, true, "g7"));
 
-        MaterialRevisions previous = u.mrs(new MaterialRevision[]{
-                u.mr(p1, true, p1_2),
-                u.mr(p2, false, p2_6),
-                u.mr(git, true, "g3")});
+        MaterialRevisions previous = u.mrs(
+            u.mr(p1, true, p1_2),
+            u.mr(p2, false, p2_6),
+            u.mr(git, true, "g3"));
 
         pipelineTimeline.update();
 
@@ -384,28 +386,28 @@ public class AutoTriggerDependencyResolutionTest {
 
 
     @Test
-    public void shouldTriggerWithRevisions_inDay3_whenSharedMaterialIsNotAvailableInDay2() throws Exception {
-        /**
-         * day 1.
-         * git -------> P1--------+
-         *   \                    |
-         *    \                   |
-         *     \                  v
-         *      -----> P2 -----> P3
-         *
-         * day 2.
-         * git -------> P1--------+
-         *                        |
-         *                        |
-         *                        v
-         * svn -------> P2 -----> P3
-         *
-         * day 3.
-         * git -------> P1--------+
-         *   \                    |
-         *    \                   |
-         *     \                  v
-         *      -----> P2 -----> P3
+    public void shouldTriggerWithRevisions_inDay3_whenSharedMaterialIsNotAvailableInDay2() {
+        /*
+          day 1.
+          git -------> P1--------+
+            \                    |
+             \                   |
+              \                  v
+               -----> P2 -----> P3
+
+          day 2.
+          git -------> P1--------+
+                                 |
+                                 |
+                                 v
+          svn -------> P2 -----> P3
+
+          day 3.
+          git -------> P1--------+
+            \                    |
+             \                   |
+              \                  v
+               -----> P2 -----> P3
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -440,22 +442,22 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_3 = u.runAndPass(p2, "g2");
 
         MaterialRevisions given = u.mrs(
-                u.mr(p1, true, p1_3),
-                u.mr(p2, false, p2_3));
+            u.mr(p1, true, p1_3),
+            u.mr(p2, false, p2_3));
 
         assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(given));
     }
 
     @Test
-    public void shouldTrigger_withLatestOfUnsharedMaterial_keepingAllTheSharedMaterialRevisionsPegged() throws Exception {
-        /**
-         *
-         * git -------> P1--------+
-         *              |         |
-         *              |         |
-         *              v         v
-         *              P2 -----> P3 <---- svn
-         *
+    public void shouldTrigger_withLatestOfUnsharedMaterial_keepingAllTheSharedMaterialRevisionsPegged() {
+        /*
+
+          git -------> P1--------+
+                       |         |
+                       |         |
+                       v         v
+                       P2 -----> P3 <---- svn
+
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -479,28 +481,30 @@ public class AutoTriggerDependencyResolutionTest {
 
         String p3_1 = u.runAndPass(p3, p1_1, p2_1, "s1");
 
-        MaterialRevisions given = u.mrs(u.mr(p2, true, p2_1),
-                u.mr(u.mw(p1), false, p1_2),
-                u.mr(svn, true, "s2"));
+        MaterialRevisions given = u.mrs(
+            u.mr(p2, true, p2_1),
+            u.mr(u.mw(p1), false, p1_2),
+            u.mr(svn, true, "s2"));
 
-        MaterialRevisions expected = u.mrs(u.mr(p2, true, p2_1),
-                u.mr(u.mw(p1), false, p1_1),
-                u.mr(svn, true, "s2"));
+        MaterialRevisions expected = u.mrs(
+            u.mr(p2, true, p2_1),
+            u.mr(u.mw(p1), false, p1_1),
+            u.mr(svn, true, "s2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldPrefer_NewModifications_Over_OldModifications_whenFindingCompatibleRevisions() throws Exception {
-        /**
-         *
-         * git -------> P1--------+
-         *              |         |
-         *              |         |
-         *              v         v
-         *              P2 -----> P3
-         *
+    public void shouldPrefer_NewModifications_Over_OldModifications_whenFindingCompatibleRevisions() {
+        /*
+
+          git -------> P1--------+
+                       |         |
+                       |         |
+                       v         v
+                       P2 -----> P3
+
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -521,29 +525,31 @@ public class AutoTriggerDependencyResolutionTest {
 
         String p2_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_1);
 
-        MaterialRevisions given = u.mrs(u.mr(p2, true, p2_3),
-                u.mr(u.mw(p1), false, p1_2));
+        MaterialRevisions given = u.mrs(
+            u.mr(p2, true, p2_3),
+            u.mr(u.mw(p1), false, p1_2));
 
-        MaterialRevisions expected = u.mrs(u.mr(p2, true, p2_3),
-                u.mr(u.mw(p1), false, p1_2));
+        MaterialRevisions expected = u.mrs(
+            u.mr(p2, true, p2_3),
+            u.mr(u.mw(p1), false, p1_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldPrefer_combinationThatBringsLatestPossibleRevisionsOfMostMaterials_whileComputingCompatibleRevisions() throws Exception {
-        /**
-         *
-         *      +------ git ------+
-         *      |        |        |
-         *      |        |        |
-         *      v        v        v
-         *      P1      P2       P3
-         *      |        |        |
-         *      |        |        |
-         *      +-----> P4 <------+
-         *
+    public void shouldPrefer_combinationThatBringsLatestPossibleRevisionsOfMostMaterials_whileComputingCompatibleRevisions() {
+        /*
+
+               +------ git ------+
+               |        |        |
+               |        |        |
+               v        v        v
+               P1      P2       P3
+               |        |        |
+               |        |        |
+               +-----> P4 <------+
+
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -575,31 +581,33 @@ public class AutoTriggerDependencyResolutionTest {
         String p3_4 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(i++), "g3");
         String p3_5 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(i++), "g4");
 
-        MaterialRevisions given = u.mrs(u.mr(p2, true, p2_5),
-                u.mr(p1, true, p1_5),
-                u.mr(p3, false, p3_5));
+        MaterialRevisions given = u.mrs(
+            u.mr(p2, true, p2_5),
+            u.mr(p1, true, p1_5),
+            u.mr(p3, false, p3_5));
 
-        MaterialRevisions expected = u.mrs(u.mr(p2, true, p2_5),
-                u.mr(p1, false, p1_4),
-                u.mr(p3, false, p3_2));
+        MaterialRevisions expected = u.mrs(
+            u.mr(p2, true, p2_5),
+            u.mr(p1, false, p1_4),
+            u.mr(p3, false, p3_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldPrefer_materialRevisionThatChangedLast_over_anyMaterialRevisionsThatAreChanged_butAreOlder_whileComputingCompatibleRevisions() throws Exception {
-        /**
-         *
-         *      +------ git ------+
-         *      |        |        |
-         *      |        |        |
-         *      v        v        v
-         *      P1      P2       P3
-         *      |        |        |
-         *      |        |        |
-         *      +-----> P4 <------+
-         *
+    public void shouldPrefer_materialRevisionThatChangedLast_over_anyMaterialRevisionsThatAreChanged_butAreOlder_whileComputingCompatibleRevisions() {
+        /*
+
+               +------ git ------+
+               |        |        |
+               |        |        |
+               v        v        v
+               P1      P2       P3
+               |        |        |
+               |        |        |
+               +-----> P4 <------+
+
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -630,20 +638,22 @@ public class AutoTriggerDependencyResolutionTest {
         String p3_4 = u.runAndPass(p3, "g3");
         String p3_5 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(1), "g4");
 
-        MaterialRevisions given = u.mrs(u.mr(p2, true, p2_5),
-                u.mr(p1, true, p1_5),
-                u.mr(p3, false, p3_5));
+        MaterialRevisions given = u.mrs(
+            u.mr(p2, true, p2_5),
+            u.mr(p1, true, p1_5),
+            u.mr(p3, false, p3_5));
 
-        MaterialRevisions expected = u.mrs(u.mr(p2, true, p2_5),
-                u.mr(p1, false, p1_4),
-                u.mr(p3, false, p3_2));
+        MaterialRevisions expected = u.mrs(
+            u.mr(p2, true, p2_5),
+            u.mr(p1, false, p1_4),
+            u.mr(p3, false, p3_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterial() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterial() {
         SvnMaterial svn = u.wf(new SvnMaterial("svn", "username", "password", false), "folder1");
         String[] svn_revs = {"s1", "s2", "s3"};
         u.checkinInOrder(svn, svn_revs);
@@ -657,20 +667,22 @@ public class AutoTriggerDependencyResolutionTest {
 
         String up1_1 = u.runAndPass(up1, "s1");
 
-        MaterialRevisions given = u.mrs(u.mr(svn, true, svn_revs),
-                u.mr(hg, true, hg_revs),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(svn, true, svn_revs),
+            u.mr(hg, true, hg_revs),
+            u.mr(up1, true, up1_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(svn, true, "s1"),
-                u.mr(hg, true, "h3"),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(svn, true, "s1"),
+            u.mr(hg, true, "h3"),
+            u.mr(up1, true, up1_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineFor2SameMaterial() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineFor2SameMaterial() {
         SvnMaterial svn = u.wf(new SvnMaterial("svn", "username", "password", false), "folder1");
         String[] svn_revs = {"s1", "s2", "s3"};
         u.checkinInOrder(svn, svn_revs);
@@ -684,19 +696,21 @@ public class AutoTriggerDependencyResolutionTest {
 
         String up1_1 = u.runAndPass(up1, "s1", "h1");
 
-        MaterialRevisions given = u.mrs(u.mr(svn, true, svn_revs),
-                u.mr(hg, true, hg_revs),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(svn, true, svn_revs),
+            u.mr(hg, true, hg_revs),
+            u.mr(up1, true, up1_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(svn, true, "s1"),
-                u.mr(hg, true, "h1"),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(svn, true, "s1"),
+            u.mr(hg, true, "h1"),
+            u.mr(up1, true, up1_1));
 
         assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current")), is(expected));
     }
 
     @Test
-    public void shouldChooseTheRevisionFromThirdWhenSecondIsNotModified() throws Exception {
+    public void shouldChooseTheRevisionFromThirdWhenSecondIsNotModified() {
         //      Third <- Second
         //         |     /
         //         |   /
@@ -720,17 +734,19 @@ public class AutoTriggerDependencyResolutionTest {
         String third_2 = u.runAndPass(third, second_2);
         String third_3 = u.runAndPass(third, second_2);
 
-        MaterialRevisions given = u.mrs(u.mr(third, true, third_3),
-                u.mr(second, true, second_4));
+        MaterialRevisions given = u.mrs(
+            u.mr(third, true, third_3),
+            u.mr(second, true, second_4));
 
-        MaterialRevisions expected = u.mrs(u.mr(third, true, third_3),
-                u.mr(second, true, second_4));
+        MaterialRevisions expected = u.mrs(
+            u.mr(third, true, third_3),
+            u.mr(second, true, second_4));
 
         assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last")), is(expected));
     }
 
     @Test
-    public void shouldChooseTheRevisionFromSecondWhenThirdIsNotModified() throws Exception {
+    public void shouldChooseTheRevisionFromSecondWhenThirdIsNotModified() {
         //      Third <- Second
         //         |     /
         //         |   /
@@ -755,18 +771,20 @@ public class AutoTriggerDependencyResolutionTest {
         String third_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(third, u.d(i++), second_2);
         String third_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(third, u.d(i++), second_2);
 
-        MaterialRevisions given = u.mrs(u.mr(third, true, third_3),
-                u.mr(second, true, second_4));
+        MaterialRevisions given = u.mrs(
+            u.mr(third, true, third_3),
+            u.mr(second, true, second_4));
 
-        MaterialRevisions expected = u.mrs(u.mr(third, true, third_3),
-                u.mr(second, true, second_2));
+        MaterialRevisions expected = u.mrs(
+            u.mr(third, true, third_3),
+            u.mr(second, true, second_2));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldChooseTheRevisionFromThirdWhenBothThirdAndSecondAreModified() throws Exception {
+    public void shouldChooseTheRevisionFromThirdWhenBothThirdAndSecondAreModified() {
         //      Third <- Second <-- SVN
         //         |      |
         //         v      v
@@ -790,18 +808,20 @@ public class AutoTriggerDependencyResolutionTest {
         String third_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(third, u.d(i++), second_1);
         String third_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(third, u.d(i++), second_2);
 
-        MaterialRevisions given = u.mrs(u.mr(third, true, third_3),
-                u.mr(second, true, second_4));
+        MaterialRevisions given = u.mrs(
+            u.mr(third, true, third_3),
+            u.mr(second, true, second_4));
 
-        MaterialRevisions expected = u.mrs(u.mr(third, true, third_3),
-                u.mr(second, true, second_3));
+        MaterialRevisions expected = u.mrs(
+            u.mr(third, true, third_3),
+            u.mr(second, true, second_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldIgnoreUpstreamPipelineWhenThereIsNothingInCommon() throws Exception {
+    public void shouldIgnoreUpstreamPipelineWhenThereIsNothingInCommon() {
 
         SvnMaterial svn = u.wf(new SvnMaterial("url", "username", "password", false), "folder1");
         String[] svn_revs = {"s1", "s2"};
@@ -820,20 +840,22 @@ public class AutoTriggerDependencyResolutionTest {
         String up0_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up0, u.d(i++), "hg1", "hg2", "hg3");
         String up1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), up0_1);
 
-        MaterialRevisions given = u.mrs(u.mr(up0, true, up0_2),
-                u.mr(up1, false, up1_1),
-                u.mr(svn, true, "s1", "s2"));
+        MaterialRevisions given = u.mrs(
+            u.mr(up0, true, up0_2),
+            u.mr(up1, false, up1_1),
+            u.mr(svn, true, "s1", "s2"));
 
-        MaterialRevisions expected = u.mrs(u.mr(up0, true, up0_2),
-                u.mr(up1, false, up1_1),
-                u.mr(svn, true, "s2"));
+        MaterialRevisions expected = u.mrs(
+            u.mr(up0, true, up0_2),
+            u.mr(up1, false, up1_1),
+            u.mr(svn, true, "s2"));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldGetTheRevisionsForDependencyMaterialFromUpStreamPipeline() throws Exception {
+    public void shouldGetTheRevisionsForDependencyMaterialFromUpStreamPipeline() {
         HgMaterial hg = u.wf(new HgMaterial("hg", null), "folder1");
         String[] hg_revs = {"hg1", "hg2", "hg3", "hg4"};
         int i = 1;
@@ -849,18 +871,20 @@ public class AutoTriggerDependencyResolutionTest {
         String common_4 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(common, u.d(i++), "hg4");
         String up1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), common_3);
 
-        MaterialRevisions given = u.mrs(u.mr(up1, false, up1_1),
-                u.mr(common, false, common_4));
+        MaterialRevisions given = u.mrs(
+            u.mr(up1, false, up1_1),
+            u.mr(common, false, common_4));
 
-        MaterialRevisions expected = u.mrs(u.mr(up1, false, up1_1),
-                u.mr(common, false, common_3));
+        MaterialRevisions expected = u.mrs(
+            u.mr(up1, false, up1_1),
+            u.mr(common, false, common_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldGetTheRevisionsForDependencyMaterial_WithSharedParentInMiddleOfTheTree() throws Exception {
+    public void shouldGetTheRevisionsForDependencyMaterial_WithSharedParentInMiddleOfTheTree() {
         HgMaterial hg = u.wf(new HgMaterial("hg", null), "folder1");
         String[] hg_revs = {"hg1", "hg2"};
         int i = 1;
@@ -879,18 +903,20 @@ public class AutoTriggerDependencyResolutionTest {
         String common_4 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(common, u.d(i++), commonParent_2);
         String up1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), common_3);
 
-        MaterialRevisions given = u.mrs(u.mr(up1, false, up1_1),
-                u.mr(common, false, common_4));
+        MaterialRevisions given = u.mrs(
+            u.mr(up1, false, up1_1),
+            u.mr(common, false, common_4));
 
-        MaterialRevisions expected = u.mrs(u.mr(up1, false, up1_1),
-                u.mr(common, false, common_4));
+        MaterialRevisions expected = u.mrs(
+            u.mr(up1, false, up1_1),
+            u.mr(common, false, common_4));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheNearestUpStreamPipeline() throws Exception {
+    public void shouldGetTheRevisionsFromTheNearestUpStreamPipeline() {
         HgMaterial hg = u.wf(new HgMaterial("hg", null), "folder1");
         String[] hg_revs = {"hg1", "hg2", "hg3"};
         int i = 1;
@@ -906,18 +932,20 @@ public class AutoTriggerDependencyResolutionTest {
         String up0_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up0, u.d(i++), "hg3");
         String up1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i), up0_2, "hg2");
 
-        MaterialRevisions given = u.mrs(u.mr(hg, true, "hg3"),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(hg, true, "hg3"),
+            u.mr(up1, true, up1_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(hg, true, "hg2"),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(hg, true, "hg2"),
+            u.mr(up1, true, up1_1));
 
         MaterialRevisions revisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("current"));
         assertThat(revisions, is(expected));
     }
 
     @Test
-    public void shouldNotGetTheRevisionsFromUpStreamPipelineIfTheDependencyMaterialHasNotChanged() throws Exception {
+    public void shouldNotGetTheRevisionsFromUpStreamPipelineIfTheDependencyMaterialHasNotChanged() {
         HgMaterial hg = u.wf(new HgMaterial("hg", null), "folder1");
         String[] hg_revs = {"hg1", "hg2", "hg3"};
         u.checkinInOrder(hg, hg_revs);
@@ -927,17 +955,19 @@ public class AutoTriggerDependencyResolutionTest {
 
         String up1_1 = u.runAndPass(up1, "hg1");
 
-        MaterialRevisions given = u.mrs(u.mr(hg, false, "hg1"),
-                u.mr(up1, false, up1_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(hg, false, "hg1"),
+            u.mr(up1, false, up1_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(hg, false, "hg1"),
-                u.mr(up1, false, up1_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(hg, false, "hg1"),
+            u.mr(up1, false, up1_1));
 
         assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given), is(expected));
     }
 
     @Test
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterialEvenIfItIsNotADirectMaterial() throws Exception {
+    public void shouldGetTheRevisionsFromTheUpStreamPipelineThatUsesTheSameMaterialEvenIfItIsNotADirectMaterial() {
         HgMaterial hg = u.wf(new HgMaterial("hg", null), "folder1");
         String[] hg_revs = {"hg1", "hg2", "hg3"};
         u.checkinInOrder(hg, hg_revs);
@@ -950,17 +980,19 @@ public class AutoTriggerDependencyResolutionTest {
         String up0_2 = u.runAndPass(up0, "hg1");
         String up1_1 = u.runAndPass(up1, up0_2);
 
-        MaterialRevisions given = u.mrs(u.mr(hg, false, "hg3"),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(hg, false, "hg3"),
+            u.mr(up1, true, up1_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(hg, false, "hg1"),
-                u.mr(up1, true, up1_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(hg, false, "hg1"),
+            u.mr(up1, true, up1_1));
 
         assertThat(getRevisionsBasedOnDependencies(current, goConfigDao.load(), given), is(expected));
     }
 
     @Test
-    public void shouldFailGracefully_whenOneOfTheUpstreamPipelineInvolved_doNotHaveAnyInstances() throws Exception {
+    public void shouldFailGracefully_whenOneOfTheUpstreamPipelineInvolved_doNotHaveAnyInstances() {
         HgMaterial hg = u.wf(new HgMaterial("hg", null), "folder1");
         String[] hg_revs = {"hg1"};
         int i = 1;
@@ -991,7 +1023,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldChooseTheRevisionFromSecondInAComplexSituation() throws Exception {
+    public void shouldChooseTheRevisionFromSecondInAComplexSituation() {
         // hg -> First          git
         //  |      \             |
         //  |      Third  <- Second
@@ -1023,20 +1055,22 @@ public class AutoTriggerDependencyResolutionTest {
         String third_2 = u.runAndPass(third, first_1, second_2);
         String third_3 = u.runAndPass(third, first_1, second_2);
 
-        MaterialRevisions given = u.mrs(u.mr(hg, true, hg_revs),
-                u.mr(second, true, second_4),
-                u.mr(third, true, third_3));
+        MaterialRevisions given = u.mrs(
+            u.mr(hg, true, hg_revs),
+            u.mr(second, true, second_4),
+            u.mr(third, true, third_3));
 
-        MaterialRevisions expected = u.mrs(u.mr(hg, true, "h1"),
-                u.mr(second, true, second_2),
-                u.mr(third, true, third_3));
+        MaterialRevisions expected = u.mrs(
+            u.mr(hg, true, "h1"),
+            u.mr(second, true, second_2),
+            u.mr(third, true, third_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("last"));
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldNotTriggerWithRevisions_ForWhichCurrentlyTheMaterialConfigurationIsDifferent() throws Exception {
+    public void shouldNotTriggerWithRevisions_ForWhichCurrentlyTheMaterialConfigurationIsDifferent() {
         GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder1");
         int i = 1;
         String[] git_revs1 = {"g11"};
@@ -1064,8 +1098,8 @@ public class AutoTriggerDependencyResolutionTest {
         u.scheduleWith(new_p2, "g11");
 
         MaterialRevisions given = u.mrs(
-                u.mr(p1, true, p1_2),
-                u.mr(new_p2, false, p2_1));
+            u.mr(p1, true, p1_2),
+            u.mr(new_p2, false, p2_1));
 
         try {
             assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(nullValue()));
@@ -1094,8 +1128,8 @@ public class AutoTriggerDependencyResolutionTest {
         String p3_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(i++), p1_1);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1));
 
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
 
@@ -1103,12 +1137,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
 
         given = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(p3, false, p3_1));
+            u.mr(p2, true, p2_2),
+            u.mr(p3, false, p3_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1));
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
     }
 
@@ -1139,12 +1173,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g12");
 
         MaterialRevisions given = u.mrs(
-                u.mr(git1, true, "g12"),
-                u.mr(p2, false, p2_1));
+            u.mr(git1, true, "g12"),
+            u.mr(p2, false, p2_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(git1, false, "g11"),
-                u.mr(p2, false, p2_1));
+            u.mr(git1, false, "g11"),
+            u.mr(p2, false, p2_1));
 
         MaterialRevisions actual = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
         assertThat(actual, is(expected));
@@ -1185,12 +1219,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
 
         MaterialRevisions given = u.mrs(
-                u.mr(git, true, "g12"),
-                u.mr(p2, false, p2_2));
+            u.mr(git, true, "g12"),
+            u.mr(p2, false, p2_2));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(git, false, "g12"),
-                u.mr(p2, false, p2_2));
+            u.mr(git, false, "g12"),
+            u.mr(p2, false, p2_2));
 
         MaterialRevisions actual = getRevisionsBasedOnDependencies(p3, cruiseConfig, given);
         assertThat(actual, is(expected));
@@ -1220,12 +1254,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p6_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p6, u.d(i++), p4_1);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p5, true, p5_1),
-                u.mr(p6, true, p6_1));
+            u.mr(p5, true, p5_1),
+            u.mr(p6, true, p6_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p5, true, p5_1),
-                u.mr(p6, true, p6_1));
+            u.mr(p5, true, p5_1),
+            u.mr(p6, true, p6_1));
 
         assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given), is(expected));
 
@@ -1234,8 +1268,8 @@ public class AutoTriggerDependencyResolutionTest {
         String p5_2 = u.runAndPass(p5, p3_2);
 
         given = u.mrs(
-                u.mr(p5, true, p5_2),
-                u.mr(p6, true, p6_1));
+            u.mr(p5, true, p5_2),
+            u.mr(p6, true, p6_1));
 
         assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given), is(expected));
     }
@@ -1259,12 +1293,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p4_1 = u.runAndPass(p4, p3_1);
 
         MaterialRevisions given = u.mrs(
-                u.mr(git, true, "g11"),
-                u.mr(p4, true, p4_1));
+            u.mr(git, true, "g11"),
+            u.mr(p4, true, p4_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(git, true, "g11"),
-                u.mr(p4, true, p4_1));
+            u.mr(git, true, "g11"),
+            u.mr(p4, true, p4_1));
 
         assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given), is(expected));
 
@@ -1273,12 +1307,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p3_2 = u.runAndPass(p3, p2_2);
 
         given = u.mrs(
-                u.mr(git, true, "g12"),
-                u.mr(p4, false, p4_1));
+            u.mr(git, true, "g12"),
+            u.mr(p4, false, p4_1));
 
         expected = u.mrs(
-                u.mr(git, false, "g11"),
-                u.mr(p4, false, p4_1));
+            u.mr(git, false, "g11"),
+            u.mr(p4, false, p4_1));
         assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given), is(expected));
     }
 
@@ -1303,11 +1337,13 @@ public class AutoTriggerDependencyResolutionTest {
         String p1_2 = u.runAndPass(p1, "g2");
         String p2_2 = u.runAndPass(p2, p1_2);
 
-        MaterialRevisions given = u.mrs(u.mr(git, true, git_revs),
-                u.mr(p4, true, p4_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(git, true, git_revs),
+            u.mr(p4, true, p4_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(git, true, "g1"),
-                u.mr(p4, true, p4_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(git, true, "g1"),
+            u.mr(p4, true, p4_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p5"));
         assertThat(finalRevisions, is(expected));
@@ -1334,11 +1370,13 @@ public class AutoTriggerDependencyResolutionTest {
         String p1_2 = u.runAndPass(p1, "g2");
         String p2_2 = u.runAndPass(p2, p1_2);
 
-        MaterialRevisions given = u.mrs(u.mr(git, true, git_revs),
-                u.mr(p4, true, p4_1));
+        MaterialRevisions given = u.mrs(
+            u.mr(git, true, git_revs),
+            u.mr(p4, true, p4_1));
 
-        MaterialRevisions expected = u.mrs(u.mr(git, true, "g1"),
-                u.mr(p4, true, p4_1));
+        MaterialRevisions expected = u.mrs(
+            u.mr(git, true, "g1"),
+            u.mr(p4, true, p4_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p5"));
         assertThat(finalRevisions, is(expected));
@@ -1373,12 +1411,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_3);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(git1, true, "g13"));
+            u.mr(p2, true, p2_2),
+            u.mr(git1, true, "g13"));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(git1, true, "g12", "g13"));
+            u.mr(p2, true, p2_2),
+            u.mr(git1, true, "g12", "g13"));
         assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(expected));
     }
 
@@ -1403,12 +1441,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(git1, true, "g12", "g13"));
+            u.mr(p2, true, p2_2),
+            u.mr(git1, true, "g12", "g13"));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(git1, true, "g12", "g13"));
+            u.mr(p2, true, p2_2),
+            u.mr(git1, true, "g12", "g13"));
         assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(expected));
     }
 
@@ -1434,12 +1472,12 @@ public class AutoTriggerDependencyResolutionTest {
 
 
         MaterialRevisions given = u.mrs(
-                u.mr(p1, true, p1_4),
-                u.mr(git, true, "g15"));
+            u.mr(p1, true, p1_4),
+            u.mr(git, true, "g15"));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p1, true, p1_4),
-                u.mr(git, true, "g13", "g14"));
+            u.mr(p1, true, p1_4),
+            u.mr(git, true, "g13", "g14"));
         assertThat(getRevisionsBasedOnDependencies(p2, cruiseConfig, given), is(expected));
     }
 
@@ -1477,16 +1515,16 @@ public class AutoTriggerDependencyResolutionTest {
         String c4_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(c4, u.d(i++), c1_2, c2_1, c3_1);
 
         MaterialRevisions given = u.mrs(
-                u.mr(git1, false, "g11"),
-                u.mr(c1, true, c1_2),
-                u.mr(c4, true, c4_2),
-                u.mr(c5, true, c5_2));
+            u.mr(git1, false, "g11"),
+            u.mr(c1, true, c1_2),
+            u.mr(c4, true, c4_2),
+            u.mr(c5, true, c5_2));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(git1, false, "g11"),
-                u.mr(c1, true, c1_1),
-                u.mr(c4, true, c4_1),
-                u.mr(c5, true, c5_1));
+            u.mr(git1, false, "g11"),
+            u.mr(c1, true, c1_1),
+            u.mr(c4, true, c4_1),
+            u.mr(c5, true, c5_1));
 
         MaterialRevisions actual = getRevisionsBasedOnDependencies(c6, cruiseConfig, given);
         assertThat(actual, is(expected));
@@ -1521,14 +1559,13 @@ public class AutoTriggerDependencyResolutionTest {
 
         String p8_1 = u.runAndPass(p8, p4_1);
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p8, true, p8_1)});
+        MaterialRevisions given = u.mrs(u.mr(p8, true, p8_1));
 
         assertThat(getRevisionsBasedOnDependencies(goConfigDao.load(), given, new CaseInsensitiveString("p11")), is(given));
     }
 
     @Test
-    public void shouldNotTriggerPipelineWhenOnlyValidChangesAreIgnoredFiles() throws Exception {
+    public void shouldNotTriggerPipelineWhenOnlyValidChangesAreIgnoredFiles() {
         //      p1  <- SVN
         //       |    /
         //       v   v
@@ -1549,16 +1586,14 @@ public class AutoTriggerDependencyResolutionTest {
 
         String p2_1 = u.runAndPass(p2, p1_1, "s1", "g1");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s2"),
-                u.mr(git, true, "g2"),
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1"),
-                u.mr(git, true, "g1"),
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s2"),
+            u.mr(git, true, "g2"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"),
+            u.mr(git, true, "g1"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
@@ -1567,7 +1602,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldTriggerPipelineWhenThereAreNoNewChangesButMaterialIsRemoved() throws Exception {
+    public void shouldTriggerPipelineWhenThereAreNoNewChangesButMaterialIsRemoved() {
         //      p1  <- SVN
         //       |    /
         //       v   v
@@ -1590,14 +1625,12 @@ public class AutoTriggerDependencyResolutionTest {
 
         p2 = new ScheduleTestUtil.AddedPipeline(goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1")
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1")
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
@@ -1607,7 +1640,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldNotTriggerPipelineWhenItHasAlreadyRunWithPeggedRevisions() throws Exception {
+    public void shouldNotTriggerPipelineWhenItHasAlreadyRunWithPeggedRevisions() {
         //      p1  <- SVN
         //       |    /
         //       v   v
@@ -1628,16 +1661,14 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_1 = u.runAndPass(p2, p1_1, "s1", "g1");
         String p2_2 = u.runAndPass(p2, p1_1, "s1", "g2");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s2"),
-                u.mr(git, true, "g2"),
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1"),
-                u.mr(git, true, "g1"),
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s2"),
+            u.mr(git, true, "g2"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"),
+            u.mr(git, true, "g1"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), systemEnvironment, materialChecker);
         pipelineTimeline.update();
@@ -1664,8 +1695,8 @@ public class AutoTriggerDependencyResolutionTest {
         String p3_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(i++), p1_1);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1));
 
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
 
@@ -1673,12 +1704,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
 
         given = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(p3, false, p3_1));
+            u.mr(p2, true, p2_2),
+            u.mr(p3, false, p3_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1));
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
     }
 
@@ -1701,8 +1732,8 @@ public class AutoTriggerDependencyResolutionTest {
         String p3_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(i++), p1_1);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1));
 
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
 
@@ -1714,12 +1745,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
 
         given = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(p3, false, p3_1));
+            u.mr(p2, true, p2_2),
+            u.mr(p3, false, p3_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1));
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
     }
 
@@ -1737,22 +1768,22 @@ public class AutoTriggerDependencyResolutionTest {
 
 
         MaterialRevisions given = u.mrs(
-                u.mr(gitMaterial, true, "git-3"),
-                u.mr(p1, false, p1_1),
-                u.mr(p2, false, p2_1));
+            u.mr(gitMaterial, true, "git-3"),
+            u.mr(p1, false, p1_1),
+            u.mr(p2, false, p2_1));
 
 
         MaterialRevisions expected = u.mrs(
-                u.mr(gitMaterial, true, "git-3"),
-                u.mr(p1, false, p1_1),
-                u.mr(p2, false, p2_1));
+            u.mr(gitMaterial, true, "git-3"),
+            u.mr(p1, false, p1_1),
+            u.mr(p2, false, p2_1));
 
         assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
     }
 
     /* TRIANGLE TEST BEGIN */
     @Test
-    public void shouldResolveTriangleDependency() throws Exception {
+    public void shouldResolveTriangleDependency() {
         GitMaterial git = new GitMaterial("git");
         String[] git_revs = {"g1"};
         u.checkinInOrder(git, git_revs);
@@ -1776,7 +1807,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldResolveTriangleDependencyViaAutoBuild() throws Exception {
+    public void shouldResolveTriangleDependencyViaAutoBuild() {
         SystemEnvironment env = mock(SystemEnvironment.class);
         when(env.enforceRevisionCompatibilityWithUpstream()).thenReturn(false);
 
@@ -1798,11 +1829,11 @@ public class AutoTriggerDependencyResolutionTest {
         String p4_4 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p4, u.d(i), "g1");
 
         MaterialRevisions given = u.mrs(
-                u.mr(p4, true, p4_4),
-                u.mr(p5, true, p5_1));
+            u.mr(p4, true, p4_4),
+            u.mr(p5, true, p5_1));
         MaterialRevisions expected = u.mrs(
-                u.mr(p4, false, p4_2),
-                u.mr(p5, false, p5_1));
+            u.mr(p4, false, p4_2),
+            u.mr(p5, false, p5_1));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p6.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
@@ -1813,7 +1844,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldNotTriggerPipelineWhenItHasAlreadyRunWithPeggedRevisions_WithFanInOff() throws Exception {
+    public void shouldNotTriggerPipelineWhenItHasAlreadyRunWithPeggedRevisions_WithFanInOff() {
         //      p1  <- SVN
         //       |    /
         //       v   v
@@ -1838,16 +1869,14 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_1 = u.runAndPass(p2, p1_1, "s1", "g1");
         String p2_2 = u.runAndPass(p2, p1_1, "s1", "g2");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s2"),
-                u.mr(git, true, "g2"),
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, false, "s1"),
-                u.mr(git, false, "g2"),
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s2"),
+            u.mr(git, true, "g2"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, false, "s1"),
+            u.mr(git, false, "g2"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
@@ -1856,7 +1885,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldNotTriggerPipelineWhenOnlyValidChangesAreIgnoredFiles_WhenFaninOff() throws Exception {
+    public void shouldNotTriggerPipelineWhenOnlyValidChangesAreIgnoredFiles_WhenFaninOff() {
         //      p1  <- SVN
         //       |    /
         //       v   v
@@ -1880,16 +1909,14 @@ public class AutoTriggerDependencyResolutionTest {
 
         String p2_1 = u.runAndPass(p2, p1_1, "s1", "g1");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s2"),
-                u.mr(git, true, "g2"),
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1"),
-                u.mr(git, true, "g1"),
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s2"),
+            u.mr(git, true, "g2"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"),
+            u.mr(git, true, "g1"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
@@ -1898,7 +1925,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldTriggerPipelineWhenThereAreNoNewChangesButMaterialIsRemoved_WithFanInOff() throws Exception {
+    public void shouldTriggerPipelineWhenThereAreNoNewChangesButMaterialIsRemoved_WithFanInOff() {
         //      p1  <- SVN
         //       |    /
         //       v   v
@@ -1923,14 +1950,12 @@ public class AutoTriggerDependencyResolutionTest {
 
         p2 = new ScheduleTestUtil.AddedPipeline(goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString("p2")), p2.material);
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1")
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(svn, true, "s1")
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(svn, true, "s1"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
@@ -1940,7 +1965,7 @@ public class AutoTriggerDependencyResolutionTest {
     }
 
     @Test
-    public void shouldTriggerPipelineWhenThereAreOnlyIgnoredChanges_WithFanInOff() throws Exception {
+    public void shouldTriggerPipelineWhenThereAreOnlyIgnoredChanges_WithFanInOff() {
         //      p1  <- git (BL)
         //       |    /
         //       v   v
@@ -1960,14 +1985,12 @@ public class AutoTriggerDependencyResolutionTest {
         String p1_1 = u.runAndPass(p1, "g1");
         String p2_1 = u.runAndPass(p2, p1_1, "g1");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, false, p1_1),
-                u.mr(git, true, "g2")
-        });
-        MaterialRevisions previousRevisions = u.mrs(new MaterialRevision[]{
-                u.mr(p1, true, p1_1),
-                u.mr(git, true, "g1")
-        });
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, false, p1_1),
+            u.mr(git, true, "g2"));
+        MaterialRevisions previousRevisions = u.mrs(
+            u.mr(p1, true, p1_1),
+            u.mr(git, true, "g1"));
 
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, p2.config.name().toString(), env, materialChecker);
         pipelineTimeline.update();
@@ -2003,9 +2026,9 @@ public class AutoTriggerDependencyResolutionTest {
         String p4_1_2 = u.rerunStageAndCancel(p4_1, p4.config.getFirstStageConfig());
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, true, p3_1),
-                u.mr(p4, true, p4_1.getStages().get(0).getIdentifier().getStageLocator()));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, true, p3_1),
+            u.mr(p4, true, p4_1.getStages().get(0).getIdentifier().getStageLocator()));
 
         assertThat(getRevisionsBasedOnDependencies(p5, cruiseConfig, given), is(given));
 
@@ -2032,18 +2055,18 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), p1_2);
 
         MaterialRevisions given = u.mrs(
-                u.mr(p2, true, p2_2),
-                u.mr(p3, false, p3_1));
+            u.mr(p2, true, p2_2),
+            u.mr(p3, false, p3_1));
 
         MaterialRevisions expected = u.mrs(
-                u.mr(p2, true, p2_1),
-                u.mr(p3, false, p3_1));
+            u.mr(p2, true, p2_1),
+            u.mr(p3, false, p3_1));
         assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(expected));
 
         systemEnvironment.set(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT, 1);
 
         assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p4, cruiseConfig, given))
-                .isInstanceOf(MaxBackTrackLimitReachedException.class);
+            .isInstanceOf(MaxBackTrackLimitReachedException.class);
     }
 
     @Test
@@ -2068,10 +2091,10 @@ public class AutoTriggerDependencyResolutionTest {
         String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g11", "g23");
 
         MaterialRevisions given = u.mrs(
-                u.mr(p1, true, p1_1),
-                u.mr(p2, true, p2_2));
+            u.mr(p1, true, p1_1),
+            u.mr(p2, true, p2_2));
 
         assertThatThrownBy(() -> getRevisionsBasedOnDependencies(p3, cruiseConfig, given))
-                .isInstanceOf(NoCompatibleUpstreamRevisionsException.class);
+            .isInstanceOf(NoCompatibleUpstreamRevisionsException.class);
     }
 }

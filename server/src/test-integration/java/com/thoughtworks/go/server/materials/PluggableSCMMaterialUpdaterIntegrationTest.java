@@ -101,7 +101,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         material.getScmConfig().getConfiguration().addNewConfiguration("fieldX", true);
         final List<Modification> modifications = ModificationsMother.multipleModificationList();
         doNothing().when(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
-        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        transactionTemplate.execute(transactionStatus -> {
             pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
             return null;
         });
@@ -123,7 +123,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
 
-        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        transactionTemplate.execute(transactionStatus -> {
             pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications());
             return null;
         });
@@ -148,7 +148,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, materialService);
         pluggableSCMMaterialUpdater = new PluggableSCMMaterialUpdater(materialRepository, scmMaterialUpdater, transactionTemplate);
 
-        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        transactionTemplate.execute(transactionStatus -> {
             pluggableSCMMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(new Modification()));
             return null;
         });

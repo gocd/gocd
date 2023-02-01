@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +34,7 @@ public class ConsoleStreamerTest {
                 "Second line",
                 "Third line"
         };
-        final ArrayList<String> actual = new ArrayList<>();
+        final List<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile(expected).toPath(), 0L)) {
             console.stream(actual::add);
@@ -44,7 +45,7 @@ public class ConsoleStreamerTest {
 
     @Test
     public void streamSkipsToStartLine() throws Exception {
-        final ArrayList<String> actual = new ArrayList<>();
+        final List<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile("first", "second", "third", "fourth").toPath(), 2L)) {
             console.stream(actual::add);
@@ -60,7 +61,7 @@ public class ConsoleStreamerTest {
                 "Second line",
                 "Third line"
         };
-        final ArrayList<String> actual = new ArrayList<>();
+        final List<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile(expected).toPath(), -1L)) {
             console.stream(actual::add);
@@ -71,7 +72,7 @@ public class ConsoleStreamerTest {
 
     @Test
     public void processesNothingWhenStartLineIsBeyondEOF() throws Exception {
-        final ArrayList<String> actual = new ArrayList<>();
+        final List<String> actual = new ArrayList<>();
 
         try (ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile("first", "second").toPath(), 5L)) {
             console.stream(actual::add);

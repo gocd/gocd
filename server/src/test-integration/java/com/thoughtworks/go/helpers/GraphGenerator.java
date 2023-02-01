@@ -89,7 +89,7 @@ public class GraphGenerator {
                 previousRevisions.add(String.format("%s/%d/stage/1", previousNodes.get(x).name().toString(), instanceCount));
             }
             scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), new CaseInsensitiveString("stage"))),
-                    previousRevisions.toArray(new String[previousRevisions.size()]));
+                    previousRevisions.toArray(new String[0]));
         }
     }
 }

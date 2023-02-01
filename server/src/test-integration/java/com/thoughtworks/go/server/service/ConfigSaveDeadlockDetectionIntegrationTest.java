@@ -45,6 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -109,11 +110,11 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Timeout(value = 3, unit = TimeUnit.MINUTES)
     public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws Exception {
         int EXISTING_ENV_COUNT = goConfigService.cruiseConfig().getEnvironments().size();
-        final ArrayList<Thread> group1 = new ArrayList<>();
-        final ArrayList<Thread> group2 = new ArrayList<>();
-        final ArrayList<Thread> group3 = new ArrayList<>();
-        final ArrayList<Thread> group4 = new ArrayList<>();
-        final ArrayList<Thread> group5 = new ArrayList<>();
+        final List<Thread> group1 = new ArrayList<>();
+        final List<Thread> group2 = new ArrayList<>();
+        final List<Thread> group3 = new ArrayList<>();
+        final List<Thread> group4 = new ArrayList<>();
+        final List<Thread> group5 = new ArrayList<>();
         int count = 100;
         final int pipelineCreatedThroughApiCount = count;
         final int pipelineCreatedThroughUICount = count;

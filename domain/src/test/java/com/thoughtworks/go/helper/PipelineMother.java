@@ -122,7 +122,7 @@ public class PipelineMother {
     }
 
     private static Stage[] toStageArray(Stages stages) {
-        return stages.toArray(new Stage[stages.size()]);
+        return stages.toArray(new Stage[0]);
     }
 
     private static Stages stagesAndBuildsWithEndState(JobState endState, JobResult result, List<String> baseStageNames, List<String> baseBuildNames) {

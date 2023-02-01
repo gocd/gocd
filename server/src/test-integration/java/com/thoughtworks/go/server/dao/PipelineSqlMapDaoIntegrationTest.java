@@ -1742,7 +1742,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         modifications.add(ModificationsMother.oneModifiedFile(ModificationsMother.currentRevision()));
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://mingle.com");
         svnMaterial.setName(new CaseInsensitiveString("mingle"));
-        MaterialRevision materialRevision = new MaterialRevision(svnMaterial, changed, modifications.toArray(new Modification[modifications.size()]));
+        MaterialRevision materialRevision = new MaterialRevision(svnMaterial, changed, modifications.toArray(new Modification[0]));
         revisions.addRevision(materialRevision);
         return revisions;
     }

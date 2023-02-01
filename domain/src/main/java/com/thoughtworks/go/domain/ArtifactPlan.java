@@ -184,7 +184,7 @@ public class ArtifactPlan extends PersistentObject {
                 File testResultSource = new File(tempFolder, MERGED_TEST_RESULT_FOLDER);
                 testResultSource.mkdirs();
                 UnitTestReportGenerator generator = new UnitTestReportGenerator(publisher, testResultSource);
-                generator.generate(allFiles.toArray(new File[allFiles.size()]), "testoutput");
+                generator.generate(allFiles.toArray(new File[0]), "testoutput");
                 publisher.upload(testResultSource, "testoutput");
             } finally {
                 if (tempFolder != null) {

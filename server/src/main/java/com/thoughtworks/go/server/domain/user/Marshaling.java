@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.String.format;
 
@@ -57,7 +58,7 @@ public class Marshaling {
                 throw new JsonParseException("Missing filters array!");
             }
 
-            final ArrayList<DashboardFilter> viewFilters = new ArrayList<>();
+            final List<DashboardFilter> viewFilters = new ArrayList<>();
 
             filters.getAsJsonArray().forEach((f) -> viewFilters.add(context.deserialize(f, DashboardFilter.class)));
 

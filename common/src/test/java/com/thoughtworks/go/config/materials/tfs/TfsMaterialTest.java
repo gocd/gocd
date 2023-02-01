@@ -267,7 +267,7 @@ public class TfsMaterialTest {
     @Test
     void populateEnvContextShouldSetMaterialEnvVars() {
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
         modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
@@ -286,7 +286,7 @@ public class TfsMaterialTest {
     void shouldOnlyPopulateDomainEnvVarIfPresent() {
         TfsMaterial material = new TfsMaterial(new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, "", PASSWORD, TFS_FIRST_PROJECT);
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
         modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));

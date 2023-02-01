@@ -749,7 +749,7 @@ public class GitMaterialTest {
         GitMaterial material = new GitMaterial("https://user:password@github.com/bob/my-project", "branchName");
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
         modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
@@ -769,7 +769,7 @@ public class GitMaterialTest {
         GitMaterial material = new GitMaterial("https://user:password@github.com/bob/my-project");
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
 

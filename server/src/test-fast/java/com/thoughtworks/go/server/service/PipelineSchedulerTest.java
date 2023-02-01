@@ -122,7 +122,6 @@ public class PipelineSchedulerTest {
         OperationResult operationResult = mock(OperationResult.class);
         final HashMap<String, String> revisions = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Map.of("blahVariable", "blahValue"), new HashMap<>()), operationResult);
-        //noinspection unchecked
         verifyNoMoreInteractions(buildCauseProducerService);
         verify(operationResult).notFound("Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'", "Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'",
                 HealthStateType.general(HealthStateScope.forPipeline("blahPipeline")));
@@ -138,7 +137,6 @@ public class PipelineSchedulerTest {
         Map<String, String> variables = Map.of("blahVariable", "blahValue");
         final HashMap<String, String> revisions = new HashMap<>();
         scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, variables, new HashMap<>()), operationResult);
-        //noinspection unchecked
         verify(buildCauseProducerService).manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(new HashMap<>(), variables, new HashMap<>()),
                 operationResult);
     }

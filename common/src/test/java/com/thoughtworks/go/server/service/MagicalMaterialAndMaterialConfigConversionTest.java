@@ -154,7 +154,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         String message = "You need to add a `MaterialConfig` to `testMaterials()` in this test: " + missingImplementations;
 
         assertThat(message, reflectionsSubTypesOf.size(), is(allExpectedMaterialConfigImplementations.size()));
-        assertThat(message, reflectionsSubTypesOf, hasItems(allExpectedMaterialConfigImplementations.toArray(new Class[allExpectedMaterialConfigImplementations.size()])));
+        assertThat(message, reflectionsSubTypesOf, hasItems(allExpectedMaterialConfigImplementations.toArray(new Class[0])));
     }
 
     private boolean isNotAConcrete_NonTest_MaterialConfigImplementation(Class aClass) {

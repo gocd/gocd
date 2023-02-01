@@ -29,11 +29,13 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ScmMaterialTest {
     private DummyMaterial material;
@@ -71,7 +73,7 @@ class ScmMaterialTest {
         material.setUrl("https://user:password@example.github.com");
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
         modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));
@@ -93,7 +95,7 @@ class ScmMaterialTest {
         material.setUrl("https://user:password@example.github.com");
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", new Date(), "24"));
         modifications.add(new Modification("user1", "comment1", "email1", new Date(), "23"));

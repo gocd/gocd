@@ -487,22 +487,24 @@
     <!-- The following query will return the latest #{limit} instances for the given pipeline and stage -->
     <sql id="selectStageIdsForHistory">
         SELECT id
-        FROM _stages
-        WHERE name = #{stageName}
-          AND pipelineName = #{pipelineName}
-        ORDER BY id DESC
-        LIMIT #{limit}
+        FROM (SELECT id
+              FROM _stages
+              WHERE name = #{stageName}
+                AND pipelineName = #{pipelineName}
+              ORDER BY id DESC
+              LIMIT #{limit}) as MysqlWorkaround
     </sql>
 
     <!-- The following query will return the #{limit} instances which are older than the given stage instance id for the given pipeline and stage -->
     <sql id="selectStageIdsForHistoryAfter">
-        SELECT id
-        FROM _stages
-        WHERE name = #{stageName}
-          AND pipelineName = #{pipelineName}
-          AND _stages.id &lt; #{cursor}
-        ORDER BY id DESC
-        LIMIT #{limit}
+      SELECT id
+      FROM (SELECT id
+            FROM _stages
+            WHERE name = #{stageName}
+              AND pipelineName = #{pipelineName}
+              AND _stages.id &lt; #{cursor}
+            ORDER BY id DESC
+            LIMIT #{limit}) as MysqlWorkaround
     </sql>
 
     <!-- The following query will return the #{limit} instances which are newer than the given stage instance id for the given pipeline and stage -->

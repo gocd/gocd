@@ -119,9 +119,9 @@ GEM
       net-protocol
     nio4r (2.5.8)
     nio4r (2.5.8-java)
-    nokogiri (1.14.0-java)
+    nokogiri (1.14.1-java)
       racc (~> 1.4)
-    nokogiri (1.14.0-x86_64-linux)
+    nokogiri (1.14.1-x86_64-linux)
       racc (~> 1.4)
     pry (0.14.2-java)
       coderay (~> 1.1)

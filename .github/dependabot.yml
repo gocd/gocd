@@ -3,7 +3,8 @@ updates:
 - package-ecosystem: gradle
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
+    day: friday
   open-pull-requests-limit: 99
 - package-ecosystem: npm
   directory: "/server/src/main/webapp/WEB-INF/rails"
@@ -34,10 +35,10 @@ updates:
     day: friday
 - package-ecosystem: bundler
   directory: "/scripts"
+  commit-message:
+    prefix: dev-scripts
   schedule:
     interval: weekly
     day: friday
-  commit-message:
-    prefix: dev-scripts
   allow:
     - dependency-type: all

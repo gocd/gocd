@@ -145,8 +145,8 @@ class PipelineSqlMapDaoCachingTest {
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
-            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+        when(transactionTemplate.execute(any())).then(invocation -> {
+            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 
@@ -161,9 +161,8 @@ class PipelineSqlMapDaoCachingTest {
     void loadHistory_shouldCacheResult() {
         PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
-        PipelineInstanceModel loaded;
-        loaded = pipelineDao.loadHistory(99);
-        loaded = pipelineDao.loadHistory(99);
+        pipelineDao.loadHistory(99);
+        PipelineInstanceModel loaded = pipelineDao.loadHistory(99);
         assertThat(EqualsBuilder.reflectionEquals(loaded, pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
     }
@@ -172,9 +171,8 @@ class PipelineSqlMapDaoCachingTest {
     void loadHistory_shouldCloneResultSoThatModificationsDoNotAffectTheCachedObjects() {
         PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
-        PipelineInstanceModel loaded;
-        loaded = pipelineDao.loadHistory(99);
-        loaded = pipelineDao.loadHistory(99);
+        pipelineDao.loadHistory(99);
+        PipelineInstanceModel loaded = pipelineDao.loadHistory(99);
         assertThat(loaded).isNotSameAs(pipeline);
         assertThat(EqualsBuilder.reflectionEquals(loaded, pipeline)).as(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
@@ -188,7 +186,7 @@ class PipelineSqlMapDaoCachingTest {
         when(mockconfigFileDao.load()).thenReturn(mockCruiseConfig);
         when(mockCruiseConfig.getAllPipelineNames()).thenReturn(List.of(new CaseInsensitiveString(pipelineName)));
 
-        //need to mock configfileDao for this test
+        //need to mock configFileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
                 transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
@@ -199,10 +197,9 @@ class PipelineSqlMapDaoCachingTest {
         PipelineInstanceModels pims = PipelineInstanceModels.createPipelineInstanceModels(pipeline);
         doReturn(pims).when(mockTemplate).queryForList("allActivePipelines");
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
-        PipelineInstanceModels loaded;
-        loaded = pipelineDao.loadActivePipelines();
-        loaded = pipelineDao.loadActivePipelines();
-        assertThat(loaded).isNotSameAs(pipeline);
+        pipelineDao.loadActivePipelines();
+        PipelineInstanceModels loaded = pipelineDao.loadActivePipelines();
+        assertThat(loaded).isNotSameAs(pims);
         assertThat(EqualsBuilder.reflectionEquals(loaded, pims)).as(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForList("allActivePipelines");
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
@@ -312,7 +309,7 @@ class PipelineSqlMapDaoCachingTest {
         changeStageStatus(stage, 1);
 
         //notifying latest id should not remove it from the cache
-        stage.setPipelineId(2l);
+        stage.setPipelineId(2L);
         pipelineDao.stageStatusChanged(stage);
 
         PipelineInstanceModels models = pipelineDao.loadActivePipelines();
@@ -481,6 +478,7 @@ class PipelineSqlMapDaoCachingTest {
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
         assertThat(actual).hasSize(0);
+        //noinspection unchecked
         assertThat((List<PipelineIdentifier>) goCache.get(cacheKey)).hasSize(0);
 
 
@@ -493,8 +491,8 @@ class PipelineSqlMapDaoCachingTest {
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
-            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+        when(transactionTemplate.execute(any())).then(invocation -> {
+            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 
@@ -559,6 +557,7 @@ class PipelineSqlMapDaoCachingTest {
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
         assertThat(actual).hasSize(1);
+        //noinspection unchecked
         assertThat((List<PipelineIdentifier>) goCache.get(cacheKey)).hasSize(1);
 
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
@@ -568,8 +567,8 @@ class PipelineSqlMapDaoCachingTest {
             return null;
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
 
-        when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
-            ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+        when(transactionTemplate.execute(any())).then(invocation -> {
+            ((TransactionCallback<?>) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
 

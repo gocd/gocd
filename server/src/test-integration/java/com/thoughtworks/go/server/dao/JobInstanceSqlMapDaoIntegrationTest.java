@@ -332,7 +332,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     private JobInstance savedJobForAgent(final String jobName, final String uuid, final boolean runOnAllAgents, final boolean runMultipleInstance) {
-        return (JobInstance) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             JobInstance jobInstance = scheduled(jobName, new DateTime().plusMinutes(1).toDate());
             jobInstance.setRunOnAllAgents(runOnAllAgents);
             jobInstance.setRunMultipleInstance(runMultipleInstance);

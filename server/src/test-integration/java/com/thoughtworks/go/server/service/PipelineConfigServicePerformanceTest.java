@@ -163,7 +163,7 @@ public class PipelineConfigServicePerformanceTest {
     private void run(Runnable runnable, @SuppressWarnings("SameParameterValue") int numberOfRequests, final ConcurrentHashMap<String, Boolean> results) throws InterruptedException {
         Boolean finalResult = true;
         LOGGER.info("Tests start now!");
-        final ArrayList<Thread> threads = new ArrayList<>();
+        final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < numberOfRequests; i++) {
             Thread t = new Thread(runnable, "pipeline" + i);
             threads.add(t);

@@ -221,7 +221,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (PipelineMaterialRevision revision : revisions) {
             List<Modification> modifications = findModificationsFor(revision);
-            materialRevisions.addRevision(new MaterialRevision(revision.getMaterial(), revision.getChanged(), modifications.toArray(new Modification[modifications.size()])));
+            materialRevisions.addRevision(new MaterialRevision(revision.getMaterial(), revision.getChanged(), modifications.toArray(new Modification[0])));
         }
         return materialRevisions;
     }

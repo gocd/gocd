@@ -132,7 +132,7 @@ public class ModificationsMother {
     }
 
     public static List<Modification> multipleModificationsInHg() {
-        final ArrayList<Modification> modifications = new ArrayList<>();
+        final List<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", TODAY_CHECKIN, "9fdcf27f16eadc362733328dd481d8a2c29915e1"));
         modifications.add(new Modification("user1", "comment1", "email1", TWO_DAYS_AGO_CHECKIN, "eef77acd79809fc14ed82b79a312648d4a2801c6"));

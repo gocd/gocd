@@ -108,19 +108,19 @@ public class GoCacheIntegrationTest {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                valueInCleanTxn[0] = (String) goCache.get("foo");
+                valueInCleanTxn[0] = goCache.get("foo");
                 User user = new User("loser", "Massive Loser", "boozer@loser.com");
                 userSqlMapDao.saveOrUpdate(user);
-                valueInDirtyTxn[0] = (String) goCache.get("foo");
+                valueInDirtyTxn[0] = goCache.get("foo");
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                     @Override
                     public void afterCommit() {
-                        valueInAfterCommit[0] = (String) goCache.get("foo");
+                        valueInAfterCommit[0] = goCache.get("foo");
                     }
 
                     @Override
                     public void afterCompletion(int status) {
-                        valueInAfterCompletion[0] = (String) goCache.get("foo");
+                        valueInAfterCompletion[0] = goCache.get("foo");
                     }
                 });
             }

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class TransactionSynchronizationManagerTest {
     @Test
     public void shouldUnderstandIfTransactionIsActive() {
         final TransactionSynchronizationManager synchronizationManager = new TransactionSynchronizationManager();
-        final ArrayList<Boolean> transactionActivity = new ArrayList<>();
+        final List<Boolean> transactionActivity = new ArrayList<>();
 
         transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallbackWithoutResult() {
             @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -91,7 +90,7 @@ public class TransactionSynchronizationManagerTest {
         final boolean[] inBody = new boolean[] {false};
         final TransactionSynchronizationManager synchronizationManager = new TransactionSynchronizationManager();
 
-        transactionTemplate.execute((TransactionCallback) status -> {
+        transactionTemplate.execute(status -> {
             inBody[0] = synchronizationManager.isTransactionBodyExecuting();
             return null;
         });

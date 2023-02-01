@@ -16,12 +16,13 @@
 package com.thoughtworks.go.server.materials.postcommit;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UrlMatchers {
 
-    private final ArrayList<UrlMatcher> validators;
+    private final List<UrlMatcher> validators;
 
     public UrlMatchers() {
         validators = new ArrayList<>();

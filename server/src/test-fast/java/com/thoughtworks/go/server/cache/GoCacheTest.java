@@ -244,7 +244,7 @@ public class GoCacheTest {
         assertThat(goCache.get(parentKey), is(not(nullValue())));
         assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(nullValue()));
         assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2"), is(not(nullValue())));
-        GoCache.KeyList list = (GoCache.KeyList) goCache.get(parentKey);
+        GoCache.KeyList list = goCache.get(parentKey);
         assertThat(list.size(), is(1));
         assertThat(list.contains("child2"), is(true));
     }
@@ -263,7 +263,7 @@ public class GoCacheTest {
         assertThat(goCache.get(parentKey), is(not(nullValue())));
         assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child1"), is(nullValue()));
         assertThat(goCache.get(parentKey + GoCache.SUB_KEY_DELIMITER + "child2"), is(not(nullValue())));
-        GoCache.KeyList list = (GoCache.KeyList) goCache.get(parentKey);
+        GoCache.KeyList list = goCache.get(parentKey);
         assertThat(list.size(), is(1));
         assertThat(list.contains("child2"), is(true));
     }

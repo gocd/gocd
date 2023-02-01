@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -73,7 +72,7 @@ public class PipelineTimelineTest {
     }
 
     @Test
-    public void shouldReturnTheNextAndPreviousOfAGivenPipeline() throws Exception {
+    public void shouldReturnTheNextAndPreviousOfAGivenPipeline() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(first);
         mods.add(third);
@@ -94,7 +93,8 @@ public class PipelineTimelineTest {
         assertEquals(actualAfter, after, "Expected " + after + " to be after " + actual + ". Got " + actualAfter);
     }
 
-    @Test public void shouldPopulateTheBeforeAndAfterNodesForAGivenPMMDuringAddition() throws Exception {
+    @Test
+    public void shouldPopulateTheBeforeAndAfterNodesForAGivenPMMDuringAddition() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(first);
         mods.add(fourth);
@@ -108,7 +108,8 @@ public class PipelineTimelineTest {
         assertThat(second.insertedAfter(), is(first));
     }
 
-    @Test public void shouldBeAbleToFindThePreviousPipelineForAGivenPipeline() throws Exception {
+    @Test
+    public void shouldBeAbleToFindThePreviousPipelineForAGivenPipeline() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(first);
         mods.add(fourth);
@@ -126,7 +127,8 @@ public class PipelineTimelineTest {
         assertThat(mods.naturalOrderBefore(second), is(first));
     }
 
-    @Test public void shouldPopuplateTheBeforeAndAfterNodesForAGivenPipelineDuringAddition() throws Exception {
+    @Test
+    public void shouldPopulateTheBeforeAndAfterNodesForAGivenPipelineDuringAddition() {
         PipelineTimelineEntry anotherPipeline1 = PipelineMaterialModificationMother.modification("another", 4, materials, List.of(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "123");
         PipelineTimelineEntry anotherPipeline2 = PipelineMaterialModificationMother.modification("another", 5, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(3)), 2, "123");
         PipelineTimelineEntry anotherPipeline3 = PipelineMaterialModificationMother.modification("another", 6, materials, List.of(now, now.plusMinutes(2), now.plusMinutes(3), now.plusMinutes(2)), 3, "123");
@@ -157,32 +159,33 @@ public class PipelineTimelineTest {
         assertThat(mods.runAfter(second.getId(), new CaseInsensitiveString(second.getPipelineName())), is(third));
     }
 
-    @Test public void updateShouldNotifyListenersOnAddition() throws Exception {
+    @Test
+    public void updateShouldNotifyListenersOnAddition() {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
-        final List<PipelineTimelineEntry>[] entries = new List[1];
-        entries[0] = new ArrayList<>();
+        final List<PipelineTimelineEntry> entries = new ArrayList<>();
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
             assertThat(timeline1.contains(newlyAddedEntry), is(true));
-            assertThat(timeline1.containsAll(entries[0]), is(true));
-            entries[0].add(newlyAddedEntry);
+            assertThat(timeline1.containsAll(entries), is(true));
+            entries.add(newlyAddedEntry);
         });
-        stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
+        stubPipelineRepository(timeline, true, first, second);
 
         timeline.update();
 
-        assertThat(entries[0].size(), is(1));
-        assertThat(entries[0].contains(first), is(true));
+        assertThat(entries.size(), is(1));
+        assertThat(entries.contains(first), is(true));
     }
 
-    @Test public void updateShouldIgnoreExceptionThrownByListenersDuringNotifications() throws Exception {
+    @Test
+    public void updateShouldIgnoreExceptionThrownByListenersDuringNotifications() {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
         TimelineUpdateListener anotherListener = mock(TimelineUpdateListener.class);
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager, (newlyAddedEntry, timeline1) -> {
             throw new RuntimeException();
         }, anotherListener);
-        stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
+        stubPipelineRepository(timeline, true, first, second);
         try {
             timeline.update();
         } catch (Exception e) {
@@ -191,7 +194,8 @@ public class PipelineTimelineTest {
         verify(anotherListener).added(eq(first), any(TreeSet.class));
     }
 
-    @Test public void updateOnInitShouldBeDoneOutsideTransaction() throws Exception {
+    @Test
+    public void updateOnInitShouldBeDoneOutsideTransaction() {
         PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         PipelineTimelineEntry[] entries = {first, second};
         stubPipelineRepository(timeline, true, entries);
@@ -204,7 +208,8 @@ public class PipelineTimelineTest {
         assertThat(timeline.maximumId(), is(2L));
     }
 
-    @Test public void updateShouldLoadNewInstancesFromTheDatabase() throws Exception {
+    @Test
+    public void updateShouldLoadNewInstancesFromTheDatabase() {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);
 
@@ -218,12 +223,13 @@ public class PipelineTimelineTest {
         assertThat(timeline.maximumId(), is(2L));
     }
 
-    @Test public void updateShouldRemoveTheTimelinesReturnedOnRollback() throws Exception {
+    @Test
+    public void updateShouldRemoveTheTimelinesReturnedOnRollback() {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_ROLLED_BACK, true);
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         PipelineTimelineEntry[] entries = {first, second};
-        stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
+        stubPipelineRepository(timeline, true, first, second);
 
         timeline.update();
 
@@ -232,7 +238,7 @@ public class PipelineTimelineTest {
     }
 
     @Test
-    public void shouldRemove_NewlyAddedTimelineEntries_fromAllCollections_UponRollback() throws Exception {
+    public void shouldRemove_NewlyAddedTimelineEntries_fromAllCollections_UponRollback() {
         Collection<PipelineTimelineEntry> allEntries;
 
         stubTransactionSynchronization();
@@ -264,6 +270,7 @@ public class PipelineTimelineTest {
                 for (PipelineTimelineEntry entry : repositoryEntries) {
                     timeline.add(entry);
                 }
+                //noinspection unchecked
                 ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(List.of(repositoryEntries));
                 return List.of(repositoryEntries);
             }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyList());
@@ -277,11 +284,11 @@ public class PipelineTimelineTest {
         }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
     }
 
-    private void setupTransactionTemplateStub(final int status, final boolean restub) throws Exception {
+    private void setupTransactionTemplateStub(final int status, final boolean restub) {
         this.txnStatus = status;
         if (restub) {
-            when(transactionTemplate.execute(Mockito.any(TransactionCallback.class))).thenAnswer(invocationOnMock -> {
-                TransactionCallback callback = (TransactionCallback) invocationOnMock.getArguments()[0];
+            when(transactionTemplate.execute(any())).thenAnswer(invocationOnMock -> {
+                TransactionCallback<?> callback = (TransactionCallback<?>) invocationOnMock.getArguments()[0];
                 callback.doInTransaction(null);
                 if (txnStatus == TransactionSynchronization.STATUS_COMMITTED) {
                     transactionSynchronization.afterCommit();
@@ -292,7 +299,8 @@ public class PipelineTimelineTest {
         }
     }
 
-    @Test public void shouldReturnNullForPipelineBeforeAndAfterIfPipelineDoesNotExist() throws Exception {
+    @Test
+    public void shouldReturnNullForPipelineBeforeAndAfterIfPipelineDoesNotExist() {
         PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.add(first);
         assertThat(timeline.runBefore(2, new CaseInsensitiveString("not-present")), is(nullValue()));
@@ -300,7 +308,7 @@ public class PipelineTimelineTest {
     }
 
     @Test
-    public void shouldCreateANaturalOrderingHalfWayBetweenEachPipeline() throws Exception {
+    public void shouldCreateANaturalOrderingHalfWayBetweenEachPipeline() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(first);
         assertThat(first.naturalOrder(), is(1.0));
@@ -318,7 +326,7 @@ public class PipelineTimelineTest {
 
 
     @Test
-    public void shouldCreateANaturalOrderingHalfWayBetweenEachPipelineWhenInsertedInReverseOrder() throws Exception {
+    public void shouldCreateANaturalOrderingHalfWayBetweenEachPipelineWhenInsertedInReverseOrder() {
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         mods.add(fourth);
         assertThat(fourth.naturalOrder(), is(1.0));
@@ -344,6 +352,6 @@ public class PipelineTimelineTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Calculated natural ordering 1.5 is not the same as the existing naturalOrder 1.0, for pipeline pipeline, with id 4"));
         }
-     }
+    }
 
 }

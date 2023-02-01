@@ -188,7 +188,7 @@ public class SchedulingCheckerService {
     }
 
     CompositeChecker buildScheduleCheckers(List<SchedulingChecker> schedulingCheckers) {
-        return new CompositeChecker(schedulingCheckers.toArray(new SchedulingChecker[schedulingCheckers.size()]));
+        return new CompositeChecker(schedulingCheckers.toArray(new SchedulingChecker[0]));
     }
 
     private SchedulingChecker manualTriggerCheckers(PipelineConfig pipelineConfig, String username) {

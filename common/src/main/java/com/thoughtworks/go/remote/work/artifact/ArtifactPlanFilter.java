@@ -43,7 +43,7 @@ public class ArtifactPlanFilter {
     }
 
     public List<ArtifactPlan> getPluggableArtifactPlans(List<ArtifactPlan> artifactPlans) {
-        final ArrayList<ArtifactPlan> pluggableArtifactPlans = new ArrayList<>();
+        final List<ArtifactPlan> pluggableArtifactPlans = new ArrayList<>();
         for (ArtifactPlan artifactPlan : artifactPlans) {
             if (artifactPlan.getArtifactPlanType() == ArtifactPlanType.external) {
                 pluggableArtifactPlans.add(artifactPlan);

@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
-import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.junit.jupiter.api.BeforeAll;
@@ -86,11 +85,11 @@ public class MaterialExpansionServiceCachingTest {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         String cacheKey = materialExpansionService.cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint());
 
-        Subversion svn = (SvnCommand) goCache.get(cacheKey);
+        Subversion svn = goCache.get(cacheKey);
         assertNull(svn);
 
         materialExpansionService.expandForScheduling(svnMaterialConfig, materialConfigs);
-        svn = (SvnCommand) goCache.get(cacheKey);
+        svn = goCache.get(cacheKey);
 
         assertNotNull(svn);
         assertThat(svn.getUrl().originalArgument(), is(svnMaterialConfig.getUrl()));

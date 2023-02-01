@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -69,7 +70,7 @@ public class ConfigInfoProvider implements ServerInfoProvider {
 
     private LinkedHashMap<String, Object> securityInformation() {
         final LinkedHashMap<String, Object> security = new LinkedHashMap<>();
-        final ArrayList<Map<String, Object>> pluginsConfigured = new ArrayList<>();
+        final List<Map<String, Object>> pluginsConfigured = new ArrayList<>();
         security.put("Plugins", pluginsConfigured);
 
         if (goConfigService.security().securityAuthConfigs().isEmpty()) {

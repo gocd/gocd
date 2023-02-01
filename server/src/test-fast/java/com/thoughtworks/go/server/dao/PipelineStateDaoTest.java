@@ -78,7 +78,7 @@ class PipelineStateDaoTest {
             pipelineStateDao.lockPipeline(pipeline);
             fail("save should have thrown an exception!");
         } catch (Exception e) {
-            PipelineState stateFromCache = (PipelineState) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
+            PipelineState stateFromCache = goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
             assertThat(stateFromCache.isLocked(), is(false));
             assertThat(stateFromCache.getLockedByPipelineId(), is(0L));
             assertThat(stateFromCache.getLockedBy(), is(nullValue()));
@@ -104,7 +104,7 @@ class PipelineStateDaoTest {
             pipelineStateDao.unlockPipeline(pipelineName);
             fail("save should have thrown an exception!");
         } catch (Exception e) {
-            PipelineState stateFromCache = (PipelineState) goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
+            PipelineState stateFromCache = goCache.get(pipelineStateDao.pipelineLockStateCacheKey(pipelineName));
             assertThat(stateFromCache.isLocked(), is(true));
             assertThat(stateFromCache.getLockedByPipelineId(), is(lockedByPipelineId));
         }

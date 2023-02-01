@@ -53,6 +53,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings("unused")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -106,7 +107,7 @@ public class FaninDependencyResolutionTest {
         configHelper.onTearDown();
     }
 
-    private void setMaxBackTrackLimit(int limit) {
+    private void setMaxBackTrackLimit(@SuppressWarnings("SameParameterValue") int limit) {
         systemEnvironment.set(RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT, limit);
     }
 
@@ -115,7 +116,7 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldRestoreMaterialNamesBasedOnMaterialConfig() throws Exception {
+    public void shouldRestoreMaterialNamesBasedOnMaterialConfig() {
         /*
             g -> up   -> down
                  +-> mid -+
@@ -153,7 +154,7 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldTriggerCommonCIAndCDPhasesCorrectly_FAILING_SCN() throws Exception {
+    public void shouldTriggerCommonCIAndCDPhasesCorrectly_FAILING_SCN() {
 
         //     -----> Acceptance ----
         //     |        |           v
@@ -279,22 +280,22 @@ public class FaninDependencyResolutionTest {
         String p1_2 = u.runAndPass(p1, "g2");
         String p2_2 = u.runAndFail(p2, "g2");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(gitMaterial, true, "g2"),
+        MaterialRevisions given = u.mrs(
+            u.mr(gitMaterial, true, "g2"),
                 u.mr(p1, true, p1_2),
-                u.mr(p2, true, p2_1)});
+                u.mr(p2, true, p2_1));
 
-        MaterialRevisions expected = u.mrs(new MaterialRevision[]{
-                u.mr(gitMaterial, true, "g1"),
+        MaterialRevisions expected = u.mrs(
+            u.mr(gitMaterial, true, "g1"),
                 u.mr(p1, true, p1_1),
-                u.mr(p2, true, p2_1)});
+                u.mr(p2, true, p2_1));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given);
         assertThat(finalRevisions, is(expected));
     }
 
     @Test
-    public void shouldResolveWithMultipleDiamondsOnSamePipelines() throws Exception {
+    public void shouldResolveWithMultipleDiamondsOnSamePipelines() {
         /*
           |-------v
           |    /--P1--\
@@ -320,19 +321,19 @@ public class FaninDependencyResolutionTest {
         String p1_2 = u.runAndPass(p1, "h11", "g13");
         String p2_2 = u.runAndPass(p2, "h12", "g13");
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(p1, true, p1_2),
-                u.mr(p2, true, p2_2)});
+        MaterialRevisions given = u.mrs(
+            u.mr(p1, true, p1_2),
+                u.mr(p2, true, p2_2));
 
-        MaterialRevisions expected = u.mrs(new MaterialRevision[]{
-                u.mr(p1, true, p1_2),
-                u.mr(p2, true, p2_1)});
+        MaterialRevisions expected = u.mrs(
+            u.mr(p1, true, p1_2),
+                u.mr(p2, true, p2_1));
 
         assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
     }
 
     @Test
-    public void shouldFindCompatibleRevisionWhenDependencyMaterialHasMaterialName() throws Exception {
+    public void shouldFindCompatibleRevisionWhenDependencyMaterialHasMaterialName() {
         //      Third <- Second
         //         |     /
         //         |   /
@@ -359,7 +360,7 @@ public class FaninDependencyResolutionTest {
 
 
     @Test
-    public void shouldFindCompatibleRevisionWhenSameMaterialHasDiffFolderNamesInGraph() throws Exception {
+    public void shouldFindCompatibleRevisionWhenSameMaterialHasDiffFolderNamesInGraph() {
         //      Second <- Svn
         //         |     /
         //         |   /
@@ -455,13 +456,13 @@ public class FaninDependencyResolutionTest {
 
         //check wat happens to p4
 
-        MaterialRevisions given = u.mrs(new MaterialRevision[]{
-                u.mr(git2, true, "git2_3"),
-                u.mr(p3, true, p3_3)});
+        MaterialRevisions given = u.mrs(
+u.mr(git2, true, "git2_3"),
+                u.mr(p3, true, p3_3));
 
-        MaterialRevisions expected = u.mrs(new MaterialRevision[]{
-                u.mr(git2, true, "git2_3"),
-                u.mr(p3, true, p3_3)});
+        MaterialRevisions expected = u.mrs(
+u.mr(git2, true, "git2_3"),
+                u.mr(p3, true, p3_3));
 
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
@@ -478,9 +479,9 @@ public class FaninDependencyResolutionTest {
                 u.mr(git2, true, "git2_3"),
                 u.mr(p3, true, p3_3));
 
-        expected = u.mrs(new MaterialRevision[]{
-                u.mr(git2, true, "git2_3"),
-                u.mr(p3, true, p3_3)});
+        expected = u.mrs(
+u.mr(git2, true, "git2_3"),
+                u.mr(p3, true, p3_3));
 
         finalRevisions = getRevisionsBasedOnDependencies(p4, cruiseConfig, given);
         assertThat(finalRevisions, is(expected));
@@ -536,7 +537,7 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldComputeRevisionCorrectlyWhen_MoreThan1UpstreamPipelineHasMinimumRevision() throws Exception {
+    public void shouldComputeRevisionCorrectlyWhen_MoreThan1UpstreamPipelineHasMinimumRevision() {
         /*       +----------
              /-->P1---\      v
            git------> P3 -> P4
@@ -588,13 +589,13 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldResolveWithNoPassedBuildOfRootNode() throws Exception {
-        /**
-         * git -------+
-         *  |         |
-         *  |         |
-         *  v         v
-         *  P1 -----> P2
+    public void shouldResolveWithNoPassedBuildOfRootNode() {
+        /*
+          git -------+
+           |         |
+           |         |
+           v         v
+           P1 -----> P2
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -622,13 +623,13 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldResolveWithModifiedStageDefinitionOfRootNode() throws Exception {
-        /**
-         * git -------+
-         *  |         |
-         *  |         |
-         *  v         v
-         *  P1 -----> P2
+    public void shouldResolveWithModifiedStageDefinitionOfRootNode() {
+        /*
+          git -------+
+           |         |
+           |         |
+           v         v
+           P1 -----> P2
          */
 
         GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
@@ -691,7 +692,7 @@ public class FaninDependencyResolutionTest {
     }
 
     @Test
-    public void shouldResolveWithModifiedMaterialDefinitionOfRoot() throws Exception {
+    public void shouldResolveWithModifiedMaterialDefinitionOfRoot() {
         /*
              +---> P1 ---+
              |           v

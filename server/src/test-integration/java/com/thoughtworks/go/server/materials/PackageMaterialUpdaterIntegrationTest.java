@@ -86,7 +86,7 @@ public class PackageMaterialUpdaterIntegrationTest {
         material.getPackageDefinition().getConfiguration().addNewConfiguration("fieldX", true);
         final List<Modification> modifications = ModificationsMother.multipleModificationList();
         doNothing().when(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
-        transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+        transactionTemplate.execute(transactionStatus -> {
             packageMaterialUpdater.insertLatestOrNewModifications(material, materialInstance, new File(""), new Modifications(modifications));
             return null;
         });

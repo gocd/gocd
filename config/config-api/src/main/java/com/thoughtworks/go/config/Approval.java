@@ -188,7 +188,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
                 result.add(new AdminUser(new CaseInsensitiveString(value)));
             }
         }
-        return result.toArray(new Admin[result.size()]);
+        return result.toArray(new Admin[0]);
     }
 
     private Admin[] extractAdminRole(List<Map<String, String>> map) {
@@ -199,7 +199,7 @@ public class Approval implements Validatable, ParamsAttributeAware {
                 result.add(new AdminRole(new CaseInsensitiveString(value)));
             }
         }
-        return result.toArray(new Admin[result.size()]);
+        return result.toArray(new Admin[0]);
     }
 
     public void removeOperatePermissions() {

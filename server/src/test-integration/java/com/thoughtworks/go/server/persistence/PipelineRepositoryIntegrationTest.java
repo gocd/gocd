@@ -294,7 +294,7 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     private long save(final PipelineConfig pipelineConfig, final int counter, final double naturalOrder, final MaterialRevision... materialRevisions) {
-        return (Long) transactionTemplate.execute((TransactionCallback) status -> {
+        return transactionTemplate.execute(status -> {
             MaterialRevisions revisions = new MaterialRevisions(materialRevisions);
             materialRepository.save(revisions);
 

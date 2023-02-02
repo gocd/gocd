@@ -27,7 +27,7 @@ OperatingSystem currentOS = OperatingSystem.current()
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
   chromedriver: '109.0.5414.74',
-  geckodriver : '0.32.0',
+  geckodriver : '0.32.1',
 ]
 
 def execute = { String path, String... argv ->

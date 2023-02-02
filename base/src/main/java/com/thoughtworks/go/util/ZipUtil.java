@@ -25,10 +25,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_COPY_BUFFER_SIZE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ZipUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipUtil.class);
+    private static final int BUFFER_SIZE = new SystemEnvironment().get(ARTIFACT_COPY_BUFFER_SIZE);
     private ZipEntryHandler zipEntryHandler = null;
 
     public ZipUtil() {
@@ -139,7 +141,7 @@ public class ZipUtil {
         try {
             outputFile.getParentFile().mkdirs();
             try (FileOutputStream os = new FileOutputStream(outputFile)) {
-                IOUtils.copyLarge(entryInputStream, os);
+                IOUtils.copy(entryInputStream, os, BUFFER_SIZE);
                 if (zipEntryHandler != null) {
                     FileInputStream stream = null;
                     try {

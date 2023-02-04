@@ -15,7 +15,6 @@
  */
 
 import classnames from "classnames";
-import {makeEvent} from "helpers/compat";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -46,7 +45,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
   private templates: Stream<Template[]>    = Stream();
 
   oncreate(vnode: m.VnodeDOM<Attrs, State>) {
-    vnode.state.notifyChange = () => vnode.dom.dispatchEvent(makeEvent("change"));
+    vnode.state.notifyChange = () => vnode.dom.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
   }
 
   oninit(vnode: m.Vnode<Attrs, State>) {

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import classnames from "classnames";
-import {writeText} from "clipboard-polyfill";
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {asPromise} from "models/base/accessor";
@@ -122,7 +121,7 @@ export class Click2Copy extends RestyleViewComponent<Styles, ClickAttrs> {
 
   onclick(vnode: m.Vnode<ClickAttrs>) {
     const { reader, copier } = vnode.attrs;
-    const copy = copier || writeText;
+    const copy = copier || (text => navigator.clipboard.writeText(text));
 
     return (e: MouseEvent) => {
       e.stopPropagation();

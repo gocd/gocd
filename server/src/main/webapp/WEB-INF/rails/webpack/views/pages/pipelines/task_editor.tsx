@@ -15,10 +15,8 @@
  */
 
 import classnames from "classnames";
-import {closest, getClipboardAsPlaintext, getSelection, insertTextFromClipboard, matches} from "helpers/compat";
 import {asSelector} from "helpers/css_proxies";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import _ from "lodash";
 import m from "mithril";
 import {Task} from "models/pipeline_configs/task";
 import {BaseAttrs, FormField, RequiredFieldAttr} from "views/components/forms/input_fields";
@@ -117,7 +115,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
         return;
       }
 
-      const selection = getSelection();
+      const selection = window.getSelection() || document.getSelection();
 
       // if the user has selected text within the terminal (e.g., to copy from `help`), don't
       // hijack the cursor by calling focus(); only do so when it's plain click
@@ -138,9 +136,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
     container.addEventListener("paste", (e) => {
       e.preventDefault();
 
-      insertTextFromClipboard(
-        getClipboardAsPlaintext(e)
-      );
+      document.execCommand("insertText", false, e.clipboardData!.getData("text/plain"));
     });
   }
 }
@@ -154,9 +150,9 @@ function isCurrentEditor(target: EventTarget | null) {
 }
 
 function isTaskLine(target: EventTarget | null): target is HTMLElement {
-  return !!target && matches(target as Element, `${sel.task},${sel.task} *`);
+  return !!target && (target as Element).matches(`${sel.task},${sel.task} *`);
 }
 
 function taskLine(target: Element) {
-  return closest(target, sel.task) as HTMLElement;
+  return target.closest(sel.task) as HTMLElement;
 }

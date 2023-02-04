@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {makeEvent} from "helpers/compat";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -44,7 +43,7 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
   }
 
   oncreate(vnode: m.VnodeDOM<Attrs>) {
-    this.notifyChange = () => vnode.dom.dispatchEvent(makeEvent("change"));
+    this.notifyChange = () => vnode.dom.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
   }
 
   view(vnode: m.Vnode<Attrs>) {

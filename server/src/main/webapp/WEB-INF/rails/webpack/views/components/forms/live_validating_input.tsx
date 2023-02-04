@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {makeEvent} from "helpers/compat";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
@@ -54,7 +53,7 @@ export class LiveValidatingInputField extends MithrilComponent<LiveInputAttrs, S
         dom.setCustomValidity(validator(dom.value) || "");
 
         if (!!dom.validationMessage) {
-          dom.dispatchEvent(makeEvent("invalid", false, true));
+          dom.dispatchEvent(new Event("invalid", { bubbles: false, cancelable: true }));
         }
         m.redraw();
 

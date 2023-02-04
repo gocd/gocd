@@ -63,23 +63,6 @@
       }
     ]
   },
-  "text-encoding": {
-    "moduleName": "text-encoding",
-    "moduleVersion": "0.6.4",
-    "moduleUrls": [
-      "https://github.com/inexorabletash/text-encoding"
-    ],
-    "filenames": [
-      "encoding.js",
-      "encoding-indexes.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "Unlicense",
-        "moduleLicenseUrl": "https://spdx.org/licenses/Unlicense.html"
-      }
-    ]
-  },
   "jquery-dirtyform-plugin": {
     "moduleName": "jquery-dirtyform-plugin",
     "moduleVersion": "unknown",

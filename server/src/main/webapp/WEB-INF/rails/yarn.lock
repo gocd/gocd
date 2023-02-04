@@ -2495,11 +2495,6 @@ clean-webpack-plugin@^4.0.0:
   dependencies:
     del "^4.1.1"
 
-clipboard-polyfill@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/clipboard-polyfill/-/clipboard-polyfill-3.0.3.tgz#159ea0768e20edc7ffda404bd13c54c73de4ff40"
-  integrity sha512-hts0o01ZkwjA1qHA5gFePzAj/780W7v+eyN3GdaCRyDnapzcPsKRV5aodv77gcr40NDIcyNjNmc+HvfKV+jD0g==
-
 cliui@^7.0.2:
   version "7.0.4"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-7.0.4.tgz#a0265ee655476fc807aea9df3df8df7783808b4f"

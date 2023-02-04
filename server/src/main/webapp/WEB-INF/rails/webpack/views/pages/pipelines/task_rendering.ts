@@ -16,7 +16,6 @@
 
 // utils
 import classnames from "classnames";
-import {makeEvent} from "helpers/compat";
 import {asSelector} from "helpers/css_proxies";
 import {el, empty, removeEl, replaceWith} from "helpers/dom";
 import {NonThrashingScheduler, Scheduler} from "helpers/scheduler";
@@ -100,7 +99,7 @@ export class TerminalCrud {
   /** parses the DOM to extract all tasks and write back to the model */
   private writeTasksToModel(tasks: NodeListOf<HTMLElement>) {
     this.model(_.map(tasks, (t) => this.toTaskModel(t)));
-    this.term.dispatchEvent(makeEvent("change", true, true));
+    this.term.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
   }
 }
 

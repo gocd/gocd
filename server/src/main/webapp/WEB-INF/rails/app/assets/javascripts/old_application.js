@@ -13,32 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// monkey patch ajax GETs: append current time so that IE does not use cached result
-Ajax.Request.prototype.__request = Ajax.Request.prototype.request;
-Ajax.Updater.prototype.__request = Ajax.Updater.prototype.request;
-Ajax.Request.prototype.__respondToReadyState = Ajax.Request.prototype.respondToReadyState;
-Ajax.Updater.prototype.__respondToReadyState = Ajax.Updater.prototype.respondToReadyState;
-
-Ajax.RequestOverriden = {
-  requestIndex: 1,
-  request: function(url) {
-    var now = new Date();
-    this.requestIndex += 1;
-    if (this.options.method == 'get') {
-      url += (url.include('?') ? '&' : '?') + "ms=" + now.getTime() + "_" + this.requestIndex;
-    }
-    this.__request(url);
-  },
-
-  //disable event dispatching for interactive stage, which cause a hug memory spike on more than 2m data transfered
-  respondToReadyState: function(readyState) {
-    if(readyState == 3) { return; }
-    this.__respondToReadyState(readyState);
-  }
-};
-Object.extend(Ajax.Request.prototype, Ajax.RequestOverriden);
-Object.extend(Ajax.Updater.prototype, Ajax.RequestOverriden);
-
 function context_path(path_info) {
   if (path_info && path_info.startsWith(contextPath)) {
     return path_info;

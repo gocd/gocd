@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import classnames from "classnames";
-import * as clipboard from "clipboard-polyfill";
 import {docsUrl} from "gen/gocd_version";
 import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
@@ -914,8 +913,8 @@ export class CopyField extends TextFieldWithButton {
   }
 
   protected onButtonClick(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
-    return () => {
-      clipboard.writeText(vnode.attrs.property()!);
+    return async () => {
+      await navigator.clipboard.writeText(vnode.attrs.property()!);
     };
   }
 }

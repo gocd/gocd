@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// polyfills needed for IE
-//= require "lib/encoding-indexes.js"
-//= require "lib/encoding.js"
 
 (function ($) {
   "use strict";

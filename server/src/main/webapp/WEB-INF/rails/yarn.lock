@@ -1077,6 +1077,11 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@kurkle/color@^0.3.0":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@kurkle/color/-/color-0.3.2.tgz#5acd38242e8bde4f9986e7913c8fdf49d3aa199f"
+  integrity sha512-fuscdXJ9G1qb7W8VdHi+IwRqij3lBkosAm4ydQtEmbY58OzHXqQhvlxqEkoz0yssNVn38bcpRWgA9PP+OGoisw==
+
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
   resolved "https://registry.yarnpkg.com/@nicolo-ribaudo/eslint-scope-5-internals/-/eslint-scope-5-internals-5.1.1-v1.tgz#dbf733a965ca47b1973177dc0bb6c889edcfb129"
@@ -2397,10 +2402,12 @@ chalk@^4.0.0, chalk@^4.0.2, chalk@^4.1.0, chalk@^4.1.2:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chart.js@^3.9.1:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.9.1.tgz#3abf2c775169c4c71217a107163ac708515924b8"
-  integrity sha512-Ro2JbLmvg83gXF5F4sniaQ+lTbSv18E+TIf2cOeiH1Iqd2PGFOtem+DUufMZsCJwFE7ywPOpfXFBwRTGq7dh6w==
+chart.js@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-4.2.0.tgz#dd281b2ce890bff32f3e249cf2972a1e74bc032c"
+  integrity sha512-wbtcV+QKeH0F7gQZaCJEIpsNriFheacouJQTVIjITi3eQA8bTlIBoknz0+dgV79aeKLNMAX+nDslIVE/nJ3rzA==
+  dependencies:
+    "@kurkle/color" "^0.3.0"
 
 chartjs-plugin-zoom@^2.0.0:
   version "2.0.0"

@@ -25,7 +25,7 @@
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.5",
     "bourbon": "^7.3.0",
-    "chart.js": "^3.9.1",
+    "chart.js": "^4.2.0",
     "chartjs-plugin-zoom": "^2.0.0",
     "classnames": "^2.3.2",
     "core-js": "^3.27.2",

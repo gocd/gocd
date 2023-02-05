@@ -464,7 +464,7 @@ class BuildWorkTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void shouldReportErrorWhenComandIsNotExistOnLinux() throws Exception {
+    void shouldReportErrorWhenCommandDoesNotExistOnLinux() throws Exception {
         buildWork = getWork(CMD_NOT_EXIST, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
@@ -476,7 +476,7 @@ class BuildWorkTest {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    void shouldReportErrorWhenComandIsNotExistOnWindows() throws Exception {
+    void shouldReportErrorWhenCommandDoesNotExistOnWindows() throws Exception {
         buildWork = getWork(CMD_NOT_EXIST, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 

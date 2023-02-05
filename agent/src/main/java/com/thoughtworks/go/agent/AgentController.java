@@ -93,7 +93,7 @@ public abstract class AgentController {
     }
 
     private void handleSecurityException(Exception e) {
-        LOG.error("There has been a problem with one of GoCD's SSL certificates. This can be caused by a man-in-the-middle attack, or by pointing the agent to a new server, or by deleting and re-installing Go Server. Go will ask for a new certificate. If this fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.", e);
+        LOG.error("There has been a problem with one of GoCD's TLS certificates. This can be caused by a man-in-the-middle attack, or a change to the HTTPS certificates of the GoCD Server. Review the agent TLS trust settings and any mutual TLS configuration of the agent.", e);
     }
 
     protected abstract void work();

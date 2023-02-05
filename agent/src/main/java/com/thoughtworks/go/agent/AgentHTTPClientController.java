@@ -147,7 +147,7 @@ public class AgentHTTPClientController extends AgentController {
             final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);
         } catch (UnregisteredAgentException e) {
-            LOG.warn("[Agent Loop] Invalid agent certificate with fingerprint {}. Registering with server on next iteration.", e.getUuid());
+            LOG.warn("[Agent Loop] Agent is not registered. [{}] Registering with server on next iteration.", e.getMessage());
             sslInfrastructureService.invalidateAgentCertificate();
         } finally {
             getAgentRuntimeInfo().idle();

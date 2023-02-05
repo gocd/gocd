@@ -51,7 +51,6 @@ public class AgentHTTPClientController extends AgentController {
     private final SslInfrastructureService sslInfrastructureService;
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
-    private final PluginJarLocationMonitor pluginJarLocationMonitor;
 
     private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
@@ -75,7 +74,7 @@ public class AgentHTTPClientController extends AgentController {
                                      PluginRequestProcessorRegistry pluginRequestProcessorRegistry,
                                      AgentHealthHolder agentHealthHolder,
                                      PluginJarLocationMonitor pluginJarLocationMonitor) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder, pluginJarLocationMonitor);
         this.client = client;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
@@ -84,7 +83,6 @@ public class AgentHTTPClientController extends AgentController {
         this.sslInfrastructureService = sslInfrastructureService;
         this.artifactExtension = artifactExtension;
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
-        this.pluginJarLocationMonitor = pluginJarLocationMonitor;
     }
 
     @Override
@@ -113,15 +111,9 @@ public class AgentHTTPClientController extends AgentController {
     }
 
     @Override
-    public void work() {
-        LOG.debug("[Agent Loop] Trying to retrieve work.");
-        if (pluginJarLocationMonitor.hasRunAtLeastOnce()) {
-            retrieveCookieIfNecessary();
-            retrieveWork();
-            LOG.debug("[Agent Loop] Successfully retrieved work.");
-        } else {
-            LOG.debug("[Agent Loop] PluginLocationMonitor has not yet run. Not retrieving work since plugins may not be initialized.");
-        }
+    public WorkAttempt tryDoWork() {
+        retrieveCookieIfNecessary();
+        return doWork();
     }
 
     private void retrieveCookieIfNecessary() {
@@ -133,22 +125,24 @@ public class AgentHTTPClientController extends AgentController {
         }
     }
 
-    void retrieveWork() {
+    private WorkAttempt doWork() {
         AgentIdentifier agentIdentifier = agentIdentifier();
         LOG.debug("[Agent Loop] {} is checking for work from Go", agentIdentifier);
-        Work work;
         try {
             getAgentRuntimeInfo().idle();
-            work = client.getWork(getAgentRuntimeInfo());
+            Work work = client.getWork(getAgentRuntimeInfo());
             if (!(work instanceof NoWork)) {
                 LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             }
             runner = new JobRunner();
             final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);
+            LOG.debug("[Agent Loop] Successfully executed work.");
+            return WorkAttempt.fromWork(work);
         } catch (UnregisteredAgentException e) {
             LOG.warn("[Agent Loop] Agent is not registered. [{}] Registering with server on next iteration.", e.getMessage());
             sslInfrastructureService.createSslInfrastructure();
+            return WorkAttempt.FAILED;
         } finally {
             getAgentRuntimeInfo().idle();
         }

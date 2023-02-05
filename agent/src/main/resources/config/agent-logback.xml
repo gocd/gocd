@@ -45,6 +45,7 @@
     <appender-ref ref="${gocd.agent.logback.root.appender:-FileAppender}"/>
   </root>
 
+  <logger name="com.thoughtworks.go.agent" level="INFO"/>
   <logger name="org.apache.http.wire" level="ERROR"/>
 
   <!-- make sure this is the last line in the config -->

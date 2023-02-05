@@ -28,8 +28,6 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.RequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +42,6 @@ public class SslInfrastructureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SslInfrastructureService.class);
     private static final int REGISTER_RETRY_INTERVAL = 5000;
-    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final RemoteRegistrationRequester remoteRegistrationRequester;
     private final GoAgentServerHttpClient httpClient;
     private final TokenRequester tokenRequester;
@@ -117,14 +114,6 @@ public class SslInfrastructureService {
         }
         LOGGER.info("[Agent Registration] Retrieved registration from Go server.");
         agentAutoRegistrationProperties.scrubRegistrationProperties();
-    }
-
-    public void invalidateAgentCertificate() {
-        try {
-            httpClient.reset();
-        } catch (Exception e) {
-            LOGGER.error(FATAL, "[Agent Registration] Error while deleting key from key store", e);
-        }
     }
 
     public static class RemoteRegistrationRequester {

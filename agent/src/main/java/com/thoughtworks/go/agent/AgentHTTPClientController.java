@@ -148,7 +148,7 @@ public class AgentHTTPClientController extends AgentController {
             runner.run(work, agentWorkContext);
         } catch (UnregisteredAgentException e) {
             LOG.warn("[Agent Loop] Agent is not registered. [{}] Registering with server on next iteration.", e.getMessage());
-            sslInfrastructureService.invalidateAgentCertificate();
+            sslInfrastructureService.createSslInfrastructure();
         } finally {
             getAgentRuntimeInfo().idle();
         }

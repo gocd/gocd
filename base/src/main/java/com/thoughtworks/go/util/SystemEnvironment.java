@@ -466,7 +466,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
 
     private String defaultRemotingUrl() {
-        return "https://localhost:8443" + getWebappContextPath();
+        return "https://localhost:8153" + getWebappContextPath();
     }
 
     public boolean useCompressedJs() {

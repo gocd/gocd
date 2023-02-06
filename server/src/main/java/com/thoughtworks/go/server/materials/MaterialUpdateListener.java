@@ -36,7 +36,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
     private final MaterialDatabaseUpdater updater;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
-    private MaintenanceModeService maintenanceModeService;
+    private final MaintenanceModeService maintenanceModeService;
 
     public MaterialUpdateListener(GoMessageChannel<MaterialUpdateCompletedMessage> channel, MaterialDatabaseUpdater updater,
                                   MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor, MaintenanceModeService maintenanceModeService) {

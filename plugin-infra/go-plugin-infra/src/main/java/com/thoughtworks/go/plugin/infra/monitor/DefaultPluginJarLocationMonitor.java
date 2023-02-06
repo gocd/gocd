@@ -42,8 +42,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     private final File bundledPluginDirectory;
     private final File externalPluginDirectory;
-    private PluginLocationMonitorThread monitorThread;
     private final SystemEnvironment systemEnvironment;
+    private volatile PluginLocationMonitorThread monitorThread;
 
     @Autowired
     public DefaultPluginJarLocationMonitor(SystemEnvironment systemEnvironment) {

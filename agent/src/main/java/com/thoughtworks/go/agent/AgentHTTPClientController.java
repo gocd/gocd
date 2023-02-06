@@ -53,11 +53,11 @@ public class AgentHTTPClientController extends AgentController {
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private final PluginJarLocationMonitor pluginJarLocationMonitor;
 
-    private JobRunner runner;
     private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
-    private AgentInstruction agentInstruction = NONE;
+    private volatile JobRunner runner;
+    private volatile AgentInstruction agentInstruction = NONE;
 
     @Autowired
     public AgentHTTPClientController(RemotingClient client,
@@ -147,8 +147,8 @@ public class AgentHTTPClientController extends AgentController {
             final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);
         } catch (UnregisteredAgentException e) {
-            LOG.warn("[Agent Loop] Invalid agent certificate with fingerprint {}. Registering with server on next iteration.", e.getUuid());
-            sslInfrastructureService.invalidateAgentCertificate();
+            LOG.warn("[Agent Loop] Agent is not registered. [{}] Registering with server on next iteration.", e.getMessage());
+            sslInfrastructureService.createSslInfrastructure();
         } finally {
             getAgentRuntimeInfo().idle();
         }

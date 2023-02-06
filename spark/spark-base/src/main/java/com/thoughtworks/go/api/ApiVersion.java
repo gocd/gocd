@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.api;
 
-import com.google.common.collect.ImmutableSet;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public enum ApiVersion {
     v1(),
@@ -38,17 +38,17 @@ public enum ApiVersion {
 
     public static final String LATEST_VERSION_MIMETYPE = "application/vnd.go.cd+json";
 
-    private static final Set<String> VALID_HEADERS =
-            ImmutableSet.<String>builder()
-                    .add(LATEST_VERSION_MIMETYPE)
-                    .addAll(Arrays.stream(ApiVersion.values()).map(ApiVersion::mimeType).collect(Collectors.toSet()))
-                    .build();
+    private static final Set<String> VALID_HEADERS = Set.copyOf(
+        Stream.concat(
+                Stream.of(LATEST_VERSION_MIMETYPE),
+                Arrays.stream(ApiVersion.values()).map(ApiVersion::mimeType))
+            .collect(Collectors.toSet())
+    );
 
-    private static final Map<String, ApiVersion> HEADER_TO_VERSION_MAP = new LinkedHashMap<>();
-
-    static {
-        Arrays.stream(ApiVersion.values()).forEach(apiVersion -> HEADER_TO_VERSION_MAP.put(apiVersion.mimeType(), apiVersion));
-    }
+    private static final Map<String, ApiVersion> HEADER_TO_VERSION_MAP = Map.copyOf(
+        Arrays.stream(ApiVersion.values())
+            .collect(Collectors.toMap(v -> v.mimeType, Function.identity()))
+    );
 
     private final String mimeType;
 

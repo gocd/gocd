@@ -53,11 +53,11 @@ public class AgentHTTPClientController extends AgentController {
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private final PluginJarLocationMonitor pluginJarLocationMonitor;
 
-    private JobRunner runner;
     private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
-    private AgentInstruction agentInstruction = NONE;
+    private volatile JobRunner runner;
+    private volatile AgentInstruction agentInstruction = NONE;
 
     @Autowired
     public AgentHTTPClientController(RemotingClient client,

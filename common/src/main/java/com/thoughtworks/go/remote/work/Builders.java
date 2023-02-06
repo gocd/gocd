@@ -29,20 +29,19 @@ import org.jetbrains.annotations.TestOnly;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
 
 public class Builders {
-    private List<Builder> builders = new ArrayList<>();
+    private final List<Builder> builders;
     private final DefaultGoPublisher goPublisher;
-    private TaskExtension taskExtension;
+    private final TaskExtension taskExtension;
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     private Builder currentBuilder = new NullBuilder();
-    private transient boolean cancelStarted;
-    private transient boolean cancelFinished;
+    private volatile boolean cancelStarted;
+    private volatile boolean cancelFinished;
 
     public Builders(List<Builder> builders, DefaultGoPublisher goPublisher, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {
         this.builders = builders;

@@ -207,15 +207,6 @@
     <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
   </suppress>
 
-  <suppress until="2023-03-01Z">
-    <notes><![CDATA[
-    There is no released patch for this issue at time of writing, however it seems a false positive and GoCD does not
-    seem exposed to it as it seems specific to a non-Java client or possibly the server?
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.postgresql/postgresql@.*$</packageUrl>
-    <vulnerabilityName>CVE-2022-41862</vulnerabilityName>
-  </suppress>
-
   <suppress>
     <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.

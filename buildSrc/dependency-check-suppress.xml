@@ -189,17 +189,6 @@
 
   <suppress>
     <notes><![CDATA[
-    https://nvd.nist.gov/vuln/detail/CVE-2022-1471 appears to be a dubious vulnerability and not mitigatable. To our
-    knowledge GoCD and its dependencies does not use SnakeYaml in a vulnerable way here, so suppressing this as a false
-    positive.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
-    <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
-    <cve>CVE-2022-1471</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     False positive, Jakarta Projects are not the Eclipse IDE: see https://github.com/jeremylong/DependencyCheck/issues/5287
     and https://github.com/jeremylong/DependencyCheck/issues/5290
     ]]></notes>

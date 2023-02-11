@@ -268,18 +268,6 @@ public class Routes {
         public static String schedule(String pipelineName) {
             return BASE + SCHEDULE_PATH.replaceAll(":pipeline_name", pipelineName);
         }
-
-        public static String pause(String pipelineName) {
-            return BASE + PAUSE_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
-
-        public static String unpause(String pipelineName) {
-            return BASE + UNPAUSE_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
-
-        public static String unlock(String pipelineName) {
-            return BASE + UNLOCK_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
     }
 
     public static class PipelineInstance {
@@ -640,10 +628,6 @@ public class Routes {
 
     public static class DependencyMaterialAutocomplete {
         public static final String BASE = "/api/internal/dependency_material/autocomplete_suggestions";
-    }
-
-    public static class RolesSPA {
-        public static final String BASE = "/admin/security/roles";
     }
 
     public static class PipelineSelection {

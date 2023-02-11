@@ -52,17 +52,17 @@ public class AgentConsoleLogThread extends Thread {
                 break;
             }
             try {
-                logConsoleError(reader);
+                logFrom(reader);
                 Thread.sleep(100);
             } catch (Exception e) {
-                System.err.println("Error occured while capturing console output from agent process: ");
+                System.err.println("Error occurred while capturing console output from agent process: ");
                 e.printStackTrace();
                 break;
             }
         }
     }
 
-    private void logConsoleError(final BufferedReader reader) {
+    private void logFrom(final BufferedReader reader) {
         flushedAfterStop = !keepRunning;
         try {
             reader.lines().forEach(agentOutputAppender::write);

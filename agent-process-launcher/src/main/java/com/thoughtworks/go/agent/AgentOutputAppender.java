@@ -36,15 +36,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 class AgentOutputAppender {
     enum Outstream {
-        STDOUT(ConsoleTarget.SystemOut, "stdout"),
-        STDERR(ConsoleTarget.SystemErr, "stderr");
+        STDOUT(ConsoleTarget.SystemOut),
+        STDERR(ConsoleTarget.SystemErr);
 
         private final ConsoleTarget target;
-        private final String marker;
-
-        Outstream(ConsoleTarget target, String marker) {
+        Outstream(ConsoleTarget target) {
             this.target = target;
-            this.marker = marker;
         }
     }
 
@@ -57,20 +54,16 @@ class AgentOutputAppender {
     void writeTo(Outstream target) {
         ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<>();
         appender.setTarget(target.target.getName());
-        appender.setEncoder(LogHelper.encoder("%date{ISO8601} [" + target.marker + "] - %msg%n"));
+        appender.setEncoder(LogHelper.encoder("%msg%n"));
         appender.start();
         appenders.add(appender);
     }
 
-    private void write(String message, Exception throwable) {
+    void write(String line) {
         for (OutputStreamAppender<ILoggingEvent> appender : appenders) {
             Logger logger = (Logger) LoggerFactory.getLogger(AgentOutputAppender.class);
-            appender.doAppend(new LoggingEvent("", logger, Level.ERROR, message, throwable, null));
+            appender.doAppend(new LoggingEvent("", logger, Level.INFO, line, null, null));
         }
-    }
-
-    void write(String line) {
-        write(line, null);
     }
 
     void close() {
@@ -79,7 +72,7 @@ class AgentOutputAppender {
 
     private RollingFileAppender<ILoggingEvent> rollingAppender(String file) {
         RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
-        rollingFileAppender.setEncoder(LogHelper.encoder("%date{ISO8601} - %msg%n"));
+        rollingFileAppender.setEncoder(LogHelper.encoder("%msg%n"));
         rollingFileAppender.setContext(LogHelper.LOGGER_CONTEXT);
         rollingFileAppender.setFile(getEffectiveLogDirectory(file));
         rollingFileAppender.setName(UUID.randomUUID().toString());

@@ -47,7 +47,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
         int exitValue = 0;
         LOG.info("Agent is version: {}", CurrentGoCDVersion.getInstance().fullVersion());
-        String command[] = new String[]{};
+        String[] command = new String[]{};
 
         try {
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);

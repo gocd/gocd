@@ -40,8 +40,8 @@ public class LogHelper {
     }
 
 
-    public static void rollingPolicyForAppender(RollingFileAppender rollingFileAppender, String maxFileSize, String totalSizeCap, int maxHistory) {
-        SizeAndTimeBasedRollingPolicy rollingPolicy = new SizeAndTimeBasedRollingPolicy();
+    public static void rollingPolicyForAppender(RollingFileAppender<?> rollingFileAppender, String maxFileSize, String totalSizeCap, int maxHistory) {
+        SizeAndTimeBasedRollingPolicy<?> rollingPolicy = new SizeAndTimeBasedRollingPolicy<>();
         rollingPolicy.setContext(LOGGER_CONTEXT);
         rollingPolicy.setMaxHistory(maxHistory);
         rollingPolicy.setMaxFileSize(FileSize.valueOf(maxFileSize));

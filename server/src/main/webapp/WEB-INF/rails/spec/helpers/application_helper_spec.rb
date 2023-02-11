@@ -108,25 +108,25 @@ describe ApplicationHelper do
 
     it "should create a blocking link to a remote location" do
       actual = blocking_link_to_remote_new :name => "&nbsp;",
-                                           :url => com.thoughtworks.go.spark.Routes::Pipeline.unlock('SOME_NAME'),
+                                           :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
                                            :update => {:failure => "message_pane", :success => 'function(){}'},
                                            :html => {},
                                            :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
-                                           :before => "spinny('unlock');"
+                                           :before => "spinny('schedule');"
 
-      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/unlock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
 
     it "should create a blocking link to a remote location with extra HTML provided" do
       actual = blocking_link_to_remote_new :name => "&nbsp;",
-                                           :url => com.thoughtworks.go.spark.Routes::Pipeline.unlock('SOME_NAME'),
+                                           :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
                                            :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
                                            :update => {:failure => "message_pane", :success => 'function(){}'},
                                            :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
-                                           :before => "spinny('unlock');"
+                                           :before => "spinny('schedule');"
 
-      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="AjaxRefreshers.disableAjax();spinny('unlock');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/unlock', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="AjaxRefreshers.disableAjax();spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
   end

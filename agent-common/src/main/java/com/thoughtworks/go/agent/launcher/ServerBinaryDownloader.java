@@ -37,12 +37,14 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER;
 
 public class ServerBinaryDownloader implements Downloader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerBinaryDownloader.class);
+    public static final String DEFAULT_FAILED_DOWNLOAD_SLEEP_MS = "60000";
     private final ServerUrlGenerator urlGenerator;
     private String md5 = null;
 
@@ -58,11 +60,11 @@ public class ServerBinaryDownloader implements Downloader {
 
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, AgentBootstrapperArgs bootstrapperArgs) {
         this(new GoAgentServerHttpClientBuilder(
-                bootstrapperArgs.getRootCertFile(),
-                SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
-                bootstrapperArgs.getSslPrivateKeyFile(),
-                bootstrapperArgs.getSslPrivateKeyPassphraseFile(),
-                bootstrapperArgs.getSslCertificateFile()
+            bootstrapperArgs.getRootCertFile(),
+            SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
+            bootstrapperArgs.getSslPrivateKeyFile(),
+            bootstrapperArgs.getSslPrivateKeyPassphraseFile(),
+            bootstrapperArgs.getSslCertificateFile()
         ), urlGenerator);
     }
 
@@ -86,11 +88,13 @@ public class ServerBinaryDownloader implements Downloader {
             }
             updated = true;
         } catch (Exception e) {
-            LOG.error("Couldn't update {}. Sleeping for 1m. Error: ", downloadableFile, e);
             try {
-                int period = Integer.parseInt(System.getProperty("sleep.for.download", "60000"));
+                int period = Integer.parseInt(System.getProperty("sleep.for.download", DEFAULT_FAILED_DOWNLOAD_SLEEP_MS));
+                LOG.error("Couldn't update {}. Sleeping for {}s. Error: ", downloadableFile, TimeUnit.SECONDS.convert(period, TimeUnit.MILLISECONDS), e);
                 Thread.sleep(period);
-            } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
         }
         return downloaded;
     }
@@ -101,8 +105,8 @@ public class ServerBinaryDownloader implements Downloader {
         request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
 
         try (
-                CloseableHttpClient httpClient = httpClientBuilder.build();
-                CloseableHttpResponse response = httpClient.execute(request)
+            CloseableHttpClient httpClient = httpClientBuilder.build();
+            CloseableHttpResponse response = httpClient.execute(request)
         ) {
             handleInvalidResponse(response, url);
             this.md5 = response.getFirstHeader(MD5_HEADER).getValue();

@@ -10,11 +10,11 @@
         "targets": {
           "browsers": [
             "> 0.5%",
-            "last 2 versions",
+            "last 3 major versions",
             "Firefox ESR",
-            "not IE > 0",
-            "not IE_Mob > 0",
-            "not BlackBerry > 0"
+            "not dead",
+            "not Kaios > 0",
+            "not OperaMobile > 0"
             // see http://browserl.ist/?q=defaults and https://github.com/ai/browserslist#queries
           ]
         }

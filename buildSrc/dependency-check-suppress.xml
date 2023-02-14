@@ -189,15 +189,6 @@
 
   <suppress>
     <notes><![CDATA[
-    False positive, Jakarta Projects are not the Eclipse IDE: see https://github.com/jeremylong/DependencyCheck/issues/5287
-    and https://github.com/jeremylong/DependencyCheck/issues/5290
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/jakarta\.(activation|mail)/jakarta\.(activation|mail)\-api@.*$</packageUrl>
-    <cpe>cpe:/a:eclipse:eclipse_ide</cpe>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

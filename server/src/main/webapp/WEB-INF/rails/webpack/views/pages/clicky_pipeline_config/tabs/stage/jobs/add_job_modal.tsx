@@ -61,13 +61,14 @@ export class AddJobModal extends Modal {
 
     this.jobToCreate = new Job();
 
-    this.stage                = stage;
-    this.templateConfig       = templateConfig;
-    this.pipelineConfig       = pipelineConfig;
-    this.routeParams          = routeParams;
-    this.ajaxOperationMonitor = ajaxOperationMonitor;
-    this.flashMessage         = flashMessage;
-    this.pipelineConfigSave   = pipelineConfigSave;
+    this.stage                    = stage;
+    this.templateConfig           = templateConfig;
+    this.pipelineConfig           = pipelineConfig;
+    this.routeParams              = routeParams;
+    this.ajaxOperationMonitor     = ajaxOperationMonitor;
+    this.flashMessage             = flashMessage;
+    this.closeModalOnOverlayClick = false;
+    this.pipelineConfigSave       = pipelineConfigSave;
 
     this.jobSettingsTabContent = new JobSettingsTabContent();
 

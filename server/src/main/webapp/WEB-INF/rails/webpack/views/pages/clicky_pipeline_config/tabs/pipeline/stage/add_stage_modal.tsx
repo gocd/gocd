@@ -48,9 +48,10 @@ export class AddStageModal extends Modal {
   constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>, flashMessage: FlashMessageModelWithTimeout) {
     super();
 
-    this.stages             = stages;
-    this.pipelineConfigSave = pipelineConfigSave;
-    this.parentFlashMessage = flashMessage;
+    this.stages                   = stages;
+    this.pipelineConfigSave       = pipelineConfigSave;
+    this.parentFlashMessage       = flashMessage;
+    this.closeModalOnOverlayClick = false;
 
     this.stageToCreate = new Stage();
     this.jobToCreate   = new Job();

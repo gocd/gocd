@@ -29,10 +29,11 @@ export abstract class AbstractTaskModal extends Modal {
 
   constructor(onAdd: (t: Task) => Promise<any>, readonly: boolean, disableSave: Stream<boolean> = Stream<boolean>(false)) {
     super(Size.medium);
-    this.onAdd        = onAdd;
-    this.readonlyAttr     = readonly;
-    this.flashMessage = new FlashMessageModel();
-    this.disableSave = disableSave;
+    this.onAdd                    = onAdd;
+    this.readonlyAttr             = readonly;
+    this.flashMessage             = new FlashMessageModel();
+    this.closeModalOnOverlayClick = false;
+    this.disableSave              = disableSave;
   }
 
   abstract getTask(): Task;

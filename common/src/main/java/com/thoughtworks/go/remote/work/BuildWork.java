@@ -85,6 +85,7 @@ public class BuildWork implements Work {
 
     @Override
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
+        LOGGER.info("Executing received BuildWork job...");
         initialize(agentWorkContext);
         try {
             JobResult result = build(environmentVariableContext, agentWorkContext.getAgentIdentifier(), agentWorkContext.getScmExtension());

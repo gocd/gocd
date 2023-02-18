@@ -20,9 +20,11 @@ import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -34,7 +36,7 @@ import java.security.GeneralSecurityException;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AgentControllerTest {
@@ -48,36 +50,48 @@ public class AgentControllerTest {
     private AgentUpgradeService agentUpgradeService;
     @Mock
     private PluginManager pluginManager;
-    private AgentController agentController;
-
     @Mock
     private AgentRegistry agentRegistry;
-    private TestingClock clock = new TestingClock();
+    @Mock
+    private PluginJarLocationMonitor pluginJarLocationMonitor;
+    private AgentController agentController;
+
+    private final TestingClock clock = new TestingClock();
     private final int pingInterval = 5000;
-    private AgentHealthHolder agentHealthHolder = new AgentHealthHolder(clock, pingInterval);
+    private final AgentHealthHolder agentHealthHolder = new AgentHealthHolder(clock, pingInterval);
+
+    @BeforeEach
+    public void setUp() {
+        agentController = createAgentController();
+    }
 
     @Test
     void shouldReturnTrueIfCausedBySecurity() {
         Exception exception = new Exception(new RuntimeException(new GeneralSecurityException()));
-
-        agentController = createAgentController();
         assertThat(agentController.isCausedBySecurity(exception)).isTrue();
     }
 
     @Test
     void shouldReturnFalseIfNotCausedBySecurity() {
         Exception exception = new Exception(new IOException());
-        agentController = createAgentController();
         assertThat(agentController.isCausedBySecurity(exception)).isFalse();
     }
 
     @Test
     void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
-        agentController = createAgentController();
-        InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
-        agentController.loop();
+        when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(true);
+        assertThat(agentController.performWork()).isEqualTo(WorkAttempt.OK);
+        InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService, pluginJarLocationMonitor);
         inOrder.verify(agentUpgradeService).checkForUpgradeAndExtraProperties();
         inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
+        inOrder.verify(pluginJarLocationMonitor).hasRunAtLeastOnce();
+    }
+
+    @Test
+    void shouldNotTryWorkIfPluginMonitorHasNotRun() {
+        when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(false);
+        assertThat(agentController.performWork()).isEqualTo(WorkAttempt.FAILED);
+        verify(pluginJarLocationMonitor).hasRunAtLeastOnce();
     }
 
     @Test
@@ -85,7 +99,6 @@ public class AgentControllerTest {
         // initial time
         Date now = new Date(42);
         clock.setTime(now);
-        agentController = createAgentController();
         agentController.pingSuccess();
 
         assertThat(agentHealthHolder.hasLostContact()).isFalse();
@@ -97,20 +110,18 @@ public class AgentControllerTest {
 
     private AgentController createAgentController() {
         return new AgentController(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager,
-                subprocessLogger, agentUpgradeService, agentHealthHolder) {
+            subprocessLogger, agentUpgradeService, agentHealthHolder, pluginJarLocationMonitor) {
             @Override
             public void ping() {
-
             }
 
             @Override
             public void execute() {
-
             }
 
             @Override
-            protected void work() {
-
+            protected WorkAttempt tryDoWork() {
+                return WorkAttempt.OK;
             }
         };
     }

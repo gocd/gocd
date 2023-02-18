@@ -70,12 +70,20 @@
   <task:scheduler id="scheduler" pool-size="3"/>
 
   <task:scheduled-tasks scheduler="scheduler">
-    <task:scheduled ref="agentController" method="loop"
-                    initial-delay="${agent.get.work.delay}" fixed-delay="${agent.get.work.interval}"/>
     <task:scheduled ref="agentController" method="ping"
                     initial-delay="${agent.ping.delay}" fixed-delay="${agent.ping.interval}"/>
     <task:scheduled ref="agentController" method="execute"
                     initial-delay="${agent.instruction.delay}" fixed-delay="${agent.instruction.interval}"/>
   </task:scheduled-tasks>
+
+  <bean id="agentWorkScheduler" class="com.thoughtworks.go.agent.AgentWorkRetrievalScheduler">
+    <constructor-arg>
+      <bean class="org.springframework.util.backoff.ExponentialBackOff">
+        <property name="initialInterval" value="${agent.get.work.delay}"/>
+        <property name="maxInterval" value="${agent.get.work.interval}"/>
+        <property name="multiplier" value="${agent.get.work.backOffMultiplier}"/>
+      </bean>
+    </constructor-arg>
+  </bean>
 
 </beans>

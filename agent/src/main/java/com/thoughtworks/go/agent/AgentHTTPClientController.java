@@ -118,10 +118,10 @@ public class AgentHTTPClientController extends AgentController {
 
     private void retrieveCookieIfNecessary() {
         if (!getAgentRuntimeInfo().hasCookie() && sslInfrastructureService.isRegistered()) {
-            LOG.info("About to get cookie from the server.");
+            LOG.info("[Agent Loop] Registered, but need new agent cookie - about to get cookie from the server.");
             String cookie = client.getCookie(getAgentRuntimeInfo());
             getAgentRuntimeInfo().setCookie(cookie);
-            LOG.info("Got cookie: {}", cookie);
+            LOG.info("[Agent Loop] Got new cookie - ready to retrieve work.");
         }
     }
 
@@ -131,9 +131,7 @@ public class AgentHTTPClientController extends AgentController {
         try {
             getAgentRuntimeInfo().idle();
             Work work = client.getWork(getAgentRuntimeInfo());
-            if (!(work instanceof NoWork)) {
-                LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
-            }
+            LOG.debug("[Agent Loop] Got work from server: [{}]", work.description());
             runner = new JobRunner();
             final AgentWorkContext agentWorkContext = new AgentWorkContext(agentIdentifier, client, manipulator, getAgentRuntimeInfo(), packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, pluginRequestProcessorRegistry);
             runner.run(work, agentWorkContext);

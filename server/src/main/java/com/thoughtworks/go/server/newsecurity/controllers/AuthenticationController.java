@@ -159,9 +159,9 @@ public class AuthenticationController {
 
     private HashMap<String, String> getRequestHeaders(HttpServletRequest request) {
         HashMap<String, String> headers = new HashMap<>();
-        Enumeration headerNames = request.getHeaderNames();
+        Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
-            String header = (String) headerNames.nextElement();
+            String header = headerNames.nextElement();
             String value = request.getHeader(header);
             headers.put(header, value);
         }

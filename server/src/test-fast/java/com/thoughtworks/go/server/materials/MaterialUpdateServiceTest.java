@@ -140,7 +140,7 @@ public class MaterialUpdateServiceTest {
 
     @AfterEach
     void teardown() {
-        systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT);
+        systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT_IN_MINUTES);
     }
 
     @Nested
@@ -411,7 +411,7 @@ public class MaterialUpdateServiceTest {
     void shouldUpdateServerHealthMessageWhenHung() {
         //given
         service = spy(service);
-        systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT, 1);
+        systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT_IN_MINUTES, 1);
         ProcessManager processManager = mock(ProcessManager.class);
         Material material = mock(Material.class);
         service.updateMaterial(material);
@@ -438,7 +438,7 @@ public class MaterialUpdateServiceTest {
     void shouldNotUpdateServerHealthMessageWhenIdleTimeLessThanConfigured() {
         //given
         service = spy(service);
-        systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT, 2);
+        systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT_IN_MINUTES, 2);
         Material material = mock(Material.class);
         service.updateMaterial(material);
         when(material.getFingerprint()).thenReturn("fingerprint");

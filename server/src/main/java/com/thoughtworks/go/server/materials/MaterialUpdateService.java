@@ -53,6 +53,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -283,8 +284,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return watchList.hasConfigRepoWithFingerprint(material.getFingerprint());
     }
 
-    private Long getMaterialUpdateInActiveTimeoutInMillis() {
-        return systemEnvironment.get(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT) * 60 * 1000L;
+    private long getMaterialUpdateInActiveTimeoutInMillis() {
+        return TimeUnit.MINUTES.toMillis(systemEnvironment.get(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT_IN_MINUTES));
     }
 
     private GoMessageQueue<MaterialUpdateMessage> queueFor(Material material) {

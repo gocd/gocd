@@ -27,7 +27,7 @@ public class IBatisUtil {
     }
 
     public static class IBatisArgument {
-        private Map<String, Object> map = new HashMap<>();
+        private final Map<String, Object> map = new HashMap<>();
 
         private IBatisArgument(String key, Object value) {
             map.put(key, value);
@@ -42,10 +42,6 @@ public class IBatisUtil {
             return map;
         }
 
-        public void addParams(Map<String, Object> sqlCriteria) {
-            map.putAll(sqlCriteria);
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) {
@@ -57,16 +53,12 @@ public class IBatisUtil {
 
             IBatisArgument that = (IBatisArgument) o;
 
-            if (map != null ? !map.equals(that.map) : that.map != null) {
-                return false;
-            }
-
-            return true;
+            return map.equals(that.map);
         }
 
         @Override
         public int hashCode() {
-            return map != null ? map.hashCode() : 0;
+            return map.hashCode();
         }
     }
 }

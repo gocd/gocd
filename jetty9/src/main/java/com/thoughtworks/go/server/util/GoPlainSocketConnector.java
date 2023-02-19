@@ -37,7 +37,7 @@ public class GoPlainSocketConnector implements GoSocketConnector {
         ServerConnector httpConnector = new ServerConnector(server.getServer(), new HttpConnectionFactory(httpConfig));
         httpConnector.setHost(systemEnvironment.getListenHost());
         httpConnector.setPort(systemEnvironment.getServerPort());
-        httpConnector.setIdleTimeout(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT));
+        httpConnector.setIdleTimeout(systemEnvironment.get(SystemEnvironment.GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS));
         return httpConnector;
     }
 

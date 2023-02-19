@@ -96,7 +96,7 @@ public class JMSMessageListenerAdapterTest {
     @Test
     public void shouldBackOffForABitIfAJMSExceptionHappens() throws JMSException {
         when(consumer.receive()).thenThrow(new JMSException("should back off for a bit after this"));
-        when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME)).thenReturn(3000);
+        when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS)).thenReturn(3000L);
 
         try (LogFixture logFixture = logFixtureFor(JMSMessageListenerAdapter.class, Level.DEBUG)) {
             JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
@@ -128,7 +128,7 @@ public class JMSMessageListenerAdapterTest {
             assertThat(endTime - startTime, lessThan(1000 * 1000 * 1000L));
 
             verify(serverHealthService, never()).update(any(ServerHealthState.class));
-            verify(systemEnvironment, never()).get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME);
+            verify(systemEnvironment, never()).get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS);
         }
     }
 

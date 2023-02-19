@@ -37,7 +37,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
-import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL;
+import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS;
 
 @Component
 public class PluginNotificationService {
@@ -74,7 +74,7 @@ public class PluginNotificationService {
 
     private <T> void notify(String requestName, T instance) {
         Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
-        Long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL);
+        Long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL_IN_MILLIS);
         for (String pluginId : interestedPlugins) {
             PluginNotificationMessage message = new PluginNotificationMessage<>(pluginId, requestName, map.get(requestName).notificationDataFor(instance));
             pluginNotificationsQueueHandler.post(message, timeToLive);

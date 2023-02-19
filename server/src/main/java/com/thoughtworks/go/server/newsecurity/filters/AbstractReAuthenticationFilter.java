@@ -86,7 +86,7 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
                 filterChain.doFilter(request, response);
             } else {
                 LOGGER.debug("Attempting reauthentication.");
-                final AuthenticationToken reauthenticatedToken = attemptAuthentication(request, response);
+                final AuthenticationToken<?> reauthenticatedToken = attemptAuthentication(request);
 
                 if (reauthenticatedToken == null) {
                     LOGGER.debug("Reauthentication failed.");
@@ -103,8 +103,8 @@ public abstract class AbstractReAuthenticationFilter extends OncePerRequestFilte
                                                     HttpServletResponse response,
                                                     String errorMessage) throws IOException;
 
-    private AuthenticationToken attemptAuthentication(HttpServletRequest request,
-                                                      HttpServletResponse response) throws AuthenticationException {
+    @SuppressWarnings("unchecked")
+    private AuthenticationToken<? extends Credentials> attemptAuthentication(HttpServletRequest request) throws AuthenticationException {
         AuthenticationToken<? extends Credentials> authenticationToken = SessionUtils.getAuthenticationToken(request);
 
         if (authenticationToken == null) {

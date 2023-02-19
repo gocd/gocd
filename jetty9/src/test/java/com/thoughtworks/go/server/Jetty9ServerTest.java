@@ -104,7 +104,7 @@ public class Jetty9ServerTest {
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(true);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
-        when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
+        when(systemEnvironment.get(SystemEnvironment.GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS)).thenReturn(2000L);
         when(systemEnvironment.configDir()).thenReturn(configDir);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);

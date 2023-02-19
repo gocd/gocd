@@ -99,7 +99,7 @@ public class JMSMessageListenerAdapter implements Runnable {
                 HealthStateType.general(GLOBAL)));
 
         try {
-            Thread.sleep(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME));
+            Thread.sleep(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME_IN_MILLIS));
         } catch (InterruptedException e1) {
             LOG.error("Failed to slow down", e1);
         }

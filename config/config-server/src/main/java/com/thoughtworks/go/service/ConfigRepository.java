@@ -399,7 +399,7 @@ public class ConfigRepository {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
                     LOGGER.debug("Before GC: Size - {}", getConfigRepoDisplaySize());
-                    long expireTimeInMs = systemEnvironment.getConfigGitGCExpireTime();
+                    long expireTimeInMs = systemEnvironment.getConfigGitGcExpireInMillis();
                     git.gc().setAggressive(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE))
                             .setExpire(new Date(System.currentTimeMillis() - expireTimeInMs))
                             .call();

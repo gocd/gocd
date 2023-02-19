@@ -68,7 +68,7 @@ public class SCMMaterialSourceTest {
 
     @AfterEach
     public void tearDown() throws Exception {
-        systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT);
+        systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT_IN_MINUTES);
     }
 
     @Test

@@ -54,7 +54,7 @@ public class HstsHeader {
         if (!systemEnvironment.enableHstsHeader()) {
             return Optional.empty();
         }
-        HstsHeader hstsHeader = new HstsHeader(systemEnvironment.hstsHeaderMaxAge(),
+        HstsHeader hstsHeader = new HstsHeader(systemEnvironment.hstsHeaderMaxAgeInSeconds(),
                 systemEnvironment.hstsHeaderIncludeSubdomains(), systemEnvironment.hstsHeaderPreload());
         return Optional.of(hstsHeader);
     }

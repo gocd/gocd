@@ -202,7 +202,7 @@ class SystemEnvironmentTest {
 
     @Test
     void shouldGetTfsSocketTimeOut() {
-        assertThat(systemEnvironment.getTfsSocketTimeout()).isEqualTo(SystemEnvironment.TFS_SOCKET_TIMEOUT_IN_MILLISECONDS);
+        assertThat(systemEnvironment.getTfsSocketTimeout()).isEqualTo(SystemEnvironment.TFS_SOCKET_TIMEOUT_IN_MILLIS);
         System.setProperty(SystemEnvironment.TFS_SOCKET_TIMEOUT_PROPERTY, "100000000");
         assertThat(systemEnvironment.getTfsSocketTimeout()).isEqualTo(100000000);
     }
@@ -330,15 +330,15 @@ class SystemEnvironmentTest {
 
     @Test
     void shouldReturnTheDefaultGCExpireTimeInMilliSeconds() {
-        assertThat(SystemEnvironment.GO_CONFIG_REPO_GC_EXPIRE.propertyName()).isEqualTo("go.config.repo.gc.expire");
-        assertThat(systemEnvironment.getConfigGitGCExpireTime()).isEqualTo(24 * 60 * 60 * 1000L);
+        assertThat(SystemEnvironment.GO_CONFIG_REPO_GC_EXPIRE_IN_HOURS.propertyName()).isEqualTo("go.config.repo.gc.expire");
+        assertThat(systemEnvironment.getConfigGitGcExpireInMillis()).isEqualTo(24 * 60 * 60 * 1000L);
     }
 
     @Test
     void shouldReturnTHeGCExpireTimeInMilliSeconds() {
-        assertThat(systemEnvironment.getConfigGitGCExpireTime()).isEqualTo(24 * 60 * 60 * 1000L);
+        assertThat(systemEnvironment.getConfigGitGcExpireInMillis()).isEqualTo(24 * 60 * 60 * 1000L);
         System.setProperty("go.config.repo.gc.expire", "1");
-        assertThat(systemEnvironment.getConfigGitGCExpireTime()).isEqualTo(60 * 60 * 1000L);
+        assertThat(systemEnvironment.getConfigGitGcExpireInMillis()).isEqualTo(60 * 60 * 1000L);
     }
 
     @Test

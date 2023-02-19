@@ -38,7 +38,7 @@ public class GoPlainSocketConnectorTest {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(100);
-        when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
+        when(systemEnvironment.get(SystemEnvironment.GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS)).thenReturn(200L);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
         Jetty9Server server = new Jetty9Server(systemEnvironment);
 

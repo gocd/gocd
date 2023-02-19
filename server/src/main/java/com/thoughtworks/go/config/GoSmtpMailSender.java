@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS;
+import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS;
 import static jakarta.mail.Message.RecipientType.TO;
 
 @EqualsAndHashCode
@@ -83,11 +83,11 @@ public class GoSmtpMailSender implements GoMailSender {
         props.put(FROM_PROPERTY, mailHost.getFrom());
 
         if (!System.getProperties().containsKey(CONNECTION_TIMEOUT_PROPERTY)) {
-            props.put(CONNECTION_TIMEOUT_PROPERTY, DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+            props.put(CONNECTION_TIMEOUT_PROPERTY, DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
         }
 
         if (!System.getProperties().containsKey(TIMEOUT_PROPERTY)) {
-            props.put(TIMEOUT_PROPERTY, DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+            props.put(TIMEOUT_PROPERTY, DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
         }
 
         if (System.getProperties().containsKey(STARTTLS_PROPERTY)) {

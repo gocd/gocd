@@ -105,8 +105,8 @@ class GoSmtpMailSenderTest {
 
         assertThat(bean).isEqualTo(ValidationBean.valid());
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
-        mailSession.verifyProperty(TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
+        mailSession.verifyProperty(TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
         mailSession.verifyProperty(TLS_CHECK_SERVER_IDENTITY_PROPERTY, "true");
     }
 
@@ -119,7 +119,7 @@ class GoSmtpMailSenderTest {
 
         mailSession.verifyMessageWasSent();
         mailSession.verifyPropertyDoesNotExist(CONNECTION_TIMEOUT_PROPERTY);
-        mailSession.verifyProperty(TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+        mailSession.verifyProperty(TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
     }
 
     @Test
@@ -130,7 +130,7 @@ class GoSmtpMailSenderTest {
         sendMailWithPropertySetTo(sender, TIMEOUT_PROPERTY, "12345");
 
         mailSession.verifyMessageWasSent();
-        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_MILLIS);
+        mailSession.verifyProperty(CONNECTION_TIMEOUT_PROPERTY, SystemEnvironment.DEFAULT_MAIL_SENDER_TIMEOUT_IN_MILLIS);
         mailSession.verifyPropertyDoesNotExist(TIMEOUT_PROPERTY);
     }
 

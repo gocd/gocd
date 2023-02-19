@@ -38,6 +38,7 @@ public class AuthenticationFilterChain extends FilterChainProxy {
         super(FilterChainBuilder.newInstance()
                 // for agent remoting
                 .addFilterChain("/remoting/**", agentAuthenticationFilter)
+                .addFilterChain("/admin/latest-agent.status", assumeAnonymousUserFilter)
 
                 // For API authentication
                 .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)

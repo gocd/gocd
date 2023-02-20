@@ -29,8 +29,9 @@ public interface DashboardFilter {
 
     String DEFAULT_NAME = "Default";
     String BUILDING_STATE = "building";
+    String CANCELLED_STATE = "cancelled";
     String FAILED_STATE = "failing";
-    Set<String> VALID_STATES = Set.of(BUILDING_STATE, FAILED_STATE);
+    Set<String> VALID_STATES = Set.of(BUILDING_STATE, CANCELLED_STATE, FAILED_STATE);
 
     String name();
 

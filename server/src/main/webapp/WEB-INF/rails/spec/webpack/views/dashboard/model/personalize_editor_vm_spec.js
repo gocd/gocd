@@ -67,7 +67,11 @@ describe("Personalization Editor View Model", () => {
     check(model.failing);
     expect(model.asFilter().state).toEqual(["building", "failing"]);
 
+    check(model.cancelled);
+    expect(model.asFilter().state).toEqual(["building", "cancelled", "failing"]);
+
     uncheck(model.failing);
+    uncheck(model.cancelled);
     expect(model.asFilter().state).toEqual(["building"]);
   });
 
@@ -76,18 +80,22 @@ describe("Personalization Editor View Model", () => {
 
     expect(a.building()).toBe(false);
     expect(a.failing()).toBe(false);
+    expect(a.cancelled()).toBe(false);
 
     const b = vm({state: ["building"]});
     expect(b.building()).toBe(true);
     expect(b.failing()).toBe(false);
+    expect(a.cancelled()).toBe(false);
 
     const c = vm({state: ["failing"]});
     expect(c.building()).toBe(false);
     expect(c.failing()).toBe(true);
+    expect(a.cancelled()).toBe(false);
 
     const d = vm({state: ["building", "failing"]});
     expect(d.building()).toBe(true);
     expect(d.failing()).toBe(true);
+    expect(a.cancelled()).toBe(false);
   });
 });
 

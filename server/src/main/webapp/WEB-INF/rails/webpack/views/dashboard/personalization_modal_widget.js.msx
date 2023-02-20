@@ -64,6 +64,11 @@ const StageStateCriteria = {
           selected for this view</Tooltip>
       </div>
       <div class="checkbox-help">
+        <f.checkbox name="state" model={vm} attrName="cancelled" label="Cancelled" labelClass="checkbox-help_label"/>
+        <Tooltip vm={vm} name="cancelled-pipelines">Show only pipelines whose last run stage was cancelled, among pipelines
+          selected for this view</Tooltip>
+      </div>
+      <div className="checkbox-help">
         <f.checkbox name="state" model={vm} attrName="building" label="Building" labelClass="checkbox-help_label"/>
         <Tooltip vm={vm} name="building-pipelines">Show only pipelines with jobs which are scheduled or building, among
           pipelines chosen for this view</Tooltip>
@@ -172,7 +177,7 @@ export const PersonalizationModalWidget = {
           <div class="checkbox-help">
             <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" labelClass="checkbox-help_label"/>
             <Tooltip vm={vm} name="include-new-pipelines">
-              {"Include pipelines created since this view was last updated "}
+              {"Include pipelines created since this view was last updated"}
             </Tooltip>
           </div>
           <StageStateCriteria vm={vm}/>

@@ -23,6 +23,7 @@ describe("DashboardFilter", () => {
       this.isFailed = () => status === "Failed";
       this.isBuilding = () => status === "Building";
       this.isFailing = () => status === "Failing";
+      this.isCancelled = () => status === "Cancelled";
     }
 
     beforeEach(() => {
@@ -38,7 +39,7 @@ describe("DashboardFilter", () => {
       filter = new DashboardFilter({state: ["failing"]});
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
 
-      filter = new DashboardFilter({state: ["builing"]});
+      filter = new DashboardFilter({state: ["building"]});
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
 
       filter = new DashboardFilter({state: []});
@@ -52,6 +53,9 @@ describe("DashboardFilter", () => {
       expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Passing");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+
+      stage = new Stage("Cancelled");
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
@@ -69,15 +73,31 @@ describe("DashboardFilter", () => {
 
       stage = new Stage("Passing");
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+
+      stage = new Stage("Cancelled");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
-    it("should filter when state=[building, failing]", () => {
-      filter = new DashboardFilter({state: ["building", "failing"]});
+    it("should filter when state=[building, failing, cancelled]", () => {
+      filter = new DashboardFilter({state: ["building", "failing", "cancelled"]});
 
       stage = new Stage("Building");
       expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Failed");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Passing");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+
+      stage = new Stage("Cancelled");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+    });
+
+    it("should filter when state=[cancelled]", () => {
+      filter = new DashboardFilter({state: ["cancelled"]});
+
+      stage = new Stage("Cancelled");
       expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Passing");

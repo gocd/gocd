@@ -110,6 +110,20 @@ $icon-color: #647984;
   input {
     margin-bottom: 0;
   }
+
+  label {
+    width: 90px;
+    margin-left: 25px;
+  }
+}
+
+.show-pipelines-selector-groups {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.stage-state-selector {
+  display: flex;
 }
 
 .text-with-tooltip {
@@ -206,14 +220,6 @@ $icon-color: #647984;
 
   &:focus {
     background: #fff;
-  }
-}
-
-.stage-state-selector {
-  display: flex;
-
-  label {
-    margin-left: 25px;
   }
 }
 

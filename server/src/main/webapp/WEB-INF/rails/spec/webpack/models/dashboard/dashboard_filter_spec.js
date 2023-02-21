@@ -29,6 +29,7 @@ describe("DashboardFilter", () => {
     beforeEach(() => {
       pipeline = {
         name: null,
+        isPaused: false,
         latestStage: () => stage
       };
     });
@@ -57,6 +58,30 @@ describe("DashboardFilter", () => {
 
       stage = new Stage("Cancelled");
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+    });
+
+    it("should filter when pipeline is paused regardless of state", () => {
+      filter = new DashboardFilter({state: ["paused", "building"]});
+
+      pipeline.isPaused = true;
+
+      // Never run
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Building");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Failing");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Failed");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Passing");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Cancelled");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
     });
 
     it("should filter when state=[building]", () => {

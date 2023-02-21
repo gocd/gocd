@@ -57,7 +57,7 @@ const StageStateCriteria = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
-    return <div class="stage-state-selector">
+    return <span class="stage-state-selector">
       <div class="checkbox-help">
         <f.checkbox name="state" model={vm} attrName="failing" label="Failed" labelClass="checkbox-help_label"/>
         <Tooltip vm={vm} name="failed-pipelines">Show only pipelines whose last run stage has failed, among pipelines
@@ -73,7 +73,7 @@ const StageStateCriteria = {
         <Tooltip vm={vm} name="building-pipelines">Show only pipelines with jobs which are scheduled or building, among
           pipelines chosen for this view</Tooltip>
       </div>
-    </div>;
+    </span>;
   }
 };
 
@@ -174,13 +174,19 @@ export const PersonalizationModalWidget = {
         <FilterNameInput {...vnode.attrs} />
         <div class="show-pipelines">
           <span class="section-label">Show pipelines:</span>
-          <div class="checkbox-help">
-            <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" labelClass="checkbox-help_label"/>
-            <Tooltip vm={vm} name="include-new-pipelines">
-              {"Include pipelines created since this view was last updated"}
-            </Tooltip>
+          <div class="show-pipelines-selector-groups">
+            <div class="checkbox-help">
+              <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" labelClass="checkbox-help_label"/>
+              <Tooltip vm={vm} name="include-new-pipelines">
+                {"Include pipelines created since this view was last updated"}
+              </Tooltip>
+            </div>
+            <div class="checkbox-help">
+              <f.checkbox name="state" model={vm} attrName="paused" label="Paused" labelClass="checkbox-help_label"/>
+              <Tooltip vm={vm} name="paused-pipelines">Show only pipelines which are paused, regardless of their status</Tooltip>
+            </div>
+            <StageStateCriteria vm={vm}/>
           </div>
-          <StageStateCriteria vm={vm}/>
         </div>
       </div>
 

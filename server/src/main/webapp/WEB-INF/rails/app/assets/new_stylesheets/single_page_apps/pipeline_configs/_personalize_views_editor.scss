@@ -18,7 +18,7 @@ $view-top-bg: $section-bg;
 $icon-color: #647984;
 
 .overlay-personalize-editor {
-  width: 650px;
+  width: 600px;
   top: 10vh;
 
   .is-invalid-label {
@@ -104,26 +104,27 @@ $icon-color: #647984;
   border: 1px solid $light-border;
   background: #fff;
   display: flex;
-  padding: 10px 20px;
+  flex-direction: row;
+  padding: 10px 10px;
   border-radius: 3px;
 
   input {
     margin-bottom: 0;
   }
-
-  label {
-    width: 90px;
-    margin-left: 25px;
-  }
 }
 
-.show-pipelines-selector-groups {
+.show-pipelines-selectors {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
 
 .stage-state-selector {
   display: flex;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid $light-border;
 }
 
 .text-with-tooltip {
@@ -175,7 +176,7 @@ $icon-color: #647984;
 .section-label {
   line-height: 25px;
   margin-right: 20px;
-  white-space: nowrap;
+  width: 190px;
 }
 
 .search-pipelines {
@@ -223,10 +224,11 @@ $icon-color: #647984;
   }
 }
 
-.checkbox-help,
-.checkbox-help_label {
+.checkbox-help {
   display: flex;
   align-items: center;
+  margin-right: 25px;
+  min-width: 110px;
 }
 
 .pipeline-search-container {

@@ -5241,10 +5241,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-lru-cache@^7.16.1:
-  version "7.16.1"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.16.1.tgz#7acea16fecd9ed11430e78443c2bb81a06d3dea9"
-  integrity sha512-9kkuMZHnLH/8qXARvYSjNvq8S1GYFFzynQTAfKeaJ0sIrR3PUPuu37Z+EiIANiZBvpfTf2B5y8ecDLSMWlLv+w==
+lru-cache@^7.17.0:
+  version "7.17.0"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.17.0.tgz#00c7ba5919e5ea7c69ff94ddabbf32cb09ab805c"
+  integrity sha512-zSxlVVwOabhVyTi6E8gYv2cr6bXK+8ifYz5/uyJb9feXX6NACVDwY4p5Ut3WC3Ivo/QhpARHU3iujx2xGAYHbQ==
 
 make-dir@^2.0.0:
   version "2.1.0"

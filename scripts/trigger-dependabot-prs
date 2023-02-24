@@ -137,7 +137,7 @@ class PR
       return
     end
     Faraday.post(@comments_url, {body: "@dependabot-bot #{action}\n"}.to_json, headers).tap {|resp|
-      $stderr.puts "error when triggering PR ##{number}" if resp.status >= 300
+      $stderr.puts "error when triggering PR ##{number}: #{resp.status}" if resp.status >= 300
     }
   end
 end

@@ -77,11 +77,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
             public ExportedConfig onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPipelineExport(responseBody, responseHeaders);
             }
@@ -115,11 +110,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
             public ConfigFileList onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForConfigFiles(responseBody);
             }
@@ -135,11 +125,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
             public CRParseResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForParseDirectory(responseBody);
             }
@@ -152,11 +137,6 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseContent(content);
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
             }
 
             @Override

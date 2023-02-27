@@ -33,11 +33,6 @@ function clean_active_css_class_on_element(element) {
   });
 }
 
-function is_inactive(json) {
-  return json.building_info.current_status.toLowerCase() != 'building'
-    && json.building_info.result.toLowerCase() == 'unknown';
-}
-
 function is_result_unknown(json) {
   return json.building_info.result.toLowerCase() == 'unknown';
 }
@@ -60,25 +55,10 @@ function is_queued(json) {
   return status == 'scheduled' || status == 'assigned';
 }
 
-function is_started(json) {
-  var status = json.building_info.current_status.toLowerCase();
-  return status == 'scheduled';
-}
-
 function isEstimatable(status) {
   if (!status) return false;
   var buildStatus = status.toLowerCase();
   return buildStatus == 'building' || buildStatus == 'completing';
-}
-
-function is_stage_completed(json) {
-  var status = json.stage.current_status.toLowerCase();
-  return status == 'passed' || status == 'failed' || status == 'cancelled';
-}
-
-function is_stage_building(json) {
-  var status = json.stage.current_status.toLowerCase();
-  return status == 'building' || status == 'failing';
 }
 
 function should_forcebuild_be_disabled(json) {

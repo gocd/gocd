@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class AuthorizationExtensionCacheService {
-    private final int CACHE_EXPIRY_IN_MINUTES = SystemEnvironment.getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds() / 60;
-
     private final Cache<String, Boolean> isValidUserCache;
     private final Cache<String, List<String>> getUserRolesCache;
     private final AuthorizationExtension authorizationExtension;
@@ -42,9 +40,9 @@ public class AuthorizationExtensionCacheService {
     public AuthorizationExtensionCacheService(AuthorizationExtension authorizationExtension, Ticker ticker) {
         this.authorizationExtension = authorizationExtension;
         isValidUserCache = CacheBuilder.newBuilder()
-                .ticker(ticker).expireAfterWrite(CACHE_EXPIRY_IN_MINUTES, TimeUnit.MINUTES).build();
+                .ticker(ticker).expireAfterWrite(SystemEnvironment.getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds(), TimeUnit.SECONDS).build();
         getUserRolesCache = CacheBuilder.newBuilder()
-                .ticker(ticker).expireAfterWrite(CACHE_EXPIRY_IN_MINUTES, TimeUnit.MINUTES).build();
+                .ticker(ticker).expireAfterWrite(SystemEnvironment.getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds(), TimeUnit.SECONDS).build();
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 

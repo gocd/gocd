@@ -186,14 +186,6 @@
     <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
     <cve>CVE-2021-29425</cve>
   </suppress>
-  
-  <suppress>
-    <notes><![CDATA[
-    False positives - json-java project is not the same as any of these. See https://github.com/jeremylong/DependencyCheck/issues/5502
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/(com\.fasterxml\.jackson\.core/jackson-core|net.javacrumbs.json-unit/json-unit-core|net.javacrumbs.json-unit/json-unit-fluent)@.*$</packageUrl>
-    <cve>CVE-2022-45688</cve>
-  </suppress>
 
   <suppress>
     <notes><![CDATA[

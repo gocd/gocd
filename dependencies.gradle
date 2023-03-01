@@ -67,7 +67,7 @@ final Map<String, String> libraries = [
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
   jetBrainsAnnotations: 'org.jetbrains:annotations:24.0.0',
-  jetty               : 'org.eclipse.jetty:jetty-server:9.4.50.v20221201',
+  jetty               : 'org.eclipse.jetty:jetty-server:9.4.51.v20230217',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r',
   jodaTime            : 'joda-time:joda-time:2.12.2', // joda-time version has to be compatible with the jruby version
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.7',

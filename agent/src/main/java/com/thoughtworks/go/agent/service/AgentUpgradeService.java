@@ -19,6 +19,7 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
 import org.apache.http.Header;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
@@ -38,6 +39,8 @@ import static com.thoughtworks.go.util.SystemEnvironment.*;
 public class AgentUpgradeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUpgradeService.class);
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
+    private static final RequestConfig NO_FOLLOW_REDIRECT = RequestConfig.custom().setRedirectsEnabled(false).build();
+
     private final GoAgentServerHttpClient httpClient;
     private final SystemEnvironment systemEnvironment;
     private final URLService urlService;
@@ -68,10 +71,16 @@ public class AgentUpgradeService {
     }
 
     public void checkForUpgradeAndExtraProperties() throws IOException {
-        if (!"".equals(systemEnvironment.getAgentMd5())) {
+        if (upgradesEnabled()) {
             checkForUpgradeAndExtraProperties(systemEnvironment.getAgentMd5(), systemEnvironment.getGivenAgentLauncherMd5(),
                     systemEnvironment.getAgentPluginsMd5(), systemEnvironment.getTfsImplMd5());
+        } else {
+            LOGGER.debug("[Agent Upgrade] Skipping check as there is no wrapping launcher to relaunch the agent JVM...");
         }
+    }
+
+    private boolean upgradesEnabled() {
+        return !"".equals(systemEnvironment.getAgentMd5());
     }
 
     private void checkForUpgradeAndExtraProperties(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws IOException {
@@ -103,19 +112,17 @@ public class AgentUpgradeService {
 
     private void validateMd5(String currentMd5, CloseableHttpResponse response, String agentContentMd5Header, String what) {
         final Header md5Header = response.getFirstHeader(agentContentMd5Header);
-        LOGGER.debug("[Agent Upgrade Validate MD5] validating MD5 for {}, currentMD5:{}, responseMD5:{}, headerKey:{}", what, currentMd5, md5Header, agentContentMd5Header);
         if (md5Header == null) {
-            LOGGER.debug("[Agent Upgrade Validate MD5] Did not find {} MD5 header in response {}.", agentContentMd5Header, response);
-        }
-        if (!"".equals(currentMd5)) {
-            if (!currentMd5.equals(md5Header.getValue())) {
-                jvmExitter.jvmExit(what, currentMd5, md5Header.getValue());
-            }
+            LOGGER.warn("[Agent Upgrade] Expected MD5 header {} was missing from server response.", agentContentMd5Header);
+        } else if (!"".equals(currentMd5) && !currentMd5.equals(md5Header.getValue())) {
+            jvmExitter.jvmExit(what, currentMd5, md5Header.getValue());
         }
     }
 
     HttpGet getAgentLatestStatusGetMethod() {
-        return new HttpGet(urlService.getAgentLatestStatusUrl());
+        HttpGet httpGet = new HttpGet(urlService.getAgentLatestStatusUrl());
+        httpGet.setConfig(NO_FOLLOW_REDIRECT);
+        return httpGet;
     }
 
 }

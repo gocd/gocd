@@ -160,13 +160,14 @@
     <notes><![CDATA[
     The CVEs as documented at https://github.com/h2database/h2database/security/advisories/GHSA-h376-j262-vhq6 and
     https://github.com/advisories/GHSA-45hx-wfhj-473x only affect the H2 console (not enabled on GoCD),
-    context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
+    or context-dependent use of JdbcUtils.getConnection (not possible from remote properties in GoCD)
     so GoCD does not appear to be vulnerable to these problems even when running with H2 DB.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
     <cve>CVE-2021-42392</cve>
     <cve>CVE-2022-23221</cve>
     <cve>CVE-2022-45868</cve>
+    <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
     <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
   </suppress>
 
@@ -185,6 +186,14 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
     <cve>CVE-2021-29425</cve>
+  </suppress>
+  
+  <suppress>
+    <notes><![CDATA[
+    Neither GoCD nor dependencies use the deprecated and vulnerabile Files.createTempDir() from Guava noted in https://nvd.nist.gov/vuln/detail/CVE-2020-8908
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+    <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
   </suppress>
 
   <suppress>

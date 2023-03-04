@@ -73,15 +73,8 @@ trait DistroBehavior {
     [Architecture.x64]
   }
 
-  Architecture dockerTargetArchitecture(boolean ignoreLocalArchitecture) {
-    if (ignoreLocalArchitecture) {
-      return supportedArchitectures.first()
-    } else if (Architecture.current() in supportedArchitectures) {
-      return Architecture.current()
-    } else {
-       throw new RuntimeException("Local architecture ${Architecture.current()} is not supported by distro $this (supports $supportedArchitectures).\n" +
-         "Pass -PdockerBuildIgnoreLocalArch to build for non-native target arch anyway.")
-    }
+  Architecture getDockerVerifyArchitecture() {
+    Architecture.current() in supportedArchitectures ? Architecture.current(): supportedArchitectures.first()
   }
 
   Map<String, String> getEnvironmentVariables(DistroVersion distroVersion) {

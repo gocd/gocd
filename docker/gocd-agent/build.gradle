@@ -42,6 +42,7 @@ subprojects {
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
   task docker(type: BuildDockerImageTask) { BuildDockerImageTask task ->
+    task.dependsOn ':docker:initializeBuildx'
     assemble.dependsOn(task)
 
     if (project.hasProperty('dockerBuildLocalZip')) {
@@ -170,9 +171,11 @@ task generateManifest() {
     def meta = []
     subprojects.tasks*.getByName('docker').forEach { BuildDockerImageTask dockerTask ->
       meta << [
-        file     : "${dockerTask.imageTarFile.name}.gz",
+        file     : "${dockerTask.imageTarFile.name}",
+        format   : 'oci',
         imageName: dockerTask.dockerImageName,
-        tag      : dockerTask.imageTag
+        tag      : dockerTask.imageTag,
+        platforms: dockerTask.supportedPlatforms
       ]
     }
 

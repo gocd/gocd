@@ -279,12 +279,14 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
       project.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper"
         from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}/bin") {
-          include 'wrapper-linux-x86-*'
+          include 'wrapper-linux-x86-64*'
+          include 'wrapper-linux-arm-64*'
         }
 
         from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}/lib") {
           include 'wrapper.jar'
-          include 'libwrapper-linux-x86-*'
+          include 'libwrapper-linux-x86-64*'
+          include 'libwrapper-linux-arm-64*'
         }
       }
 

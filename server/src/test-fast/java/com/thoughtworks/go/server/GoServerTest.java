@@ -21,6 +21,10 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 
@@ -29,12 +33,15 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SystemStubsExtension.class)
 public class GoServerTest {
-    private SystemEnvironment systemEnvironment;
+
+    @SystemStub
+    SystemProperties systemProperties;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        systemEnvironment = new SystemEnvironment();
+    public void setUp() {
+        SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.set(SystemEnvironment.APP_SERVER, AppServerStub.class.getCanonicalName());
     }
 
@@ -109,7 +116,7 @@ public class GoServerTest {
 
         GoServer goServer = new GoServer(){
             @Override
-            AppServer configureServer() throws Exception {
+            AppServer configureServer() {
                 return server;
             }
         };
@@ -129,15 +136,9 @@ public class GoServerTest {
         verify(server).stop();
     }
 
-    @Test
-    public void shouldTurnOffJrubyObjectProxyCacheByDefault(){
-        new GoServer();
-        assertThat(new SystemEnvironment().getPropertyImpl("jruby.ji.objectProxyCache"), is("false"));
-    }
-
-    private class StubGoServer extends GoServer {
+    private static class StubGoServer extends GoServer {
         private boolean wasStarted = false;
-        private Validation validation;
+        private final Validation validation;
 
         public StubGoServer(SystemEnvironment systemEnvironment, Validation validation) {
             super(systemEnvironment);

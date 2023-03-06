@@ -19,21 +19,30 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(SystemStubsExtension.class)
 public class LockfileTest {
 
     private static final File LOCK_FILE = new File("LockFile.txt");
 
+    @SystemStub
+    private SystemProperties systemProperties;
+
     @BeforeEach
     public void setUp() {
-        System.setProperty(Lockfile.SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY,"0");
+        systemProperties.set(Lockfile.SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY, "0");
     }
 
     @AfterEach
@@ -46,7 +55,7 @@ public class LockfileTest {
         File mockfile = mock(File.class);
         Lockfile lockfile = new Lockfile(mockfile);
         Lockfile spy = spy(lockfile);
-        doReturn(false).when(spy).lockFileChangedWithinMinutes(10);
+        doReturn(false).when(spy).lockFileChangedWithinMinutes(Duration.ofMinutes(10));
         when(lockfile.exists()).thenReturn(true);
         assertThat(spy.exists(), is(false));
     }
@@ -56,7 +65,7 @@ public class LockfileTest {
         File mockfile = mock(File.class);
         Lockfile lockfile = new Lockfile(mockfile);
         Lockfile spy = spy(lockfile);
-        doReturn(true).when(spy).lockFileChangedWithinMinutes(10);
+        doReturn(true).when(spy).lockFileChangedWithinMinutes(Duration.ofMinutes(10));
         when(lockfile.exists()).thenReturn(true);
         assertThat(spy.exists(), is(true));
     }
@@ -82,7 +91,7 @@ public class LockfileTest {
     }
 
     @Test
-    public void shouldReturnFalseIfLockFileAlreadyExists() throws IOException {
+    public void shouldReturnFalseIfLockFileAlreadyExists() {
         File mockfile = mock(File.class);
         Lockfile lockfile = new Lockfile(mockfile);
         when(mockfile.exists()).thenReturn(true);
@@ -92,7 +101,7 @@ public class LockfileTest {
     }
 
     @Test
-    public void shouldReturnFalseifUnableToSetLock() throws IOException {
+    public void shouldReturnFalseIfUnableToSetLock() throws IOException {
         File mockfile = mock(File.class);
         Lockfile lockfile = spy(new Lockfile(mockfile));
         when(mockfile.exists()).thenReturn(false);
@@ -103,7 +112,7 @@ public class LockfileTest {
     }
 
     @Test
-    public void shouldReturnTrueIfCanSetLockAndDeleteLockFileWhenDeleteIsCalled() throws IOException {
+    public void shouldReturnTrueIfCanSetLockAndDeleteLockFileWhenDeleteIsCalled() {
         Lockfile lockfile = new Lockfile(LOCK_FILE);
         assertThat(lockfile.tryLock(), is(true));
         lockfile.delete();

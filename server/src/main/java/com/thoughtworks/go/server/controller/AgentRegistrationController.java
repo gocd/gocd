@@ -60,7 +60,7 @@ public class AgentRegistrationController {
     private final AgentService agentService;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
-    private PluginsZip pluginsZip;
+    private final PluginsZip pluginsZip;
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
     private volatile String tfsSdkChecksum;
@@ -163,12 +163,9 @@ public class AgentRegistrationController {
     }
 
     private String getChecksumFor(final InputStreamSrc src) throws IOException {
-        String checksum;
         try (InputStream inputStream = src.invoke()) {
-            checksum = DigestUtils.md5Hex(inputStream);
+            return DigestUtils.md5Hex(inputStream);
         }
-        assert (checksum != null);
-        return checksum;
     }
 
     private void setOtherHeaders(HttpServletResponse response) {
@@ -198,7 +195,7 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.POST)
-    public ResponseEntity agentRequest(@RequestParam("hostname") String hostname,
+    public ResponseEntity<String> agentRequest(@RequestParam("hostname") String hostname,
                                        @RequestParam("uuid") String uuid,
                                        @RequestParam("location") String location,
                                        @RequestParam("usablespace") String usableSpaceStr,
@@ -313,7 +310,7 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/agent/token", method = RequestMethod.GET)
-    public ResponseEntity getToken(@RequestParam("uuid") String uuid) {
+    public ResponseEntity<String> getToken(@RequestParam("uuid") String uuid) {
         if (StringUtils.isBlank(uuid)) {
             String message = "UUID cannot be blank.";
             LOG.error("Rejecting request for token. Error: HttpCode=[{}] Message=[{}] UUID=[{}]", CONFLICT, message, uuid);

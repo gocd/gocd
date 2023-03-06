@@ -21,56 +21,60 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 public class Lockfile implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Lockfile.class);
 
-    static final String TOUCH_FREQUENCY_PROPERTY = "lockfile.touch.frequency.mins";
-    static final String SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY = "lockfile.sleep.before.lastmodified.check.secs";
+    static final String TOUCH_FREQUENCY_PROPERTY = "lockfile.touch.frequency.millis";
+    static final String SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY = "lockfile.sleep.before.lastmodified.check.millis";
 
-    private static final int DEFAULT_TOUCH_FREQUENCY = 5 * 60 * 1000; // 5 minutes
-    private static final int DEFAULT_SLEEP_TIME_FOR_LAST_MODIFIED_CHECK = 10000; // 10 secs
+    private static final long DEFAULT_TOUCH_FREQUENCY_MILLIS = TimeUnit.MINUTES.toMillis(5);
+    private static final Duration DEFAULT_LOCK_FILE_TIMEOUT = Duration.ofMinutes(10);
+    private static final long DEFAULT_SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_MILLIS = TimeUnit.SECONDS.toMillis(10);
 
     private final File lockFile;
-    private final int touchFrequency;
+    private final long touchFrequencyMillis;
+    private final long sleepTimeBeforeLastModifiedCheckMillis;
+
     private Thread touchLoop;
     private volatile boolean keepRunning;
-    private final int sleepTimeBeforeLastModifiedCheck;
 
     public Lockfile(File filename) {
         this.lockFile = filename;
-        this.touchFrequency = getIntProperty(TOUCH_FREQUENCY_PROPERTY, DEFAULT_TOUCH_FREQUENCY);
-        this.sleepTimeBeforeLastModifiedCheck = getIntProperty(SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY,
-                DEFAULT_SLEEP_TIME_FOR_LAST_MODIFIED_CHECK);
+        this.touchFrequencyMillis = getLongProperty(TOUCH_FREQUENCY_PROPERTY, DEFAULT_TOUCH_FREQUENCY_MILLIS);
+        this.sleepTimeBeforeLastModifiedCheckMillis = getLongProperty(SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_PROPERTY,
+            DEFAULT_SLEEP_TIME_FOR_LAST_MODIFIED_CHECK_MILLIS);
     }
 
-    private int getIntProperty(String propertyName, int defaultValue) {
-        int propValue = defaultValue;
+    private long getLongProperty(String propertyName, long defaultValue) {
+        long propValue = defaultValue;
         String propValueSet = System.getProperty(propertyName);
         if (propValueSet != null) {
             try {
-                propValue = Integer.parseInt(propValueSet);
-            } catch (Exception e) {
+                propValue = Long.parseLong(propValueSet);
+            } catch (Exception ignored) {
             }
         }
         return propValue;
     }
 
     boolean exists() {
-        return lockFile.exists() && lockFileChangedWithinMinutes(10);
+        return lockFile.exists() && lockFileChangedWithinMinutes(DEFAULT_LOCK_FILE_TIMEOUT);
     }
 
-    boolean lockFileChangedWithinMinutes(int minutes) {
+    boolean lockFileChangedWithinMinutes(Duration duration) {
         sleepForSomeTime(); // prevents race condition where the file was just created and not modified.
         long changedAgo = System.currentTimeMillis() - lockFile.lastModified();
-        return changedAgo < minutes * 60 * 1000;
+        return changedAgo < duration.toMillis();
     }
 
     private void sleepForSomeTime() {
         try {
-            LOG.info("Sleeping for {} secs to before 'last modified check'...", sleepTimeBeforeLastModifiedCheck);
-            Thread.sleep(sleepTimeBeforeLastModifiedCheck);
-        } catch (InterruptedException e) {
+            LOG.info("Sleeping for {} ms before 'last modified check'...", sleepTimeBeforeLastModifiedCheckMillis);
+            Thread.sleep(sleepTimeBeforeLastModifiedCheckMillis);
+        } catch (InterruptedException ignore) {
         }
     }
 
@@ -104,7 +108,7 @@ public class Lockfile implements Runnable {
         do {
             try {
                 touch();
-                Thread.sleep(touchFrequency);
+                Thread.sleep(touchFrequencyMillis);
             } catch (Exception e) {
                 return;
             }
@@ -146,10 +150,9 @@ public class Lockfile implements Runnable {
     private void waitForTouchLoopThread() {
         try {
             if (touchLoop != null) {
-                // 10 secs for join
-                touchLoop.join(10000);
+                touchLoop.join(TimeUnit.SECONDS.toMillis(10));
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignore) {
         }
     }
 

@@ -26,12 +26,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 public class GoServer {
-
-    static {
-        System.setProperty("jruby.compile.invokedynamic", "false");
-        System.setProperty("jruby.ji.objectProxyCache", "false");
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(GoServer.class);
 
     private final SystemEnvironment systemEnvironment;

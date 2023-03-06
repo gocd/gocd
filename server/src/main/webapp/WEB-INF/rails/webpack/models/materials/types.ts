@@ -261,7 +261,7 @@ export abstract class MaterialAttributes extends ValidatableMixin {
 
   toJSON() {
     const serialized  = _.assign({}, this);
-    const destination = _.get(serialized, "destination") as Stream<String> | undefined;
+    const destination = _.get(serialized, "destination") as Stream<string> | undefined;
     if (_.isEmpty(destination) || _.isEmpty(destination())) {
       // @ts-ignore
       delete serialized.destination; // collapse empty string as undefined to avoid blowing up

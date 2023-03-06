@@ -216,8 +216,8 @@ export class Material extends ValidatableMixin {
   }
 
   resetPasswordIfAny() {
-    const serialized                       = _.assign({}, this.attributes());
-    const password: Stream<EncryptedValue> = _.get(serialized, "password");
+    const serialized = _.assign({}, this.attributes());
+    const password   = _.get(serialized, "password") as Stream<EncryptedValue> | undefined;
 
     if (password && (password().isPlain() || password().isDirty())) {
       password().resetToOriginal();
@@ -260,15 +260,14 @@ export abstract class MaterialAttributes extends ValidatableMixin {
   }
 
   toJSON() {
-    const serialized = _.assign({}, this);
-
-    const destination = _.get(serialized, "destination");
+    const serialized  = _.assign({}, this);
+    const destination = _.get(serialized, "destination") as Stream<String> | undefined;
     if (_.isEmpty(destination) || _.isEmpty(destination())) {
       // @ts-ignore
       delete serialized.destination; // collapse empty string as undefined to avoid blowing up
     }
 
-    const password: Stream<EncryptedValue> = _.get(serialized, "password");
+    const password = _.get(serialized, "password") as Stream<EncryptedValue> | undefined;
     // remove the password field and setup the password serialization
     if (password) {
       // @ts-ignore

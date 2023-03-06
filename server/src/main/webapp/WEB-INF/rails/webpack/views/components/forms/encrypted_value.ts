@@ -39,8 +39,8 @@ export class EncryptedValue {
       throw new Error("You cannot initialize an encrypted value with both clear text and cipher text!");
     }
 
-    this._originalValue = Stream(_.has(data, "cipherText") ? _.get(data, "cipherText") : _.get(data, "clearText"));
-    this._value         = Stream(_.has(data, "cipherText") ? _.get(data, "cipherText") : _.get(data, "clearText"));
+    this._originalValue = Stream(_.has(data, "cipherText") ? _.get(data, "cipherText", "") : _.get(data, "clearText", ""));
+    this._value         = Stream(_.has(data, "cipherText") ? _.get(data, "cipherText", "") : _.get(data, "clearText", ""));
     this._isEncrypted   = Stream(_.has(data, "cipherText"));
     this._canEdit       = Stream(!this.isSecure());
   }

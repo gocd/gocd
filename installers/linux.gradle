@@ -205,7 +205,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
               def newLines = [
                 '#encoding=UTF-8',
                 "wrapper.working.dir=/var/lib/${installerType.baseName}",
-                'wrapper.disable_console_input=TRUE',
+                'wrapper.console_input=DISABLED',
                 'wrapper.console.flush=TRUE'
               ]
 
@@ -250,14 +250,6 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
             if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
               eachLine = "wrapper.logfile=/var/log/${installerType.baseName}/${installerType.logFileName}"
-            }
-
-            if (eachLine == 'wrapper.logfile.maxsize=0') {
-              eachLine = "wrapper.logfile.maxsize=10m"
-            }
-
-            if (eachLine == 'wrapper.logfile.maxfiles=0') {
-              eachLine = "wrapper.logfile.maxfiles=4"
             }
 
             return eachLine

@@ -20,9 +20,13 @@ export function DashboardFilter(config) {
     const latestStage = pipeline.latestStage();
 
     if (config.state.length) {
+      if (pipeline.isPaused && _.includes(config.state, "paused")) {
+        return true;
+      }
       if (!latestStage) { return false; }
       if (latestStage.isBuilding() || latestStage.isFailing()) { return _.includes(config.state, "building"); }
       if (latestStage.isFailed()) { return _.includes(config.state, "failing"); }
+      if (latestStage.isCancelled()) { return _.includes(config.state, "cancelled"); }
       return false;
     }
 

@@ -41,8 +41,10 @@ export function PersonalizeEditorVM(opts) { // opts is usually the current filte
     selectionVM(PipelineListVM.create(pipelinesByGroup, inverted(), opts.pipelines));
   };
 
-  boolToList(this, state, "building");
+  boolToList(this, state, "paused");
   boolToList(this, state, "failing");
+  boolToList(this, state, "cancelled");
+  boolToList(this, state, "building");
 
   this.includeNewPipelines = function (value) {
     if (!arguments.length) { return inverted(); }

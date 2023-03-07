@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.thoughtworks.go.server.domain.user.DashboardFilter.*;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.VALID_STATES;
 
 class FilterValidator {
 
@@ -39,7 +39,7 @@ class FilterValidator {
     static final String MSG_NAME_FORMAT = "Filter name is only allowed to contain letters, numbers, spaces, and punctuation marks";
     static final String MSG_MISSING_NAME = "Missing filter name";
     static final String MSG_NO_DEFAULT_FILTER = "Missing default filter";
-    static final String MSG_INVALID_STATES = "An invalid filter state has been provided. Only " + BUILDING_STATE + " and " + FAILED_STATE + " are supported";
+    static final String MSG_INVALID_STATES = "An invalid filter state has been provided. Only " + String.join(", ", VALID_STATES) + " are supported";
 
     static void validateDefaultIsPresent(Map<String, DashboardFilter> current) {
         if (current.isEmpty()) throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);

@@ -17,7 +17,7 @@ package com.thoughtworks.go.apiv1.servermaintenancemode.representers;
 
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.apiv1.shared.representers.materials.MaterialRepresenter;
+import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.server.service.MaintenanceModeService.MaterialPerformingMDU;
@@ -52,14 +52,14 @@ public class MaintenanceModeInfoRepresenter {
     }
 
     private static Consumer<OutputListWriter> runningMDUsToJSON(Collection<MaterialPerformingMDU> runningMDUs) {
-        return listWriter -> runningMDUs.stream().forEach(materialPerformingMDU -> listWriter.addChild(childItemWriter -> {
-                MaterialRepresenter.toJSON(childItemWriter, materialPerformingMDU.getMaterial().config());
+        return listWriter -> runningMDUs.forEach(materialPerformingMDU -> listWriter.addChild(childItemWriter -> {
+                MaterialsRepresenter.toJSON(childItemWriter, materialPerformingMDU.getMaterial().config());
                 childItemWriter.add("mdu_start_time", materialPerformingMDU.getTimestamp());
             }));
     }
 
     private static Consumer<OutputListWriter> runningJobsToJSON(List<JobInstance> runningJobs) {
-        return listWriter -> runningJobs.stream().forEach(job -> listWriter.addChild(childItemWriter -> {
+        return listWriter -> runningJobs.forEach(job -> listWriter.addChild(childItemWriter -> {
                 childItemWriter.add("pipeline_name", job.getPipelineName());
                 childItemWriter.add("pipeline_counter", job.getPipelineCounter());
                 childItemWriter.add("stage_name", job.getStageName());

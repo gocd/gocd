@@ -173,8 +173,8 @@ final Map<String, String> v = [
   ztExec              : versionOf(libraries.ztExec),
 
   // misc
-  tanuki              : '3.5.52-st',
-  tanukiSha256sum     : '943de6cb5fb6eb86bd183d91bc8c27b3746505728f8915f8676573add7ae3875',
+  tanuki              : '3.5.51-st',
+  tanukiSha256sum     : '29a89bcfbbfb8900d1d8d5ffb85417ee81ff306384c5857ee521b3e94f7b099a',
   tfsSdk              : '14.137.0',
   tfsSdkSha256sum     : '1f3a5a29b777511e06b5f88e8bea5a670426ee0e01a0e649f160bc493e306e91',
   tini                : '0.19.0',

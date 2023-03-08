@@ -146,7 +146,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
           def newLines = [
             '#encoding=UTF-8',
             'wrapper.working.dir=..',
-            'wrapper.console_input=DISABLED',
+            'wrapper.disable_console_input=TRUE',
             'wrapper.console.flush=TRUE'
           ]
 
@@ -184,6 +184,14 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
         if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
           eachLine = "wrapper.logfile=logs/${installerType.logFileName}"
+        }
+
+        if (eachLine == 'wrapper.logfile.maxsize=0') {
+          eachLine = "wrapper.logfile.maxsize=10m"
+        }
+
+        if (eachLine == 'wrapper.logfile.maxfiles=0') {
+          eachLine = "wrapper.logfile.maxfiles=4"
         }
 
         return eachLine

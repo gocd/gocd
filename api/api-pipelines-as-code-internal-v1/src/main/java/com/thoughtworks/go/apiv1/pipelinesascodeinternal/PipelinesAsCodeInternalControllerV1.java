@@ -24,9 +24,9 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.pipelinesascodeinternal.representers.ConfigFileListsRepresenter;
-import com.thoughtworks.go.apiv10.admin.shared.representers.PipelineConfigRepresenter;
-import com.thoughtworks.go.apiv10.admin.shared.representers.materials.MaterialsRepresenter;
-import com.thoughtworks.go.apiv10.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.apiv11.admin.shared.representers.PipelineConfigRepresenter;
+import com.thoughtworks.go.apiv11.admin.shared.representers.materials.MaterialsRepresenter;
+import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -73,12 +73,12 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private final GoConfigService goConfigService;
     private final GoConfigPluginService pluginService;
     private final PipelineConfigService pipelineService;
-    private MaterialService materialService;
+    private final MaterialService materialService;
     private final MaterialConfigConverter materialConfigConverter;
     private final SubprocessExecutionContext subprocessExecutionContext;
-    private SystemEnvironment systemEnvironment;
-    private ConfigRepoService configRepoService;
-    private EntityHashingService entityHashingService;
+    private final SystemEnvironment systemEnvironment;
+    private final ConfigRepoService configRepoService;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
     public PipelinesAsCodeInternalControllerV1(

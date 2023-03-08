@@ -20,7 +20,6 @@ plugins {
 
 dependencies {
   implementation project(':api:api-base')
-  implementation project(':api:api-shared-v10')
   implementation project(':api:api-abstract-material-test')
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')

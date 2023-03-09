@@ -132,7 +132,6 @@ project.ext.jrubyOptimizationJvmArgs = [
 
 project.ext.jrubyOptimizationSystemProperties = [
   'jruby.compile.mode'         : 'OFF',
-  'jruby.compile.invokedynamic': false
 ]
 project.ext.jrubyDefaultSystemProperties = [
   'jruby.home': 'uri:classloader://META-INF/jruby.home',

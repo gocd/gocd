@@ -111,14 +111,14 @@ class BuildDockerImageTask extends DefaultTask {
         verifyHelper.call(isNativeVerify)
         logger.lifecycle("\nVerification of ${imageNameWithTag} image on ${distro.dockerVerifyArchitecture} successful.")
       }
-    }
 
-    logger.lifecycle("Cleaning up...")
-    // delete the image, to save space
-    if (!project.hasProperty('dockerBuildKeepImages')) {
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "rmi", imageNameWithTag]
+      logger.lifecycle("Cleaning up...")
+      // delete the image, to save space
+      if (!project.hasProperty('dockerBuildKeepImages')) {
+        project.exec {
+          workingDir = project.rootProject.projectDir
+          commandLine = ["docker", "rmi", imageNameWithTag]
+        }
       }
     }
 

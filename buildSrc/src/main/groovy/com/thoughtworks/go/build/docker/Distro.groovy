@@ -108,7 +108,7 @@ enum Distro implements DistroBehavior {
         "echo 'install_weak_deps=False' >> /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
         "${pkg} update -y",
         "${pkg} upgrade -y",
-        "rm -rf *.core core.*", // Remove this line when CentOS 7 is removed
+        "rm -rf /*.core /core.*", // Remove this line when CentOS 7 is removed
       ]
 
       String git = gitPackageFor(v)

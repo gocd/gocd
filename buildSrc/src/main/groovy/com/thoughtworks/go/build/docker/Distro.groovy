@@ -106,9 +106,8 @@ enum Distro implements DistroBehavior {
       def commands = [
         "echo 'fastestmirror=1' >> /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
         "echo 'install_weak_deps=False' >> /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
-        "${pkg} update -y",
+        v.lessThan(8) ? "${pkg} install grubby -y && ${pkg} autoremove -y && ${pkg} remove grubby -y && ${pkg} update -y" : "${pkg} update -y",
         "${pkg} upgrade -y",
-        "rm -rf /*.core /core.*", // Remove this line when CentOS 7 is removed
       ]
 
       String git = gitPackageFor(v)

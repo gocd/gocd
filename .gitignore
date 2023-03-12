@@ -102,9 +102,6 @@ api/api-access-token-v1/config/
 api/api-artifact-store-config-v1/logs/
 api/api-artifact-store-config-v1/out/
 api/api-artifact-store-config-v1/target/
-api/api-backups-v1/logs/
-api/api-backups-v1/out/
-api/api-backups-v1/target/
 api/api-backups-v2/out/
 api/api-backups-v2/target/
 api/api-backups-v2/logs/

@@ -25,7 +25,7 @@ enum Distro implements DistroBehavior {
   alpine{
     @Override
     List<DistroVersion> getSupportedVersions() {
-      return [
+      return [ // See https://endoflife.date/alpine
         new DistroVersion(version: '3.14', releaseName: '3.14', eolDate: parseDate('2023-05-01')),
         new DistroVersion(version: '3.15', releaseName: '3.15', eolDate: parseDate('2023-11-01')),
         new DistroVersion(version: '3.16', releaseName: '3.16', eolDate: parseDate('2024-05-23')),
@@ -148,8 +148,8 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<DistroVersion> getSupportedVersions() {
-      return [
-        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
+      return [ // See https://endoflife.date/centos
+        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-30'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
         new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['dnf install --assumeyes glibc-langpack-en']),
         new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['dnf install --assumeyes glibc-langpack-en epel-release']),
       ]
@@ -176,9 +176,9 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<DistroVersion> getSupportedVersions() {
-      return [
+      return [ // See https://endoflife.date/debian
         new DistroVersion(version: '10', releaseName: 'buster-slim', eolDate: parseDate('2024-06-01')),
-        new DistroVersion(version: '11', releaseName: 'bullseye-slim', eolDate: parseDate('2026-08-15')),
+        new DistroVersion(version: '11', releaseName: 'bullseye-slim', eolDate: parseDate('2026-06-30')),
       ]
     }
   },
@@ -196,10 +196,9 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<DistroVersion> getSupportedVersions() {
-      return [
-        new DistroVersion(version: '18.04', releaseName: 'bionic', eolDate: parseDate('2023-04-01')),
-        new DistroVersion(version: '20.04', releaseName: 'focal', eolDate: parseDate('2030-04-01')),
-        new DistroVersion(version: '22.04', releaseName: 'jammy', eolDate: parseDate('2032-04-01')),
+      return [ // See https://endoflife.date/ubuntu "Maintenance & Security Support"
+        new DistroVersion(version: '20.04', releaseName: 'focal', eolDate: parseDate('2025-04-02')),
+        new DistroVersion(version: '22.04', releaseName: 'jammy', eolDate: parseDate('2027-04-01')),
       ]
     }
   },

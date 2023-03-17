@@ -200,6 +200,12 @@ allprojects {
 
   repositories {
     mavenCentral()
+    maven {
+      url "https://oss.sonatype.org/content/repositories/snapshots/"
+      mavenContent {
+        snapshotsOnly()
+      }
+    }
   }
 
   if (project.name == 'build-platform') {

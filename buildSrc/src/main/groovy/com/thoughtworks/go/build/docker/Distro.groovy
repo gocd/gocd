@@ -110,13 +110,12 @@ enum Distro implements DistroBehavior {
         "${pkg} upgrade -y",
       ]
 
-      String git = gitPackageFor(v)
-      commands += "${pkg} install -y ${git} mercurial subversion openssh-clients bash unzip procps" +
-        (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
-        (v.lessThan(9) ? ' curl' : ' curl-minimal')
+      commands += "${pkgFor(v)} install -y ${(v.lessThan(8) ? "rh-git227-git-core" : "git-core")} mercurial subversion openssh-clients bash unzip procps" +
+          (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
+          (v.lessThan(9) ? ' curl' : ' curl-minimal')
 
       if (v.lessThan(8)) {
-        commands += "cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh"
+        commands += "cp /opt/rh/rh-git227/enable /etc/profile.d/rh-git227.sh"
       }
 
       commands += [
@@ -125,10 +124,6 @@ enum Distro implements DistroBehavior {
       ]
 
       return commands
-    }
-
-    String gitPackageFor(DistroVersion v) {
-      return v.lessThan(8) ? "rh-git227" : "git"
     }
 
     @Override

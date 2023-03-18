@@ -116,8 +116,9 @@ subprojects {
       // daemonize the container
       cleanContainer.call() // Clean-up after any previous aborted runs
       project.exec {
+        def additionalFlags = distro == Distro.docker ? ["--privileged"] : []
         workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
+        commandLine = ["docker", "run", "-e", "GO_SERVER_URL=http://localhost:8153/go", "-d", "--name", docker.dockerImageName] + additionalFlags + [docker.imageNameWithTag] as List<String>
         standardOutput = System.out
         errorOutput = System.err
       }

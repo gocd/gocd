@@ -17,7 +17,7 @@
 $(which dind) dockerd --host=unix:///var/run/docker.sock ${DOCKERD_ADDITIONAL_ARGS:-'--host=tcp://localhost:2375'} > /var/log/dockerd.log 2>&1 &
 
 waited=0
-until [ $waited -gt ${DOCKERD_MAX_WAIT_SECS:-30} ] || docker stats --no-stream; do
+until [ $waited -ge ${DOCKERD_MAX_WAIT_SECS:-30} ] || docker stats --no-stream; do
   sleep 1
   ((waited++))
 done

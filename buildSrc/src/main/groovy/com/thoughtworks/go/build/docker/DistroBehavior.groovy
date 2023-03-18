@@ -44,13 +44,17 @@ trait DistroBehavior {
     }) ?: { throw new RuntimeException("Version [${version}] is not defined for this distro.") }()
   }
 
+  List<String> getBaseImageUpdateCommands(DistroVersion v) {
+    throw new RuntimeException("Subclasses must implement!")
+  }
+
   List<String> getCreateUserAndGroupCommands() {
     return [
       'useradd -l -u ${UID} -g root -d /home/go -m go'
     ]
   }
 
-  List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
+  List<String> getInstallPrerequisitesCommands(DistroVersion v) {
     throw new RuntimeException("Subclasses must implement!")
   }
 

@@ -74,9 +74,10 @@ RUN \
   chown ${fileDescriptor.owner}:${fileDescriptor.group} ${filePath} && \
   </#list>
 </#if>
-# add our user and group first to make sure their IDs get assigned consistently,
-# regardless of whatever dependencies get added
-# add user to root group for GoCD to work on openshift
+<#list distro.getBaseImageUpdateCommands(distroVersion) as command>
+  ${command} && \
+</#list>
+# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 <#list distro.createUserAndGroupCommands as command>
   ${command} && \
 </#list>

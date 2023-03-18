@@ -34,6 +34,11 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
+    List<String> getBaseImageUpdateCommands(DistroVersion v) {
+      return ['apk --no-cache upgrade']
+    }
+
+    @Override
     List<String> getCreateUserAndGroupCommands() {
       return [
         'adduser -D -u ${UID} -s /bin/bash -G root go'
@@ -43,7 +48,6 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
-        'apk --no-cache upgrade',
         // procps is needed for tanuki wrapper shell script
         'apk add --no-cache nss git mercurial subversion openssh-client bash curl procps'
       ]
@@ -101,40 +105,65 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
-      def pkg = v.lessThan(8) ? 'yum' : 'dnf'
+    List<String> getBaseImageUpdateCommands(DistroVersion v) {
       def commands = [
-        "echo 'fastestmirror=1' >> /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
-        "echo 'install_weak_deps=False' >> /etc/${pkg == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
-        v.lessThan(8) ? "${pkg} install grubby -y && ${pkg} autoremove -y && ${pkg} remove grubby -y && ${pkg} update -y" : "${pkg} update -y",
-        "${pkg} upgrade -y",
+        "echo 'fastestmirror=1' >> /etc/${pkgFor(v) == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
+        "echo 'install_weak_deps=False' >> /etc/${pkgFor(v) == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
       ]
 
-      commands += "${pkgFor(v)} install -y ${(v.lessThan(8) ? "rh-git227-git-core" : "git-core")} mercurial subversion openssh-clients bash unzip procps" +
-          (v.lessThan(8) ? ' sysvinit-tools coreutils' : ' procps-ng coreutils-single') +
-          (v.lessThan(9) ? ' curl' : ' curl-minimal')
-
       if (v.lessThan(8)) {
-        commands += "cp /opt/rh/rh-git227/enable /etc/profile.d/rh-git227.sh"
+        commands += [
+          "${pkgFor(v)} install -y centos-release-scl-rh grubby",
+          "${pkgFor(v)} autoremove -y",
+          "${pkgFor(v)} remove -y grubby",
+        ]
       }
 
       commands += [
-        "${pkg} clean all",
-        "rm -rf /var/cache/${pkg}"
+        "${pkgFor(v)} upgrade -y",
+        "${pkgFor(v)} install -y shadow-utils",
       ]
 
-      return commands
+      commands
     }
+
+    @Override
+    List<String> getInstallPrerequisitesCommands(DistroVersion v) {
+      def commands = [
+        "${pkgFor(v)} install -y mercurial subversion openssh-clients bash unzip procps" +
+          (v.lessThan(8) ? ' rh-git227-git-core sysvinit-tools coreutils' : ' git-core procps-ng coreutils-single') +
+          (v.lessThan(9) ? ' curl' : ' curl-minimal')
+      ]
+
+      if (v.lessThan(8)) {
+        commands += 'cp /opt/rh/rh-git227/enable /etc/profile.d/rh-git227.sh'
+      }
+
+      commands += [
+        "${pkgFor(v)} clean all",
+        "rm -rf /var/cache/${pkgFor(v)}",
+      ]
+      commands
+    }
+
+    private String pkgFor(DistroVersion v) {
+      switch (v.version) {
+        case '7': return 'yum'
+        case '8': return 'dnf'
+        case '9': return 'microdnf'
+        default: throw IllegalArgumentException("Unknown version $v")
+      }
+    }
+
 
     @Override
     Map<String, String> getEnvironmentVariables(DistroVersion v) {
       def vars = super.getEnvironmentVariables(v)
 
       if (v.lessThan(8)) {
-        String git = gitPackageFor(v)
         return vars + [
-          BASH_ENV: "/opt/rh/${git}/enable",
-          ENV     : "/opt/rh/${git}/enable"
+          BASH_ENV: "/opt/rh/rh-git227/enable",
+          ENV     : "/opt/rh/rh-git227/enable"
         ] as Map<String, String>
       } else {
         return vars
@@ -144,9 +173,9 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/centos
-        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-30'), installPrerequisitesCommands: ['yum install --assumeyes centos-release-scl-rh']),
-        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['dnf install --assumeyes glibc-langpack-en']),
-        new DistroVersion(version: '9', releaseName: 'stream9', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['dnf install --assumeyes glibc-langpack-en epel-release']),
+        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-30')),
+        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['dnf install -y glibc-langpack-en']),
+        new DistroVersion(version: '9', releaseName: 'stream9-minimal', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['microdnf install -y glibc-langpack-en epel-release tar tzdata']),
       ]
     }
   },
@@ -158,15 +187,21 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
+    List<String> getBaseImageUpdateCommands(DistroVersion v) {
+      return [
+        'DEBIAN_FRONTEND=noninteractive apt-get update',
+        'DEBIAN_FRONTEND=noninteractive apt-get upgrade -y',
+      ]
+    }
+
+    @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
-        'apt-get update',
-        'apt-get upgrade -y',
-        'apt-get install -y git subversion mercurial openssh-client bash unzip curl ca-certificates locales procps sysvinit-utils coreutils',
-        'apt-get clean all',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core subversion mercurial openssh-client bash unzip curl ca-certificates locales procps sysvinit-utils coreutils',
+        'DEBIAN_FRONTEND=noninteractive apt-get clean all',
         'rm -rf /var/lib/apt/lists/*',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'
-      ].collect {cmd -> cmd.startsWith('apt-get') ? "DEBIAN_FRONTEND=noninteractive $cmd" : cmd }
+      ]
     }
 
     @Override
@@ -182,6 +217,11 @@ enum Distro implements DistroBehavior {
     @Override
     Set<Architecture> getSupportedArchitectures() {
       debian.supportedArchitectures
+    }
+
+    @Override
+    List<String> getBaseImageUpdateCommands(DistroVersion v) {
+      return debian.getBaseImageUpdateCommands(v)
     }
 
     @Override
@@ -210,10 +250,8 @@ enum Distro implements DistroBehavior {
     }
 
     @Override
-    List<DistroVersion> getSupportedVersions() {
-      return [
-        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
-      ]
+    List<String> getBaseImageUpdateCommands(DistroVersion v) {
+      return alpine.getBaseImageUpdateCommands(v)
     }
 
     @Override
@@ -237,6 +275,13 @@ enum Distro implements DistroBehavior {
     @Override
     Map<String, String> getEnvironmentVariables(DistroVersion v) {
       return alpine.getEnvironmentVariables(v)
+    }
+
+    @Override
+    List<DistroVersion> getSupportedVersions() {
+      return [
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
+      ]
     }
   }
 

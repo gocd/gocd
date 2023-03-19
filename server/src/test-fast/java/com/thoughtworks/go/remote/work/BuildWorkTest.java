@@ -508,6 +508,7 @@ class BuildWorkTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void rakeTest() throws Exception {
         buildWork = getWork(RAKE, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));

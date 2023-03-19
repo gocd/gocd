@@ -175,7 +175,7 @@ enum Distro implements DistroBehavior {
       return [ // See https://endoflife.date/centos
         new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-30')),
         new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['dnf install -y glibc-langpack-en']),
-        new DistroVersion(version: '9', releaseName: 'stream9-minimal', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['microdnf install -y glibc-langpack-en epel-release tar tzdata']),
+        new DistroVersion(version: '9', releaseName: 'stream9-minimal', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['microdnf install -y glibc-langpack-en tar tzdata epel-release epel-next-release']),
       ]
     }
   },

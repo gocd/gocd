@@ -26,7 +26,7 @@
     "awesomplete": "^1.1.5",
     "bourbon": "^7.3.0",
     "chart.js": "^3.9.1",
-    "chartjs-plugin-zoom": "^2.0.0",
+    "chartjs-plugin-zoom": "^2.0.1",
     "classnames": "^2.3.2",
     "core-js": "^3.29.1",
     "filesize": "^10.0.6",

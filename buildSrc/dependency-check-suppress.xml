@@ -234,15 +234,15 @@
     <cve>CVE-2012-6708</cve>
 
     <cve>CVE-2015-9251</cve>
-    <vulnerabilityName>1090126</vulnerabilityName>
+    <vulnerabilityName>GHSA-rmxg-73gg-4p98</vulnerabilityName>
 
     <cve>CVE-2019-11358</cve>
-    <vulnerabilityName>1089523</vulnerabilityName>
+    <vulnerabilityName>GHSA-6c3j-c64m-qhgq</vulnerabilityName>
 
     <cve>CVE-2020-11022</cve>
-    <vulnerabilityName>1089070</vulnerabilityName>
+    <vulnerabilityName>GHSA-gxr4-xjj5-5px2</vulnerabilityName>
     <cve>CVE-2020-11023</cve>
-    <vulnerabilityName>1089071</vulnerabilityName>
+    <vulnerabilityName>GHSA-jpcq-cgw6-v4j6</vulnerabilityName>
   </suppress>
 
   <suppress>

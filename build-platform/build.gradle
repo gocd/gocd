@@ -18,6 +18,7 @@ dependencies {
 
   constraints {
     api project.deps.angusActivation
+    api project.deps.checkerQual // clashing versions between runtime postgres dependency and guava's compile time declaration
     api project.deps.commonsCodec
     api('commons-io:commons-io') {
       version {

@@ -233,9 +233,6 @@ dependencies {
   implementation project(':db-support:db-support-postgresql')
   implementation project(':db-support:db-support-mysql')
 
-  packagingOnly(project(':base')) {
-    transitive = false
-  }
   packagingOnly project.deps.servletApi
 
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
@@ -297,18 +294,10 @@ dependencies {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  compileOnly(project(':app-server')) {
-    // need to exclude transitive deps or some required jars will be removed during packaging as we explicitly remove
-    // these artifacts from packaging; this happens in the `war` task when excluding `doNotPackage` configurations
-    transitive = false
-  }
+  compileOnly project(':app-server')
   annotationProcessor project.deps.lombok
-  providedAtPackageTime(project.deps.logback) {
-    exclude(module: 'slf4j-api') // Excluded to avoid transitive overriding the `implementation` dependency above
-  }
-  providedAtPackageTime project.deps.bouncyCastle
-  providedAtPackageTime project.deps.bouncyCastlePkix
-  providedAtPackageTime project.deps.jettyWebsocket
+  compileOnly project.deps.logback
+  compileOnly project.deps.jettyWebsocket
 
   testImplementation(project.deps.dbunit) {
     exclude(group: 'org.postgresql')
@@ -713,7 +702,8 @@ task war(type: Jar) {
   dependsOn rootProject.generateLicenseReport
   dependsOn configureWar
   dependsOn ':server:jar', ':server:compileAssets'
-  dependsOn project.configurations.compileClasspath
+  dependsOn project.configurations.runtimeClasspath
+  dependsOn project.configurations.packagingOnly
   dependsOn project.configurations.allApis
   dependsOn project.configurations.spark
   finalizedBy 'verifyWar'
@@ -723,21 +713,13 @@ task war(type: Jar) {
   // Using a Set<String> is more reliable than Set<File> because File.equals() may be affected by other internal fields
   // aside from `path` that aren't important to us; thus, Set<File> may allow duplicate paths and Set<String> will not.
   Set<String> classpath = (
-    /*
-     * Order of operations when combining and subtracting lists matters in Groovy in non-obvious ways (* see below),
-     * so the parentheses are here to make this more resilient to refactoring as well as communicating intent.
-     *
-     * Order matters in Groovy - here's how:
-     *   [1, 2] + [5] - [5] + [5] == [1, 2, 5] // so far, so good
-     *   [1, 2] + [5] + [5] - [5] == [1, 2]    // surprise! subtracting [5] removes all instances of 5
-     */
-    project.configurations.packagingOnly + (
-      project.configurations.allApis
-        + project.configurations.spark
-        + project.configurations.compileClasspath
-        - project.configurations.doNotPackage
+      project.configurations.runtimeClasspath +
+        project.configurations.packagingOnly +
+        project.configurations.allApis +
+        project.configurations.spark
     )
-  ).collect { f -> f.toString() }.toSet()
+    .collect { f -> f.toString() }
+    .toSet()
 
   // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
   classpath.removeAll([project(':app-server').jar.archiveFile.get().toString(), jar.archiveFile.get().toString()])
@@ -790,7 +772,7 @@ task verifyWar(type: VerifyJarTask) {
         "aopalliance-1.0.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
-        "checker-qual-${project.versions.checkerQual}.jar",
+        "checker-qual-3.31.0.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",

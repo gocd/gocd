@@ -50,7 +50,14 @@ dependencies {
   packagingInDefaultFilesDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
-  packagingInLibDir project(path: ':jetty9', configuration: 'providedAtPackageTime')
+
+  packagingInLibDir project.deps.jetty
+  packagingInLibDir project.deps.jettyPlus
+  packagingInLibDir project.deps.jettyJmx
+  packagingInLibDir project.deps.jettyServlets
+  packagingInLibDir project.deps.jettyUtil
+  packagingInLibDir project.deps.jettyDeploy
+  packagingInLibDir project.deps.jettyWebsocket
 
   packagingInLibDir(project(path: ':plugin-infra:go-plugin-activator')) {
     transitive = false

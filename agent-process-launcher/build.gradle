@@ -18,6 +18,7 @@ description = 'GoCD Agent Process Launcher Classes'
 
 dependencies {
   implementation project(':agent-common')
+  compileOnly project.deps.logback
   testImplementation project.deps.mockitoCore
   testImplementation project(':test:test-utils')
   testRuntimeOnly project.deps.bouncyCastle

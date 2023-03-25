@@ -17,7 +17,7 @@
 description = 'GoCD Rack Delegator'
 dependencies {
   implementation project(':app-server')
-  providedAtPackageTime(project.deps.servletApi)
+  compileOnly project.deps.servletApi
   testImplementation project(':test:test-utils')
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.junit5Api

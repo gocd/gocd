@@ -45,6 +45,7 @@ dependencies {
   implementation project.deps.bouncyCastle
   implementation project.deps.bouncyCastlePkix
   implementation project.deps.slf4j
+  runtimeOnly project.deps.logback
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
   copyOnly project(':plugin-infra:go-plugin-activator')

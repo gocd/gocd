@@ -23,13 +23,13 @@ dependencies {
   implementation project(':rack_hack')
   implementation project.deps.slf4j
 
-  providedAtPackageTime project.deps.jetty
-  providedAtPackageTime project.deps.jettyPlus
-  providedAtPackageTime project.deps.jettyJmx
-  providedAtPackageTime project.deps.jettyServlets
-  providedAtPackageTime project.deps.jettyUtil
-  providedAtPackageTime project.deps.jettyDeploy
-  providedAtPackageTime project.deps.jettyWebsocket
+  compileOnly project.deps.jetty
+  compileOnly project.deps.jettyPlus
+  compileOnly project.deps.jettyJmx
+  compileOnly project.deps.jettyServlets
+  compileOnly project.deps.jettyUtil
+  compileOnly project.deps.jettyDeploy
+  compileOnly project.deps.jettyWebsocket
 
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api

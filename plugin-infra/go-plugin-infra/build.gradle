@@ -26,6 +26,7 @@ dependencies {
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-activator')
   implementation project.deps.commonsCollections4
+  compileOnly project.deps.logback
   api project.deps.jaxbApi
   api project.deps.jaxbRuntime
 

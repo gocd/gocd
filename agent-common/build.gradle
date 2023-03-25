@@ -24,7 +24,6 @@ dependencies {
   runtimeOnly project.deps.logback
 
   testRuntimeOnly project.deps.bouncyCastle
-  testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation project.deps.mockitoCore
   testImplementation project(':test:test-utils')
   testImplementation project.deps.junit5Api

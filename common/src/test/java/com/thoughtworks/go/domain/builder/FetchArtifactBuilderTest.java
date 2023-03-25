@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.domain.builder;
 
+import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
@@ -218,6 +220,9 @@ public class FetchArtifactBuilderTest {
     }
 
     private class StubFetchZipHttpService extends HttpService {
+        StubFetchZipHttpService() {
+            super(null, null);
+        }
         @Override
         public int download(String url, FetchHandler handler) throws IOException {
             try (FileInputStream stream = new FileInputStream(zip)) {

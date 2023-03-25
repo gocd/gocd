@@ -15,14 +15,15 @@
  */
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.Arrays;
-
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.DirectoryEntries;
 import com.thoughtworks.go.domain.FileDirectoryEntry;
 import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.util.Arrays;
 
 public class DirectoryReader {
     private URLService urlService;

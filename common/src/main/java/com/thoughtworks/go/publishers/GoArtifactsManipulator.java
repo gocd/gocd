@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.publishers;
 
+import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.DownloadAction;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;

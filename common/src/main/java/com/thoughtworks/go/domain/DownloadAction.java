@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.agent.HttpService;
 import com.thoughtworks.go.work.GoPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

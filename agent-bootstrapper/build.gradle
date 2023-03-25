@@ -22,7 +22,6 @@ dependencies {
   implementation project(':agent-common')
 
   testRuntimeOnly project.deps.bouncyCastle
-  testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation project(':test:test-utils')
   testImplementation project.deps.mockitoCore
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')

@@ -36,7 +36,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TempDirUtils;
-import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;

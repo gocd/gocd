@@ -21,8 +21,8 @@ import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.matchers.UploadEntry;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.URLService;
+import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 

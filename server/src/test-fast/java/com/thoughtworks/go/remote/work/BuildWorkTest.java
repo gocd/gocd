@@ -86,7 +86,7 @@ class BuildWorkTest {
             + "  </tasks>\n"
             + "</job>";
 
-    private static final String NANT_WITH_WORKINGDIR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
+    private static final String NANT_WITH_WORKING_DIR = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
             + "  <tasks>\n"
             + "    <nant target=\"-help\" workingdir=\"not-exists\" />\n"
             + "  </tasks>\n"
@@ -193,7 +193,7 @@ class BuildWorkTest {
     private EnvironmentVariableContext environmentVariableContext;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private GoArtifactsManipulatorStub artifactManipulator;
-    private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
+    private static final BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
             new RakeTaskBuilder(), new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(),
             new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     @Mock
@@ -332,7 +332,7 @@ class BuildWorkTest {
 
     @Test
     void shouldReportDirectoryNotExists() throws Exception {
-        buildWork = getWork(NANT_WITH_WORKINGDIR, PIPELINE_NAME);
+        buildWork = getWork(NANT_WITH_WORKING_DIR, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
@@ -538,55 +538,55 @@ class BuildWorkTest {
     @Test
     void shouldCreateAgentWorkingDirectoryIfNotExist() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
+        File workingDir = new File("pipelines/" + pipelineName);
+        if (workingDir.exists()) {
+            FileUtils.deleteDirectory(workingDir);
         }
-        assertThat(workingdir.exists()).isFalse();
+        assertThat(workingDir.exists()).isFalse();
         buildWork = getWork(WILL_PASS, pipelineName);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory");
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory");
 
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingdir.exists()).isTrue();
-        FileUtils.deleteDirectory(workingdir);
+        assertThat(workingDir.exists()).isTrue();
+        FileUtils.deleteDirectory(workingDir);
     }
 
     @Test
     void shouldNotBombWhenCreatingWorkingDirectoryIfCleanWorkingDirectoryFlagIsTrue() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
+        File workingDir = new File("pipelines/" + pipelineName);
+        if (workingDir.exists()) {
+            FileUtils.deleteDirectory(workingDir);
         }
-        assertThat(workingdir.exists()).isFalse();
+        assertThat(workingDir.exists()).isFalse();
         buildWork = getWork(WILL_PASS, pipelineName, true, true);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory");
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory");
 
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingdir.exists()).isTrue();
+        assertThat(workingDir.exists()).isTrue();
     }
 
     @Test
     void shouldCreateAgentWorkingDirectoryIfNotExistWhenFetchMaterialsIsFalse() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
+        File workingDir = new File("pipelines/" + pipelineName);
+        if (workingDir.exists()) {
+            FileUtils.deleteDirectory(workingDir);
         }
-        assertThat(workingdir.exists()).isFalse();
+        assertThat(workingDir.exists()).isFalse();
         buildWork = getWork(WILL_PASS, pipelineName, false, false);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingdir.getAbsolutePath() + "\" is noa directory");
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingDir.getAbsolutePath() + "\" is noa directory");
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingdir.exists()).isTrue();
+        assertThat(workingDir.exists()).isTrue();
     }
 
     @Test
@@ -609,21 +609,21 @@ class BuildWorkTest {
 
     private void doCleanWorkingDirTest(Consumer<Path> workingDirContentCreator) throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
+        File workingDir = new File("pipelines/" + pipelineName);
+        if (workingDir.exists()) {
+            FileUtils.deleteDirectory(workingDir);
         }
-        workingdir.mkdirs();
-        workingDirContentCreator.accept(workingdir.toPath());
+        workingDir.mkdirs();
+        workingDirContentCreator.accept(workingDir.toPath());
 
         buildWork = getWork(WILL_PASS, pipelineName, false, true);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut()).contains("Cleaning working directory \"" + workingdir.getAbsolutePath());
+        assertThat(artifactManipulator.consoleOut()).contains("Cleaning working directory \"" + workingDir.getAbsolutePath());
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingdir.exists()).isTrue();
-        assertThat(workingdir.listFiles().length).isEqualTo(0);
+        assertThat(workingDir.exists()).isTrue();
+        assertThat(workingDir.listFiles().length).isEqualTo(0);
     }
 
     private void createSymlinkedDirs(Path workingDir) {
@@ -732,7 +732,7 @@ class BuildWorkTest {
     }
 
     @Test
-    void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
+    void shouldMaskSecretInEnvironmentVariableReport() throws Exception {
         buildWork = getWork(WITH_SECRET_ENV_VAR, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));

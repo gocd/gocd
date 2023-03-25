@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;

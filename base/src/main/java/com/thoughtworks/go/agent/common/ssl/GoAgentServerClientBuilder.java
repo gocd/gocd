@@ -49,10 +49,6 @@ public abstract class GoAgentServerClientBuilder<T> {
 
     public abstract T build() throws Exception;
 
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
-
     GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertFile, SslVerificationMode sslVerificationMode, File sslPrivateKey, File sslPrivateKeyPassphraseFile, File sslCertificate) {
         this.systemEnvironment = systemEnvironment;
         this.rootCertFile = rootCertFile;
@@ -100,11 +96,15 @@ public abstract class GoAgentServerClientBuilder<T> {
         return keyStore;
     }
 
+    private static class BouncyCastleProviderHolder {
+        static final Provider INSTANCE = new BouncyCastleProvider();
+    }
+
     private PrivateKey getPrivateKey() throws IOException {
         PrivateKey privateKey;
         try (PEMParser reader = new PEMParser(new FileReader(this.sslPrivateKey, StandardCharsets.UTF_8))) {
             Object pemObject = reader.readObject();
-            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProviderHolder.INSTANCE);
 
             if (pemObject instanceof PEMEncryptedKeyPair) {
                 PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(passphrase());

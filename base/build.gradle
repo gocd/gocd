@@ -17,8 +17,8 @@
 description = 'GoCD Base'
 
 dependencies {
-  providedAtPackageTime project.deps.bouncyCastle
-  providedAtPackageTime project.deps.bouncyCastlePkix
+  compileOnly project.deps.bouncyCastle
+  compileOnly project.deps.bouncyCastlePkix
 
   api project.deps.commonsIO
   api project.deps.commonsLang3
@@ -28,7 +28,7 @@ dependencies {
   }
   api project.deps.jodaTime
   api project.deps.slf4jJcl
-  api project.deps.logback
+  compileOnly project.deps.logback
 
   compileOnly project.deps.jetBrainsAnnotations
 

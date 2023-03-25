@@ -16,36 +16,32 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.domain.FetchHandler;
-import com.thoughtworks.go.util.HttpService;
-import org.apache.commons.io.IOUtils;
+import com.thoughtworks.go.agent.HttpService;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class HttpServiceStub extends HttpService {
-    private Map<String, File> uploadedFiles = new HashMap<>();
-    private Map<String, byte[]> downloadFiles = new HashMap<>();
-    private List<String> uploadedFileUrls = new ArrayList<>();
+    private final Map<String, File> uploadedFiles = new HashMap<>();
 
-    private int returnCode;
+    private final int returnCode;
 
     public HttpServiceStub() {
         this(HttpServletResponse.SC_OK);
     }
 
     public HttpServiceStub(int returnCode) {
+        super(null, null);
         this.returnCode = returnCode;
     }
 
     @Override
     public int upload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
         uploadedFiles.put(url, artifactFile);
-        uploadedFileUrls.add(url);
-
         return returnCode;
     }
 
@@ -54,22 +50,8 @@ public class HttpServiceStub extends HttpService {
     }
 
     @Override
-    public int download(String url, FetchHandler handler) throws IOException {
-        byte[] body = downloadFiles.get(url);
-        if(body == null) {
-            return HttpServletResponse.SC_NOT_FOUND;
-        }
-        handler.handle(new ByteArrayInputStream(body));
-        return returnCode;
+    public int download(String url, FetchHandler handler) {
+        throw new UnsupportedOperationException("download not implemented");
     }
-
-    public void setupDownload(String url, String body) {
-        downloadFiles.put(url, body.getBytes());
-    }
-
-    public void setupDownload(String url, File file) throws IOException {
-        downloadFiles.put(url, IOUtils.toByteArray(new FileInputStream(file)));
-    }
-
 }
 

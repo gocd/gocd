@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.newsecurity.filters;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.util.LastOperationTime;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +54,7 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
-        String headerValue = request.getHeader(HttpService.GO_ARTIFACT_PAYLOAD_SIZE);
+        String headerValue = request.getHeader(GoConstants.GO_ARTIFACT_PAYLOAD_SIZE);
         if (isBlank(headerValue)) {
             filterChain.doFilter(request, response);
             return;
@@ -70,8 +69,8 @@ public class ArtifactSizeEnforcementFilter extends OncePerRequestFilter {
             }
         }
 
-        if (Long.valueOf(headerValue) * 2 > totalAvailableSpace) {
-            Long artifactSize = Long.valueOf(headerValue);
+        if (Long.parseLong(headerValue) * 2 > totalAvailableSpace) {
+            long artifactSize = Long.parseLong(headerValue);
             LOG.error("[Artifact Upload] Artifact upload (Required Size {} * 2 = {}) was denied by the server because it has run out of disk space (Available Space {}).", artifactSize, artifactSize * 2, totalAvailableSpace);
             response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         } else {

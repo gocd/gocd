@@ -37,7 +37,7 @@ dependencies {
   implementation project.deps.felix
   implementation project.deps.guava
   implementation project.deps.jodaTime
-  providedAtPackageTime project.deps.bouncyCastle
+  compileOnly project.deps.bouncyCastle
   annotationProcessor project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 

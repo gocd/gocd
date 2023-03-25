@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.agent.HttpService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;

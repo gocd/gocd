@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.util.HttpService;
+import com.thoughtworks.go.agent.HttpService;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
@@ -112,16 +112,17 @@ public class DownloadActionTest {
         return "";
     }
 
-    private class MockCachingFetchZipHttpService extends HttpService {
+    private static class MockCachingFetchZipHttpService extends HttpService {
         private final int count;
         private int timesCalled = 0;
 
         MockCachingFetchZipHttpService(int count) {
+            super(null, null);
             this.count = count;
         }
 
         @Override
-        public int download(String url, FetchHandler handler) throws IOException {
+        public int download(String url, FetchHandler handler) {
             timesCalled += 1;
             if (timesCalled < count) {
                 return SC_ACCEPTED;
@@ -145,10 +146,11 @@ public class DownloadActionTest {
     }
 
     private static class FailSometimesHttpService extends HttpService {
-        private int count;
+        private final int count;
         private int timesCalled = 0;
 
         public FailSometimesHttpService(int count) {
+            super(null, null);
             this.count = count;
         }
 

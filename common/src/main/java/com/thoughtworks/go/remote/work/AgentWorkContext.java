@@ -26,14 +26,14 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 
 public class AgentWorkContext {
-    private AgentIdentifier agentIdentifier;
-    private BuildRepositoryRemote repositoryRemote;
-    private GoArtifactsManipulator artifactsManipulator;
-    private AgentRuntimeInfo agentRuntimeInfo;
-    private PackageRepositoryExtension packageRepositoryExtension;
-    private SCMExtension scmExtension;
-    private TaskExtension taskExtension;
-    private ArtifactExtension artifactExtension;
+    private final AgentIdentifier agentIdentifier;
+    private final BuildRepositoryRemote repositoryRemote;
+    private final GoArtifactsManipulator artifactsManipulator;
+    private final AgentRuntimeInfo agentRuntimeInfo;
+    private final PackageRepositoryExtension packageRepositoryExtension;
+    private final SCMExtension scmExtension;
+    private final TaskExtension taskExtension;
+    private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
 
     public AgentWorkContext(AgentIdentifier agentIdentifier, BuildRepositoryRemote repositoryRemote, GoArtifactsManipulator artifactsManipulator, AgentRuntimeInfo agentRuntimeInfo, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry) {

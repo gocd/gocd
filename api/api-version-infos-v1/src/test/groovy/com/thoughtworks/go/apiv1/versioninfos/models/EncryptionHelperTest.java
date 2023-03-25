@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.util;
+package com.thoughtworks.go.apiv1.versioninfos.models;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;

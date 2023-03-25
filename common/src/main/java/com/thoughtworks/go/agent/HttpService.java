@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.PerfTimer;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -38,18 +39,12 @@ import java.util.Properties;
 
 @Component
 public class HttpService {
-    private final AgentRegistry agentRegistry;
-    private HttpClientFactory httpClientFactory;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
 
-    public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
+    private final AgentRegistry agentRegistry;
+    private final HttpClientFactory httpClientFactory;
 
-    public HttpService() {
-        this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())), null);
-    }
-
-    @Autowired(required = false)
+    @Autowired
     public HttpService(GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) {
         this(new HttpClientFactory(httpClient), agentRegistry);
     }
@@ -127,7 +122,7 @@ public class HttpService {
     }
 
     public static void setSizeHeader(HttpRequestBase method, long size) {
-        method.setHeader(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+        method.setHeader(GoConstants.GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
     }
 
     /**

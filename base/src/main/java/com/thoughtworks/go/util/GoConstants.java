@@ -21,6 +21,7 @@ import java.util.Date;
 public class GoConstants {
     public static final Date NEVER;
     public static final String GO_PLUGIN_MANIFEST_HEADER_PREFIX = "GoPlugin-";
+    public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     static {
         Calendar calendar = Calendar.getInstance();

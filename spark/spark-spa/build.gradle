@@ -26,7 +26,6 @@ dependencies {
 
   testCompileOnly project.deps.ehcache
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
-  testImplementation project.deps.bouncyCastle
   testImplementation project.deps.jsoup
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

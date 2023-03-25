@@ -28,8 +28,8 @@ import java.io.IOException;
 public class GoAgentServerHttpClient implements Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(GoAgentServerHttpClient.class);
 
+    private final GoAgentServerHttpClientBuilder builder;
     private CloseableHttpClient client;
-    private GoAgentServerHttpClientBuilder builder;
 
     public GoAgentServerHttpClient(GoAgentServerHttpClientBuilder builder) {
         this.builder = builder;

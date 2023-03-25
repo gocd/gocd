@@ -40,8 +40,8 @@
     <property name="systemPropertiesMode" value="2"/>
   </bean>
 
-  <bean id="urlService" class="com.thoughtworks.go.util.URLService"/>
-  <bean id="httpService" class="com.thoughtworks.go.util.HttpService"/>
+  <bean id="urlService" class="com.thoughtworks.go.agent.URLService"/>
+  <bean id="httpService" class="com.thoughtworks.go.agent.HttpService"/>
   <bean id="artifactsManipulator" class="com.thoughtworks.go.publishers.GoArtifactsManipulator"/>
   <bean id="sslInfrastructureService" class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>
   <bean id="agentUpgradeService" class="com.thoughtworks.go.agent.service.AgentUpgradeService"/>

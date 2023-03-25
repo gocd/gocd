@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
+import static com.thoughtworks.go.util.GoConstants.GO_ARTIFACT_PAYLOAD_SIZE;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 

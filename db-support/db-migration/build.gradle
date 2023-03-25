@@ -42,8 +42,8 @@ dependencies {
     exclude group: 'com.opencsv', module: 'opencsv'
   }
   implementation project.deps.slf4j
-  runtimeOnly project.deps.logback
   runtimeOnly project.deps.liquibaseSlf4j
+  testRuntimeOnly project.deps.logback
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

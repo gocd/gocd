@@ -207,12 +207,6 @@ allprojects {
   }
 
   configurations {
-    providedAtPackageTime {
-      transitive = true
-      canBeConsumed = true
-      canBeResolved = false
-    }
-
     // Ensure that we use the jar artifacts from even `java-library` modules; by default they
     // resolve to the classes directory instead
     compileClasspath {
@@ -224,24 +218,8 @@ allprojects {
     // it's rather convenient to allow compile and runtime classpaths for tests inherit from the main compile classpath
     testImplementation.extendsFrom compileClasspath
 
-    // make these available to compilation and test compilation
-    compileOnly.extendsFrom providedAtPackageTime
-
     // this is a sensible default so we don't need to specify an annotation processor dependency twice
     compileOnly.extendsFrom annotationProcessor
-
-    // Use this to resolve dependencies from `compileOnly` when excluding from packaging during fat jar assembly;
-    // `compileOnly` is prohibited for resolution as of Gradle 7.0
-    //
-    // Use only for resolution, not consumption; instead, use `compileOnly`, `providedAtPackageTime`, or `annotationProcessor`
-    // for consumption to mark a dependency for package exclusion
-    doNotPackage {
-      extendsFrom compileOnly
-
-      transitive = true
-      canBeConsumed = false
-      canBeResolved = true
-    }
   }
 }
 

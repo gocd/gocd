@@ -50,14 +50,20 @@ dependencies {
   packagingInDefaultFilesDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
-  packagingInLibDir project(path: ':jetty9', configuration: 'providedAtPackageTime')
+
+  packagingInLibDir project.deps.jetty
+  packagingInLibDir project.deps.jettyPlus
+  packagingInLibDir project.deps.jettyJmx
+  packagingInLibDir project.deps.jettyServlets
+  packagingInLibDir project.deps.jettyUtil
+  packagingInLibDir project.deps.jettyDeploy
+  packagingInLibDir project.deps.jettyWebsocket
 
   packagingInLibDir(project(path: ':plugin-infra:go-plugin-activator')) {
     transitive = false
   }
   packagingInLibDir project.deps.servletApi
   packagingInLibDir project.deps.bouncyCastle
-  packagingInLibDir project.deps.bouncyCastlePkix
   packagingInLibDir project.deps.commonsIO
   packagingInLibDir project.deps.commonsLang3
   packagingInLibDir project.deps.jodaTime
@@ -197,9 +203,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "tfs-impl-14.jar",
     ],
     "lib"         : [
-      "bcpkix-jdk18on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk18on-${project.versions.bouncyCastle}.jar",
-      "bcutil-jdk18on-${project.versions.bouncyCastle}.jar",
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",

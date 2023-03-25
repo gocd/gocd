@@ -26,7 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class PerfTimerTest {
 
     @Test
-    public void shouldRecordElapsedTime() throws Exception {
+    public void shouldRecordElapsedTime() {
         TestingClock clock = new TestingClock();
 
         PerfTimer timer = PerfTimer.start("Message", clock);
@@ -37,7 +37,7 @@ public class PerfTimerTest {
     }
 
     @Test
-    public void shouldRecordElapsedTimeForDifferentTimes() throws Exception {
+    public void shouldRecordElapsedTimeForDifferentTimes() {
         TestingClock clock = new TestingClock();
 
         PerfTimer timer = PerfTimer.start("Message", clock);
@@ -50,7 +50,7 @@ public class PerfTimerTest {
     }
 
     @Test
-    public void shouldLogTimeWithMessage() throws Exception {
+    public void shouldLogTimeWithMessage() {
         TestingClock clock = new TestingClock();
 
         PerfTimer timer = PerfTimer.start("Message", clock);
@@ -64,7 +64,7 @@ public class PerfTimerTest {
     }
 
     @Test
-    public void shouldStopBeforeREportingElapsed() throws Exception {
+    public void shouldStopBeforeReportingElapsed() {
         TestingClock clock = new TestingClock();
 
         PerfTimer timer = PerfTimer.start("Message", clock);

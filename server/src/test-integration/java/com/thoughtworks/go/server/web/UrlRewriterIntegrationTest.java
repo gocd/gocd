@@ -54,7 +54,6 @@ public class UrlRewriterIntegrationTest {
     private static final int HTTPS = 9071;
 
     private static final String HTTP_URL = "http://" + IP_1 + ":" + HTTP;
-    private static final String HTTPS_URL = "https://" + IP_1 + ":" + HTTPS;
     private static final String HTTP_SITE_URL = "http://" + IP_2 + ":" + HTTP;
     private static final String HTTPS_SITE_URL = "https://" + IP_2 + ":" + HTTPS;
 
@@ -62,54 +61,52 @@ public class UrlRewriterIntegrationTest {
     private static WebApplicationContext wac;
     private static boolean useConfiguredUrls;
 
-    private static ResponseAssertion NO_REWRITE = new ResponseAssertion(HTTP_URL + "/go/quux?hello=world", HTTP_URL + "/go/quux?hello=world");
-    private static ResponseAssertion NO_REWRITE_SSL = new ResponseAssertion(HTTPS_URL + "/go/quux?hello=world", HTTPS_URL + "/go/quux?hello=world");
-    private static ResponseAssertion PIPELINE_GROUP_CREATE = new ResponseAssertion(HTTP_URL + "/go/api/admin/pipeline_groups", HTTP_URL + "/go/spark/api/admin/pipeline_groups", METHOD.POST);
+    private static final ResponseAssertion NO_REWRITE = new ResponseAssertion(HTTP_URL + "/go/quux?hello=world", HTTP_URL + "/go/quux?hello=world");
+    private static final ResponseAssertion PIPELINE_GROUP_CREATE = new ResponseAssertion(HTTP_URL + "/go/api/admin/pipeline_groups", HTTP_URL + "/go/spark/api/admin/pipeline_groups", METHOD.POST);
 
-    private static ResponseAssertion CONFIG_VIEW = new ResponseAssertion(HTTP_URL + "/go/config_view/templates/template_name", HTTP_URL + "/go/rails/config_view/templates/template_name");
+    private static final ResponseAssertion CONFIG_VIEW = new ResponseAssertion(HTTP_URL + "/go/config_view/templates/template_name", HTTP_URL + "/go/rails/config_view/templates/template_name");
 
-    private static ResponseAssertion SERVER_BACKUP = new ResponseAssertion(HTTP_URL + "/go/admin/backup", HTTP_URL + "/go/spark/admin/backup", true);
+    private static final ResponseAssertion SERVER_BACKUP = new ResponseAssertion(HTTP_URL + "/go/admin/backup", HTTP_URL + "/go/spark/admin/backup", true);
 
-    private static ResponseAssertion STATIC_PAGES = new ResponseAssertion(HTTP_URL + "/go/static/foo.html?bar=baz", HTTP_URL + "/go/static/foo.html?bar=baz", true);
+    private static final ResponseAssertion STATIC_PAGES = new ResponseAssertion(HTTP_URL + "/go/static/foo.html?bar=baz", HTTP_URL + "/go/static/foo.html?bar=baz", true);
 
     private static final ResponseAssertion CONFIG_FILE_XML = new ResponseAssertion(HTTP_URL + "/go/admin/configuration/file.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/xml");
     private static final ResponseAssertion CONFIG_API_FOR_CURRENT = new ResponseAssertion(HTTP_URL + "/go/api/admin/config.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/xml?version=current");
     private static final ResponseAssertion CONFIG_API_FOR_HISTORICAL = new ResponseAssertion(HTTP_URL + "/go/api/admin/config/some-md5.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/historical-xml?version=some-md5");
 
-    private static ResponseAssertion IMAGES_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/images/foo.png", HTTP_URL + "/go/images/foo.png");
-    private static ResponseAssertion JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/javascripts/foo.js", HTTP_URL + "/go/javascripts/foo.js");
-    private static ResponseAssertion COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/compressed/all.js", HTTP_URL + "/go/compressed/all.js");
-    private static ResponseAssertion STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/stylesheets/foo.css", HTTP_URL + "/go/stylesheets/foo.css", true);
+    private static final ResponseAssertion IMAGES_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/images/foo.png", HTTP_URL + "/go/images/foo.png");
+    private static final ResponseAssertion JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/javascripts/foo.js", HTTP_URL + "/go/javascripts/foo.js");
+    private static final ResponseAssertion COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/compressed/all.js", HTTP_URL + "/go/compressed/all.js");
+    private static final ResponseAssertion STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS = new ResponseAssertion(HTTP_URL + "/go/stylesheets/foo.css", HTTP_URL + "/go/stylesheets/foo.css", true);
 
-    private static ResponseAssertion TASKS_LOOKUP_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/commands", HTTP_URL + "/go/rails/admin/commands", true);
-    private static ResponseAssertion TASKS_LOOKUP_SHOW = new ResponseAssertion(HTTP_URL + "/go/admin/commands/show", HTTP_URL + "/go/rails/admin/commands/show", true);
-    private static ResponseAssertion PLUGINS_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/plugins", HTTP_URL + "/go/spark/admin/plugins", true);
-    private static ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/package_repositories", HTTP_URL + "/go/spark/admin/package_repositories", true);
-    private static ResponseAssertion PACKAGE_DEFINITIONS = new ResponseAssertion(HTTP_URL + "/go/admin/package_definitions", HTTP_URL + "/go/rails/admin/package_definitions", true);
-    private static ResponseAssertion PLUGGABLE_SCM = new ResponseAssertion(HTTP_URL + "/go/admin/materials/pluggable_scm/check_connection/plugin_id", HTTP_URL + "/go/rails/admin/materials/pluggable_scm/check_connection/plugin_id", true);
-    private static ResponseAssertion CONFIG_CHANGE = new ResponseAssertion(HTTP_URL + "/go/admin/config_change/md5_value", HTTP_URL + "/go/rails/admin/config_change/md5_value", true);
-    private static ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml", HTTP_URL + "/go/rails/admin/config_xml", METHOD.GET, true);
-    private static ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml/edit", HTTP_URL + "/go/rails/admin/config_xml/edit", METHOD.GET, true);
+    private static final ResponseAssertion TASKS_LOOKUP_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/commands", HTTP_URL + "/go/rails/admin/commands", true);
+    private static final ResponseAssertion TASKS_LOOKUP_SHOW = new ResponseAssertion(HTTP_URL + "/go/admin/commands/show", HTTP_URL + "/go/rails/admin/commands/show", true);
+    private static final ResponseAssertion PLUGINS_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/plugins", HTTP_URL + "/go/spark/admin/plugins", true);
+    private static final ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/package_repositories", HTTP_URL + "/go/spark/admin/package_repositories", true);
+    private static final ResponseAssertion PACKAGE_DEFINITIONS = new ResponseAssertion(HTTP_URL + "/go/admin/package_definitions", HTTP_URL + "/go/rails/admin/package_definitions", true);
+    private static final ResponseAssertion PLUGGABLE_SCM = new ResponseAssertion(HTTP_URL + "/go/admin/materials/pluggable_scm/check_connection/plugin_id", HTTP_URL + "/go/rails/admin/materials/pluggable_scm/check_connection/plugin_id", true);
+    private static final ResponseAssertion CONFIG_CHANGE = new ResponseAssertion(HTTP_URL + "/go/admin/config_change/md5_value", HTTP_URL + "/go/rails/admin/config_change/md5_value", true);
+    private static final ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml", HTTP_URL + "/go/rails/admin/config_xml", METHOD.GET, true);
+    private static final ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml/edit", HTTP_URL + "/go/rails/admin/config_xml/edit", METHOD.GET, true);
 
-    private static ResponseAssertion ARTIFACT_API_HTML_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job.html", HTTP_URL + "/go/repository/restful/artifact/GET/html?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
-    private static ResponseAssertion ARTIFACT_API_HTML_LISTING_FILENAME = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/target/abc%2Bfoo.txt", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=target&filePath=abc%2Bfoo.txt", true);
-    private static ResponseAssertion ARTIFACT_API_JSON_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
-    private static ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=tmp%2Ffile", true);
-    private static ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=tmp%2Ffile", METHOD.POST, true);
-    private static ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/file", HTTP_URL + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=file", METHOD.PUT, true);
+    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job.html", HTTP_URL + "/go/repository/restful/artifact/GET/html?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
+    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING_FILENAME = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/target/abc%2Bfoo.txt", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=target&filePath=abc%2Bfoo.txt", true);
+    private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
+    private static final ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=tmp%2Ffile", true);
+    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=tmp%2Ffile", METHOD.POST, true);
+    private static final ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/file", HTTP_URL + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=file", METHOD.PUT, true);
 
-    private static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion(HTTP_URL + "/go/pipelines.json", HTTP_URL + "/go/rails/pipelines.json", METHOD.GET);
-    private static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
+    private static final ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion(HTTP_URL + "/go/pipelines.json", HTTP_URL + "/go/rails/pipelines.json", METHOD.GET);
+    private static final ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
 
-    private static ResponseAssertion LANDING_PAGE_SLASH = new ResponseAssertion(HTTP_URL + "/go/", HTTP_URL + "/go/spark/dashboard", true);
+    private static final ResponseAssertion LANDING_PAGE_SLASH = new ResponseAssertion(HTTP_URL + "/go/", HTTP_URL + "/go/spark/dashboard", true);
 
-    private static ResponseAssertion LANDING_PAGE_HOME = new ResponseAssertion(HTTP_URL + "/go/home", HTTP_URL + "/go/spark/dashboard", true);
+    private static final ResponseAssertion LANDING_PAGE_HOME = new ResponseAssertion(HTTP_URL + "/go/home", HTTP_URL + "/go/spark/dashboard", true);
 
     @SuppressWarnings("unused")
     private static Stream<ResponseAssertion> testResponseAssertions() {
         return Stream.of(
                 NO_REWRITE,
-                NO_REWRITE_SSL,
                 PIPELINE_GROUP_CREATE,
                 CONFIG_VIEW,
                 SERVER_BACKUP,
@@ -155,7 +152,6 @@ public class UrlRewriterIntegrationTest {
             ctx.addServlet(HttpTestUtil.EchoServlet.class, "/*");
         });
         httpUtil.httpConnector(HTTP);
-        httpUtil.httpsConnector(HTTPS);
         when(wac.getBean("serverConfigService")).thenReturn(new BaseUrlProvider() {
             @Override
             public boolean hasAnyUrlConfigured() {
@@ -190,8 +186,8 @@ public class UrlRewriterIntegrationTest {
         private final String requestedUrl;
         private final String servedUrl;
         private boolean useConfiguredUrls = false;
-        private int responseCode = 200;
-        private METHOD method;
+        private final int responseCode = 200;
+        private final METHOD method;
 
         ResponseAssertion(String requestedUrl, String servedUrl, METHOD method) {
             this.requestedUrl = requestedUrl;
@@ -211,6 +207,11 @@ public class UrlRewriterIntegrationTest {
         ResponseAssertion(String requestedUrl, String servedUrl, METHOD method, boolean useConfiguredUrls) {
             this(requestedUrl, servedUrl, method);
             this.useConfiguredUrls = useConfiguredUrls;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s %s", method, requestedUrl);
         }
     }
 

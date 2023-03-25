@@ -39,11 +39,9 @@ import java.util.Properties;
 @Component
 public class HttpService {
     private final AgentRegistry agentRegistry;
-    private HttpClientFactory httpClientFactory;
+    private final HttpClientFactory httpClientFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
-
-    public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     public HttpService() {
         this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())), null);
@@ -127,7 +125,7 @@ public class HttpService {
     }
 
     public static void setSizeHeader(HttpRequestBase method, long size) {
-        method.setHeader(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+        method.setHeader(GoConstants.GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
     }
 
     /**

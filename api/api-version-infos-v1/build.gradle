@@ -21,6 +21,7 @@ plugins {
 dependencies {
   implementation project(':api:api-base')
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.bouncyCastle
   
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 

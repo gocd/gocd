@@ -25,7 +25,6 @@ dependencies {
   testImplementation localGroovy()
   testImplementation project(path: ':server', configuration: 'testOutput')
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
-  testImplementation project.deps.bouncyCastle
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

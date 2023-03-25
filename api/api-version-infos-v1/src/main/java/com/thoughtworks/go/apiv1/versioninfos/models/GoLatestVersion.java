@@ -17,7 +17,6 @@
 package com.thoughtworks.go.apiv1.versioninfos.models;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.server.util.EncryptionHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import lombok.Data;
 import lombok.experimental.Accessors;

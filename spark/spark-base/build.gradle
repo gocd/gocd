@@ -37,7 +37,6 @@ dependencies {
   testImplementation project(path: ':jetty9')
   testImplementation project(path: ':jetty9', configuration: 'testOutput')
 
-  testImplementation project.deps.bouncyCastle
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 

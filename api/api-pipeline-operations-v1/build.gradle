@@ -23,11 +23,8 @@ dependencies {
   implementation project(':config:config-api')
   implementation project(':api:api-base')
 
-  providedAtPackageTime(project.deps.bouncyCastle)
-
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project.deps.bouncyCastle
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

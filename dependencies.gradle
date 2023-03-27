@@ -26,7 +26,7 @@ final Map<String, String> libraries = [
   //
   // DO NOT interpolate version variables here because Dependabot is not smart enough to understand those. Dependabot's
   // version parsing is simply regex matching and never actually evaluates a gradle script.
-  activeMQ            : 'org.apache.activemq:activemq-broker:5.17.4',
+  activeMQ            : 'org.apache.activemq:activemq-broker:5.18.0',
   angusActivation     : 'org.eclipse.angus:angus-activation:2.0.0', // Compatibility with JAXB and Angus Mail required
   angusMailSmtp       : 'org.eclipse.angus:smtp:2.0.1',
   apacheAnt           : 'org.apache.ant:ant:1.10.13',

@@ -30,7 +30,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 /**
  * This represents a directory tree and is used ONLY to create json or html views
  */
-public class ArtifactFolder implements JsonAware, Comparable {
+public class ArtifactFolder implements JsonAware, Comparable<ArtifactFolder> {
     private final JobIdentifier jobIdentifier;
     private final File rootFolder;
     private final String relativePath;
@@ -112,7 +112,7 @@ public class ArtifactFolder implements JsonAware, Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return ((Integer) hashCode()).compareTo(o.hashCode());
+    public int compareTo(ArtifactFolder o) {
+        return Integer.compare(this.hashCode(), o.hashCode());
     }
 }

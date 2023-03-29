@@ -104,7 +104,7 @@
     possible for a user (other than an administator) to supply a SpEL expression anywhere. There is some more detail
     at https://github.com/spring-projects/spring-framework/issues/30140 on what was fixed in later supported versions.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-expression@4\.3.*$</packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2023-20861</cve>
     <vulnerabilityName>CVE-2023-20861</vulnerabilityName>
   </suppress>

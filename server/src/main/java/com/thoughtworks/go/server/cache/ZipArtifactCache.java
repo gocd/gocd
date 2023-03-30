@@ -15,10 +15,6 @@
  */
 package com.thoughtworks.go.server.cache;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.zip.Deflater;
-
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.web.ArtifactFolder;
 import com.thoughtworks.go.util.ZipUtil;
@@ -26,6 +22,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.StringUtil.removeTrailingSlash;
 
@@ -39,7 +39,8 @@ public class ZipArtifactCache extends ArtifactCache<ArtifactFolder> {
         this.zipUtil = zipUtil;
     }
 
-    @Override void createCachedFile(ArtifactFolder artifactFolder) throws IOException {
+    @Override
+    void createCachedFile(ArtifactFolder artifactFolder) throws IOException {
         File originalFolder = artifactFolder.getRootFolder();
         File cachedZip = cachedFile(artifactFolder);
         File cachedTempZip = zipToTempFile(cachedZip);

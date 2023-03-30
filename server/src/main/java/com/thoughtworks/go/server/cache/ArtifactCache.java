@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.server.cache;
 
+import com.thoughtworks.go.server.service.ArtifactsDirHolder;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -22,12 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import com.thoughtworks.go.server.service.ArtifactsDirHolder;
-
 /**
  * @understands serving prepared artifacts and preparing artifact offline
  */
-public abstract class ArtifactCache<T> {
+public abstract class ArtifactCache<T extends Comparable<T>> {
     protected final ArtifactsDirHolder artifactsDirHolder;
     protected ConcurrentSkipListSet<T> pendingCacheFiles = new ConcurrentSkipListSet<>();
     protected ConcurrentMap<T, Exception> pendingExceptions = new ConcurrentHashMap<>();
@@ -68,7 +68,7 @@ public abstract class ArtifactCache<T> {
     protected void startCacheCreationThread(final T artifactLocation) {
         boolean inserted = pendingCacheFiles.add(artifactLocation);
         if (inserted) {
-            Thread cacheCreatorThread = new Thread("cache-creator-thread-" + UUID.randomUUID().toString()) {
+            Thread cacheCreatorThread = new Thread("cache-creator-thread-" + UUID.randomUUID()) {
                 @Override
                 public void run() {
                     try {

@@ -77,7 +77,6 @@ import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -1010,21 +1009,19 @@ public class MagicalGoConfigXmlLoaderTest {
      */
     @Test
     void shouldLoadConfigurationFileWithComplexNonEmptyString() throws Exception {
-        String customerXML = loadWithMigration(Objects.requireNonNull(this.getClass().getResource("/data/p4_heavy_cruise_config.xml")).getFile());
+        String customerXML = loadWithMigration("/data/p4_heavy_cruise_config.xml");
         assertThat(xmlLoader.deserializeConfig(customerXML)).isNotNull();
-    }
-
-    private String loadWithMigration(String file) throws Exception {
-        String config = FileUtils.readFileToString(new File(file), UTF_8);
-        return goConfigMigration.upgradeIfNecessary(config);
     }
 
     @Test
     void shouldNotAllowEmptyViewForPerforce() {
-        String p4XML = Objects.requireNonNull(this.getClass().getResource("/data/p4-cruise-config-empty-view.xml")).getFile();
-        assertThatThrownBy(() -> xmlLoader.loadConfigHolder(loadWithMigration(p4XML)))
+        assertThatThrownBy(() -> xmlLoader.loadConfigHolder(loadWithMigration("/data/p4-cruise-config-empty-view.xml")))
             .as("Should not accept p4 section with empty view.")
             .hasMessageContaining("P4 view cannot be empty.");
+    }
+
+    private String loadWithMigration(String resource) throws Exception {
+        return goConfigMigration.upgradeIfNecessary(getContent(resource));
     }
 
     @Test
@@ -4253,7 +4250,7 @@ public class MagicalGoConfigXmlLoaderTest {
         ArtifactPluginInfo artifactPluginInfo = buildArtifactPluginInfo(pluginDescriptor);
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
 
-        String content = goConfigMigration.upgradeIfNecessary(getContent());
+        String content = goConfigMigration.upgradeIfNecessary(getContent("/data/pluggable_artifacts_with_params.xml"));
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).configForEdit;
         PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
@@ -4299,8 +4296,8 @@ public class MagicalGoConfigXmlLoaderTest {
         return new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
     }
 
-    private String getContent() throws IOException {
-        try (InputStream inputStream = Objects.requireNonNull(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"))) {
+    private String getContent(String resource ) throws IOException {
+        try (InputStream inputStream = Objects.requireNonNull(getClass().getResourceAsStream(resource))) {
             return new String(inputStream.readAllBytes(), UTF_8);
         }
     }

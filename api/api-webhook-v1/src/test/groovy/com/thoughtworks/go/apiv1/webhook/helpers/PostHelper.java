@@ -20,14 +20,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.GitHub;
 import com.thoughtworks.go.apiv1.webhook.controller.validation.HostedBitbucket;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -43,8 +43,8 @@ public interface PostHelper {
 
     static Map<String, Object> load(String resource) {
         final String json;
-        try {
-            json = FileUtils.readFileToString(new File(PostHelper.class.getResource(resource).getFile()), StandardCharsets.UTF_8);
+        try (InputStream resourceAsStream = PostHelper.class.getResourceAsStream(resource)) {
+            json = new String(Objects.requireNonNull(resourceAsStream).readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

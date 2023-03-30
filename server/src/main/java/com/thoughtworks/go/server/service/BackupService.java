@@ -407,8 +407,8 @@ class DirectoryStructureWalker extends DirectoryWalker<Void> {
             return;
         }
         zipStream.putNextEntry(new ZipEntry(fromRoot(file)));
-        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
-            IOUtils.copy(in, zipStream);
+        try (InputStream is = new FileInputStream(file)) {
+            is.transferTo(zipStream);
         }
     }
 

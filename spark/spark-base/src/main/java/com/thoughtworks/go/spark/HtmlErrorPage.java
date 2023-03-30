@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.io.IOException;
@@ -41,7 +40,7 @@ public abstract class HtmlErrorPage {
 
         private static String fileContents() {
             try (InputStream in = Holder.class.getResourceAsStream("/error.html")) {
-                return IOUtils.toString(in, StandardCharsets.UTF_8);
+                return new String(in.readAllBytes(), StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

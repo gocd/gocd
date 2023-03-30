@@ -180,7 +180,7 @@ public class ZipUtil {
         ZipEntry zipEntry = zipInputStream.getNextEntry();
         while (zipEntry != null) {
             if (new File(zipEntry.getName()).getName().equals(file)) {
-                return IOUtils.toString(zipInputStream, UTF_8);
+                return new String(zipInputStream.readAllBytes(), UTF_8);
             }
             zipEntry = zipInputStream.getNextEntry();
         }

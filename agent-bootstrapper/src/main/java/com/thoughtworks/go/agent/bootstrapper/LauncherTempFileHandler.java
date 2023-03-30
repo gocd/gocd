@@ -17,13 +17,13 @@ package com.thoughtworks.go.agent.bootstrapper;
 
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,8 +43,8 @@ class LauncherTempFileHandler implements Runnable {
     }
 
     private void reapFiles() {
-        try (FileReader tmpFileReader = new FileReader(LAUNCHER_TMP_FILE_LIST)) {
-            List<String> fileList = IOUtils.readLines(tmpFileReader);
+        try {
+            List<String> fileList = Files.readAllLines(Path.of(LAUNCHER_TMP_FILE_LIST));
             Set<String> fileSet = new HashSet<>(fileList);
             for (String fileName : fileSet) {
                 File file = new File(fileName);

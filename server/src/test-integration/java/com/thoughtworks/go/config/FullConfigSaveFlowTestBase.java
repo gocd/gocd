@@ -70,7 +70,7 @@ public abstract class FullConfigSaveFlowTestBase {
     public void setUp() throws Exception {
         configHelper = new GoConfigFileHelper(goConfigDao);
         configHelper.onSetUp();
-        xml = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResource("/data/pluggable_artifacts_with_params.xml"), UTF_8));
+        xml = goConfigMigration.upgradeIfNecessary(new String(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml").readAllBytes(), UTF_8));
         loader = new MagicalGoConfigXmlLoader(configCache, registry);
         setupMetadataForPlugin();
     }

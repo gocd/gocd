@@ -21,12 +21,12 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.command.ConsoleResult;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -106,7 +106,9 @@ class P4OutputParserTest {
     @Test
     void shouldParseChangesWithLotsOfFilesWithoutError() throws IOException, P4OutputParseException {
         final StringWriter writer = new StringWriter();
-        IOUtils.copy(new ClassPathResource("/BIG_P4_OUTPUT.txt").getInputStream(), writer, Charset.defaultCharset());
+        try (InputStreamReader inputStream = new InputStreamReader(new ClassPathResource("/BIG_P4_OUTPUT.txt").getInputStream(), Charset.defaultCharset())) {
+            inputStream.transferTo(writer);
+        }
         String output = writer.toString();
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getModifiedFiles().size()).isEqualTo(1304);

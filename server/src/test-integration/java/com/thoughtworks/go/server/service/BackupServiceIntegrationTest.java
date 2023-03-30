@@ -526,7 +526,7 @@ public class BackupServiceIntegrationTest {
             while (zipIn.available() > 0) {
                 ZipEntry nextEntry = zipIn.getNextEntry();
                 if (nextEntry.getName().equals(filename)) {
-                    IOUtils.copy(zipIn, out);
+                    zipIn.transferTo(out);
                 }
             }
         } finally {

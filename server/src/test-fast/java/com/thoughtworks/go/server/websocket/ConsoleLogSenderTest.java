@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -179,7 +178,7 @@ public class ConsoleLogSenderTest {
         GZIPInputStream gzipInputStream = new GZIPInputStream(new ByteArrayInputStream(gzipped));
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(gzipped.length);
-        IOUtils.copy(gzipInputStream, byteArrayOutputStream);
+        gzipInputStream.transferTo(byteArrayOutputStream);
         assertThat(bytes, equalTo(byteArrayOutputStream.toByteArray()));
     }
 

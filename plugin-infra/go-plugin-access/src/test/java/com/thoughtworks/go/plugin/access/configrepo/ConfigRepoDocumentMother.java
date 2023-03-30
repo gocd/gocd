@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.bazaarvoice.jolt.JsonUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -42,7 +41,7 @@ class ConfigRepoDocumentMother {
 
     private Map<String, Object> getJSONFor(String fileName) {
         try {
-            String transformJSON = IOUtils.toString(this.getClass().getResource(fileName), StandardCharsets.UTF_8);
+            String transformJSON = new String(this.getClass().getResourceAsStream(fileName).readAllBytes(), StandardCharsets.UTF_8);
             return JsonUtils.jsonToMap(transformJSON);
         } catch (Exception e) {
             throw new RuntimeException(e);

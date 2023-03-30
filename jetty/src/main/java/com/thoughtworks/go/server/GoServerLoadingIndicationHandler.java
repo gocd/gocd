@@ -35,8 +35,9 @@ import java.util.Objects;
 
 import static org.eclipse.jetty.http.MimeTypes.Type.*;
 
-/** When GoCD is starting. This is the only handler that will be active (till the web application context handler is up).
- *  During that time, this handler shows a 503 for all requests, while waiting for the rest of the server to be up.
+/**
+ * When GoCD is starting. This is the only handler that will be active (till the web application context handler is up).
+ * During that time, this handler shows a 503 for all requests, while waiting for the rest of the server to be up.
  */
 class GoServerLoadingIndicationHandler extends ContextHandler {
     private final WebAppContext webAppContext;

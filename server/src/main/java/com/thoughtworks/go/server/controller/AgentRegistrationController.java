@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,7 +352,7 @@ public class AgentRegistrationController {
     private void sendFile(InputStreamSrc input, HttpServletResponse response) throws IOException {
         response.setContentType("application/octet-stream");
         try (InputStream in = input.invoke()) {
-            IOUtils.copy(in, response.getOutputStream());
+            in.transferTo(response.getOutputStream());
         }
     }
 

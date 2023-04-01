@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,6 @@ import java.util.List;
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
 import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
     public static final List<GoConfigPreprocessor> PREPROCESSORS = List.of(
@@ -150,11 +149,14 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public <T> T fromXmlPartial(String partial, Class<T> o) throws Exception {
-        return fromXmlPartial(toInputStream(partial, UTF_8), o);
+        return fromXmlPartial(new SAXBuilder().build(new StringReader(partial)), o);
     }
 
-    public <T> T fromXmlPartial(InputStream inputStream, Class<T> o) throws Exception {
-        Document document = new SAXBuilder().build(inputStream);
+    public <T> T fromXmlPartial(InputStream inputStream, Class<T> clazz) throws Exception {
+        return fromXmlPartial(new SAXBuilder().build(inputStream), clazz);
+    }
+
+    private <T> T fromXmlPartial(Document document, Class<T> o) {
         Element element = document.getRootElement();
         return classParser(element, o, configCache, new GoCipher(), registry, new ConfigReferenceElements()).parse();
     }

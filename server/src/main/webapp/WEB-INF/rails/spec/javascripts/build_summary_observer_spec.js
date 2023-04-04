@@ -15,8 +15,6 @@
  */
 describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
     var orig_write_attribute = Element.writeAttribute;
-    var contextPath = "/dashboard";
-
     var observer;
     beforeEach(function () {
         setFixtures("<div id=\"container\" class=\"build_detail\">\n" +
@@ -57,13 +55,5 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
         var json = failed_json('project1')
         observer.updateBuildResult(json);
         assertTrue(status.hasClass("failed"));
-    });
-
-    it("test_should_invoke_word_break_to_break_text", function () {
-        $$WordBreaker.break_text = function () {
-            return "split text";
-        };
-        observer.displayAnyErrorMessages(inactive_json("project1"));
-        assertTrue(jQuery('#trans_content').text().indexOf("split text") > -1);
     });
 });

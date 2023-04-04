@@ -33,8 +33,7 @@
     },
     displayAnyErrorMessages: function displayErrorMessagesOnBuildDetails(json) {
       if (is_result_unknown(json)) {
-        var text = $$WordBreaker.break_text(json.building_info.name);
-        $('#trans_content').html("Failed to find log in <br/>" + text);
+        $('#trans_content').html("Failed to find log in <br/>" + json.building_info.name);
         new TransMessage('trans_message', $('#build_detail_summary_container')[0], {
           type:     TransMessage.TYPE_ERROR,
           autoHide: false,

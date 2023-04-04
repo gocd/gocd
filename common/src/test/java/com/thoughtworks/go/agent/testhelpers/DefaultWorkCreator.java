@@ -28,12 +28,13 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class DefaultWorkCreator implements WorkCreator {
 
     private static File tempFile() {
         try {
-            File tempFile = TestFileUtil.createTempFile("artifact.tmp");
+            File tempFile = Files.createTempFile("artifact", "artifact.tmp").toFile();
             tempFile.deleteOnExit();
             return tempFile;
         } catch (IOException e) {

@@ -43,11 +43,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpStatus.*;
@@ -213,7 +213,7 @@ public class AgentRegistrationController {
         boolean isElasticAgent = elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId);
 
         try {
-            if (!encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
+            if (!Base64.getEncoder().encodeToString(hmac().doFinal(uuid.getBytes())).equals(token)) {
                 String message = "Not a valid token.";
                 LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
                         "ElasticAgentID=[{}] PluginID=[{}]", FORBIDDEN, message, uuid, hostname, elasticAgentId, elasticPluginId);
@@ -323,7 +323,7 @@ public class AgentRegistrationController {
         }
         String token;
         synchronized (HMAC_GENERATION_MUTEX) {
-            token = encodeBase64String(hmac().doFinal(uuid.getBytes()));
+            token = Base64.getEncoder().encodeToString(hmac().doFinal(uuid.getBytes()));
         }
 
         return new ResponseEntity<>(token, OK);
@@ -341,8 +341,8 @@ public class AgentRegistrationController {
 
     private String getAgentExtraProperties() {
         if (agentExtraProperties == null) {
-            String base64OfSystemProperty = encodeBase64String(systemEnvironment.get(AGENT_EXTRA_PROPERTIES).getBytes(UTF_8));
-            String base64OfEmptyString = encodeBase64String("".getBytes(UTF_8));
+            String base64OfSystemProperty = Base64.getEncoder().encodeToString(systemEnvironment.get(AGENT_EXTRA_PROPERTIES).getBytes(UTF_8));
+            String base64OfEmptyString = Base64.getEncoder().encodeToString("".getBytes(UTF_8));
 
             this.agentExtraProperties = base64OfSystemProperty.length() >= MAX_HEADER_LENGTH ? base64OfEmptyString : base64OfSystemProperty;
         }

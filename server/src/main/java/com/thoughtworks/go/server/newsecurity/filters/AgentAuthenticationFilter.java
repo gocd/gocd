@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
-import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
@@ -106,7 +106,7 @@ public class AgentAuthenticationFilter extends OncePerRequestFilter {
     /*Fixes:#8427 HMAC generation is not thread safe, if multiple agents try to authenticate at the same time the hmac
     generated using the Agent UUID would not match the actual token.*/
     synchronized String hmacOf(String string) {
-        return encodeBase64String(hmac().doFinal(string.getBytes()));
+        return Base64.getEncoder().encodeToString(hmac().doFinal(string.getBytes()));
     }
 
     private boolean isAuthenticated(AgentToken agentToken, AuthenticationToken<?> authenticationToken) {

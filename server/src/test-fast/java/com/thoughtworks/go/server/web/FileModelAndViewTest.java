@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
 import com.thoughtworks.go.server.domain.ZippedArtifact;
-import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -25,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -36,12 +36,12 @@ public class FileModelAndViewTest {
     @BeforeEach
     public void setUp() throws Exception {
         response = new MockHttpServletResponse();
-        existFile = TestFileUtil.createTempFile("a.log");
-        existFile.createNewFile();
+        existFile = Files.createTempFile("a", ".log").toFile();
+        existFile.deleteOnExit();
     }
 
     @Test
-    public void shouldReturnFileViewWhenSha1IsEmpty() throws Exception {
+    public void shouldReturnFileViewWhenSha1IsEmpty() {
         FileModelAndView.createFileView(existFile, null);
         assertThat(response.getStatus(), is(200));
     }
@@ -54,26 +54,26 @@ public class FileModelAndViewTest {
     }
 
     @Test
-    public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() throws Exception {
+    public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() {
         ZippedArtifact zippedArtifact = new ZippedArtifact(existFile.getParentFile(), existFile.getName());
         ModelAndView modelAndView = FileModelAndView.createFileView(zippedArtifact, "");
         assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP), is(true));
     }
 
     @Test
-    public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() throws Exception {
+    public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() {
         ModelAndView modelAndView = FileModelAndView.createFileView(existFile, "");
         assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP), is(false));
     }
 
     @Test
-    public void shouldReturnAnErrorMessageForConsoleLogNotFound() throws Exception {
+    public void shouldReturnAnErrorMessageForConsoleLogNotFound() {
         assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("cruise-output/console.log").getView()).getContent(), is("Console log for this job is unavailable as it may have been purged by Go or "
                 + "deleted externally."));
     }
 
     @Test
-    public void shouldReturnAnErrorMessageForNormalFileNotFound() throws Exception {
+    public void shouldReturnAnErrorMessageForNormalFileNotFound() {
         assertThat(((ResponseCodeView) FileModelAndView.fileNotFound("bring/sally/up/bring/sally/down").getView()).getContent(), is("Artifact 'bring/sally/up/bring/sally/down' is unavailable as "
                 + "it may have been purged by Go or deleted externally."));
     }

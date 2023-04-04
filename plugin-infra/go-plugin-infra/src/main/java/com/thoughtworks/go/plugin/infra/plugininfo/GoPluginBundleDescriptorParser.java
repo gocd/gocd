@@ -25,7 +25,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 /* Parses an XML of this kind (see below). Also see @GoPluginDescriptorParser and gocd-bundle-descriptor.xsd.
@@ -83,14 +82,14 @@ public final class GoPluginBundleDescriptorParser {
     }
 
     public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
-                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws JAXBException, XMLStreamException, SAXException {
         return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
     }
 
     static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
                                              String pluginJarFileLocation,
                                              File pluginBundleLocation,
-                                             boolean isBundledPlugin) throws IOException, JAXBException, XMLStreamException, SAXException {
+                                             boolean isBundledPlugin) throws JAXBException, XMLStreamException, SAXException {
 
         GoPluginBundleDescriptor bundle = deserializeXML(pluginXML, GoPluginBundleDescriptor.class);
         bundle.pluginDescriptors().forEach(d -> {

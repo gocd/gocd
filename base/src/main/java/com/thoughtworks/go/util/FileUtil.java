@@ -15,21 +15,18 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.UUID;
 
 public class FileUtil {
     public static final String TMP_PARENT_DIR = "data";
     private static final String CRUISE_TMP_FOLDER = "cruise" + "-" + UUID.randomUUID();
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
     private FileUtil() {}
 
@@ -66,7 +63,7 @@ public class FileUtil {
             return;
         }
         try {
-            FileUtils.forceMkdir(directory);
+            Files.createDirectories(directory.toPath());
         } catch (IOException e) {
             throw new RuntimeException("Failed to create folder: " + directory.getAbsolutePath());
         }
@@ -139,25 +136,6 @@ public class FileUtil {
         }
     }
 
-    public static void deleteDirectoryNoisily(File defaultDirectory) {
-        if (!defaultDirectory.exists()) {
-            return;
-        }
-
-        try {
-            FileUtils.deleteDirectory(defaultDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete directory: " + defaultDirectory.getAbsolutePath(), e);
-        }
-    }
-
-    public static String join(File defaultWorkingDir, String actualFileToUse) {
-        if (actualFileToUse == null) {
-            LOGGER.trace("Using the default Directory->{}", defaultWorkingDir);
-            return FilenameUtils.separatorsToUnix(defaultWorkingDir.getPath());
-        }
-        return applyBaseDirIfRelativeAndNormalize(defaultWorkingDir, new File(actualFileToUse));
-    }
 }
 
 

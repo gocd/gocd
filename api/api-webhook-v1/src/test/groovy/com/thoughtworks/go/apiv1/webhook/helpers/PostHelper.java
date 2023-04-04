@@ -43,8 +43,8 @@ public interface PostHelper {
 
     static Map<String, Object> load(String resource) {
         final String json;
-        try (InputStream resourceAsStream = PostHelper.class.getResourceAsStream(resource)) {
-            json = new String(Objects.requireNonNull(resourceAsStream).readAllBytes(), StandardCharsets.UTF_8);
+        try (InputStream resourceAsStream = Objects.requireNonNull(PostHelper.class.getResourceAsStream(resource))) {
+            json = new String(resourceAsStream.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

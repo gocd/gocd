@@ -85,7 +85,6 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -4250,7 +4249,7 @@ public class MagicalGoConfigXmlLoaderTest {
         ArtifactPluginInfo artifactPluginInfo = buildArtifactPluginInfo(pluginDescriptor);
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
 
-        String content = goConfigMigration.upgradeIfNecessary(getContent("/data/pluggable_artifacts_with_params.xml"));
+        String content = loadWithMigration("/data/pluggable_artifacts_with_params.xml");
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).configForEdit;
         PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));

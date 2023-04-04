@@ -18,7 +18,9 @@ package com.thoughtworks.go.apiv1.versioninfos.models;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,6 +47,8 @@ class EncryptionHelperTest {
     }
 
     private String contentFromResource(String name) throws IOException {
-        return new String(getClass().getClassLoader().getResourceAsStream(name).readAllBytes(), StandardCharsets.UTF_8);
+        try (InputStream is = Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(name))) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 }

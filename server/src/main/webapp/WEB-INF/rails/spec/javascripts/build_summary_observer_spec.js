@@ -47,7 +47,7 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
         jQuery('#container').addClass("building_passed");
 
         jQuery('#trans_content').html('');
-        TransMessage.prototype.initialize = Prototype.emptyFunction;
+        TransMessage.prototype.initialize = function() {};
     });
 
     it("test_ajax_periodical_refresh_active_build_should_update_css", function () {

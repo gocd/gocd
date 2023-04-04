@@ -17,7 +17,7 @@ var MockXHR = Class.create({
     initialize: function(responseHeaders, responseText){
         this.status = 0;
         this.readyState = 0;
-        this.onreadystatechange = Prototype.emptyFunction;
+        this.onreadystatechange = function() {};
         this.headers = responseHeaders ? responseHeaders : {};
         this.setResponseCode();
         this.responseText = responseText ? responseText : '';

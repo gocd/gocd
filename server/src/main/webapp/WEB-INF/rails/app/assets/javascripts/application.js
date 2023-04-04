@@ -32,11 +32,8 @@
 // toJSON that need to be worked around with Json.parse(Json.stringify(jsonObject)) in various places
 //= require "lib/prototype-1.6.0.3.js"
 
-// Used by Rails job history dropdown (at very least, via .dropdown-menu) and ModalBox claims it doe
+// Used by Rails job history dropdown (at very least, via .dropdown-menu)
 //= require "lib/bootstrap-2.3.2.min.js"
-
-// Used by Rails stage details / stage history (via ModalBox) at least
-//= require "lib/effects-1.8.0.js"
 
 // used by Rails value_stream_map_renderer
 //= require "lib/jquery-ui-1.7.3.custom.min.js"

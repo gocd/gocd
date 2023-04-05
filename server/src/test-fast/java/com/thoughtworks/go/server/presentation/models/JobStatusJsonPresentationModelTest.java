@@ -45,7 +45,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
                 agent, mock(DurationBean.class));
-        Map json = presenter.toJsonHash();
+        Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"name\": \"test\",\n" +
@@ -60,7 +60,7 @@ public class JobStatusJsonPresentationModelTest {
         JobInstance instance = completed("test", Passed);
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
-        Map json = presenter.toJsonHash();
+        Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"name\": \"test\",\n" +
@@ -74,7 +74,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
                 new DurationBean(instance.getId(), 10L));
-        Map json = presenter.toJsonHash();
+        Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"name\": \"test\",\n" +
@@ -115,7 +115,7 @@ public class JobStatusJsonPresentationModelTest {
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
-        Map json = presenter.toJsonHash();
+        Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(json).node("buildLocator").isEqualTo("cruise-%25/1/dev-%25/1/job-%25");
     }
@@ -126,7 +126,7 @@ public class JobStatusJsonPresentationModelTest {
         instance.setIdentifier(new JobIdentifier("cruise-%", 1, "label-1", "dev-%", "1", "job-%", -1L));
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
-        Map json = presenter.toJsonHash();
+        Map<String, Object> json = presenter.toJsonHash();
 
         assertThatJson(json).node("buildLocatorForDisplay").isEqualTo("cruise-%/label-1/dev-%/1/job-%");
     }

@@ -57,7 +57,7 @@ public class JobStatusJsonPresentationModel {
         this(instance, null, new DurationBean(instance.getId()));
     }
 
-    public Map toJsonHash() {
+    public Map<String, Object> toJsonHash() {
         Map<String, Object> jsonParams = new LinkedHashMap<>();
         jsonParams.put("agent", agent.getHostnameForDisplay());
         jsonParams.put("agent_ip", agent.getIpaddress());

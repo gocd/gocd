@@ -17,7 +17,6 @@ function make_collapsable(container_id) {
     var container_id_selector = "#" + container_id.replace(/\./g,"\\.");
     jQuery(container_id_selector + " .hidereveal_expander").click(function (event) {
         jQuery(container_id_selector).toggleClass("hidereveal_collapsed");
-        new ElementAligner().alignAll();
         event.stopPropagation();
     });
 }

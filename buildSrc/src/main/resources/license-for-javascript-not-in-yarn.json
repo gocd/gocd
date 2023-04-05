@@ -31,22 +31,6 @@
       }
     ]
   },
-  "script.aculo.us": {
-    "moduleName": "script.aculo.us",
-    "moduleVersion": "1.8.0",
-    "moduleUrls": [
-      "https://github.com/madrobby/scriptaculous"
-    ],
-    "filenames": [
-      "effects-1.8.0.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
   "d3": {
     "moduleName": "d3",
     "moduleVersion": "3.1.5",

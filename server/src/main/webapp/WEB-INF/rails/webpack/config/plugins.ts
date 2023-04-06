@@ -63,7 +63,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                               }) as webpack.Plugin,
     new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
-      typescript: { diagnosticOptions: { semantic: true, syntactic: true } }
+      typescript: { memoryLimit: 512, diagnosticOptions: { semantic: true, syntactic: true } }
     })
   ];
 

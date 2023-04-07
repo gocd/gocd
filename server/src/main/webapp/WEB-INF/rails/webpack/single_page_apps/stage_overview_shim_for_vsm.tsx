@@ -23,66 +23,64 @@ import {StageOverview} from "../views/dashboard/stage_overview";
 import {StageOverviewViewModel} from "../views/dashboard/stage_overview/models/stage_overview_view_model";
 
 $(() => {
-  window.addEventListener("DOMContentLoaded", () => {
+  // @ts-ignore
+  window.stageOverviewStateForVSM = state.StageOverviewState;
+
+  function closeStageOverview() {
     // @ts-ignore
-    window.stageOverviewStateForVSM = state.StageOverviewState;
+    const state = window.stageOverviewStateForVSM;
 
-    function closeStageOverview() {
-      // @ts-ignore
-      const state = window.stageOverviewStateForVSM;
+    if (state.model()) {
+      const ele = document.getElementById(`stage-overview-container-for-pipeline-${state.getPipelineName()}-${state.getPipelineCounter()}-stage-${state.getStageName()}-${state.getStageCounter()}`)!;
+      ele.innerHTML = "";
 
-      if (state.model()) {
-        const ele = document.getElementById(`stage-overview-container-for-pipeline-${state.getPipelineName()}-${state.getPipelineCounter()}-stage-${state.getStageName()}-${state.getStageCounter()}`)!;
-        ele.innerHTML = "";
-
-        state.hide();
-      }
+      state.hide();
     }
+  }
 
-    document.getElementById("vsm-container")!.onclick = closeStageOverview;
+  document.getElementById("vsm-container")!.onclick = closeStageOverview;
+
+  // @ts-ignore
+  window.getStageOverviewFor = (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: string, currentStageIndex: string, totalNumberOfStages: string, canEdit: boolean, templateName: string) => {
+    closeStageOverview();
+    const repeatInterval = 9999999;
 
     // @ts-ignore
-    window.getStageOverviewFor = (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: string, currentStageIndex: string, totalNumberOfStages: string, canEdit: boolean, templateName: string) => {
-      closeStageOverview();
-      const repeatInterval = 9999999;
+    window.stageOverviewStateForVSM.show(pipelineName, pipelineCounter, stageName, stageCounter);
+    // @ts-ignore
+    StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, status, repeatInterval).then((result) => window.stageOverviewStateForVSM.model(result));
 
-      // @ts-ignore
-      window.stageOverviewStateForVSM.show(pipelineName, pipelineCounter, stageName, stageCounter);
-      // @ts-ignore
-      StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, status, repeatInterval).then((result) => window.stageOverviewStateForVSM.model(result));
-
-      const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${pipelineName}-${pipelineCounter}-stage-${stageName}-${stageCounter}`)!;
-      const stageInstanceFromDashboard = {
-        status
-      };
-
-      // @ts-ignore
-      const totalWidth = new Array(...document.querySelector(`#${CSS.escape(pipelineName)}`).classList).indexOf("current") !== -1 ? 237 : 192;
-      const spaceBetweenStages = 4;
-      const initialLeftPosition = -36;
-
-      const widthOfEachStage = (totalWidth - (4 * +totalNumberOfStages)) / +totalNumberOfStages;
-      const leftPosition = (widthOfEachStage * +currentStageIndex) + (spaceBetweenStages * +currentStageIndex) + (widthOfEachStage/2) + initialLeftPosition;
-      const templateNameFromString = templateName === 'null' ? null : templateName;
-
-      m.mount(stageOverviewContainer, {
-        view(vnode: m.Vnode<{}, {}>): m.Children | void | null {
-          return <StageOverview pipelineName={pipelineName}
-                                canAdminister={canEdit}
-                                pipelineCounter={pipelineCounter}
-                                stageName={stageName}
-                                stageCounter={stageCounter}
-                                stages={[]}
-                                templateName={templateNameFromString}
-                                pollingInterval={repeatInterval}
-                                isDisplayedOnVSMPage={true}
-                                leftPositionForVSMStageOverview={leftPosition}
-                                stageInstanceFromDashboard={stageInstanceFromDashboard}
-                                // @ts-ignore
-                                stageOverviewVM={window.stageOverviewStateForVSM.model}
-                                stageStatus={status}/>;
-        }
-      });
+    const stageOverviewContainer = document.getElementById(`stage-overview-container-for-pipeline-${pipelineName}-${pipelineCounter}-stage-${stageName}-${stageCounter}`)!;
+    const stageInstanceFromDashboard = {
+      status
     };
-  });
+
+    // @ts-ignore
+    const totalWidth = new Array(...document.querySelector(`#${CSS.escape(pipelineName)}`).classList).indexOf("current") !== -1 ? 237 : 192;
+    const spaceBetweenStages = 4;
+    const initialLeftPosition = -36;
+
+    const widthOfEachStage = (totalWidth - (4 * +totalNumberOfStages)) / +totalNumberOfStages;
+    const leftPosition = (widthOfEachStage * +currentStageIndex) + (spaceBetweenStages * +currentStageIndex) + (widthOfEachStage/2) + initialLeftPosition;
+    const templateNameFromString = templateName === 'null' ? null : templateName;
+
+    m.mount(stageOverviewContainer, {
+      view(vnode: m.Vnode<{}, {}>): m.Children | void | null {
+        return <StageOverview pipelineName={pipelineName}
+                              canAdminister={canEdit}
+                              pipelineCounter={pipelineCounter}
+                              stageName={stageName}
+                              stageCounter={stageCounter}
+                              stages={[]}
+                              templateName={templateNameFromString}
+                              pollingInterval={repeatInterval}
+                              isDisplayedOnVSMPage={true}
+                              leftPositionForVSMStageOverview={leftPosition}
+                              stageInstanceFromDashboard={stageInstanceFromDashboard}
+                              // @ts-ignore
+                              stageOverviewVM={window.stageOverviewStateForVSM.model}
+                              stageStatus={status}/>;
+      }
+    });
+  };
 });

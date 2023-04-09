@@ -26,7 +26,7 @@ export class LogoutPageSPA extends SinglePageAppBase {
     return false;
   }
 
-  protected enableUsageDataAndVersionUpdating() {
+  protected enableVersionUpdating() {
     return false;
   }
 }

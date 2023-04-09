@@ -77,10 +77,10 @@ describe('PipelineInstanceWidgetSpec', () => {
     expect(keys[3].innerText).toBe('Modified On');
     expect(values.length).toBe(4);
     const modification = instance.buildCause().materialRevisions()[0].modifications()[0];
-    expect(values[0].innerText).toBe(modification.revision());
-    expect(values[1].innerText).toBe(modification.userName());
-    expect(values[2].innerText).toBe(modification.comment() || "");
-    expect(values[3].innerText).toBe(timeFormatter.format(modification.modifiedTime()));
+    expect(values[0].innerText.trim()).toBe(modification.revision());
+    expect(values[1].innerText.trim()).toBe(modification.userName());
+    expect(values[2].innerText.trim()).toBe(modification.comment() || "");
+    expect(values[3].innerText.trim()).toBe(timeFormatter.format(modification.modifiedTime()));
 
     // verify pipeline material modifications
     keys   = helper.qa("[data-test-id^='key-value-key-']", materials[1]);
@@ -90,8 +90,8 @@ describe('PipelineInstanceWidgetSpec', () => {
     expect(keys[1].innerText).toBe('Material');
     expect(keys[2].innerText).toBe('Modified On');
     expect(values.length).toBe(3);
-    expect(values[0].innerText).toBe(instance.buildCause().materialRevisions()[1].modifications()[0].revision());
-    expect(values[1].innerText).toBe(instance.buildCause().materialRevisions()[1].material().description());
-    expect(values[2].innerText).toBe(timeFormatter.format(instance.buildCause().materialRevisions()[1].modifications()[0].modifiedTime()));
+    expect(values[0].innerText.trim()).toBe(instance.buildCause().materialRevisions()[1].modifications()[0].revision());
+    expect(values[1].innerText.trim()).toBe(instance.buildCause().materialRevisions()[1].material().description());
+    expect(values[2].innerText.trim()).toBe(timeFormatter.format(instance.buildCause().materialRevisions()[1].modifications()[0].modifiedTime()));
   });
 });

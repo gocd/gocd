@@ -33,7 +33,7 @@ describe('AdminTemplatesSpecs', () => {
 
     const infoMsgElement = helper.byTestId("no-template-present-msg");
     expect(infoMsgElement).toBeInDOM();
-    expect(infoMsgElement.innerText).toBe("Either no templates have been set up or you are not authorized to view the same. Learn More");
+    expect(infoMsgElement.innerText.trim()).toBe("Either no templates have been set up or you are not authorized to view the same. Learn More");
 
     expect(helper.q("a", infoMsgElement)).toBeInDOM();
     expect(helper.q("a", infoMsgElement).getAttribute("href")).toBe(docsUrl("configuration/pipeline_templates.html"));

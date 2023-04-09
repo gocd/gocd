@@ -47,9 +47,9 @@ describe("UsageElasticProfileModalSpec", () => {
     expect(helper.qa("th", table)[2].innerText.toLowerCase()).toBe("job");
     expect(helper.qa("th", table)[3].innerText).toBe("");
 
-    expect(helper.qa("td", table)[0].innerText).toBe("pipeline-name");
-    expect(helper.qa("td", table)[1].innerText).toBe("stage-name");
-    expect(helper.qa("td", table)[2].innerText).toBe("job-name");
+    expect(helper.qa("td", table)[0].innerText.trim()).toBe("pipeline-name");
+    expect(helper.qa("td", table)[1].innerText.trim()).toBe("stage-name");
+    expect(helper.qa("td", table)[2].innerText.trim()).toBe("job-name");
     expect(helper.qa("td", table)[3].innerText).toBe("Job Settings");
     expect(helper.q("a", helper.qa("td", table)[3]))
       .toHaveAttr("href", "/go/admin/pipelines/pipeline-name/stages/stage-name/job/job-name/settings");

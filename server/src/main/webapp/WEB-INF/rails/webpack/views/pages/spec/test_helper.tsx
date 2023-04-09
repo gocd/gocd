@@ -129,7 +129,7 @@ export class TestHelper {
   }
 
   text(selector: string | Element, context?: Element): string {
-    return (this._el(selector, context).textContent || "").trim();
+    return (this._el(selector, context)?.textContent || "").trim();
   }
 
   textAll(selector: string | NodeList | Element[], context?: Element): string[] {

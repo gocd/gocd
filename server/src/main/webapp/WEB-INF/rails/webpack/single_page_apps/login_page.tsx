@@ -26,7 +26,7 @@ export class LoginPageSPA extends SinglePageAppBase {
     return false;
   }
 
-  protected enableUsageDataAndVersionUpdating() {
+  protected enableVersionUpdating() {
     return false;
   }
 }

@@ -17,7 +17,6 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {footerMeta, headerMeta} from "models/current_user_permissions";
-import {DataSharingCleaner} from "models/shared/data_sharing_cleaner";
 import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
@@ -62,11 +61,9 @@ class MainPage extends MithrilViewComponent<Attrs> {
 abstract class AbstractPage {
   protected render() {
     window.addEventListener("DOMContentLoaded", () => {
-      if (this.enableUsageDataAndVersionUpdating()) {
+      if (this.enableVersionUpdating()) {
         VersionUpdater.update();
       }
-
-      DataSharingCleaner.clean();
 
       const footerData = footerMeta();
       const headerData = headerMeta();
@@ -86,7 +83,7 @@ abstract class AbstractPage {
     return true;
   }
 
-  protected enableUsageDataAndVersionUpdating() {
+  protected enableVersionUpdating() {
     return true;
   }
 }

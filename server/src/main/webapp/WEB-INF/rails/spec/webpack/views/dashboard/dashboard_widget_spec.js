@@ -38,9 +38,9 @@ describe("Dashboard Widget", () => {
 
   const helper = new TestHelper();
 
-  beforeEach(() => {
-    doCancelPolling      = jasmine.createSpy();
-    doRefreshImmediately = jasmine.createSpy();
+  beforeEach(async () => {
+    doCancelPolling      = jasmine.createSpy("doCancelPolling");
+    doRefreshImmediately = jasmine.createSpy("doRefreshImmediately");
     //override debounce function for tests to be called synchronously
     spyOn(_, 'debounce').and.callFake((func) => {
       return function () {
@@ -48,18 +48,18 @@ describe("Dashboard Widget", () => {
       };
     });
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET');
-    });
+    jasmine.Ajax.install();
+
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET');
+
+    mount();
   });
 
   afterEach(() => {
+    unmount();
+    jasmine.Ajax.uninstall();
     _.debounce = originalDebounce;
   });
-
-  beforeEach(mount);
-
-  afterEach(unmount);
 
   it("should render dashboard pipeline search field", () => {
     expect(helper.byTestId('search-box')).toBeInDOM();
@@ -145,7 +145,6 @@ describe("Dashboard Widget", () => {
     Modal.destroyAll();
 
     helper.oninput(searchField, "up43");
-    m.redraw.sync();
 
     expect(helper.qa('.pipeline')).toHaveLength(1);
 
@@ -156,37 +155,36 @@ describe("Dashboard Widget", () => {
     Modal.destroyAll();
   });
 
-  it("should clear the pause message after the modal is closed", () => {
-    jasmine.Ajax.withMock(() => {
-      const responseMessage = `Pipeline 'up42' paused successfully.`;
-      const pauseCause      = "test";
+  it("should clear the pause message after the modal is closed", async () => {
+    const responseMessage = `Pipeline 'up42' paused successfully.`;
+    const pauseCause = "test";
 
-      jasmine.Ajax.stubRequest(`/go/api/pipelines/up42/pause`, undefined, 'POST').andReturn({
-        responseText:    JSON.stringify({"message": responseMessage}),
-        responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          200
-      });
-
-      helper.click('.pause');
-
-      expect(helper.text('.modal-body', body)).toBe('Specify a reason for pausing schedule on pipeline up42');
-      helper.q('.reveal input', body).value = pauseCause;
-      helper.click('.reveal .primary', body);
-
-      expect(helper.text('.pipeline_message')).toContain(responseMessage);
-      expect(helper.q('.pipeline_message')).toHaveClass("success");
-
-      helper.click('.pause');
-
-      expect(helper.q('.reveal input', body)).toHaveValue('');
-
-      Modal.destroyAll();
+    jasmine.Ajax.stubRequest(`/go/api/pipelines/up42/pause`, undefined, 'POST').andReturn({
+      responseText: JSON.stringify({"message": responseMessage}),
+      responseHeaders: {
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 200
     });
+
+    helper.click('.pause');
+
+    expect(helper.text('.modal-body', body)).toBe('Specify a reason for pausing schedule on pipeline up42');
+    helper.q('.reveal input', body).value = pauseCause;
+    helper.click('.reveal .primary', body);
+    await helper.delayRedraw(50);
+
+    expect(helper.text('.pipeline_message')).toContain(responseMessage);
+    expect(helper.q('.pipeline_message')).toHaveClass("success");
+
+    helper.click('.pause');
+
+    expect(helper.q('.reveal input', body)).toHaveValue('');
+
+    Modal.destroyAll();
   });
 
-  it("should show changes popup for a searched pipeline", () => {
+  it("should show changes popup for a searched pipeline", async () => {
     stubBuildCauseAjaxCall();
 
     const searchField = helper.byTestId('search-box');
@@ -197,15 +195,14 @@ describe("Dashboard Widget", () => {
     expect(helper.qa('.pipeline')).toHaveLength(1);
     expect(helper.q('.material_changes')).toBeFalsy();
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
-
-      helper.click(helper.qa('.info a').item(1));
+    jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+      responseText: JSON.stringify(buildCauseJson),
+      responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+      status: 200
     });
+
+    helper.click(helper.qa('.info a').item(1));
+    await helper.delay(50);
 
     expect(helper.q('.material_changes')).toBeInDOM();
 
@@ -214,48 +211,47 @@ describe("Dashboard Widget", () => {
     expect(helper.qa('.pipeline')).toHaveLength(1);
     expect(helper.q('.material_changes')).toBeFalsy();
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
-
-      helper.click(helper.qa('.info a').item(1));
+    jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+      responseText: JSON.stringify(buildCauseJson),
+      responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+      status: 200
     });
+
+    helper.click(helper.qa('.info a').item(1));
+    await helper.delay(50);
 
     expect(helper.q('.material_changes')).toBeInDOM();
   });
 
-  it("should unlock a searched pipeline", () => {
-    jasmine.Ajax.withMock(() => {
-      const responseMessage = `Pipeline 'up43' unlocked successfully.`;
-      jasmine.Ajax.stubRequest(`/go/api/pipelines/up43/unlock`, undefined, 'POST').andReturn({
-        responseText:    JSON.stringify({"message": responseMessage}),
-        responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          200
-      });
+  it("should unlock a searched pipeline", async() => {
+    const searchField = helper.byTestId('search-box');
+    expect(helper.qa('.pipeline')).toHaveLength(2);
 
-      const searchField = helper.byTestId('search-box');
-      expect(helper.qa('.pipeline')).toHaveLength(2);
+    helper.oninput(searchField, "up43");
 
-      helper.oninput(searchField, "up43");
+    expect(helper.qa('.pipeline')).toHaveLength(1);
 
-      expect(helper.qa('.pipeline')).toHaveLength(1);
+    expect(doCancelPolling).not.toHaveBeenCalled();
+    expect(doRefreshImmediately).not.toHaveBeenCalled();
 
-      expect(doCancelPolling).not.toHaveBeenCalled();
-      expect(doRefreshImmediately).not.toHaveBeenCalled();
-
-      helper.click('.pipeline_locked');
-
-      expect(doCancelPolling).toHaveBeenCalled();
-      expect(doRefreshImmediately).toHaveBeenCalled();
-
-      expect(helper.text('.pipeline_message')).toContain(responseMessage);
-      expect(helper.q('.pipeline_message')).toHaveClass("success");
+    const responseMessage = `Pipeline 'up43' unlocked successfully.`;
+    jasmine.Ajax.stubRequest(`/go/api/pipelines/up43/unlock`, undefined, 'POST').andReturn({
+      responseText: JSON.stringify({"message": responseMessage}),
+      responseHeaders: {
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 200
     });
+
+    expect(helper.q('.pipeline_locked')).not.toHaveClass('disabled');
+    helper.click('.pipeline_locked');
+    await helper.delayRedraw(50);
+
+    expect(helper.q('.pipeline_message')).toHaveClass("success");
+    expect(helper.text('.pipeline_message')).toContain(responseMessage);
+
+    expect(doCancelPolling).toHaveBeenCalled();
+    expect(doRefreshImmediately).toHaveBeenCalled();
   });
 
   it("should render pipeline groups", () => {
@@ -290,7 +286,7 @@ describe("Dashboard Widget", () => {
 
   it("should not show pipeline add icon when grouped by environments for admin users", () => {
     vm.groupByEnvironment(true);
-    m.redraw.sync();
+    helper.redraw();
     expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeFalsy();
   });
 
@@ -530,18 +526,15 @@ describe("Dashboard Widget", () => {
   }
 
   function stubBuildCauseAjaxCall() {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up43', '1'), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
+    jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
+      responseText: JSON.stringify(buildCauseJson),
+      responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+      status: 200
+    });
+    jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up43', '1'), undefined, 'GET').andReturn({
+      responseText: JSON.stringify(buildCauseJson),
+      responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+      status: 200
     });
   }
-
 });

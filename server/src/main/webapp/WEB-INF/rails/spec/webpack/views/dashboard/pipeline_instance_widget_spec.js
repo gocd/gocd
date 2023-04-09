@@ -103,9 +103,14 @@ describe("Dashboard Pipeline Instance Widget", () => {
       trackingTool:  {link: "http://example.com/${ID}", regex: "#(\\d+)"},
       pipelineName
     }));
+
+    jasmine.Ajax.install();
   });
 
-  afterEach(helper.unmount.bind(helper));
+  afterEach(() => {
+    jasmine.Ajax.uninstall();
+    helper.unmount();
+  });
 
   it("should render instance label", () => {
     expect(helper.text('.pipeline_instance-label')).toContain('Instance: 1');
@@ -135,18 +140,17 @@ describe("Dashboard Pipeline Instance Widget", () => {
     expect(changesLink).toContainText('Changes');
   });
 
-  it("should show changes once changes link is clicked", () => {
+  it("should show changes once changes link is clicked", async () => {
     expect(helper.q('.material_changes')).not.toExist();
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, instance.counter), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
-
-      helper.click(helper.qa('.info a')[1]);
+    jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, instance.counter), undefined, 'GET').andReturn({
+      responseText: JSON.stringify(buildCauseJson),
+      responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+      status: 200
     });
+
+    helper.click(helper.qa('.info a')[1]);
+    await helper.delayRedraw(50);
 
     expect(helper.q('.material_changes')).toBeInDOM();
     expect(helper.q('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');

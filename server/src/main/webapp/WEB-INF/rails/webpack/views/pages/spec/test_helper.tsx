@@ -195,9 +195,13 @@ export class TestHelper {
     m.redraw.sync();
   }
 
-  dump(context?: Element) {
-    // tslint:disable-next-line:no-console
-    console.log((context || this.root!).innerHTML);
+  delay(time: number) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
+
+  async delayRedraw(time: number) {
+    await this.delay(time);
+    this.redraw();
   }
 
   clickByTestId(id: string, context?: Element) {
@@ -206,10 +210,6 @@ export class TestHelper {
 
   byClass(className: string) {
     return this.root!.getElementsByClassName(className)[0];
-  }
-
-  allByClass(className: string) {
-    return this.root!.getElementsByClassName(className);
   }
 
   private _el(selector: string | Element, context?: Element): Element {

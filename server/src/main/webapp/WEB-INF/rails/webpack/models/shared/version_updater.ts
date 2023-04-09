@@ -45,25 +45,25 @@ interface LatestVersion {
 export class VersionUpdater {
   public static readonly CURRENT_GOCD_VERSION_KEY: string = "current-gocd-version";
 
-  static update() {
+  static async update() {
     const gocdVersionFromLocalStorage  = localStorage.getItem(this.CURRENT_GOCD_VERSION_KEY);
     const installedGoCDVersion: string = document.body.getAttribute("data-current-gocd-version")!;
 
     if (gocdVersionFromLocalStorage !== installedGoCDVersion) {
       localStorage.setItem(VersionUpdater.CURRENT_GOCD_VERSION_KEY, installedGoCDVersion);
-      SystemNotifications.all().then((notifications: SystemNotifications) => {
-        notifications.remove((notification) => (notification.type === "UpdateCheck"));
-        SystemNotifications.setNotifications(notifications);
-      });
+      const notifications = await SystemNotifications.all();
+      notifications.remove((notification) => (notification.type === "UpdateCheck"));
+      SystemNotifications.setNotifications(notifications);
     }
 
     if (VersionUpdater.canUpdateVersion()) {
-      VersionUpdater.fetchStaleVersionInfo().then((data: StaleVersionInfo | {}) => {
-        _.isEmpty(data) ? VersionUpdater.markUpdateDoneAndNotify() : VersionUpdater.fetchLatestVersion(data as StaleVersionInfo);
-      });
+      const data = await VersionUpdater.fetchStaleVersionInfo();
+        if (_.isEmpty(data)) {
+          await VersionUpdater.markUpdateDoneAndNotify();
+        } else {
+          await VersionUpdater.fetchLatestVersion(data as StaleVersionInfo);
+        }
     }
-
-    return Promise.resolve();
   }
 
   private static fetchStaleVersionInfo() {
@@ -89,23 +89,23 @@ export class VersionUpdater {
     return halfHourAgo > lastUpdateAt;
   }
 
-  private static markUpdateDoneAndNotify() {
+  private static async markUpdateDoneAndNotify() {
     VersionUpdater.markUpdateDone();
-    VersionUpdater.get().then((latestVersionNumber: string) => {
-      if (latestVersionNumber !== undefined) {
-        SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn more ...");
-      }
-    });
+    const latestVersionNumber = await VersionUpdater.get();
+    if (latestVersionNumber !== undefined) {
+      SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn more ...");
+    }
   }
 
-  private static fetchLatestVersion(versionInfo: StaleVersionInfo) {
-    $.ajax({
+  private static async fetchLatestVersion(versionInfo: StaleVersionInfo) {
+    const data = await $.ajax({
       method: "GET",
       url: versionInfo.update_server_url,
       beforeSend(xhr) {
         xhr.setRequestHeader("Accept", "application/vnd.update.go.cd.v1+json");
       },
-    }).then(VersionUpdater.updateLatestVersion);
+    });
+    await VersionUpdater.updateLatestVersion(data);
   }
 
   private static markUpdateDone() {
@@ -113,13 +113,14 @@ export class VersionUpdater {
     localStorage.setItem("versionCheckInfo", versionCheckInfo);
   }
 
-  private static updateLatestVersion(data: LatestVersionFromUpdateServer) {
-    $.ajax({
+  private static async updateLatestVersion(data: LatestVersionFromUpdateServer) {
+    await $.ajax({
       method: "PATCH",
       beforeSend: mrequest.xhrConfig.forVersion("v1"),
       url: SparkRoutes.updateServerVersionInfoPath(),
       data: JSON.stringify(data)
-    }).then(VersionUpdater.markUpdateDoneAndNotify);
+    });
+    await VersionUpdater.markUpdateDoneAndNotify();
   }
 
   private static get() {

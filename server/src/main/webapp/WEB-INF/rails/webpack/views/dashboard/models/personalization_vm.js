@@ -63,7 +63,7 @@ export function PersonalizationVM(currentView) {
 
     if (!checksum() || etag !== checksum()) {
       requestPending = true;
-      fetchPersonalization();
+      return fetchPersonalization();
     }
   }
 

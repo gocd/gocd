@@ -19,6 +19,15 @@ import {PersonalizationVM} from "views/dashboard/models/personalization_vm";
 import {DashboardFilters} from "models/dashboard/dashboard_filters";
 
 describe("Personalization View Model", () => {
+
+  beforeEach(() => {
+    jasmine.Ajax.install();
+  });
+
+  afterEach(() => {
+    jasmine.Ajax.uninstall();
+  });
+
   it("active() tests if a view name matches the current view case-insensitively", () => {
     const currentView = Stream("Foo");
     const vm = new PersonalizationVM(currentView);
@@ -141,43 +150,41 @@ describe("Personalization View Model", () => {
     expect(vm.canonicalCurrentName()).toBe("Baz");
   });
 
-  it("etag() returns the local copy of the content hash", () => {
+  it("etag() returns the local copy of the content hash", async () => {
     const currentView = Stream("Foo");
     const vm = new PersonalizationVM(currentView);
     vm.names(["Foo", "Bar", "Baz"]);
 
     vm.checksum("abcdefg");
-    expect(vm.etag()).toBe("abcdefg");
+    expect(await vm.etag()).toBe("abcdefg");
   });
 
-  it("etag(updatedHash) fetches new personalization data when the new hash differs from the local copy", () => {
+  it("etag(updatedHash) fetches new personalization data when the new hash differs from the local copy", async () => {
     const currentView = Stream("Foo");
     const vm = new PersonalizationVM(currentView);
     vm.names(["Foo", "Bar", "Baz"]);
 
     vm.checksum("abcdefg");
-    expect(vm.etag()).toBe("abcdefg");
+    expect(await vm.etag()).toBe("abcdefg");
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify({filters: [{ name:"New", type: "whitelist", pipelines: ["a"] }]}),
-        responseHeaders: {
-          ETag:           `W/"1234567"`,
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          200
-      });
-
-      vm.etag("abcdefg"); // should cause no change
-      expect(vm.names()).toEqual(["Foo", "Bar", "Baz"]);
-      expect(vm.checksum()).toBe("abcdefg");
-      expect(vm.etag()).toBe("abcdefg");
-
-      vm.etag("foo");
-      expect(vm.names()).toEqual(["New"]);
-      expect(vm.checksum()).toBe("1234567");
-      expect(vm.etag()).toBe("1234567");
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET').andReturn({
+      responseText: JSON.stringify({filters: [{name: "New", type: "whitelist", pipelines: ["a"]}]}),
+      responseHeaders: {
+        ETag: `W/"1234567"`,
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 200
     });
+
+    await vm.etag("abcdefg"); // should cause no change
+    expect(vm.names()).toEqual(["Foo", "Bar", "Baz"]);
+    expect(vm.checksum()).toBe("abcdefg");
+    expect(await vm.etag()).toBe("abcdefg");
+
+    await vm.etag("foo");
+    expect(vm.names()).toEqual(["New"]);
+    expect(vm.checksum()).toBe("1234567");
+    expect(await vm.etag()).toBe("1234567");
   });
 
   it("onchange() allows registration of multiple handlers", () => {

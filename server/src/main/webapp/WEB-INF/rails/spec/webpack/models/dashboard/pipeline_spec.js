@@ -26,6 +26,7 @@ describe("Dashboard", () => {
     };
     pipelineJson     = pipelineJsonFor(defaultPauseInfo);
   });
+
   describe('Pipeline Model', () => {
 
     it("should deserialize from json", () => {
@@ -178,30 +179,33 @@ describe("Dashboard", () => {
   });
 
   describe("Pipeline Operations", () => {
+
+    beforeEach(() => {
+      jasmine.Ajax.install();
+    });
+
+    afterEach(() => {
+      jasmine.Ajax.uninstall();
+    });
+
     describe("Unpause", () => {
-      it('should unpause a pipeline with appropriate headers', () => {
-        jasmine.Ajax.withMock(() => {
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/unpause`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": `Pipeline '${pipelineJson.name}' paused successfully.`}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          const successCallback = jasmine.createSpy();
-
-          const pipeline = new Pipeline(pipelineJson);
-          pipeline.unpause().then(successCallback);
-
-          expect(successCallback).toHaveBeenCalled();
-
-          const request = jasmine.Ajax.requests.mostRecent();
-          expect(request.method).toBe('POST');
-          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unpause`);
-          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+      it('should unpause a pipeline with appropriate headers', async () => {
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/unpause`, undefined, 'POST').andReturn({
+          responseText: JSON.stringify({"message": `Pipeline '${pipelineJson.name}' paused successfully.`}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status: 200
         });
+
+        const pipeline = new Pipeline(pipelineJson);
+        await pipeline.unpause();
+
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toBe('POST');
+        expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unpause`);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
       });
     });
 
@@ -215,83 +219,66 @@ describe("Dashboard", () => {
         pipelineJson    = pipelineJsonFor(pauseInfo);
       });
 
-      it('should pause a pipeline with appropriate headers', () => {
-        jasmine.Ajax.withMock(() => {
-          const postData = {"pauseCause": "test"};
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/pause`, JSON.stringify(postData), 'POST').andReturn({
-            responseText:    JSON.stringify({}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          const successCallback = jasmine.createSpy();
-
-          const pipeline = new Pipeline(pipelineJson);
-          pipeline.pause(postData).then(successCallback);
-
-          expect(successCallback).toHaveBeenCalled();
-          const request = jasmine.Ajax.requests.mostRecent();
-          expect(request.method).toBe('POST');
-          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/pause`);
-          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+      it('should pause a pipeline with appropriate headers', async () => {
+        const postData = {"pauseCause": "test"};
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/pause`, JSON.stringify(postData), 'POST').andReturn({
+          responseText: JSON.stringify({}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status: 200
         });
+
+        const pipeline = new Pipeline(pipelineJson);
+        await pipeline.pause(postData);
+
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toBe('POST');
+        expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/pause`);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
       });
     });
 
     describe("Unlock", () => {
-      it('should unlock a pipeline with appropriate headers', () => {
-        jasmine.Ajax.withMock(() => {
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/unlock`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": `Pipeline '${pipelineJson.name}' unlocked successfully.`}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          const successCallback = jasmine.createSpy();
-
-          const pipeline = new Pipeline(pipelineJson);
-          pipeline.unlock().then(successCallback);
-
-          expect(successCallback).toHaveBeenCalled();
-
-          const request = jasmine.Ajax.requests.mostRecent();
-          expect(request.method).toBe('POST');
-          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unlock`);
-          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+      it('should unlock a pipeline with appropriate headers', async () => {
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/unlock`, undefined, 'POST').andReturn({
+          responseText: JSON.stringify({"message": `Pipeline '${pipelineJson.name}' unlocked successfully.`}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status: 200
         });
+
+        const pipeline = new Pipeline(pipelineJson);
+        await pipeline.unlock();
+
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toBe('POST');
+        expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/unlock`);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
       });
     });
 
     describe("Trigger", () => {
-      it('should Trigger a pipeline with appropriate headers', () => {
-        jasmine.Ajax.withMock(() => {
-          jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/schedule`, undefined, 'POST').andReturn({
-            responseText:    JSON.stringify({"message": `Request to schedule pipeline '${pipelineJson.name}' accepted successfully.`}),
-            responseHeaders: {
-              'Content-Type': 'application/vnd.go.cd.v1+json'
-            },
-            status:          200
-          });
-
-          const successCallback = jasmine.createSpy();
-
-          const pipeline = new Pipeline(pipelineJson);
-          pipeline.trigger().then(successCallback);
-
-          expect(successCallback).toHaveBeenCalled();
-
-          const request = jasmine.Ajax.requests.mostRecent();
-          expect(request.method).toBe('POST');
-          expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/schedule`);
-          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-          expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
+      it('should Trigger a pipeline with appropriate headers', async () => {
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipelineJson.name}/schedule`, undefined, 'POST').andReturn({
+          responseText: JSON.stringify({"message": `Request to schedule pipeline '${pipelineJson.name}' accepted successfully.`}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status: 200
         });
+
+        const pipeline = new Pipeline(pipelineJson);
+        await pipeline.trigger();
+
+        const request = jasmine.Ajax.requests.mostRecent();
+        expect(request.method).toBe('POST');
+        expect(request.url).toBe(`/go/api/pipelines/${pipelineJson.name}/schedule`);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        expect(request.requestHeaders['X-GoCD-Confirm']).toContain('true');
       });
     });
   });

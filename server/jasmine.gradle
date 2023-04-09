@@ -146,6 +146,7 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
 task jasmineKarma(type: YarnRunTask) {
   description = 'Run new jasmine tests (typescript) via karma'
   dependsOn ':server:yarnInstall'
+  dependsOn ':server:lintNew'
   dependsOn ':server:compileAssetsWebpackDev'
 
   outputs.upToDateWhen { false }
@@ -158,6 +159,7 @@ task jasmineOld(type: YarnRunTask) {
   description = 'Run old jasmine tests (legacy JS) via jasmine-browser-runner'
   dependsOn driverImpl()
   dependsOn ':server:yarnInstall'
+  dependsOn ':server:lintOld'
   dependsOn ':server:compileAssetsRailsTest'
 
   outputs.upToDateWhen { false }
@@ -171,7 +173,7 @@ task jasmineOld(type: YarnRunTask) {
   }
 }
 
-task jasmine(dependsOn: [jasmineKarma, jasmineOld])
+task jasmine(dependsOn: [':server:lint', jasmineKarma, jasmineOld])
 
 task jasmineKarmaServer(type: YarnRunTask) {
   description = 'Run new jasmine tests (typescript) via karma inside a browser'

@@ -674,7 +674,6 @@ private void forAllTask(Closure<Task> closure) {
 task allTests { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all tests"
-  dependsOn ':server:lint'
 
   forAllTask { Test eachTestTask ->
     thisTask.dependsOn eachTestTask

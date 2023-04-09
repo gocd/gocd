@@ -20,7 +20,7 @@
 
     rm -rf %{_localstatedir}/lib/rpm-state/<%= name %>
     if /etc/init.d/<%= name %> status > /dev/null 2>&1; then
-        mkdir -p %{_localstatedir}/lib/rpm-state/<%= name %>
-        touch %{_localstatedir}/lib/rpm-state/<%= name %>/running
-        /etc/init.d/<%= name %> stop
+      mkdir -p %{_localstatedir}/lib/rpm-state/<%= name %>
+      touch %{_localstatedir}/lib/rpm-state/<%= name %>/running
+      /etc/init.d/<%= name %> stop
     fi

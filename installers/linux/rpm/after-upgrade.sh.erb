@@ -45,8 +45,8 @@
     fi
 
     if [ -e %{_localstatedir}/lib/rpm-state/<%= name %>/running ]; then
-        rm %{_localstatedir}/lib/rpm-state/<%= name %>/running
-        /usr/share/<%= name %>/bin/<%= name %> start
+      rm %{_localstatedir}/lib/rpm-state/<%= name %>/running
+      /usr/share/<%= name %>/bin/<%= name %> start
     fi
 
     # If the newer installation of go-{server,agent} (using tanuki script) is done using `/etc/init.d/`,

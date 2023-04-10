@@ -53,7 +53,6 @@ describe("build_detail", function(){
 
     it("test_should_expand_the_directory", function(){
         var expectedId = "dashboard_download_project1_log123.xml_abc";
-        prepareMockRequest({status: 200}, '');
         assertFalse($(expectedId).visible())
         assertTrue('need class name directory', $('directory').hasClassName('directory'))
         BuildDetail.tree_navigator($('link'), "dashboard/download/project1/log123.xml/abc")

@@ -76,7 +76,7 @@ module ApplicationHelper
         return com.thoughtworks.go.presentation.FlashMessageModel.new(Array(val).join(". ").to_s, key.to_s)
       end
     end
-    return nil
+    nil
   end
 
   def default_key? key
@@ -87,62 +87,15 @@ module ApplicationHelper
     prefix + java.util.UUID.randomUUID().to_s
   end
 
-  def onclick_lambda(options)
-    on_click_lambda = ''
-    if options.has_key? :onclick_lambda
-      options.reverse_merge!(id: random_dom_id)
-      on_click_lambda = "<script type='text/javascript'> Util.on_load(function() { Event.observe($('#{options[:id]}'), 'click', function(evt) { #{options.delete(:onclick_lambda)}(evt); }); }); </script>".html_safe
-    end
-    [on_click_lambda, options]
-  end
-
   def submit_button name, options = {}
-    # DESIGN TODO: this is used for action/submit buttons on environments, pipeline dashboard, etc.  Probably not 100% complete to match the features above
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(type: 'submit')
     options[:value] ||= name
-    lambda_text, options_without_onclick = onclick_lambda(options)
-    if options[:type] == "image"
-      button_body = image_button(name, options_without_onclick)
-    else
-      button_body = options[:type] == "select" ?
-                      select_button(name, options_without_onclick) :
-                      options[:type] == "header_select" ?
-                        header_select_button(name, options_without_onclick) :
-                        default_button(name, options_without_onclick)
-    end
-    button_body + lambda_text
+    content_tag(:button, button_content(name), button_options(options), false)
   end
 
   def add_class css_class_string, *new_classes
     (Array(css_class_string) + new_classes).join(" ")
-  end
-
-  def select_button name, options
-    options[:class] = add_class(options[:class], 'select')
-    options[:type] = "button"
-    image_url = 'g9/button_select_icon.png'
-    if options[:text_color] == 'dark'
-      image_url = 'g9/button_select_icon_dark.png'
-    end
-    content_tag(:button, button_content(name, tag(:img, src: image_path(image_url))), button_options(options), false)
-  end
-
-  def header_select_button name, options
-    options[:class] = add_class(options[:class], 'header_submit')
-    options[:type] = "button"
-    content_tag(:button, button_content(name), button_options(options), false)
-  end
-
-  def image_button name, options
-    options[:class] = add_class(options[:class], 'image')
-    options[:type] = "submit"
-    options[:title] = name
-    content_tag(:button, content_tag(:span, ' ', title: name), button_options(options), false)
-  end
-
-  def default_button name, options
-    content_tag(:button, button_content(name), button_options(options), false)
   end
 
   def button_content name, *other_content
@@ -156,7 +109,6 @@ module ApplicationHelper
     options
   end
 
-  # TODO: #130 - ugly hack. need to figure out what we can do. move dependent methods to controller as helper methods?
   def current_user
     instance_variable_get(:@user)
   end
@@ -193,11 +145,11 @@ module ApplicationHelper
       controller_name = controller.controller_path
     end
     @page_name = controller_name.gsub("/", "_")
-    if !flash[:error].nil?
+    unless flash[:error].nil?
       @page_name = @page_name + " page_error"
     end
 
-    return @page_name
+    @page_name
   end
 
   def version
@@ -216,22 +168,19 @@ module ApplicationHelper
     "#{prefix || obj.class}_#{obj.object_id}"
   end
 
-  def merge_block_options(options)
+  def link_blocking_post_to_server(options = {})
+    [:name, :url, :html, :before].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
+
     options[:before] = "AjaxRefreshers.disableAjax();" + (options[:before] || "")
     options[:complete] = "AjaxRefreshers.enableAjax();" + (options[:complete] || "")
     options[401] = "redirectToLoginPage('#{url_for_login}');" + (options[401] || "")
-  end
-
-  def blocking_link_to_remote_new(options = {})
-    [:name, :url, :update, :html, :before].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
-    merge_block_options(options)
     options[:method] = "post"
 
     tag_options = raw tag.tag_options(options[:html], true)
-    %Q|<a href="#" #{tag_options} onclick="#{remote_function_new(options)}; return false;">#{options[:name]}</a>|
+    %Q|<a href="#" #{tag_options} onclick="#{javascript_post_to_server(options)}; return false;">#{options[:name]}</a>|
   end
 
-  def remote_function_new(options)
+  def javascript_post_to_server(options)
     javascript_options = options_for_ajax(options)
 
     update = ''
@@ -244,24 +193,19 @@ module ApplicationHelper
       update << "'#{options[:update]}'"
     end
 
-    function = update.empty? ?
-                 "new Ajax.Request(" :
-                 "new Ajax.Updater(#{update}, "
-
     url_options = options[:url]
     url_options = url_options.merge(escape: false) if url_options.is_a?(Hash)
+
+    function = update.empty? ? "new Ajax.Request(" : "new Ajax.Updater(#{update}, "
     function << "'#{escape_javascript(url_for(url_options))}'"
     function << ", #{javascript_options})"
 
     function = "#{options[:before]}; #{function}" if options[:before]
-    function = "#{function}; #{options[:after]}" if options[:after]
-    function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
-    function = "if (confirm('#{escape_javascript(options[:confirm])}')) { #{function}; }" if options[:confirm]
 
-    return function
+    function
   end
 
-  def content_wrapper_tag(options = {})
+  def content_wrapper_tag()
     "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
 

@@ -26,7 +26,7 @@
         $('show_other_stage_runs') && other_stages_popup_shower.bindShowButton($('show_other_stage_runs'));
     }
 
-    Util.on_load(function() {
+    jQuery(function() {
         var other_stages_popup = new MicroContentPopup($('other_stage_runs'), new MicroContentPopup.NoOpHandler());
         other_stages_popup_shower = new MicroContentPopup.ClickShower(other_stages_popup);
         wire_up_stage_runs_popup();

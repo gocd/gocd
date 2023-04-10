@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function context_path(path_info) {
-  if (path_info && path_info.startsWith(contextPath)) {
-    return path_info;
-  }
-  var pathSeparator = (contextPath.endsWith("/") || path_info.startsWith("/") ? "" : "/");
-  return contextPath + pathSeparator + path_info;
-}
 
 var CruiseBasicService = {
     redirectToLoginPage: function(){

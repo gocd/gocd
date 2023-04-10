@@ -64,23 +64,6 @@ describe PipelinesHelper do
       java.util.TimeZone.setDefault(@default_timezone)
     end
 
-    it "should display the trigger message with username" do
-      triggered_date = java.util.Date.new
-      pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-      message = trigger_message(triggered_date, pim)
-
-      expect(message).to have_selector(".who", text: "Anonymous")
-    end
-
-    it "should not display the trigger message when the pipeline is being scheduled for the first time" do
-      triggered_date = java.util.Date.new
-      pim = PipelineInstanceModel.createPreparingToSchedule("pipeline", nil)
-
-      message = trigger_message(triggered_date, pim)
-
-      expect(message.blank?).to be_truthy
-    end
-
     it "should display the trigger message with the time and username" do
       joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
@@ -94,12 +77,6 @@ describe PipelinesHelper do
       expect(message).to have_selector(".label", :text => "Automatically triggered")
       expect(message).to have_selector(".time[data='#{joda_date.to_date.getTime}']")
     end
-  end
-
-  it "should return the type of the material" do
-    expect(material_type(MaterialsMother.hgMaterial())).to eq "scm"
-    expect(material_type(MaterialsMother.svnMaterial("url", "folder"))).to eq "scm"
-    expect(material_type(MaterialsMother.dependencyMaterial("blah_pipeline", "blah_stage"))).to eq "dependency"
   end
 
   it "should return the url for value stream map of given pipeline instance" do

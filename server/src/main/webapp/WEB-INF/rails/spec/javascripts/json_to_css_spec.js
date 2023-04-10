@@ -14,40 +14,15 @@
  * limitations under the License.
  */
 describe("json_to_css", function () {
-    var json_to_css;
-
     beforeEach(function () {
         setFixtures(
-          "<a id=\"project1_forcebuild\"></a>\n" +
-          "<a id=\"project1_config_panel\"></a>\n" +
           "<div id=\"build_status\"></div>\n" +
           "<div id=\"job_details_header\"></div>\n"
         );
     });
 
-    beforeEach(function () {
-        json_to_css = new JsonToCss();
-        $("project1_forcebuild").className = "";
-        $("project1_config_panel").className = "";
-    });
-
-    it("test_should_return_force_build_disabled_when_current_status_is_discontinued", function () {
-        json_to_css.update_force_build(discontinued_json("project1"));
-        assertTrue($("project1_forcebuild").className, $("project1_forcebuild").hasClassName("force_build_disabled"));
-    });
-
-    it("test_should_return_force_build_disabled_when_current_status_is_building", function () {
-        json_to_css.update_force_build(building_json("project1"));
-        assertTrue($("project1_forcebuild").className, $("project1_forcebuild").hasClassName("force_build_disabled"));
-    });
-
-    it("test_should_return_force_build_disable_when_current_status_is_paused", function () {
-        json_to_css.update_force_build(paused_json("project1"));
-        assertTrue($("project1_forcebuild").className, $("project1_forcebuild").hasClassName("force_build_disabled"));
-    });
-
     it("should add current status as a class to build status and job details header", function () {
-        json_to_css.update_build_detail_header(construct_new_json('job1', 'Failed', 'Failed'));
+        new JsonToCss().update_build_detail_header(construct_new_json('job1', 'Failed', 'Failed'));
         assertTrue($("build_status").hasClassName('failed'));
         assertTrue($("job_details_header").hasClassName('failed'));
     });
@@ -56,7 +31,7 @@ describe("json_to_css", function () {
         $("build_status").className = "failed";
         $("job_details_header").className = "failed";
 
-        json_to_css.update_build_detail_header(construct_new_json('job1', 'passed', 'Passed'));
+        new JsonToCss().update_build_detail_header(construct_new_json('job1', 'passed', 'Passed'));
 
         assertTrue($("build_status").hasClassName('passed'));
         assertFalse($("build_status").hasClassName('failed'));

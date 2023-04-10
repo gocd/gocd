@@ -30,30 +30,8 @@ function fire_event(element, event, before) {
     }
 }
 
-function passed_json(planName) {
-    return construct_new_json(planName, "Waiting", "Passed");
-}
-
-function building_json(planName, type) {
-    return construct_new_json(planName, "Building", "Passed");
-}
-
 function failed_json(planName) {
     return construct_new_json(planName, "Waiting", "Failed");
-}
-
-function inactive_json(planName) {
-    return construct_new_json(planName, "Waiting", "Unknown");
-}
-
-function discontinued_json(planName) {
-    return construct_new_json(planName, "Discontinued", "Failed");
-}
-
-function paused_json(planName) {
-    json = construct_new_json(planName, "Paused", "Passed");
-    json.building_info.paused_class_name = "paused";
-    return json;
 }
 
 function construct_new_json(projectname, current_status, result) {
@@ -65,7 +43,7 @@ function construct_new_json(projectname, current_status, result) {
 }
 
 function assertEquals() {
-    var actual = null;
+    var actual;
     if(arguments.length == 2){
         expected = arguments[0];
         actual = arguments[1];
@@ -77,7 +55,7 @@ function assertEquals() {
 }
 
 function assertTrue() {
-    var actual = null;
+    var actual;
     if(arguments.length >1){
         actual = arguments[1];
     }else{
@@ -86,7 +64,7 @@ function assertTrue() {
     expect(actual).toBe(true);
 }
 function assert() {
-    var actual = null;
+    var actual;
     if(arguments.length >1){
         actual = arguments[1];
     }else{
@@ -96,7 +74,7 @@ function assert() {
 }
 
 function assertFalse() {
-    var actual = null;
+    var actual;
     if(arguments.length >1){
         actual = arguments[1];
     }else{
@@ -106,7 +84,7 @@ function assertFalse() {
 }
 
 function assertNotNull() {
-    var actual = null;
+    var actual;
     if(arguments.length >1){
         actual = arguments[1];
     }else{
@@ -116,7 +94,7 @@ function assertNotNull() {
 }
 
 function assertNull() {
-    var actual = null;
+    var actual;
     if(arguments.length >1){
         actual = arguments[1];
     }else{
@@ -126,7 +104,7 @@ function assertNull() {
 }
 
 function assertUndefined() {
-    var actual = null;
+    var actual;
     if(arguments.length >1){
         actual = arguments[1];
     }else{
@@ -135,19 +113,9 @@ function assertUndefined() {
     expect(actual).toBe(undefined);
 }
 
-function assertNotUndefined() {
-    var actual = null;
-    if(arguments.length >1){
-        actual = arguments[1];
-    }else{
-        actual = arguments[0];
-    }
-    expect(actual).not.toBe(undefined);
-}
-
 function assertContains() {
-    var textToBeSearched = null;
-    var maintext = null;
+    var textToBeSearched;
+    var maintext;
 
     if(arguments.length > 2){
         textToBeSearched = arguments[1];

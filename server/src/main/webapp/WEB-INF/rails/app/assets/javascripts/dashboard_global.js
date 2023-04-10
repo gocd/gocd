@@ -37,30 +37,8 @@ function is_result_unknown(json) {
   return json.building_info.result.toLowerCase() == 'unknown';
 }
 
-function is_discontinued(json) {
-  return json.building_info.current_status.toLowerCase() == 'discontinued';
-}
-
-function is_paused(json) {
-  return json.building_info.current_status.toLowerCase() == 'paused';
-}
-
-function is_building(json) {
-  var status = json.building_info.current_status.toLowerCase();
-  return status == 'preparing' || status == 'building' || status == 'completing';
-}
-
-function is_queued(json) {
-  var status = json.building_info.current_status.toLowerCase();
-  return status == 'scheduled' || status == 'assigned';
-}
-
 function isEstimatable(status) {
   if (!status) return false;
   var buildStatus = status.toLowerCase();
   return buildStatus == 'building' || buildStatus == 'completing';
-}
-
-function should_forcebuild_be_disabled(json) {
-  return is_discontinued(json) || is_paused(json) || is_building(json) || is_queued(json);
 }

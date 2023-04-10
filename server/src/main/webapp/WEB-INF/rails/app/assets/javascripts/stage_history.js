@@ -40,7 +40,7 @@ var StageHistory = function() {
     init.prototype._changePage = changePage;
 
     init.prototype.bindHistoryLink = function(id, url, page_num) {
-        Util.on_load(function() {
+        jQuery(function() {
             _bindHistoryLink(id, url, page_num);
             AjaxRefreshers.main().afterRefreshOf('stage_history', function() {
                 _bindHistoryLink(id, url, page_num);

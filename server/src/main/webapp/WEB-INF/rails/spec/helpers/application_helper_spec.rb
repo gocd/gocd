@@ -107,59 +107,35 @@ describe ApplicationHelper do
   describe 'form remote add on' do
 
     it "should create a blocking link to a remote location" do
-      actual = blocking_link_to_remote_new :name => "&nbsp;",
-                                           :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
-                                           :update => {:failure => "message_pane", :success => 'function(){}'},
-                                           :html => {},
-                                           :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
-                                           :before => "spinny('schedule');"
+      actual = link_blocking_post_to_server :name => "&nbsp;",
+                                            :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
+                                            :update => {:failure => "message_pane", :success => 'function(){}'},
+                                            :html => {},
+                                            :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
+                                            :before => "Util.spinny('schedule');"
 
-      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();Util.spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
 
     it "should create a blocking link to a remote location with extra HTML provided" do
-      actual = blocking_link_to_remote_new :name => "&nbsp;",
-                                           :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
-                                           :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
-                                           :update => {:failure => "message_pane", :success => 'function(){}'},
-                                           :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
-                                           :before => "spinny('schedule');"
+      actual = link_blocking_post_to_server :name => "&nbsp;",
+                                            :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
+                                            :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
+                                            :update => {:failure => "message_pane", :success => 'function(){}'},
+                                            :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
+                                            :before => "Util.spinny('schedule');"
 
-      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="AjaxRefreshers.disableAjax();spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {asynchronous:true, evalScripts:true, method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="AjaxRefreshers.disableAjax();Util.spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
   end
 
   describe 'submit button' do
-    it "should have class 'image' and type 'submit' for image button" do
-      expect(submit_button("name", :type => 'image', :id=> 'id', :class=> "class", :onclick => "onclick", :disabled => "true")).to eq(
-              "<button type=\"submit\" id=\"id\" class=\"class image submit disabled\" onclick=\"onclick\" disabled=\"disabled\" value=\"name\" title=\"name\">" +
-                      "<span title=\"name\"> </span>" +
-                      "</button>"
-      )
-    end
-
-    it "should have class 'select' and image for 'select type' button" do
-      expect(submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick")).to eq("<button type=\"button\" id=\"id\" name=\"name\" class=\"class select submit button\" onclick=\"onclick\" value=\"name\">" +
-              "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
-              "</span>" +
-              "</button>")
-    end
-
     it "should not have image or class 'select' for a type 'button'" do
       expect(submit_button("name", :type => 'button', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick")).to eq("<button type=\"button\" id=\"id\" name=\"name\" class=\"class submit button\" onclick=\"onclick\" value=\"name\">" +
               "<span>" +
               "NAME" +
-              "</span>" +
-              "</button>")
-    end
-
-    it "should respect disabled flag for type 'select'" do
-      expect(submit_button("name", :type => 'select', :id=> 'id', :name => "name", :class=> "class", :onclick => "onclick", :disabled => true)).to eq("<button type=\"button\" id=\"id\" name=\"name\" class=\"class select submit button disabled\" onclick=\"onclick\" disabled=\"disabled\" value=\"name\">" +
-              "<span>" +
-              "NAME<img src=\"/images/g9/button_select_icon.png\" />" +
               "</span>" +
               "</button>")
     end
@@ -194,10 +170,6 @@ describe ApplicationHelper do
               "NAME" +
               "</span>" +
               "</button>")
-    end
-
-    it "should add onclick handler with the passed in onclick_lambda" do
-      expect(submit_button("name", :onclick_lambda => 'pavan_likes_this')).to match(/.*?function\(evt\) \{ pavan_likes_this\(evt\).*/)
     end
   end
 

@@ -59,7 +59,9 @@ MicroContentPopup = function() {
         reset_opened_popup(self);
         self.callback_handler.before_show(event);
         show_panel(self, $(button_dom), relative_to_dom);
-        Util.really_stop_propagation_and_default_action(event);
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
     }
 
     function adjust_coordinate(n, offset) {
@@ -232,7 +234,9 @@ MicroContentPopup = function() {
 
         live_shower_init.prototype.toggle_popup = function(event, button_dom) {
             if (is_open(this.popup) && (event.target == this.last_target)) {
-                Util.really_stop_propagation_and_default_action(event);
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
                 this.close();
             } else {
                 this.open(event, button_dom);

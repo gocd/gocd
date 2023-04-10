@@ -36,7 +36,7 @@
 // Used by Rails job history dropdown (at very least, via .dropdown-menu)
 //= require "lib/bootstrap-2.3.2.min.js"
 
-// used by Rails value_stream_map_renderer
+// used by Rails value_stream_map_renderer (look for $j(.*).draggable etc)
 //= require "lib/jquery-ui-1.7.3.custom.min.js"
 
 // Used by Rails stage details / stage history widget for showing config changes between stages. Relies on prototype+effects

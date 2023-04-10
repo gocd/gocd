@@ -33,11 +33,11 @@
 // toJSON that need to be worked around with Json.parse(Json.stringify(jsonObject)) in various places
 //= require "lib/prototype-1.6.0.3.js"
 
-// Used by Rails job history dropdown (at very least, via .dropdown-menu)
+// Used by Rails job history dropdown (at very least, via .dropdown-menu / data-toggle='dropdown')
 //= require "lib/bootstrap-2.3.2.min.js"
 
 // used by Rails value_stream_map_renderer (look for $j(.*).draggable etc)
-//= require "lib/jquery-ui-1.7.3.custom.min.js"
+//= require "lib/jquery-ui-1.12.1.custom.min.js"
 
 // Used by Rails stage details / stage history widget for showing config changes between stages. Relies on prototype+effects
 //= require "lib/modalbox-1.6.1.js"

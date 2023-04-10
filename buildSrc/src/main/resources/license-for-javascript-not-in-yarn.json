@@ -47,22 +47,6 @@
       }
     ]
   },
-  "jquery-dirtyform-plugin": {
-    "moduleName": "jquery-dirtyform-plugin",
-    "moduleVersion": "unknown",
-    "moduleUrls": [
-      "https://github.com/acvwilson/dirty_form"
-    ],
-    "filenames": [
-      "jquery.dirtyform.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
   "jquery with sizzle.js": {
     "moduleName": "jquery with sizzle.js",
     "moduleVersion": "1.7.2",

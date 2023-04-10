@@ -39,9 +39,6 @@
 // used by Rails value_stream_map_renderer
 //= require "lib/jquery-ui-1.7.3.custom.min.js"
 
-// Used by shared/_dirty_form and (maybe still used?) Rails views/admin/pipelines_snippet (pipeline group admin editing config?)
-//= require "lib/jquery.dirtyform.js"
-
 // Used by Rails stage details / stage history widget for showing config changes between stages. Relies on prototype+effects
 //= require "lib/modalbox-1.6.1.js"
 

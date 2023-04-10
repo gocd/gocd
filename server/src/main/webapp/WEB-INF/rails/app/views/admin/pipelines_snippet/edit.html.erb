@@ -7,19 +7,18 @@
         <%= form_for @group_name,
                     :url => pipelines_snippet_update_path(:group_name => @group_name),
                     :html => {:method => :put,
-                              :id => "group_edit_form"} do |form| %>
+                              :id => "group_edit_form"} do |_| %>
             <div class="form_buttons">
-                <button type="submit" class="submit primary skip_dirty_stop" id="save_config" disabled="disabled">
+                <button type="submit" class="submit primary" id="save_config" disabled="disabled">
                     <span>SAVE</span>
                 </button>
-                <%= link_to 'Cancel', pipelines_snippet_show_path(:group_name => @group_name), :class => 'cancel link_as_button skip_dirty_stop' -%>
+                <%= link_to 'Cancel', pipelines_snippet_show_path(:group_name => @group_name), :class => 'cancel link_as_button' -%>
             </div>
             <input name="config_md5" type="hidden" value="<%= @config_md5 %>"/>
             <textarea name="group_xml" class='code' rows="40" id="content_container_for_edit"><%= h(@group_as_xml) %></textarea>
 
         <% end %>
     </div>
-    <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'group_edit_form'}} %>
 </div>
 
 <script type="text/javascript">

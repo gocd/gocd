@@ -231,8 +231,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:(npm|javascript)/jquery@.*$</packageUrl>
 
-    <cve>CVE-2012-6708</cve>
-
     <cve>CVE-2015-9251</cve>
     <vulnerabilityName>GHSA-rmxg-73gg-4p98</vulnerabilityName>
 
@@ -245,28 +243,4 @@
     <vulnerabilityName>GHSA-jpcq-cgw6-v4j6</vulnerabilityName>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not vulnerable to these issues as it does not use Bootstrap in a vulnerable way.
-    (does not use `data-parent` attribute, does not use `scrollspy.data-target`, does not use `tooltip.data-container` or
-    `data-template`
-    ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/bootstrap@.*$</packageUrl>
-    <cve>CVE-2018-14040</cve>
-    <cve>CVE-2018-14041</cve>
-    <cve>CVE-2018-14042</cve>
-    <cve>CVE-2019-8331</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not vulnerable to these issues as it does not use the relevant widgets of jQuery UI in a vulnerable way.
-    (does not use `dialog.closeText`, `datepicker`, `element.position()` with `of` parameter or `checkboxradio`.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/jquery\-ui@.*$</packageUrl>
-    <cve>CVE-2021-41182</cve>
-    <cve>CVE-2021-41183</cve>
-    <cve>CVE-2021-41184</cve>
-    <cve>CVE-2022-31160</cve>
-  </suppress>
 </suppressions>

@@ -1,12 +1,12 @@
 {
-  "bootstrap": {
-    "moduleName": "bootstrap",
+  "bootstrap-dropdown": {
+    "moduleName": "bootstrap-dropdown",
     "moduleVersion": "2.3.2",
     "moduleUrls": [
       "https://github.com/twbs/bootstrap"
     ],
     "filenames": [
-      "bootstrap-2.3.2.min.js"
+      "bootstrap-dropdown-2.3.2.js"
     ],
     "moduleLicenses": [
       {

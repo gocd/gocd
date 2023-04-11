@@ -33,8 +33,8 @@
 // toJSON that need to be worked around with Json.parse(Json.stringify(jsonObject)) in various places
 //= require "lib/prototype-1.6.0.3.js"
 
-// Used by Rails job history dropdown (at very least, via .dropdown-menu / data-toggle='dropdown')
-//= require "lib/bootstrap-2.3.2.min.js"
+// Used by Rails build/job detail page job history dropdown (data-toggle='dropdown' and .dropdown-menu)
+//= require "lib/bootstrap-dropdown-2.3.2.js"
 
 // used by Rails value_stream_map_renderer (look for $j(.*).draggable etc)
 //= require "lib/jquery-ui-1.12.1.custom.min.js"

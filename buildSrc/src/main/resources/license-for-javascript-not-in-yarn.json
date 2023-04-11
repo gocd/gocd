@@ -33,12 +33,12 @@
   },
   "d3": {
     "moduleName": "d3",
-    "moduleVersion": "3.1.5",
+    "moduleVersion": "3.5.17",
     "moduleUrls": [
       "https://github.com/d3/d3"
     ],
     "filenames": [
-      "d3-3.1.4.min.js"
+      "d3-3.5.17.min.js"
     ],
     "moduleLicenses": [
       {

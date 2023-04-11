@@ -21,7 +21,7 @@
   }
 
   $.extend(BuildSummaryObserver.prototype, {
-    notify:                  function notifySummaryObserver(json) {
+    notify: function notifySummaryObserver(json) {
       var jobInfo = json[0];
       if (!this.isComplete) {
         this.updateBuildSummary(jobInfo);
@@ -41,14 +41,14 @@
         });
       }
     },
-    updateBuildResult:       function updateBuildResult(json) {
+    updateBuildResult: function updateBuildResult(json) {
       var result    = json.building_info.result.toLowerCase();
       var container = $(".build-status");
 
       clean_active_css_class_on_element(container[0]);
       container.addClass(result.toLowerCase())
     },
-    updateBuildSummary:      function updateBuildSummary(json) {
+    updateBuildSummary: function updateBuildSummary(json) {
 
       function toHumanReadable(timestamp) {
         timestamp = parseInt(timestamp);
@@ -69,7 +69,6 @@
       $('#agent_name').attr("href", context_path("agents/" + json.building_info.agent_uuid));
       $('#agent_name').text(json.building_info.agent + ' (' + json.building_info.agent_ip + ')');
 
-      // TODO: update css on building panel
       json_to_css.update_build_detail_header(json);
     }
   });

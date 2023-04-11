@@ -91,10 +91,6 @@ function AjaxRefresher(url, redirectUrl, options) {
 
     function _onComplete(xhr) {
         in_progress = false;
-        var forcePageReloadUrl = xhr.getResponseHeader("X-GO-FORCE-LOAD-PAGE");
-        if (forcePageReloadUrl) {
-            Util.loadPage(forcePageReloadUrl);
-        }
     }
 
     function _onError(xhr) {
@@ -103,7 +99,6 @@ function AjaxRefresher(url, redirectUrl, options) {
         }
     }
 
-    //TODO: Can't get this under unit test because of window.location being set. Need to figure out a way to do this.
     function _redirectToLoginPage() {
       window.location = window.location.protocol + '//' + window.location.host + redirectUrl;
     }
@@ -124,9 +119,6 @@ function AjaxRefresher(url, redirectUrl, options) {
 
     var _startExecution = function() {
         _hookupAutoRefresh();
-        if (options.executeImmediately) {
-            _request();
-        }
     };
 
     function _hookupAutoRefresh() {
@@ -148,14 +140,6 @@ function AjaxRefresher(url, redirectUrl, options) {
             periodicalExecuter.registerCallback();
             periodicalExecuter.execute();
         }
-    };
-
-    this._getStoppedForTest = function() {
-        return stopped;
-    };
-
-    this._setStoppedForTest = function(b){
-        stopped = b;
     };
 
     function isResponseNotModified() {

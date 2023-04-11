@@ -31,32 +31,16 @@ module PrototypeHelper
     js_options = build_callbacks(options)
 
     content_type = if options[:headers]
-                     key, val = options[:headers].find {|k, v| k.to_s.downcase == 'content-type'}
+                     key, _ = options[:headers].find {|k, _| k.to_s.downcase == 'content-type'}
                      options[:headers].delete(key)
                    end
 
-    js_options['asynchronous'] = options[:type] != :synchronous
     js_options['requestHeaders'] = quote_hash(options[:headers]) if options[:headers]
     js_options['contentType'] = "'#{content_type}'" if content_type
-    js_options['method']       = method_option_to_s(options[:method]) if options[:method]
-    js_options['insertion']    = "'#{options[:position].to_s.downcase}'" if options[:position]
-    js_options['evalScripts']  = options[:script].nil? || options[:script]
-
-    if options[:form]
-      js_options['parameters'] = 'Form.serialize(this)'
-    elsif options[:submit]
-      js_options['parameters'] = "Form.serialize('#{options[:submit]}')"
-    elsif options[:with]
-      js_options['parameters'] = options[:with]
-    end
+    js_options['method'] = method_option_to_s(options[:method]) if options[:method]
 
     if protect_against_forgery? && !options[:form]
-      if js_options['parameters']
-        js_options['parameters'] << " + '&"
-      else
-        js_options['parameters'] = "'"
-      end
-      js_options['parameters'] << "#{request_forgery_protection_token}=' + encodeURIComponent('#{escape_javascript form_authenticity_token}')"
+      js_options['parameters'] = "'#{request_forgery_protection_token}=' + encodeURIComponent('#{escape_javascript form_authenticity_token}')"
     end
 
     options_for_javascript(js_options)
@@ -68,22 +52,6 @@ module PrototypeHelper
 
   def method_option_to_s(method)
     (method.is_a?(String) and !method.index("'").nil?) ? method : "'#{method}'"
-  end
-
-  def build_observer(klass, name, options = {})
-    if options[:with] && (options[:with] !~ /[\{=(.]/)
-      options[:with] = "'#{options[:with]}=' + encodeURIComponent(value)"
-    else
-      options[:with] ||= 'value' unless options[:function]
-    end
-
-    callback = options[:function] || remote_function(options)
-    javascript  = "new #{klass}('#{name}', "
-    javascript << "#{options[:frequency]}, " if options[:frequency]
-    javascript << "function(element, value) {"
-    javascript << "#{callback}}"
-    javascript << ")"
-    javascript_tag(javascript)
   end
 
   def build_callbacks(options)

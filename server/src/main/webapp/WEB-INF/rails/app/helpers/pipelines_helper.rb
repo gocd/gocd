@@ -28,33 +28,17 @@ module PipelinesHelper
     (stage.isScheduled() ? "rerun" : "trigger")
   end
 
-  def trigger_message(actual_date_time, pim)
-    if pim.class != com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance
-      "Triggered&nbsp;#{'by'}&nbsp;<span class='who'>#{h pim.getApprovedBy()}</span>"
-    else
-      ""
-    end
-  end
-
   def trigger_message_with_formatted_date_time(date_time, who)
     on = "&nbsp;on&nbsp;<span class='time' data='#{date_time.getTime()}' title='#{date_time.to_long_display_date_time} server time'></span>"
     if who == GoConstants::DEFAULT_APPROVED_BY
       "<span class='label'>Automatically triggered</span>#{on}".html_safe
     else
-      "<span class='label'>Triggered</span>&nbsp;by&nbsp;<span class='who'>#{h who}</span>#{on}".html_safe
+      "<span class='label'>Triggered</span>&nbsp;by&nbsp;<span class='who'>#{html_escape(who)}</span>#{on}".html_safe
     end
   end
 
   def pipeline_name pipeline_model
     pipeline_model.getLatestPipelineInstance().getName()
-  end
-
-  def material_type(material)
-    dependency?(material) ? 'dependency' : 'scm'
-  end
-
-  def dependency?(material)
-    material.is_a? DependencyMaterial
   end
 
   def url_for_pipeline_value_stream_map(pipeline, options = {})

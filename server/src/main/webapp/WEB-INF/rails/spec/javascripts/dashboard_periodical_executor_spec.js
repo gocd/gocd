@@ -163,7 +163,7 @@ describe("dashboard_periodical_executor", function(){
         assertEquals('There is some error.', msg2);
     });
 
-    it("test_should_not_call_observer_when_excuter_is_paused", function(){
+    it("test_should_not_call_observer_when_executer_is_paused", function(){
         spyOn(jQuery, "ajax").and.callFake(function(options) {
             options.success([1,2,3.4]);
         });
@@ -179,7 +179,6 @@ describe("dashboard_periodical_executor", function(){
         dashboard_periodical_executor.fireNow();
 
         assertFalse(invoked);
-        prepareMockRequest({status: 200}, '[1, 2, 3, 4]');
         dashboard_periodical_executor.resume();
         dashboard_periodical_executor.fireNow();
         assertTrue(invoked);

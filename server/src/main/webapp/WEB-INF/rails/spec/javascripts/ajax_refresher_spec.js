@@ -19,7 +19,6 @@ describe("ajax_refresher", function () {
   var after_called;
   var actual_periodical_executor;
   var newPageUrl;
-  var util_load_page_fn;
   var periodical_opts;
 
     beforeEach(function () {
@@ -28,7 +27,6 @@ describe("ajax_refresher", function () {
       after_called               = false;
       actual_periodical_executor = PeriodicalExecuter;
       newPageUrl        = null;
-      util_load_page_fn = null;
       periodical_opts = null;
 
       setFixtures("<div class='under_test'>\n" +
@@ -49,14 +47,9 @@ describe("ajax_refresher", function () {
         };
 
         $('elem_id').update("im_old_content");
-        util_load_page_fn = Util.loadPage;
-        Util.loadPage = function (url) {
-            newPageUrl = url;
-        };
     });
 
     afterEach(function () {
-        Util.loadPage = util_load_page_fn;
         Ajax.Updater = actual_ajax_updater;
         Ajax.PeriodicalUpdater = actual_ajax_request;
         PeriodicalExecuter = actual_periodical_executor;
@@ -207,27 +200,6 @@ describe("ajax_refresher", function () {
 
         periodical_opts.success({elem_id: {html: "<div>new_content</div>"}});
         assertEquals("should not replace if the before refresh returns false", 'im_old_content', $('elem_id').innerHTML);
-    });
-
-    it("test_should_load_page_requested_when_GO_FORCE_LOAD_PAGE_is_set", function () {
-        var refresher = new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, beforeRefresh: function (elem_id, parent_id) {
-            return false;
-        }});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
-
-        var header_name = null;
-
-        var xhr = {
-            getResponseHeader: function (name) {
-                header_name = name;
-                return "holy_cow_new_url_is_sooooo_cool!!!";
-            }
-        };
-
-        periodical_opts.complete(xhr);
-        assertEquals("holy_cow_new_url_is_sooooo_cool!!!", newPageUrl);
-        assertEquals("X-GO-FORCE-LOAD-PAGE", header_name);
     });
 
     it("test_calls_after_refresh_after_replacement", function () {

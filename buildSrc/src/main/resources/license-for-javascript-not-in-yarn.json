@@ -1,12 +1,12 @@
 {
-  "bootstrap": {
-    "moduleName": "bootstrap",
+  "bootstrap-dropdown": {
+    "moduleName": "bootstrap-dropdown",
     "moduleVersion": "2.3.2",
     "moduleUrls": [
       "https://github.com/twbs/bootstrap"
     ],
     "filenames": [
-      "bootstrap-2.3.2.min.js"
+      "bootstrap-dropdown-2.3.2.js"
     ],
     "moduleLicenses": [
       {
@@ -33,33 +33,17 @@
   },
   "d3": {
     "moduleName": "d3",
-    "moduleVersion": "3.1.5",
+    "moduleVersion": "3.5.17",
     "moduleUrls": [
       "https://github.com/d3/d3"
     ],
     "filenames": [
-      "d3-3.1.4.min.js"
+      "d3-3.5.17.min.js"
     ],
     "moduleLicenses": [
       {
         "moduleLicense": "BSD 3-Clause",
         "moduleLicenseUrl": "https://spdx.org/licenses/BSD-3-Clause.html"
-      }
-    ]
-  },
-  "jquery-dirtyform-plugin": {
-    "moduleName": "jquery-dirtyform-plugin",
-    "moduleVersion": "unknown",
-    "moduleUrls": [
-      "https://github.com/acvwilson/dirty_form"
-    ],
-    "filenames": [
-      "jquery.dirtyform.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
       }
     ]
   },
@@ -81,12 +65,12 @@
   },
   "jquery-ui": {
     "moduleName": "jquery-ui",
-    "moduleVersion": "1.7.3",
+    "moduleVersion": "1.12.1",
     "moduleUrls": [
       "https://github.com/jquery/jquery-ui"
     ],
     "filenames": [
-      "jquery-ui-1.7.3.custom.min.js"
+      "jquery-ui-1.12.1.custom.min.js"
     ],
     "moduleLicenses": [
       {

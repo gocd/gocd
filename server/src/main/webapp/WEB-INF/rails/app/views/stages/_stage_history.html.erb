@@ -42,7 +42,7 @@
     <%= render :partial => "shared/pagination_bar", :locals => {:scope => {:page_handler => :stage_history_pagination_handler, :pagination => scope[:stage_history_page].getPagination(), :handler_args => [scope[:tab]]}} -%>
 </div>
 <script type="text/javascript">
-    Util.on_load(function() {
+    jQuery(function() {
         compare_link_handlers();
     });
 </script>

@@ -433,34 +433,6 @@ export const f = {
     }
   },
 
-  dismissableCallout: {
-    oninit(vnode) {
-      vnode.state.message = vnode.attrs.message;
-      vnode.state.dismiss = () => {
-        this.message({});
-      };
-    },
-
-    view(vnode) {
-      const message = vnode.attrs.message;
-      let callout;
-      if (message && message().message) {
-        callout = (
-          <f.row>
-            <f.callout type={message().type}>
-              {message().message}
-              <button class="close-button" aria-label="Dismiss alert" type="button"
-                      onclick={vnode.state.dismiss.bind(vnode.state)}>
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </f.callout>
-          </f.row>
-        );
-      }
-      return callout;
-    }
-  },
-
   alert: {
     view(vnode) {
       return (<f.callout type="alert" {...vnode.attrs}>{vnode.children}</f.callout>);
@@ -478,17 +450,5 @@ export const f = {
       return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   },
-
-  infoRow: {
-    view(vnode) {
-      return (
-        <f.row>
-          <f.callout type="info">
-            {vnode.attrs.message}
-          </f.callout>
-        </f.row>
-      );
-    }
-  }
 };
 

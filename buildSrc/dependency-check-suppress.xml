@@ -243,6 +243,8 @@
     <vulnerabilityName>GHSA-gxr4-xjj5-5px2</vulnerabilityName>
     <cve>CVE-2020-11023</cve>
     <vulnerabilityName>GHSA-jpcq-cgw6-v4j6</vulnerabilityName>
+    
+    <vulnerabilityName>jQuery 1.x and 2.x are End-of-Life and no longer receiving security updates</vulnerabilityName>
   </suppress>
 
   <suppress>

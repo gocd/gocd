@@ -46,7 +46,7 @@
 // Used by Rails job details page via timer_observer
 //= require "lib/trimpath-template-1.0.38.js"
 
-//= require "lib/lodash.js"
+//= require "lib/lodash.min.js"
 
 // Used by Rails job details and console log for formatting timestamps, along with Rails value stream map
 //= require "lib/moment-2.29.4.js"

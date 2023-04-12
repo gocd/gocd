@@ -27,9 +27,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ServerVersionInfoBuilder {
-    private static final String GO_SERVER = "go_server";
-    private VersionInfoDao versionInfoDao;
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerVersionInfoBuilder.class.getName());
+    private static final String GO_SERVER = "go_server";
+
+    private final VersionInfoDao versionInfoDao;
 
     @Autowired
     public ServerVersionInfoBuilder(VersionInfoDao versionInfoDao) {
@@ -52,7 +53,7 @@ public class ServerVersionInfoBuilder {
     private VersionInfo findAndUpdate() {
         VersionInfo versionInfo = find();
 
-        if (versionInfo == null) return versionInfo;
+        if (versionInfo == null) return null;
 
         return update(versionInfo);
     }

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class VersionInfoService {
-    private ServerVersionInfoManager manager;
+    private final ServerVersionInfoManager manager;
 
     @Autowired
     public VersionInfoService(ServerVersionInfoManager manager) {

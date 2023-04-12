@@ -47,14 +47,14 @@
       }
     ]
   },
-  "jquery with sizzle.js": {
-    "moduleName": "jquery with sizzle.js",
-    "moduleVersion": "1.7.2",
+  "jquery": {
+    "moduleName": "jquery",
+    "moduleVersion": "2.2.4",
     "moduleUrls": [
       "https://github.com/jquery/jquery"
     ],
     "filenames": [
-      "jquery-1.7.2.js"
+      "jquery-2.2.4.min.js"
     ],
     "moduleLicenses": [
       {
@@ -65,12 +65,12 @@
   },
   "jquery-ui": {
     "moduleName": "jquery-ui",
-    "moduleVersion": "1.12.1",
+    "moduleVersion": "1.13.2",
     "moduleUrls": [
       "https://github.com/jquery/jquery-ui"
     ],
     "filenames": [
-      "jquery-ui-1.12.1.custom.min.js"
+      "jquery-ui-1.13.2.custom.min.js"
     ],
     "moduleLicenses": [
       {

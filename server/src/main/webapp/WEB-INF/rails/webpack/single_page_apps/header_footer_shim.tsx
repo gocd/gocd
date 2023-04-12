@@ -24,36 +24,34 @@ import {SiteFooter} from "views/pages/partials/site_footer";
 import {SiteHeader} from "views/pages/partials/site_header";
 
 $(() => {
-  window.addEventListener("DOMContentLoaded", () => {
-    $(document).foundation();
-    ModalManager.onPageLoad();
-    VersionUpdater.update();
+  $(document).foundation();
+  ModalManager.onPageLoad();
+  VersionUpdater.update();
 
-    const footerData = footerMeta();
-    const headerData = headerMeta();
+  const footerData = footerMeta();
+  const headerData = headerMeta();
 
-    const menuMountPoint = document.getElementById("app-menu");
+  const menuMountPoint = document.getElementById("app-menu");
 
-    if (menuMountPoint) {
-      m.mount(menuMountPoint, {
-        view() {
-          return <SiteHeader {...headerData}/>;
-        }
-      });
-    } else {
-      throw Error("Could not find menu mount point");
-    }
+  if (menuMountPoint) {
+    m.mount(menuMountPoint, {
+      view() {
+        return <SiteHeader {...headerData}/>;
+      }
+    });
+  } else {
+    throw Error("Could not find menu mount point");
+  }
 
-    const footerMountPoint = document.getElementById("app-footer");
+  const footerMountPoint = document.getElementById("app-footer");
 
-    if (footerMountPoint) {
-      m.mount(footerMountPoint, {
-        view() {
-          return <SiteFooter {...footerData}/>;
-        }
-      });
-    } else {
-      throw Error("Could not find footer mount point");
-    }
-  });
+  if (footerMountPoint) {
+    m.mount(footerMountPoint, {
+      view() {
+        return <SiteFooter {...footerData}/>;
+      }
+    });
+  } else {
+    throw Error("Could not find footer mount point");
+  }
 });

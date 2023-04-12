@@ -36,8 +36,8 @@ describe("Dashboard Pipeline Widget", () => {
 
   beforeEach(() => {
     jasmine.Ajax.install();
-    doCancelPolling      = jasmine.createSpy();
-    doRefreshImmediately = jasmine.createSpy();
+    doCancelPolling      = jasmine.createSpy("doCancelPolling");
+    doRefreshImmediately = jasmine.createSpy("doRefreshImmediately");
     pipelineInstances    = [{
       "_links":       {
         "self": {
@@ -217,7 +217,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message .error')).toBeFalsy();
       });
 
-      it("should unpause a pipeline", () => {
+      it("should unpause a pipeline", async () => {
         const responseMessage = `Pipeline '${pipeline.name}' unpaused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -232,6 +232,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = false);
         helper.click('.unpause');
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -241,8 +242,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
-      it("should show error when unpause a pipeline fails", () => {
-        const responseMessage = `Can not unpuase pipeline. Pipeline '${pipeline.name}' is already unpaused.`;
+      it("should show error when unpause a pipeline fails", async () => {
+        const responseMessage = `Can not unpause pipeline. Pipeline '${pipeline.name}' is already unpaused.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unpause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
           responseHeaders: {
@@ -255,6 +256,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.unpause');
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -318,7 +320,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.text('.modal-title', body)).toBe(`Pause pipeline ${pipeline.name}`);
       });
 
-      it("should pause a pipeline", () => {
+      it("should pause a pipeline", async () => {
         const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -337,6 +339,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         helper.click('.reveal .primary', body);
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -348,7 +351,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
-      it("should not pause a pipeline", () => {
+      it("should not pause a pipeline", async () => {
         const responseMessage = `Pipeline '${pipeline.name}' could not be paused.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -365,6 +368,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         helper.q('.reveal input', body).value = "test";
         helper.click('.reveal .primary', body);
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -373,7 +377,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message')).toHaveClass("error");
       });
 
-      it("should pause pipeline and close popup when enter is pressed inside the pause popup", () => {
+      it("should pause pipeline and close popup when enter is pressed inside the pause popup", async () => {
         const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -389,7 +393,7 @@ describe("Dashboard Pipeline Widget", () => {
         pausePopupTextBox.value = "test";
 
         simulateEvent.simulate(pausePopupTextBox, 'keydown', {key: 'Enter'});
-        m.redraw.sync();
+        await helper.delayRedraw(50);
 
         expect(helper.q(".reveal", body)).toBeFalsy();
         expect(helper.text('.pipeline_message')).toContain(responseMessage);
@@ -429,7 +433,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.text(document.getElementById(tooltipId))).toBe("You do not have permission to pause the pipeline.");
       });
 
-      it('should not show the paused time if it is null', () => {
+      it('should not show the paused time if it is null', async () => {
         pauseInfo = {
           "paused":       false,
           "paused_by":    "admin",
@@ -460,6 +464,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         helper.click('.reveal .primary', body);
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -510,7 +515,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message .error')).toBeFalsy();
       });
 
-      it("should unlock a pipeline", () => {
+      it("should unlock a pipeline", async () => {
         const responseMessage = `Pipeline '${pipeline.name}' unlocked successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -524,6 +529,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.pipeline_locked');
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -532,7 +538,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
-      it("should show error when unlocking a pipeline fails", () => {
+      it("should show error when unlocking a pipeline fails", async () => {
         const responseMessage = `Can not unlock pipeline. Some stages of pipeline are in progress.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/unlock`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -546,6 +552,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.pipeline_locked');
+        await helper.delayRedraw(50);
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -622,7 +629,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(_.isFunction(helper.q('.play').onclick)).toBe(false);
       });
 
-      it("should trigger a pipeline", () => {
+      it("should trigger a pipeline", async () => {
         const responseMessage = `Request for scheduling pipeline '${pipeline.name}' accepted successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -635,6 +642,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play');
+        await helper.delayRedraw(50);
 
         expect(pipeline.triggerDisabled()).toBe(true);
 
@@ -642,7 +650,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
-      it("should show error when triggering a pipeline fails", () => {
+      it("should show error when triggering a pipeline fails", async () => {
         const responseMessage = `Can not trigger pipeline. Some stages of pipeline are in progress.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
           responseText:    JSON.stringify({"message": responseMessage}),
@@ -655,6 +663,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play');
+        await helper.delayRedraw(50);
 
         expect(pipeline.triggerDisabled()).toBe(false);
 
@@ -741,7 +750,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(_.isFunction(helper.q('.play_with_options').onclick)).toBe(false);
       });
 
-      it("should show modal to specify trigger options for a pipeline", () => {
+      it("should show modal to specify trigger options for a pipeline", async () => {
         stubTriggerOptions(pipelineName);
 
         expect(helper.q(".reveal", body)).toBeFalsy();
@@ -751,13 +760,13 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q(".reveal", body)).toBeInDOM();
       });
 
-      it('should render error message in modal when api response parsing fails', () => {
+      it('should render error message in modal when api response parsing fails', async () => {
         stubTriggerOptionsWithInvalidData(pipelineName);
 
         expect(helper.q(".reveal", body)).toBeFalsy();
 
         helper.click('.play_with_options');
-        m.redraw.sync();
+        await helper.delay(50);
 
         expect(helper.q(".reveal", body)).toBeInDOM();
         expect(helper.q('.callout.alert', body)).toBeInDOM();
@@ -770,7 +779,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.text('.modal-title', body)).toBe(`${pipeline.name} - Trigger`);
       });
 
-      it('should show modal appropriately when opened and closed multiple times', () => {
+      it('should show modal appropriately when opened and closed multiple times', async () => {
         stubTriggerOptions(pipelineName);
 
         //open trigger with options modal
@@ -778,6 +787,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_options-heading', body)).toBeFalsy();
 
         helper.click('.play_with_options');
+        await helper.delay(50);
 
         expect(helper.q(".reveal", body)).toBeInDOM();
         expect(helper.text('.pipeline_options-heading', body)).toContain('Materials');
@@ -790,12 +800,13 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_options-heading', body)).toBeFalsy();
 
         helper.click('.play_with_options');
+        await helper.delay(50);
 
         expect(helper.q(".reveal", body)).toBeInDOM();
         expect(helper.text('.pipeline_options-heading', body)).toContain('Materials');
       });
 
-      it("should trigger a pipeline", () => {
+      it("should trigger a pipeline", async () => {
         stubTriggerOptions(pipelineName);
         const responseMessage = `Request for scheduling pipeline '${pipeline.name}' accepted successfully.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
@@ -809,8 +820,10 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play_with_options');
+        await helper.delay(50);
 
         helper.click('.modal-buttons .button.save.primary', body);
+        await helper.delayRedraw(50);
 
         expect(pipeline.triggerDisabled()).toBe(true);
 
@@ -818,7 +831,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_message')).toHaveClass("success");
       });
 
-      it("should show error when triggering a pipeline fails", () => {
+      it("should show error when triggering a pipeline fails", async () => {
         stubTriggerOptions(pipelineName);
         const responseMessage = `Can not trigger pipeline. Some stages of pipeline are in progress.`;
         jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/schedule`, undefined, 'POST').andReturn({
@@ -832,8 +845,10 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play_with_options');
+        await helper.delay(50);
 
         helper.clickButtonOnActiveModal('.modal-buttons .button.save.primary');
+        await helper.delayRedraw(50);
 
         expect(pipeline.triggerDisabled()).toBe(false);
 

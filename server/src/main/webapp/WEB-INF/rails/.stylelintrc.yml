@@ -16,5 +16,11 @@ rules:
 
   # May have been a requirement of old Ruby Sass, to validate if necessary against Dart Sass now.
   color-function-notation: legacy
+
+  selector-pseudo-class-no-unknown:
+    - true
+    - ignorePseudoClasses:
+        - global
+
 ignoreFiles:
 - app/assets/new_stylesheets/_font-awesome-glyphs.scss.erb

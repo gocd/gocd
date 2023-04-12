@@ -28,7 +28,10 @@ describe("Dashboard", () => {
       dashboard = new Dashboard();
       dashboard.initialize(dashboardData);
       dashboard._performRouting = _.noop;
+      jasmine.Ajax.install();
     });
+
+    afterEach(() => jasmine.Ajax.uninstall());
 
     beforeAll(() => {
       spyOn(_, 'debounce').and.callFake((func) => {
@@ -64,33 +67,27 @@ describe("Dashboard", () => {
       expect(actualPipeline.name).toEqual(expectedPipeline.name);
     });
 
-    it('should get new dashboard json', () => {
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest('/go/api/dashboard?allowEmpty=false', undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(dashboardData),
-          responseHeaders: {
-            ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v4+json'
-          },
-          status:          200
-        });
-
-        const successCallback = jasmine.createSpy().and.callFake((dashboard) => {
-          const expected = new Dashboard();
-          expected.initialize(dashboard);
-          expect(expected.getPipelineGroups().groups.length).toBe(1);
-        });
-
-        Dashboard.get().then(successCallback);
-
-        expect(successCallback).toHaveBeenCalled();
-
-        expect(jasmine.Ajax.requests.count()).toBe(1);
-        const request = jasmine.Ajax.requests.mostRecent();
-        expect(request.method).toBe('GET');
-        expect(request.url).toMatch(/^\/go\/api\/dashboard(?:\?|&|$)/);
-        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v4+json');
+    it('should get new dashboard json', async () => {
+      jasmine.Ajax.stubRequest('/go/api/dashboard?allowEmpty=false', undefined, 'GET').andReturn({
+        responseText: JSON.stringify(dashboardData),
+        responseHeaders: {
+          ETag: 'etag',
+          'Content-Type': 'application/vnd.go.cd.v4+json'
+        },
+        status: 200
       });
+
+      const dash = await Dashboard.get();
+
+      const expected = new Dashboard();
+      expected.initialize(dash);
+      expect(expected.getPipelineGroups().groups.length).toBe(1);
+
+      expect(jasmine.Ajax.requests.count()).toBe(1);
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.method).toBe('GET');
+      expect(request.url).toMatch(/^\/go\/api\/dashboard(?:\?|&|$)/);
+      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v4+json');
     });
 
     const dashboardData = {

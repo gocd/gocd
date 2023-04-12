@@ -20,6 +20,14 @@ describe("Dashboard", () => {
   describe('Pipeline Instance Model', () => {
     const pipelineName     = "up42";
 
+    beforeEach(() => {
+      jasmine.Ajax.install();
+    });
+
+    afterEach(() => {
+      jasmine.Ajax.uninstall();
+    });
+
     it("should deserialize from json", () => {
       const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
@@ -76,28 +84,22 @@ describe("Dashboard", () => {
       expect(pipelineInstance.comparePath).toEqual("/go/compare/up42/0/with/1");
     });
 
-    it("should fetch build cause", () => {
+    it("should fetch build cause", async () => {
       const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
 
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, pipelineInstance.counter), undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(buildCauseJson),
-          responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-          status:          200
-        });
-
-        const successCallback = jasmine.createSpy().and.callFake((modifications) => {
-          expect(modifications).toHaveLength(1);
-        });
-
-        pipelineInstance.getBuildCause().then(successCallback);
-        expect(successCallback).toHaveBeenCalled();
-
-        const request = jasmine.Ajax.requests.mostRecent();
-        expect(request.method).toBe('GET');
-        expect(request.url).toBe(`/go/api/internal/build_cause/up42/1`);
-        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, pipelineInstance.counter), undefined, 'GET').andReturn({
+        responseText: JSON.stringify(buildCauseJson),
+        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
+        status: 200
       });
+
+      const modifications = await pipelineInstance.getBuildCause();
+      expect(modifications).toHaveLength(1);
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe(`/go/api/internal/build_cause/up42/1`);
+      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
     });
 
     const pipelineInstanceJson = {

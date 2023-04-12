@@ -17,60 +17,57 @@ import {Personalization} from "models/dashboard/personalization";
 import {SparkRoutes} from "helpers/spark_routes";
 
 describe("Personalization", () => {
-  it('should fetch previously selected pipelines with appropriate headers', () => {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(pipelineSelectionData),
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          200
-      });
 
-      const successCallback = jasmine.createSpy().and.callFake((pipelineSelection) => {
-        const expected = pipelineSelectionData["filters"][0];
-        const filter = pipelineSelection.namedFilter("Default");
-
-        expect(filter.name).toEqual(expected["name"]);
-        expect(filter.type).toEqual(expected["type"]);
-        expect(filter.pipelines).toEqual(expected["pipelines"]);
-      });
-
-      Personalization.get().then(successCallback);
-
-      expect(successCallback).toHaveBeenCalled();
-
-      expect(jasmine.Ajax.requests.count()).toBe(1);
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.method).toBe('GET');
-      expect(request.url).toBe(SparkRoutes.pipelineSelectionPath());
-      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
-    });
+  beforeEach(() => {
+    jasmine.Ajax.install();
   });
 
-  it("should post selected pipelines", () => {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), JSON.stringify({filters: pipelineSelectionPostData}), 'PUT').andReturn({
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          204
-      });
+  afterEach(() => {
+    jasmine.Ajax.uninstall();
+  });
 
-      const successCallback = jasmine.createSpy();
-
-      Personalization.fromJSON(pipelineSelectionData).updateFilters(pipelineSelectionPostData).then(successCallback);
-
-      expect(successCallback).toHaveBeenCalled();
-
-      expect(jasmine.Ajax.requests.count()).toBe(1);
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.method).toBe('PUT');
-      expect(request.url).toBe(SparkRoutes.pipelineSelectionPath());
-      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+  it('should fetch previously selected pipelines with appropriate headers', async () => {
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET').andReturn({
+      responseText: JSON.stringify(pipelineSelectionData),
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 200
     });
+
+    const pipelineSelection = await Personalization.get();
+
+    const expected = pipelineSelectionData["filters"][0];
+    const filter = pipelineSelection.namedFilter("Default");
+
+    expect(filter.name).toEqual(expected["name"]);
+    expect(filter.type).toEqual(expected["type"]);
+    expect(filter.pipelines).toEqual(expected["pipelines"]);
+
+    expect(jasmine.Ajax.requests.count()).toBe(1);
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.method).toBe('GET');
+    expect(request.url).toBe(SparkRoutes.pipelineSelectionPath());
+    expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+  });
+
+  it("should post selected pipelines", async () => {
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), JSON.stringify({filters: pipelineSelectionPostData}), 'PUT').andReturn({
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 204
+    });
+
+    await Personalization.fromJSON(pipelineSelectionData).updateFilters(pipelineSelectionPostData);
+
+    expect(jasmine.Ajax.requests.count()).toBe(1);
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.method).toBe('PUT');
+    expect(request.url).toBe(SparkRoutes.pipelineSelectionPath());
+    expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
   });
 
   it("names() returns the names of all filters", () => {
@@ -93,53 +90,48 @@ describe("Personalization", () => {
     expect(pers.namedFilter("bar")).toEqual(filters[0]);
   });
 
-  it("removeFilter() removes filter by name only if persistence to backend is successful", () => {
-    const filters = [{name: "Default", type: "blacklist", pipelines: ["a", "b"]}, {name: "foo", type: "whitelist", pipelines: []}];
+  it("removeFilter() removes filter by name only if persistence to backend is successful", async () => {
+    const filters = [{name: "Default", type: "blacklist", pipelines: ["a", "b"]}, {
+      name: "foo",
+      type: "whitelist",
+      pipelines: []
+    }];
     let pers = new Personalization(filters, {});
     expect(pers.names()).toEqual(["Default", "foo"]); // baseline for existence
 
     const payload = JSON.stringify({filters: [filters[0]]});
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          204
-      });
-
-      const success = jasmine.createSpy();
-      const failure = jasmine.createSpy();
-      pers.removeFilter("foo").then(success, failure);
-
-      expect(success).toHaveBeenCalled();
-      expect(failure).toHaveBeenCalledTimes(0);
-      expect(pers.names()).toEqual(["Default"]);
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 204
     });
+
+    await pers.removeFilter("foo");
+
+    expect(pers.names()).toEqual(["Default"]);
 
     pers = new Personalization(filters, {});
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          400
-      });
-
-      const success = jasmine.createSpy();
-      const failure = jasmine.createSpy();
-      pers.removeFilter("foo").then(success, failure);
-
-      expect(success).toHaveBeenCalledTimes(0);
-      expect(failure).toHaveBeenCalled();
-      expect(pers.names()).toEqual(["Default", "foo"]);
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 400
     });
+
+    try {
+      await pers.removeFilter("foo");
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(pers.names()).toEqual(["Default", "foo"]);
+    }
   });
 
-  it("addOrReplaceFilter() replaces filter (maintaining order) only if persistence to backend is successful", () => {
+  it("addOrReplaceFilter() replaces filter (maintaining order) only if persistence to backend is successful", async () => {
     const filters = [
       {name: "Default", type: "blacklist", pipelines: []},
       {name: "one", type: "blacklist", pipelines: []},
@@ -153,43 +145,34 @@ describe("Personalization", () => {
 
     const payload = JSON.stringify({filters: [filters[0], newFilter, filters[2]]});
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          204
-      });
-
-      const success = jasmine.createSpy();
-      const failure = jasmine.createSpy();
-      pers.addOrReplaceFilter("one", newFilter).then(success, failure);
-
-      expect(success).toHaveBeenCalled();
-      expect(failure).toHaveBeenCalledTimes(0);
-      expect(pers.names()).toEqual(["Default", "three", "two"]);
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 204
     });
+
+    await pers.addOrReplaceFilter("one", newFilter);
+
+    expect(pers.names()).toEqual(["Default", "three", "two"]);
 
     pers = new Personalization(filters, {});
 
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
-        },
-        status:          400
-      });
-
-      const success = jasmine.createSpy();
-      const failure = jasmine.createSpy();
-      pers.addOrReplaceFilter("one", newFilter).then(success, failure);
-
-      expect(success).toHaveBeenCalledTimes(0);
-      expect(failure).toHaveBeenCalled();
-      expect(pers.names()).toEqual(["Default", "one", "two"]);
+    jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), payload, 'PUT').andReturn({
+      responseHeaders: {
+        ETag: 'etag',
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      },
+      status: 400
     });
+
+    try {
+      await pers.addOrReplaceFilter("one", newFilter);
+      expect(true).toBe(false);
+    } catch (e) {
+      expect(pers.names()).toEqual(["Default", "one", "two"]);
+    }
   });
 
   it("addOrReplaceFilter() falls back to append when existing filter is not found", () => {

@@ -81,12 +81,12 @@
   },
   "lodash": {
     "moduleName": "lodash",
-    "moduleVersion": "4.2.1",
+    "moduleVersion": "4.17.21",
     "moduleUrls": [
       "https://github.com/lodash/lodash"
     ],
     "filenames": [
-      "lodash.js"
+      "lodash.min.js"
     ],
     "moduleLicenses": [
       {

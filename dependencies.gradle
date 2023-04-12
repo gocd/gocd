@@ -79,7 +79,7 @@ final Map<String, String> libraries = [
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.0.0',
   logback             : 'ch.qos.logback:logback-classic:1.2.12',
   lombok              : 'org.projectlombok:lombok:1.18.26',
-  mockitoBom          : 'org.mockito:mockito-bom:5.2.0',
+  mockitoBom          : 'org.mockito:mockito-bom:5.3.0',
   mybatis             : 'org.mybatis:mybatis:3.5.13',
   mybatisSpring       : 'org.mybatis:mybatis-spring:2.0.7',
   mysql               : 'com.mysql:mysql-connector-j:8.0.32',

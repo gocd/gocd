@@ -38,7 +38,7 @@ describe("Dashboard Widget", () => {
 
   const helper = new TestHelper();
 
-  beforeEach(async () => {
+  beforeEach(() => {
     doCancelPolling      = jasmine.createSpy("doCancelPolling");
     doRefreshImmediately = jasmine.createSpy("doRefreshImmediately");
     //override debounce function for tests to be called synchronously

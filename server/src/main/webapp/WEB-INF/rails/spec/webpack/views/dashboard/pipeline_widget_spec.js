@@ -750,7 +750,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(_.isFunction(helper.q('.play_with_options').onclick)).toBe(false);
       });
 
-      it("should show modal to specify trigger options for a pipeline", async () => {
+      it("should show modal to specify trigger options for a pipeline", () => {
         stubTriggerOptions(pipelineName);
 
         expect(helper.q(".reveal", body)).toBeFalsy();

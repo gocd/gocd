@@ -33,16 +33,18 @@ import static com.thoughtworks.go.util.DateUtils.isToday;
 
 @Component
 public class ServerVersionInfoManager {
-    private VersionInfo serverVersionInfo;
-    private ServerVersionInfoBuilder builder;
-    private VersionInfoDao versionInfoDao;
-    private Clock clock;
-    private GoCache goCache;
-    private SystemEnvironment systemEnvironment;
-    private DateTime versionInfoUpdatingFrom;
-    private static String GO_UPDATE = "GOUpdate";
-    private static final Object VERSION_INFO_MUTEX = new Object();
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerVersionInfoManager.class.getName());
+    private static final String GO_UPDATE = "GOUpdate";
+    private static final Object VERSION_INFO_MUTEX = new Object();
+
+    private final ServerVersionInfoBuilder builder;
+    private final VersionInfoDao versionInfoDao;
+    private final Clock clock;
+    private final GoCache goCache;
+    private final SystemEnvironment systemEnvironment;
+
+    private VersionInfo serverVersionInfo;
+    private DateTime versionInfoUpdatingFrom;
 
     @Autowired
     public ServerVersionInfoManager(ServerVersionInfoBuilder builder, VersionInfoDao versionInfoDao, Clock clock, GoCache goCache, SystemEnvironment systemEnvironment) {

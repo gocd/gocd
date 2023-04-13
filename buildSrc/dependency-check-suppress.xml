@@ -69,7 +69,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2022-22965</cve>
-    <vulnerabilityName>CVE-2022-22965</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -78,7 +77,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2022-22950</cve>
-    <vulnerabilityName>CVE-2022-22950</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -87,7 +85,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2022-22968</cve>
-    <vulnerabilityName>CVE-2022-22968</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -96,7 +93,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2022-22970</cve>
-    <vulnerabilityName>CVE-2022-22970</vulnerabilityName>
   </suppress>
   <suppress>
     <notes><![CDATA[
@@ -106,7 +102,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2023-20861</cve>
-    <vulnerabilityName>CVE-2023-20861</vulnerabilityName>
   </suppress>
 
   <suppress>
@@ -135,7 +130,6 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
     </packageUrl>
     <cve>CVE-2022-22978</cve>
-    <vulnerabilityName>CVE-2022-22978</vulnerabilityName>
   </suppress>
 
   <suppress>
@@ -178,7 +172,6 @@
     <cve>CVE-2022-23221</cve>
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
-    <vulnerabilityName>CWE-94: Improper Control of Generation of Code ('Code Injection')</vulnerabilityName>
   </suppress>
 
   <suppress until="2023-06-01Z">
@@ -200,7 +193,7 @@
   
   <suppress>
     <notes><![CDATA[
-    Neither GoCD nor dependencies use the deprecated and vulnerabile Files.createTempDir() from Guava noted in https://nvd.nist.gov/vuln/detail/CVE-2020-8908
+    Neither GoCD nor dependencies use the deprecated and vulnerable Files.createTempDir() from Guava noted in https://nvd.nist.gov/vuln/detail/CVE-2020-8908
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
     <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
@@ -212,7 +205,7 @@
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on
     ]]></notes>
-    <packageUrl regex="true">^pkg:(npm|javascript)/angularjs@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:javascript/angularjs@.*$</packageUrl>
     <cve>CVE-2019-14863</cve>
     <cve>CVE-2020-7676</cve>
     <vulnerabilityName>DOS in $sanitize</vulnerabilityName>

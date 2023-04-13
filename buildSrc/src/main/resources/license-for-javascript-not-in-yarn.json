@@ -38,7 +38,7 @@
       "https://github.com/d3/d3"
     ],
     "filenames": [
-      "d3-3.5.17.min.js"
+      "d3-3.5.17.js"
     ],
     "moduleLicenses": [
       {
@@ -54,7 +54,7 @@
       "https://github.com/jquery/jquery"
     ],
     "filenames": [
-      "jquery-2.2.4.min.js"
+      "jquery-2.2.4.js"
     ],
     "moduleLicenses": [
       {
@@ -70,7 +70,7 @@
       "https://github.com/jquery/jquery-ui"
     ],
     "filenames": [
-      "jquery-ui-1.13.2.custom.min.js"
+      "jquery-ui-1.13.2.js"
     ],
     "moduleLicenses": [
       {
@@ -86,7 +86,7 @@
       "https://github.com/lodash/lodash"
     ],
     "filenames": [
-      "lodash.min.js"
+      "lodash-4.17.21.js"
     ],
     "moduleLicenses": [
       {

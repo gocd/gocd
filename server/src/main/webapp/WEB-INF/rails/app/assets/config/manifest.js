@@ -17,7 +17,7 @@
 //= link_tree ../images
 
 //= link application.js
-//= link lib/d3-3.5.17.min.js
+//= link lib/d3-3.5.17.js
 
 // Used by legacy templates `_header.ftlh`
 //= link application.css

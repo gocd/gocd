@@ -25,7 +25,7 @@
 // Read Sprockets README (https://github.com/rails/sprockets#directives) for details about supported directives
 
 // Many things depend on jquery (incl direct code, jquery-ui and bootstrap)
-//= require "lib/jquery-2.2.4.min.js"
+//= require "lib/jquery-2.2.4.js"
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
 
@@ -38,7 +38,7 @@
 //= require "lib/bootstrap-dropdown-2.3.2.js"
 
 // used by Rails value_stream_map_renderer (look for $j(.*).draggable etc)
-//= require "lib/jquery-ui-1.13.2.custom.min.js"
+//= require "lib/jquery-ui-1.13.2.js"
 
 // Used by Rails stage details / stage history widget for showing config changes between stages. Relies on prototype+effects
 //= require "lib/modalbox-1.6.1.js"
@@ -46,7 +46,7 @@
 // Used by Rails job details page via timer_observer
 //= require "lib/trimpath-template-1.0.38.js"
 
-//= require "lib/lodash.min.js"
+//= require "lib/lodash-4.17.21.js"
 
 // Used by Rails job details and console log for formatting timestamps, along with Rails value stream map
 //= require "lib/moment-2.29.4.js"

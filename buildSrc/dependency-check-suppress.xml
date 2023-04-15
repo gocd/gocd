@@ -73,10 +73,11 @@
   <suppress>
     <notes><![CDATA[
     GoCD does not allow SpEL expressions to be supplied by users anywhere that can be found, so we do not seem to be
-    vulnerable to this issue.
+    vulnerable to these issues.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*@.*$</packageUrl>
     <cve>CVE-2022-22950</cve>
+    <cve>CVE-2023-20863</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[

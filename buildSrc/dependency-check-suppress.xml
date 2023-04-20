@@ -111,16 +111,14 @@
     subject to this defect, since it does not alter the security context in the manner required to elevate privileges
     in a small portion of the application and potentially be subject to this defect.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
-    </packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2021-22112</cve>
   </suppress>
   <suppress>
     <notes><![CDATA[
     GoCD does not use bcrypt from Spring Security, so does not seem vulnerable to https://nvd.nist.gov/vuln/detail/CVE-2022-22976
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
-    </packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2022-22976</cve>
   </suppress>
   <suppress>
@@ -128,8 +126,7 @@
     GoCD does not use RegexRequestMatchers from Spring Security with a value of '.' as required by https://nvd.nist.gov/vuln/detail/CVE-2022-22978
     to be vulnerable to this issue.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$
-    </packageUrl>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@.*$</packageUrl>
     <cve>CVE-2022-22978</cve>
   </suppress>
   <suppress>
@@ -137,7 +134,7 @@
     According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
     reason to believe it affects Spring Security 4.x and thus seems a false positive.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$</packageUrl>
     <cve>CVE-2023-20862</cve>
   </suppress>
 

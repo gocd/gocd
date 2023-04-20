@@ -132,6 +132,14 @@
     </packageUrl>
     <cve>CVE-2022-22978</cve>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+    According to https://spring.io/security/cve-2023-20862 this affects 5.7 but not "earlier unsupported versions" so there is no
+    reason to believe it affects Spring Security 4.x and thus seems a false positive.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-(core|web|config)@4.*$
+    <cve>CVE-2023-20862</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

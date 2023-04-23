@@ -232,7 +232,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = false);
         helper.click('.unpause');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -256,7 +256,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.unpause');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -339,7 +339,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         helper.click('.reveal .primary', body);
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -368,7 +368,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         helper.q('.reveal input', body).value = "test";
         helper.click('.reveal .primary', body);
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -393,7 +393,7 @@ describe("Dashboard Pipeline Widget", () => {
         pausePopupTextBox.value = "test";
 
         simulateEvent.simulate(pausePopupTextBox, 'keydown', {key: 'Enter'});
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(helper.q(".reveal", body)).toBeFalsy();
         expect(helper.text('.pipeline_message')).toContain(responseMessage);
@@ -464,7 +464,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
         helper.click('.reveal .primary', body);
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -529,7 +529,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.pipeline_locked');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -552,7 +552,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).not.toHaveBeenCalled();
 
         helper.click('.pipeline_locked');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(doCancelPolling).toHaveBeenCalled();
         expect(doRefreshImmediately).toHaveBeenCalled();
@@ -642,7 +642,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(pipeline.triggerDisabled()).toBe(true);
 
@@ -663,7 +663,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(pipeline.triggerDisabled()).toBe(false);
 
@@ -766,7 +766,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q(".reveal", body)).toBeFalsy();
 
         helper.click('.play_with_options');
-        await helper.delay(50);
+        await helper.delay();
 
         expect(helper.q(".reveal", body)).toBeInDOM();
         expect(helper.q('.callout.alert', body)).toBeInDOM();
@@ -787,7 +787,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_options-heading', body)).toBeFalsy();
 
         helper.click('.play_with_options');
-        await helper.delay(50);
+        await helper.delay();
 
         expect(helper.q(".reveal", body)).toBeInDOM();
         expect(helper.text('.pipeline_options-heading', body)).toContain('Materials');
@@ -800,7 +800,7 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.pipeline_options-heading', body)).toBeFalsy();
 
         helper.click('.play_with_options');
-        await helper.delay(50);
+        await helper.delay();
 
         expect(helper.q(".reveal", body)).toBeInDOM();
         expect(helper.text('.pipeline_options-heading', body)).toContain('Materials');
@@ -820,10 +820,10 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play_with_options');
-        await helper.delay(50);
+        await helper.delay();
 
         helper.click('.modal-buttons .button.save.primary', body);
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(pipeline.triggerDisabled()).toBe(true);
 
@@ -845,10 +845,10 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pipeline.triggerDisabled()).toBe(false);
 
         helper.click('.play_with_options');
-        await helper.delay(50);
+        await helper.delay();
 
         helper.clickButtonOnActiveModal('.modal-buttons .button.save.primary');
-        await helper.delayRedraw(50);
+        await helper.delayRedraw();
 
         expect(pipeline.triggerDisabled()).toBe(false);
 

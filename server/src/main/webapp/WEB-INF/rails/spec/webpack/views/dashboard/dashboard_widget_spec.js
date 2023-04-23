@@ -172,7 +172,7 @@ describe("Dashboard Widget", () => {
     expect(helper.text('.modal-body', body)).toBe('Specify a reason for pausing schedule on pipeline up42');
     helper.q('.reveal input', body).value = pauseCause;
     helper.click('.reveal .primary', body);
-    await helper.delayRedraw(50);
+    await helper.delayRedraw();
 
     expect(helper.text('.pipeline_message')).toContain(responseMessage);
     expect(helper.q('.pipeline_message')).toHaveClass("success");
@@ -202,7 +202,7 @@ describe("Dashboard Widget", () => {
     });
 
     helper.click(helper.qa('.info a').item(1));
-    await helper.delay(50);
+    await helper.delay();
 
     expect(helper.q('.material_changes')).toBeInDOM();
 
@@ -218,7 +218,7 @@ describe("Dashboard Widget", () => {
     });
 
     helper.click(helper.qa('.info a').item(1));
-    await helper.delay(50);
+    await helper.delay();
 
     expect(helper.q('.material_changes')).toBeInDOM();
   });
@@ -245,7 +245,7 @@ describe("Dashboard Widget", () => {
 
     expect(helper.q('.pipeline_locked')).not.toHaveClass('disabled');
     helper.click('.pipeline_locked');
-    await helper.delayRedraw(50);
+    await helper.delayRedraw();
 
     expect(helper.q('.pipeline_message')).toHaveClass("success");
     expect(helper.text('.pipeline_message')).toContain(responseMessage);

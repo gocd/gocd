@@ -30,6 +30,7 @@ export function stubAllMethods<T>(keys: Array<keyof T>): T {
 }
 
 export class TestHelper {
+  static DELAY_MS = 70;
   root?: HTMLElement;
 
   constructor(root?: HTMLElement) {
@@ -195,12 +196,12 @@ export class TestHelper {
     m.redraw.sync();
   }
 
-  delay(time: number) {
-    return new Promise((resolve) => setTimeout(resolve, time));
+  delay(): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, TestHelper.DELAY_MS));
   }
 
-  async delayRedraw(time: number) {
-    await this.delay(time);
+  async delayRedraw() {
+    await this.delay();
     this.redraw();
   }
 

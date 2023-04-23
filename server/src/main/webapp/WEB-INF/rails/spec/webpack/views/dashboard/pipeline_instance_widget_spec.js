@@ -150,7 +150,7 @@ describe("Dashboard Pipeline Instance Widget", () => {
     });
 
     helper.click(helper.qa('.info a')[1]);
-    await helper.delayRedraw(50);
+    await helper.delayRedraw();
 
     expect(helper.q('.material_changes')).toBeInDOM();
     expect(helper.q('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');

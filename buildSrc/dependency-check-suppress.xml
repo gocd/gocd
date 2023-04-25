@@ -204,6 +204,14 @@
     <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
     <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
   </suppress>
+  
+  <suppress>
+    <notes><![CDATA[
+    False positive - according to the maintainer at https://huntr.dev/bounties/4b494e99-5a3e-40d9-8678-277f3060e96c/ this issue only affects 2.x not 1.x
+    ]]></notes>
+    <packageUrl regex="true">^pkg:npm/yaml@1\..*$</packageUrl>
+    <vulnerabilityName>GHSA-f9xv-q969-pqx4</vulnerabilityName>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

@@ -167,8 +167,4 @@ public class DefaultGoPublisher implements GoPublisher {
     public void reportBeginToPublishArtifacts() {
         reportAction(PUBLISH, "Start to upload");
     }
-
-    public void reportCreatingProperties() {
-        reportAction(NOTICE, "Start to create properties");
-    }
 }

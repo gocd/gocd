@@ -201,8 +201,6 @@ public class BuildWork implements Work {
         String tag = result.isPassed() ? DefaultGoPublisher.JOB_PASS : DefaultGoPublisher.JOB_FAIL;
         goPublisher.reportCompleting(result, tag);
 
-        goPublisher.reportCreatingProperties();
-
         goPublisher.reportBeginToPublishArtifacts();
 
         try {

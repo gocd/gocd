@@ -798,6 +798,7 @@ task verifyWar(type: VerifyJarTask) {
         "ehcache-${project.versions.ehcache}.jar",
         "error_prone_annotations-2.11.0.jar",
         "failureaccess-1.0.1.jar",
+        "fastdoubleparser-0.8.0.jar",
         "freemarker-${project.versions.freemarker}.jar",
         "go-plugin-access-${project.version}.jar",
         "go-plugin-activator-${project.version}.jar",

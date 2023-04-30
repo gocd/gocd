@@ -750,12 +750,13 @@ describe("Dashboard Pipeline Widget", () => {
         expect(_.isFunction(helper.q('.play_with_options').onclick)).toBe(false);
       });
 
-      it("should show modal to specify trigger options for a pipeline", () => {
+      it("should show modal to specify trigger options for a pipeline", async () => {
         stubTriggerOptions(pipelineName);
 
         expect(helper.q(".reveal", body)).toBeFalsy();
 
         helper.click('.play_with_options');
+        await helper.delay();
 
         expect(helper.q(".reveal", body)).toBeInDOM();
       });
@@ -772,9 +773,10 @@ describe("Dashboard Pipeline Widget", () => {
         expect(helper.q('.callout.alert', body)).toBeInDOM();
       });
 
-      it("should show appropriate header for trigger with options popup modal", () => {
+      it("should show appropriate header for trigger with options popup modal", async () => {
 
         helper.click('.play_with_options');
+        await helper.delay();
 
         expect(helper.text('.modal-title', body)).toBe(`${pipeline.name} - Trigger`);
       });

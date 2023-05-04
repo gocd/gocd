@@ -103,7 +103,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
   changeRoute(newRoute: string, success: () => void): void {
     if (this.hasEntityConfigChanged()) {
       new ConfirmationDialog("Unsaved changes",
-                             "There are unsaved changes on your form. 'Proceed' will discard these changes",
+                             "There are unsaved changes on your form which will be discarded. Are you sure you want to continue?",
                              () => {
                                this.reset();
                                this.flashMessage.clear();

@@ -269,7 +269,7 @@
     <cvssBelow>10</cvssBelow>
   </suppress>
   
-  <suppress>
+  <suppress until="2023-07-01Z">
     <notes><![CDATA[
     Time-limited suppression of issue from nokogiri-java via embedded xalan-2.7.2.jar pending https://github.com/sparklemotion/nokogiri/pull/2873
     and corresponding release of nokogiri

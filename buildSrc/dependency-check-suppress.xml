@@ -243,5 +243,30 @@
     
     <vulnerabilityName>jQuery 1.x and 2.x are End-of-Life and no longer receiving security updates</vulnerabilityName>
   </suppress>
+  
+  <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
+  <suppress>
+    <notes><![CDATA[
+    False positive from bundled gocd-ldap-authentication-plugin. The LDAP API is not the same as MINA itself. See https://github.com/jeremylong/DependencyCheck/issues/5704
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.directory\.api/api-ldap-net-mina@.*$</packageUrl>
+    <cpe>cpe:/a:apache:mina</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positive vulnerabilities from test code that sits inside Javascript node_modules
+    ]]></notes>
+    <filePath regex="true">^.*/node_modules/.*/(test|cucumber)/.*\.js$</filePath>
+    <cvssBelow>10</cvssBelow>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positive vulnerabilities from test JS code that sits inside Ruby gems
+    ]]></notes>
+    <filePath regex="true">^.*/gems/.*/(htmlunit|capybara)/.*\.js$</filePath>
+    <cvssBelow>10</cvssBelow>
+  </suppress> 
 
 </suppressions>

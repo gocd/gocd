@@ -112,7 +112,7 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
   private static getMsgForOperation(disabled: boolean, scm: Scm, operation: "edit" | "clone" | "delete" | "show usages for"): string {
     if (disabled && (operation === "edit" || operation === "clone")) {
       return `Plugin '${scm.pluginMetadata().id()}' not found!`;
-    } else if (scm.origin().isDefinedInConfigRepo()) {
+    } else if (scm.origin().isDefinedInConfigRepo() && operation !== "show usages for") {
       return `Cannot ${operation} as '${scm.name()}' is defined in config repo '${scm.origin().id()}'`;
     }
     return `${s.capitalize(operation)} scm '${scm.name()}'`;

@@ -52,6 +52,6 @@ describe('PackageUsageModalSpec', () => {
     expect(tableRows[0].textContent).toBe('group1');
     expect(tableRows[1].textContent).toBe('pipeline1');
     expect(tableRows[2].textContent).toBe('Pipeline Material Settings');
-    expect(helper.q('a', tableRows[2])).toHaveAttr('href', '/go/admin/pipelines/pipeline1/materials');
+    expect(helper.q('a', tableRows[2])).toHaveAttr('href', '/go/admin/pipelines/pipeline1/edit#!pipeline1/materials');
   });
 });

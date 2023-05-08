@@ -15,6 +15,7 @@
  */
 import classNames from "classnames/bind";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -271,11 +272,10 @@ export class UsageElasticProfileModal extends Modal {
   }
 
   private static anchorToSettings(usage: ProfileUsage) {
-    let link = `/go/admin/pipelines/${usage.pipelineName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
-
-    if (usage.templateName()) {
-      link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
-    }
+    const link = SparkRoutes.pipelineJobEditPath(
+      !_.isNil(usage.templateName()) ? 'templates' : 'pipelines',
+      usage.templateName() || usage.pipelineName(),
+      usage.stageName(), usage.jobName(), "job_settings");
 
     return <span class={styles.jobSettingsLink}>
       <Link href={link}>Job Settings</Link>

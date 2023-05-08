@@ -52,7 +52,7 @@ describe("UsageElasticProfileModalSpec", () => {
     expect(helper.qa("td", table)[2].innerText.trim()).toBe("job-name");
     expect(helper.qa("td", table)[3].innerText).toBe("Job Settings");
     expect(helper.q("a", helper.qa("td", table)[3]))
-      .toHaveAttr("href", "/go/admin/pipelines/pipeline-name/stages/stage-name/job/job-name/settings");
+      .toHaveAttr("href", "/go/admin/pipelines/pipeline-name/edit#!pipeline-name/stage-name/job-name/job_settings");
   });
 
   it("should redirect to template settings if template name is present", () => {
@@ -61,6 +61,6 @@ describe("UsageElasticProfileModalSpec", () => {
 
     const table = helper.byTestId("table");
     expect(helper.q("a", helper.qa("td", table)[3]))
-      .toHaveAttr("href", "/go/admin/templates/template-name/stages/stage-name/job/job-name/settings");
+      .toHaveAttr("href", "/go/admin/templates/template-name/edit#!template-name/stage-name/job-name/job_settings");
   });
 });

@@ -630,6 +630,10 @@ export class SparkRoutes {
     return `/go/admin/${stageParent}/${pipelineName}/edit#!${pipelineName}/${tab}`;
   }
 
+  static pipelineJobEditPath(stageParent: 'pipelines' | 'templates', pipelineName: string, stageName: string, jobName: string, tab: string): string {
+    return this.pipelineEditPath(stageParent, pipelineName, `${stageName}/${jobName}/${tab}`);
+  }
+
   static getAllMaterials(): string {
     return '/go/api/internal/materials';
   }

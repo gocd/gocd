@@ -103,7 +103,10 @@ describe('PluggableScmWidgetSpec', () => {
       expect(helper.byTestId(key)).toHaveAttr('title', "Plugin 'scm-plugin-id' not found!");
     });
     expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-delete')).toHaveAttr('title', "Delete scm 'pluggable.scm.material.name'");
     expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-usages')).toHaveAttr('title', "Show usages for scm 'pluggable.scm.material.name'");
+
     const warningIcon = helper.byTestId('Info Circle-icon');
     expect(warningIcon).toBeInDOM();
     expect(warningIcon).toHaveAttr('title', "Plugin 'scm-plugin-id' was not found!");
@@ -121,5 +124,6 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.byTestId('pluggable-scm-delete')).toBeDisabled();
     expect(helper.byTestId('pluggable-scm-delete')).toHaveAttr('title', "Cannot delete as 'pluggable.scm.material.name' is defined in config repo 'config-repo-id'");
     expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-usages')).toHaveAttr('title', "Show usages for scm 'pluggable.scm.material.name'");
   });
 });

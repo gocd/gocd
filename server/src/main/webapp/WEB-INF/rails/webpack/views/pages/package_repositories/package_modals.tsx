@@ -15,6 +15,7 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
@@ -224,11 +225,10 @@ export class UsagePackageModal extends Modal {
     }
 
     const data = this.usages.map((usage) => {
-      const href = `/go/admin/pipelines/${usage.pipeline}/materials`;
       return [
         <span>{usage.group}</span>,
         <span>{usage.pipeline}</span>,
-        <Link href={href}>Pipeline Material Settings</Link>
+        <Link href={SparkRoutes.pipelineEditPath("pipelines", usage.pipeline, "materials")}>Pipeline Material Settings</Link>
       ];
     });
     return (

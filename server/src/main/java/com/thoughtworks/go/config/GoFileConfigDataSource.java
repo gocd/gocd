@@ -407,7 +407,7 @@ public class GoFileConfigDataSource {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         magicalGoConfigXmlWriter.write(config, outputStream, skipPreprocessingAndValidation);
         LOGGER.debug("[Config Save] === Done converting config to XML");
-        return outputStream.toString();
+        return outputStream.toString(StandardCharsets.UTF_8);
     }
 
     public String getFileLocation() {

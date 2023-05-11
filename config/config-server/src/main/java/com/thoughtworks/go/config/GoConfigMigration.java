@@ -35,6 +35,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +108,7 @@ public class GoConfigMigration {
     private void validate(String content) {
         int currentVersion = getCurrentSchemaVersion(content);
         try {
-            buildXmlDocument(new ByteArrayInputStream(content.getBytes()), GoConfigSchema.getResource(currentVersion), registry.xsds());
+            buildXmlDocument(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)), GoConfigSchema.getResource(currentVersion), registry.xsds());
         } catch (Exception e) {
             throw bomb("Cruise config file with version " + currentVersion + " is invalid. Unable to upgrade.", e);
         }
@@ -162,7 +163,7 @@ public class GoConfigMigration {
     private int getCurrentSchemaVersion(String content) {
         try {
             SAXBuilder builder = new SAXBuilder();
-            Document document = builder.build(new ByteArrayInputStream(content.getBytes()));
+            Document document = builder.build(new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
             Element root = document.getRootElement();
 
             String currentVersion = root.getAttributeValue(schemaVersion) == null ? "0" : root.getAttributeValue(schemaVersion);

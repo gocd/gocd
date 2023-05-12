@@ -268,15 +268,7 @@
     <filePath regex="true">^.*/gems/.*/(htmlunit|capybara)/.*\.js$</filePath>
     <cvssBelow>10</cvssBelow>
   </suppress>
-  
-  <suppress until="2023-07-01Z">
-    <notes><![CDATA[
-    Time-limited suppression of issue from nokogiri-java via embedded xalan-2.7.2.jar pending https://github.com/sparklemotion/nokogiri/pull/2873
-    and corresponding release of nokogiri
-    ]]></notes>
-    <sha1>d55d3f02a56ec4c25695fe67e1334ff8c2ecea23</sha1>
-    <cve>CVE-2022-34169</cve>
-  </suppress>
+
   <suppress until="2023-07-01Z">
     <notes><![CDATA[
     Time-limited suppression of issue from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565

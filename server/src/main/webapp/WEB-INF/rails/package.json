@@ -33,7 +33,7 @@
     "font-awesome": "^4.7.0",
     "foundation-sites": "=6.4.3",
     "hack-font": "^3.3.0",
-    "jquery": "^3.6.4",
+    "jquery": "^3.7.0",
     "lodash": "^4.17.21",
     "lodash-inflection": "^1.5.0",
     "lru-cache": "^7.18.3",

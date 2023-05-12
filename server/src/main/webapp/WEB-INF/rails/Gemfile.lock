@@ -95,9 +95,9 @@ GEM
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
       railties (>= 4)
-    loofah (2.20.0)
+    loofah (2.21.2)
       crass (~> 1.0.2)
-      nokogiri (>= 1.5.9)
+      nokogiri (>= 1.12.0)
     mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
@@ -119,9 +119,9 @@ GEM
       net-protocol
     nio4r (2.5.9)
     nio4r (2.5.9-java)
-    nokogiri (1.14.3-java)
+    nokogiri (1.14.4-java)
       racc (~> 1.4)
-    nokogiri (1.14.3-x86_64-linux)
+    nokogiri (1.14.4-x86_64-linux)
       racc (~> 1.4)
     pry (0.14.2-java)
       coderay (~> 1.1)

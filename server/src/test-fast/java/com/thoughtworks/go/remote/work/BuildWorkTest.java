@@ -68,6 +68,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -620,10 +621,12 @@ class BuildWorkTest {
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut()).contains("Cleaning working directory \"" + workingDir.getAbsolutePath());
-        assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingDir.exists()).isTrue();
-        assertThat(workingDir.listFiles().length).isEqualTo(0);
+        assertSoftly(softly -> {
+            softly.assertThat(artifactManipulator.consoleOut()).contains("Cleaning working directory \"" + workingDir.getAbsolutePath());
+            softly.assertThat(buildRepository.results).containsOnly(Passed);
+            softly.assertThat(workingDir.exists()).isTrue();
+            softly.assertThat(workingDir.listFiles()).isEmpty();
+        });
     }
 
     private void createSymlinkedDirs(Path workingDir) {

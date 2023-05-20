@@ -46,10 +46,10 @@ public class CachedGoConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedGoConfig.class);
     private final GoFileConfigDataSource dataSource;
     private final CachedGoPartials cachedGoPartials;
-    private GoConfigMigrator goConfigMigrator;
-    private MaintenanceModeService maintenanceModeService;
+    private final GoConfigMigrator goConfigMigrator;
+    private final MaintenanceModeService maintenanceModeService;
     private final ServerHealthService serverHealthService;
-    private List<ConfigChangedListener> listeners = new ArrayList<>();
+    private final List<ConfigChangedListener> listeners = new ArrayList<>();
     private volatile CruiseConfig currentConfig;
     private volatile CruiseConfig currentConfigForEdit;
     private volatile CruiseConfig mergedCurrentConfigForEdit;
@@ -68,9 +68,7 @@ public class CachedGoConfig {
     }
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
-        List<ConfigErrors> validationErrors = new ArrayList<>();
-        validationErrors.addAll(config.validateAfterPreprocess());
-        return validationErrors;
+        return new ArrayList<>(config.validateAfterPreprocess());
     }
 
     @TestOnly
@@ -145,7 +143,7 @@ public class CachedGoConfig {
         return saveResult.getConfigSaveState();
     }
 
-    public synchronized void upgradeConfig() throws Exception {
+    public synchronized void upgradeConfig() {
         GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
         saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
     }
@@ -156,10 +154,9 @@ public class CachedGoConfig {
         return saveResult.getConfigSaveState();
     }
 
-    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updateConfigCommand, Username currentUser) {
-        EntityConfigSaveResult entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, this.configHolder, currentUser);
+    public synchronized void writeEntityWithLock(EntityConfigUpdateCommand<?> updateConfigCommand, Username currentUser) {
+        EntityConfigSaveResult<?> entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, this.configHolder, currentUser);
         saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(entityConfigSaveResult);
-        return entityConfigSaveResult;
     }
 
     private <T> void saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(EntityConfigSaveResult<T> saveResult) {
@@ -170,7 +167,7 @@ public class CachedGoConfig {
             if (listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())) {
                 try {
                     long startTime = System.currentTimeMillis();
-                EntityConfigChangedListener<T> entityConfigChangedListener = (EntityConfigChangedListener<T>) listener;
+                    EntityConfigChangedListener<T> entityConfigChangedListener = (EntityConfigChangedListener<T>) listener;
                     entityConfigChangedListener.onEntityConfigChange(saveResult.getEntityConfig());
                     LOGGER.debug("Notifying {} took (in ms): {}", listener.getClass(), (System.currentTimeMillis() - startTime));
                 } catch (Exception e) {
@@ -245,7 +242,4 @@ public class CachedGoConfig {
         return configHolder;
     }
 
-    public boolean hasListener(ConfigChangedListener listener) {
-        return this.listeners.contains(listener);
-    }
 }

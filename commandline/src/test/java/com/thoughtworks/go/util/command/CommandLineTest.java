@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -317,16 +316,18 @@ public class CommandLineTest {
     }
 
     @Test
-    void shouldReturnEchoResult() {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            ConsoleResult result = CommandLine.createCommandLine("cmd").withEncoding(UTF_8).runOrBomb(null);
-            assertThat(result.outputAsString(), containsString("Windows"));
-        } else {
-            String expectedValue = "my input";
-            ConsoleResult result = CommandLine.createCommandLine("echo").withEncoding(UTF_8).withArgs(expectedValue).runOrBomb(null);
-            assertThat(result.outputAsString(), is(expectedValue));
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldReturnEchoResultOnWindows() {
+        ConsoleResult result = CommandLine.createCommandLine("cmd").withEncoding(UTF_8).runOrBomb(null);
+        assertThat(result.outputAsString(), containsString("Windows"));
+    }
 
-        }
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldReturnEchoResultOnPosix() {
+        String expectedValue = "my input";
+        ConsoleResult result = CommandLine.createCommandLine("echo").withEncoding(UTF_8).withArgs(expectedValue).runOrBomb(null);
+        assertThat(result.outputAsString(), is(expectedValue));
     }
 
     @Test

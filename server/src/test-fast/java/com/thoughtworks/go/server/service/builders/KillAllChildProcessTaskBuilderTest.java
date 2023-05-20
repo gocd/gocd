@@ -47,10 +47,10 @@ public class KillAllChildProcessTaskBuilderTest {
     }
 
     @Test
-    @Timeout(value=11, unit=MINUTES)
+    @Timeout(value = 11, unit = MINUTES)
     public void shouldKillAllChildProcessOnBuild() throws Exception {
         ProcessWrapper processWrapper = platformSpecificSleepCommand().withArg(String.valueOf(10 * 60)).withEncoding(UTF_8).execute(ProcessOutputStreamConsumer.inMemoryConsumer(), new EnvironmentVariableContext(),
-                null);//10 mins
+            null);//10 mins
 
         assertThat(processWrapper.isRunning(), is(true));
 
@@ -67,7 +67,7 @@ public class KillAllChildProcessTaskBuilderTest {
     }
 
     private CommandLine platformSpecificSleepCommand() {
-        if(SystemUtils.IS_OS_WINDOWS){
+        if (SystemUtils.IS_OS_WINDOWS) {
             return CommandLine.createCommandLine("powershell").withArg("sleep");
         }
         return CommandLine.createCommandLine("sleep");
@@ -83,6 +83,6 @@ public class KillAllChildProcessTaskBuilderTest {
     public long getSystemTime() {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ?
-                (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;
+            (bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()) : 0L;
     }
 }

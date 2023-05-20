@@ -93,9 +93,6 @@ public class JsonAction implements RestfulAction {
                 configValidity.isType(GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR)) ? jsonConflict(json) : jsonNotFound(json);
     }
 
-    /**
-     * @deprecated replace with createView
-     */
     @Override
     public ModelAndView respond(HttpServletResponse response) {
         return new JsonModelAndView(response, json, status);

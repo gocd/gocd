@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -43,15 +42,15 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.ArgumentCaptor;
 
 import java.io.File;
@@ -104,7 +103,7 @@ public class GoConfigServiceTest {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, this.clock, new GoConfigMigration(new TimeProvider(),
                 registry), goCache, configRepo, registry,
-                instanceFactory, mock(CachedGoPartials.class), systemEnvironment);
+                instanceFactory, mock(CachedGoPartials.class));
     }
 
     @Test
@@ -332,7 +331,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldNotThrowExceptionWhenUpgradeFailsForConfigFileUpdate() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(true);
+        GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(true);
         GoConfigValidity validity = saver.saveXml("some_junk", "junk_md5");
         assertThat(validity.isValid(), is(false));
         assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Error on line 1: Content is not allowed in prolog."));
@@ -341,7 +340,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldProvideDetailsWhenXmlConfigDomIsInvalid() {
         expectLoadForEditing(configWith(createPipelineConfig("pipeline", "stage", "build")));
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
+        GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(false);
         String configContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
                 + "<server artifactsdir='artifactsDir></cruise>";
@@ -353,8 +352,8 @@ public class GoConfigServiceTest {
 
     @Test
     public void xmlPartialSaverShouldReturnTheRightXMLThroughAsXml() {
-        expectLoadForEditing(new GoConfigMother().defaultCruiseConfig());
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(true);
+        expectLoadForEditing(GoConfigMother.defaultCruiseConfig());
+        GoConfigService.XmlPartialSaver<?>saver = goConfigService.fileSaver(true);
         assertThat(saver.asXml(), containsString(String.format("schemaVersion=\"%s\"", GoConstants.CONFIG_SCHEMA_VERSION)));
         assertThat(saver.asXml(), containsString("xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\""));
     }
@@ -437,13 +436,9 @@ public class GoConfigServiceTest {
         }
     }
 
-
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldThrowIfCruiseHasNoReadPermissionOnArtifactsDir() {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            return;
-        }
-
         File artifactsDir = FileUtil.createTempFolder();
         artifactsDir.setReadable(false, false);
         cruiseConfig.setServerConfig(new ServerConfig(artifactsDir.getAbsolutePath(), new SecurityConfig()));
@@ -461,10 +456,8 @@ public class GoConfigServiceTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     public void shouldThrowIfCruiseHasNoWritePermissionOnArtifactsDir() {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            return;
-        }
         File artifactsDir = FileUtil.createTempFolder();
         artifactsDir.setWritable(false, false);
         cruiseConfig.setServerConfig(new ServerConfig(artifactsDir.getAbsolutePath(), new SecurityConfig()));
@@ -700,7 +693,7 @@ public class GoConfigServiceTest {
         expectLoadForEditing(cruiseConfig);
         when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
 
-        GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver(groupName);
+        GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
         assertThat(validity.isValid(), Matchers.is(true));
@@ -731,7 +724,7 @@ public class GoConfigServiceTest {
         when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
-        GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver("group_name");
+        GoConfigService.XmlPartialSaver<?>partialSaver = goConfigService.groupSaver("group_name");
         GoConfigValidity validity = partialSaver.saveXml(groupXmlWithEntity(targetFile.getAbsolutePath()), "md5");
 
         PipelineConfigs group = commandArgumentCaptor.getValue().configForEdit().findGroup("group_name");
@@ -756,7 +749,7 @@ public class GoConfigServiceTest {
         when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
-        GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver(groupName);
+        GoConfigService.XmlPartialSaver<?> partialSaver = goConfigService.groupSaver(groupName);
         String renamedGroupName = "renamed_group_name";
 
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
@@ -1140,15 +1133,7 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid("JDom exception"));
         return new GoConfigService(goConfigDao, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null, null);
-    }
-
-    private GoConfigInvalidException getGoConfigInvalidException() {
-        ConfigErrors configErrors = new ConfigErrors();
-        configErrors.add("command", "command cannot be empty");
-        AllConfigErrors list = new AllConfigErrors();
-        list.add(configErrors);
-        return new GoConfigInvalidException(new BasicCruiseConfig(), list.asString());
+                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null);
     }
 
     private String groupXml(final String groupName) {
@@ -1167,7 +1152,6 @@ public class GoConfigServiceTest {
                 + "    </stage>\n"
                 + "  </pipeline>\n"
                 + "</pipelines>";
-
     }
 
     private String groupXmlWithEntity(String filePathToReferToInEntity) {
@@ -1189,7 +1173,6 @@ public class GoConfigServiceTest {
                 + "    </stage>\n"
                 + "  </pipeline>\n"
                 + "</pipelines>";
-
     }
 
     private String groupXmlWithInvalidElement(final String groupName) {
@@ -1222,6 +1205,4 @@ public class GoConfigServiceTest {
                 + "</pipeline>"
                 + "</pipelines>";
     }
-
-
 }

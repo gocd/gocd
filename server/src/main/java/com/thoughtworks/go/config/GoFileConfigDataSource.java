@@ -287,7 +287,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    public synchronized EntityConfigSaveResult<CruiseConfig> writeEntityWithLock(EntityConfigUpdateCommand<CruiseConfig> updatingCommand, GoConfigHolder configHolder, Username currentUser) {
+    public synchronized EntityConfigSaveResult<?> writeEntityWithLock(EntityConfigUpdateCommand<?> updatingCommand, GoConfigHolder configHolder, Username currentUser) {
         CruiseConfig modifiedConfig = cloner.deepClone(configHolder.configForEdit);
         try {
             updatingCommand.update(modifiedConfig);
@@ -476,7 +476,7 @@ public class GoFileConfigDataSource {
         this.goConfigFileWriter.writeToConfigXmlFile(content);
     }
 
-    private EntityConfigSaveResult<CruiseConfig> trySavingEntity(EntityConfigUpdateCommand<CruiseConfig> updatingCommand, Username currentUser, CruiseConfig modifiedConfig, List<PartialConfig> partials) {
+    private <T> EntityConfigSaveResult<T> trySavingEntity(EntityConfigUpdateCommand<T> updatingCommand, Username currentUser, CruiseConfig modifiedConfig, List<PartialConfig> partials) {
         modifiedConfig.setPartials(partials);
         CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
         MagicalGoConfigXmlLoader.preprocess(preprocessedConfig);

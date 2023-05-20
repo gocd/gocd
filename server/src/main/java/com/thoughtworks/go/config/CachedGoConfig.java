@@ -156,10 +156,9 @@ public class CachedGoConfig {
         return saveResult.getConfigSaveState();
     }
 
-    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updateConfigCommand, Username currentUser) {
-        EntityConfigSaveResult entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, this.configHolder, currentUser);
+    public synchronized void writeEntityWithLock(EntityConfigUpdateCommand<?> updateConfigCommand, Username currentUser) {
+        EntityConfigSaveResult<?> entityConfigSaveResult = dataSource.writeEntityWithLock(updateConfigCommand, this.configHolder, currentUser);
         saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(entityConfigSaveResult);
-        return entityConfigSaveResult;
     }
 
     private <T> void saveValidConfigToCacheAndNotifyEntityConfigChangeListeners(EntityConfigSaveResult<T> saveResult) {

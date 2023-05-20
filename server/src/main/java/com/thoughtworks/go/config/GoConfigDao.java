@@ -84,7 +84,7 @@ public class GoConfigDao {
         return cachedConfigService.currentConfig().getMd5();
     }
 
-    public void updateConfig(EntityConfigUpdateCommand command, Username currentUser) {
+    public void updateConfig(EntityConfigUpdateCommand<?> command, Username currentUser) {
         LOGGER.info("Config update for entity request by {} is in queue - {}", currentUser, command);
         synchronized (GoConfigWriteLock.class) {
             try {

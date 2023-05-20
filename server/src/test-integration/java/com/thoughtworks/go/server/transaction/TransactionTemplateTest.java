@@ -43,14 +43,14 @@ public class TransactionTemplateTest {
     @Autowired private TransactionTemplate goTransactionTemplate;
     @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
 
-    private boolean txnCommited;
+    private boolean txnCommitted;
     private boolean txnCompleted;
 
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;//set in setup
 
     @BeforeEach
     public void setUp() {
-        txnCommited = false;
+        txnCommitted = false;
         txnCompleted = false;
         transactionTemplate = (org.springframework.transaction.support.TransactionTemplate) ReflectionUtil.getField(goTransactionTemplate, "transactionTemplate");
     }
@@ -69,7 +69,7 @@ public class TransactionTemplateTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("foo"));
         }
-        assertThat(txnCommited, is(false));
+        assertThat(txnCommitted, is(false));
         assertThat(txnCompleted, is(true));
     }
 
@@ -87,7 +87,7 @@ public class TransactionTemplateTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("foo"));
         }
-        assertThat(txnCommited, is(false));
+        assertThat(txnCommitted, is(false));
         assertThat(txnCompleted, is(true));
     }
 
@@ -101,7 +101,7 @@ public class TransactionTemplateTest {
                 return "foo";
             }
         });
-        assertThat(txnCommited, is(true));
+        assertThat(txnCommitted, is(true));
         assertThat(txnCompleted, is(true));
         assertThat(returnVal, is("foo"));
     }
@@ -115,7 +115,7 @@ public class TransactionTemplateTest {
                 registerSynchronization();
             }
         });
-        assertThat(txnCommited, is(true));
+        assertThat(txnCommitted, is(true));
         assertThat(txnCompleted, is(true));
         assertThat(returnVal, nullValue());
     }
@@ -128,7 +128,7 @@ public class TransactionTemplateTest {
             registerSynchronization();
             return "foo";
         });
-        assertThat(txnCommited, is(true));
+        assertThat(txnCommitted, is(true));
         assertThat(txnCompleted, is(true));
         assertThat(returnVal, is("foo"));
     }
@@ -428,7 +428,7 @@ public class TransactionTemplateTest {
     private void registerSynchronization() {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override public void afterCommit() {
-                txnCommited = true;
+                txnCommitted = true;
             }
 
             @Override public void afterCompletion(int status) {

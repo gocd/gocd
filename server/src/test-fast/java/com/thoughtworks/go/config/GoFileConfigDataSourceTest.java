@@ -116,7 +116,7 @@ public class GoFileConfigDataSourceTest {
         MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
         FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
-        List<PartialConfig> lastKnownPartials = mock(List.class);
+        List<PartialConfig> lastKnownPartials = mock();
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         when(fullConfigSaveNormalFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class))).
@@ -135,7 +135,7 @@ public class GoFileConfigDataSourceTest {
         MagicalGoConfigXmlLoader.setMd5(configForEdit, "new_md5");
         FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "old_md5");
         GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
-        List<PartialConfig> lastKnownPartials = mock(List.class);
+        List<PartialConfig> lastKnownPartials = mock();
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         when(fullConfigSaveMergeFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class))).
                 thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
@@ -232,7 +232,7 @@ public class GoFileConfigDataSourceTest {
         MagicalGoConfigXmlLoader.setMd5(cruiseConfig, "md5");
         GoConfigHolder goConfigHolder = new GoConfigHolder(cruiseConfig, cruiseConfig);
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<List<PartialConfig>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(systemEnvironment.getCruiseConfigFile()).thenReturn("");
@@ -242,8 +242,7 @@ public class GoFileConfigDataSourceTest {
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(goConfigHolder);
 
-        dataSource.reloadEveryTime();
-        GoConfigHolder configHolder = dataSource.load();
+        GoConfigHolder configHolder = dataSource.reloadEveryTime().load();
 
         assertThat(configHolder, is(goConfigHolder));
         assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
@@ -255,12 +254,12 @@ public class GoFileConfigDataSourceTest {
     public void shouldReloadConfigUsingFullSaveNormalFlowWithLastValidPartialsIfUpdatingWithLastKnownPartialsFails_onLoad() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PartialConfigMother.withPipeline("P1");
-        List lastKnownPartials = List.of(PartialConfigMother.withPipeline("P1"));
-        List lastValidPartials = List.of(PartialConfigMother.withPipeline("P2"), PartialConfigMother.withPipeline("P3"));
+        List<PartialConfig> lastKnownPartials = List.of(PartialConfigMother.withPipeline("P1"));
+        List<PartialConfig> lastValidPartials = List.of(PartialConfigMother.withPipeline("P2"), PartialConfigMother.withPipeline("P3"));
         GoConfigHolder goConfigHolder = new GoConfigHolder(cruiseConfig, cruiseConfig);
 
         ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        @SuppressWarnings("unchecked") ArgumentCaptor<List<PartialConfig>> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         when(systemEnvironment.getCruiseConfigFile()).thenReturn("");
@@ -271,9 +270,8 @@ public class GoFileConfigDataSourceTest {
         when(cachedGoPartials.lastValidPartials()).thenReturn(lastValidPartials);
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture()))
                 .thenThrow(new GoConfigInvalidException(null, Collections.emptyList())).thenReturn(goConfigHolder);
-
-        dataSource.reloadEveryTime();
-        GoConfigHolder configHolder = dataSource.load();
+        
+        GoConfigHolder configHolder = dataSource.reloadEveryTime().load();
 
         assertThat(configHolder, is(goConfigHolder));
         assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));

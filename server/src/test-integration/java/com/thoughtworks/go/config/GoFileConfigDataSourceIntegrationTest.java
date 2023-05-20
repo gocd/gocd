@@ -74,7 +74,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 })
 public class GoFileConfigDataSourceIntegrationTest {
 
-    private final String DEFAULT_CHARSET = "defaultCharset";
     private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     @Autowired
     private GoFileConfigDataSource dataSource;
@@ -224,7 +223,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     }
 
     @Test
-    public void shouldUse_UserFromSession_asConfigModifyingUserWhenNoneGiven() throws GitAPIException, IOException {
+    public void shouldUse_UserFromSession_asConfigModifyingUserWhenNoneGiven() throws GitAPIException {
         com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs("loser_boozer");
         goConfigDao.updateMailHost(getMailHost("mailhost.local"));
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -289,9 +288,9 @@ public class GoFileConfigDataSourceIntegrationTest {
         assertThat(configHolder.configForEdit.getMd5(), is(secondMd5));
         assertThat(configHolder.config.getMd5(), is(secondMd5));
         assertThat(configHolder.configForEdit.getMd5(), is(not(md5)));
-        GoConfigRevision commitedVersion = configRepository.getRevision(secondMd5);
-        assertThat(commitedVersion.getContent(), is(xmlText));
-        assertThat(commitedVersion.getUsername(), is(GoFileConfigDataSource.FILESYSTEM));
+        GoConfigRevision committedVersion = configRepository.getRevision(secondMd5);
+        assertThat(committedVersion.getContent(), is(xmlText));
+        assertThat(committedVersion.getUsername(), is(GoFileConfigDataSource.FILESYSTEM));
     }
 
     @Test
@@ -335,7 +334,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     @Test
     public void shouldEncryptTfsPasswordWhenConfigIsChangedViaFileSystem() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
+        String configContent = ConfigFileFixture.configWithPipeline(
                 "<pipeline name='pipeline1'>"
                         + "    <materials>"
                         + "      <tfs url='http://some.repo.local' username='username@domain' password='password' projectPath='$/project_path' />"
@@ -346,7 +345,7 @@ public class GoFileConfigDataSourceIntegrationTest {
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
-                        + "</pipeline>", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
+                        + "</pipeline>", GoConstants.CONFIG_SCHEMA_VERSION);
         FileUtils.writeStringToFile(dataSource.fileLocation(), configContent, UTF_8);
 
         GoConfigHolder configHolder = dataSource.load();
@@ -358,8 +357,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     @Test
     public void shouldUpdateFileAttributesIfFileContentsHaveNotChanged() throws Exception {//so that it doesn't have to do the file content checksum computation next time
-        dataSource.reloadIfModified();
-        assertThat(dataSource.load(), not(nullValue()));
+        assertThat(dataSource.reloadIfModified().load(), not(nullValue()));
 
         GoFileConfigDataSource.ReloadIfModified reloadStrategy = (GoFileConfigDataSource.ReloadIfModified) ReflectionUtil.getField(dataSource, "reloadStrategy");
 
@@ -394,7 +392,7 @@ public class GoFileConfigDataSourceIntegrationTest {
             }
 
             @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
                 cruiseConfig.addPipeline("g", PipelineConfigMother.pipelineConfig("p1", StageConfigMother.custom("s", "b")));
                 return cruiseConfig;
             }
@@ -509,8 +507,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     @Test
     public void shouldNotReloadIfConfigDoesNotChange() throws Exception {
         try (LogFixture log = logFixtureFor(GoFileConfigDataSource.class, Level.DEBUG)) {
-            dataSource.reloadIfModified();
-            GoConfigHolder loadedConfig = dataSource.load();
+            GoConfigHolder loadedConfig = dataSource.reloadIfModified().load();
             assertThat(log.getLog(), containsString("Config file changed at"));
             assertThat(loadedConfig, not(nullValue()));
             log.clear();
@@ -567,7 +564,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         }
 
         @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+        public CruiseConfig update(CruiseConfig cruiseConfig) {
             cruiseConfig.addPipeline("my-grp", PipelineConfigMother.createPipelineConfig(pipelineName, "stage-other", "job-yet-another"));
             return cruiseConfig;
         }

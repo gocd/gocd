@@ -29,6 +29,7 @@ enum Distro implements DistroBehavior {
         new DistroVersion(version: '3.15', releaseName: '3.15', eolDate: parseDate('2023-11-01')),
         new DistroVersion(version: '3.16', releaseName: '3.16', eolDate: parseDate('2024-05-23')),
         new DistroVersion(version: '3.17', releaseName: '3.17', eolDate: parseDate('2024-11-22')),
+        new DistroVersion(version: '3.18', releaseName: '3.18', eolDate: parseDate('2025-05-09')),
       ]
     }
 

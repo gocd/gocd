@@ -42,7 +42,6 @@ import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceM
 public class PipelineHistoryMother {
     public static final String REVISION = "svn.100";
     public static final String APPROVED_BY = "lgao";
-    private static String md5 = "md5-test";
 
     public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Date modificationDate) {
         return pipelineHistory(pipelineConfig, modificationDate, modificationDate);
@@ -57,10 +56,10 @@ public class PipelineHistoryMother {
     }
 
     public static PipelineInstanceModels pipelineHistory(PipelineConfig pipelineConfig, Date scheduleDate, Date modificationDate, String revision, String committer, String commitMessage,
-                                                         String commiterEmail, String commitedFileName, String dirModified, String label) {
+                                                         String committerEmail, String committedFileName, String dirModified, String label) {
         PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels();
-        Modification modification = new Modification(committer, commitMessage, commiterEmail, modificationDate, revision);
-        modification.createModifiedFile(commitedFileName, dirModified, ModifiedAction.added);
+        Modification modification = new Modification(committer, commitMessage, committerEmail, modificationDate, revision);
+        modification.createModifiedFile(committedFileName, dirModified, ModifiedAction.added);
         MaterialRevisions revisions = new MaterialRevisions();
         Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first());
         material.setId(10);
@@ -80,8 +79,8 @@ public class PipelineHistoryMother {
         List<String> stages = List.of("unit-tests", "integration-tests", "functional-tests");
 
         StageInstanceModels stageInstanceModels = new StageInstanceModels();
-        for (int i = 0; i < stages.size(); i++) {
-            stageInstanceModels.add(stageInstanceModel(pipelineName, pipelineCounter, stages.get(i), "51", scheduled));
+        for (String stage : stages) {
+            stageInstanceModels.add(stageInstanceModel(pipelineName, pipelineCounter, stage, "51", scheduled));
         }
         return createPipeline(pipelineName, pipelineCounter, null, buildCause, stageInstanceModels);
     }
@@ -131,6 +130,7 @@ public class PipelineHistoryMother {
         for (StageConfig stageConfig : pipelineConfig) {
             StageInstanceModel item = new StageInstanceModel(str(stageConfig.name()), "1", buildHistory(stageConfig, modificationDate));
             item.setCounter("1");
+            String md5 = "md5-test";
             item.setApprovalType(new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), md5, new TimeProvider()).getApprovalType());
             if (stageConfig.requiresApproval()) {
                 item.setApprovedBy(APPROVED_BY);
@@ -230,18 +230,6 @@ public class PipelineHistoryMother {
 
     public static JobHistory job(JobState state, JobResult result, Date scheduledDate) {
         return JobHistory.withJob("firstJob", state, result, scheduledDate);
-    }
-
-    public static PipelineModel pipelineWithLatestRevision(MaterialRevisions latest) {
-        PipelineModel pipelineModel = pipeline();
-        pipelineModel.getLatestPipelineInstance().setLatestRevisions(latest);
-        return pipelineModel;
-    }
-
-    public static PipelineModel pipelineWithLatestRevisionAndMaterialRevision(MaterialRevisions latest, MaterialRevisions revision) {
-        PipelineModel pipelineModel = pipelineWithLatestRevision(latest);
-        pipelineModel.getLatestPipelineInstance().setMaterialRevisionsOnBuildCause(revision);
-        return pipelineModel;
     }
 
     public static PipelineModel pipeline() {

@@ -40,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -260,7 +261,7 @@ public class GoFileConfigDataSource {
 
             reloadStrategy.performingReload(result);
 
-            LOGGER.info("Config file changed at {}", result.modifiedTime);
+            LOGGER.info("Config file changed at {}", Instant.ofEpochMilli(result.modifiedTime));
             LOGGER.info("Reloading config file: {}", configFile);
 
             LOGGER.debug("Starting config reload using the optimized flow.");
@@ -268,7 +269,6 @@ public class GoFileConfigDataSource {
         }
     }
 
-    @Deprecated
     @TestOnly
     public synchronized GoConfigHolder write(String configFileContent, boolean shouldMigrate) throws Exception {
         File configFile = fileLocation();
@@ -287,7 +287,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-    public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, Username currentUser) {
+    public synchronized EntityConfigSaveResult<CruiseConfig> writeEntityWithLock(EntityConfigUpdateCommand<CruiseConfig> updatingCommand, GoConfigHolder configHolder, Username currentUser) {
         CruiseConfig modifiedConfig = cloner.deepClone(configHolder.configForEdit);
         try {
             updatingCommand.update(modifiedConfig);
@@ -296,7 +296,7 @@ public class GoFileConfigDataSource {
         }
         List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
         List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
-        if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
+        if (lastKnownPartials.isEmpty() || partials.isEquivalent(lastKnownPartials, lastValidPartials)) {
             return trySavingEntity(updatingCommand, currentUser, modifiedConfig, lastValidPartials);
         }
         try {
@@ -315,7 +315,7 @@ public class GoFileConfigDataSource {
                 GoConfigHolder holder = internalLoad(configAsXml, new ConfigModifyingUser(currentUser.getUsername().toString()), lastKnownPartials);
                 LOGGER.info("Update operation on merged configuration succeeded with {} KNOWN partials. Now there are {} LAST KNOWN partials",
                         lastKnownPartials.size(), cachedGoPartials.lastKnownPartials().size());
-                return new EntityConfigSaveResult(holder.config, holder);
+                return new EntityConfigSaveResult<>(holder.config, holder);
             } catch (Exception exceptionDuringFallbackValidation) {
                 String message = String.format(
                         "Merged config update operation failed using fallback LAST KNOWN %s partials. Exception message was: %s",
@@ -329,7 +329,7 @@ public class GoFileConfigDataSource {
     }
 
     //  This method should be removed once we have API's for all entities which should use writeEntityWithLock and full config save should use writeFullConfigWithLock
-    @Deprecated
+    @TestOnly
     public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         try {
 
@@ -343,7 +343,7 @@ public class GoFileConfigDataSource {
                 validatedConfigHolder = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 updateMergedConfigForEdit(validatedConfigHolder, lastKnownPartials);
             } catch (Exception e) {
-                if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
+                if (lastKnownPartials.isEmpty() || partials.isEquivalent(lastKnownPartials, lastValidPartials)) {
                     throw e;
                 } else {
                     LOGGER.warn("Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials. Exception message was: {}", lastKnownPartials.size(), lastValidPartials.size(), e.getMessage(), e);
@@ -379,7 +379,7 @@ public class GoFileConfigDataSource {
             try {
                 validatedConfigHolder = trySavingConfigWithLastKnownPartials(updatingCommand, configHolder);
             } catch (Exception e) {
-                if (!canUpdateConfigWithLastValidPartials())
+                if (cannotUpdateConfigWithLastValidPartials())
                     throw e;
 
                 LOGGER.warn("Merged config update operation failed on LATEST {} partials. Falling back to using LAST VALID {} partials. Exception message was: {}", cachedGoPartials.lastKnownPartials().size(), cachedGoPartials.lastValidPartials().size(), e.getMessage(), e);
@@ -407,7 +407,8 @@ public class GoFileConfigDataSource {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         magicalGoConfigXmlWriter.write(config, outputStream, skipPreprocessingAndValidation);
         LOGGER.debug("[Config Save] === Done converting config to XML");
-        return outputStream.toString();
+        // FIXME The below using default charset seems like a bug
+        return outputStream.toString(Charset.defaultCharset());
     }
 
     public String getFileLocation() {
@@ -425,7 +426,7 @@ public class GoFileConfigDataSource {
             try {
                 goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastKnownPartials(), FILESYSTEM);
             } catch (GoConfigInvalidException e) {
-                if (!canUpdateConfigWithLastValidPartials())
+                if (cannotUpdateConfigWithLastValidPartials())
                     throw e;
 
                 goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastValidPartials(), FILESYSTEM);
@@ -433,13 +434,7 @@ public class GoFileConfigDataSource {
             reloadStrategy.latestState(goConfigHolder.config);
             return goConfigHolder;
         } catch (Exception e) {
-            LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
-            if (configFile.exists()) {
-                LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
-                LOGGER.warn(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
-                LOGGER.warn("------");
-            }
-            LOGGER.debug("", e);
+            logConfigLoadException(configFile, e);
             throw e;
         }
     }
@@ -453,7 +448,7 @@ public class GoFileConfigDataSource {
                 List<PartialConfig> lastKnownPartials = cloner.deepClone(cachedGoPartials.lastKnownPartials());
                 holder = internalLoad(FileUtils.readFileToString(configFile, UTF_8), new ConfigModifyingUser(FILESYSTEM), lastKnownPartials);
             } catch (GoConfigInvalidException e) {
-                if (!canUpdateConfigWithLastValidPartials()) {
+                if (cannotUpdateConfigWithLastValidPartials()) {
                     throw e;
                 } else {
                     List<PartialConfig> lastValidPartials = cloner.deepClone(cachedGoPartials.lastValidPartials());
@@ -462,26 +457,26 @@ public class GoFileConfigDataSource {
             }
             return holder;
         } catch (Exception e) {
-            LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
-            if (configFile.exists()) {
-                LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
-                LOGGER.warn(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
-                LOGGER.warn("------");
-            }
-            LOGGER.debug("", e);
+            logConfigLoadException(configFile, e);
             throw e;
         }
     }
 
-    protected boolean areKnownPartialsSameAsValidPartials(List<PartialConfig> lastKnownPartials, List<PartialConfig> lastValidPartials) {
-        return partials.isEquivalent(lastKnownPartials, lastValidPartials);
+    private static void logConfigLoadException(File configFile, Exception e) throws Exception {
+        LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
+        if (configFile.exists()) {
+            LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
+            LOGGER.warn(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
+            LOGGER.warn("------");
+        }
+        LOGGER.debug("", e);
     }
 
     private void writeToConfigXmlFile(String content) {
         this.goConfigFileWriter.writeToConfigXmlFile(content);
     }
 
-    private EntityConfigSaveResult trySavingEntity(EntityConfigUpdateCommand updatingCommand, Username currentUser, CruiseConfig modifiedConfig, List<PartialConfig> partials) {
+    private EntityConfigSaveResult<CruiseConfig> trySavingEntity(EntityConfigUpdateCommand<CruiseConfig> updatingCommand, Username currentUser, CruiseConfig modifiedConfig, List<PartialConfig> partials) {
         modifiedConfig.setPartials(partials);
         CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
         MagicalGoConfigXmlLoader.preprocess(preprocessedConfig);
@@ -503,7 +498,7 @@ public class GoFileConfigDataSource {
                     mergedCruiseConfigForEdit.merge(partials, true);
                     LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Done.");
                 }
-                return new EntityConfigSaveResult(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig, mergedCruiseConfigForEdit));
+                return new EntityConfigSaveResult<>(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig, mergedCruiseConfigForEdit));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());
             }
@@ -531,11 +526,11 @@ public class GoFileConfigDataSource {
         return goConfigHolder;
     }
 
-    private boolean canUpdateConfigWithLastValidPartials() {
+    private boolean cannotUpdateConfigWithLastValidPartials() {
         List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
         List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
 
-        return (!lastKnownPartials.isEmpty() && !areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials));
+        return lastKnownPartials.isEmpty() || partials.isEquivalent(lastKnownPartials, lastValidPartials);
     }
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {

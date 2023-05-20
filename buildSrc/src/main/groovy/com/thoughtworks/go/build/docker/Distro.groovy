@@ -263,6 +263,7 @@ enum Distro implements DistroBehavior {
       return alpine.getInstallPrerequisitesCommands(v) +
         [
           'apk add --no-cache sudo',
+          'apk del --purge btrfs-progs', // btrfs is installed by Docker, but requires udev, which causes issues with OSHI on alpine. Dont think we need btrfs here?
         ]
     }
 
@@ -279,7 +280,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: 'dind', releaseName: '23.0.6-dind-alpine3.17', eolDate: parseDate('2099-01-01'))
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
       ]
     }
   }

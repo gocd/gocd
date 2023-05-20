@@ -50,7 +50,6 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.Pair;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
@@ -93,7 +92,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private final GoConfigCloner cloner = new GoConfigCloner();
     private Clock clock = new SystemTimeClock();
     private final InstanceFactory instanceFactory;
-    private final SystemEnvironment systemEnvironment;
     private final MagicalGoConfigXmlLoader xmlLoader;
 
     @Autowired
@@ -104,8 +102,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            ConfigCache configCache,
                            ConfigElementImplementationRegistry registry,
                            InstanceFactory instanceFactory,
-                           CachedGoPartials cachedGoPartials,
-                           SystemEnvironment systemEnvironment) {
+                           CachedGoPartials cachedGoPartials) {
         this.goConfigDao = goConfigDao;
         this.goCache = goCache;
         this.configRepository = configRepository;
@@ -114,7 +111,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         this.upgrader = upgrader;
         this.instanceFactory = instanceFactory;
         this.cachedGoPartials = cachedGoPartials;
-        this.systemEnvironment = systemEnvironment;
         this.xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
@@ -126,9 +122,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            ConfigRepository configRepository,
                            ConfigElementImplementationRegistry registry,
                            InstanceFactory instanceFactory,
-                           CachedGoPartials cachedGoPartials,
-                           SystemEnvironment systemEnvironment) {
-        this(goConfigDao, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials, systemEnvironment);
+                           CachedGoPartials cachedGoPartials) {
+        this(goConfigDao, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials);
         this.clock = clock;
     }
 
@@ -172,7 +167,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
 
-    @Deprecated
+    @TestOnly
     //do not use this method as it is coupled with the origin.
     // ideally these should be two different checks:
     // - pipeline is editable (Not defined in config repository)
@@ -250,10 +245,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().pipelineConfigByName(name);
     }
 
-    public PipelineTemplateConfig templateConfigNamed(final CaseInsensitiveString name) {
-        return getCurrentConfig().findTemplate(name);
-    }
-
     public boolean stageHasTests(String pipelineName, String stageName) {
         return stageConfigNamed(pipelineName, stageName).hasTests();
     }
@@ -285,7 +276,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return goConfigDao.updateConfig(command);
     }
 
-    public void updateConfig(EntityConfigUpdateCommand command, Username currentUser) {
+    public void updateConfig(EntityConfigUpdateCommand<?> command, Username currentUser) {
         goConfigDao.updateConfig(command, currentUser);
     }
 
@@ -323,7 +314,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         if (timeout == null && !"0".equals(serverConfig().getJobTimeout())) {
             return true;
         }
-        return timeout != null && !"0".equals(timeout);
+        return timeout != null;
     }
 
     @TestOnly
@@ -441,13 +432,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getGroups().findGroupByPipeline(pipelineName);
     }
 
-    public void populateAdminModel(Map<String, String> model) {
-        model.put("location", fileLocation());
-        XmlPartialSaver saver = fileSaver(false);
-        model.put("content", saver.asXml());
-        model.put("md5", saver.getMd5());
-    }
-
     public MailHost getMailHost() {
         return serverConfig().mailHost();
     }
@@ -536,18 +520,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return instanceFactory.createStageInstance(pipelineConfig, new CaseInsensitiveString(stageName), context, getCurrentConfig().getMd5(), clock);
     }
 
-    public MaterialConfig findMaterialWithName(final CaseInsensitiveString pipelineName,
-                                               final CaseInsensitiveString materialName) {
-        MaterialConfigs materialConfigs = materialConfigsFor(pipelineName);
-        for (MaterialConfig materialConfig : materialConfigs) {
-            if (materialName.equals(materialConfig.getName())) {
-                return materialConfig;
-            }
-        }
-        LOGGER.error("material [{}] not found in pipeline [{}]", materialName, pipelineName);
-        return null;
-    }
-
     public MaterialConfig findMaterial(final CaseInsensitiveString pipeline, String pipelineUniqueFingerprint) {
         MaterialConfigs materialConfigs = materialConfigsFor(pipeline);
         for (MaterialConfig materialConfig : materialConfigs) {
@@ -626,11 +598,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return command;
     }
 
-
-    public Set<ResourceConfig> getAllResources() {
-        return getCurrentConfig().getAllResources();
-    }
-
     public List<String> getResourceList() {
         ArrayList<String> resources = new ArrayList<>();
         for (ResourceConfig res : getCurrentConfig().getAllResources()) {
@@ -706,12 +673,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    public XmlPartialSaver groupSaver(String groupName) {
-        return new XmlPartialPipelineGroupSaver(groupName, systemEnvironment);
+    public XmlPartialSaver<?> groupSaver(String groupName) {
+        return new XmlPartialPipelineGroupSaver(groupName);
     }
 
-    public XmlPartialSaver fileSaver(final boolean shouldUpgrade) {
-        return new XmlPartialFileSaver(shouldUpgrade, registry, systemEnvironment);
+    public XmlPartialSaver<CruiseConfig> fileSaver(final boolean shouldUpgrade) {
+        return new XmlPartialFileSaver(shouldUpgrade, registry);
     }
 
     public String configFileMd5() {
@@ -827,12 +794,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
-    @Deprecated()
+    @Deprecated
     public GoConfigHolder getConfigHolder() {
         return goConfigDao.loadConfigHolder();
     }
 
-    @Deprecated()
+    @TestOnly
     public CruiseConfig loadCruiseConfigForEdit(Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdmin(username) && !isUserTemplateAdmin(username)) {
             result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
@@ -983,12 +950,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;
-        private final SystemEnvironment systemEnvironment;
         private String md5;
 
-        protected XmlPartialSaver(ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
+        protected XmlPartialSaver(ConfigElementImplementationRegistry registry) {
             this.registry = registry;
-            this.systemEnvironment = systemEnvironment;
             reader = new SAXReader();
             reader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
         }
@@ -1035,7 +1000,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             Document document = reader.read(new StringReader(out.toString()));
             Map<String, String> map = new HashMap<>();
             map.put("go", MagicalGoConfigXmlWriter.XML_NS);
-            //TODO: verify this doesn't cache the factory
             DocumentFactory factory = DocumentFactory.getInstance();
             factory.setXPathNamespaceURIs(map);
             return document;
@@ -1098,9 +1062,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         private final boolean shouldUpgrade;
 
         XmlPartialFileSaver(final boolean shouldUpgrade,
-                            final ConfigElementImplementationRegistry registry,
-                            SystemEnvironment systemEnvironment) {
-            super(registry, systemEnvironment);
+                            final ConfigElementImplementationRegistry registry) {
+            super(registry);
             this.shouldUpgrade = shouldUpgrade;
         }
 
@@ -1126,8 +1089,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private class XmlPartialPipelineGroupSaver extends XmlPartialSaver<Object> {
         private final String groupName;
 
-        public XmlPartialPipelineGroupSaver(String groupName, SystemEnvironment systemEnvironment) {
-            super(registry, systemEnvironment);
+        public XmlPartialPipelineGroupSaver(String groupName) {
+            super(registry);
             this.groupName = groupName;
         }
 

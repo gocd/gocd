@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.domain.ConfigErrors;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.ConfigErrors;
 
 /**
  * @understands a collection of configuration abstractions
@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 @ConfigTag("templates")
 @ConfigCollection(PipelineTemplateConfig.class)
 public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> implements Validatable {
-    public static final String PIPELINE_TEMPLATES_FAKE_GROUP_NAME = "Pipeline Templates";
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public TemplatesConfig() {

@@ -170,7 +170,7 @@ public class GoConfigDao {
     }
 
     public static class CompositeConfigCommand implements UpdateConfigCommand {
-        private List<UpdateConfigCommand> commands = new ArrayList<>();
+        private final List<UpdateConfigCommand> commands = new ArrayList<>();
 
         public CompositeConfigCommand(UpdateConfigCommand... commands) {
             this.commands.addAll(Arrays.asList(commands));
@@ -203,16 +203,12 @@ public class GoConfigDao {
 
             CompositeConfigCommand command = (CompositeConfigCommand) o;
 
-            if (commands != null ? !commands.equals(command.commands) : command.commands != null) {
-                return false;
-            }
-
-            return true;
+            return commands.equals(command.commands);
         }
 
         @Override
         public int hashCode() {
-            return commands != null ? commands.hashCode() : 0;
+            return commands.hashCode();
         }
 
         @Override

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
@@ -64,7 +63,7 @@ public class GoConfigAdministrationController {
 
     @RequestMapping(value = "/admin/restful/configuration/file/GET/xml", method = RequestMethod.GET)
     public void getCurrentConfigXml(@RequestParam(value = "md5", required = false) String md5, HttpServletResponse response) throws Exception {
-        getXmlPartial(null, md5, goConfigService.fileSaver(false)).respond(response);
+        getXmlPartial(md5, goConfigService.fileSaver(false)).respond(response);
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/GET/historical-xml", method = RequestMethod.GET)
@@ -82,12 +81,9 @@ public class GoConfigAdministrationController {
         }
     }
 
-    private RestfulAction getXmlPartial(String groupName, String oldMd5, GoConfigService.XmlPartialSaver xmlPartialSaver) {
-        if (!isTemplate(groupName) && !isCurrentUserAdminOfGroup(groupName)) {
-            return XmlAction.xmlForbidden(errorMessageForGroup(groupName));
-        }
-        if (isTemplate(groupName) && !isCurrentUserAdmin()) {
-            return XmlAction.xmlForbidden(errorMessageForTemplates());
+    private RestfulAction getXmlPartial(String oldMd5, GoConfigService.XmlPartialSaver<?> xmlPartialSaver) {
+        if (!isCurrentUserAdmin()) {
+            return XmlAction.xmlForbidden(forbiddenMessage());
         }
         String xml;
         try {
@@ -104,16 +100,8 @@ public class GoConfigAdministrationController {
         return XmlAction.xmlFound(xml, newMd5);
     }
 
-    private boolean isTemplate(String groupName) {
-        return TemplatesConfig.PIPELINE_TEMPLATES_FAKE_GROUP_NAME.equals(groupName);
-    }
-
-    private String errorMessageForTemplates() {
-        return String.format("User '%s' does not have permission to administer pipeline templates", getCurrentUsername());
-    }
-
-    private String errorMessageForGroup(String groupName) {
-        return String.format("User '%s' does not have permissions to administer pipeline group '%s'", getCurrentUsername(), groupName);
+    private String forbiddenMessage() {
+        return String.format("User '%s' does not have permissions to administer", getCurrentUsername());
     }
 
     @RequestMapping(value = "/admin/restful/configuration/file/POST/xml", method = RequestMethod.POST)
@@ -127,15 +115,12 @@ public class GoConfigAdministrationController {
         if (!isCurrentUserAdmin()) {
             return JsonAction.jsonForbidden().respond(response);
         }
-        return postXmlPartial(null, goConfigService.fileSaver(false), xmlFile, "File changed successfully.", md5).respond(response);
+        return postXmlPartial(goConfigService.fileSaver(false), xmlFile, "File changed successfully.", md5).respond(response);
     }
 
-    private RestfulAction postXmlPartial(String groupName, GoConfigService.XmlPartialSaver xmlPartialSaver, String xmlPartial, String successMessage, String expectedMd5) {
-        if (!isTemplate(groupName) && !isCurrentUserAdminOfGroup(groupName)) {
-            return JsonAction.jsonForbidden(errorMessageForGroup(groupName));
-        }
-        if (isTemplate(groupName) && !isCurrentUserAdmin()) {
-            return JsonAction.jsonForbidden();
+    private RestfulAction postXmlPartial(GoConfigService.XmlPartialSaver<?> xmlPartialSaver, String xmlPartial, String successMessage, String expectedMd5) {
+        if (!isCurrentUserAdmin()) {
+            return JsonAction.jsonForbidden(forbiddenMessage());
         }
         GoConfigValidity configValidity = xmlPartialSaver.saveXml(xmlPartial, expectedMd5);
         if (configValidity.isValid()) {

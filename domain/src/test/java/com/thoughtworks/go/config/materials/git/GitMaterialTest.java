@@ -38,7 +38,6 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -459,7 +458,6 @@ public class GitMaterialTest {
         assertThat(materialRevision.getRevision().getRevision()).isEqualTo(submoduleRepos.currentRevision(GitRepoContainingSubmodule.NAME));
     }
 
-    @NotNull
     private File randomDirectory() throws IOException {
         return TempDirUtils.createRandomDirectoryIn(tempDir).toFile();
     }

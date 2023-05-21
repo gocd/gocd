@@ -18,12 +18,13 @@ description = 'GoCD Plugins Domain'
 
 dependencies {
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
 
-  implementation project(':plugin-infra:go-plugin-api')
+  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
   implementation project.deps.commonsIO
   implementation project.deps.commonsLang3
   testImplementation project.deps.jsonUnit
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockitoCore

@@ -47,7 +47,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -365,7 +364,6 @@ public class ElasticAgentPluginService {
         return HealthStateScope.aboutPlugin(pluginId, "missingPlugin");
     }
 
-    @NotNull
     private HealthStateScope scopeForJob(JobIdentifier jobIdentifier) {
         return forJob(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
     }

@@ -19,8 +19,8 @@ plugins {
 }
 
 dependencies {
-  implementation project(':api:api-base')
-  implementation project(':api:api-abstract-material-test')
+  implementation project(path: ':api:api-base', configuration: 'runtimeElements')
+  implementation project(path: ':api:api-abstract-material-test', configuration: 'runtimeElements')
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 

@@ -19,7 +19,7 @@ plugins {
 }
 
 dependencies {
-  implementation project(':spark:spark-base')
+  implementation project(path: ':spark:spark-base', configuration: 'runtimeElements')
 
   implementation project.deps.freemarker
   implementation project.deps.guava

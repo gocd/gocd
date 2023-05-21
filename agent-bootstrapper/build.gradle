@@ -19,13 +19,13 @@ import com.thoughtworks.go.build.VerifyJarTask
 description = 'GoCD Agent Bootstrapper'
 
 dependencies {
-  implementation project(':agent-common')
+  implementation project(path: ':agent-common', configuration: 'runtimeElements')
 
   testRuntimeOnly project.deps.bouncyCastle
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.mockitoCore
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  extractedAtTopLevel project(':jar-class-loader')
+  extractedAtTopLevel project(path: ':jar-class-loader')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

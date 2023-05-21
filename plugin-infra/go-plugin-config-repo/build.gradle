@@ -17,16 +17,17 @@
 description = 'GoCD Model Contract for (de)Serializing GoCD data structures'
 
 dependencies {
-  implementation project(':base')
-  implementation project(':config:config-api')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
   implementation project.deps.gson
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project.deps.hamcrest
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

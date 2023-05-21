@@ -19,9 +19,10 @@ plugins {
 }
 
 dependencies {
-  implementation project(':api:api-base')
+  implementation project(path: ':api:api-base', configuration: 'runtimeElements')
 
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 
   testImplementation project.deps.junit5Api

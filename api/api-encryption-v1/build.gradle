@@ -19,7 +19,7 @@ plugins {
 }
 
 dependencies {
-  implementation project(':api:api-base')
+  implementation project(path: ':api:api-base', configuration: 'runtimeElements')
   implementation project.deps.tokenBucket
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')

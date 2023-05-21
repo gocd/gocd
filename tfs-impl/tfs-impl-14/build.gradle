@@ -21,7 +21,7 @@ import org.apache.commons.codec.digest.DigestUtils
 description = 'GoCD TFS SDK wrapper v14'
 
 dependencies {
-  implementation project(':common')
+  implementation project(path: ':common', configuration: 'runtimeElements')
   implementation files("${project.buildDir}/tfssdk/lib/com.microsoft.tfs.sdk-${project.versions.tfsSdk}.jar")
   compileOnly project.deps.jetBrainsAnnotations
 

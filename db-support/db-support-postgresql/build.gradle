@@ -21,11 +21,12 @@ configurations.all {
 
 dependencies {
   implementation project.deps.postgresql
-  api project(':db-support:db-support-base')
+  api project(path: ':db-support:db-support-base', configuration: 'runtimeElements')
 
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
 
-  testImplementation project(path: ':db-support:db-migration')
+  testImplementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
   testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
   testImplementation project.deps.testcontainers

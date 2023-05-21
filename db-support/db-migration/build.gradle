@@ -25,6 +25,7 @@ configurations.all {
 
 dependencies {
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
 
   implementation project.deps.commonsDbcp
   implementation project.deps.commonsLang3

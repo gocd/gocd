@@ -214,12 +214,6 @@ allprojects {
         attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR))
       }
     }
-
-    // it's rather convenient to allow compile and runtime classpaths for tests inherit from the main compile classpath
-    testImplementation.extendsFrom compileClasspath
-
-    // this is a sensible default so we don't need to specify an annotation processor dependency twice
-    compileOnly.extendsFrom annotationProcessor
   }
 }
 
@@ -991,7 +985,7 @@ task newApi {
           }
 
           dependencies {
-            implementation project(':api:api-base')
+            implementation project(path: ':api:api-base', configuration: 'runtimeElements')
 
             testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 

@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.util.LogFixture;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -110,7 +109,6 @@ class AgentWorkRetrievalSchedulerTest {
         }
     }
 
-    @NotNull
     private AgentWorkRetrievalScheduler createSchedulerForIterations(final ExponentialBackOff backoffStrategy, final int numIterations) {
         return new AgentWorkRetrievalScheduler(controller, backoffStrategy, taskScheduler) {
             int iterations;

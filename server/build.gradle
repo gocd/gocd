@@ -220,25 +220,25 @@ project.ext.testSystemProperties = props
 dependencies {
   compileOnly project.deps.jetBrainsAnnotations
 
-  apiBase project(':api:api-base')
+  apiBase project(path: ':api:api-base', configuration: 'runtimeElements')
   allApis project(':api').subprojects
   spark project(':spark').subprojects
-  implementation project(':config:config-api')
-  implementation project(':config:config-server')
-  implementation project(':plugin-infra:go-plugin-access')
-  implementation project(':common')
-  implementation project(':rack_hack')
-  implementation project(':db-support:db-migration')
-  implementation project(':db-support:db-support-h2')
-  implementation project(':db-support:db-support-postgresql')
-  implementation project(':db-support:db-support-mysql')
+  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-server', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:go-plugin-access', configuration: 'runtimeElements')
+  implementation project(path: ':common', configuration: 'runtimeElements')
+  implementation project(path: ':rack_hack', configuration: 'runtimeElements')
+  implementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
+  implementation project(path: ':db-support:db-support-h2', configuration: 'runtimeElements')
+  implementation project(path: ':db-support:db-support-postgresql', configuration: 'runtimeElements')
+  implementation project(path: ':db-support:db-support-mysql', configuration: 'runtimeElements')
 
   packagingOnly project.deps.servletApi
 
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  copyOnlyTestData project(':test:test-agent')
+  copyOnlyTestData project(path: ':test:test-agent', configuration: 'runtimeElements')
 
   implementation project.deps.commonsCodec
   implementation project.deps.commonsDbcp
@@ -294,8 +294,9 @@ dependencies {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  compileOnly project(':app-server')
+  compileOnly project(path: ':app-server', configuration: 'runtimeElements')
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
   compileOnly project.deps.logback
   compileOnly project.deps.jettyWebsocket
 
@@ -306,15 +307,15 @@ dependencies {
   testImplementation project(path: ':common', configuration: 'testOutput')
   testImplementation project(path: ':config:config-server', configuration: 'testOutput')
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
-  testImplementation project(path: ':test:test-utils')
-  testImplementation project(':jetty9')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project(path: ':jetty9', configuration: 'runtimeElements')
   testImplementation project.deps.jsonUnit
   testImplementation project.deps.jsoup
   testImplementation project.deps.xmlUnitMatchers
   testImplementation project.deps.assertJ
   testImplementation project.deps.xmlUnit
 
-  testImplementation project(':test:http-mocks')
+  testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
 
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params

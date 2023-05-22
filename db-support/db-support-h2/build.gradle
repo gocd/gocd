@@ -16,9 +16,9 @@
 
 dependencies {
   implementation project.deps.h2
-  api project(':db-support:db-support-base')
+  api project(path: ':db-support:db-support-base', configuration: 'runtimeElements')
 
-  testImplementation project(path: ':db-support:db-migration')
+  testImplementation project(path: ':db-support:db-migration', configuration: 'runtimeElements')
   testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
   testImplementation project.deps.junit5Api

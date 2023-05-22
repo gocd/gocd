@@ -26,9 +26,9 @@ dependencies {
   packagingOnly project.deps.bouncyCastle
   packagingOnly project.deps.bouncyCastlePkix
 
-  implementation project(':agent-common')
+  implementation project(path: ':agent-common', configuration: 'runtimeElements')
 
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testImplementation project.deps.mockitoCore
   testRuntimeOnly project.deps.junit5Engine

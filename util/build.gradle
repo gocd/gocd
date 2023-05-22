@@ -17,13 +17,13 @@
 description = 'GoCD Utils'
 
 dependencies {
-  implementation project(':base')
+  implementation project(path: ':base', configuration: 'runtimeElements')
   api project.deps.springContext
   api project.deps.springWebmvc
   api project.deps.servletApi
   api project.deps.gson
   implementation project.deps.cloning
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.junit5Params

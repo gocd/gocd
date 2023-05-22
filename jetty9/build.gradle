@@ -17,10 +17,10 @@
 description = 'GoCD Jetty9 Bootstrapper'
 
 dependencies {
-  implementation project(':app-server')
-  implementation project(':config:config-server')
-  implementation project(':common')
-  implementation project(':rack_hack')
+  implementation project(path: ':app-server', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-server', configuration: 'runtimeElements')
+  implementation project(path: ':common', configuration: 'runtimeElements')
+  implementation project(path: ':rack_hack', configuration: 'runtimeElements')
   implementation project.deps.slf4j
 
   compileOnly project.deps.jetty
@@ -31,7 +31,9 @@ dependencies {
   compileOnly project.deps.jettyDeploy
   compileOnly project.deps.jettyWebsocket
 
-  testImplementation project(':test:test-utils')
+  testImplementation project.deps.jettyDeploy
+  testImplementation project.deps.jettyJmx
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testImplementation project.deps.junit5Params
   testImplementation project.deps.mockitoCore

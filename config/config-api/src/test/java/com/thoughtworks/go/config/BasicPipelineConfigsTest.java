@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -113,12 +112,9 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         assertThat(group.getGroup(), is(nullValue()));
     }
 
-    @NotNull
     private static Map<String, Object> mapOfNull(String key) {
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(key, null);
         return attributes;
     }
-
-
 }

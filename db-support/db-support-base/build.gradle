@@ -23,6 +23,7 @@ dependencies {
   }
 
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

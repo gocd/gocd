@@ -21,15 +21,15 @@ plugins {
 description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
 dependencies {
-  api project(':plugin-infra:go-plugin-activator')
-  api project(':plugin-infra:go-plugin-api')
-  api project(':plugin-infra:go-plugin-config-repo')
-  api project(':plugin-infra:go-plugin-domain')
-  api project(':plugin-infra:go-plugin-infra')
-  api project(':plugin-infra:plugin-metadata-store')
-  implementation project(':domain')
-  implementation project(':base')
-  implementation project(':config:config-api')
+  api project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
+  api project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
+  api project(path: ':plugin-infra:go-plugin-config-repo', configuration: 'runtimeElements')
+  api project(path: ':plugin-infra:go-plugin-domain', configuration: 'runtimeElements')
+  api project(path: ':plugin-infra:go-plugin-infra', configuration: 'runtimeElements')
+  api project(path: ':plugin-infra:plugin-metadata-store', configuration: 'runtimeElements')
+  implementation project(path: ':domain', configuration: 'runtimeElements')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
   api project.deps.jolt
   api project.deps.joltJsonUtils
   api project.deps.commonsCollections4
@@ -40,7 +40,7 @@ dependencies {
 
   testImplementation localGroovy()
   testImplementation project.deps.jsonUnit
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project(path: ':domain', configuration: 'testOutput')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

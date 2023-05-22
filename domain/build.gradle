@@ -17,12 +17,12 @@
 description = 'GoCD Domain Module'
 
 dependencies {
-  implementation project(':base')
-  implementation project(':util')
-  api project(':db')
-  implementation project(':config:config-api')
-  implementation project(':commandline')
-  implementation project(':plugin-infra:plugin-metadata-store')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':util', configuration: 'runtimeElements')
+  api project(path: ':db', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
+  implementation project(path: ':commandline', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:plugin-metadata-store', configuration: 'runtimeElements')
   implementation(project.deps.apacheAnt)  {
     transitive = false
   }
@@ -38,7 +38,7 @@ dependencies {
   compileOnly project.deps.jetBrainsAnnotations
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project.deps.jsonUnit
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

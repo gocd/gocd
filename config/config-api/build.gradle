@@ -17,12 +17,12 @@
 description = 'GoCD Config API'
 
 dependencies {
-  implementation project(':base')
-  implementation project(':util')
-  implementation project(':plugin-infra:plugin-metadata-store')
-  implementation project(':plugin-infra:go-plugin-domain')
-  implementation project(':plugin-infra:go-plugin-api')
-  implementation project(':db')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':util', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:plugin-metadata-store', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:go-plugin-domain', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
+  implementation project(path: ':db', configuration: 'runtimeElements')
   api project.deps.jakartaAnnotation
 
   implementation project.deps.commonsCodec
@@ -39,9 +39,11 @@ dependencies {
   implementation project.deps.jodaTime
   compileOnly project.deps.bouncyCastle
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation project(':test:test-utils')
+  testRuntimeOnly project.deps.bouncyCastle
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.mockitoCore

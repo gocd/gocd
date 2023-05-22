@@ -17,13 +17,14 @@
 description = 'GoCD commandline Module'
 
 dependencies {
-  implementation project(':base')
-  implementation project(':util')
-  implementation project(':config:config-api')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':util', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest

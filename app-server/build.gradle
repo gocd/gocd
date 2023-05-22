@@ -17,6 +17,6 @@
 description = 'GoCD AppServer Module'
 
 dependencies {
-  implementation project(':base')
+  implementation project(path: ':base', configuration: 'runtimeElements')
   implementation project.deps.servletApi
 }

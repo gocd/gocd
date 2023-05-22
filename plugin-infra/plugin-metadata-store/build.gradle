@@ -18,12 +18,12 @@ description = 'Metadata store for GoCD Plugins'
 
 dependencies {
   implementation project.deps.commonsLang3
-  implementation project(':plugin-infra:go-plugin-api')
-  implementation project(':plugin-infra:go-plugin-domain')
+  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:go-plugin-domain', configuration: 'runtimeElements')
   compileOnly project.deps.jetBrainsAnnotations
 
   testImplementation project.deps.mockitoCore
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

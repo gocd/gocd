@@ -17,7 +17,7 @@
 description = 'Bootloader for GoCD Plugins'
 
 dependencies {
-  implementation project(':plugin-infra:go-plugin-api')
+  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
   api project.deps.felix
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

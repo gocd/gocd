@@ -29,9 +29,11 @@ dependencies {
   api project.deps.jodaTime
   api project.deps.slf4jJcl
   compileOnly project.deps.logback
+  testImplementation project.deps.logback
 
   compileOnly project.deps.jetBrainsAnnotations
 
+  testRuntimeOnly project.deps.bouncyCastle
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.systemStubs

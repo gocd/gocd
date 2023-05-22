@@ -21,21 +21,22 @@ repositories {
 }
 
 dependencies {
-  implementation project(':base')
-  implementation project(':util')
-  implementation project(':plugin-infra:go-plugin-api')
-  implementation project(':plugin-infra:go-plugin-activator')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':util', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:go-plugin-api', configuration: 'runtimeElements')
+  implementation project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
   implementation project.deps.commonsCollections4
   compileOnly project.deps.logback
   api project.deps.jaxbApi
   api project.deps.jaxbRuntime
 
   annotationProcessor project.deps.lombok
+  compileOnly project.deps.lombok
 
   testImplementation project.deps.springTestJunit5
   testImplementation project.deps.mockitoCore
   testImplementation project.deps.mockitoJunit5
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.tinybundles
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

@@ -77,13 +77,13 @@ dependencies {
 
   pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
-  packagingInMainJarTopLevel project(':jetty9')
-  packagingInMainJarTopLevel project(':app-server')
-  packagingInMainJarCommonJar project(':common')
-  packagingInMainJarBaseJar project(':base')
-  packagingInMainJarServerJar project(':server')
+  packagingInMainJarTopLevel project(path: ':jetty9', configuration: 'runtimeElements')
+  packagingInMainJarTopLevel project(path: ':app-server', configuration: 'runtimeElements')
+  packagingInMainJarCommonJar project(path: ':common', configuration: 'runtimeElements')
+  packagingInMainJarBaseJar project(path: ':base', configuration: 'runtimeElements')
+  packagingInMainJarServerJar project(path: ':server', configuration: 'runtimeElements')
 
-  extractedAtTopLevel project(':jar-class-loader')
+  extractedAtTopLevel project(path: ':jar-class-loader', configuration: 'runtimeElements')
 }
 
 task mainJar(type: Jar) {

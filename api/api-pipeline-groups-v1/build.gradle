@@ -19,8 +19,8 @@ plugins {
 }
 
 dependencies {
-  implementation project(':api:api-base')
-  implementation project(':config:config-api')
+  implementation project(path: ':api:api-base', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-api', configuration: 'runtimeElements')
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')

@@ -19,9 +19,9 @@ plugins {
 }
 
 dependencies {
-  implementation project(':app-server')
-  api project(':common')
-  api project(':server')
+  implementation project(path: ':app-server', configuration: 'runtimeElements')
+  api project(path: ':common', configuration: 'runtimeElements')
+  api project(path: ':server', configuration: 'runtimeElements')
 
   implementation platform(project.deps.jacksonBom)
   implementation project.deps.jacksonCore
@@ -34,7 +34,7 @@ dependencies {
   }
 
   testImplementation localGroovy()
-  testImplementation project(path: ':jetty9')
+  testImplementation project(path: ':jetty9', configuration: 'runtimeElements')
   testImplementation project(path: ':jetty9', configuration: 'testOutput')
 
   testImplementation project.deps.junit5Api
@@ -44,5 +44,5 @@ dependencies {
   testImplementation project.deps.assertJ
   testImplementation project.deps.jsonUnit
   testImplementation project.deps.springTest
-  testImplementation project(':test:http-mocks')
+  testImplementation project(path: ':test:http-mocks', configuration: 'runtimeElements')
 }

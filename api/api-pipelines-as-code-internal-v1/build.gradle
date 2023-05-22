@@ -19,8 +19,8 @@ plugins {
 }
 
 dependencies {
-  implementation project(':api:api-base')
-  implementation project(':api:api-shared-v11')
+  implementation project(path: ':api:api-base', configuration: 'runtimeElements')
+  implementation project(path: ':api:api-shared-v11', configuration: 'runtimeElements')
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 

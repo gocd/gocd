@@ -23,10 +23,10 @@ configurations {
 }
 
 dependencies {
-  implementation project(':agent')
-  implementation project(':base')
-  implementation project(':util')
-  copyOnly project(':plugin-infra:go-plugin-activator')
+  implementation project(path: ':agent', configuration: 'runtimeElements')
+  implementation project(path: ':base', configuration: 'runtimeElements')
+  implementation project(path: ':util', configuration: 'runtimeElements')
+  copyOnly project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
 }
 
 def generatedResourcesOutput = file("resources-generated")

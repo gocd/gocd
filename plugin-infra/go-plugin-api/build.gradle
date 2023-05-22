@@ -21,12 +21,12 @@ plugins {
 description = 'Interfaces necessary for GoCD to access plugins'
 
 dependencies {
-  api project(':plugin-infra:go-plugin-api-internal')
+  api project(path: ':plugin-infra:go-plugin-api-internal', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.hamcrest
   testImplementation project.deps.mockitoCore
-  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

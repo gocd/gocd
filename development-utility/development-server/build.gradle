@@ -23,9 +23,9 @@ configurations {
 }
 
 dependencies {
-  implementation project(':server')
-  implementation project(':api').subprojects
-  implementation project(':spark').subprojects
+  implementation project(path: ':server', configuration: 'runtimeElements')
+  implementation project(':api').subprojects.collect { project(path: it.path, configuration: 'runtimeElements') }
+  implementation project(':spark').subprojects.collect { project(path: it.path, configuration: 'runtimeElements') }
   implementation project.deps.jetty
   implementation project.deps.jettyPlus
   implementation project.deps.jettyJmx
@@ -38,7 +38,7 @@ dependencies {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  implementation project(':jetty9')
+  implementation project(path: ':jetty9', configuration: 'runtimeElements')
   implementation project.deps.servletApi
   implementation project.deps.jruby
   implementation project.deps.rack
@@ -47,7 +47,7 @@ dependencies {
   runtimeOnly project.deps.logback
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
-  copyOnly project(':plugin-infra:go-plugin-activator')
+  copyOnly project(path: ':plugin-infra:go-plugin-activator', configuration: 'runtimeElements')
 }
 
 def generatedResourcesOutput = file("resources-generated")

@@ -17,10 +17,12 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.CommandLine;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.ExecScript;
+import com.thoughtworks.go.util.command.InMemoryConsumer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.assertj.core.api.SoftAssertions;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
@@ -89,7 +91,6 @@ public abstract class AbstractCommandBuilderScriptRunnerTest {
     abstract CommandLine commandFor(String executableLocation, String... executableArgs);
 
 
-    @NotNull
     Path executableWithPathSpaces(Path sourceExecutablePath) throws IOException {
         Path executable = Files.createDirectory(tempWorkDir.resolve("Directory With Spaces")).resolve(sourceExecutablePath.getFileName());
         Files.copy(sourceExecutablePath, executable);

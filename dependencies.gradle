@@ -60,7 +60,7 @@ final Map<String, String> libraries = [
   hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
   jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.15.1',
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',
-  jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.1',
+  jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.2',
   javassist           : 'javassist:javassist:3.12.1.GA',
   jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.2',
   jaxen               : 'jaxen:jaxen:2.0.0',

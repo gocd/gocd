@@ -810,16 +810,16 @@
   dependencies:
     "@babel/plugin-transform-react-jsx" "^7.18.6"
 
-"@babel/plugin-transform-react-jsx@^7.18.6", "@babel/plugin-transform-react-jsx@^7.22.0":
-  version "7.22.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-jsx/-/plugin-transform-react-jsx-7.22.0.tgz#5b187d73d43f726a332823012711fd3f3391965c"
-  integrity sha512-Li7gdm7eGZJidME4KlXmzQdnuUwE4jhPnICgGpWN56W7GWhmCQ2LmDepyZX4zBsoSNWP9bqDcJo5wQFndcAd9Q==
+"@babel/plugin-transform-react-jsx@^7.18.6", "@babel/plugin-transform-react-jsx@^7.22.3":
+  version "7.22.3"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-react-jsx/-/plugin-transform-react-jsx-7.22.3.tgz#5a1f380df3703ba92eb1a930a539c6d88836f690"
+  integrity sha512-JEulRWG2f04a7L8VWaOngWiK6p+JOSpB+DAtwfJgOaej1qdbNxqtK7MwTBHjUA10NeFcszlFNqCdbRcirzh2uQ==
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.18.6"
     "@babel/helper-module-imports" "^7.21.4"
     "@babel/helper-plugin-utils" "^7.21.5"
     "@babel/plugin-syntax-jsx" "^7.21.4"
-    "@babel/types" "^7.22.0"
+    "@babel/types" "^7.22.3"
 
 "@babel/plugin-transform-react-pure-annotations@^7.18.6":
   version "7.18.6"
@@ -1009,14 +1009,14 @@
     esutils "^2.0.2"
 
 "@babel/preset-react@^7":
-  version "7.22.0"
-  resolved "https://registry.yarnpkg.com/@babel/preset-react/-/preset-react-7.22.0.tgz#29848f0a9c17cadaf93c3ad3a4bc44c15b2f9f63"
-  integrity sha512-C3U/lfsKJv3eQj0AMoXQTPqGgYXaqiJRLD+FPIKpUv7uppWJAifMCn4CrclCCIW0NH0jY1IXSNYgdKZO0gUEzQ==
+  version "7.22.3"
+  resolved "https://registry.yarnpkg.com/@babel/preset-react/-/preset-react-7.22.3.tgz#2ec7f91d0c924fa2ea0c7cfbbf690bc62b79cd84"
+  integrity sha512-lxDz1mnZ9polqClBCVBjIVUypoB4qV3/tZUDb/IlYbW1kiiLaXaX+bInbRjl+lNQ/iUZraQ3+S8daEmoELMWug==
   dependencies:
     "@babel/helper-plugin-utils" "^7.21.5"
     "@babel/helper-validator-option" "^7.21.0"
     "@babel/plugin-transform-react-display-name" "^7.18.6"
-    "@babel/plugin-transform-react-jsx" "^7.22.0"
+    "@babel/plugin-transform-react-jsx" "^7.22.3"
     "@babel/plugin-transform-react-jsx-development" "^7.18.6"
     "@babel/plugin-transform-react-pure-annotations" "^7.18.6"
 
@@ -1066,10 +1066,10 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@babel/types@^7.22.0":
-  version "7.22.0"
-  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.22.0.tgz#b7383f76a5fedf967c57c1f940066fb31ca3e97a"
-  integrity sha512-NtXlm3f6cNWIv003cETdlz9sss0VMNtplyatFohxWPz90AbwuhCbHbQopkGis6bG1vOunDLN0FF/4Uv5i8LFZQ==
+"@babel/types@^7.22.3":
+  version "7.22.4"
+  resolved "https://registry.yarnpkg.com/@babel/types/-/types-7.22.4.tgz#56a2653ae7e7591365dabf20b76295410684c071"
+  integrity sha512-Tx9x3UBHTTsMSW85WB2kphxYQVvrZ/t1FxD88IpSgIjiUJlCm9z+xWIDwyo1vffTwSqteqyznB8ZE9vYYk16zA==
   dependencies:
     "@babel/helper-string-parser" "^7.21.5"
     "@babel/helper-validator-identifier" "^7.19.1"

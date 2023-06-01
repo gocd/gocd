@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "font-awesome/scss/variables";
-@import "font-awesome/scss/mixins";
+@import "@fortawesome/fontawesome-free/scss/functions";
+@import "@fortawesome/fontawesome-free/scss/variables";
+@import "@fortawesome/fontawesome-free/scss/mixins";
 
 $CONSOLE_SECTION_HEADER: #383838;
 $CONSOLE_SECTION_HEADER_WHITE: #f5f5f5;
@@ -87,8 +88,9 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
 
-  .fa {
-    font-family: FontAwesome;
+  .fas {
+    font-family: $fa-style-family, sans-serif;
+    font-weight: 900;
   }
 
   .white-theme & {
@@ -122,7 +124,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
 
     &::before {
       font-size: 120%;
-      content: $fa-var-caret-right;
+      content: fa-content($fa-var-caret-right);
     }
 
     &:last-child {
@@ -136,7 +138,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
     }
 
     .toggle::before {
-      content: $fa-var-caret-down;
+      content: fa-content($fa-var-caret-down);
     }
   }
 }
@@ -197,6 +199,7 @@ code {
 .log-fs-status {
   &::before {
     @include fa-icon;
+    font-family: $fa-style-family, sans-serif;
 
     position: absolute;
     left: -30px;
@@ -211,7 +214,7 @@ code {
 .log-fs-task-status-passed,
 .log-fs-job-status-passed {
   &::before {
-    content: $fa-var-check;
+    content: fa-content($fa-var-check);
     color: $CONSOLE_PASS;
   }
 
@@ -224,7 +227,7 @@ code {
 .log-fs-job-status-failed,
 .log-fs-publish-failed {
   &::before {
-    content: $fa-var-exclamation-circle;
+    content: fa-content($fa-var-exclamation-circle);
     color: red;
   }
 
@@ -262,7 +265,7 @@ code {
 
 .log-fs-task-status-cancelled {
   &::before {
-    content: $fa-var-ban;
+    content: fa-content($fa-var-ban);
     color: $CONSOLE_CALLOUT;
   }
 

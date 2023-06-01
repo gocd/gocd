@@ -585,7 +585,7 @@ $arrow-color: #000;
 }
 
 .agent-analytics {
-  @include icon-before($type: bar-chart);
+  @include icon-before($type: chart-bar);
 
   padding: 0;
   font-size: 14px;

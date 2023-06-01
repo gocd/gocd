@@ -16,26 +16,28 @@
  * limitations under the License.
  */
 
-$fa-font-path: "font-awesome/fonts";
-
 @import "bourbon/core/bourbon";
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
 
-// this file is a copy of font-awesome.scss, with changes to `path.scss` substituted in this file
-@import "font-awesome/scss/variables";
-@import "font-awesome/scss/mixins";
-@import "font-awesome/scss/core";
-@import "font-awesome/scss/larger";
-@import "font-awesome/scss/fixed-width";
-@import "font-awesome/scss/list";
-@import "font-awesome/scss/bordered-pulled";
-@import "font-awesome/scss/animated";
-@import "font-awesome/scss/rotated-flipped";
-@import "font-awesome/scss/stacked";
-@import "font-awesome/scss/icons";
-@import "font-awesome/scss/screen-reader";
+$fa-font-path: "@fortawesome/fontawesome-free/webfonts";
+$fa-style-family-brands: "#{str-slice($fa-style-family, 1, -5)} Brands";
+
 @include font-face(
-  $font-family: "FontAwesome",
-  $file-path: "#{$fa-font-path}/fontawesome-webfont",
-  $file-formats: ("woff2", "woff"),
+  $font-family: $fa-style-family,
+  $file-path: "#{$fa-font-path}/fa-solid-900",
+  $file-formats: ("woff2"),
   $asset-pipeline: true
-);
+) {
+  font-style: normal;
+  font-weight: 900;
+}
+
+@include font-face(
+  $font-family: $fa-style-family-brands,
+  $file-path: "#{$fa-font-path}/fa-brands-400",
+  $file-formats: ("woff2"),
+  $asset-pipeline: true
+) {
+  font-style: normal;
+  font-weight: 400;
+}

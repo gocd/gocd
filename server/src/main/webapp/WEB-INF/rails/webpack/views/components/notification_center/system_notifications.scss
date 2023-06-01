@@ -39,7 +39,7 @@ $icon-background: #e0dede;
 }
 
 .bell {
-  @include icon-before($fa-var-bell-o, $color: $header-text-color);
+  @include icon-before($fa-var-bell, $color: $header-text-color);
 
   font-size: 18px;
 

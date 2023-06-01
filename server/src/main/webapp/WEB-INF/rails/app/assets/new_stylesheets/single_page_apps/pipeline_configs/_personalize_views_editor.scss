@@ -85,7 +85,7 @@ $icon-color: #647984;
   z-index: 100;
 
   .close-button {
-    @include icon-before($type: close);
+    @include icon-before($type: xmark);
 
     position: absolute;
     right: 20px;
@@ -380,7 +380,7 @@ $icon-color: #647984;
 }
 
 .btn-delete {
-  @include icon-before($type: trash, $margin: 0 10px 0 0, $progress-spinner: true);
+  @include icon-before($type: trash-can, $margin: 0 10px 0 0, $progress-spinner: true);
 
   float: left;
   background: #fff;

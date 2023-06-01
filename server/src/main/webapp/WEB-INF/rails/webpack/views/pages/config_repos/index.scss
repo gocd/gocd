@@ -40,7 +40,7 @@ $input-length-for-rules: 300px;
 }
 
 .error-last-modification-icon {
-  @include key-pair-icon($type: $fa-var-remove, $color: $failed);
+  @include key-pair-icon($type: $fa-var-xmark, $color: $failed);
 
   margin-right: 10px;
 }

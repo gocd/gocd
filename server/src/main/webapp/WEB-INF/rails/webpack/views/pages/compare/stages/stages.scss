@@ -58,14 +58,14 @@ $icon-size: 10px;
 }
 
 .cancelled {
-  @include icon-before($fa-var-ban, $icon-size, 0);
+  @include icon-before($fa-var-ban, $icon-size, 1px);
 
   color: $black;
   background: transparent url("../../../../../app/assets/images/building.png");
 }
 
 .failed {
-  @include icon-before($fa-var-info-circle, $icon-size, 0);
+  @include icon-before($fa-var-exclamation-circle, $icon-size, 1px);
 
   background: $failed;
 }
@@ -75,7 +75,7 @@ $icon-size: 10px;
 }
 
 .passed {
-  @include icon-before($fa-var-check, $icon-size, 0);
+  @include icon-before($fa-var-check, $icon-size, 1px);
 
   background: $passed;
 }

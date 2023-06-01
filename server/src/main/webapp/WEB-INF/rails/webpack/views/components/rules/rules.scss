@@ -67,7 +67,7 @@
 }
 
 .icon-delete {
-  @include icon-before($type: $fa-var-times);
+  @include icon-before($type: $fa-var-xmark);
 
   border: none;
   display: inline;

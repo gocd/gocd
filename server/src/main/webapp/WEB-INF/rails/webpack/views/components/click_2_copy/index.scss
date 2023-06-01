@@ -53,7 +53,7 @@ $overlay-index: 10;
   }
 
   &.icon-fail {
-    @include icon-before($fa-var-times, $color: $go-danger);
+    @include icon-before($fa-var-xmark, $color: $go-danger);
   }
 
   &.icon-ellipsis {

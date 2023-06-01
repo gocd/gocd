@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "~font-awesome/scss/variables";
+@import "@fortawesome/fontawesome-free/scss/functions";
+@import "@fortawesome/fontawesome-free/scss/variables";
 
 @mixin icon-only($type, $font: "font-awesome") {
   @if $font == "font-awesome" {
-    // stylelint-disable font-family-no-missing-generic-family-keyword
-    font-family: FontAwesome;
-    // stylelint-enable font-family-no-missing-generic-family-keyword
-    content: $type;
+    font-family: $fa-style-family, sans-serif;
+    font-weight: 900;
+  } @else if $font == "font-awesome-brands" {
+    font-family: "#{str-slice($fa-style-family, 1, -5)} Brands", sans-serif;
+    font-weight: 400;
   } @else {
     @error "Could not find font family #{$font}";
   }
+
+  content: fa-content($type);
 }
 
 @mixin icon(
@@ -37,7 +41,6 @@
   $font: "font-awesome") {
   @include icon-only($type: $type, $font: $font);
 
-  font-weight: normal;
   font-style: normal;
   display: inline-block;
   text-decoration: inherit;

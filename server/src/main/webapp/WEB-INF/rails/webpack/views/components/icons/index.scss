@@ -59,15 +59,15 @@ $console-icon-color: #fff;
 }
 
 .settings {
-  @include icon-before($type: $fa-var-cog);
+  @include icon-before($type: $fa-var-gear);
 }
 
 .analytics {
-  @include icon-before($type: $fa-var-bar-chart);
+  @include icon-before($type: $fa-var-chart-bar);
 }
 
 .edit {
-  @include icon-before($type: $fa-var-pencil-square-o);
+  @include icon-before($type: $fa-var-edit);
 }
 
 .view {
@@ -80,7 +80,7 @@ $console-icon-color: #fff;
 
 // delete is a keyword, a literal syntax; can't be accessed using styles.delete hence renaming it to remove
 .remove {
-  @include icon-before($type: $fa-var-trash);
+  @include icon-before($type: $fa-var-trash-can);
 }
 
 .lock {
@@ -88,7 +88,7 @@ $console-icon-color: #fff;
 }
 
 .close {
-  @include icon-before($type: $fa-var-times);
+  @include icon-before($type: $fa-var-xmark);
 }
 
 .question {
@@ -116,11 +116,11 @@ $console-icon-color: #fff;
 }
 
 .refresh {
-  @include icon-before($type: $fa-var-refresh);
+  @include icon-before($type: $fa-var-sync);
 }
 
 .usage {
-  @include icon-before($type: $fa-var-pie-chart);
+  @include icon-before($type: $fa-var-chart-pie);
 }
 
 .minus {
@@ -174,7 +174,7 @@ $console-icon-color: #fff;
 }
 
 .chevron-right-round {
-  @include icon-before($type: $fa-var-arrow-circle-o-right);
+  @include icon-before($type: $fa-var-arrow-alt-circle-right);
 }
 
 .trigger {
@@ -182,7 +182,7 @@ $console-icon-color: #fff;
 }
 
 .repeat {
-  @include icon-before($type: $fa-var-repeat);
+  @include icon-before($type: $fa-var-rotate-right);
 }
 
 .comment {

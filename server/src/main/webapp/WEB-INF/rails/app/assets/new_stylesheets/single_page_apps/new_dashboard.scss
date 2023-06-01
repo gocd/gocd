@@ -33,6 +33,7 @@
 $dark-gray: #333;
 $pipeline-icons-size: 16px;
 $icon-color: #647984;
+$icon-size: 12px;
 $filter-width: 362px;
 $pipeline-list-height: 265px;
 $modal-header-height: 55px;
@@ -379,7 +380,7 @@ body {
 }
 
 .pipeline-analytics {
-  @include icon-before($type: bar-chart);
+  @include icon-before($type: chart-bar);
 
   padding: 0;
   font-size: $pipeline-icons-size;
@@ -584,14 +585,14 @@ body {
     text-align: center;
 
     &.passed {
-      @include icon-before($passed-icon, 12px, 0);
+      @include icon-before($passed-icon, $icon-size, 1.5px);
 
       background: $passed;
       color: #fff;
     }
 
     &.failed {
-      @include icon-before($failed-icon, 12px, 0);
+      @include icon-before($failed-icon, $icon-size, 1.5px);
 
       background: $failed;
       color: #fff;
@@ -619,7 +620,7 @@ body {
     }
 
     &.cancelled {
-      @include icon-before($cancelled-icon, 12px, 0);
+      @include icon-before($cancelled-icon, $icon-size, 1.5px);
 
       background: $building;
       color: $dark-gray;

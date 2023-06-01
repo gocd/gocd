@@ -429,7 +429,7 @@ button {
 }
 
 .revert {
-  @include icon-before($type: close);
+  @include icon-before($type: xmark);
 
   position: absolute;
   right: 5px;

@@ -3,7 +3,7 @@ export const animate: string;
 export const bar: string;
 export const caretDownIcon: string;
 export const caret_down_icon: string;
-export const fa: string;
+export const fas: string;
 export const gocdLogo: string;
 export const gocd_logo: string;
 export const isDropDown: string;

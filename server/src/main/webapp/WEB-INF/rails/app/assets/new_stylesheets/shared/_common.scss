@@ -66,7 +66,7 @@ $auth-config-icon-text-padding: 20px;
 }
 
 .delete-button {
-  @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
+  @include icon-before($type: trash-can, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
 
 .app-footer {

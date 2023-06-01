@@ -21,6 +21,7 @@
     "postinstall": "patch-package --patch-dir spec/javascripts/support"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.4.0",
     "@shopify/draggable": "^1.0.0-beta.12",
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.5",
@@ -30,7 +31,6 @@
     "classnames": "^2.3.2",
     "core-js": "^3.30.2",
     "filesize": "^10.0.7",
-    "font-awesome": "^4.7.0",
     "foundation-sites": "=6.4.3",
     "hack-font": "^3.3.0",
     "jquery": "^3.7.0",

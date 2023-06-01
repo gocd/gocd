@@ -199,7 +199,7 @@
       if (!section.priv.multiline) {
         section.body = cursor.body = c("dd", {class: "fs-multiline"});
         cursor.appendChild(cursor.body);
-        section.insertBefore(c("a", {class: "fa toggle"}), section.childNodes[0]);
+        section.insertBefore(c("a", {class: "fas toggle"}), section.childNodes[0]);
         section.priv.multiline = true;
       }
     }

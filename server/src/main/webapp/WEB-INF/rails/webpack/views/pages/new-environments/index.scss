@@ -88,7 +88,7 @@ $border-color: #ddd;
 }
 
 .warning-icon {
-  @include icon-before($type: $fa-var-info-circle, $color: darken($warning, 30%));
+  @include icon-before($type: $fa-var-exclamation-circle, $color: darken($warning, 30%));
 
   &::before {
     font-size: 20px;

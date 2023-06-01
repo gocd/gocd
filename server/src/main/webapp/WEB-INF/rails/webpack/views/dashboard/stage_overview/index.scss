@@ -373,7 +373,7 @@ $dark-gray: #2f4f4f;
   &::before {
     position: relative;
     top: -4px;
-    left: -1.5px;
+    left: -0.7px;
   }
 }
 
@@ -385,7 +385,7 @@ $dark-gray: #2f4f4f;
   &::before {
     position: relative;
     top: -4px;
-    left: -0.7px;
+    left: -1.5px;
   }
 }
 
@@ -397,7 +397,7 @@ $dark-gray: #2f4f4f;
   &::before {
     position: relative;
     top: -4px;
-    left: -0.7px;
+    left: -1.5px;
   }
 }
 
@@ -409,10 +409,10 @@ $dark-gray: #2f4f4f;
 .rerun-wrapper {
   transform: rotate(150deg);
   font-weight: 900;
-  font-size: 14px;
+  font-size: 12px;
   position: relative;
-  left: 38px;
-  top: 29px;
+  left: 39px;
+  top: 30px;
   width: 0;
   height: 0;
   color: $dark-gray;
@@ -776,14 +776,14 @@ $dark-gray: #2f4f4f;
 }
 
 .asc {
-  @include icon-before($fa-var-sort-asc);
+  @include icon-before($fa-var-sort-up);
 
   color: $dark-gray;
   margin-left: 2px;
 }
 
 .desc {
-  @include icon-before($fa-var-sort-desc);
+  @include icon-before($fa-var-sort-down);
 
   color: $dark-gray;
   margin-left: 2px;

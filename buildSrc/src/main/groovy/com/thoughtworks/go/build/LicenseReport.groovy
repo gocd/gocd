@@ -49,6 +49,7 @@ class LicenseReport {
     MIT,
     MPL_1_1,
     MPL_2_0_EPL_1_0,
+    OFL_1_1,
     PLEXUS,
     PUBLIC_DOMAIN,
     UNLICENSE,

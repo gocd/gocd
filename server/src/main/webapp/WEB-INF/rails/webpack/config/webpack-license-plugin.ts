@@ -56,6 +56,16 @@ export class LicensePlugins {
             }
           });
         });
+        compilation.modules
+          .filter((module) => module.resource && /\.(scss|sass)$/.test(module.resource))
+          .forEach((module) => {
+            filenames.push(module.resource);
+            if (module.buildInfo.fileDependencies) {
+              module.buildInfo.fileDependencies.forEach((e: string) => {
+                filenames.push(e);
+              });
+            }
+          });
         callback();
 
         const licenseReport = _.chain(filenames)
@@ -80,7 +90,7 @@ export class LicensePlugins {
                                  const licenseDataForModule = licenseData[moduleNameWithVersion];
 
                                  if (licenseDataForModule) {
-                                   const moduleVersion = moduleNameWithVersion.split("@")[1];
+                                   const moduleVersion = moduleNameWithVersion.split("@").slice(-1)[0];
 
                                    if (licenseDataForModule.licenseFile) {
                                      const licenseReportDirForModule = path.join(path.dirname(this.licenseReportFile),
@@ -99,7 +109,7 @@ export class LicensePlugins {
                                      moduleLicenses: [
                                        {
                                          moduleLicense: licenseDataForModule.licenses,
-                                         moduleLicenseUrl: `https://spdx.org/licenses/${licenseDataForModule.licenses}.html`
+                                         moduleLicenseUrl: /^[A-Z\-.]+$/i.test(`${licenseDataForModule.licenses}`) ? `https://spdx.org/licenses/${licenseDataForModule.licenses}.html` : null,
                                        }
                                      ]
                                    };

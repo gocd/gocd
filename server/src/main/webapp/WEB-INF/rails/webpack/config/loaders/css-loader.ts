@@ -54,9 +54,6 @@ export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.R
         options: {
           sourceMap: true
         }
-      },
-      {
-        loader: path.resolve(__dirname, "custom-loader"),
       }
     ]
   };

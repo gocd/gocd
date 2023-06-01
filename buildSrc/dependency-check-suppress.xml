@@ -262,7 +262,16 @@
     <sha1>d4d159a789c5446eea7edc184cab9adab12baa1c</sha1>
     <cve>CVE-2023-26119</cve>
   </suppress>
-  
+    
+  <suppress until="2023-07-01Z">
+    <notes><![CDATA[
+    Time-limited suppression from JRuby dependency protobuf_java.jar via embedded com.google.guava:guava:31.1-jre for which there is no released version
+    with a fix (requires upgrade to guava 32)
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+    <cve>CVE-2023-2976</cve>
+  </suppress>
+
   <suppress until="2023-07-01Z">
     <notes><![CDATA[
     Time-limited suppression of issue from plugins-*.zip > gocd-yaml-config-plugin.jar (shaded: org.yaml:snakeyaml:1.32) pending release of

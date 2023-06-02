@@ -91,7 +91,7 @@ GEM
       activesupport (>= 5.0)
     google-protobuf (3.23.2-java)
     google-protobuf (3.23.2-x86_64-linux)
-    i18n (1.13.0)
+    i18n (1.14.0)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
       railties (>= 4)

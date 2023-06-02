@@ -30,7 +30,6 @@ describe "admin/configuration/split_pane.html.erb" do
     render
 
     Capybara.string(response.body).find('div.heading').tap do |div|
-      expect(div).to have_selector("h2", :text => "Configuration File")
       expect(div).to have_selector("span", :text => "Configuration File Path:")
       expect(div).to have_selector("span", :text => "path_to_config_xml")
     end

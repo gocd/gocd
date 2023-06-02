@@ -612,11 +612,9 @@ div#tab_container {
 }
 
 #group_edit_form .form_buttons .submit,
-#pipeline_snippet_view #view_group .link_as_button,
+#pipeline_snippet_view #view_group .form_buttons .link_as_button,
 #pipeline_snippet_edit #edit_group .form_buttons .link_as_button,
 button.submit {
-  background: #ccc;
-  color: #333 !important;
   font-size: rem-calc(13px);
   font-weight: 600;
   border: 0;
@@ -1818,7 +1816,7 @@ code,
 }
 
 .admin-tab-contents {
-  padding: 20px 30px;
+  padding: 0 30px;
 
   h1 {
     font-weight: 600;
@@ -1840,13 +1838,8 @@ code,
   }
 
   .heading {
-    border-bottom: 1px solid $border-color;
     padding-bottom: 10px;
     margin-bottom: 20px;
-
-    h2 {
-      font-size: 20px;
-    }
 
     span {
       margin-top: 12px;

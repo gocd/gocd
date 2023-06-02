@@ -19,10 +19,13 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+@ExtendWith(SpringExtension.class)
 public class MaterialDatabaseHgUpdaterTest extends TestBaseForDatabaseUpdater {
     @Override
     protected Material material() {

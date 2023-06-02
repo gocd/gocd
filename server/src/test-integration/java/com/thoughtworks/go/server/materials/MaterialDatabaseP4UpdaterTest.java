@@ -20,10 +20,13 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.P4TestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.TempDirUtils;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+@ExtendWith(SpringExtension.class)
 public class MaterialDatabaseP4UpdaterTest extends TestBaseForDatabaseUpdater {
     @Override
     protected Material material() {

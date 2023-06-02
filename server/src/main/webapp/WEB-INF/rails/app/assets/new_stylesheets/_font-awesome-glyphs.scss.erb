@@ -13,9 +13,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *  ---- WARNING ----
+ * Do not add any imports to this file. It is intended as pure-mixins, as comments in shared/_mixins.scss
+ * If you add imports here they will end up creation a lot of duplicated CSS, especially from
+ * fontawesome due to size and the number of places this is imported.
  */
-@import "font-awesome-sprockets";
-@import "bourbon/core/bourbon";
 
 <%
   variables = {}
@@ -44,14 +47,12 @@ $fa-font-icons: (
   }
 }
 
-$fa-style-family-brands: "#{str-slice($fa-style-family, 1, -5)} Brands";
-
 @mixin icon-only($type, $font: "font-awesome") {
   @if $font == "font-awesome" {
-    font-family: $fa-style-family, sans-serif;
+    font-family: "Font Awesome 6 Free", sans-serif;
     font-weight: 900;
   } @else if $font == "font-awesome-brands" {
-    font-family: $fa-style-family-brands, sans-serif;
+    font-family: "Font Awesome 6 Brands", sans-serif;
     font-weight: 400;
   } @else {
     @error "Could not find font family #{$font}";

@@ -443,8 +443,7 @@ $arrow-border-active-color: lighten(#000, 50%);
 
 // tab style
 
-.sub_tab_container,
-.agent_details {
+.sub_tab_container {
   .sub_tabs_container {
     margin-bottom: 0;
     background: none !important;
@@ -518,7 +517,6 @@ $arrow-border-active-color: lighten(#000, 50%);
     }
   }
 
-  &.project_management,
   &.general,
   &.materials,
   &.stages,
@@ -596,7 +594,6 @@ div#tab_container {
 }
 
 .general li#general a,
-.project_management li#project_management a,
 .materials li#materials a,
 .stages li#stages a,
 .environment_variables li#environment_variables a,
@@ -604,13 +601,9 @@ div#tab_container {
 .permissions li#permissions a,
 .stage li#stage a,
 .jobs li#jobs a,
-.stage_variables li#stage_variables a,
 .settings li#settings a,
 .tasks li#tasks a,
-.artifacts li#artifacts a,
-.jobs_variables li#jobs_variables a,
-.tabs li#tabs a,
-.jobs_permissions li#jobs_permissions a {
+.artifacts li#artifacts a {
   color: #333;
   background: $current-tab-bg;
   position: relative;
@@ -619,11 +612,9 @@ div#tab_container {
 }
 
 #group_edit_form .form_buttons .submit,
-#pipeline_snippet_view #view_group .link_as_button,
+#pipeline_snippet_view #view_group .form_buttons .link_as_button,
 #pipeline_snippet_edit #edit_group .form_buttons .link_as_button,
 button.submit {
-  background: #ccc;
-  color: #333 !important;
   font-size: rem-calc(13px);
   font-weight: 600;
   border: 0;
@@ -1458,21 +1449,6 @@ a:visited.help {
   }
 }
 
-.unpause_wrapper button.primary {
-  background-color: #666 !important;
-  height: 22px;
-  border: 1px solid #666;
-
-  &:hover {
-    background-color: #666 !important;
-  }
-}
-
-.pause_wrapper button.submit {
-  height: 22px;
-  border: 1px solid #ccc;
-}
-
 #stages .build_cause .modified_files div {
   padding: 2px 5px 5px 20px;
 }
@@ -1679,19 +1655,6 @@ input#search_id {
   margin-top: 0;
 }
 
-.tristate {
-  background-position: 0 5px;
-}
-
-.promote_button {
-  background-color: transparent;
-
-  .promote_up,
-  .promote_down {
-    background-color: transparent;
-  }
-}
-
 table.variables th {
   font-size: 14px;
   padding-bottom: 5px;
@@ -1724,24 +1687,6 @@ table.variables th {
 
 .build_detail .sidebar_history .time_ago {
   margin-left: 0 !important;
-}
-
-.changes_button_wrapper button.submit,
-.operate button.submit,
-.deploy button.submit,
-.pause_wrapper button.submit {
-  background-color: #dedede;
-}
-
-.exec_task_editor {
-  label.inline {
-    display: inline-block;
-    margin-bottom: 5px;
-  }
-
-  textarea.exec-task-arguments {
-    height: 100px;
-  }
 }
 
 #content_area textarea {
@@ -1871,7 +1816,7 @@ code,
 }
 
 .admin-tab-contents {
-  padding: 20px 30px;
+  padding: 0 30px;
 
   h1 {
     font-weight: 600;
@@ -1879,37 +1824,6 @@ code,
     border-bottom: 1px solid $border-color;
     font-size: 20px;
     padding-bottom: 10px;
-  }
-
-  .title_secondary_info {
-    float: right;
-  }
-
-  .title_action_wrapper {
-    ul {
-      margin-top: 1px;
-      margin-left: 10px;
-
-      li {
-        a {
-          margin-left: 0;
-          padding-left: 10px;
-        }
-
-        .delete_icon_disabled {
-          margin-top: 3px;
-        }
-
-        .delete_icon {
-          margin-left: 10px;
-          padding-left: 0;
-        }
-
-        > span {
-          padding-left: 10px;
-        }
-      }
-    }
   }
 
   h2.entity_title {
@@ -1923,22 +1837,9 @@ code,
     background-position: -8px -10px;
   }
 
-  .list_table {
-    .actions {
-      .delete_icon_disabled {
-        margin-top: 3px;
-      }
-    }
-  }
-
   .heading {
-    border-bottom: 1px solid $border-color;
     padding-bottom: 10px;
     margin-bottom: 20px;
-
-    h2 {
-      font-size: 20px;
-    }
 
     span {
       margin-top: 12px;
@@ -1962,35 +1863,6 @@ code,
 
 #tab-content-of-source-xml .heading h2 {
   font-size: 20px;
-}
-
-.job_tabs_section,
-.artifact {
-  span.contextual_help {
-    position: relative;
-    top: -13px;
-  }
-}
-
-.on_cancel_task {
-  .task_entry {
-    clear: both;
-    float: left;
-    width: 100%;
-  }
-}
-
-.agent_details_pane div {
-  clear: both;
-}
-
-.path_textbox {
-  box-shadow: none;
-
-  label {
-    padding: 7px 4px 7px 6px;
-    background: #e5e5e5;
-  }
 }
 
 .content_wrapper_outer {

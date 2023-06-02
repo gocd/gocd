@@ -26,22 +26,19 @@
  *
  * The order in which the files are added below is the order in which they would be added in the concatenated application.css file.
  *
- *= require_self
- *= require "./_reset-fonts-grids-fix"
- *= require "./application"
- *= require "./_application-old"
- *= require "./_build_list"
- *= require "./_changes"
- *= require "./_global"
- *= require "./_menu"
- *= require "./_pipeline-history"
- *= require "./_pipeline-tab"
- *= require "./_rounded_corner"
- *= require "./_stage-detail"
- *= require "./_build_common"
- *= require "./_build_detail"
- *= require "./_console-log"
- *= require "./transparent_message"
- *= require "./_ui"
- *= require "./_sub_tab"
  */
+
+@import "reset-fonts-grids-fix";
+@import "application-old";
+@import "build_list";
+@import "changes";
+@import "global";
+@import "menu";
+@import "rounded_corner";
+@import "stage-detail";
+@import "build_common";
+@import "build_detail";
+@import "console-log";
+@import "transparent_message";
+@import "ui";
+@import "sub_tab";

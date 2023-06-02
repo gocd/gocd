@@ -55,48 +55,11 @@ ul#head-links {
   color: #fff !important;
 }
 
-ul#tabs li a,
-ul#tabs li a:visited,
-ul#tabs li span,
-ul#tabs li.admin {
-  background: none;
-  margin: 0;
-}
-
-ul#tabs li {
-  margin: 0;
-}
-
-ul#tabs li {
-  background-image: image_url("bg-header-tabs.png") !important;
-  background-position: left 50%;
-  background-repeat: repeat-x;
-}
-
-ul#tabs li {
-  background-color: #444034;
-  border-color: #343226 -moz-use-text-color #343226 #343226;
-  border-style: solid none solid solid;
-  border-width: 1px medium 1px 1px;
-  display: inline;
-  padding: 1.5em 0;
-}
-
-ul#tabs li {
-  list-style-image: none;
-  list-style-position: outside;
-  list-style-type: none;
-}
-
 /*
  * #BD  // the main body region overrides
  */
 #bd {
   background: #fff;
-
-  /* border: 2px solid #A6A080; */
-
-  /* margin: 0 20px; */
   clear: both;
 }
 
@@ -113,35 +76,6 @@ ul#tabs li {
   padding: 0;
 }
 
-ul#tabs li {
-  padding: 1em 0;
-  font-family: helvetica, clean, sans-serif;
-}
-
-#tabs li a,
-#tabs li a:visited,
-#tabs li span {
-  padding: 0.5em 1em;
-  font-size: 1em;
-}
-
-#tabs li.currenttab {
-  background-image: image_url("bg-header-tabs-current.png") !important;
-  background-position: top left;
-  background-repeat: repeat-x;
-  background-color: #aea888;
-}
-
-#tabs li.currenttab a,
-#tabs li.currenttab a:visited,
-#tabs li.currenttab span {
-  font-weight: normal;
-}
-
-ul#tabs li.admin {
-  background: image_url("bg-header-tabs-admin.png") left 50% repeat-x !important;
-}
-
 /*
  * #footer  // footer region overrides
  */
@@ -150,8 +84,4 @@ ul#tabs li.admin {
 #footer a,
 #footer li a {
   color: #fff;
-}
-
-#tabs li.currenttab {
-  top: 0;
 }

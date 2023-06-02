@@ -26,6 +26,9 @@
  *
  * The order in which the files are added below is the order in which they would be added in the concatenated application.css file.
  *
- *= require_self
- *= require_tree .
  */
+
+@import "jef_override_for_old_ui";
+@import "layout_for_old_ui";
+@import "rails_like";
+@import "structure_for_old_ui";

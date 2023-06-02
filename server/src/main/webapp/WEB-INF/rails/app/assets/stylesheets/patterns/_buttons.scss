@@ -284,53 +284,9 @@ button.submit.header_submit:hover span {
   padding: 0 15px 0 0;
 }
 
-button.primary,
-a.primary_link_as_button {
-  background-color: #39c !important;
-}
-
-button.primary:hover,
-a.primary_link_as_button:hover {
-  background-color: #52b3e3 !important;
-}
-
-button.primary span {
-  color: #fff !important;
-}
-
 a.reset_button {
   float: left;
 }
-
-/* for the pause button */
-
-.unpause_wrapper button.primary {
-  background-color: #39c !important;
-  height: 22px;
-}
-
-.unpause_wrapper button.primary:hover {
-  background-color: #52b3e3 !important;
-}
-
-//*html button.submit{
-//    m: expression(this.onmouseover=new Function("this.className = 'submit_hover';"));
-//}
-//*html button.submit_hover{
-//    m: expression(this.onmouseout=new Function("this.className = 'submit';"));
-//}
-//
-//*html a.link_as_button{
-//    width: 0;
-//}
-//*html a.link_as_button_hover{
-//    width: 0;
-//}
-//*html a.link_as_button_hover span{
-//    white-space: nowrap;
-//    display:inline-block;
-//    position: relative;
-//}
 
 button.submit.disabled,
 button.submit.disabled:hover {
@@ -359,115 +315,6 @@ button.submit_hover span img {
   top: -1px;
   margin-left: 7px;
   margin-right: -2px;
-}
-
-/* pipeline module buttons */
-.changes_button_wrapper button.submit,
-.operate button.submit,
-.deploy button.submit {
-  background-color: #f6f6f6;
-}
-
-.changes_button_wrapper button.submit span,
-.operate button.submit span,
-.deploy button.submit span {
-  color: #333;
-}
-
-.changes_button_wrapper button.submit:hover,
-.operate button.submit:hover,
-.deploy button.submit:hover {
-  background-color: #666;
-}
-
-.changes_button_wrapper button.submit:hover span,
-.operate button.submit:hover span,
-.deploy button.submit:hover span {
-  color: #fff;
-}
-
-.trigger_with_options_wrapper button.disabled:hover {
-  background-color: #f6f6f6;
-}
-
-.trigger_wrapper button.disabled:hover {
-  background-color: #f6f6f6;
-}
-
-/* Image Buttons */
-.trigger_with_options_wrapper button.image,
-.trigger_with_options_wrapper button.image:hover,
-.trigger_wrapper button.image,
-.trigger_wrapper button.image:hover,
-.pause_wrapper button.image,
-.pause_wrapper button.image:hover,
-.unpause_wrapper button.image,
-.unpause_wrapper button.image:hover {
-  padding: 0;
-}
-
-.trigger_with_options_wrapper button.image span,
-.trigger_with_options_wrapper button.image:hover span,
-.trigger_wrapper button.image span,
-.trigger_wrapper button.image:hover span,
-.pause_wrapper button.image span,
-.pause_wrapper button.image:hover span,
-.unpause_wrapper button.image span,
-.unpause_wrapper button.image:hover span {
-  width: 37px;
-  height: 22px;
-}
-
-.trigger_with_options_wrapper button.image span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -74px -30px no-repeat transparent;
-}
-
-.trigger_with_options_wrapper button.image:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -74px 0 no-repeat transparent;
-}
-
-.trigger_wrapper button.image span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px -30px no-repeat transparent;
-}
-
-.trigger_wrapper button.image:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px 0 no-repeat transparent;
-}
-
-.pause_wrapper button.image span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 -30px no-repeat transparent;
-}
-
-.pause_wrapper button.image:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 0 no-repeat transparent;
-}
-
-.unpause_wrapper button.image span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 0 no-repeat transparent;
-}
-
-.unpause_wrapper button.image:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 0 no-repeat transparent;
-}
-
-.trigger_with_options_wrapper button.disabled span,
-.trigger_with_options_wrapper button.disabled:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -74px -60px no-repeat transparent;
-}
-
-.trigger_wrapper button.disabled span,
-.trigger_wrapper button.disabled:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") -37px -60px no-repeat transparent;
-}
-
-.pause_wrapper button.disabled span,
-.pause_wrapper button.disabled:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 -60px no-repeat transparent;
-}
-
-.unpause_wrapper button.disabled span,
-.unpause_wrapper button.disabled:hover span {
-  background: image_url("g9/icons/bg_sprite_pipeline_actions.png") 0 -60px no-repeat transparent;
 }
 
 input[type="submit"] {

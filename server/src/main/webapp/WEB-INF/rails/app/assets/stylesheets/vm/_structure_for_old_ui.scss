@@ -207,25 +207,21 @@ a.link_as_button {
 
 /* pipeline module buttons */
 
-.changes_button_wrapper button.submit,
 .operate button.submit,
 .deploy button.submit {
   background-color: #f6f6f6;
 }
 
-.changes_button_wrapper button.submit span,
 .operate button.submit span,
 .deploy button.submit span {
   color: #333;
 }
 
-.changes_button_wrapper button.submit:hover,
 .operate button.submit:hover,
 .deploy button.submit:hover {
   background-color: #555;
 }
 
-.changes_button_wrapper button.submit:hover span,
 .operate button.submit:hover span,
 .deploy button.submit:hover span {
   color: #fff;
@@ -256,20 +252,6 @@ a.link_as_button_hover span {
   padding: 0;
   color: #fff;
   height: auto;
-}
-
-a.save-edit-xml,
-button.primary,
-a.primary_link_as_button,
-a.primary {
-  background-color: #39c;
-}
-
-a.save-edit-xml:hover,
-button.primary:hover,
-a.primary_link_as_button:hover,
-a.primary:hover {
-  background-color: #52b3e3;
 }
 
 * html button.submit {
@@ -478,25 +460,6 @@ a.xlink_as_button {
   color: #3d3d3d;
   font-size: 21px;
   padding: 0;
-}
-
-.tristate {
-  margin: 5px 0 3px 3px;
-  padding-left: 19px;
-  background-position: 1px 3px;
-  background-repeat: no-repeat;
-}
-
-.tristate.add {
-  background-image: image_url("tri-state-checkbox-checked.png");
-}
-
-.tristate.remove {
-  background-image: image_url("tri-state-checkbox-empty.png");
-}
-
-.tristate.nochange {
-  background-image: image_url("tri-state-checkbox-slash.png");
 }
 
 /*

@@ -42,8 +42,6 @@
 .rounded-corner-for-pipeline,
 .rounded-corner-for-tab-container {
   background: #fff;
-
-  /* margin: 1em; */
   padding: 0.3em;
   position: relative;
   overflow: visible;
@@ -90,33 +88,4 @@
   right: -1px;
   bottom: -1px;
   _display: none;
-}
-
-.rounded-corner-for-tab-container .c1 {
-  background: transparent image_url("bg_tab_container_corner.png") no-repeat left top;
-  left: -1px;
-  top: -1px;
-}
-
-.rounded-corner-for-tab-container .c2 {
-  background: transparent image_url("bg_tab_container_corner.png") no-repeat right top;
-  right: -1px;
-  top: -1px;
-}
-
-.rounded-corner-for-tab-container .c3 {
-  background: transparent image_url("bg_tab_container_corner.png") no-repeat left bottom;
-  left: -1px;
-  bottom: -1px;
-}
-
-.rounded-corner-for-tab-container .c4 {
-  background: transparent image_url("bg_tab_container_corner.png") no-repeat right bottom;
-  right: -1px;
-  bottom: -1px;
-}
-
-/* Make sure this container's style not be overwrited by other rule */
-.rounded-corner-grey-border {
-  /* border: 1px solid #929292; */
 }

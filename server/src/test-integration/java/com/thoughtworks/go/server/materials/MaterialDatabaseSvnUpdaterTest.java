@@ -19,10 +19,13 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+@ExtendWith(SpringExtension.class)
 public class MaterialDatabaseSvnUpdaterTest extends TestBaseForDatabaseUpdater {
     @Override
     protected Material material() {

@@ -23,8 +23,6 @@ import groovy.json.JsonSlurper
 import org.eclipse.jgit.api.Git
 import org.gradle.util.TextUtil
 
-import java.nio.file.FileSystems
-
 import static org.jruby.runtime.Constants.RUBY_MAJOR_VERSION
 
 description = 'GoCD Server'
@@ -430,12 +428,6 @@ task integrationTest(type: Test) { thisTask ->
   }
 
   doFirst {
-    def excludes = [
-      'com/thoughtworks/go/server/materials/MaterialDatabaseGitUpdaterTest.java',
-      'com/thoughtworks/go/server/materials/MaterialDatabaseGitWithSubmodulesUpdaterTest.java',
-      'com/thoughtworks/go/server/materials/MaterialDatabaseSvnWithExternalsUpdaterTest.java'
-    ].collect { eachExclude -> FileSystems.getDefault().getPath(eachExclude) }
-
     def files = project.files([])
     project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
       files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
@@ -444,12 +436,6 @@ task integrationTest(type: Test) { thisTask ->
     def badFiles = files.findAll { eachFile ->
       def text = eachFile.getText("utf-8")
       text.contains("@Test") && !(text.contains("SpringExtension") || text.contains("SpringJUnitJupiterConfig") || text.contains("@ContextConfiguration"))
-    }
-
-    badFiles.removeIf { badFile ->
-      excludes.any { eachExclude ->
-        badFile.toPath().endsWith(eachExclude)
-      }
     }
 
     if (!badFiles.isEmpty()) {
@@ -674,6 +660,7 @@ task configureWar {
       exclude("**/rails/logs/")
       exclude("**/rails/spec/")
       exclude("**/rails/tmp/")
+      exclude("**/rails/yarn-license-report/")
 
       // Vendored pieces that are compiled and incorporated into `public` as necessary by Rails/Sprockets or Webpack
       exclude("**/rails/node_modules/")

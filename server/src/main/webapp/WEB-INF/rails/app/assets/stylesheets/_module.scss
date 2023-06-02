@@ -134,59 +134,8 @@
   width: 10px;
 }
 
-.promote_button {
-  width: 15px;
-  height: 15px;
-  background-color: white;
-}
-
 .stage_approval_container {
   padding-left: 15px;
-}
-
-/**
- * Task editor
- */
-
-.exec_task_editor textarea {
-  /* width: auto; */
-}
-
-#on_cancel_task_options {
-  margin-top: -32px;
-  margin-left: 124px;
-  float: left;
-  clear: both;
-}
-
-#on_cancel_task {
-  margin-top: 10px;
-}
-
-.on_cancel {
-  margin-top: 14px;
-}
-
-.on_cancel label {
-  margin-left: 5px;
-}
-
-.on_cancel input[type="text"] {
-  float: left;
-}
-
-#has_cancel_task {
-  margin: 0;
-}
-
-.on_cancel_run_if_options label.condition,
-.run_if_options label.condition {
-  display: inline;
-  margin-left: 0;
-}
-
-.task_entry {
-  margin-top: 12px;
 }
 
 /*
@@ -726,7 +675,6 @@ li.template_form_error {
 
 /* css hack to highlight selected nav item */
 .general li#general a,
-.project_management li#project_management a,
 .materials li#materials a,
 .stages li#stages a,
 .environment_variables li#environment_variables a,
@@ -734,13 +682,9 @@ li.template_form_error {
 .permissions li#permissions a,
 .stage li#stage a,
 .jobs li#jobs a,
-.stage_variables li#stage_variables a,
 .settings li#settings a,
 .tasks li#tasks a,
-.artifacts li#artifacts a,
-.jobs_variables li#jobs_variables a,
-.tabs li#tabs a,
-.jobs_permissions li#jobs_permissions a {
+.artifacts li#artifacts a {
   color: black;
   background: #fff;
 }

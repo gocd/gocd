@@ -4,7 +4,7 @@
 
     <div id="view_group">
         <div class="form_buttons">
-            <%= link_to 'Edit', pipelines_snippet_edit_path(:group_name => @group_name), :class => 'edit link_as_button ' -%>
+            <%= link_to 'Edit', pipelines_snippet_edit_path(:group_name => @group_name), :class => 'link_as_button primary', :id => 'edit_config'-%>
         </div>
         <pre id="content_container" class="wrap_pre"><%= h(@group_as_xml) %></pre>
     </div>

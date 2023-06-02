@@ -560,58 +560,6 @@ button#signin2 span {
   border-right: none;
 }
 
-/* tabs area */
-#tabs li {
-  float: left;
-  list-style: none;
-  margin: -1px 0.2em 0 0.2em;
-  padding: 0;
-  background: #585446 image_url("bg_tabs.png") no-repeat right -80px;
-  _position: relative;
-  _top: 0;
-}
-
-#tabs li.admin {
-  background: #585446 image_url("bg_tabs.png") no-repeat right -160px;
-  margin-left: 3em;
-}
-
-#tabs li.currenttab {
-  background: #e7e1d1 image_url("bg_tabs.png") no-repeat right top;
-  position: relative;
-  top: 1px;
-}
-
-#tabs li a,
-#tabs li a:visited,
-#tabs li span {
-  font-size: 0.9em;
-  display: block;
-  padding: 0.7em 2em 0.7em 2em;
-  background: transparent image_url("bg_header_and_tabs.png") no-repeat left -280px;
-  color: #e7e7e7;
-  text-decoration: none;
-}
-
-#tabs li.admin a,
-#tabs li.admin a:visited,
-#tabs li.admin span {
-  background-position: left -360px;
-}
-
-#tabs li.currenttab a,
-#tabs li.currenttab a:visited,
-#tabs li.currenttab span {
-  margin-top: 0;
-  background-position: left -200px;
-  color: #4b220e;
-  font-weight: bold;
-}
-
-#tabs li a:hover {
-  /* text-decoration: underline; */
-}
-
 /* project-summary-panel style */
 #sidebar {
   width: 25em;

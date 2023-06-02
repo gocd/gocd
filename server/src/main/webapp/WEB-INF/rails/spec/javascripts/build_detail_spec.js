@@ -29,16 +29,14 @@ describe("build_detail", function(){
             "<div id=\"any\">\n" +
             "    <div  class=\"sub_tabs_container\">\n" +
             "    <ul>\n" +
-            "        <li id=\"li1\" class=\"current_tab\"><a>Errors</a><a class=\"tab_button_body_match_text\">errors</a></li>\n" +
-            "        <li id=\"li2\"><a>Modifications</a><a class=\"tab_button_body_match_text\">modifications</a></li>\n" +
-            "        <li id=\"li3\"><a>Build Log</a><a class=\"tab_button_body_match_text\">build-log</a></li>\n" +
-            "        <li id=\"li4\"><a>Tests</a><a class=\"tab_button_body_match_text\">tests</a></li>\n" +
+            "        <li id=\"li1\" class=\"current_tab\"><a>dummy-first-tab</a><a class=\"tab_button_body_match_text\">dummy-first-tab</a></li>\n" +
+            "        <li id=\"li2\"><a>dummy-second-tab</a><a class=\"tab_button_body_match_text\">dummy-second-tab</a></li>\n" +
             "    </ul>\n" +
             "    </div>\n" +
             "</div>\n" +
-            "<div id=\"tab-content-of-errors\">\n" +
+            "<div id=\"tab-content-of-dummy-first-tab\">\n" +
             "</div>\n" +
-            "<div id=\"tab-content-of-modifications\" style=\"display:none\">\n" +
+            "<div id=\"tab-content-of-dummy-second-tab\" style=\"display:none\">\n" +
             "</div>\n" +
             "<div class=\"widget\" id=\"build-output-console-warnning\" style=\"display: none;\">No build output.</div>");
 
@@ -66,21 +64,21 @@ describe("build_detail", function(){
     it("test_should_click_current_tab_element_should_not_move_current_tab", function(){
         $('li1').open();
         assertTrue($('li1').hasClassName('current_tab'));
-        assertTrue($('tab-content-of-errors').visible())
+        assertTrue($('tab-content-of-dummy-first-tab').visible())
         $('li1').open();
         assertTrue($('li1').hasClassName('current_tab'));
-        assertTrue($('tab-content-of-errors').visible())
+        assertTrue($('tab-content-of-dummy-first-tab').visible())
     });
 
     it("test_should_click_another_element_should_move_current_tab", function(){
         assertTrue("'li1' should have className 'current_tab'", $('li1').hasClassName('current_tab'));
-        assertTrue("'tab-content-of-errors' should be visible", $('tab-content-of-errors').visible())
-        assertFalse("'tab-content-of-modifications' should not be visible", $('tab-content-of-modifications').visible())
+        assertTrue("'tab-content-of-dummy-first-tab' should be visible", $('tab-content-of-dummy-first-tab').visible())
+        assertFalse("'tab-content-of-dummy-second-tab' should not be visible", $('tab-content-of-dummy-second-tab').visible())
         $('li2').open();
         assertTrue("'li2' should have className 'current_tab'", $('li2').hasClassName('current_tab'));
         assertFalse("'li1' should not have className 'current_tab'", $('li1').hasClassName('current_tab'));
-        assertTrue("'modifications' should be visible", $('tab-content-of-modifications').visible())
-        assertFalse("'errors' should not be visible", $('tab-content-of-errors').visible())
+        assertTrue("'dummy-second-tab' should be visible", $('tab-content-of-dummy-second-tab').visible())
+        assertFalse("'dummy-first-tab' should not be visible", $('tab-content-of-dummy-first-tab').visible())
     });
 
     it("test_should_return_subcontainer", function(){

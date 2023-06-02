@@ -31,8 +31,6 @@ a {
   color: #1f66bd;
 }
 
-/* remove padding and margin for background */
-
 /* old freemarker view-model stuff */
 #bd {
   padding: 0;
@@ -90,8 +88,6 @@ a {
   padding: 15px;
 }
 
-/* fake h2 for my cruise */
-
 .wizard h1,
 .wizard h1 strong,
 #tab-content-of-source-xml h1,
@@ -135,14 +131,6 @@ ol#pipelines {
   margin-right: 0;
 }
 
-/**
- * Jobs
- */
-
-/*
- * Warning icon
- */
-
 /*
  * Admin
  */
@@ -157,84 +145,10 @@ ol#pipelines {
 
 .build h4 a {
   font-weight: normal;
-
-  /* text-decoration: underline; */
 }
 
-/* - Menu Tabs B--------------------------- */
-
-.sub_tab_container_menu {
-  display: block;
-
-  /* IE hack: remove the extra white space between tab & content */
-  zoom: 1;
-}
-
-.sub-tabs-container {
-  list-style: none;
-  padding-top: 1em;
-}
-
-.sub-tabs-container {
-  background: #999 image_url("g9/backgrounds/overlay_bottom_inside_shadow.png") bottom repeat-x !important;
-  border: 0 !important;
-  padding: 10px;
-  padding-bottom: 0;
-  margin-bottom: 10px !important;
-  -moz-border-radius-topright: 6px;
-  -moz-border-radius-topleft: 6px;
-  -webkit-border-top-right-radius: 6px;
-  -webkit-border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-}
-
-.sub-tabs-container ul {
-  overflow: hidden;
-}
-
-.sub-tabs-container li {
-  display: block;
-  float: left;
-  margin-right: 5px;
-  padding: 0;
-}
-
-.sub-tabs-container .current_tab {
-  background: none !important;
-  bottom: 0;
-  position: relative;
-}
-
-.sub-tabs-container li a {
-  font-size: 11px;
-  padding: 7px 12px;
-  display: block;
-  border: 0 !important;
-  background-color: #333;
-  color: #fff;
-  -moz-border-radius-topright: 4px;
-  -moz-border-radius-topleft: 4px;
-  -webkit-border-top-right-radius: 4px;
-  -webkit-border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-top-left-radius: 4px;
-}
-
-.sub-tabs-container li a:hover {
-  background-color: #555;
-  color: #fff;
-}
-
-.sub-tabs-container li.current_tab a,
-.sub-tabs-container li.current_tab a:hover {
-  background-color: #fff;
-  color: #000;
-  font-weight: normal;
-}
-
-.sub-tabs-container li.updated a {
-  background: transparent image_url("icon-12-alert.png") no-repeat 100% 50%;
+.copied_job {
+  border: 2px solid red;
 }
 
 #yui-main h1,

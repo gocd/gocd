@@ -20,7 +20,7 @@
 
       <div class="page_header">
         <div class="row">
-          <h1 id="page-title" class="entity_title">Administration</h1>
+          <h1 id="page-title" class="entity_title">Config XML</h1>
         </div>
       </div>
 
@@ -32,50 +32,9 @@
 
       <%== content_wrapper_tag %>
       <div class="row">
-        <div class="bd-container rounded-corner-for-pipeline admin-rounded-container">
-          <div class="sub_tab_container rounded-corner-for-tab-container">
-            <div class="sub_tabs_container">
-              <ul>
-                <% if is_user_an_admin? || is_user_a_group_admin? %>
-                    <li id="pipeline-groups-tab-button" class="<%= "current_tab" if @tab_name == "pipeline-groups" %>">
-                      <a id="tab-link-of-pipeline-groups" href="<%= spark_url_for({url_builder: controller}, SparkRoutes::AdminPipelines::SPA_BASE) -%>">Pipelines</a>
-                    </li>
-                <% end %>
-                <% if is_user_an_admin? || is_user_authorized_to_view_templates? -%>
-                    <li id="templates-tab-button" class="<%= "current_tab" if @tab_name == "templates" %>">
-                      <a id="tab-link-of-templates" href="<%= spark_url_for({url_builder: controller}, SparkRoutes::AdminTemplates::SPA_BASE) -%>">Templates</a>
-                    </li>
-                <%- end -%>
-                <% if !is_user_an_admin? && is_user_a_group_admin? %>
-                    <li id="tab-content-of-pipelines-snippet" class="<%= "current_tab" if @tab_name == "pipelines-snippet" %>">
-                      <%= link_to 'Config XML', pipelines_snippet_path, :id => "tab-link-of-pipelines-snippet" -%>
-                    </li>
-                    <li id="package-repositories-tab-button" class="<%= "current_tab" if @tab_name == "package-repositories" %>">
-                      <%= link_to 'Package Repositories', '/go/admin/package_repositories/list', :id => "tab-link-of-package-repositories" %>
-                    </li>
-                <% end %>
-
-                <% if is_user_an_admin? %>
-                    <li id="source-xml-tab-button" class="<%= "current_tab" if @tab_name == "configuration-xml" %>">
-                      <%= link_to 'Config XML', config_view_path, :id => 'tab-link-of-source-xml' -%>
-                    </li>
-                    <li id="user-summary-tab-button" class="<%= "current_tab" if @tab_name == "user-listing" %>">
-                      <%= link_to "Users Management", '/go/admin/users', :id => "tab-link-of-user-listing" %>
-                    </li>
-                    <li id="backup-tab-button" class="<%= "current_tab" if @tab_name == "backup" %>">
-                      <%= link_to "Backup", '/go/admin/backup', :id => "tab-link-of-backup" %>
-                    </li>
-                    <li id="package-repositories-tab-button" class="<%= "current_tab" if @tab_name == "package-repositories" %>">
-                      <%= link_to 'Package Repositories', '/go/admin/package_repositories/new', :id => "tab-link-of-package-repositories" %>
-                    </li>
-                <% end %>
-              </ul>
-            </div>
-            <div class="sub_tab_container_content admin-tab-contents">
-              <div id="tab-content-of-<%= @tab_name -%>" style="">
-                <%= yield %>
-              </div>
-            </div>
+        <div class="sub_tab_container_content admin-tab-contents">
+          <div id="tab-content-of-<%= @tab_name -%>">
+            <%= yield %>
           </div>
         </div>
       </div>

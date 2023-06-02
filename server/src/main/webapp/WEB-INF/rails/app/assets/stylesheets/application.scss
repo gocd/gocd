@@ -26,19 +26,32 @@
  *
  * The order in which the files are added below is the order in which they would be added in the concatenated application.css file.
  *
- *= require_self
- *= require "structure/_reset"
- *= require_tree ./css_sass
- *= require "_main"
- *= require "_layout"
- *= require "./_structure"
- *= require "structure/_application"
- *= require "_module"
- *= require_tree ./views
- *= require '_vsm'
  */
 
 @import "font-awesome-sprockets";
 @import "shared/go-variables";
 @import "shared/mixins";
 @import "shared/common";
+
+@import "structure/reset";
+@import "css_sass/base/mixins";
+@import "css_sass/components/messages";
+@import "css_sass/components/navbar";
+@import "css_sass/components/pagination";
+@import "css_sass/gadgets/breadcrumb";
+@import "css_sass/gadgets/button-groups";
+@import "css_sass/gadgets/dropdowns";
+@import "css_sass/gadgets/modals";
+@import "css_sass/global/layout";
+@import "css_sass/global/typography";
+@import "css_sass/go-pages/admin/templates";
+@import "css_sass/go-pages/admin";
+@import "css_sass/go-pages/pipeline";
+@import "main";
+@import "layout";
+@import "structure";
+@import "structure/application";
+@import "module";
+@import "views/admin_pipelines_snippet";
+@import "views/stages";
+@import "vsm";

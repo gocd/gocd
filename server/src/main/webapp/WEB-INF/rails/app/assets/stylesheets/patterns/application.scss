@@ -26,6 +26,12 @@
  *
  * The order in which the files are added below is the order in which they would be added in the concatenated application.css file.
  *
- *= require_self
- *= require_tree .
  */
+
+@import "buttons";
+@import "forms";
+@import "messages";
+@import "status_visualizations";
+@import "tables";
+@import "tabs";
+@import "titles";

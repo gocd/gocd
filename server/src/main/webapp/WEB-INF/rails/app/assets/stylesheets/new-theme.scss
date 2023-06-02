@@ -1065,13 +1065,13 @@ div.stage_bar {
   &.Passed {
     color: white;
 
-    @include icon-after($passed-icon, $margin: 0, $line-height: 1.2em);
+    @include icon-after($passed-icon, $margin: 0, $line-height: 1.1em);
   }
 
   &.Failed {
     color: white;
 
-    @include icon-after($failed-icon, $margin: 0, $line-height: 1.2em);
+    @include icon-after($failed-icon, $margin: 0, $line-height: 1.1em);
   }
 
   &.Cancelled {
@@ -1092,7 +1092,7 @@ div.stage_bar {
 
     color: $icon-txt;
 
-    @include icon-after($cancelled-icon, $margin: 0, $line-height: 1.2em);
+    @include icon-after($cancelled-icon, $margin: 0, $line-height: 1.1em);
   }
 }
 

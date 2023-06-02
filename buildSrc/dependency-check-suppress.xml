@@ -257,9 +257,10 @@
   <suppress until="2023-07-01Z">
     <notes><![CDATA[
     Time-limited suppression of issue from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
-    and corresponding release of nokogiri
+    and corresponding release of nokogiri. We are probably not affected, but there is no mitigation we can apply right now eitehr. Needs upgrade to neko-htmlunit 2.70.0.
     ]]></notes>
     <sha1>d4d159a789c5446eea7edc184cab9adab12baa1c</sha1>
+    <cve>CVE-2023-2798</cve>
     <cve>CVE-2023-26119</cve>
   </suppress>
     

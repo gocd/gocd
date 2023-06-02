@@ -84,33 +84,6 @@ input[type="text"].error,
 }
 
 /**
- * =TRISTATE_CHECKBOX
-**/
-.tristate {
-  background-position: 0 1px;
-  background-repeat: no-repeat;
-  margin: 5px 0 3px 3px;
-  padding-left: 19px;
-  cursor: pointer;
-}
-
-.tristate_disabled_message {
-  color: #f33;
-}
-
-.tristate.add {
-  background-image: image_url("tri-state-checkbox-checked.png");
-}
-
-.tristate.remove {
-  background-image: image_url("tri-state-checkbox-empty.png");
-}
-
-.tristate.nochange {
-  background-image: image_url("tri-state-checkbox-slash.png");
-}
-
-/**
  * =FORM_ITEM_PROPERTIES
 **/
 

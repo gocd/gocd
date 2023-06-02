@@ -37,7 +37,6 @@ describe("ajax_refresher", function () {
             response_pane = container;
             resource_selection_url = url;
             resource_selection_request_option = options;
-            ajax_request_for_tri_state_boxes_fired = true;
         };
 
         after_called = false;

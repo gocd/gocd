@@ -660,6 +660,7 @@ task configureWar {
       exclude("**/rails/logs/")
       exclude("**/rails/spec/")
       exclude("**/rails/tmp/")
+      exclude("**/rails/yarn-license-report/")
 
       // Vendored pieces that are compiled and incorporated into `public` as necessary by Rails/Sprockets or Webpack
       exclude("**/rails/node_modules/")

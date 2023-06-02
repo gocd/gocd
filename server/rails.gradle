@@ -147,6 +147,7 @@ task cleanRails(type: Delete) {
   delete "${project.railsRoot}/tmp"
   delete "${project.railsRoot}/webpack/gen"
   delete "${project.railsRoot}/yarn-error.log"
+  delete "${project.railsRoot}/yarn-license-report"
 
   doFirst {
     // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules

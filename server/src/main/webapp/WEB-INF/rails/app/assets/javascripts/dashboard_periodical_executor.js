@@ -18,31 +18,23 @@ function DashboardPeriodicalExecutor(url, pause_condition) {
     this.sequenceNumber = 0;
     this.frequency = 5000; //milli-seconds;
     this.observers = [];
-    this.is_execution_start = false;
     this.is_paused = false;
     this.pause_condition = pause_condition;
 }
 
 DashboardPeriodicalExecutor.prototype = {
     start: function() {
-        if(!this.is_paused) {
-            this.is_execution_start = true;
+        if (!this.is_paused) {
             this.onRequest();
         }
     },
     stop: function() {
         clearTimeout(this.timer);
-        this.is_execution_start = false;
     },
     redirectToLoginPage: function(){
         window.location= window.location.protocol + '//' + window.location.host + context_repath('auth/login');
     },
-    redirectToAboutPage : function () {
-        window.location= window.location.protocol + '//' + window.location.host + context_path('about');
-    },
-    changeFrequency : function(newFrequency) {
-        this.frequency = newFrequency;
-    },
+
     /*
      * We should use fireNow function trigger a manual request.
      * So we should call start() first. And when we can't wait for next automatically request,
@@ -50,10 +42,10 @@ DashboardPeriodicalExecutor.prototype = {
      */
     fireNow : function() {
         clearTimeout(this.timer);
-        if(this.ongoingRequest && this.ongoingRequest.transport){
-            try{
+        if (this.ongoingRequest && this.ongoingRequest.transport) {
+            try {
                 this.ongoingRequest.transport.abort();
-            }catch(e){}
+            } catch(e) {}
         }
         this.start();
     },
@@ -71,19 +63,13 @@ DashboardPeriodicalExecutor.prototype = {
                 }
             },
             error: function(jqXHR, textStatus) {
-                if(textStatus == "parsererror"){
-                    executer.showError('The server encountered a problem (json error).');
-                }
-                else {
-                    executer.showError('Server cannot be reached (failure). Either there is a network problem or the server is down.', textStatus);
-                }
             },
             complete : function() {
                 //makes sure only 1 timer in this executor
                 clearTimeout(executer.timer);
                 delete executer.timer;
 
-                if(!executer.is_paused) {
+                if (!executer.is_paused) {
                     executer.timer = setTimeout(executer.onRequest.bind(executer), executer.frequency);
                 }
                 //avoid memory leak
@@ -93,45 +79,30 @@ DashboardPeriodicalExecutor.prototype = {
             statusCode: {
                 401: function () {
                     executer.redirectToLoginPage();
-                },
-                402: function () {
-                    executer.redirectToAboutPage();
-                },
-                404: function () {
-                    executer.showError('Server cannot be reached (404). Either there is a network problem or the server is down.');
-                },
-                500: function (jqXHR) {
-                    executer.showError('The server encountered an internal problem.', jqXHR.responseText);
                 }
             }
         });
 
     },
-    showError: function(title, body){
-        FlashMessageLauncher.error(title, body);
-    },
     _loop_observers : function(json, requestSequenceNumber) {
-        if(json.error){
-            this.showError('The server encountered a problem.', json.error);
+        if (json.error) {
+           return;
         }
 
-        for(var index = 0; index < this.observers.length; index++){
+        for (var index = 0; index < this.observers.length; index++) {
             var observer = this.observers[index];
 
-            if(!observer.notify) return;
+            if (!observer.notify) return;
 
-            if(observer.dropExpiredCallback && !this.isSequenceNumberValid(requestSequenceNumber)){
+            if (observer.dropExpiredCallback && !this.isSequenceNumberValid(requestSequenceNumber)) {
                 //this request will be dropped, because it's expired
                 return;
             }
 
-            if(!this.is_paused){
+            if (!this.is_paused) {
                 observer.notify(json);
             }
         }
-    },
-    is_start : function() {
-        return this.is_execution_start;
     },
     register : function() {
         for (var i = 0; i < arguments.length; i++) {
@@ -146,7 +117,6 @@ DashboardPeriodicalExecutor.prototype = {
     },
     clean : function() {
         this.observers = [];
-        this._json_text_cache = undefined;
         this.is_paused = false;
     },
     pause : function() {

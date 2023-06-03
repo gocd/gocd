@@ -15,12 +15,6 @@
  */
 
 /* rounded corner (use luke's trick) */
-.ab-bg {
-  background-color: transparent;
-  clear: both;
-  display: none;
-}
-
 .ab-corner {
   border-style: solid;
   border-color: #e7e1d1;
@@ -32,11 +26,6 @@
   width: auto;
   overflow: hidden;
 }
-
-.lvl1 { border-width: 0 5px; height: 1px; }
-.lvl2 { border-width: 0 3px; height: 1px; }
-.lvl3 { border-width: 0 2px; height: 1px; }
-.lvl4 { border-width: 0 1px; height: 1px; }
 
 /* float rounded corner container, with white background and grey border */
 .rounded-corner-for-pipeline,

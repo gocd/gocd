@@ -44,11 +44,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ServerHealthServiceTest {
+    private static final String PIPELINE_NAME = "pipeline";
     private ServerHealthService serverHealthService;
     private HealthStateType globalId;
-    private HealthStateType groupId;
     private HealthStateType pipelineId;
-    private static final String PIPELINE_NAME = "pipeline";
     private TestingClock testingClock;
 
 
@@ -57,7 +56,6 @@ public class ServerHealthServiceTest {
         serverHealthService = new ServerHealthService();
         globalId = HealthStateType.general(GLOBAL);
         pipelineId = HealthStateType.general(forPipeline(PIPELINE_NAME));
-        groupId = HealthStateType.invalidLicense(forGroup("group"));
         testingClock = new TestingClock();
         ServerHealthState.clock = testingClock;
     }
@@ -68,7 +66,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveExpiredLogMessages() throws Exception {
+    public void shouldRemoveExpiredLogMessages() {
         testingClock.setTime(new DateTime(2002,10,10,10,10,10,10));
         ServerHealthState expiresInNintySecs = warning("hg-message1", "description", HealthStateType.databaseDiskFull(), Timeout.NINETY_SECONDS);
         ServerHealthState expiresInThreeMins = warning("hg-message2", "description", HealthStateType.artifactsDirChanged(), Timeout.THREE_MINUTES);
@@ -93,7 +91,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveErrorLogWhenCorrespondingMaterialIsMissing() throws Exception {
+    public void shouldRemoveErrorLogWhenCorrespondingMaterialIsMissing() {
         serverHealthService.update(ServerHealthState.error("hg-message", "description", HealthStateType.general(forMaterial(MaterialsMother.hgMaterial()))));
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         serverHealthService.update(ServerHealthState.error("svn-message", "description", HealthStateType.general(forMaterialConfig(svnMaterialConfig))));
@@ -104,7 +102,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveErrorLogWhenCorrespondingPipelineIsMissing() throws Exception {
+    public void shouldRemoveErrorLogWhenCorrespondingPipelineIsMissing() {
         serverHealthService.update(ServerHealthState.error("message", "description", pipelineId));
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forPipeline("other"))));
 
@@ -113,15 +111,15 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveErrorLogWhenCorrespondingGroupIsMissing() throws Exception {
-        serverHealthService.update(ServerHealthState.error("message", "description", groupId));
+    public void shouldRemoveErrorLogWhenCorrespondingGroupIsMissing() {
+        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(forGroup("group"))));
 
         serverHealthService.purgeStaleHealthMessages(new BasicCruiseConfig());
         assertThat(serverHealthService.logs().size(), is(0));
     }
 
     @Test
-    public void shouldReturnErrorLogs() throws Exception {
+    public void shouldReturnErrorLogs() {
         serverHealthService.update(ServerHealthState.error("message", "description", pipelineId));
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -131,7 +129,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldUpdateLogInServerHealth() throws Exception {
+    public void shouldUpdateLogInServerHealth() {
         ServerHealthState serverHealthState = ServerHealthState.error("message", "description", globalId);
         serverHealthService.update(serverHealthState);
         ServerHealthState newServerHealthState = ServerHealthState.error("updated message", "updated description", globalId);
@@ -142,7 +140,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldAddMultipleLogToServerHealth() throws Exception {
+    public void shouldAddMultipleLogToServerHealth() {
         assertThat(serverHealthService.update(ServerHealthState.error("message", "description", globalId)), is(globalId));
         assertThat(serverHealthService.update(ServerHealthState.error("message", "description", pipelineId)), is(pipelineId));
 
@@ -152,7 +150,7 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveLogWhenUpdateIsFine() throws Exception {
+    public void shouldRemoveLogWhenUpdateIsFine() {
         serverHealthService.update(ServerHealthState.error("message", "description", globalId));
         assertThat(serverHealthService, ServerHealthMatcher.containsState(globalId));
 
@@ -161,14 +159,13 @@ public class ServerHealthServiceTest {
     }
 
     @Test
-    public void shouldRemoveLogByCategoryFromServerHealth() throws Exception {
+    public void shouldRemoveLogByCategoryFromServerHealth() {
         HealthStateScope scope = forPipeline(PIPELINE_NAME);
 
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(scope)));
-        serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.invalidLicense(scope)));
         serverHealthService.update(ServerHealthState.error("message", "description", globalId));
 
-        assertThat(serverHealthService.logs().size(), is(3));
+        assertThat(serverHealthService.logs().size(), is(2));
 
         serverHealthService.removeByScope(scope);
         assertThat(serverHealthService.logs().size(), is(1));

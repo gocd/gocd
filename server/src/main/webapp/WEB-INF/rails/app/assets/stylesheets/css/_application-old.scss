@@ -324,20 +324,6 @@ input:-webkit-autofill {
   background: transparent;
 }
 
-.collapsable-container .collapsable-header {
-  background: transparent image_url("title_message_expanded.gif") no-repeat scroll left 50%;
-  padding-left: 16px;
-  cursor: pointer;
-}
-
-.collapsed .collapsable-header {
-  background-image: image_url("title_message_collapsed.gif");
-}
-
-.collapsed .collapsable-content {
-  display: none;
-}
-
 /* Stuff for artifacts */
 .artifacts {
   margin-left: 0;

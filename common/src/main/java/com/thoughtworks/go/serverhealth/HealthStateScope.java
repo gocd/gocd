@@ -132,6 +132,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return type == ScopeType.JOB;
     }
 
+    public boolean isForConfigPartial() {
+        return type == ScopeType.CONFIG_PARTIAL;
+    }
+
     ScopeType getType() {
         return type;
     }
@@ -155,8 +159,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
 
     private boolean equals(HealthStateScope that) {
         if (type != that.type) { return false; }
-        if (!scope.equals(that.scope)) { return false; }
-        return true;
+        return scope.equals(that.scope);
     }
 
     @Override
@@ -178,10 +181,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
             return comparison;
         }
         comparison = scope.compareTo(o.scope);
-        if (comparison != 0) {
-            return comparison;
-        }
-        return 0;
+        return comparison;
     }
 
     public Set<String> getPipelineNames(CruiseConfig config) {
@@ -218,10 +218,6 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         }
 
         return pipelineNames;
-    }
-
-    public boolean isForConfigPartial() {
-        return type == ScopeType.CONFIG_PARTIAL;
     }
 
     enum ScopeType {

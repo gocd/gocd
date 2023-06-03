@@ -49,46 +49,6 @@ describe("dashboard_periodical_executor", function(){
         assertTrue(invoked);
     });
 
-    it("test_should_show_error_when_got_invalid_json", function(){
-        var invoked = false;
-        var msg;
-        window.flash = {error: function(title, body) {
-            invoked = true;
-            msg = title;
-        }}
-        spyOn(jQuery, "ajax").and.callFake(function(options) {
-            options.error({}, "parsererror");
-        });
-        var fakeOb = {notify: function() {
-        }};
-        dashboard_periodical_executor.clean();
-        dashboard_periodical_executor.register(fakeOb);
-        assertEquals(1, dashboard_periodical_executor.observers.size());
-        dashboard_periodical_executor.start();
-        dashboard_periodical_executor.fireNow();
-
-        assertTrue(invoked);
-        assertEquals('The server encountered a problem (json error).', msg);
-    });
-
-    it("test_should_show_404_error_when_response_header_is_404", function(){
-        var invoked = false;
-        var msg;
-        window.flash = {error: function(title, body) {
-            invoked = true;
-            msg = title;
-        }}
-        spyOn(jQuery, "ajax").and.callFake(function(options) {
-            options.statusCode[404]();
-        });
-
-        dashboard_periodical_executor.start();
-        dashboard_periodical_executor.fireNow();
-
-        assertTrue(invoked);
-        assertEquals('Server cannot be reached (404). Either there is a network problem or the server is down.', msg);
-    });
-
     it("test_should_call_redirect_to_login_when_response_header_is_401", function(){
         var invoked = false;
         spyOn(jQuery, "ajax").and.callFake(function(options) {
@@ -103,64 +63,6 @@ describe("dashboard_periodical_executor", function(){
         dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
-    });
-
-    it("test_should_show_500_error_and_reason_when_response_header_is_500", function(){
-        var invoked = false;
-        var msg1, msg2;
-        window.flash = {error: function(title, body) {
-            invoked = true;
-            msg1 = title;
-            msg2 = body;
-        }}
-        spyOn(jQuery, "ajax").and.callFake(function(options) {
-            options.statusCode[500]({responseText: 'I\'m the reason'});
-        });
-        dashboard_periodical_executor.start();
-        dashboard_periodical_executor.fireNow();
-
-        assertTrue(invoked);
-        assertEquals('The server encountered an internal problem.', msg1);
-        assertEquals('I\'m the reason', msg2);
-    });
-
-    it("test_should_show_unknow_error_when_response_header_is_105", function(){
-        var invoked = false;
-        var msg;
-        window.flash = {error: function(title, body) {
-            invoked = true;
-            msg = title;
-        }}
-        spyOn(jQuery, "ajax").and.callFake(function(options) {
-            options.error();
-        });
-
-        dashboard_periodical_executor.start();
-        dashboard_periodical_executor.fireNow();
-
-        assertTrue(invoked);
-        assertEquals('Server cannot be reached (failure). Either there is a network problem or the server is down.', msg);
-    });
-
-    it("test_should_show_error_message_when_server_return_error_message_in_json", function(){
-        var invoked = false;
-        var msg1, msg2;
-        window.flash = {error: function(title, body) {
-            invoked = true;
-            msg1 = title;
-            msg2 = body;
-        }}
-
-        spyOn(jQuery, "ajax").and.callFake(function(options) {
-            options.success({error: "There is some error."});
-        });
-
-        dashboard_periodical_executor.start();
-        dashboard_periodical_executor.fireNow();
-
-        assertTrue(invoked);
-        assertEquals('The server encountered a problem.', msg1);
-        assertEquals('There is some error.', msg2);
     });
 
     it("test_should_not_call_observer_when_executer_is_paused", function(){

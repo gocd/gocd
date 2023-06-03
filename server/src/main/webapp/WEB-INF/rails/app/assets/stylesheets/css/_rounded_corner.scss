@@ -15,12 +15,6 @@
  */
 
 /* rounded corner (use luke's trick) */
-.ab-bg {
-  background-color: transparent;
-  clear: both;
-  display: none;
-}
-
 .ab-corner {
   border-style: solid;
   border-color: #e7e1d1;
@@ -33,11 +27,6 @@
   overflow: hidden;
 }
 
-.lvl1 { border-width: 0 5px; height: 1px; }
-.lvl2 { border-width: 0 3px; height: 1px; }
-.lvl3 { border-width: 0 2px; height: 1px; }
-.lvl4 { border-width: 0 1px; height: 1px; }
-
 /* float rounded corner container, with white background and grey border */
 .rounded-corner-for-pipeline,
 .rounded-corner-for-tab-container {
@@ -46,46 +35,4 @@
   position: relative;
   overflow: visible;
   zoom: 1;
-}
-
-.rounded-corner-for-pipeline b {
-  display: block;
-  line-height: 0;
-  font-size: 0;
-  position: absolute;
-  overflow: hidden;
-  width: 10px;
-  height: 12px;
-}
-
-.rounded-corner-for-tab-container b {
-  width: 5px;
-  height: 5px;
-}
-
-.rounded-corner-for-pipeline .c1 {
-  background: transparent image_url("bg_pipeline_corner.png") no-repeat left top;
-  left: -1px;
-  top: -1px;
-}
-
-.rounded-corner-for-pipeline .c2 {
-  background: transparent image_url("bg_pipeline_corner.png") no-repeat right top;
-  right: -1px;
-  top: -1px;
-  _display: none;
-}
-
-.rounded-corner-for-pipeline .c3 {
-  background: transparent image_url("bg_pipeline_corner.png") no-repeat left bottom;
-  left: -1px;
-  bottom: -1px;
-  _display: none;
-}
-
-.rounded-corner-for-pipeline .c4 {
-  background: transparent image_url("bg_pipeline_corner.png") no-repeat right bottom;
-  right: -1px;
-  bottom: -1px;
-  _display: none;
 }

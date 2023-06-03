@@ -628,49 +628,6 @@ button.submit {
   }
 }
 
-.pipeline_header .toggle-new-view,
-.page_header a.agents-toggle-new-view,
-.pipelines .page_header .toggle-new-view {
-  display: inline-block;
-  text-align: center;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  vertical-align: middle;
-  border: 0;
-  border-radius: $global-border-radius;
-  padding: 0.5em 1em;
-  background-color: $primary-btn-bg;
-  color: $go-white;
-  font-size: rem-calc(13px);
-  font-weight: 600;
-  position: relative;
-  margin: 0 10px;
-  top: -2px;
-
-  &:hover {
-    transition: all 0.3s ease-in-out;
-    background-color: $primary-btn-bg-hover;
-    color: $go-white;
-  }
-}
-
-.pipelines .page_header .toggle-new-view {
-  top: 4px;
-}
-
-.pipeline_header .analytics-link-wrapper .pipeline-analytics-icon {
-  margin-right: 12px;
-  padding: 0;
-  font-size: 16px;
-  color: $btn-hover;
-  cursor: pointer;
-}
-
-.page_header a.agents-toggle-new-view {
-  margin-top: 6px;
-}
-
 #agents_form {
   margin-top: 3px;
 }
@@ -725,14 +682,6 @@ button.submit {
 .enhanced_dropdown .add_panel {
   background: none;
   overflow: hidden;
-}
-
-button#confirm-pause-up42 {
-  height: auto;
-  line-height: normal;
-  padding: 0 !important;
-  margin-left: 10px;
-  min-width: inherit;
 }
 
 .icon16.setting {
@@ -1326,21 +1275,6 @@ form#notification_form fieldset {
   }
 }
 
-button#signin2 {
-  min-width: 100px;
-  padding: 6px 9px;
-  background-color: #f6f6f6;
-  border: 0;
-  background-image: none;
-  color: #fff !important;
-  height: 35px;
-
-  span {
-    font-size: 12px !important;
-    color: #fff;
-  }
-}
-
 a:link.help,
 a:visited.help {
   margin-top: 9px;
@@ -1376,12 +1310,6 @@ a:visited.help {
 .ui-dialog-title,
 #MB_caption {
   color: #333;
-}
-
-.template_group {
-  h2.entity_title {
-    border: 0;
-  }
 }
 
 .fieldset .form_item {
@@ -1457,68 +1385,6 @@ a:visited.help {
   background-repeat: repeat-x;
 }
 
-$new-theme-material-popup-user-width: 20em;
-$new-theme-material-popup-comment-width: 32em;
-$new-theme-material-popup-hash-width: 12em;
-$new-theme-material-popup-vsm-width: 4em;
-$new-theme-material-popup-revision-width: ($new-theme-material-popup-hash-width + $new-theme-material-popup-vsm-width);
-$new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-theme-material-popup-comment-width + $new-theme-material-popup-revision-width);
-
-@mixin new-theme-changes-table {
-  td.user,
-  td.modified_by {
-    max-width: $new-theme-material-popup-user-width;
-    width: $new-theme-material-popup-user-width;
-  }
-
-  td.comment {
-    word-wrap: break-word;
-    word-break: keep-all;
-    max-width: $new-theme-material-popup-comment-width;
-    width: $new-theme-material-popup-comment-width;
-  }
-
-  td.revision {
-    overflow: hidden;
-    max-width: $new-theme-material-popup-hash-width;
-    width: $new-theme-material-popup-hash-width;
-    font-family: "courier new", monospace !important;
-    font-style: normal;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-}
-
-#pipelines .enhanced_dropdown,
-#stages .fbh_microcontent_popup .enhanced_dropdown,
-#pipelines .enhanced_dropdown .scrollable_panel {
-  max-width: $new-theme-material-popup-width;
-  z-index: 2 !important;
-
-  .build_cause.list_table {
-    .change {
-      @include new-theme-changes-table;
-
-      td.revision {
-        width: $new-theme-material-popup-revision-width;
-        max-width: $new-theme-material-popup-revision-width;
-
-        span.wrapped_word {
-          vertical-align: text-bottom;
-          font-family: "courier new", monospace !important;
-          font-style: normal;
-          max-width: $new-theme-material-popup-hash-width;
-          display: inline-block;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-      }
-    }
-  }
-}
-
 .vsm-entity.pipeline ul.instances {
   height: 61px;
 
@@ -1572,31 +1438,6 @@ ul.plugins .plugin {
   .plugin-messages li {
     font-size: 12px;
     line-height: 18px;
-  }
-}
-
-// add user & modal
-
-span#add_error_message {
-  display: block;
-  margin: 0 15px 10px;
-}
-
-input#search_id {
-  background-position: calc(100% - 8px) center;
-}
-
-.enhanced_dropdown {
-  .list_table {
-    font-weight: 600;
-
-    tbody {
-      background: transparent;
-
-      tr:nth-child(even) {
-        background-color: transparent;
-      }
-    }
   }
 }
 
@@ -1748,13 +1589,6 @@ code,
   .admin-rounded-container {
     padding: 0;
   }
-}
-
-.template_group h2.entity_title {
-  background-position: -12px -15px;
-  font-size: 18px;
-  margin-top: 7px;
-  font-weight: 400;
 }
 
 #build-status-panel {

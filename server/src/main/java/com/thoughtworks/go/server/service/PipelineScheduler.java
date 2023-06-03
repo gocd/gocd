@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.service.result.ServerHealthServiceUpdatingOper
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +117,6 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                 return;
             }
 
-            removeLicenseInvalidFromLog();
             checkPipelines();
         } catch (Exception e) {
             LOGGER.error("Error autoScheduling pipelines", e);
@@ -159,7 +157,6 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
         }
 
         LOGGER.info("[Pipeline Schedule] [Accepted] Manual trigger of pipeline '{}' accepted for user {}", pipelineName, CaseInsensitiveString.str(username.getUsername()));
-        removeLicenseInvalidFromLog();
         buildCauseProducerService.manualSchedulePipeline(username, new CaseInsensitiveString(pipelineName), scheduleOptions, result);
         LOGGER.info("[Pipeline Schedule] [Processed] Manual trigger of pipeline '{}' processed with result '{}'", pipelineName, result.getServerHealthState());
     }
@@ -205,11 +202,6 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
             return true;
         }
         return false;
-    }
-
-    private void removeLicenseInvalidFromLog() {
-        serverHealthService.update(ServerHealthState.success(
-                HealthStateType.invalidLicense(HealthStateScope.GLOBAL)));
     }
 
     @Override

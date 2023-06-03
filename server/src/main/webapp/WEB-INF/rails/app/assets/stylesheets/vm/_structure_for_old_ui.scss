@@ -436,15 +436,6 @@ a.xlink_as_button {
   color: #fff;
 }
 
-#content_titlebar .help {
-  text-indent: -10000px;
-  background: transparent image_url("buttons_sprites.png") no-repeat -320px top;
-  width: 22px;
-  height: 23px;
-  margin: 0 0 0 0.8em;
-  float: left;
-}
-
 .pipeline_history h2.entity_title,
 .yui-b .Job h2.entity_title,
 .job_details h1.entity_title,
@@ -531,22 +522,6 @@ a.xlink_as_button {
   top: auto;
   left: auto;
   border: 1px solid #8d8d8d;
-}
-
-.enhanced_dropdown .scrollable_panel input {
-
-}
-
-.enhanced_dropdown .loading {
-  background: image_url("spinner.gif") 50% 50% no-repeat transparent;
-  padding: 1em;
-}
-
-.enhanced_dropdown .error {
-  background: image_url("g9/icons/error_small.png") 5px 62% no-repeat transparent;
-  padding: 1em 1em 1em 2em;
-  color: #ff3e44;
-  border: 1px solid #d4d4d4;
 }
 
 .enhanced_dropdown,
@@ -677,34 +652,6 @@ table {
   color: #999;
 }
 
-/* Sortable Table */
-
-.sortable_table th a span {
-  background-image: image_url("g9/icons/icon_sort_sortable.png");
-  background-position: right;
-  background-repeat: no-repeat;
-  padding-right: 15px;
-  display: inline-block;
-}
-
-.sortable_table th a span:hover {
-  background-image: image_url("g9/icons/icon_sort_sortable_hover.png");
-}
-
-.sortable_table th a.sorted_asc span {
-  background-image: image_url("g9/icons/icon_sorted_up.png");
-}
-
-.sortable_table th a.sorted_desc span {
-  background-image: image_url("g9/icons/icon_sorted_down.png");
-}
-
-/* Selectable Table */
-.selectable_table .selector {
-  padding: 0;
-  text-align: center;
-}
-
 .required .asterisk {
   color: #c00;
 }
@@ -716,8 +663,6 @@ table {
 #header::after,
 #body::after,
 #footer::after,
-#content_titlebar::after,
-#content_statusbar::after,
 .content::after,
 #header .pipeline_flow .pipeline::after,
 .page_title_bar::after,
@@ -737,8 +682,6 @@ table {
   #header,
   #body,
   #footer,
-  #content_titlebar,
-  #content_statusbar,
   .content,
   #header .pipeline_flow .pipeline,
   .page_title_bar,
@@ -759,8 +702,6 @@ table {
 * + html #header,
 * + html #body,
 * + html #footer,
-* + html #content_titlebar,
-* + html #content_statusbar,
 * + html .content,
 * + html #header .pipeline_flow .pipeline,
 * + html .page_title_bar,

@@ -67,11 +67,6 @@
   display: inline;
 }
 
-.compare_pipeline.bisect {
-  background: image_url("g9/icons/icon_compare_16.png") transparent no-repeat;
-  opacity: 0.5;
-}
-
 .compare_pipeline.dashboard {
   font-size: 12px;
 }
@@ -120,24 +115,6 @@
   margin-bottom: 1.167em;
 }
 
-.promote_down {
-  background: white image_url("g9/icons/arrow_open.png") no-repeat;
-}
-
-.promote_up {
-  background: white image_url("g9/icons/arrow_up.png") no-repeat;
-}
-
-.promote_up,
-.promote_down {
-  height: 8px;
-  width: 10px;
-}
-
-.stage_approval_container {
-  padding-left: 15px;
-}
-
 /*
 * Environments
 */
@@ -154,19 +131,6 @@
   width: 250px;
   margin-bottom: 5px;
   font-size: larger;
-}
-
-a.add_item {
-  padding: 8px 5px 5px 22px;
-  background: image_url("g9/icon_add_16.png") no-repeat 1px 5px;
-  display: block;
-  width: 80px;
-  margin: 10px 0;
-  text-decoration: none;
-  color: #333;
-  font-size: 12px;
-  cursor: pointer;
-  clear: both;
 }
 
 .environment .pipeline .deploy {
@@ -250,7 +214,6 @@ a#show_other_stage_runs {
   height: 1em;
   margin-right: 0.5em;
   float: left;
-  disply: inline;
 }
 
 .page_title_bar .page_status_bar .enhanced_dropdown {
@@ -277,8 +240,6 @@ a#show_other_stage_runs {
 
 .page_title_bar .run ul li {
   display: block;
-
-  /*    padding-bottom: .5em;             */
   clear: left;
 }
 
@@ -405,11 +366,10 @@ a#show_other_stage_runs {
   float: left;
   padding: 5px 0;
   padding-right: 5px;
-  font-weight: bold; /* width: 6em; */
+  font-weight: bold;
 }
 
 #stages .build_cause dd {
-  /* margin-left: 9em; */
   float: left;
   padding: 5px 0;
 }
@@ -463,14 +423,6 @@ a#show_other_stage_runs {
   vertical-align: top;
 }
 
-/*
-* Deploy Popup (Change Materials and Environment Vars
-*/
-
-.material_detail .bring_to_front {
-  z-index: 100;
-}
-
 .sub_tabs_container li.updated a,
 .sub_tabs_container li.updated a:hover {
   font-weight: bold;
@@ -484,61 +436,9 @@ a#show_other_stage_runs {
   display: block;
 }
 
-/* Locked icons */
-
-span.click_to_unlock {
-  float: right !important;
-  margin: 0 !important;
-  border-left: none !important;
-  display: block;
-}
-
-span.click_to_unlock a {
-  background: image_url("g9/icons/icon_lock.png") no-repeat;
-  display: block;
-  width: 15px;
-  height: 15px;
-}
-
-span.locked {
-  background: image_url("g9/icons/icon_lock_locked.png") no-repeat;
-  float: right !important;
-  margin: 0 !important;
-  border-left: none !important;
-  width: 15px;
-  height: 15px;
-  display: block;
-}
-
-/* use black spinny for unlocking */
-
-.locked .spinny {
-  background: image_url("g9/icons/spinny_black_16.gif") no-repeat 10px 50% transparent;
-  width: 16px;
-  height: 16px;
-  display: block;
-}
-
 /* Pipeline unlocking */
 .locked_instance a {
   font-size: 1em;
-}
-
-/* Pipeline Groups - Changes */
-#pipelines .enhanced_dropdown,
-#stages .fbh_microcontent_popup .enhanced_dropdown,
-#pipelines .enhanced_dropdown .scrollable_panel {
-  max-width: 50em;
-  padding: 0;
-}
-
-/*
-* Admin Page: Server Configuration Tab
-*/
-
-.admin_wrapper #form_parent form,
-#admin_tasks table.reorderable_table {
-  margin-top: 12px;
 }
 
 .fieldset h3 {
@@ -550,14 +450,6 @@ span.locked {
 fieldset.two-cols button {
   vertical-align: middle;
 }
-
-input.small_text_field {
-  width: 45px;
-}
-
-/*
-* Admin Page: Users, Templates & Groups Tab
-*/
 
 /**
  * Admin - Edit Pipeline
@@ -573,7 +465,6 @@ input.small_text_field {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 
-  /*  line-height: 11px; */
   font-size: 11px !important;
   padding: 7px 10px;
 }
@@ -605,72 +496,8 @@ li.template_form_error {
 
 /* nav */
 
-.pipeline_header {
-  border-bottom: 1px solid #ccc;
-  display: block;
-  float: left;
-  margin-bottom: 15px;
-  overflow: visible;
-  padding-bottom: 10px;
-  width: 100%;
-}
-
 .admin_workspace .pipeline_header {
   float: none;
-}
-
-.pipeline_header h3 {
-  font-size: 16px;
-}
-
-.pipeline_header .pipeline_name_link {
-  display: table-cell;
-}
-
-.pipeline_header .pipeline_actions {
-  float: right;
-  padding-top: 5px;
-  padding-left: 10px;
-  padding-bottom: 5px;
-}
-
-.admin_nav ul {
-  float: none;
-}
-
-.admin_nav ul li {
-  display: block;
-  float: left;
-}
-
-.admin_nav ul li:last-child {
-  border: 0;
-}
-
-.admin_nav ul li a {
-  color: #333;
-  display: block;
-  padding: 7px 10px;
-  margin: 1px 0;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-}
-
-.admin_nav ul li a:hover {
-  color: #fff;
-  background: #999;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
-  -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
-  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
-}
-
-.admin_nav ul li a.selected {
-  color: #fff;
-  background: #444;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
-  -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
-  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
 }
 
 /* css hack to highlight selected nav item */
@@ -689,54 +516,10 @@ li.template_form_error {
   background: #fff;
 }
 
-/* admin pipeline header */
-.admin_workspace .header {
-  border-bottom: 1px solid #ccc;
-  margin: 0 0 15px 0;
-  padding: 0 0 10px 0;
-  overflow: hidden;
-}
-
-.admin_workspace .header h2 {
-  color: #3f2559;
-  font-size: 18px;
-  margin: 0;
-  padding: 0;
-  display: inline;
-  float: left;
-}
-
-#MB_content h3,
-.admin_workspace h3,
-.admin_wrapper h3 {
+#MB_content h3 {
   font-size: 16px;
   font-weight: 700;
   color: #222;
-}
-
-/* do this so tooltips show up in the proper place */
-.admin_workspace h3 {
-  display: inline;
-}
-
-.admin_workspace .header button,
-.admin_workspace .header .link_as_button {
-  float: right;
-  margin: 0;
-}
-
-.admin_workspace .allow {
-  display: inline-block;
-  margin-left: 20px;
-}
-
-/* pipeline navigator */
-.pipeline_navigation {
-  -moz-border-radius: 6px 6px 6px 6px;
-  background-color: #fff;
-  border: 0 none;
-  margin: 0 15px 15px;
-  padding: 15px;
 }
 
 /* clicky admin - job tabs */
@@ -756,56 +539,6 @@ li.template_form_error {
   font-size: larger;
   float: left;
 }
-
-label.label_with_help {
-  float: left;
-  display: inline;
-}
-
-.job_timeout_options {
-  clear: left;
-}
-
-.job_timeout_options .timeout_option {
-  clear: both;
-  display: block;
-}
-
-.job_timeout_options .timeout_option label {
-  vertical-align: text-bottom;
-}
-
-/* new admin stuff */
-
-.form_body_text {
-  font-size: 12px;
-}
-
-.users_and_roles td {
-  padding-bottom: 5px;
-}
-
-td.align_top {
-  vertical-align: top;
-}
-
-li.task_property span.name {
-  font-weight: bold;
-  margin-right: 0.3em;
-}
-
-li.task_property {
-  padding-right: 0.5em;
-}
-
-.light_box_content {
-  padding: 15px;
-}
-
-.light_box_content button.right {
-  float: right;
-}
-
 
 /* artifacts wizard */
 

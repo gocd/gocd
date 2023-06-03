@@ -22,8 +22,6 @@
  * TABLE OF CONTENTS
  *
  * =LIST_TABLE
- * =SORTABLE_TABLE
- * =SELECTABLE_TABLE
  * != NEEDS MIGRATING
  */
 
@@ -62,37 +60,6 @@
 .list_table .Disabled {
   color: #999;
   font-style: italic;
-}
-
-/**
- * =SORTABLE TABLE
-**/
-.sortable_table th a.sorted_asc span {
-  background-image: image_url("g9/icons/icon_sorted_up.png");
-}
-
-.sortable_table th a.sorted_desc span {
-  background-image: image_url("g9/icons/icon_sorted_down.png");
-}
-
-.sortable_table th a span {
-  background-image: image_url("g9/icons/icon_sort_sortable.png");
-  background-position: right;
-  background-repeat: no-repeat;
-  display: inline-block;
-  padding-right: 15px;
-}
-
-.sortable_table th a span:hover {
-  background-image: image_url("g9/icons/icon_sort_sortable_hover.png");
-}
-
-/**
- * =SELECTABLE_TABLE
-**/
-.selectable_table td.selector {
-  padding: 0;
-  text-align: center;
 }
 
 /**

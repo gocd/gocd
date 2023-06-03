@@ -23,7 +23,6 @@
 
 [#-- @ftlvariable name="currentGoCDVersion" type="com.thoughtworks.go.CurrentGoCDVersion" --]
 [#-- @ftlvariable name="concatenatedStageBarCancelledIconFilePath" type="java.lang.String" --]
-[#-- @ftlvariable name="concatenatedSpinnerIconFilePath" type="java.lang.String" --]
 [#-- @ftlvariable name="concatenatedCruiseIconFilePath" type="java.lang.String" --]
 
 [#-- @ftlvariable name="pathResolver" type="com.thoughtworks.go.server.service.RailsAssetsService" --]

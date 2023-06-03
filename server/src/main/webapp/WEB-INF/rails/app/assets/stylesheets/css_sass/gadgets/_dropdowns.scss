@@ -52,53 +52,6 @@
   padding: 5px;
 }
 
-/**
- * ==INTERACTIONS
- */
-
 .enhanced_dropdown {
   max-height: 30em;
-}
-
-.enhanced_dropdown .scrollable_panel {
-  max-height: 17em;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-* + html .enhanced_dropdown .scrollable_panel {
-  height: expression(this.scrollheight >  204 ? "17em" : "auto");
-}
-
-.enhanced_dropdown .scrollable_panel .selector_pipeline {
-  padding: 1em;
-}
-
-.enhanced_dropdown .scrollable_panel .selectors {
-  padding: 0.7em;
-}
-
-.enhanced_dropdown a.lookup_icon {
-  background: image_url("g9/icon_search.png") transparent no-repeat right;
-}
-
-/**
- * ==MESSAGING
- */
-.enhanced_dropdown .loading {
-  background: image_url("spinner.gif") 50% 50% no-repeat transparent;
-  padding: 1em;
-}
-
-.enhanced_dropdown .error {
-  padding: 10px 10px 10px 25px;
-}
-
-/**
- * =!NEEDS MIGRATING
- */
-.pipeline_group .pipeline .actions .enhanced_dropdown {
-  max-width: 80%;
-  overflow-x: hidden;
-  overflow-y: auto;
 }

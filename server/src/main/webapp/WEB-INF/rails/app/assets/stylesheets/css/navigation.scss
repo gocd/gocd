@@ -146,10 +146,6 @@ iframe {
   background-position: left 50%;
 }
 
-#header .tabs .admin {
-  background-image: image_url("bg-header-tabs-admin.png");
-}
-
 #header .tabs .current {
   background-image: image_url("bg-header-tabs-current.png");
   background-position: left top;
@@ -159,17 +155,6 @@ iframe {
 .tabs li span {
   padding: 0.5em 1em;
   text-decoration: none;
-}
-
-a.sign-out {
-  background: transparent no-repeat scroll center left;
-  line-height: 1.3em;
-  padding: 2px 5px 2px 17px;
-}
-
-a.sign-out {
-  font-weight: bold;
-  background-image: image_url("icon-sign-out.gif");
 }
 
 /* footer styles */

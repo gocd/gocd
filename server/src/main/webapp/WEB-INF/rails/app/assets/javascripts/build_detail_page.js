@@ -148,7 +148,6 @@
 
     $(document).on("click.fullScreen", '#full-screen', function () {
       $(".content_wrapper_outer").toggleClass("full-screen");
-      $("#cruise_message_counts").toggleClass("hide");
       $(window).trigger($.Event("resetPinOnScroll"), [{
         calcRequiredScroll: function () {
           return $(".console-area").offset().top - $("#header").outerHeight(true) - $(".page_header").outerHeight(true);

@@ -62,10 +62,6 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("FORBIDDEN", 403, HealthStateScope.GLOBAL, null);
     }
 
-    public static HealthStateType invalidLicense(HealthStateScope scope) {
-        return new HealthStateType("INVALID_LICENSE", 402, scope, null);
-    }
-
     public static HealthStateType artifactsDiskFull() {
         return new HealthStateType("ARTIFACTS_DISK_FULL", 400, HealthStateScope.GLOBAL, null);
     }

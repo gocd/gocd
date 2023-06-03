@@ -58,7 +58,7 @@
 
 // used by Rails job details console and websocket_wrapper.js
 //= require "lib/often-0.3.2.js"
-//= require "lib/component-emitter-1.2.1.js"
+//= require "lib/component-emitter-1.3.0.js"
 
 // GoCD's own shared functions
 //= require "plugin-endpoint.js"

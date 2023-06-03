@@ -1,0 +1,12 @@
+#!/bin/bash
+set -euo pipefail
+
+BASE_DIR=$(cd `dirname $0`/.. && pwd)
+SEARCH_DIR=${SEARCH_DIR:-server/src/main/webapp/WEB-INF/rails/app/assets/images}
+SEARCH_PATH="${BASE_DIR}/${SEARCH_DIR}"
+
+echo "Searching for unused assets located in ${SEARCH_PATH}..."
+
+EXEC_ON_FIND="filepath=\"{}\"; filename=\"\${filepath#\"${SEARCH_PATH}\"/}\"; if ! git --no-pager grep -F -H \"\$filename\" \"${BASE_DIR}\" >/dev/null; then git rm \"\$filepath\"; fi"
+
+find "${SEARCH_PATH}" -type f -exec bash -c "${EXEC_ON_FIND}" \;

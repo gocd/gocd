@@ -27,7 +27,7 @@ $sidebar-color: #555;
 $sidebar-width: 257px;
 $sidebar-border: 10px;
 $page-margin: 15px;
-$CONSOLE_ACTION_BAR_ACTIVE: #79f582;
+$console-action-bar-active: #79f582;
 
 #build_detail_summary_container {
   zoom: 1;
@@ -71,91 +71,8 @@ $CONSOLE_ACTION_BAR_ACTIVE: #79f582;
   background: transparent image_url("progress-bar.gif") repeat-x left top;
 }
 
-.build-detail-header {
-  font-size: 1em;
-  font-weight: bold;
-}
-
-/* - Menu Tabs B--------------------------- */
-.build_detail_container_menu {
-  float: left;
-  width: 100%;
-  font-size: 93%;
-  line-height: normal;
-  margin-top: 2em;
-}
-
-.build_detail_container_menu ul {
-  list-style: none;
-}
-
-.build_detail_container_menu li {
-  display: inline;
-  cursor: pointer;
-}
-
-/* To build the tabs we use the "sliding doors" method on an a tag and a span within the a */
-
-.build_detail_container_menu a {
-  float: left;
-  background: image_url("tableftB.gif") no-repeat left -42px;
-  padding: 0 0 0 4px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.build_detail_container_menu a span {
-  font: bold 11px Arial, Verdana, sans-serif;
-  float: left;
-  display: block;
-  background: image_url("tabrightB.gif") no-repeat right -42px;
-  padding: 5px 15px 4px 6px;
-  color: #666;
-}
-
-/* Commented Backslash Hack hides rule from IE5-Mac \ */
-.build_detail_container_menu a span {
-  float: none;
-}
-
-/* End IE5-Mac hack */
-
-/* on hover display the over state of the tab - reposition background graphics to show the over portion */
-
-.build_detail_container_menu a:hover span {
-  color: #000;
-}
-
-.build_detail_container_menu a:hover {
-  background-position: 0% top;
-}
-
-.build_detail_container_menu a:hover span {
-  background-position: 100% top;
-}
-
-/* Mark currently selected tab */
-
-.build_detail_container_menu .current_tab a {
-  background-position: 0% top;
-}
-
-.build_detail_container_menu .current_tab a span {
-  background-position: 100% top;
-}
-
 div.maincol.build_detail {
   background-color: transparent;
-}
-
-/* Position the two image links for the build lists */
-
-.sidecol p.sidecol_header a {
-  display: block;
-  float: right;
-  margin-left: 0.2em;
-  position: relative;
-  top: 3px;
 }
 
 /* The list of builds in the side column */
@@ -217,8 +134,6 @@ div.maincol.build_detail {
   margin: 0;
 }
 
-/* Set icons - colours are set in build_common.css */
-
 /* Status list in the summary bar at the top of the page */
 
 ul.summary {
@@ -261,12 +176,6 @@ div.build_detail_container_content {
   height: 300px;
 }
 
-.widget .logfile {
-  padding-left: 22px;
-  background-image: image_url("script.gif");
-  background-repeat: no-repeat;
-}
-
 .widget iframe {
   border: none;
 }
@@ -281,7 +190,7 @@ div.build_detail_container_content {
 
 .console-area.with-timestamps {
   .toggle-timestamps {
-    color: $CONSOLE_ACTION_BAR_ACTIVE;
+    color: $console-action-bar-active;
   }
 }
 
@@ -300,7 +209,7 @@ div.build_detail_container_content {
 
     &.tailing {
       background-image: image-url("scroll_on.png");
-      color: $CONSOLE_ACTION_BAR_ACTIVE;
+      color: $console-action-bar-active;
     }
   }
 
@@ -645,11 +554,6 @@ a.collapse-all {
   text-decoration: underline;
 }
 
-#add-new-property {
-  /* margin-top: 1em; */
-  display: block;
-}
-
 #build-status-panel .job_details_content {
   /* margin-right: 260px; */
   overflow: hidden;
@@ -812,9 +716,5 @@ a.collapse-all {
 }
 
 .compress {
-  display: none;
-}
-
-#cruise_message_counts.hide {
   display: none;
 }

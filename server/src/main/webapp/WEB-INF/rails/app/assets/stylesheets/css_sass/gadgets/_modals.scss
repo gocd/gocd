@@ -95,7 +95,6 @@
   text-align: left;
 }
 
-.ui-dialog-titlebar-close,
 #MB_close {
   background-image: image_url("g9/icons/sprite_modal_close.png");
   background-position: 0 -30px;
@@ -113,13 +112,12 @@
   zoom: 1;
 }
 
-.ui-dialog-titlebar-close,
 #MB_close:hover {
   background-position: 0 0;
 }
 
 #MB_loading {
-  background: transparent image_url("spinner.gif") 50% 0 no-repeat;
+  background: transparent image_url("g9/icons/spinny_white_16.gif") 50% 0 no-repeat;
   text-indent: -10000px;
   padding: 1.5em;
 }

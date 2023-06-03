@@ -40,7 +40,6 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
     public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
     public static final String CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH = "concatenatedStageBarCancelledIconFilePath";
-    public static final String CONCATENATED_SPINNER_ICON_FILE_PATH = "concatenatedSpinnerIconFilePath";
     public static final String CONCATENATED_CRUISE_ICON_FILE_PATH = "concatenatedCruiseIconFilePath";
     public static final String PATH_RESOLVER = "pathResolver";
     public static final String GO_UPDATE = "goUpdate";
@@ -103,7 +102,6 @@ public class GoCDFreeMarkerView extends FreeMarkerView {
 
         model.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         model.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
-        model.put(CONCATENATED_SPINNER_ICON_FILE_PATH, railsAssetsService.getAssetPath("spinner.gif"));
         model.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));
 
         model.put(PATH_RESOLVER, railsAssetsService);

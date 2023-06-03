@@ -189,7 +189,6 @@ class GoCDFreeMarkerViewTest {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png")).thenReturn("assets/g9/stage_bar_cancelled_icon.png");
-        when(railsAssetsService.getAssetPath("spinner.gif")).thenReturn("assets/spinner.gif");
         when(railsAssetsService.getAssetPath("cruise.ico")).thenReturn("assets/cruise.ico");
         GoCDFreeMarkerView view = spy(new GoCDFreeMarkerView(systemEnvironment));
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
@@ -203,7 +202,6 @@ class GoCDFreeMarkerViewTest {
         view.exposeHelpers(context, servletRequest);
 
         assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
-        assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
         assertThat(context.get(GoCDFreeMarkerView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
         assertThat(context.get(GoCDFreeMarkerView.PATH_RESOLVER), is(railsAssetsService));
     }

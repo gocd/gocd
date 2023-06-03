@@ -344,15 +344,3 @@ ul.key-value-pair {
   font-size: 14px;
   line-height: $component-icon-size;
 }
-
-.unknown-plugin-icon {
-  @include icon-before($type: question, $size: $auth-config-plugin-icon-size, $color: $light-gray);
-
-  &::before {
-    margin: 0;
-  }
-}
-
-.collapse_header_error_message {
-  font-size: 13px;
-}

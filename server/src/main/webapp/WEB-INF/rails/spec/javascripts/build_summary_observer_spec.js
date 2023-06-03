@@ -24,11 +24,9 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
             "<div class=\"build_detail_summary\">\n" +
             "    <ul class=\"summary\">\n" +
             "        <li><strong>Building since:</strong> $buildSince</li>\n" +
-            "        <li><strong>Elapsed time:</strong> <span id=\"${projectName}_time_elapsed\"><img\n" +
-            "                src=\"images/spinner.gif\"/></span></li>\n" +
+            "        <li><strong>Elapsed time:</strong> <span id=\"${projectName}_time_elapsed\"></span></li>\n" +
             "        <li><strong>Previous successful build:</strong> $durationToSuccessfulBuild</li>\n" +
-            "        <li><strong>Remaining time:</strong> <span id=\"${projectName}_time_remaining\"><img\n" +
-            "                src=\"images/spinner.gif\"/></span></li>\n" +
+            "        <li><strong>Remaining time:</strong> <span id=\"${projectName}_time_remaining\"></span></li>\n" +
             "        <span id=\"build_status\"></span>\n" +
             "    </ul>\n" +
             "</div>\n" +

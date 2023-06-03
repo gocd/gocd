@@ -201,10 +201,6 @@ fieldset {
   overflow: hidden;
 }
 
-.form_buttons.actions {
-  /*    direction: rtl; */
-}
-
 .form_item_block {
   margin-right: 10px;
   overflow: hidden;
@@ -215,15 +211,6 @@ fieldset {
 
 textarea.template {
   display: none;
-}
-
-input[type="text"].searchbox {
-  background: image_url("g9/icon_search.png") transparent no-repeat right;
-  padding-right: 16px;
-}
-
-input.searchbox.ac_loading {
-  background: image_url("g9/icons/spinny_white_16.gif") transparent no-repeat right center;
 }
 
 select.large,

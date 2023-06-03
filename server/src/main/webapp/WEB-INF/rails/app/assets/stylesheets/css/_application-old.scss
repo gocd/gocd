@@ -29,20 +29,6 @@ body {
   background: #fff;
 }
 
-#yui-main #page-title .tips {
-  display: inline-block;
-  font-size: 0.7em;
-  font-weight: normal;
-  text-indent: -10000px;
-  zoom: 1;
-  overflow: hidden;
-  background: transparent image_url("buttons_sprites.png") no-repeat -320px top;
-  width: 23px;
-  height: 23px;
-  margin: 0 0 0 0.8em;
-  float: left;
-}
-
 /* Forms */
 input,
 select {
@@ -93,22 +79,6 @@ input.width-very-small {
   width: 3em;
 }
 
-input.input-three-quarters-field {
-  float: left;
-  margin: 0;
-  width: 74.5%;
-}
-
-input.input-three-quarters-btn1,
-input.input-three-quarters-btn2 {
-  float: right;
-  width: 11%;
-}
-
-input.input-three-quarters-btn1 {
-  margin-right: 1%;
-}
-
 input[type="text"],
 input[type="password"],
 input.width-medium,
@@ -131,26 +101,6 @@ fieldset {
   -moz-box-shadow: inset 0 0 5px #ccc;
   margin: 0 0 15px 0;
   padding: 15px;
-}
-
-#buildfileHeader,
-#targetHeader {
-  width: 200px;
-  background-color: transparent !important;
-  padding: 5px;
-  border: 1px solid #ccc;
-}
-
-#buildfileHeaderEditControl,
-#targetHeaderEditControl {
-  margin-top: 10px;
-}
-
-#targetHeader-inplaceeditor,
-#buildfileHeader-inplaceeditor {
-  position: relative;
-  left: 0;
-  top: 5px;
 }
 
 fieldset h2,
@@ -195,10 +145,6 @@ fieldset.two-cols p {
 
 fieldset.two-cols p label {
   color: #2b2b2b;
-}
-
-fieldset span#pipeline-group-message {
-  font-size: 11px;
 }
 
 fieldset .error_message {
@@ -255,11 +201,6 @@ th {
   font-weight: bold;
 }
 
-th.right-align,
-td.right-align {
-  text-align: right;
-}
-
 /* Table visuals */
 tr.even {
 
@@ -274,51 +215,7 @@ tr.even{
 
 }
 
-/* simple table class */
-table.simple {
-}
-
-table.simple .table-top {
-  border-bottom: 2px solid #a6a6a6;
-}
-
-table.simple .table-top {
-}
-
-table.simple .table-top .last {
-}
-
-table.simple td {
-}
-
-/* extra-simple */
-table.extra-simple {
-  zoom: 1;
-
-  /* color: #7d4e32; */
-  border: none;
-}
-
-table.extra-simple td,
-table.extra-simple th {
-  padding: 5px;
-  font-weight: normal;
-  border-right: 1px solid #ccc;
-}
-
-table.extra-simple .last {
-  border-right: none;
-  text-align: right;
-}
-
 /* Icons */
-a.save {
-  color: #006;
-  background: transparent none no-repeat scroll left center;
-  margin-right: 0.5em;
-  padding: 0.25em 0 0.25em 26px;
-}
-
 a.expand-all,
 a.collapse-all {
   color: #000;
@@ -328,20 +225,10 @@ a.collapse-all {
   float: right;
 }
 
-a.save:hover,
-a.cancel:hover,
 a.expand-all:hover,
 a.collapse-all:hover {
   background-color: #e1d4bb;
   text-decoration: none;
-}
-
-a.save {
-  background-image: image_url("icon_save.png");
-}
-
-a.editor_cancel {
-  margin-left: 0.5em;
 }
 
 #doc3 {
@@ -356,35 +243,12 @@ a.editor_cancel {
   display: block;
 }
 
-/* header area */
-#hd {
-  background: #a29a86 image_url("bg_header_and_tabs.png") repeat-x left top;
-  zoom: 1;
-}
-
-#hd-top {
-}
-
-#neck {
-  margin: 0;
-  position: relative;
-  zoom: 1; /* this hack to fix a IE bug, otherwise it will give this div extra 3px margin */
-  padding: 0 2em;
-}
-
 #logo {
   margin: 0;
   margin-left: 30px;
   display: block;
   width: 190px;
   height: 76px;
-}
-
-#head-links {
-  clear: right;
-  float: right;
-  margin: 0.5em 1.5em 0.5em 0;
-  font-size: 0.85em;
 }
 
 #user {
@@ -395,124 +259,18 @@ a.editor_cancel {
   _width: 25em;
 }
 
-#user .user-links {
-  padding: 0.5em 0.5em 0 0.5em;
-  _text-align: right;
-}
-
-#user .user-links strong {
-  color: black;
-}
-
-#current-user {
-  padding-right: 1em;
-}
-
 #user a,
-#user a:visited,
-#head-links a,
-#head-links a:visited {
+#user a:visited {
   text-decoration: none;
   color: #1f2314;
-}
-
-#head-links li {
-  display: inline;
-  padding: 0;
-  line-height: 1em;
-  border-right: 1px solid #46493c;
-}
-
-#head-links li a {
-  color: #1f2314;
-  padding: 0 0.6em 0 0.25em;
-}
-
-#head-links li a:hover {
-  background-color: #c4c4be;
-}
-
-#head-links li.last {
-  border-right: none;
-}
-
-/* Mini links (mostly in the masthead) */
-a.profile,
-a.sign-in, {
-  background: transparent no-repeat scroll center left;
-  line-height: 1.3em;
-  padding: 2px 5px 2px 17px;
-}
-
-a.profile {
-  padding-left: 0;
-}
-
-a.sign-in {
-  font-weight: bold;
-  background-image: image_url("icon-exit.gif");
-}
-
-a.profile:hover,
-a.sign-in:hover,
-a.sign-out:hover {
-  background-color: #f8f2e6;
-  text-decoration: none !important;
-}
-
-/* login screen */
-
-body#login-page {
-  background: #333;
-  color: #fff;
-
-  .page-wrap {
-    background: #444;
-  }
-}
-
-body#login-page #bd {
-  height: 100%;
-  background: #444;
-}
-
-body#login-page #yui-main {
-  border: 0;
-}
-
-#login-page .yui-t7 #yui-main .yui-b {
-  background-color: #444;
 }
 
 img#application_logo {
   display: none;
 }
 
-div#logo-login {
-  margin: 15px;
-  padding: 0;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 10%);
-  margin-bottom: 20px;
-}
-
 input:-webkit-autofill {
   background: #fff !important;
-}
-
-p#login-actions {
-  padding: 10px 0;
-}
-
-button#signin2 {
-  min-width: 100px;
-  padding: 6px 9px;
-  background-color: #f6f6f6;
-}
-
-button#signin2 span {
-  font-size: 11px !important;
-  color: #333;
 }
 
 /* main content */
@@ -521,43 +279,7 @@ button#signin2 span {
 }
 
 .bd-container {
-  /* margin: 0.8em 0; */
   padding: 0;
-}
-
-.bd-content-container {
-  /* margin: 0.8em 1em; */
-}
-
-.bd-container .bd-c-wrapper {
-  padding: 0.5em 1em;
-  zoom: 1;/* this hack is to fix contents is out of boundries bug under IE6 */
-}
-
-#footer-links {
-  float: right;
-  margin: 0 2em 0 0;
-  font-size: 0.9em;
-}
-
-#footer-links li {
-  display: inline;
-  padding: 0;
-  line-height: 1em;
-  border-right: 1px solid #46493c;
-}
-
-#footer-links li a {
-  color: #1f2314;
-  padding: 0 0.6em 0 0.25em;
-}
-
-#footer-links li a:hover {
-  background-color: #ece4d3;
-}
-
-#footer-links li.last {
-  border-right: none;
 }
 
 /* project-summary-panel style */
@@ -568,82 +290,8 @@ button#signin2 span {
   background: #ede7db;
 }
 
-/* icon style */
-.item-list .summary {
-  list-style: none inside;
-  padding-left: 22px;
-  margin-left: -13px;
-  background: transparent no-repeat left top;
-}
-
-.item-list .faild {
-  background-image: image_url("icon-failure-tiny.gif");
-}
-
-.item-list .passed {
-  background-image: image_url("icon-success-tiny.gif");
-}
-
-.item-list .discontinued {
-  background-image: image_url("icon-discontinued-tiny.gif");
-}
-
-.item-list .inactive {
-  background-image: image_url("icon-inactive-tiny.gif");
-}
-
-#tools_bar_holder .item-list li {
-  list-style: none;
-  line-height: 2em;
-  border-bottom: 1px solid #e4d9c3;
-}
-
-.item-list a {
-  color: #5b3820;
-}
-
-.item-list .rss {
-  background-image: image_url("icon-rss.png");
-}
-
-.item-list .disabled-when-no-admin-rights span,
-.item-list .disabled-when-scecurity-disabled span {
-  color: #a99;
-}
-
-h2 button.collapse-or-expand-button {
-  display: block;
-  float: left;
-  height: 20px;
-  width: 20px;
-  font-size: 0;
-  line-height: 0;
-  text-indent: -10000px;
-  zoom: 1;
-  overflow: hidden;
-  padding: 0;
-  border: none;
-  cursor: pointer;
-}
-
-.item-list {
-  margin: 0.4em 0;
-}
-
-.item-list li {
-  line-height: 1.5em;
-  background: no-repeat left 50%;
-  list-style: disc outside;
-  color: #5b3820;
-}
-
 .sidebar-container {
   margin-bottom: 1em;
-}
-
-.sidebar-content {
-  padding-left: 1em;
-  padding-top: 0.5em;
 }
 
 .sidebar-container h2 {
@@ -655,13 +303,6 @@ h2 button.collapse-or-expand-button {
 
 .sidebar-container h2 a {
   color: #dbd6d3;
-}
-
-a.has-icon,
-span.has-icon {
-  padding: 4px 0 4px 25px;
-  color: #666;
-  line-height: 1.5em;
 }
 
 #yui-main {
@@ -747,86 +388,8 @@ span.has-icon {
   padding: 0;
 }
 
-/* Breadcrumb styles */
-#breadcrumbs {
-  padding: 0.5em 0 0.4em 0.8em;
-  font-size: 0.9em;
-}
-
-#breadcrumbs a,
-#breadcrumbs a:visited {
-  color: #333;
-}
-
-#breadcrumbs .divider {
-  color: #666;
-  padding-left: 0.1em;
-  padding-right: 0.1em;
-}
-
-#breadcrumbs .home {
-  background: image_url("icon-cruise-grey.png") no-repeat left top;
-  padding-left: 22px;
-}
-
 .error_message {
   color: #900;
-}
-
-.ok_message {
-  font-weight: normal;
-  color: #3c6;
-  font-size: 11px;
-}
-
-/* what is this tips */
-#yui-main h1.what-is-this {
-  color: #290d06;
-  margin: 0;
-  padding-top: 0;
-}
-
-#yui-main h1.collapsed {
-  background: transparent image_url("icon_title_collapsed.gif") no-repeat scroll 10px 30%;
-  padding-left: 25px;
-  cursor: pointer;
-}
-
-#yui-main h1.expended {
-  background: transparent image_url("icon_title_expended.gif") no-repeat scroll 10px 30%;
-  padding-left: 25px;
-  cursor: pointer;
-}
-
-div.what-is-this {
-  color: #290d06;
-  margin: 0 1em 1em 1em;
-}
-
-div.what-is-this p {
-  margin-left: 1em;
-}
-
-#head-links .cctray a {
-  padding-left: 22px;
-  background: transparent image_url("cctrayicon_small.gif") no-repeat left 50%;
-}
-
-h2 a.collapse-closed {
-  background: transparent image_url("arrow_closed.jpg") no-repeat 0 50%;
-  padding-left: 18px;
-}
-
-h2 a.collapse-open {
-  background: transparent image_url("arrow_open.jpg") no-repeat 0 50%;
-  padding-left: 18px;
-}
-
-h2 a:link.collapse-closed,
-h2 a:link.collapse-open,
-h2 a:visited.collapse-closed,
-h2 a:visited.collapse-open {
-  color: black;
 }
 
 a:link#link-to-this-page,

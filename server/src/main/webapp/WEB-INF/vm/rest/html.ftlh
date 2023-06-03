@@ -21,7 +21,6 @@
 <div id="yui-main">
     <div class="yui-b">
         <div class="bd-container rounded-corner-for-pipeline">
-            <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
             <div id="rest-output">
                 <h2>${title}</h2>
 

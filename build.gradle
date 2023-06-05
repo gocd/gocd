@@ -249,8 +249,6 @@ subprojects {
     exclude '**/*.gif'
     exclude '**/*.woff'
     exclude '**/*.woff2'
-    exclude '**/*.ttf'
-    exclude '**/*.eot'
     exclude '**/*.svg'
     exclude '**/*.json'
     exclude '**/*.scss.d.ts'

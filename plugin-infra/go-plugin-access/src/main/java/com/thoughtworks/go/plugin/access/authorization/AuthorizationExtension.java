@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.Image;
@@ -278,7 +279,7 @@ public class AuthorizationExtension extends AbstractExtension {
         }
     }
 
-    public String getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
+    public AuthorizationServerUrlResponse getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_URL, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -286,7 +287,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public AuthorizationServerUrlResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getAuthorizationServerUrl(responseBody);
             }
         });

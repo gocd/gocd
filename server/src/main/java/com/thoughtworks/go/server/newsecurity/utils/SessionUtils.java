@@ -31,6 +31,9 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
@@ -40,6 +43,7 @@ public class SessionUtils {
     private static final String AUTHENTICATION_TOKEN = "GOCD_SECURITY_AUTHENTICATION_TOKEN";
     private static final String CURRENT_USER_ID = "GOCD_SECURITY_CURRENT_USER_ID";
     private static final String AUTHENTICATION_ERROR = "GOCD_SECURITY_AUTHENTICATION_ERROR";
+    private static final String PLUGIN_AUTH_CONTEXT = "GOCD_PLUGIN_AUTH_CONTEXT";
     private static final String SAVED_REQUEST = "GOCD_SECURITY_SAVED_REQUEST";
     private static final PortResolver PORT_RESOLVER = new PortResolverImpl();
 
@@ -108,6 +112,25 @@ public class SessionUtils {
 
     public static String getAuthenticationError(HttpServletRequest request) {
         return (String) request.getSession().getAttribute(AUTHENTICATION_ERROR);
+    }
+
+    public static void setPluginAuthSessionContext(HttpServletRequest request, String pluginId, Map<String, String> context) {
+        request.getSession().setAttribute(PLUGIN_AUTH_CONTEXT + ":" + pluginId, context);
+    }
+
+    public static void removePluginAuthSessionContext(HttpServletRequest request, String pluginId) {
+        request.getSession().removeAttribute(PLUGIN_AUTH_CONTEXT + ":" + pluginId);
+    }
+
+    public static Map<String, String> getPluginAuthSessionContext(HttpServletRequest request, String pluginId) {
+        return Optional.ofNullable(request.getSession().getAttribute(PLUGIN_AUTH_CONTEXT + ":" + pluginId))
+            .filter(Map.class::isInstance)
+            .map(rawMap -> (Map<?, ?>) rawMap)
+            .map(rawMap -> rawMap.entrySet().stream()
+                .filter(entry -> entry.getKey() instanceof String && entry.getValue() instanceof String)
+                .map(entry -> Map.entry((String) entry.getKey(), (String) entry.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+            ).orElse(Map.of());
     }
 
     public static boolean isAuthenticated(HttpServletRequest request,

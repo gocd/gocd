@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
@@ -106,11 +107,12 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
         return goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
     }
 
-    public String getAuthorizationServerUrl(String pluginId, String alternateRootUrl) {
+    public AuthorizationServerUrlResponse getAuthorizationServerUrl(String pluginId, String alternateRootUrl) {
         String chosenRootUrl =
             goConfigService.serverConfig().hasAnyUrlConfigured()
                 ? rootUrlFrom(goConfigService.serverConfig().getSiteUrlPreferablySecured().getUrl())
                 : alternateRootUrl;
+
         return authorizationExtension.getAuthorizationServerUrl(pluginId, getAuthConfigs(pluginId), chosenRootUrl);
     }
 

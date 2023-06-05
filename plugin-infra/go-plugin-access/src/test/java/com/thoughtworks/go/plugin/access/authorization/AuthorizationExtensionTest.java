@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
@@ -43,6 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
@@ -324,9 +326,12 @@ public class AuthorizationExtensionTest {
                 .contains(new User("bob", "Bob", "bob@example.com"));
     }
 
-    @Test
-    void shouldTalkToPlugin_To_GetAuthorizationServerUrl() {
-        String requestBody = "{\n" +
+    @Nested
+    class AuthorizationServerUrlTests {
+
+        @Test
+        void shouldTalkToPlugin_To_GetAuthorizationServerUrl_HandlingPluginOnlyReturningServerUrl() {
+            String requestBody = "{\n" +
                 "  \"auth_configs\": [\n" +
                 "    {\n" +
                 "      \"id\": \"github\",\n" +
@@ -337,17 +342,45 @@ public class AuthorizationExtensionTest {
                 "  ],\n" +
                 "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n" +
                 "}";
-        String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
-        SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
+            String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
+            SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        String authorizationServerRedirectUrl = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, List.of(authConfig), "http://go.site.url");
+            AuthorizationServerUrlResponse authorizationServerUrlResponse = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, List.of(authConfig), "http://go.site.url");
 
-        assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
-        assertThat(authorizationServerRedirectUrl).isEqualTo("url_to_authorization_server");
+            assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
+            assertThat(authorizationServerUrlResponse.getAuthorizationServerUrl()).isEqualTo("url_to_authorization_server");
+            assertThat(authorizationServerUrlResponse.getAuthSession()).isEmpty();
+        }
+
+        @Test
+        void shouldTalkToPlugin_To_GetAuthorizationServerUrl_HandlingPluginReturningAuthSession() {
+            String requestBody = "{\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"github\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"url\": \"some-url\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n" +
+                "}";
+            String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\", \"auth_session\":{\"foo\":\"bar\"}}";
+            SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
+
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+            AuthorizationServerUrlResponse authorizationServerUrlResponse = authorizationExtension.getAuthorizationServerUrl(PLUGIN_ID, List.of(authConfig), "http://go.site.url");
+
+            assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
+            assertThat(authorizationServerUrlResponse.getAuthorizationServerUrl()).isEqualTo("url_to_authorization_server");
+            assertThat(authorizationServerUrlResponse.getAuthSession()).isEqualTo(Map.of(
+                "foo", "bar"
+            ));
+        }
     }
-
 
     @Nested
     class AuthorizationExtension_v2 {

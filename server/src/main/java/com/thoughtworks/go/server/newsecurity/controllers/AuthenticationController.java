@@ -127,7 +127,11 @@ public class AuthenticationController {
         SavedRequest savedRequest = SessionUtils.savedRequest(request);
 
         try {
-            final AccessToken accessToken = webBasedPluginAuthenticationProvider.fetchAccessToken(pluginId, getRequestHeaders(request), getParameterMap(request));
+            Map<String, String> pluginAuthSessionContext = SessionUtils.getPluginAuthSessionContext(request, pluginId);
+
+            final AccessToken accessToken = webBasedPluginAuthenticationProvider.fetchAccessToken(pluginId, getRequestHeaders(request), getParameterMap(request), pluginAuthSessionContext);
+
+            SessionUtils.removePluginAuthSessionContext(request, pluginId);
 
             AuthenticationToken<AccessToken> authenticationToken = webBasedPluginAuthenticationProvider.authenticate(accessToken, pluginId);
 

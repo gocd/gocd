@@ -168,9 +168,10 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs) {
+    public String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs, Map<String, String> authSessionContext) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("auth_configs", getAuthConfigs(authConfigs));
+        requestMap.put("auth_session", authSessionContext);
 
         return GSON.toJson(requestMap);
     }

@@ -41,8 +41,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class AuthenticationControllerTest {
     private static final String BOB = "bob";
@@ -287,7 +286,7 @@ class AuthenticationControllerTest {
                 final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME, GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
                 final AuthenticationToken<AccessToken> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, credentials, null, 0, null);
 
-                when(webBasedPluginAuthenticationProvider.fetchAccessToken(eq(PLUGIN_ID), any(), any()))
+                when(webBasedPluginAuthenticationProvider.fetchAccessToken(eq(PLUGIN_ID), any(), any(), any()))
                     .thenReturn(credentials);
                 when(webBasedPluginAuthenticationProvider.authenticate(credentials, PLUGIN_ID)).thenReturn(usernamePasswordAuthenticationToken);
 
@@ -305,6 +304,29 @@ class AuthenticationControllerTest {
             }
 
             @Test
+            void shouldAuthenticateUserUsingPlugin_PassingAnyAuthContextToFetchAccessToken() {
+                authenticateAsAnonymous();
+                originalSession = request.getSession(false);
+                SessionUtils.setPluginAuthSessionContext(request, PLUGIN_ID, Map.of("apple", "banana"));
+
+                controller.authenticateWithWebBasedPlugin(PLUGIN_ID, request);
+
+                verify(webBasedPluginAuthenticationProvider).fetchAccessToken(eq(PLUGIN_ID), any(), any(), eq(Map.of("apple", "banana")));
+            }
+
+            @Test
+            void shouldAuthenticateUserUsingPlugin_ClearingAnyAuthContextAfterAuthentication() {
+                authenticateAsAnonymous();
+                originalSession = request.getSession(false);
+                SessionUtils.setPluginAuthSessionContext(request, PLUGIN_ID, Map.of("apple", "banana"));
+
+                controller.authenticateWithWebBasedPlugin(PLUGIN_ID, request);
+
+                Map<String, String> actual = SessionUtils.getPluginAuthSessionContext(request, PLUGIN_ID);
+                assertThat(actual).isEmpty();
+            }
+
+            @Test
             void shouldRedirectToLastSavedUrlAfterSuccessfulAuthenticationByPlugin() {
                 authenticateAsAnonymous();
 
@@ -312,7 +334,7 @@ class AuthenticationControllerTest {
                 final AccessToken credentials = new AccessToken(Map.of("Foo", "Bar"));
                 final AuthenticationToken<AccessToken> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, credentials, null, 0, null);
 
-                when(webBasedPluginAuthenticationProvider.fetchAccessToken(PLUGIN_ID, Collections.emptyMap(), Collections.emptyMap()))
+                when(webBasedPluginAuthenticationProvider.fetchAccessToken(PLUGIN_ID, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()))
                     .thenReturn(credentials);
                 when(webBasedPluginAuthenticationProvider.authenticate(credentials, PLUGIN_ID)).thenReturn(usernamePasswordAuthenticationToken);
 
@@ -333,7 +355,7 @@ class AuthenticationControllerTest {
             void shouldRedirectToLoginPageWithErrorIfCredentialsAreNotAuthenticatedByPlugin() {
                 authenticateAsAnonymous();
 
-                when(webBasedPluginAuthenticationProvider.fetchAccessToken(PLUGIN_ID, Collections.emptyMap(), Collections.emptyMap()))
+                when(webBasedPluginAuthenticationProvider.fetchAccessToken(PLUGIN_ID, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()))
                     .thenReturn(null);
 
                 final RedirectView redirectView = controller.authenticateWithWebBasedPlugin(PLUGIN_ID, request);

@@ -126,10 +126,10 @@ public class AuthorizationExtensionTest {
 
         assertThat(authConfigMetadata.size()).isEqualTo(2);
         assertThat(authConfigMetadata).hasSize(2)
-                .contains(
-                        new PluginConfiguration("username", new Metadata(true, false)),
-                        new PluginConfiguration("password", new Metadata(true, true))
-                );
+            .contains(
+                new PluginConfiguration("username", new Metadata(true, false)),
+                new PluginConfiguration("password", new Metadata(true, true))
+            );
     }
 
     @Test
@@ -155,10 +155,10 @@ public class AuthorizationExtensionTest {
 
         assertThat(validationResult.isSuccessful()).isEqualTo(false);
         assertThat(validationResult.getErrors()).hasSize(2)
-                .contains(
-                        new ValidationError("Url", "Url must not be blank."),
-                        new ValidationError("SearchBase", "SearchBase must not be blank.")
-                );
+            .contains(
+                new ValidationError("Url", "Url must not be blank."),
+                new ValidationError("SearchBase", "SearchBase must not be blank.")
+            );
     }
 
     @Test
@@ -185,7 +185,7 @@ public class AuthorizationExtensionTest {
 
         assertThat(roleConfigurationMetadata.size()).isEqualTo(1);
         assertThat(roleConfigurationMetadata).contains(
-                new PluginConfiguration("memberOf", new Metadata(true, false))
+            new PluginConfiguration("memberOf", new Metadata(true, false))
         );
     }
 
@@ -212,35 +212,35 @@ public class AuthorizationExtensionTest {
 
         assertThat(validationResult.isSuccessful()).isEqualTo(false);
         assertThat(validationResult.getErrors()).contains(
-                new ValidationError("memberOf", "memberOf must not be blank.")
+            new ValidationError("memberOf", "memberOf must not be blank.")
         );
     }
 
     @Test
     void shouldTalkToPlugin_To_AuthenticateUser() {
         String requestBody = "{\n" +
-                "  \"credentials\": {\n" +
-                "    \"username\": \"bob\",\n" +
-                "    \"password\": \"secret\"\n" +
-                "  },\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
-                "      \"id\": \"ldap\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"url\": \"some-url\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"role_configs\": [\n" +
-                "    {\n" +
-                "      \"name\": \"foo\",\n" +
-                "      \"auth_config_id\": \"ldap\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"memberOf\": \"ou=some-value\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+            "  \"credentials\": {\n" +
+            "    \"username\": \"bob\",\n" +
+            "    \"password\": \"secret\"\n" +
+            "  },\n" +
+            "  \"auth_configs\": [\n" +
+            "    {\n" +
+            "      \"id\": \"ldap\",\n" +
+            "      \"configuration\": {\n" +
+            "        \"url\": \"some-url\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"role_configs\": [\n" +
+            "    {\n" +
+            "      \"name\": \"foo\",\n" +
+            "      \"auth_config_id\": \"ldap\",\n" +
+            "      \"configuration\": {\n" +
+            "        \"memberOf\": \"ou=some-value\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
 
         String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
 
@@ -262,20 +262,20 @@ public class AuthorizationExtensionTest {
     @Test
     void shouldTalkToPlugin_To_AuthenticateUserWithEmptyListIfRoleConfigsAreNotProvided() {
         String requestBody = "{\n" +
-                "  \"credentials\": {\n" +
-                "    \"username\": \"bob\",\n" +
-                "    \"password\": \"secret\"\n" +
-                "  },\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
-                "      \"id\": \"ldap\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"url\": \"some-url\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"role_configs\": []\n" +
-                "}";
+            "  \"credentials\": {\n" +
+            "    \"username\": \"bob\",\n" +
+            "    \"password\": \"secret\"\n" +
+            "  },\n" +
+            "  \"auth_configs\": [\n" +
+            "    {\n" +
+            "      \"id\": \"ldap\",\n" +
+            "      \"configuration\": {\n" +
+            "        \"url\": \"some-url\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"role_configs\": []\n" +
+            "}";
 
         String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
 
@@ -306,16 +306,16 @@ public class AuthorizationExtensionTest {
     @Test
     void shouldTalkToPlugin_To_SearchUsers() {
         String requestBody = "{\n" +
-                "  \"search_term\": \"bob\",\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
-                "      \"id\": \"ldap\",\n" +
-                "      \"configuration\": {\n" +
-                "        \"foo\": \"bar\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}";
+            "  \"search_term\": \"bob\",\n" +
+            "  \"auth_configs\": [\n" +
+            "    {\n" +
+            "      \"id\": \"ldap\",\n" +
+            "      \"configuration\": {\n" +
+            "        \"foo\": \"bar\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}";
         String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
@@ -323,7 +323,7 @@ public class AuthorizationExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users).hasSize(1)
-                .contains(new User("bob", "Bob", "bob@example.com"));
+            .contains(new User("bob", "Bob", "bob@example.com"));
     }
 
     @Nested
@@ -383,6 +383,50 @@ public class AuthorizationExtensionTest {
     }
 
     @Nested
+    class FetchAccessTokenTests {
+
+        @Test
+        void shouldTalkToPlugin_To_FetchAccessToken() {
+            // Given
+            Map<String, String> requestParams = Map.of("request", "params");
+            Map<String, String> requestHeaders = Map.of("request", "headers");
+            Map<String, String> authSessionContext = Map.of("auth-session", "context");
+            SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
+
+            String responseBody = "{\"response\":\"body\"}";
+
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+            // When
+            Map<String, String> fetchAccessTokenResponse = authorizationExtension.fetchAccessToken(PLUGIN_ID, requestHeaders, requestParams, authSessionContext, List.of(authConfig));
+
+            // Then
+            String expectedRequestBody = "{\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"github\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"url\": \"some-url\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"auth_session\": {\n" +
+                "       \"auth-session\": \"context\"\n" +
+                "  }\n" +
+                "}";
+
+            GoPluginApiRequest capturedPluginRequest = requestArgumentCaptor.getValue();
+            assertRequest(capturedPluginRequest, AUTHORIZATION_EXTENSION, "1.0", REQUEST_ACCESS_TOKEN, expectedRequestBody);
+            assertThat(capturedPluginRequest.requestHeaders()).isEqualTo(requestHeaders);
+            assertThat(capturedPluginRequest.requestParameters()).isEqualTo(requestParams);
+
+            assertThat(fetchAccessTokenResponse).isEqualTo(Map.of(
+                "response", "body"
+            ));
+        }
+    }
+
+    @Nested
     class AuthorizationExtension_v2 {
         @BeforeEach
         void setup() {
@@ -402,7 +446,7 @@ public class AuthorizationExtensionTest {
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_GET_USER_ROLES, requestBody);
             assertThat(roles).hasSize(3)
-                    .contains("super-admin", "view-only", "operator");
+                .contains("super-admin", "view-only", "operator");
         }
 
         @Test
@@ -459,6 +503,6 @@ public class AuthorizationExtensionTest {
         assertThat(goPluginApiRequest.extension()).isEqualTo(extensionName);
         assertThat(goPluginApiRequest.extensionVersion()).isEqualTo(version);
         assertThat(goPluginApiRequest.requestName()).isEqualTo(requestName);
-        assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
+        assertThatJson(goPluginApiRequest.requestBody()).isEqualTo(requestBody);
     }
 }

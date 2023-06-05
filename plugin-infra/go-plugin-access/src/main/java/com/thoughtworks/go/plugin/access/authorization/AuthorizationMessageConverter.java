@@ -62,7 +62,7 @@ public interface AuthorizationMessageConverter {
 
     String getProcessRoleConfigsResponseBody(List<PluginRoleConfig> roles);
 
-    String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs);
+    String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs, Map<String, String> authSessionContext);
 
     Map<String,String> getCredentials(String responseBody);
 

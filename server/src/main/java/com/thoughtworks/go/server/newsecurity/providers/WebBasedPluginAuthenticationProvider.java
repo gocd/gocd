@@ -99,8 +99,9 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
 
     public AccessToken fetchAccessToken(String pluginId,
                                         Map<String, String> requestHeaders,
-                                        Map<String, String> parameterMap) {
-        return new AccessToken(authorizationExtension.fetchAccessToken(pluginId, requestHeaders, parameterMap, getAuthConfigs(pluginId)));
+                                        Map<String, String> parameterMap,
+                                        Map<String, String> authSessionContext) {
+        return new AccessToken(authorizationExtension.fetchAccessToken(pluginId, requestHeaders, parameterMap, authSessionContext, getAuthConfigs(pluginId)));
     }
 
     private List<SecurityAuthConfig> getAuthConfigs(String pluginId) {

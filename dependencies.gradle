@@ -52,7 +52,7 @@ final Map<String, String> libraries = [
   felix               : 'org.apache.felix:org.apache.felix.framework:7.0.5',
   freemarker          : 'org.freemarker:freemarker:2.3.32',
   gradleDownload      : 'de.undercouch:gradle-download-task:5.4.0',
-  grolifant           : 'org.ysb33r.gradle:grolifant80:2.0.0',
+  grolifant           : 'org.ysb33r.gradle:grolifant80:2.0.2',
   gson                : 'com.google.code.gson:gson:2.10.1',
   guava               : 'com.google.guava:guava:32.0.0-jre',
   h2                  : 'com.h2database:h2:1.4.200',

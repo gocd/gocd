@@ -187,6 +187,15 @@
     <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
     <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
   </suppress>
+  
+  <suppress>
+    <notes><![CDATA[
+    False positive - this matches bazaarvoice:json-utils which is a different project. See https://github.com/jeremylong/DependencyCheck/issues/5753
+    for upstream suppression rule.
+    ]]></notes>
+    <packageUrl regex="true">^.*$</packageUrl>
+    <cve>CVE-2023-2972</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

@@ -86,10 +86,10 @@
     "fork-ts-checker-webpack-plugin": "^6",
     "fs-extra": "^11.1.1",
     "html-webpack-plugin": "^4.5.2",
-    "jasmine": "^4.6.0",
+    "jasmine": "^5.0.0",
     "jasmine-ajax": "^4.0.0",
-    "jasmine-browser-runner": "^1.4.0",
-    "jasmine-core": "^4.1.1",
+    "jasmine-browser-runner": "^2.0.0",
+    "jasmine-core": "^5.0.0",
     "jasmine-jquery": "^2.1.1",
     "karma": "^6.4.2",
     "karma-chrome-launcher": "^3.2.0",
@@ -132,6 +132,8 @@
   "resolutions": {
     "**/chokidar/**/glob-parent": ">=6.0.2",
     "html-webpack-plugin/**/ansi-regex": "^5.0.1",
-    "**/loader-utils": "^2.0.3"
+    "**/loader-utils": "^2.0.3",
+    "**/string-width": "^4.2.3",
+    "**/wrap-ansi": "^7.0.0"
   }
 }

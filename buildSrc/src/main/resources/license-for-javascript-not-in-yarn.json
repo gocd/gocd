@@ -3,7 +3,8 @@
     "moduleName": "bootstrap-dropdown",
     "moduleVersion": "2.3.2",
     "moduleUrls": [
-      "https://github.com/twbs/bootstrap"
+      "https://github.com/twbs/bootstrap",
+      "https://getbootstrap.com/2.3.2/"
     ],
     "filenames": [
       "bootstrap-dropdown-2.3.2.js"
@@ -146,6 +147,9 @@
   "often": {
     "moduleName": "often",
     "moduleVersion": "0.3.2",
+    "moduleUrls": [
+      "https://github.com/ryanve/often"
+    ],
     "filenames": [
       "often-0.3.2.js"
     ],
@@ -159,6 +163,9 @@
   "pako inflate": {
     "moduleName": "pako inflate",
     "moduleVersion": "1.0.5",
+    "moduleUrls": [
+      "https://github.com/nodeca/pako"
+    ],
     "filenames": [
       "pako_inflate-1.0.5.js"
     ],
@@ -172,6 +179,10 @@
   "prototypejs": {
     "moduleName": "prototypejs",
     "moduleVersion": "1.6.0.3",
+    "moduleUrls": [
+      "https://github.com/prototypejs/prototype",
+      "https://prototypejs.org/"
+    ],
     "filenames": [
       "prototype-1.6.0.3.js"
     ],
@@ -182,9 +193,12 @@
       }
     ]
   },
-  "trimpath template": {
-    "moduleName": "trimpath template",
+  "trimpath-template": {
+    "moduleName": "trimpath-template",
     "moduleVersion": "1.0.38",
+    "moduleUrls": [
+      "https://code.google.com/archive/p/trimpath/downloads"
+    ],
     "filenames": [
       "trimpath-template-1.0.38.js"
     ],

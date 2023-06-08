@@ -5996,7 +5996,7 @@ open@^7.4.2:
     is-wsl "^2.1.1"
 
 "opensans@file:vendor/assets/fonts/opensans":
-  version "0.0.1"
+  version "0.0.2"
 
 optimize-css-assets-webpack-plugin@^6.0.1:
   version "6.0.1"

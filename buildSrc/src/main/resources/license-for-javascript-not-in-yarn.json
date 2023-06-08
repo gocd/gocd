@@ -160,14 +160,14 @@
       }
     ]
   },
-  "pako inflate": {
-    "moduleName": "pako inflate",
-    "moduleVersion": "1.0.5",
+  "pako-inflate": {
+    "moduleName": "pako-inflate",
+    "moduleVersion": "1.0.11",
     "moduleUrls": [
       "https://github.com/nodeca/pako"
     ],
     "filenames": [
-      "pako_inflate-1.0.5.js"
+      "pako_inflate-1.0.11.js"
     ],
     "moduleLicenses": [
       {

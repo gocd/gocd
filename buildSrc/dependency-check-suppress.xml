@@ -196,6 +196,14 @@
     <packageUrl regex="true">^.*$</packageUrl>
     <cve>CVE-2023-2972</cve>
   </suppress>
+  
+  <suppress>
+    <notes><![CDATA[
+    False positive per https://github.com/jeremylong/DependencyCheck/issues/5762
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.jruby/jzlib@.*$</packageUrl>
+    <cpe>cpe:/a:jruby:jruby</cpe>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

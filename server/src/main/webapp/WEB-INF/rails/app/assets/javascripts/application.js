@@ -54,7 +54,7 @@
 //= require "lib/humanize-for-gocd.js"
 
 // Used by Rails job details console_log_socket.js
-//= require "lib/pako_inflate-1.0.5.js"
+//= require "lib/pako_inflate-1.0.11.js"
 
 // used by Rails job details console and websocket_wrapper.js
 //= require "lib/often-0.3.2.js"

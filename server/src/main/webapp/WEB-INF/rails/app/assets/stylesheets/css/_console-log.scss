@@ -62,7 +62,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
 }
 
 .console-log-loading {
-  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+  font-family: Monaco, Consolas, Inconsolata, Menlo, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
   line-height: 19px;
   color: #fff;
@@ -85,7 +85,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   min-height: calc(100vh - #{$height-of-non-console-log-elements});
   background-color: #333;
   color: white;
-  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+  font-family: Monaco, Consolas, Inconsolata, Menlo, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
 
   .fas {

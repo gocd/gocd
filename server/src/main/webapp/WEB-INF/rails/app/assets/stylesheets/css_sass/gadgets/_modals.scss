@@ -38,7 +38,6 @@
   position: fixed;
 }
 
-.ui-dialog,
 #MB_window {
   border: 0 solid;
   position: absolute;
@@ -51,7 +50,6 @@
   position: fixed !important;
 }
 
-.ui-dialog,
 #MB_frame_content {
   background-color: #fff;
   border: 2px solid #333;
@@ -61,7 +59,6 @@
   position: relative;
 }
 
-.ui-dialog-titlebar,
 #MB_header {
   background: #333 image_url("g9/backgrounds/bg_glass_gradient.png") repeat-x center center;
   margin: 0;
@@ -76,15 +73,6 @@
   padding-top: 0 !important;
 }
 
-.ui-dialog-content {
-  padding: 15px;
-}
-
-.ui-dialog-title {
-  display: block;
-}
-
-.ui-dialog-title,
 #MB_caption {
   color: #fff;
   font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -161,7 +149,6 @@
 }
 
 /* action row and buttons */
-.ui-dialog-buttonpane,
 #MB_content .actions {
   background: #eeeee9 image_url("g9/backgrounds/overlay_modal_action_row.png") repeat-x;
   border-radius: 0;

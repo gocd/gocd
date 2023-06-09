@@ -328,23 +328,8 @@ jar {
 
 idea {
   module {
-    testSourceDirs += sourceSets.sharedTest.java.srcDirs
-    testSourceDirs += sourceSets.fastUnitTest.java.srcDirs
-    testSourceDirs += sourceSets.integrationTest.java.srcDirs
-
-    // some hax to fudge the intellij xml
-    iml.withXml {
-      def node = it.asNode()
-      def content = node.component.find { it.'@name' == 'NewModuleRootManager' }.content[0]
-      content.sourceFolder.each { sourceFolder ->
-        if (sourceFolder.@url?.endsWith('/resources')) {
-          sourceFolder.attributes().with {
-            boolean isTestSource = (remove('isTestSource') == 'true')
-            put('type', isTestSource ? 'java-test-resource' : 'java-resource')
-          }
-        }
-      }
-    }
+    testSources.from(sourceSets.fastUnitTest.java.srcDirs)
+    testSources.from(sourceSets.integrationTest.java.srcDirs)
   }
 }
 

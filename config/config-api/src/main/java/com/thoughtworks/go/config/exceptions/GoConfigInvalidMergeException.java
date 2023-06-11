@@ -57,12 +57,12 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
 
         if (ruleValidationErrors.isEmpty()) {
             for (int i = 1; i <= allErrors.size(); i++) {
-                b.append(i).append(". ").append(allErrors.get(i - 1)).append(";; \n");
+                b.append(i).append(". ").append(allErrors.get(i - 1)).append("\n");
             }
         } else {
             b.append("I. Rule Validation Errors: \n");
             for (int i = 1; i <= ruleValidationErrors.size(); i++) {
-                b.append('\t').append(i).append(". ").append(ruleValidationErrors.get(i - 1)).append(";; \n");
+                b.append('\t').append(i).append(". ").append(ruleValidationErrors.get(i - 1)).append("\n");
             }
             b.append("\n");
             List<String> configValidationErrors = new ArrayList<>(allErrors);
@@ -70,7 +70,7 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
             b.append("II. Config Validation Errors: \n");
 
             for (int i = 1; i <= configValidationErrors.size(); i++) {
-                b.append('\t').append(i).append(". ").append(configValidationErrors.get(i - 1)).append(";; \n");
+                b.append('\t').append(i).append(". ").append(configValidationErrors.get(i - 1)).append("\n");
             }
         }
 

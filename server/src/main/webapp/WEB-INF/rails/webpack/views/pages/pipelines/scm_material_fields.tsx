@@ -130,7 +130,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    placeholder="A human-friendly label for this material" property={mattrs.name}
                    errorText={this.errs(mattrs, "name")}/>,
 
-        <MaterialAutoUpdateToggle toggle={mattrs.autoUpdate} errors={mattrs.errors()} disabled={vnode.attrs.disabled}/>,
+        <MaterialAutoUpdateToggle toggle={mattrs.autoUpdate} errors={mattrs.errors()} disabled={vnode.attrs.disabled || vnode.attrs.readonly}/>,
 
         <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE}
                    property={this.filterValue}

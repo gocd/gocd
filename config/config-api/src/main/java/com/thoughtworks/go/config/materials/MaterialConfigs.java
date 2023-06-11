@@ -242,9 +242,17 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
                 continue;
             }
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(fingerprint);
-            if (allMaterialsByFingerPrint != null && ((ScmMaterialConfig) material).isAutoUpdateStateMismatch(allMaterialsByFingerPrint)) {
+            if (allMaterialsByFingerPrint != null && allMaterialsByFingerPrint.size() > 1 && allMaterialsByFingerPrint.stream().anyMatch(m -> material.isAutoUpdate() != m.isAutoUpdate())) {
                 Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(fingerprint);
-                ((ScmMaterialConfig) material).setAutoUpdateMismatchErrorWithPipelines(pipelinesWithMaterial);
+                material.addError(
+                    ScmMaterialConfig.AUTO_UPDATE,
+                    String.format(
+                        "The material of type %s (%s) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n%s",
+                        material.getTypeForDisplay(),
+                        material.getDescription(),
+                        MaterialErrors.autoUpdatePipelineErrorDisplay(pipelinesWithMaterial)
+                    )
+                );
             }
         }
     }

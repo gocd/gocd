@@ -155,7 +155,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         configRepoConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
 
         assertThat(svnInConfigRepo.errors().isEmpty()).isFalse();
-        assertThat(svnInConfigRepo.errors().on("autoUpdate")).isEqualTo("The material of type Subversion (url) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n Config Repository: id (auto update disabled).\n Pipelines: badpipe (auto update enabled)");
+        assertThat(svnInConfigRepo.errors().on("autoUpdate")).isEqualTo("The material of type Subversion (url) is used elsewhere with a different value for autoUpdate (poll for changes). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\nConfig Repository: id (auto update disabled).\nPipelines:\n badpipe (auto update enabled)");
     }
 
     @Test

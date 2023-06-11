@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -312,36 +311,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
                 this.setFilter(null);
             }
         }
-    }
-
-    public boolean isAutoUpdateStateMismatch(MaterialConfigs materialAutoUpdateMap) {
-        if (materialAutoUpdateMap.size() > 1) {
-            for (MaterialConfig otherMaterial : materialAutoUpdateMap) {
-                if (otherMaterial.isAutoUpdate() != this.autoUpdate) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public void setAutoUpdateMismatchErrorWithPipelines(Map<CaseInsensitiveString, Boolean> pipelinesWithThisMaterial) {
-        String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). Those values should be the same. Pipelines: %s", getTypeForDisplay(), getDescription(), join(pipelinesWithThisMaterial));
-        addError(AUTO_UPDATE, message);
-    }
-
-    private String getAutoUpdateStatus(boolean autoUpdate) {
-        return autoUpdate ? "auto update enabled" : "auto update disabled";
-    }
-
-    private String join(Map<CaseInsensitiveString, Boolean> pipelinesWithThisMaterial) {
-        if (pipelinesWithThisMaterial == null || pipelinesWithThisMaterial.isEmpty()) {
-            return "";
-        }
-        StringBuilder builder = new StringBuilder();
-        pipelinesWithThisMaterial.forEach((key, value) -> builder.append(format("%s (%s),\n ", key, getAutoUpdateStatus(value))));
-
-        return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }
 
     public void setDestinationFolderError(String message) {

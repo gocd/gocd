@@ -467,7 +467,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <svn url=\"/hgrepo2\" autoUpdate='false' dest='second'/>\n"
                         + "  </materials>\n";
         MagicalGoConfigXmlLoaderFixture.assertNotValid(
-                "The material of type Subversion (/hgrepo2) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). Those values should be the same. Pipelines: pipeline (auto update enabled)",
+                "The material of type Subversion (/hgrepo2) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n pipeline (auto update enabled)",
                 noAutoUpdate);
     }
 

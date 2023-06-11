@@ -188,7 +188,7 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(false));
         ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0);
         assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
-        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Number of errors: 3+\n1. Pipeline 'p1_repo1' does not exist. It is used from pipeline 'p2_repo2'. \n2. Pipeline with name 'p1_repo1' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at 1) \n3. Pipeline with name 'p3_repo3' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at 1)\n- For Config Repo: url2 at 1"));
+        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Number of errors: 3+\n1. Pipeline 'p1_repo1' does not exist. It is used from pipeline 'p2_repo2'.\n2. Pipeline with name 'p1_repo1' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at revision 1)\n3. Pipeline with name 'p3_repo3' does not exist, it is defined as a dependency for pipeline 'p2_repo2' (url2 at revision 1)\n- For Config Repo: url2 at revision 1"));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
         assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
         assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));
@@ -265,7 +265,7 @@ public class PartialConfigServiceIntegrationTest {
         List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
         assertThat(serverHealthStates.isEmpty(), is(false));
         assertThat(serverHealthStates.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
-        assertThat(serverHealthStates.get(0).getDescription(), is("Parameter 'param1' is not defined. All pipelines using this parameter directly or via a template must define it.- For Config Repo: url1 at 124"));
+        assertThat(serverHealthStates.get(0).getDescription(), is("Parameter 'param1' is not defined. All pipelines using this parameter directly or via a template must define it.- For Config Repo: url1 at revision 124"));
     }
 
     @Test // See Error #1 from https://github.com/gocd/gocd/issues/8368
@@ -289,7 +289,7 @@ public class PartialConfigServiceIntegrationTest {
                 "\t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.\n" +
                 "\n" +
                 "II. Config Validation Errors: \n" +
-                "- For Config Repo: url1 at 1"));
+                "- For Config Repo: url1 at revision 1"));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
 
         cachedGoPartials.clear();
@@ -316,7 +316,7 @@ public class PartialConfigServiceIntegrationTest {
                 "\t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.\n" +
                 "\n" +
                 "II. Config Validation Errors: \n" +
-                "- For Config Repo: url1 at 1"));
+                "- For Config Repo: url1 at revision 1"));
         assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
 
         repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");

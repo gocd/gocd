@@ -35,7 +35,8 @@ import java.util.ArrayList;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class PatchEnvironmentCommandTest {
@@ -201,7 +202,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        String message = actionFailed + " Pipeline 'remote-pipeline-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        String message = actionFailed + " Pipeline 'remote-pipeline-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at revision latest]";
         expectedResult.unprocessableEntity(message);
 
         assertThat(result, is(expectedResult));
@@ -231,7 +232,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        String message = actionFailed + " Environment variable with name 'remote-env-var-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        String message = actionFailed + " Environment variable with name 'remote-env-var-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at revision latest]";
         expectedResult.unprocessableEntity(message);
 
         assertThat(result, is(expectedResult));

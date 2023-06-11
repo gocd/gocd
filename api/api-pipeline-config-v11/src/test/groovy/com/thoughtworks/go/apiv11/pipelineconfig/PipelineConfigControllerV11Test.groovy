@@ -541,7 +541,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'.")
+          .hasJsonMessage("Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision revision1'.")
       }
 
       @Test
@@ -747,7 +747,7 @@ class PipelineConfigControllerV11Test implements SecurityServiceTrait, Controlle
         deleteWithApiHeader(controller.controllerPath("/pipeline1"))
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'.")
+          .hasJsonMessage("Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision revision1'.")
       }
     }
   }

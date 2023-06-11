@@ -27,11 +27,10 @@ public class RepoConfigOrigin implements ConfigOrigin {
     private ConfigRepoConfig configRepo;
     private String revision;
 
-    public RepoConfigOrigin()
-    {
+    public RepoConfigOrigin() {
     }
-    public RepoConfigOrigin(ConfigRepoConfig configRepo,String revision)
-    {
+
+    public RepoConfigOrigin(ConfigRepoConfig configRepo, String revision) {
         this.configRepo = configRepo;
         this.revision = revision;
     }
@@ -47,7 +46,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
         if (o == null || getClass() != o.getClass()) return false;
         RepoConfigOrigin that = (RepoConfigOrigin) o;
         return Objects.equals(configRepo, that.configRepo) &&
-                Objects.equals(revision, that.revision);
+            Objects.equals(revision, that.revision);
     }
 
     @Override
@@ -70,16 +69,14 @@ public class RepoConfigOrigin implements ConfigOrigin {
     @Override
     public String displayName() {
         MaterialConfig materialConfig = configRepo != null ?
-                configRepo.getRepo() : null;
+            configRepo.getRepo() : null;
         String materialName = materialConfig != null ?
-                    materialConfig.getDisplayName() : "NULL material";
-        return String.format("%s at %s", materialName, revision);
+            materialConfig.getDisplayName() : "NULL material";
+        return String.format("%s at revision %s", materialName, revision);
     }
 
     public MaterialConfig getMaterial() {
-        if(configRepo == null)
-            return  null;
-        return configRepo.getRepo();
+        return configRepo == null ? null : configRepo.getRepo();
     }
 
     public boolean isFromRevision(String revision) {

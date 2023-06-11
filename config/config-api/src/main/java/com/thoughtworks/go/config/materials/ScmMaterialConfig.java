@@ -354,7 +354,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             return;
         }
         if (FilenameUtil.isNormalizedDirectoryPathInsideNormalizedParentDirectory(myDirPath, otherSCMMaterialFolder)) {
-            addError(FOLDER, "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
+            addError(FOLDER, "Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.");
         }
     }
 

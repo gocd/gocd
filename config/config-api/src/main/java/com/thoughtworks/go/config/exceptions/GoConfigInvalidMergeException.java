@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.exceptions;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.ArrayList;
@@ -26,22 +25,16 @@ import static com.thoughtworks.go.config.exceptions.EntityType.RULE_ERROR_PREFIX
 import static java.util.stream.Collectors.toList;
 
 public class GoConfigInvalidMergeException extends GoConfigInvalidException {
-    private List<PartialConfig> partialConfigs;
-
-    public GoConfigInvalidMergeException(CruiseConfig cruiseConfig,
-                                         List<PartialConfig> partialConfigs, List<ConfigErrors> allErrors) {
+    public GoConfigInvalidMergeException(CruiseConfig cruiseConfig, List<ConfigErrors> allErrors) {
         super(cruiseConfig, allErrors);
-        this.partialConfigs = partialConfigs;
     }
 
-    public GoConfigInvalidMergeException(CruiseConfig cruiseConfig,
-                                         List<PartialConfig> partialConfigs, List<ConfigErrors> allErrors, Throwable e) {
+    public GoConfigInvalidMergeException(CruiseConfig cruiseConfig, List<ConfigErrors> allErrors, Throwable e) {
         super(cruiseConfig, allErrors, e);
-        this.partialConfigs = partialConfigs;
     }
 
-    public GoConfigInvalidMergeException(List<PartialConfig> partials, GoConfigInvalidException failed) {
-        this(failed.getCruiseConfig(), partials, failed.getCruiseConfig().getAllErrors(), failed);
+    public GoConfigInvalidMergeException(GoConfigInvalidException failed) {
+        this(failed.getCruiseConfig(), failed.getCruiseConfig().getAllErrors(), failed);
     }
 
     private static String allErrorsToString(List<String> allErrors) {
@@ -79,10 +72,6 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
 
     @Override
     public String getMessage() {
-        return allErrorsToString(getAllErrors());
-    }
-
-    public List<PartialConfig> getPartialConfigs() {
-        return partialConfigs;
+        return allErrorsToString(new ArrayList<>(getAllErrors()));
     }
 }

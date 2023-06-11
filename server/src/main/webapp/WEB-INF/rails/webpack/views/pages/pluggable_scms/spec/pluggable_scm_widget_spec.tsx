@@ -64,6 +64,8 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.textByTestId('key-value-value-name', scmDetails)).toBe(scm.name());
     expect(helper.textByTestId('key-value-key-plugin-id', scmDetails)).toBe('Plugin Id');
     expect(helper.textByTestId('key-value-value-plugin-id', scmDetails)).toBe(scm.pluginMetadata().id());
+    expect(helper.textByTestId('key-value-key-auto-update', scmDetails)).toBe('Auto Update');
+    expect(helper.textByTestId('key-value-value-auto-update', scmDetails)).toBe('true');
     expect(helper.textByTestId('key-value-key-url', scmDetails)).toBe('url');
     expect(helper.textByTestId('key-value-value-url', scmDetails)).toBe('https://github.com/sample/example.git');
 

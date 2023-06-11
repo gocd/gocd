@@ -53,6 +53,7 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
                                      ["Id", scm.id()],
                                      ["Name", scm.name()],
                                      ["Plugin Id", scm.pluginMetadata().id()],
+                                     ["Auto Update", scm.autoUpdate() + ""],
                                      ...Array.from(scm.configuration().asMap())
                                    ]);
 

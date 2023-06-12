@@ -4953,7 +4953,7 @@ jasmine-core@^4.1.0:
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-4.6.0.tgz#6884fc3d5b66bf293e422751eed6d6da217c38f5"
   integrity sha512-O236+gd0ZXS8YAjFx8xKaJ94/erqUliEkJTDedyE7iHvv4ZVqi+q+8acJxu05/WJDKm512EUNn809In37nWlAQ==
 
-jasmine-core@^5.0.1, jasmine-core@~5.0.0:
+jasmine-core@^5.0.1, jasmine-core@~5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-5.0.1.tgz#ba0a0c8e0088c19f99bbce3c9e22accd4c4da37f"
   integrity sha512-D4bRej8CplwNtNGyTPD++cafJlZUphzZNV+MSAnbD3er4D0NjL4x9V+mu/SI+5129utnCBen23JwEuBZA9vlpQ==
@@ -4963,13 +4963,13 @@ jasmine-jquery@^2.1.1:
   resolved "https://registry.yarnpkg.com/jasmine-jquery/-/jasmine-jquery-2.1.1.tgz#d4095e646944a26763235769ab018d9f30f0d47b"
   integrity sha512-13d18zXTGeiNAjd4sAhoUGQbCEXTMbUyjrnQ9JFQM/atyyFubHejL5RCE5iyW7jOh1cwjoqVefAAsSA4SFtooQ==
 
-jasmine@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-5.0.0.tgz#858cfa02dc34c4e22beba0821331f7fac760a52a"
-  integrity sha512-wrigegsVTke3gt65LmLhIVqDZVcsYZwj9Oyai0pc04NlmgxIhfgbX0Af9CC3+S9lk0KZlttqjr2EBO8j2OCovA==
+jasmine@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-5.0.1.tgz#5bbf849476e60376391001acba27bfd9a8df6c31"
+  integrity sha512-cLAGOzZyTaDF/T4J8AvBg3Jthp/CAFZNuzxMNBdc0IrNXMhbxxMIY7eLn+1hFjo+QJ0Pvj3ifahBCQDE6i08Ug==
   dependencies:
     glob "^10.2.2"
-    jasmine-core "~5.0.0"
+    jasmine-core "~5.0.1"
 
 jest-worker@^27.4.5, jest-worker@^27.5.1:
   version "27.5.1"

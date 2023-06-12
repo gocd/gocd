@@ -85,12 +85,13 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
     -e "s@wrapper.working.dir=.*@wrapper.working.dir=${SERVER_WORK_DIR}@g" \
     /go-server/wrapper-config/wrapper.conf
 
+  echo "" >> /go-server/wrapper-config/wrapper-properties.conf
+  echo "###### Properties automatically set from environment by default entrypoint" >> /go-server/wrapper-config/wrapper-properties.conf
+
   # parse/split an environment var to an array like how it should pass to the CLI
   # GOCD_SERVER_JVM_OPTS is mostly for advanced users.
   eval stringToArgsArray "$GOCD_SERVER_JVM_OPTS"
   GOCD_SERVER_JVM_OPTS=("${_stringToArgs[@]}")
-
-
   GOCD_SERVER_JVM_OPTS+=("-Dgo.console.stdout=true")
 
   # write out each system property using its own index
@@ -99,7 +100,6 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
     tanuki_index=$((array_index + 100))
     echo "wrapper.java.additional.${tanuki_index}=${GOCD_SERVER_JVM_OPTS[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
   done
-
 fi
 
 try exec /usr/local/sbin/tini -g -- "$@"

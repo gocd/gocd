@@ -106,7 +106,6 @@ public class ConsoleService {
             File from = chooser.temporaryConsoleFile(locatableEntity);
 
             // Job cancellation skips temporary file creation. Force create one if it does not exist.
-            FileUtils.createParentDirectories(from);
             FileUtils.touch(from);
 
             File to = consoleLogArtifact(locatableEntity);

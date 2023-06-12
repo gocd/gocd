@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.MaterialErrors;
 import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
@@ -125,29 +126,21 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile {
         MaterialConfig material = getRepo();
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
-            if (allMaterialsByFingerPrint.stream().anyMatch(m -> material.isAutoUpdate() ^ m.isAutoUpdate() /* i.e., find any that don't match */)) {
-                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n Config Repository: %s (%s).\n", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
+            if (allMaterialsByFingerPrint.stream().anyMatch(m -> material.isAutoUpdate() != m.isAutoUpdate())) {
+                String message = format(
+                    "The material of type %s (%s) is used elsewhere with a different value for autoUpdate (poll for changes). " +
+                        "All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n" +
+                        "Config Repository: %s (%s).\n",
+                    material.getTypeForDisplay(),
+                    material.getDescription(),
+                    getId(), MaterialErrors.autoUpdateDisplayStatus(material.isAutoUpdate()));
                 Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(material.getFingerprint());
                 if (!pipelinesWithMaterial.isEmpty()) {
-                    message = message.concat(format(" Pipelines: %s", join(pipelinesWithMaterial)));
+                    message = message.concat(format("Pipelines:\n%s", MaterialErrors.autoUpdatePipelineErrorDisplay(pipelinesWithMaterial)));
                 }
                 getRepo().errors().add(AUTO_UPDATE, message);
             }
         }
-    }
-
-    private String getAutoUpdateStatus(boolean autoUpdate) {
-        return autoUpdate ? "auto update enabled" : "auto update disabled";
-    }
-
-    private String join(Map<CaseInsensitiveString, Boolean> pipelinesWithThisMaterial) {
-        if (pipelinesWithThisMaterial == null || pipelinesWithThisMaterial.isEmpty()) {
-            return "";
-        }
-        StringBuilder builder = new StringBuilder();
-        pipelinesWithThisMaterial.forEach((key, value) -> builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value))));
-
-        return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }
 
     @Override

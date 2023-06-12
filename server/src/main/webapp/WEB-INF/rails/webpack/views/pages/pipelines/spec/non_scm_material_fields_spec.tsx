@@ -343,7 +343,8 @@ describe('PluginFieldsSpec', () => {
 
     expect(helper.byTestId('selected-scm-details')).toBeInDOM();
     assertConfigsPresent(helper, 'selected-scm-details', {
-      url: "url"
+      "url":         "url",
+      "auto-update": "Auto Update"
     });
   });
 

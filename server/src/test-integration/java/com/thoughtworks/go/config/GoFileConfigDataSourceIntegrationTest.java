@@ -159,7 +159,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
         assertThatThrownBy(() -> dataSource.forceLoad(new File(systemEnvironment.getCruiseConfigFile())))
                 .isInstanceOf(GoConfigInvalidException.class)
-                .hasMessageContaining("Stage with name 'upstream_stage_original' does not exist on pipeline 'upstream', it is being referred to from pipeline 'remote_downstream' (url at r1)");
+                .hasMessageContaining("Stage with name 'upstream_stage_original' does not exist on pipeline 'upstream', it is being referred to from pipeline 'remote_downstream' (url at revision r1)");
     }
 
     @Test

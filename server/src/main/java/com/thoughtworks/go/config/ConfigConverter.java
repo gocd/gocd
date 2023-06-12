@@ -363,37 +363,41 @@ public class ConfigConverter {
     }
 
     private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial, PartialConfigLoadContext context, SCMs newSCMs) {
-        String id = crPluggableScmMaterial.getScmId();
         CRPluginConfiguration pluginConfig = crPluggableScmMaterial.getPluginConfiguration();
         SCM scmConfig;
 
         if (pluginConfig == null) {
-            scmConfig = getSCMs().find(id);
+            // Without plugin config, we can only find it by ID. Let's try and find it, or fail.
+            scmConfig = Optional.ofNullable(existingServerSCMs().find(crPluggableScmMaterial.getScmId()))
+                .orElseThrow(() -> new ConfigConvertionException(String.format("Failed to find referenced scm '%s'", crPluggableScmMaterial.getScmId())));
         } else {
-            scmConfig = new SCM(id, toPluginConfiguration(pluginConfig), toConfiguration(crPluggableScmMaterial.getConfiguration()));
+            // Plugin configuration exists, let's see if there is a duplicate
+            scmConfig = new SCM(crPluggableScmMaterial.getScmId(), toPluginConfiguration(pluginConfig), toConfiguration(crPluggableScmMaterial.getConfiguration()));
             scmConfig.ensureIdExists();
             scmConfig.setName(crPluggableScmMaterial.getName());
-            if (getSCMs().findDuplicate(scmConfig) == null) {
-                SCM duplicate = newSCMs.findDuplicate(scmConfig);
-                if (duplicate == null) {
-                    newSCMs.add(scmConfig);
-                } else {
-                    scmConfig = duplicate;
-                }
-            } else {
-                scmConfig = getSCMs().findDuplicate(scmConfig);
-                if (scmConfig.getOrigin() instanceof RepoConfigOrigin) {
-                    RepoConfigOrigin origin = (RepoConfigOrigin) scmConfig.getOrigin();
-                    if (origin.getMaterial().equals(context.configMaterial()) && (newSCMs.findDuplicate(scmConfig) == null)) {
-                        newSCMs.add(scmConfig);
+            SCM alreadyKnownToServer = existingServerSCMs().findDuplicate(scmConfig);
+            if (alreadyKnownToServer != null) {
+                // We have a duplicate within the existing SCMs
+                if (alreadyKnownToServer.getOrigin() instanceof RepoConfigOrigin) {
+                    // The duplicate was from a config repo, but it's still a new SCM if it comes from this
+                    // config repo, and we have not already added it
+                    RepoConfigOrigin origin = (RepoConfigOrigin) alreadyKnownToServer.getOrigin();
+                    if (origin.getMaterial().equals(context.configMaterial()) && newSCMs.findDuplicate(alreadyKnownToServer) == null) {
+                        newSCMs.add(alreadyKnownToServer);
                     }
+                }
+                scmConfig = alreadyKnownToServer;
+            } else {
+                // There are no existing SCMs like this on the server, so as long as we haven't tracked one like this already
+                // to add, it's a new one.
+                SCM alreadyInNewScms = newSCMs.findDuplicate(scmConfig);
+                if (alreadyInNewScms != null) {
+                    scmConfig = alreadyInNewScms;
+                } else {
+                    newSCMs.add(scmConfig);
                 }
             }
         }
-
-        if (scmConfig == null)
-            throw new ConfigConvertionException(
-                    String.format("Failed to find referenced scm '%s'", id));
 
         PluggableSCMMaterialConfig materialConfig = new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
             scmConfig, crPluggableScmMaterial.getDestination(),
@@ -402,7 +406,7 @@ public class ConfigConverter {
         return materialConfig;
     }
 
-    private SCMs getSCMs() {
+    private SCMs existingServerSCMs() {
         return this.cachedGoConfig.currentConfig().getSCMs();
     }
 
@@ -967,7 +971,7 @@ public class ConfigConverter {
     }
 
     private CRPluggableScmMaterial pluggableScmMaterialConfigToCRPluggableScmMaterial(PluggableSCMMaterialConfig pluggableScmMaterialConfig) {
-        SCMs scms = getSCMs();
+        SCMs scms = existingServerSCMs();
         String id = pluggableScmMaterialConfig.getScmId();
         SCM scmConfig = scms.find(id);
         if (scmConfig == null)

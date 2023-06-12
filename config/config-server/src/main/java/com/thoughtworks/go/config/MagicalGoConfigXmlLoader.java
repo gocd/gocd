@@ -129,10 +129,9 @@ public class MagicalGoConfigXmlLoader {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {
-            if (config.isLocal())
-                throw new GoConfigInvalidException(config, allErrors);
-            else
-                throw new GoConfigInvalidMergeException(config, config.getMergedPartials(), allErrors);
+            throw config.isLocal()
+                ? new GoConfigInvalidException(config, allErrors)
+                : new GoConfigInvalidMergeException(config, allErrors);
         }
 
         LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");

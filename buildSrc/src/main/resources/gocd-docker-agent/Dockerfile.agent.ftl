@@ -17,7 +17,7 @@
 # Please file any issues or PRs at https://github.com/gocd/gocd
 ###############################################################################################
 
-FROM curlimages/curl:latest as gocd-agent-unzip
+FROM curlimages/curl:8.1.1 as gocd-agent-unzip
 USER root
 ARG TARGETARCH
 ARG UID=1000

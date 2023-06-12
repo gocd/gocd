@@ -316,7 +316,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f1/f2");
         assertFalse(pluggableSCMMaterialConfig.errors().isEmpty());
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested."));
     }
 
     @Test
@@ -339,7 +339,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
         pluggableSCMMaterialConfig.setFolder("f1/f2/../../f3");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f3/f4");
-        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+        assertThat(pluggableSCMMaterialConfig.errors().on(FOLDER), is("Invalid destination directory. Every material needs a different destination directory and the directories should not be nested."));
     }
 
     @Test

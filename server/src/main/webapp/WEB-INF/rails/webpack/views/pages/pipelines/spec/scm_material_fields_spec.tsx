@@ -190,7 +190,22 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
-  function assertLabelledInputsPresent(idsToLabels: {[key: string]: string}) {
+  it("controls are visible but disabled when readonly", () => {
+    const material = new Material("git", new GitMaterialAttributes());
+    helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={true} readonly={true}/>);
+
+    assertLabelledInputsPresent({
+      "repository-url": "Repository URL*",
+      "repository-branch": "Repository Branch",
+      "username": "Username",
+      "password": "Password",
+    }, true);
+    assertAutoUpdateControlPresent(true);
+
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
+  });
+
+  function assertLabelledInputsPresent(idsToLabels: {[key: string]: string}, shouldBeDisabled?: boolean) {
     const keys = Object.keys(idsToLabels);
     expect(keys.length > 0).toBe(true);
 
@@ -198,6 +213,9 @@ describe("AddPipeline: SCM Material Fields", () => {
       expect(helper.byTestId(`form-field-label-${id}`)).toBeInDOM();
       expect(helper.byTestId(`form-field-label-${id}`).textContent!.startsWith(idsToLabels[id])).toBe(true);
       expect(helper.byTestId(`form-field-input-${id}`)).toBeInDOM();
+      if (shouldBeDisabled) {
+        expect(helper.byTestId(`form-field-input-${id}`)).toBeDisabled();
+      }
     }
   }
 
@@ -210,13 +228,18 @@ describe("AddPipeline: SCM Material Fields", () => {
     }
   }
 
-  function assertAutoUpdateControlPresent() {
+  function assertAutoUpdateControlPresent(shouldBeDisabled?: boolean) {
     const control = helper.byTestId('material-auto-update');
 
     expect(control).toBeInDOM();
     expect(helper.textByTestId('form-field-label', control)).toBe('Repository polling behavior:');
     expect(helper.textByTestId('input-field-for-auto', control)).toBe('Regularly fetch updates to this repository');
     expect(helper.textByTestId('input-field-for-manual', control)).toBe('Fetch updates to this repository only on webhook or manual trigger');
+
+    if (shouldBeDisabled) {
+      expect(helper.byTestId('radio-auto')).toBeDisabled();
+      expect(helper.byTestId('radio-manual')).toBeDisabled();
+    }
   }
 
   function assertAutoUpdateControlAbsent() {

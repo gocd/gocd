@@ -724,7 +724,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Can not operate on SCM 'foobar' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'.")
+          .hasJsonMessage("Can not operate on SCM 'foobar' as it is defined remotely in 'https://github.com/config-repos/repo at revision revision1'.")
       }
     }
   }
@@ -828,7 +828,7 @@ class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Can not operate on SCM 'foobar' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'.")
+          .hasJsonMessage("Can not operate on SCM 'foobar' as it is defined remotely in 'https://github.com/config-repos/repo at revision revision1'.")
       }
     }
   }

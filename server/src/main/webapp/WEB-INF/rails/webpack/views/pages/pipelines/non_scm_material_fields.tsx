@@ -486,7 +486,9 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     const attrs       = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
     const selectedScm = vnode.attrs.scms.find((scm) => scm.id() === attrs.ref());
     if (selectedScm !== undefined) {
-      const scmRepoDetails = selectedScm.configuration().asMap();
+      const scmRepoDetails = new Map([
+        ["Auto Update", selectedScm.autoUpdate() + ""],
+        ...Array.from(selectedScm.configuration().asMap())]);
       return <ConfigurationDetailsWidget header={"SCM Configuration"} dataTestId={"selected-scm-details"}
                                          data={scmRepoDetails}/>;
     }

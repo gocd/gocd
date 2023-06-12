@@ -217,7 +217,7 @@ Above scenario allowed
 
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
-        String conflictingDirMessage = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.";
+        String conflictingDirMessage = "Invalid destination directory. Every material needs a different destination directory and the directories should not be nested.";
         assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.FOLDER), is(conflictingDirMessage));
         assertThat(pipelineOne.materialConfigs().get(1).errors().on(ScmMaterialConfig.FOLDER), is(conflictingDirMessage));
         assertThat(pipelineOne.materialConfigs().get(2).errors().on(PluggableSCMMaterialConfig.FOLDER), is(conflictingDirMessage));
@@ -417,7 +417,7 @@ Above scenario allowed
         pipelineOne.materialConfigs().validate(ConfigSaveValidationContext.forChain(config));
 
         assertThat(pipelineOne.materialConfigs().get(0).errors().on(ScmMaterialConfig.AUTO_UPDATE),
-                is("The material of type Mercurial (http://url1) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). Those values should be the same. Pipelines: one (auto update disabled),\n two (auto update enabled)"));
+                is("The material of type Mercurial (http://url1) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n one (auto update disabled),\n two (auto update enabled)"));
     }
 
     @Test

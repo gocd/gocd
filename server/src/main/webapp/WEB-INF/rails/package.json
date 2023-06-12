@@ -89,7 +89,7 @@
     "jasmine": "^5.0.0",
     "jasmine-ajax": "^4.0.0",
     "jasmine-browser-runner": "^2.0.0",
-    "jasmine-core": "^5.0.0",
+    "jasmine-core": "^5.0.1",
     "jasmine-jquery": "^2.1.1",
     "karma": "^6.4.2",
     "karma-chrome-launcher": "^3.2.0",

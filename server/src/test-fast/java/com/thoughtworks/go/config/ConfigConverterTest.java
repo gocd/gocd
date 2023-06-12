@@ -857,6 +857,25 @@ class ConfigConverterTest {
     }
 
     @Test
+    void shouldConvertPluggableScmMaterialAndPreferLatestAutoUpdateValue() {
+        SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        myscm.setAutoUpdate(true); // Start with existing SCM with autoUpdate enabled
+        SCMs scms = new SCMs(myscm);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, true);
+        crPluggableScmMaterial.setAutoUpdate(false); // config repo implies autoUpdate should be disabled
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+            (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, scms);
+
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().isAutoUpdate()).isEqualTo(false); // Make sure it is disabled
+    }
+
+    @Test
     void shouldConvertPluggableScmMaterialWithNewSCM() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs());

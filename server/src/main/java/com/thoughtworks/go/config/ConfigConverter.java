@@ -399,11 +399,12 @@ public class ConfigConverter {
             }
         }
 
-        PluggableSCMMaterialConfig materialConfig = new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
+        // FIXME should we modify this? :-/
+        scmConfig.setAutoUpdate(crPluggableScmMaterial.isAutoUpdate());
+
+        return new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
             scmConfig, crPluggableScmMaterial.getDestination(),
             toFilter(crPluggableScmMaterial.getFilterList()), crPluggableScmMaterial.isWhitelist());
-        materialConfig.setAutoUpdate(crPluggableScmMaterial.isAutoUpdate());
-        return materialConfig;
     }
 
     private SCMs existingServerSCMs() {

@@ -877,7 +877,7 @@ public class PipelineConfigTest {
     public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsRemote() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id"), "revision1"));
-        assertThat(pipelineConfig.getOriginDisplayName(), is("AwesomeGitMaterial at revision1"));
+        assertThat(pipelineConfig.getOriginDisplayName(), is("AwesomeGitMaterial at revision revision1"));
     }
 
     @Test

@@ -146,7 +146,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
 
     public void validatePipelineNameUniqueness() {
         List<PipelineConfig> visited = new ArrayList<>();
-        HashMap<CaseInsensitiveString, Set<String>> duplicates = new HashMap<>();
+        Map<CaseInsensitiveString, Set<String>> duplicates = new HashMap<>();
         for (PipelineConfigs group : this) {
             for (PipelineConfig pipeline : group) {
                 for (PipelineConfig visitedPipeline : visited) {

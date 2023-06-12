@@ -62,7 +62,7 @@ final Map<String, String> libraries = [
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',
   jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.2',
   javassist           : 'javassist:javassist:3.12.1.GA',
-  jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.2',
+  jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.3',
   jaxen               : 'jaxen:jaxen:2.0.0',
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',

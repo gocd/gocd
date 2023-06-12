@@ -148,7 +148,7 @@ task verifyJar(type: VerifyJarTask) {
       "httpclient-${project.versions.apacheHttpComponents}.jar",
       "httpcore-4.4.16.jar",
       "httpmime-${project.versions.apacheHttpComponents}.jar",
-      "istack-commons-runtime-4.1.1.jar",
+      "istack-commons-runtime-4.1.2.jar",
       "j2objc-annotations-2.8.jar",
       "jackson-annotations-${project.versions.jacksonBom}.jar",
       "jackson-core-${project.versions.jacksonBom}.jar",

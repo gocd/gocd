@@ -733,7 +733,7 @@ task verifyWar(type: VerifyJarTask) {
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archiveFile.get().asFile.name })
         + [
-        "JavaEWAH-1.1.13.jar",
+        "JavaEWAH-1.2.3.jar",
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",

@@ -644,8 +644,8 @@ task sparkTest { thisTask ->
 task sparkTestJunitHtmlReport(type: TestReport) {
   dependsOn sparkTest
 
-  testResults.from(project(':api').subprojects*.test)
-  testResults.from(project(':spark').subprojects*.test)
+  testResults.from(project(':api').subprojects*.test.binaryResultsDirectory.locationOnly)
+  testResults.from(project(':spark').subprojects*.test.binaryResultsDirectory.locationOnly)
   destinationDirectory = file("${project.buildDir}/reports/tests/sparkTest")
 }
 
@@ -679,7 +679,7 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
   description = "Run all api tests"
 
   forAllTask { Test eachTestTask ->
-    testResults.from(eachTestTask)
+    testResults.from(eachTestTask.binaryResultsDirectory.locationOnly)
     eachTestTask.finalizedBy(thisTask)
   }
   destinationDirectory = file("${project.buildDir}/reports/tests/allTests")

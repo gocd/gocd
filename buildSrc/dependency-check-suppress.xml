@@ -179,6 +179,15 @@
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
   </suppress>
+  
+  <suppress>
+    <notes><![CDATA[
+    This seems like it's not a real issue based on discussion at https://github.com/FasterXML/jackson-databind/issues/3972 - seems
+    more like premature CVE raising by individuals.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+    <cve>CVE-2023-35116</cve>
+  </suppress>
 
   <suppress>
     <notes><![CDATA[

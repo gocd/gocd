@@ -209,6 +209,7 @@ enum Distro implements DistroBehavior {
       return [ // See https://endoflife.date/debian
         new DistroVersion(version: '10', releaseName: 'buster-slim', eolDate: parseDate('2024-06-01')),
         new DistroVersion(version: '11', releaseName: 'bullseye-slim', eolDate: parseDate('2026-06-30')),
+        new DistroVersion(version: '12', releaseName: 'bookworm-slim', eolDate: parseDate('2028-06-10')),
       ]
     }
   },

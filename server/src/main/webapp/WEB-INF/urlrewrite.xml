@@ -14,14 +14,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 3.2//EN"
     "http://www.tuckey.org/res/dtds/urlrewrite3.2.dtd">
 
 <!--
-    Configuration file for UrlRewriteFilter 2.6
+    Configuration file for UrlRewriteFilter
     http://tuckey.org/urlrewrite/
 -->
 
+<!--suppress XmlDefaultAttributeValue -->
 <urlrewrite>
 
   <rule>

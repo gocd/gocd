@@ -68,8 +68,10 @@ public class UrlRewriterIntegrationTest {
     private static final ResponseAssertion SERVER_BACKUP = new ResponseAssertion(HTTP_URL + "/go/admin/backup", HTTP_URL + "/go/spark/admin/backup", true);
 
     private static final ResponseAssertion STATIC_PAGES = new ResponseAssertion(HTTP_URL + "/go/static/foo.html?bar=baz", HTTP_URL + "/go/static/foo.html?bar=baz", true);
+    private static final ResponseAssertion ASSETS = new ResponseAssertion(HTTP_URL + "/go/assets/some-image.png", HTTP_URL + "/go/rails/assets/some-image.png", true);
 
     private static final ResponseAssertion CONFIG_FILE_XML = new ResponseAssertion(HTTP_URL + "/go/admin/configuration/file.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/xml");
+    private static final ResponseAssertion CONFIG_PIPELINES_SNIPPET = new ResponseAssertion(HTTP_URL + "/go/admin/pipelines/snippet", HTTP_URL + "/go/rails/admin/pipelines/snippet");
     private static final ResponseAssertion CONFIG_API_FOR_CURRENT = new ResponseAssertion(HTTP_URL + "/go/api/admin/config.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/xml?version=current");
     private static final ResponseAssertion CONFIG_API_FOR_HISTORICAL = new ResponseAssertion(HTTP_URL + "/go/api/admin/config/some-md5.xml", HTTP_URL + "/go/admin/restful/configuration/file/GET/historical-xml?version=some-md5");
 
@@ -81,50 +83,63 @@ public class UrlRewriterIntegrationTest {
     private static final ResponseAssertion PLUGINS_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/plugins", HTTP_URL + "/go/spark/admin/plugins", true);
     private static final ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/package_repositories", HTTP_URL + "/go/spark/admin/package_repositories", true);
     private static final ResponseAssertion CONFIG_CHANGE = new ResponseAssertion(HTTP_URL + "/go/admin/config_change/md5_value", HTTP_URL + "/go/rails/admin/config_change/md5_value", true);
-    private static final ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml", HTTP_URL + "/go/rails/admin/config_xml", METHOD.GET, true);
-    private static final ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml/edit", HTTP_URL + "/go/rails/admin/config_xml/edit", METHOD.GET, true);
+    private static final ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml", HTTP_URL + "/go/rails/admin/config_xml", true);
+    private static final ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml/edit", HTTP_URL + "/go/rails/admin/config_xml/edit", true);
 
-    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job.html", HTTP_URL + "/go/repository/restful/artifact/GET/html?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
-    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING_FILENAME = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/target/abc%2Bfoo.txt", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=target&filePath=abc%2Bfoo.txt", true);
-    private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
-    private static final ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=tmp%2Ffile", true);
-    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=tmp%2Ffile", METHOD.POST, true);
-    private static final ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/1/job/file", HTTP_URL + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=1&buildName=job&filePath=file", METHOD.PUT, true);
+    private static final ResponseAssertion PIPELINE_CONFIG_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/pipelines/pipeline/edit#!pipeline/materials", HTTP_URL + "/go/spark/admin/pipelines/pipeline/edit", true);
 
-    private static final ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
+    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job.html", HTTP_URL + "/go/repository/restful/artifact/GET/html?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=", true);
+    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING_FILENAME = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/target/abc%2Bfoo.txt", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=target&filePath=abc%2Bfoo.txt", true);
+    private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=", true);
+    private static final ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", true);
+    private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", METHOD.POST, true);
+    private static final ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/file", HTTP_URL + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=file", METHOD.PUT, true);
+    private static final ResponseAssertion ARTIFACT_API_CONSOLE_LOG = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/cruise-output/console.log?startLineNumber=1000", HTTP_URL + "/go/consoleout.json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=cruise-output%2Fconsole.log&startLineNumber=1000");
+
+    private static final ResponseAssertion PIPELINES_STAGE_DETAILS = new ResponseAssertion(HTTP_URL + "/go/pipelines/pipeline/1/stage/2", HTTP_URL + "/go/rails/pipelines/pipeline/1/stage/2");
+    private static final ResponseAssertion BUILD_JOB_DETAILS = new ResponseAssertion(HTTP_URL + "/go/tab/build/detail/pipeline/1/stage/2/job", HTTP_URL + "/go/tab/build/recent?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&jobName=job");
+    private static final ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision");
 
     private static final ResponseAssertion LANDING_PAGE_SLASH = new ResponseAssertion(HTTP_URL + "/go/", HTTP_URL + "/go/spark/dashboard", true);
 
     private static final ResponseAssertion LANDING_PAGE_HOME = new ResponseAssertion(HTTP_URL + "/go/home", HTTP_URL + "/go/spark/dashboard", true);
+    private static final ResponseAssertion LANDING_PAGE_PIPELINES = new ResponseAssertion(HTTP_URL + "/go/pipelines", HTTP_URL + "/go/spark/dashboard");
 
     @SuppressWarnings("unused")
     private static Stream<ResponseAssertion> testResponseAssertions() {
         return Stream.of(
-                NO_REWRITE,
-                PIPELINE_GROUP_CREATE,
-                SERVER_BACKUP,
-                STATIC_PAGES,
-                CONFIG_FILE_XML,
-                CONFIG_API_FOR_CURRENT,
-                CONFIG_API_FOR_HISTORICAL,
-                IMAGES_WHILE_BACKUP_IS_IN_PROGRESS,
-                JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS,
-                COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS,
-                STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS,
-                PLUGINS_LISTING,
-                PACKAGE_REPOSITORIES_LISTING,
-                CONFIG_CHANGE,
-                CONFIG_XML_VIEW,
-                CONFIG_XML_EDIT,
-                ARTIFACT_API_HTML_LISTING,
-                ARTIFACT_API_HTML_LISTING_FILENAME,
-                ARTIFACT_API_JSON_LISTING,
-                ARTIFACT_API_GET_FILE,
-                ARTIFACT_API_PUSH_FILE,
-                ARTIFACT_API_CHANGE_FILE,
-                MATERIALS_VALUE_STREAM_MAP,
-                LANDING_PAGE_SLASH,
-                LANDING_PAGE_HOME
+            NO_REWRITE,
+            PIPELINE_GROUP_CREATE,
+            SERVER_BACKUP,
+            STATIC_PAGES,
+            ASSETS,
+            CONFIG_FILE_XML,
+            CONFIG_PIPELINES_SNIPPET,
+            CONFIG_API_FOR_CURRENT,
+            CONFIG_API_FOR_HISTORICAL,
+            IMAGES_WHILE_BACKUP_IS_IN_PROGRESS,
+            JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS,
+            COMPRESSED_JAVASCRIPT_WHILE_BACKUP_IS_IN_PROGRESS,
+            STYLESHEETS_WHILE_BACKUP_IS_IN_PROGRESS,
+            PLUGINS_LISTING,
+            PACKAGE_REPOSITORIES_LISTING,
+            CONFIG_CHANGE,
+            CONFIG_XML_VIEW,
+            CONFIG_XML_EDIT,
+            PIPELINE_CONFIG_EDIT,
+            ARTIFACT_API_HTML_LISTING,
+            ARTIFACT_API_HTML_LISTING_FILENAME,
+            ARTIFACT_API_JSON_LISTING,
+            ARTIFACT_API_GET_FILE,
+            ARTIFACT_API_PUSH_FILE,
+            ARTIFACT_API_CHANGE_FILE,
+            ARTIFACT_API_CONSOLE_LOG,
+            PIPELINES_STAGE_DETAILS,
+            BUILD_JOB_DETAILS,
+            MATERIALS_VALUE_STREAM_MAP,
+            LANDING_PAGE_SLASH,
+            LANDING_PAGE_HOME,
+            LANDING_PAGE_PIPELINES
         );
     }
 

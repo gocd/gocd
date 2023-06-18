@@ -14,14 +14,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 3.2//EN"
     "http://www.tuckey.org/res/dtds/urlrewrite3.2.dtd">
 
 <!--
-    Configuration file for UrlRewriteFilter 2.6
+    Configuration file for UrlRewriteFilter
     http://tuckey.org/urlrewrite/
 -->
 
+<!--suppress XmlDefaultAttributeValue -->
 <urlrewrite>
 
   <rule>
@@ -400,7 +401,7 @@
   </rule>
 
   <rule>
-    <name>Internal Environment Agents Association upate API</name>
+    <name>Internal Environment Agents Association update API</name>
     <from>^/api/admin/internal/environments/([^/]+)</from>
     <to last="true">/spark/api/admin/internal/environments/${escape:$1}</to>
   </rule>
@@ -595,28 +596,24 @@
     <name>Spark Secret Configs Index API</name>
     <from>^/api/admin/secret_configs$</from>
     <to last="true">/spark/api/admin/secret_configs</to>
-    <set name="rails_bound">true</set>
   </rule>
 
   <rule>
     <name>Spark Secret Configs API</name>
     <from>^/api/admin/secret_configs/(.*)$</from>
     <to last="true">/spark/api/admin/secret_configs/${escape:$1}</to>
-    <set name="rails_bound">true</set>
   </rule>
 
   <rule>
     <name>Spark Elastic Profile Index API</name>
     <from>^/api/elastic/profiles$</from>
     <to last="true">/spark/api/elastic/profiles</to>
-    <set name="rails_bound">true</set>
   </rule>
 
   <rule>
     <name>Spark Elastic Profiles API</name>
     <from>^/api/elastic/profiles/(.*)$</from>
     <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
-    <set name="rails_bound">true</set>
   </rule>
 
   <rule>
@@ -651,14 +648,20 @@
 
   <rule>
     <name>Spark Config Export API</name>
-    <from>^/api/admin/export/(pipelines)/([^/]+)(?:/?)$</from>
+    <from>^/api/admin/export/(pipelines)/([^/]+)(/?)$</from>
     <to last="true">/spark/api/admin/export/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>
-    <name>Spark Pipeline Config API</name>
-    <from>^/api/admin/pipelines(?:(/)([^/]+))?(?:/?)$</from>
-    <to last="true">/spark/api/admin/pipelines$1${escape:$2}</to>
+    <name>Spark Pipeline Config API Base</name>
+    <from>^/api/admin/pipelines(/?)$</from>
+    <to last="true">/spark/api/admin/pipelines</to>
+  </rule>
+
+  <rule>
+    <name>Spark Pipeline Config API Individual Resource</name>
+    <from>^/api/admin/pipelines/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -701,12 +704,6 @@
     <name>Spark Template Config API</name>
     <from>^/api/admin/templates/(.*)$</from>
     <to last="true">/spark/api/admin/templates/${escape:$1}</to>
-  </rule>
-
-  <rule>
-    <name>Rails API for the job run history api</name>
-    <from>^/api/agents/([^/]+)/job_run_history(?:(?:/)(.*))?(?:/?)$</from>
-    <to last="true">/rails/api/agents/$1/job_run_history/$2</to>
   </rule>
 
   <rule>
@@ -910,9 +907,15 @@
   </rule>
 
   <rule>
-    <name>Spark Config Repos Internal API</name>
-    <from>^/api/internal/config_repos(?:(/)([^/]+))?(?:/?)</from>
-    <to last="true">/spark/api/internal/config_repos$1${escape:$2}</to>
+    <name>Spark Config Repos Internal API Base</name>
+    <from>^/api/internal/config_repos(/?)$</from>
+    <to last="true">/spark/api/internal/config_repos</to>
+  </rule>
+
+  <rule>
+    <name>Spark Config Repos Internal API Individual Resource</name>
+    <from>^/api/internal/config_repos/([^/]+)(/?)</from>
+    <to last="true">/spark/api/internal/config_repos/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -922,9 +925,15 @@
   </rule>
 
   <rule>
-    <name>Spark Config Repos API</name>
-    <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
-    <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>
+    <name>Spark Config Repos API Base</name>
+    <from>^/api/admin/config_repos(/?)$</from>
+    <to last="true">/spark/api/admin/config_repos</to>
+  </rule>
+
+  <rule>
+    <name>Spark Config Repos API Individual Resource</name>
+    <from>^/api/admin/config_repos/([^/]+)(/?)</from>
+    <to last="true">/spark/api/admin/config_repos/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -1049,10 +1058,10 @@
       (currently RackFilter passes a request to Rails only if Java returns a 40* HTTP response
     </note>
     <from>
-      ^/((jasmine-specs)|(jasmine-specs/*)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/templates/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(internal/pipelines/.*))$
+      ^/((assets/.*)|(pipelines/.*)|(materials/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/pipelines/snippet)|(admin/pipelines/snippet/.*))$
     </from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
@@ -1074,20 +1083,6 @@
   </rule>
 
   <rule>
-    <name>Rails API</name>
-    <from>^/(api/(?!admin/config).*)$</from>
-    <to last="true">/rails/$1</to>
-    <set name="rails_bound">true</set>
-  </rule>
-
-  <rule>
-    <name>Rails Internal API</name>
-    <from>^/(api/config/internal/.*)$</from>
-    <to last="true">/rails/$1</to>
-    <set name="rails_bound">true</set>
-  </rule>
-
-  <rule>
     <name>Already rails bound</name>
     <from>^/(rails/.*)$</from>
     <set name="rails_bound">true</set>
@@ -1102,7 +1097,7 @@
     <to last="false">/$1/$2</to>
   </rule>
 
-  <!-- RESTful URLS -->
+  <!-- Spring/Java RESTful URLS -->
   <rule>
     <name>Set _method attribute to METHOD type</name>
     <condition type="attribute" name="rails_bound">false</condition>
@@ -1158,16 +1153,16 @@
     <name>RESTful Artifacts with start LineNumber</name>
     <condition type="parameter" name="startLineNumber"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
     <set name="startLineNumber">{parameter:startLineNumber}</set>
+    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts with SHA1</name>
     <condition type="parameter" name="sha1"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
     <set name="sha1">{parameter:sha1}</set>
+    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>

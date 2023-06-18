@@ -595,29 +595,29 @@
   <rule>
     <name>Spark Secret Configs Index API</name>
     <from>^/api/admin/secret_configs$</from>
-    <to last="true">/spark/api/admin/secret_configs</to>
     <set name="rails_bound">true</set>
+    <to last="true">/spark/api/admin/secret_configs</to>
   </rule>
 
   <rule>
     <name>Spark Secret Configs API</name>
     <from>^/api/admin/secret_configs/(.*)$</from>
-    <to last="true">/spark/api/admin/secret_configs/${escape:$1}</to>
     <set name="rails_bound">true</set>
+    <to last="true">/spark/api/admin/secret_configs/${escape:$1}</to>
   </rule>
 
   <rule>
     <name>Spark Elastic Profile Index API</name>
     <from>^/api/elastic/profiles$</from>
-    <to last="true">/spark/api/elastic/profiles</to>
     <set name="rails_bound">true</set>
+    <to last="true">/spark/api/elastic/profiles</to>
   </rule>
 
   <rule>
     <name>Spark Elastic Profiles API</name>
     <from>^/api/elastic/profiles/(.*)$</from>
-    <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
     <set name="rails_bound">true</set>
+    <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -1052,8 +1052,8 @@
     <from>
       ^/((jasmine-specs)|(jasmine-specs/*)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/templates/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(internal/pipelines/.*))$
     </from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
@@ -1077,15 +1077,15 @@
   <rule>
     <name>Rails API</name>
     <from>^/(api/(?!admin/config).*)$</from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
     <name>Rails Internal API</name>
     <from>^/(api/config/internal/.*)$</from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
@@ -1159,16 +1159,16 @@
     <name>RESTful Artifacts with start LineNumber</name>
     <condition type="parameter" name="startLineNumber"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
     <set name="startLineNumber">{parameter:startLineNumber}</set>
+    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts with SHA1</name>
     <condition type="parameter" name="sha1"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
     <set name="sha1">{parameter:sha1}</set>
+    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>

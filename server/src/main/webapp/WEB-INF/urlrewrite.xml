@@ -652,14 +652,20 @@
 
   <rule>
     <name>Spark Config Export API</name>
-    <from>^/api/admin/export/(pipelines)/([^/]+)(?:/?)$</from>
+    <from>^/api/admin/export/(pipelines)/([^/]+)(/?)$</from>
     <to last="true">/spark/api/admin/export/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>
-    <name>Spark Pipeline Config API</name>
-    <from>^/api/admin/pipelines(?:(/)([^/]+))?(?:/?)$</from>
-    <to last="true">/spark/api/admin/pipelines$1${escape:$2}</to>
+    <name>Spark Pipeline Config API Base</name>
+    <from>^/api/admin/pipelines(/?)$</from>
+    <to last="true">/spark/api/admin/pipelines</to>
+  </rule>
+
+  <rule>
+    <name>Spark Pipeline Config API Individual Resource</name>
+    <from>^/api/admin/pipelines/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -905,9 +911,15 @@
   </rule>
 
   <rule>
-    <name>Spark Config Repos Internal API</name>
-    <from>^/api/internal/config_repos(?:(/)([^/]+))?(?:/?)</from>
-    <to last="true">/spark/api/internal/config_repos$1${escape:$2}</to>
+    <name>Spark Config Repos Internal API Base</name>
+    <from>^/api/internal/config_repos(/?)$</from>
+    <to last="true">/spark/api/internal/config_repos</to>
+  </rule>
+
+  <rule>
+    <name>Spark Config Repos Internal API Individual Resource</name>
+    <from>^/api/internal/config_repos/([^/]+)(/?)</from>
+    <to last="true">/spark/api/internal/config_repos/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -917,9 +929,15 @@
   </rule>
 
   <rule>
-    <name>Spark Config Repos API</name>
-    <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
-    <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>
+    <name>Spark Config Repos API Base</name>
+    <from>^/api/admin/config_repos(/?)$</from>
+    <to last="true">/spark/api/admin/config_repos</to>
+  </rule>
+
+  <rule>
+    <name>Spark Config Repos API Individual Resource</name>
+    <from>^/api/admin/config_repos/([^/]+)(/?)</from>
+    <to last="true">/spark/api/admin/config_repos/${escape:$1}</to>
   </rule>
 
   <rule>

@@ -4963,10 +4963,10 @@ jasmine-jquery@^2.1.1:
   resolved "https://registry.yarnpkg.com/jasmine-jquery/-/jasmine-jquery-2.1.1.tgz#d4095e646944a26763235769ab018d9f30f0d47b"
   integrity sha512-13d18zXTGeiNAjd4sAhoUGQbCEXTMbUyjrnQ9JFQM/atyyFubHejL5RCE5iyW7jOh1cwjoqVefAAsSA4SFtooQ==
 
-jasmine@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-5.0.1.tgz#5bbf849476e60376391001acba27bfd9a8df6c31"
-  integrity sha512-cLAGOzZyTaDF/T4J8AvBg3Jthp/CAFZNuzxMNBdc0IrNXMhbxxMIY7eLn+1hFjo+QJ0Pvj3ifahBCQDE6i08Ug==
+jasmine@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-5.0.2.tgz#29e11cdb1af0cc445ff61e3d63da4039fbd2c722"
+  integrity sha512-fXgPcWfDhENJJVktFZc/JJ+TpdOQIMJTbn6BgSOIneBagrHtKvnyA8Ag6uD8eF2m7cSESG7K/Hfj/Hk5asAwNg==
   dependencies:
     glob "^10.2.2"
     jasmine-core "~5.0.1"

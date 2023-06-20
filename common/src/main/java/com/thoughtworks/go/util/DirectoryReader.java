@@ -25,8 +25,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 
+import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_VIEW_INCLUDE_ALL_FILES;
+
 public class DirectoryReader {
-    private URLService urlService;
+    private final URLService urlService;
     private final JobIdentifier jobIdentifier;
 
     private static final FileFilter VISIBLE_NON_SERIALIZED_FILES = new FileFilter() {
@@ -56,7 +58,7 @@ public class DirectoryReader {
         if (rootFolder == null) {
             return entries;
         }
-        File[] files = rootFolder.listFiles(VISIBLE_NON_SERIALIZED_FILES);
+        File[] files = rootFolder.listFiles(ARTIFACT_VIEW_INCLUDE_ALL_FILES.getValue() ? file -> true : VISIBLE_NON_SERIALIZED_FILES);
 
         if (files == null) {
             return entries;

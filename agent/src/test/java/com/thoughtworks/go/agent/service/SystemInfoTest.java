@@ -28,8 +28,6 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
@@ -47,7 +45,7 @@ class SystemInfoTest {
 
     @Test
     public void shouldPreserveJnaTmpDirIfSet() {
-        String defaultTempDir = System.getProperty("java.io.tmpdir")
+        String defaultTempDir = System.getProperty("java.io.tmpdir");
         props.set("jna.tmpdir", defaultTempDir);
         SystemInfo.determineOperatingSystemCompleteName();
         assertThat(System.getProperty("jna.tmpdir")).isEqualTo(defaultTempDir);

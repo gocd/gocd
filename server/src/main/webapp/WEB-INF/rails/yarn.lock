@@ -1343,10 +1343,10 @@
   resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.3.3.tgz#ec89515434d4aee9772e25a730bd626ecf44260d"
   integrity sha512-e2iJYrdwfxr6WmLHxNjISUgbrbGaRsFHsc9xnrq8SGFzbSYPDZ4lmAkIulAAjqrkZ1z21OJCZsZwWMnxoeX7+A==
 
-"@types/jasmine@^4.3.3":
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-4.3.3.tgz#0d11f73bd34c25a6586cca3f9c88ad4fcd1bf60c"
-  integrity sha512-KqJKAl72n2azOoohHe07OwQekDnGVGFkWGQgZ5fcE3rt+ahDFtoJ7Jte5qxW/acSlcV/ys/r2XmjtXiUs59o+w==
+"@types/jasmine@^4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-4.3.4.tgz#1f9b401f5e89f13b2e40c5378e2a16505f45b630"
+  integrity sha512-DsJbnxCdjmhRP7dXwjD6JcPc+z7V/4mG3VA1cEFec/+R343TaNPnZ9eJzMkjR4T1BYkjkDIUsPDybkDC0qLrvA==
 
 "@types/jquery@^3.5.14":
   version "3.5.16"

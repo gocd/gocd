@@ -16,17 +16,45 @@
 
 package com.thoughtworks.go.agent.service;
 
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
+
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mockStatic;
 
+@ExtendWith(SystemStubsExtension.class)
 class SystemInfoTest {
+
+    @SystemStub
+    SystemProperties props;
+
+    @TempDir
+    Path tempDir;
+
+    @Test
+    public void shouldDefaultJnaTmpDirIfUnset() {
+        SystemInfo.determineOperatingSystemCompleteName();
+        assertThat(System.getProperty("jna.tmpdir")).isEqualTo(FileUtil.TMP_PARENT_DIR);
+    }
+
+    @Test
+    public void shouldPreserveJnaTmpDirIfSet() {
+        props.set("jna.tmpdir", tempDir.toString());
+        SystemInfo.determineOperatingSystemCompleteName();
+        assertThat(System.getProperty("jna.tmpdir")).isEqualTo(tempDir.toString());
+    }
 
     @Test
     @EnabledOnOs(OS.MAC)

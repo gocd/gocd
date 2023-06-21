@@ -27,20 +27,16 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 class LauncherTempFileHandler implements Runnable {
-
+    private static final Logger LOG = LoggerFactory.getLogger(LauncherTempFileHandler.class);
+    private static final String LAUNCHER_TMP_FILE_LIST = ".tmp.file.list";
     private static volatile Thread reaperThread;
-
-    static final String LAUNCHER_TMP_FILE_LIST = ".tmp.file.list";
-
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultAgentLauncherCreatorImpl.class);
-
-    private static final int TEN_MINS = 1000 * 60 * 10;
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             reapFiles();
             sleepForAMoment();
         }
@@ -83,8 +79,9 @@ class LauncherTempFileHandler implements Runnable {
 
     private static void sleepForAMoment() {
         try {
-            Thread.sleep(TEN_MINS);
+            Thread.sleep(TimeUnit.MINUTES.toMillis(10));
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

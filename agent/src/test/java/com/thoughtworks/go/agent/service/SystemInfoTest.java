@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Answers;
 import org.mockito.MockedStatic;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
@@ -40,9 +39,6 @@ class SystemInfoTest {
     @SystemStub
     SystemProperties props;
 
-    @TempDir
-    Path tempDir;
-
     @Test
     public void shouldDefaultJnaTmpDirIfUnset() {
         SystemInfo.determineOperatingSystemCompleteName();
@@ -51,9 +47,10 @@ class SystemInfoTest {
 
     @Test
     public void shouldPreserveJnaTmpDirIfSet() {
-        props.set("jna.tmpdir", tempDir.toString());
+        String defaultTempDir = System.getProperty("java.io.tmpdir")
+        props.set("jna.tmpdir", defaultTempDir);
         SystemInfo.determineOperatingSystemCompleteName();
-        assertThat(System.getProperty("jna.tmpdir")).isEqualTo(tempDir.toString());
+        assertThat(System.getProperty("jna.tmpdir")).isEqualTo(defaultTempDir);
     }
 
     @Test

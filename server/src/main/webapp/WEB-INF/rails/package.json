@@ -133,6 +133,7 @@
     "**/chokidar/**/glob-parent": ">=6.0.2",
     "html-webpack-plugin/**/ansi-regex": "^5.0.1",
     "**/loader-utils": "^2.0.3",
+    "**/semver": "^7.5.3",
     "**/string-width": "^4.2.3",
     "**/wrap-ansi": "^7.0.0"
   }

@@ -31,10 +31,7 @@ $spinner-wrapper-height: 200px;
   transition: $transition;
 
   @media (max-width: $screen-md-min) {
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     width: 100%;
     height: 100vh;
   }
@@ -142,10 +139,7 @@ $spinner-wrapper-height: 200px;
 .overlay-bg {
   background: $overlay-bg;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: map_get($zindex, "modal-overlay-bg");
 }
 
@@ -157,10 +151,7 @@ $spinner-wrapper-height: 200px;
   background: $modal-overlay-bg;
   position: fixed;
   width: 100%;
-  top: $modal-header-height;
-  left: 0;
-  right: 0;
-  bottom: $modal-footer-height;
+  inset: $modal-header-height 0 $modal-footer-height 0;
 }
 
 .spinner-wrapper {

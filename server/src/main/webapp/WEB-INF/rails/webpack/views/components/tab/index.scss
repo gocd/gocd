@@ -71,7 +71,7 @@ $accordion-header-text-color: $go-primary;
   display: none;
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (1px <= width <= 767px) {
   .tabs {
     display: none;
   }

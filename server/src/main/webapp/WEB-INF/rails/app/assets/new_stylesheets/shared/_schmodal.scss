@@ -48,10 +48,7 @@ $overlay-border-radius: 3px;
   display: none;
   background: $overlay-bg;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 100;
 }
 

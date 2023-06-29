@@ -128,10 +128,7 @@ $tooltip-background-color: #333;
   &.right::before {
     @include css-triangle($tooltip-pip-width, $tooltip-background-color, left);
 
-    top: 50%;
-    right: 100%;
-    bottom: auto;
-    left: auto;
+    inset: 50% 100% auto auto;
     transform: translateY(-50%);
   }
 }

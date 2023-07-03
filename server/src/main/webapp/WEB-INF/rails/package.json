@@ -88,7 +88,7 @@
     "html-webpack-plugin": "^4.5.2",
     "jasmine": "^5.0.2",
     "jasmine-ajax": "^4.0.0",
-    "jasmine-browser-runner": "^2.0.0",
+    "jasmine-browser-runner": "^2.1.0",
     "jasmine-core": "^5.0.1",
     "jasmine-jquery": "^2.1.1",
     "karma": "^6.4.2",

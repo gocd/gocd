@@ -164,10 +164,9 @@ export const PipelineOperationsWidget = {
     const operationMessages = vnode.attrs.operationMessages;
 
     let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
-    let pausedTitlenLabel, playTitlenLabel, playWithOptionsTitlenLabel;
+    let pausedTitlenLabel, playWithOptionsTitlenLabel;
     if (pipeline.isPaused) {
       pausedTitlenLabel          = "Pipeline Paused";
-      playTitlenLabel            = "Trigger Pipeline Disabled";
       playWithOptionsTitlenLabel = "Trigger with Options Disabled";
       pauseUnpauseClass          = `pipeline_btn unpause ${(pipeline.canPause) ? '' : 'disabled'}`;
       pausedMessage              = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
@@ -176,7 +175,6 @@ export const PipelineOperationsWidget = {
       pauseUnpauseClass          = `pipeline_btn pause ${(pipeline.canPause) ? '' : 'disabled'}`;
       onPauseUnpauseClick        = (pipeline.canPause) && vnode.state.showPausePopup.bind(vnode.state, pipeline);
       pausedTitlenLabel          = "Pause Pipeline";
-      playTitlenLabel            = "Trigger Pipeline";
       playWithOptionsTitlenLabel = "Trigger with Options";
     }
 
@@ -208,11 +206,6 @@ export const PipelineOperationsWidget = {
       <div>
         {flashMessage}
         <ul class="pipeline_operations">
-          <li>
-            <f.button onclick={!pipeline.triggerDisabled() && vnode.state.trigger.bind(vnode.state, pipeline)}
-                      class={`pipeline_btn play ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
-                      tooltipText={triggerButtonsTooltipText} aria-label={playTitlenLabel} title={playTitlenLabel}/>
-          </li>
           <li>
             <f.button
               onclick={!pipeline.triggerDisabled() && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}

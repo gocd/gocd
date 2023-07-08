@@ -133,17 +133,12 @@ class BuildDockerImageTask extends DefaultTask {
 
   @Internal
   GString getImageNameWithTag() {
-    "${dockerImageName}:${imageTag}"
+    "${dockerImageName}:latest"
   }
 
   @Internal
   Set<GString> getSupportedPlatforms() {
     distro.supportedArchitectures.collect {"linux/${it.dockerAlias}" }
-  }
-
-  @Input
-  GString getImageTag() {
-    "v${project.fullVersion}"
   }
 
   @Internal

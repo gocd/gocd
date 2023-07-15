@@ -328,23 +328,8 @@ jar {
 
 idea {
   module {
-    testSourceDirs += sourceSets.sharedTest.java.srcDirs
-    testSourceDirs += sourceSets.fastUnitTest.java.srcDirs
-    testSourceDirs += sourceSets.integrationTest.java.srcDirs
-
-    // some hax to fudge the intellij xml
-    iml.withXml {
-      def node = it.asNode()
-      def content = node.component.find { it.'@name' == 'NewModuleRootManager' }.content[0]
-      content.sourceFolder.each { sourceFolder ->
-        if (sourceFolder.@url?.endsWith('/resources')) {
-          sourceFolder.attributes().with {
-            boolean isTestSource = (remove('isTestSource') == 'true')
-            put('type', isTestSource ? 'java-test-resource' : 'java-resource')
-          }
-        }
-      }
-    }
+    testSources.from(sourceSets.fastUnitTest.java.srcDirs)
+    testSources.from(sourceSets.integrationTest.java.srcDirs)
   }
 }
 
@@ -748,7 +733,7 @@ task verifyWar(type: VerifyJarTask) {
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archiveFile.get().asFile.name })
         + [
-        "JavaEWAH-1.1.13.jar",
+        "JavaEWAH-1.2.3.jar",
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
@@ -760,7 +745,6 @@ task verifyWar(type: VerifyJarTask) {
         "aopalliance-1.0.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
-        "checker-qual-3.33.0.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
@@ -784,7 +768,6 @@ task verifyWar(type: VerifyJarTask) {
         "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-${project.versions.ehcache}.jar",
-        "error_prone_annotations-2.18.0.jar",
         "failureaccess-1.0.1.jar",
         "freemarker-${project.versions.freemarker}.jar",
         "go-plugin-access-${project.version}.jar",
@@ -805,8 +788,7 @@ task verifyWar(type: VerifyJarTask) {
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.16.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
-        "istack-commons-runtime-4.1.1.jar",
-        "j2objc-annotations-2.8.jar",
+        "istack-commons-runtime-4.1.2.jar",
         "jackson-annotations-${project.versions.jacksonBom}.jar",
         "jackson-core-${project.versions.jacksonBom}.jar",
         "jackson-databind-${project.versions.jacksonBom}.jar",
@@ -828,11 +810,9 @@ task verifyWar(type: VerifyJarTask) {
         "jruby-complete-${project.versions.jruby}.jar",
         "jruby-rack-${project.versions.rack}.jar",
         "json-utils-${project.versions.jolt}.jar",
-        "jsr305-3.0.2.jar",
         "jta-1.1.jar",
         "liquibase-core-${project.versions.liquibase}.jar",
         "liquibase-slf4j-${project.versions.liquibaseSlf4j}.jar",
-        "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",
         "mysql-connector-j-${project.versions.mysql}.jar",

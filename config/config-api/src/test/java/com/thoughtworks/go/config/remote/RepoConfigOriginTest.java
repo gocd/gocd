@@ -15,28 +15,26 @@
  */
 package com.thoughtworks.go.config.remote;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import org.junit.jupiter.api.Test;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class RepoConfigOriginTest {
 
     @Test
-    public void shouldShowDisplayName()
-    {
+    public void shouldShowDisplayName() {
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin", "id"), "123");
-        assertThat(repoConfigOrigin.displayName(),is("http://mysvn at 123"));
+        assertThat(repoConfigOrigin.displayName(), is("http://mysvn at revision 123"));
     }
 
     // because we don't like null pointer exceptions
     // and empty config like this can happen in tests
     @Test
-    public void shouldShowDisplayNameWhenEmptyConfig()
-    {
+    public void shouldShowDisplayNameWhenEmptyConfig() {
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin();
-        assertThat(repoConfigOrigin.displayName(),is("NULL material at null"));
+        assertThat(repoConfigOrigin.displayName(), is("NULL material at revision null"));
     }
 
 

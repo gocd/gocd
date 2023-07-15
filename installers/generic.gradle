@@ -45,7 +45,7 @@ assemble.dependsOn(":installers:agentGenericZip", ":installers:serverGenericZip"
 def configureGenericZip(Zip zipTask, InstallerType installerType) {
   zipTask.with {
     dependsOn extractDeltaPack
-    destinationDirectory = file("${project.buildDir.path}/${project.distsDirName}/zip")
+    destinationDirectory = file("${project.buildDir.path}/${project.base.distsDirName}/zip")
     archiveBaseName = installerType.baseName
 
     into("${installerType.baseName}-${project.goVersion}")

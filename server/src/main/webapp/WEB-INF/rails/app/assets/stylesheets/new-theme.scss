@@ -135,7 +135,6 @@ h4 {
   margin-top: 10px;
 }
 
-.ui-dialog-buttonpane,
 #MB_content .actions {
   background-image: none;
   border: 0;
@@ -763,7 +762,6 @@ button.submit {
   font-weight: 600;
 }
 
-.ui-dialog,
 #MB_frame_content {
   background-color: #fff;
   border: 0;
@@ -1168,12 +1166,6 @@ a:visited#link-to-this-page {
   background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%) !important;
 }
 
-.ui-dialog-buttonpane {
-  button.submit.primary {
-    color: #fff !important;
-  }
-}
-
 #MB_window {
   border-radius: 3px;
   overflow: visible;
@@ -1206,7 +1198,6 @@ a:visited#link-to-this-page {
   padding: 15px 20px;
 }
 
-.ui-dialog-titlebar,
 #MB_header {
   border-bottom: 2px solid #ccc;
   background: $modal-header-bg;
@@ -1307,7 +1298,6 @@ a:visited.help {
   }
 }
 
-.ui-dialog-title,
 #MB_caption {
   color: #333;
 }

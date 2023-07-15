@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.agent.service;
 
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class SystemInfo {
 
     static String determineOperatingSystemCompleteName() {
         try {
+            useAgentTmpDirIfNecessary();
             OperatingSystem os = newSystemInfo().getOperatingSystem();
             return String.format("%s %s%s",
                 os.getFamily(),
@@ -42,6 +44,12 @@ public class SystemInfo {
         } catch (Exception e) {
             LOG.warn("Unable to determine OS platform from native, falling back to default", e);
             return new SystemEnvironment().getOperatingSystemFamilyJvmName();
+        }
+    }
+
+    private static void useAgentTmpDirIfNecessary() {
+        if (System.getProperty("jna.tmpdir") == null) {
+            System.setProperty("jna.tmpdir", FileUtil.TMP_PARENT_DIR);
         }
     }
 

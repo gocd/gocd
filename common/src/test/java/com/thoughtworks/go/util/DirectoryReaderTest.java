@@ -20,7 +20,11 @@ import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,9 +36,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 
+@ExtendWith(SystemStubsExtension.class)
 public class DirectoryReaderTest {
     @TempDir
     File testFolder;
+
+    @SystemStub
+    SystemProperties systemProperties;
+
     private JobIdentifier jobIdentifier;
     private String folderRoot;
 
@@ -123,15 +132,17 @@ public class DirectoryReaderTest {
     }
 
     @Test
-    public void shouldNotContainSerializedObjectFile() throws Exception {
+    public void shouldNotContainSerializedObjectFileWhenConfigured() throws Exception {
         String filename = ".log200806041535.xml.ser";
         TestFileUtil.createTestFile(testFolder, filename);
         DirectoryReader reader = new DirectoryReader(jobIdentifier);
-        List<DirectoryEntry> entries = reader.listEntries(testFolder, folderRoot);
-        assertThat(entries.size(), is(0));
+        assertThat((reader.listEntries(testFolder, folderRoot)).size(), is(1));
+        systemProperties.set(SystemEnvironment.ARTIFACT_VIEW_INCLUDE_ALL_FILES.propertyName(), false);
+        assertThat((reader.listEntries(testFolder, folderRoot)).size(), is(0));
     }
 
-    @Test public void shouldKeepRootsInUrl() throws Exception {
+    @Test
+    public void shouldKeepRootsInUrl() throws Exception {
         File b = TestFileUtil.createTestFolder(testFolder, "b");
         TestFileUtil.createTestFile(b, "c.xml");
         List<DirectoryEntry> entries = new DirectoryReader(jobIdentifier).listEntries(b, folderRoot + "/b");

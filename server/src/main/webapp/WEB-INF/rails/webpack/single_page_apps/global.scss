@@ -88,6 +88,8 @@ body {
   color: $body-color;
   text-align: left;
   background-color: $body-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 p {

@@ -29,9 +29,9 @@ import java.util.stream.Collectors
 
 plugins {
   id 'base'
-  id 'org.owasp.dependencycheck' version '8.2.1'
+  id 'org.owasp.dependencycheck' version '8.3.1'
   id 'com.github.hierynomus.license-base' version '0.16.1'
-  id 'com.github.jk1.dependency-license-report' version '2.4'
+  id 'com.github.jk1.dependency-license-report' version '2.5'
 }
 
 apply from: 'dependencies.gradle'
@@ -249,8 +249,6 @@ subprojects {
     exclude '**/*.gif'
     exclude '**/*.woff'
     exclude '**/*.woff2'
-    exclude '**/*.ttf'
-    exclude '**/*.eot'
     exclude '**/*.svg'
     exclude '**/*.json'
     exclude '**/*.scss.d.ts'
@@ -391,6 +389,17 @@ subprojects {
         // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in
         // optional dependencies when it should not (https://github.com/dom4j/dom4j/issues/99)
         withModule('org.dom4j:dom4j', { details -> details.allVariants { withDependencies { clear() } } })
+        // workaround for Guava metadata declaring dependencies that are not needed at runtime
+        // see https://github.com/google/guava/pull/6606
+        withModule('com.google.guava:guava', { details ->
+          details.allVariants {
+            withDependencies {
+              removeAll {
+                it.group in [ "com.google.code.findbugs", "org.checkerframework", "com.google.errorprone" ]
+              }
+            }
+          }
+        })
       }
     }
   }
@@ -646,8 +655,8 @@ task sparkTest { thisTask ->
 task sparkTestJunitHtmlReport(type: TestReport) {
   dependsOn sparkTest
 
-  testResults.from(project(':api').subprojects*.test)
-  testResults.from(project(':spark').subprojects*.test)
+  testResults.from(project(':api').subprojects*.test.binaryResultsDirectory.locationOnly)
+  testResults.from(project(':spark').subprojects*.test.binaryResultsDirectory.locationOnly)
   destinationDirectory = file("${project.buildDir}/reports/tests/sparkTest")
 }
 
@@ -681,7 +690,7 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
   description = "Run all api tests"
 
   forAllTask { Test eachTestTask ->
-    testResults.from(eachTestTask)
+    testResults.from(eachTestTask.binaryResultsDirectory.locationOnly)
     eachTestTask.finalizedBy(thisTask)
   }
   destinationDirectory = file("${project.buildDir}/reports/tests/allTests")

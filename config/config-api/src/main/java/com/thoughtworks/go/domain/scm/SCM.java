@@ -257,12 +257,12 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
     }
 
     public void setConfigAttributes(Object attributes) {
-        Map attributesMap = (Map) attributes;
+        @SuppressWarnings("unchecked") Map<String, String> attributesMap = (Map<String, String>) attributes;
         if (attributesMap.containsKey(SCM_ID)) {
-            id = ((String) attributesMap.get(SCM_ID));
+            id = attributesMap.get(SCM_ID);
         }
         if (attributesMap.containsKey(NAME)) {
-            name = ((String) attributesMap.get(NAME));
+            name = attributesMap.get(NAME);
         }
         this.setAutoUpdate("true".equals(attributesMap.get(AUTO_UPDATE)));
         if (attributesMap.containsKey(PLUGIN_CONFIGURATION)) {

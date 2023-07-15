@@ -70,7 +70,6 @@ class ConfigConverterTest {
 
     private CRStage crStage;
     private CRGitMaterial git;
-    private AgentService agentService;
 
     private CRJob buildJob() {
         CRJob crJob = new CRJob("name");
@@ -103,8 +102,7 @@ class ConfigConverterTest {
     void setUp() {
         cachedGoConfig = mock(CachedGoConfig.class);
         context = mock(PartialConfigLoadContext.class);
-        agentService = mock(AgentService.class);
-        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig, agentService);
+        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig, mock(AgentService.class));
 
         filter = new ArrayList<>();
         filter.add("filter");
@@ -706,9 +704,8 @@ class ConfigConverterTest {
     @Test
     void shouldConvertP4MaterialWhenEncryptedPassword() throws CryptoException {
         String encryptedPassword = new GoCipher().encrypt("plain-text-password");
-        CRP4Material crp4Material1 = new CRP4Material("name", "folder", false, false, "user", filter, "server:port", "view", true);
-        crp4Material1.setEncryptedPassword(encryptedPassword);
-        CRP4Material crp4Material = crp4Material1;
+        CRP4Material crp4Material = new CRP4Material("name", "folder", false, false, "user", filter, "server:port", "view", true);
+        crp4Material.setEncryptedPassword(encryptedPassword);
 
         P4MaterialConfig p4MaterialConfig =
                 (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context, new SCMs());
@@ -839,7 +836,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertPluggableScmMaterialWithIncludelist() {
+    void shouldConvertPluggableScmMaterialWithIncludeList() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCMs scms = new SCMs(myscm);
 
@@ -885,7 +882,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertPluggableScmMaterialWithADuplicateSCMFingerPrintShouldUseWhatAlreadyExists() {
+    void shouldConvertPluggableScmMaterialWithADuplicateScmFingerprintShouldUseWhatAlreadyExists() {
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         SCM scm = new SCM("scmid", new PluginConfiguration("plugin_id", "1.0"), config);
@@ -906,7 +903,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertPluggableScmMaterialWithANewSCMDefinitionWithoutAnSCMID() {
+    void shouldConvertPluggableScmMaterialWithANewScmDefinitionWithoutAnScmId() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs());
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
@@ -920,7 +917,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertPluggableScmMaterialWithADuplicateSCMIDShouldUseWhatAlreadyExists() {
+    void shouldConvertPluggableScmMaterialWithADuplicateScmIdShouldUseWhatAlreadyExists() {
         SCM scm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         scm.setName("noName");
         SCMs scms = new SCMs(scm);
@@ -939,7 +936,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertPluggableScmMaterialWithNewSCMPluginVersionShouldDefaultToEmptyString() {
+    void shouldConvertPluggableScmMaterialWithNewScmPluginVersionShouldDefaultToEmptyString() {
         SCM s = new SCM("an_id", new PluginConfiguration(), new Configuration());
         s.setName("aname");
         SCMs scms = new SCMs(s);
@@ -1006,7 +1003,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertToPluggableArtifactConfigWhenConfigrationIsNotPresent() {
+    void shouldConvertToPluggableArtifactConfigWhenConfigurationIsNotPresent() {
         PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", null));
 
         assertThat(pluggableArtifactConfig.getId()).isEqualTo("id");
@@ -1815,10 +1812,7 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldMigratePluggableTasktoCR() {
-        ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
-        configs.add(new CRConfigurationProperty("k", "m", null));
-
+    void shouldMigratePluggableTaskToCR() {
         ConfigurationProperty prop = new ConfigurationProperty(new ConfigurationKey("k"), new ConfigurationValue("m"));
         Configuration config = new Configuration(prop);
 

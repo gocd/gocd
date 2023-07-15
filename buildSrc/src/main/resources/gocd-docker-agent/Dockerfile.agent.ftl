@@ -81,7 +81,7 @@ RUN \
   ${command} && \
 </#list>
 <#list distroVersion.installPrerequisitesCommands as command>
-    ${command} && \
+  ${command} && \
 </#list>
 <#list distro.getInstallPrerequisitesCommands(distroVersion) as command>
   ${command} && \

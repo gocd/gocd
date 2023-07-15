@@ -92,10 +92,7 @@ $overlay-index: 10;
       content: "";
       display: inline-block;
       position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      bottom: 0;
+      inset: 0;
       background-color: $overlay-color;
     }
 

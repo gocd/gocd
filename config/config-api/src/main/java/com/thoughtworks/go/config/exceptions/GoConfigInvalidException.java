@@ -20,16 +20,17 @@ import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GoConfigInvalidException extends RuntimeException {
     private final CruiseConfig cruiseConfig;
-    private List<String> allErrors;
+    private final Set<String> allErrors;
 
     public GoConfigInvalidException(CruiseConfig cruiseConfig, String error) {
         super(error);
-        allErrors = Collections.singletonList(error);
+        allErrors = Set.of(error);
         this.cruiseConfig = cruiseConfig;
     }
 
@@ -45,8 +46,8 @@ public class GoConfigInvalidException extends RuntimeException {
         this.allErrors = extractErrors(errors);
     }
 
-    private static List<String> extractErrors(List<ConfigErrors> errors) {
-        List<String> allErrors = new ArrayList<>();
+    private static Set<String> extractErrors(List<ConfigErrors> errors) {
+        Set<String> allErrors = new LinkedHashSet<>();
         for (ConfigErrors er : errors) {
             allErrors.addAll(er.getAll());
         }
@@ -69,6 +70,6 @@ public class GoConfigInvalidException extends RuntimeException {
     }
 
     public List<String> getAllErrors() {
-        return allErrors;
+        return new ArrayList<>(allErrors);
     }
 }

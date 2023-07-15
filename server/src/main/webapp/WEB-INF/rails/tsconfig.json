@@ -27,7 +27,6 @@
     "allowSyntheticDefaultImports": true,
     "strictFunctionTypes": true,
     "typeRoots": ["node_modules/@types", "typings"],
-    "types": ["chart.js"]
   },
   "include": [
     "webpack/**/*.ts",

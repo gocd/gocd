@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -e
+WORKING_DIR=$(cd `dirname $0` && pwd)
+
+pushd "${WORKING_DIR}"
+for repo in p4* ; do
+  echo $repo
+  p4d -C0 -r "$repo" -p 10000 -xu
+  p4d -C0 -r "$repo" -p 10000 &
+  sleep 2
+  kill %%
+done
+popd

@@ -179,13 +179,14 @@
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
   </suppress>
-
+  
   <suppress>
     <notes><![CDATA[
-    Neither GoCD nor dependencies use the deprecated and vulnerable Files.createTempDir() from Guava noted in https://nvd.nist.gov/vuln/detail/CVE-2020-8908
+    This seems like it's not a real issue based on discussion at https://github.com/FasterXML/jackson-databind/issues/3972 - seems
+    more like premature CVE raising by individuals.
     ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
-    <vulnerabilityName>CVE-2020-8908</vulnerabilityName>
+    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+    <cve>CVE-2023-35116</cve>
   </suppress>
 
   <suppress>
@@ -208,10 +209,13 @@
   <suppress>
     <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use jQuery in a vulnerable way.
-    (no user controlled use of `jQuery(strInput)`, no use of cross-site AJAX requests, no use of `jquery.extend`,
-    no ability to pass untrusted code to `.html()`, `.append()`, no ability for users to control boolean attribute names)
+    - no user controlled use of `jQuery(strInput)`
+    - no use of cross-site AJAX requests
+    - no use of `jquery.extend`
+    - no ability to pass untrusted code to `.html()`, `.append()`
+    - no ability for users to control boolean attribute names
     ]]></notes>
-    <packageUrl regex="true">^pkg:(npm|javascript)/jquery@.*$</packageUrl>
+    <packageUrl regex="true">^pkg:javascript/jquery@2\..*$</packageUrl>
 
     <cve>CVE-2015-9251</cve>
     <vulnerabilityName>GHSA-rmxg-73gg-4p98</vulnerabilityName>
@@ -223,6 +227,7 @@
     <vulnerabilityName>GHSA-gxr4-xjj5-5px2</vulnerabilityName>
     <cve>CVE-2020-11023</cve>
     <vulnerabilityName>GHSA-jpcq-cgw6-v4j6</vulnerabilityName>
+    <cve>CVE-2020-23064</cve>
     
     <vulnerabilityName>jQuery 1.x and 2.x are End-of-Life and no longer receiving security updates</vulnerabilityName>
   </suppress>
@@ -232,8 +237,8 @@
     <notes><![CDATA[
     Suppress false positive vulnerabilities from test code that sits inside Javascript node_modules
     ]]></notes>
-    <filePath regex="true">^.*/node_modules/.*/(test|cucumber)/.*\.js$</filePath>
-    <cvssBelow>10</cvssBelow>
+    <filePath regex="true">^.*/node_modules/.*/(test|tests|cucumber|templates)/.*\.js$</filePath>
+    <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
 
   <suppress>
@@ -241,7 +246,7 @@
     Suppress false positive vulnerabilities from test JS code that sits inside Ruby gems
     ]]></notes>
     <filePath regex="true">^.*/gems/.*/(htmlunit|capybara)/.*\.js$</filePath>
-    <cvssBelow>10</cvssBelow>
+    <vulnerabilityName regex="true">.*</vulnerabilityName>
   </suppress>
   
   <suppress>
@@ -254,7 +259,7 @@
     <cve>CVE-2022-42920</cve>
   </suppress>
 
-  <suppress until="2023-07-01Z">
+  <suppress until="2023-08-01Z">
     <notes><![CDATA[
     Time-limited suppression of issue from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
     and corresponding release of nokogiri. We are probably not affected, but there is no mitigation we can apply right now eitehr. Needs upgrade to neko-htmlunit 2.70.0.
@@ -263,17 +268,8 @@
     <cve>CVE-2023-2798</cve>
     <cve>CVE-2023-26119</cve>
   </suppress>
-    
-  <suppress until="2023-07-01Z">
-    <notes><![CDATA[
-    Time-limited suppression from JRuby dependency protobuf_java.jar via embedded com.google.guava:guava:31.1-jre for which there is no released version
-    with a fix (requires upgrade to guava 32)
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
-    <cve>CVE-2023-2976</cve>
-  </suppress>
 
-  <suppress until="2023-07-01Z">
+  <suppress until="2023-08-01Z">
     <notes><![CDATA[
     Time-limited suppression of issue from plugins-*.zip > gocd-yaml-config-plugin.jar (shaded: org.yaml:snakeyaml:1.32) pending release of
     https://github.com/tomzo/gocd-yaml-config-plugin/pull/174 as there is no available fixed plugin jar.

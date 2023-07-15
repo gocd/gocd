@@ -108,7 +108,7 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(ResetCipher.class)
 public class MagicalGoConfigXmlLoaderTest {
     private MagicalGoConfigXmlLoader xmlLoader;
-    private static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested";
+    private static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid destination directory. Every material needs a different destination directory and the directories should not be nested";
     private ConfigCache configCache = new ConfigCache();
     private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     private MagicalGoConfigXmlWriter xmlWriter;
@@ -467,7 +467,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <svn url=\"/hgrepo2\" autoUpdate='false' dest='second'/>\n"
                         + "  </materials>\n";
         MagicalGoConfigXmlLoaderFixture.assertNotValid(
-                "The material of type Subversion (/hgrepo2) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). Those values should be the same. Pipelines: pipeline (auto update enabled)",
+                "The material of type Subversion (/hgrepo2) is used elsewhere with a different value for autoUpdate (poll for changes). Those values should be the same. Pipelines:\n pipeline (auto update enabled)",
                 noAutoUpdate);
     }
 

@@ -20,7 +20,9 @@ configurations.all {
 }
 
 dependencies {
-  implementation project.deps.postgresql
+  implementation(project.deps.postgresql) {
+    exclude(module: 'checker-qual') // See https://github.com/pgjdbc/pgjdbc/pull/2262
+  }
   api project(path: ':db-support:db-support-base', configuration: 'runtimeElements')
 
   annotationProcessor project.deps.lombok

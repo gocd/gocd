@@ -29,7 +29,7 @@
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
 
-// A number of things depend on this including ModalBox + Class.create + Event.observe + $() + $A() + Element.removeClassName calls.
+// A number of things depend on this including Class.create + Event.observe + $() + $A() + Element.removeClassName calls.
 // Also causes some issues with hacks it applies to the browser toJSON that need to be worked around
 // with Json.parse(Json.stringify(jsonObject)) in various places
 //= require "lib/prototype-1.6.0.3.js"
@@ -39,9 +39,6 @@
 
 // used by Rails value_stream_map_renderer (look for $j(.*).draggable etc)
 //= require "lib/jquery-ui-1.13.2.js"
-
-// Used by Rails stage details / stage history widget for showing config changes between stages. Relies on prototype+effects
-//= require "lib/modalbox-1.6.1.js"
 
 // Used by Rails job details page via timer_observer
 //= require "lib/trimpath-template-1.0.38.js"

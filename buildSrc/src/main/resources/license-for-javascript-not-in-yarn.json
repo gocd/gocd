@@ -96,22 +96,6 @@
       }
     ]
   },
-  "modalbox": {
-    "moduleName": "modalbox",
-    "moduleVersion": "1.6.1",
-    "moduleUrls": [
-      "https://github.com/okonet/modalbox"
-    ],
-    "filenames": [
-      "modalbox-1.6.1.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
   "momentjs": {
     "moduleName": "momentjs",
     "moduleVersion": "2.29.4",

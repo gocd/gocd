@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.domain.authorization;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class AuthorizationServerUrlResponse {
 
@@ -54,7 +55,7 @@ public class AuthorizationServerUrlResponse {
     public String toString() {
         return "AuthorizationServerUrlResponse{" +
             "authorizationServerUrl='" + authorizationServerUrl + '\'' +
-            ", sessionContext=" + authSession +
+            ", authSessionKeys=" + Optional.ofNullable(authSession).map(Map::keySet).orElse(null) +
             '}';
     }
 }

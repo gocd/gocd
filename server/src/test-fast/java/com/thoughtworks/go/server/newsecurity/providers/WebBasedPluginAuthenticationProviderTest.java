@@ -341,9 +341,9 @@ class WebBasedPluginAuthenticationProviderTest {
 
     @Test
     void shouldFetchAccessTokenFromPlugin() {
-        when(authorizationExtension.fetchAccessToken(PLUGIN_ID, emptyMap(), Map.of("code", "some-code"), List.of(githubSecurityAuthconfig))).thenReturn(Map.of("access_token", "some-access-token"));
+        when(authorizationExtension.fetchAccessToken(PLUGIN_ID, emptyMap(), Map.of("code", "some-code"), Map.of("auth", "context"), List.of(githubSecurityAuthconfig))).thenReturn(Map.of("access_token", "some-access-token"));
 
-        final AccessToken accessToken = authenticationProvider.fetchAccessToken(PLUGIN_ID, emptyMap(), Map.of("code", "some-code"));
+        final AccessToken accessToken = authenticationProvider.fetchAccessToken(PLUGIN_ID, emptyMap(), Map.of("code", "some-code"), Map.of("auth", "context"));
 
         assertThat(accessToken.getCredentials())
                 .containsEntry("access_token", "some-access-token")

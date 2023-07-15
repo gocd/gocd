@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
@@ -93,5 +94,25 @@ class AuthorizationMessageConverterV2Test {
         assertThat(roles)
                 .hasSize(3)
                 .contains("blackbird", "admin", "foo");
+    }
+
+    @Test
+    void grantAccessRequestBodyTests() {
+        String json = converter.grantAccessRequestBody(List.of(new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"))), Map.of("foo", "bar"));
+
+        String expectedRequestBody = "{\n" +
+            "  \"auth_configs\": [\n" +
+            "    {\n" +
+            "      \"id\": \"github\",\n" +
+            "      \"configuration\": {\n" +
+            "        \"url\": \"some-url\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"auth_session\": {\n" +
+            "       \"foo\": \"bar\"\n" +
+            "  }\n" +
+            "}";
+        assertThatJson(json).isEqualTo(expectedRequestBody);
     }
 }

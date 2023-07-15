@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.Image;
@@ -171,9 +172,10 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
     }
 
     @Override
-    public String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs) {
+    public String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs, Map<String, String> authSessionContext) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("auth_configs", getAuthConfigs(authConfigs));
+        requestMap.put("auth_session", authSessionContext);
 
         return GSON.toJson(requestMap);
     }
@@ -197,8 +199,8 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
     }
 
     @Override
-    public String getAuthorizationServerUrl(String responseBody) {
-        return (String) new Gson().fromJson(responseBody, Map.class).get("authorization_server_url");
+    public AuthorizationServerUrlResponse getAuthorizationServerUrl(String responseBody) {
+        return AuthorizationServerUrlResponseDTO.fromJSON(responseBody).toDomainModel();
     }
 
     @Override

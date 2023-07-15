@@ -20,13 +20,13 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
 import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.Image;
@@ -51,10 +51,7 @@ public class AuthorizationExtension extends AbstractExtension {
     @Autowired
     public AuthorizationExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
         super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
-        addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1()
-        );
-        addHandler(AuthorizationMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV2()
-        );
+        addHandler(AuthorizationMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV2());
     }
 
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverter extensionHandler) {
@@ -187,11 +184,11 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public Map<String, String> fetchAccessToken(String pluginId, Map<String, String> requestHeaders, final Map<String, String> requestParams, List<SecurityAuthConfig> authConfigs) {
+    public Map<String, String> fetchAccessToken(String pluginId, Map<String, String> requestHeaders, final Map<String, String> requestParams, Map<String, String> authSessionContext, List<SecurityAuthConfig> authConfigs) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_ACCESS_TOKEN, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).grantAccessRequestBody(authConfigs);
+                return getMessageConverter(resolvedExtensionVersion).grantAccessRequestBody(authConfigs, authSessionContext);
             }
 
             @Override
@@ -227,11 +224,6 @@ public class AuthorizationExtension extends AbstractExtension {
                 return getMessageConverter(resolvedExtensionVersion).getUserRolesFromResponseBody(responseBody);
             }
         });
-    }
-
-    public boolean supportsPluginAPICallsRequiredForAccessToken(SecurityAuthConfig authConfig) {
-        String version = pluginManager.resolveExtensionVersion(authConfig.getPluginId(), AUTHORIZATION_EXTENSION, goSupportedVersions());
-        return !AuthorizationMessageConverterV1.VERSION.equals(version);
     }
 
     public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {
@@ -278,7 +270,7 @@ public class AuthorizationExtension extends AbstractExtension {
         }
     }
 
-    public String getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
+    public AuthorizationServerUrlResponse getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHORIZATION_SERVER_URL, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -286,7 +278,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+            public AuthorizationServerUrlResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getAuthorizationServerUrl(responseBody);
             }
         });

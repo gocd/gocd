@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
@@ -98,19 +99,21 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
 
     public AccessToken fetchAccessToken(String pluginId,
                                         Map<String, String> requestHeaders,
-                                        Map<String, String> parameterMap) {
-        return new AccessToken(authorizationExtension.fetchAccessToken(pluginId, requestHeaders, parameterMap, getAuthConfigs(pluginId)));
+                                        Map<String, String> parameterMap,
+                                        Map<String, String> authSessionContext) {
+        return new AccessToken(authorizationExtension.fetchAccessToken(pluginId, requestHeaders, parameterMap, authSessionContext, getAuthConfigs(pluginId)));
     }
 
     private List<SecurityAuthConfig> getAuthConfigs(String pluginId) {
         return goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
     }
 
-    public String getAuthorizationServerUrl(String pluginId, String alternateRootUrl) {
+    public AuthorizationServerUrlResponse getAuthorizationServerUrl(String pluginId, String alternateRootUrl) {
         String chosenRootUrl =
             goConfigService.serverConfig().hasAnyUrlConfigured()
                 ? rootUrlFrom(goConfigService.serverConfig().getSiteUrlPreferablySecured().getUrl())
                 : alternateRootUrl;
+
         return authorizationExtension.getAuthorizationServerUrl(pluginId, getAuthConfigs(pluginId), chosenRootUrl);
     }
 

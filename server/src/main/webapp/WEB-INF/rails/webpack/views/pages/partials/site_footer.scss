@@ -94,12 +94,12 @@ $maintenance-mode-banner-message-font-size: 17px;
   text-decoration: none;
   margin: 0 3px;
 
-  @mixin footer-icon($icon, $font: "font-awesome") {
+  @mixin footer-icon($icon, $font: "FontAwesome") {
     @include icon-before($type: $icon, $color: $icon-color, $size: 16px, $line-height: 1.5rem, $font: $font);
   }
 
   &.github {
-    @include footer-icon($icon: $fa-var-github, $font: "font-awesome-brands");
+    @include footer-icon($icon: $fa-var-github, $font: "FontAwesomeBrands");
   }
 
   &.forums {

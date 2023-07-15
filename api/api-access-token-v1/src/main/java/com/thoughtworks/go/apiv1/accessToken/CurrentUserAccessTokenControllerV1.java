@@ -18,14 +18,10 @@ package com.thoughtworks.go.apiv1.accessToken;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
-import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.spark.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,14 +36,9 @@ import static spark.Spark.*;
 @Component
 public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenControllerV1 {
 
-    private SecurityAuthConfigService authConfigService;
-    private AuthorizationExtension extension;
-
     @Autowired
-    public CurrentUserAccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService, SecurityAuthConfigService authConfigService, AuthorizationExtension extension) {
+    public CurrentUserAccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
         super(apiAuthenticationHelper, AccessTokenService);
-        this.authConfigService = authConfigService;
-        this.extension = extension;
     }
 
     @Override
@@ -78,13 +69,6 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
     }
 
     public String createAccessToken(Request request, Response response) throws IOException {
-        String authConfigId = currentUserAuthConfigId(request);
-        SecurityAuthConfig authConfig = authConfigService.findProfile(authConfigId);
-        if (!extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)) {
-            response.status(422);
-            return MessageJson.create(String.format("Can not create Access Token. Please upgrade '%s' plugin to use Access Token Feature.", authConfig.getPluginId()));
-        }
-
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
         String tokenDescription = reader.optString("description").orElse(null);

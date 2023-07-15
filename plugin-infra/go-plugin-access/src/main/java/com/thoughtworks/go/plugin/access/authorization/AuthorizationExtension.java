@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
 import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
@@ -52,10 +51,7 @@ public class AuthorizationExtension extends AbstractExtension {
     @Autowired
     public AuthorizationExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
         super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
-        addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1()
-        );
-        addHandler(AuthorizationMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV2()
-        );
+        addHandler(AuthorizationMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV2());
     }
 
     private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverter extensionHandler) {
@@ -228,11 +224,6 @@ public class AuthorizationExtension extends AbstractExtension {
                 return getMessageConverter(resolvedExtensionVersion).getUserRolesFromResponseBody(responseBody);
             }
         });
-    }
-
-    public boolean supportsPluginAPICallsRequiredForAccessToken(SecurityAuthConfig authConfig) {
-        String version = pluginManager.resolveExtensionVersion(authConfig.getPluginId(), AUTHORIZATION_EXTENSION, goSupportedVersions());
-        return !AuthorizationMessageConverterV1.VERSION.equals(version);
     }
 
     public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {

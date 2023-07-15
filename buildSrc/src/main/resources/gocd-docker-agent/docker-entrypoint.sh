@@ -131,20 +131,14 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
     -e "s@wrapper.working.dir=.*@wrapper.working.dir=${AGENT_WORK_DIR}@g" \
     /go-agent/wrapper-config/wrapper.conf
 
-  echo "wrapper.app.parameter.100=-serverUrl" > /go-agent/wrapper-config/wrapper-properties.conf
-  echo "wrapper.app.parameter.101=${GO_SERVER_URL}" >> /go-agent/wrapper-config/wrapper-properties.conf
+  # Set the agent-bootstrapper args to point to configured Go Server from the environment
+  try sed -i \
+     -e "s@wrapper.app.parameter.100=.*@wrapper.app.parameter.100=-serverUrl@g" \
+     -e "s@wrapper.app.parameter.101=.*@wrapper.app.parameter.101=${GO_SERVER_URL}@g" \
+     /go-agent/wrapper-config/wrapper-properties.conf
 
-  # parse/split an environment var to an array like how it should pass to the CLI
-  # AGENT_BOOTSTRAPPER_JVM_ARGS is mostly for advanced users.
-  eval stringToArgsArray "$AGENT_BOOTSTRAPPER_JVM_ARGS"
-  AGENT_BOOTSTRAPPER_JVM_ARGS=("${_stringToArgs[@]}")
-
-  AGENT_BOOTSTRAPPER_JVM_ARGS+=("-Dgo.console.stdout=true")
-  for array_index in "${!AGENT_BOOTSTRAPPER_JVM_ARGS[@]}"
-  do
-    tanuki_index=$((array_index + 100))
-    echo "wrapper.java.additional.${tanuki_index}=${AGENT_BOOTSTRAPPER_JVM_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
-  done
+  echo "" >> /go-agent/wrapper-config/wrapper-properties.conf
+  echo "###### Properties automatically set from environment by default entrypoint" >> /go-agent/wrapper-config/wrapper-properties.conf
 
   # parse/split the AGENT_BOOTSTRAPPER_ARGS for configuring additional SSL settings
   eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
@@ -156,6 +150,20 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
     echo "wrapper.app.parameter.${tanuki_index}=${AGENT_BOOTSTRAPPER_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
   done
 
+  # parse/split an environment var to an array like how it should pass to the CLI
+  # AGENT_BOOTSTRAPPER_JVM_ARGS is mostly for advanced users.
+  eval stringToArgsArray "$AGENT_BOOTSTRAPPER_JVM_ARGS"
+  AGENT_BOOTSTRAPPER_JVM_ARGS=("${_stringToArgs[@]}")
+  AGENT_BOOTSTRAPPER_JVM_ARGS+=("-Dgo.console.stdout=true")
+
+  # write out each system property using its own index
+  for array_index in "${!AGENT_BOOTSTRAPPER_JVM_ARGS[@]}"
+  do
+    tanuki_index=$((array_index + 100))
+    echo "wrapper.java.additional.${tanuki_index}=${AGENT_BOOTSTRAPPER_JVM_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
+  done
+
+  # Allow configuration of the forked agent process when started by the bootstrapper
   echo "set.default.GOCD_AGENT_JVM_OPTS=" >> /go-agent/wrapper-config/wrapper-properties.conf
   echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GOCD_AGENT_JVM_OPTS%" >> /go-agent/wrapper-config/wrapper-properties.conf
 fi

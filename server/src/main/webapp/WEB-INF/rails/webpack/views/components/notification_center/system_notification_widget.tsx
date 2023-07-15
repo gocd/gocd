@@ -19,7 +19,7 @@ import {Notification} from "models/notifications/system_notifications";
 import * as style from "./system_notifications.scss";
 
 interface Attrs {
-  markAsRead: () => void;
+  markAsRead: (notification: Notification) => void;
   notification: Notification;
 }
 

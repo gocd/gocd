@@ -49,7 +49,7 @@ public class ArtifactExtension extends AbstractExtension {
     @Autowired
     protected ArtifactExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
         super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ARTIFACT_EXTENSION), ARTIFACT_EXTENSION);
-        addHandler(V1, new ArtifactMessageConverterV1(), new PluginSettingsJsonMessageHandler1_0());
+        addHandler(V1, new ArtifactMessageConverterV2(), new PluginSettingsJsonMessageHandler1_0());
         addHandler(V2, new ArtifactMessageConverterV2(), new PluginSettingsJsonMessageHandler1_0());
     }
 

@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
@@ -35,11 +36,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ArtifactMessageConverterV1Test {
+public class ArtifactMessageConverterV2Test {
 
     @Test
     public void publishArtifactMessage_shouldSerializeToJson() {
-        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        final ArtifactMessageConverterV2 converter = new ArtifactMessageConverterV2();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3-store", create("Baz", true, "Car")));
         final Map<String, String> environmentVariables = new HashMap<>();
@@ -71,7 +72,7 @@ public class ArtifactMessageConverterV1Test {
 
     @Test
     public void publishArtifactResponse_shouldDeserializeFromJson() {
-        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        final ArtifactMessageConverterV2 converter = new ArtifactMessageConverterV2();
 
         final PublishArtifactResponse response = converter.publishArtifactResponse("{\n" +
                 "  \"metadata\": {\n" +
@@ -86,7 +87,7 @@ public class ArtifactMessageConverterV1Test {
 
     @Test
     public void validateConfigurationRequestBody_shouldSerializeConfigurationToJson() {
-        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        final ArtifactMessageConverterV2 converter = new ArtifactMessageConverterV2();
 
         final String requestBody = converter.validateConfigurationRequestBody(Map.of("Foo", "Bar"));
 
@@ -95,7 +96,7 @@ public class ArtifactMessageConverterV1Test {
 
     @Test
     public void getConfigurationValidationResultFromResponseBody_shouldDeserializeJsonToValidationResult() {
-        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        final ArtifactMessageConverterV2 converter = new ArtifactMessageConverterV2();
         String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
 
         ValidationResult validationResult = converter.getConfigurationValidationResultFromResponseBody(responseBody);
@@ -109,7 +110,7 @@ public class ArtifactMessageConverterV1Test {
 
     @Test
     public void fetchArtifactMessage_shouldSerializeToJson() {
-        final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
+        final ArtifactMessageConverterV2 converter = new ArtifactMessageConverterV2();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
         final Map<String, Object> metadata = Map.of("Version", "10.12.0");
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
@@ -133,15 +134,20 @@ public class ArtifactMessageConverterV1Test {
     }
 
     @Test
+    public void fetchArtifactMessage_shouldDeserializeAndAssumeEmpty() {
+        Assertions.assertThat(new ArtifactMessageConverterV2().getFetchArtifactEnvironmentVariablesFromResponseBody("")).isEmpty();
+    }
+
+    @Test
     public void shouldDeserializeImageFromJson() throws Exception {
-        com.thoughtworks.go.plugin.domain.common.Image image = new ArtifactMessageConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
+        com.thoughtworks.go.plugin.domain.common.Image image = new ArtifactMessageConverterV2().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
     }
 
     @Test
     public void shouldDeserializeCapabilities() {
-        final Capabilities capabilities = new ArtifactMessageConverterV1().getCapabilitiesFromResponseBody("{}");
+        final Capabilities capabilities = new ArtifactMessageConverterV2().getCapabilitiesFromResponseBody("{}");
         assertNotNull(capabilities);
     }
 }

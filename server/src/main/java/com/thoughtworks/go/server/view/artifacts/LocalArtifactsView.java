@@ -28,9 +28,9 @@ import java.io.File;
 import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
 
 public class LocalArtifactsView implements ArtifactsView {
-    private ArtifactsService artifactsService;
+    private final ArtifactsService artifactsService;
     private final JobIdentifier translatedId;
-    private ConsoleService consoleService;
+    private final ConsoleService consoleService;
     protected ArtifactFolderViewFactory folderViewFactory;
 
     public LocalArtifactsView(ArtifactFolderViewFactory folderViewFactory, ArtifactsService artifactsService,

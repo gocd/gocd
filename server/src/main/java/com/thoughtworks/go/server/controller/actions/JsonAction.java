@@ -36,7 +36,7 @@ public class JsonAction implements RestfulAction {
 
     public static JsonAction from(ServerHealthState serverHealthState) {
         if (serverHealthState.isSuccess()) {
-            return jsonCreated(new LinkedHashMap());
+            return jsonCreated(new LinkedHashMap<>());
         }
 
         Map<String, Object> jsonLog = new LinkedHashMap<>();
@@ -52,26 +52,18 @@ public class JsonAction implements RestfulAction {
         return new JsonAction(SC_OK, json);
     }
 
-    public static JsonAction jsonOK() {
-        return jsonOK(new LinkedHashMap());
-    }
-
     public static JsonAction jsonNotAcceptable(Object json) {
         return new JsonAction(SC_NOT_ACCEPTABLE, json);
     }
 
     public static JsonAction jsonForbidden() {
-        return new JsonAction(SC_FORBIDDEN, new LinkedHashMap());
+        return new JsonAction(SC_FORBIDDEN, new LinkedHashMap<>());
     }
 
     public static JsonAction jsonForbidden(String message) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put(ERROR_FOR_JSON, message);
         return new JsonAction(SC_FORBIDDEN, map);
-    }
-
-    public static JsonAction jsonForbidden(Exception e) {
-        return jsonForbidden(e.getMessage());
     }
 
     public static JsonAction jsonBadRequest(Object json) {
@@ -108,11 +100,7 @@ public class JsonAction implements RestfulAction {
         return new ModelAndView(view, JsonView.asMap(json));
     }
 
-    public static JsonAction jsonOK(Map jsonMap) {
-        return new JsonAction(SC_OK, jsonMap);
-    }
-
-    private class JsonModelAndView extends ModelAndView {
+    private static class JsonModelAndView extends ModelAndView {
 
         @Override
         public String getViewName() {
@@ -124,7 +112,7 @@ public class JsonAction implements RestfulAction {
             // In IE, there's a problem with caching. We want to cache if we can.
             // This will force the browser to clear the cache only for this page.
             // If any other pages need to clear the cache, we might want to move this
-            // logic to an intercepter.
+            // logic to an interceptor.
             response.addHeader("Cache-Control", GoConstants.CACHE_CONTROL);
             response.setStatus(status);
             response.setContentType(RESPONSE_CHARSET_JSON);

@@ -31,8 +31,8 @@ import java.util.UUID;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.StageMother.custom;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -61,8 +61,8 @@ public class JobDetailPresentationModelTest {
         DirectoryEntries directoryEntries = new DirectoryEntries();
         when(directoryReader.listEntries(eq(file), any(String.class))).thenReturn(directoryEntries);
 
-        JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null, null
-                , null, null, null, artifactsService, stage);
+        JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null,
+            null, null, null, artifactsService, stage);
         DirectoryEntries artifactFiles = jobDetailPresentationModel.getArtifactFiles(directoryReader);
 
         assertThat(artifactFiles.isArtifactsDeleted(), is(true));
@@ -71,8 +71,8 @@ public class JobDetailPresentationModelTest {
     @Test
     public void shouldAddFakeConsoleOutputEntryIfJobIsNotCompleted() throws Exception {
         JobInstance job = building("job");
-        JobDetailPresentationModel model = new JobDetailPresentationModel(job, null, null,
-                null, null, null, artifactsService, custom("stage"));
+        JobDetailPresentationModel model = new JobDetailPresentationModel(job, null,
+            null, null, null, artifactsService, custom("stage"));
 
         when(artifactsService.findArtifact(job.getIdentifier(), "")).thenReturn(mock(File.class));
         when(artifactsService.findArtifactUrl(job.getIdentifier(), getConsoleOutputFolderAndFileName())).thenReturn("path/to/console");

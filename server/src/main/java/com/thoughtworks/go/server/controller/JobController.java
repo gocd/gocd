@@ -161,14 +161,13 @@ public class JobController {
         String pipelineName = current.getIdentifier().getPipelineName();
         String stageName = current.getIdentifier().getStageName();
         JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
-        Agent agent = agentService.getAgentByUUID(current.getAgentUuid());
         Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
         TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
                 new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
         Stage stage = stageService.getStageByBuild(current);
-        return new JobDetailPresentationModel(current, recent25, agent, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
+        return new JobDetailPresentationModel(current, recent25, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, stage);
     }
 
     private boolean isValidCounter(String pipelineCounter) {

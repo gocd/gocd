@@ -88,8 +88,6 @@ public class UrlRewriterIntegrationTest {
 
     private static final ResponseAssertion PIPELINE_CONFIG_EDIT = new ResponseAssertion(HTTP_URL + "/go/admin/pipelines/pipeline/edit#!pipeline/materials", HTTP_URL + "/go/spark/admin/pipelines/pipeline/edit", true);
 
-    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job.html", HTTP_URL + "/go/repository/restful/artifact/GET/html?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=", true);
-    private static final ResponseAssertion ARTIFACT_API_HTML_LISTING_FILENAME = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/target/abc%2Bfoo.txt", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=target&filePath=abc%2Bfoo.txt", true);
     private static final ResponseAssertion ARTIFACT_API_JSON_LISTING = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job.json", HTTP_URL + "/go/repository/restful/artifact/GET/json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=", true);
     private static final ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", true);
     private static final ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/tmp/file", HTTP_URL + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=tmp%2Ffile", METHOD.POST, true);
@@ -127,8 +125,6 @@ public class UrlRewriterIntegrationTest {
             CONFIG_XML_VIEW,
             CONFIG_XML_EDIT,
             PIPELINE_CONFIG_EDIT,
-            ARTIFACT_API_HTML_LISTING,
-            ARTIFACT_API_HTML_LISTING_FILENAME,
             ARTIFACT_API_JSON_LISTING,
             ARTIFACT_API_GET_FILE,
             ARTIFACT_API_PUSH_FILE,

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
@@ -39,21 +38,21 @@ import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.util.ArtifactLogUtil.*;
 
 public class JobDetailPresentationModel {
-    static final String BASE_FILE_URL = "files/";
+    private static final String BASE_FILE_URL = "files/";
+
     protected final JobInstance job;
     protected TimeConverter converter;
     protected JobInstances recent25;
     private final TrackingTool trackingTool;
     private final ArtifactsService artifactsService;
-    protected final Agent buildingAgentConfig;
-    private JobIdentifier jobIdentifier;
-    private Pipeline pipeline;
+    private final JobIdentifier jobIdentifier;
+    private final Pipeline pipeline;
     private final Tabs customizedTabs;
-    private StageIdentifier stageIdentifier;
-    private Stage stage;
+    private final StageIdentifier stageIdentifier;
+    private final Stage stage;
 
     public JobDetailPresentationModel(JobInstance job, JobInstances recent25,
-                                      Agent buildingAgentConfig, Pipeline pipeline, Tabs customizedTabs,
+                                      Pipeline pipeline, Tabs customizedTabs,
                                       TrackingTool trackingTool, ArtifactsService artifactsService,
                                       Stage stage) {
         this.pipeline = pipeline;
@@ -64,7 +63,6 @@ public class JobDetailPresentationModel {
         this.artifactsService = artifactsService;
         this.stage = stage;
         this.converter = new TimeConverter();
-        this.buildingAgentConfig = buildingAgentConfig;
         jobIdentifier = this.job.getIdentifier();
         stageIdentifier = jobIdentifier.getStageIdentifier();
     }
@@ -131,18 +129,10 @@ public class JobDetailPresentationModel {
         }};
     }
 
-    public ModificationVisitor getModificationSummaries() {
-        return new ModificationSummaries(pipeline.getMaterialRevisions());
-    }
-
     public String getMaterialRevisionsJson() {
         MaterialRevisionsJsonBuilder jsonVisitor = new MaterialRevisionsJsonBuilder(trackingTool);
         pipeline.getMaterialRevisions().accept(jsonVisitor);
         return render(jsonVisitor.json());
-    }
-
-    public String getModificationTime() {
-        return converter.nullSafeDate(pipeline.getModifiedDate());
     }
 
     public List<JobStatusJsonPresentationModel> getRecent25() {

@@ -24,11 +24,12 @@ import com.thoughtworks.go.util.json.JsonAware;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
 
 /**
- * This represents a directory tree and is used ONLY to create json or html views
+ * This represents a directory tree and is used ONLY to create json and html views
  */
 public class ArtifactFolder implements JsonAware, Comparable<ArtifactFolder> {
     private final JobIdentifier jobIdentifier;
@@ -41,16 +42,8 @@ public class ArtifactFolder implements JsonAware, Comparable<ArtifactFolder> {
         this.relativePath = relativePath;
     }
 
-    public boolean directoryExists() {
-        return rootFolder.exists() && rootFolder.isDirectory();
-    }
-
     public File getRootFolder() {
         return rootFolder;
-    }
-
-    public String getRootFolderPath() {
-        return rootFolder.getPath();
     }
 
     public DirectoryEntries allEntries() {
@@ -58,6 +51,7 @@ public class ArtifactFolder implements JsonAware, Comparable<ArtifactFolder> {
         return new DirectoryReader(jobIdentifier).listEntries(rootFolder, relativePath);
     }
 
+    @SuppressWarnings("unused") // May be used within FreeMarker templates
     public String renderArtifactFiles(String requestContext) {
         HtmlRenderer renderer = new HtmlRenderer(requestContext);
         allEntries().render(renderer);
@@ -80,17 +74,9 @@ public class ArtifactFolder implements JsonAware, Comparable<ArtifactFolder> {
 
         ArtifactFolder that = (ArtifactFolder) o;
 
-        if (relativePath != null ? !relativePath.equals(that.relativePath) : that.relativePath != null) {
-            return false;
-        }
-        if (jobIdentifier != null ? !jobIdentifier.equals(that.jobIdentifier) : that.jobIdentifier != null) {
-            return false;
-        }
-        if (rootFolder != null ? !rootFolder.equals(that.rootFolder) : that.rootFolder != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(relativePath, that.relativePath) &&
+            Objects.equals(jobIdentifier, that.jobIdentifier) &&
+            Objects.equals(rootFolder, that.rootFolder);
     }
 
     @Override

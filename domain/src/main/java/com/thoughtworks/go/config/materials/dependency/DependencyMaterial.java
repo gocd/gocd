@@ -52,11 +52,7 @@ public class DependencyMaterial extends AbstractMaterial {
     }
 
     public DependencyMaterial(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
-        this(null, pipelineName, stageName, null);
-    }
-
-    public DependencyMaterial(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final String serverAlias) {
-        this(null, pipelineName, stageName, serverAlias);
+        this(null, pipelineName, stageName);
     }
 
     public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
@@ -71,10 +67,6 @@ public class DependencyMaterial extends AbstractMaterial {
     public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, boolean ignoreForScheduling) {
         this(name, pipelineName, stageName);
         this.ignoreForScheduling = ignoreForScheduling;
-    }
-
-    public DependencyMaterial(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, String serverAlias) {
-        this(name, pipelineName, stageName);
     }
 
     public DependencyMaterial(DependencyMaterialConfig config) {

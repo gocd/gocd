@@ -79,7 +79,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.ArrayList;
@@ -158,8 +157,7 @@ public class MaterialRepositoryIntegrationTest {
 
     @Test
     public void shouldBeAbleToPersistADependencyMaterial() {
-        MaterialInstance materialInstance = new DependencyMaterial(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"),
-                "serverAlias").createMaterialInstance();
+        MaterialInstance materialInstance = new DependencyMaterial(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage")).createMaterialInstance();
         repo.saveOrUpdate(materialInstance);
 
         MaterialInstance loaded = repo.find(materialInstance.getId());

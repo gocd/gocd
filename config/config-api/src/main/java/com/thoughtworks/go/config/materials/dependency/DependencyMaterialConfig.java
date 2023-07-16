@@ -63,10 +63,6 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         this(null, pipelineName, stageName, ignoreForScheduling);
     }
 
-    public DependencyMaterialConfig(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, final String serverAlias) {
-        this(null, pipelineName, stageName, false);
-    }
-
     public DependencyMaterialConfig(final CaseInsensitiveString name, final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName) {
         this(name, pipelineName, stageName, false);
     }

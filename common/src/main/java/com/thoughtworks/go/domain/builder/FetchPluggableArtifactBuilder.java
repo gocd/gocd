@@ -72,7 +72,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
         downloadMetadataFile(publisher);
         try {
             pluginRequestProcessorRegistry.registerProcessorFor(CONSOLE_LOG.requestName(), ArtifactRequestProcessor.forFetchArtifact(publisher, environmentVariableContext));
-            final String message = format("[%s] Fetching pluggable artifact using plugin %s.", GoConstants.PRODUCT_NAME, artifactStore.getPluginId());
+            final String message = format("[%s] Fetching pluggable artifact using plugin `%s`.", GoConstants.PRODUCT_NAME, artifactStore.getPluginId());
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
 

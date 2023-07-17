@@ -35,7 +35,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
         super(FilterChainBuilder.newInstance()
                 // agent access
                 .addAuthorityFilterChain("/remoting/files/**", apiAccessDeniedHandler, ROLE_AGENT)
-                .addAuthorityFilterChain("/remoting/properties/**", apiAccessDeniedHandler, ROLE_AGENT)
                 .addAuthorityFilterChain("/remoting/api/agent/**", apiAccessDeniedHandler, ROLE_AGENT)
                 .addFilterChain("/remoting/**", new DenyAllAccessFilter())
 

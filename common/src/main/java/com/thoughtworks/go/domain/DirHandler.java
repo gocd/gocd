@@ -47,7 +47,7 @@ public class DirHandler implements FetchHandler {
 
     @Override
     public String url(String remoteHost, String workingUrl) {
-        return format("%s/%s/%s/%s.zip", remoteHost, "remoting", "files", workingUrl);
+        return format("%s/remoting/files/%s.zip", remoteHost, workingUrl);
     }
 
     @Override

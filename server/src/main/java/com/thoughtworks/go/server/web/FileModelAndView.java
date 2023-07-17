@@ -16,10 +16,10 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.FileHandler;
-import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.domain.ZippedArtifact;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.GoConstants;
+import lombok.experimental.UtilityClass;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.AbstractView;
 
@@ -31,25 +31,8 @@ import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.*;
 
+@UtilityClass
 public class FileModelAndView {
-
-    /**
-     * This is a static factory class and should never be instantiated
-     */
-    private FileModelAndView() {
-
-    }
-
-
-    protected static boolean isFileChanged(File file, String sha) {
-        try {
-            String currentHash = FileHandler.sha1Digest(file);
-            return !currentHash.equals(sha);
-        } catch (Exception e) {
-            return true;
-        }
-    }
-
 
     public static ModelAndView createFileView(File file, String sha) {
         boolean hasChanged = isFileChanged(file, sha);
@@ -63,7 +46,7 @@ public class FileModelAndView {
                 }
             });
         } else {
-            HashMap model = new HashMap();
+            Map<String, Object> model = new HashMap<>();
 			if (file instanceof ZippedArtifact) {
 				model.put(FileView.NEED_TO_ZIP, true);
 			}
@@ -72,12 +55,13 @@ public class FileModelAndView {
         }
     }
 
-    public static ArtifactFolderViewFactory jsonViewfactory() {
-        return new JsonArtifactViewFactory();
-    }
-
-    public static ArtifactFolderViewFactory htmlViewFactory() {
-        return new HtmlArtifactFolderViewFactory();
+    private static boolean isFileChanged(File file, String sha) {
+        try {
+            String currentHash = FileHandler.sha1Digest(file);
+            return !currentHash.equals(sha);
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     public static ModelAndView forbiddenUrl(String filePath) {
@@ -114,17 +98,6 @@ public class FileModelAndView {
     }
 
     public static ModelAndView fileAlreadyExists(String filePath) {
-        return ResponseCodeView.create(SC_FORBIDDEN, "File " + filePath + " already directoryExists.");
+        return ResponseCodeView.create(SC_FORBIDDEN, "File " + filePath + " already exists.");
     }
-
-    private static class HtmlArtifactFolderViewFactory implements ArtifactFolderViewFactory {
-        @Override
-        public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) {
-            Map mav = new HashMap();
-            mav.put("jobIdentifier", identifier);
-            mav.put("presenter", artifactFolder);
-            return new ModelAndView("rest/html", mav);
-        }
-    }
-
 }

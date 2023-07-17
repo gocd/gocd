@@ -33,6 +33,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 
 import static java.lang.String.format;
 
@@ -56,10 +57,9 @@ public class FileHandler implements FetchHandler {
         LOG.debug("Requesting the file [{}], exist? [{}]", artifact.getAbsolutePath(), fileExist);
         if (fileExist && artifact.isFile()) {
             String sha1 = sha1Digest(artifact);
-            return format("%s/%s/%s/%s?sha1=%s", remoteHost, "remoting", "files", workingUrl,
-                    URLEncoder.encode(sha1, StandardCharsets.UTF_8));
+            return format("%s/remoting/files/%s?sha1=%s", remoteHost, workingUrl, URLEncoder.encode(sha1, StandardCharsets.UTF_8));
         } else {
-            return format("%s/%s/%s/%s", remoteHost, "remoting", "files", workingUrl);
+            return format("%s/remoting/files/%s", remoteHost, workingUrl);
         }
     }
 
@@ -107,11 +107,7 @@ public class FileHandler implements FetchHandler {
 
         FileHandler that = (FileHandler) o;
 
-        if (artifact != null ? !artifact.equals(that.artifact) : that.artifact != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(artifact, that.artifact);
     }
 
     @Override

@@ -1089,12 +1089,12 @@
   </rule>
 
   <rule>
-    <name>Agent files and properties</name>
+    <name>Agent files</name>
     <note>
-      For agent to download/upload artifacts and publish properties
+      For agent to download/upload artifacts
     </note>
-    <from>^/remoting/(files|properties)/(.*)</from>
-    <to last="false">/$1/$2</to>
+    <from>^/remoting/files/(.*)</from>
+    <to last="false">/files/$1</to>
   </rule>
 
   <!-- Spring/Java RESTful URLS -->

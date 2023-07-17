@@ -209,7 +209,7 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/cctray.xml", "/api/foo", "/api/blah", "/files/some-artifact", "/properties/moo"})
+        @ValueSource(strings = {"/cctray.xml", "/api/foo", "/api/blah", "/files/some-artifact"})
         void shouldAuthenticateUsingAccessTokenAuthenticationFilter(String url) throws IOException, ServletException {
             final AccessTokenService accessTokenService = mock(AccessTokenService.class);
             final SecurityAuthConfigService securityAuthConfigService = mock(SecurityAuthConfigService.class);

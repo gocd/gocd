@@ -269,13 +269,4 @@
     <cve>CVE-2023-26119</cve>
   </suppress>
 
-  <suppress until="2023-08-01Z">
-    <notes><![CDATA[
-    Time-limited suppression of issue from plugins-*.zip > gocd-yaml-config-plugin.jar (shaded: org.yaml:snakeyaml:1.32) pending release of
-    https://github.com/tomzo/gocd-yaml-config-plugin/pull/174 as there is no available fixed plugin jar.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@1\.32.*$</packageUrl>
-    <cve>CVE-2022-1471</cve>
-  </suppress>
-
 </suppressions>

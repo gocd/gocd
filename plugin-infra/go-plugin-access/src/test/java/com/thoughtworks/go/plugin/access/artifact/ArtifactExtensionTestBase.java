@@ -72,7 +72,6 @@ public abstract class ArtifactExtensionTestBase {
 
     @Test
     public void shouldRegisterMessageHandler() {
-        assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV1.VERSION) instanceof ArtifactMessageConverterV1);
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION) instanceof ArtifactMessageConverterV2);
         assertThat(artifactExtension.getMessageHandler("3.0"), is(nullValue()));
     }

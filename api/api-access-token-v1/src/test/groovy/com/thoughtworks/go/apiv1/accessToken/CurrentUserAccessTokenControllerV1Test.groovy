@@ -20,20 +20,16 @@ import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
-import com.thoughtworks.go.config.SecurityAuthConfig
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.AccessToken
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.service.AccessTokenFilter
 import com.thoughtworks.go.server.service.AccessTokenService
-import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -56,21 +52,18 @@ import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenterTest.randomAccessToken
-import static org.mockito.ArgumentMatchers.*
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 
 @MockitoSettings(strictness = Strictness.LENIENT)
 class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentUserAccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
-  SecurityAuthConfigService authConfigService
-  @Mock
   AccessTokenService accessTokenService
-  @Mock
-  AuthorizationExtension extension
 
   @Override
   CurrentUserAccessTokenControllerV1 createControllerInstance() {
-    return new CurrentUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService, authConfigService, extension)
+    return new CurrentUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
   }
 
   @Nested
@@ -199,7 +192,6 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
         loginAsUser()
 
         when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenReturn(token)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(any() as SecurityAuthConfig)).thenReturn(true)
       }
 
       @Test
@@ -214,19 +206,6 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, controller.urlContext(), token) }))
-      }
-
-      @Test
-      void 'should disallow access token creation when the plugin does not support access token related API calls'() {
-        def authConfig = new SecurityAuthConfig("ldap", "plugin-id", ConfigurationPropertyMother.create("url", false, "some-url"))
-        when(authConfigService.findProfile(anyString())).thenReturn(authConfig)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)).thenReturn(false)
-
-        postWithApiHeader(controller.controllerPath(), [:])
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Can not create Access Token. Please upgrade 'plugin-id' plugin to use Access Token Feature.")
       }
 
       @Test

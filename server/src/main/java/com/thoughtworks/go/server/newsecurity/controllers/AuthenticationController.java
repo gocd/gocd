@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.controllers;
 
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlResponse;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
@@ -107,7 +108,12 @@ public class AuthenticationController {
 
         final StringBuffer requestURL = request.getRequestURL();
         requestURL.setLength(requestURL.length() - request.getRequestURI().length());
-        return new RedirectView(webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(pluginId, requestURL.toString()), false);
+
+        AuthorizationServerUrlResponse authorizationServerUrlResponse = webBasedPluginAuthenticationProvider.getAuthorizationServerUrl(pluginId, requestURL.toString());
+
+        SessionUtils.setPluginAuthSessionContext(request, pluginId, authorizationServerUrlResponse.getAuthSession());
+
+        return new RedirectView(authorizationServerUrlResponse.getAuthorizationServerUrl(), false);
     }
 
     @RequestMapping(value = "/plugin/{pluginId}/authenticate")
@@ -121,7 +127,11 @@ public class AuthenticationController {
         SavedRequest savedRequest = SessionUtils.savedRequest(request);
 
         try {
-            final AccessToken accessToken = webBasedPluginAuthenticationProvider.fetchAccessToken(pluginId, getRequestHeaders(request), getParameterMap(request));
+            Map<String, String> pluginAuthSessionContext = SessionUtils.getPluginAuthSessionContext(request, pluginId);
+
+            final AccessToken accessToken = webBasedPluginAuthenticationProvider.fetchAccessToken(pluginId, getRequestHeaders(request), getParameterMap(request), pluginAuthSessionContext);
+
+            SessionUtils.removePluginAuthSessionContext(request, pluginId);
 
             AuthenticationToken<AccessToken> authenticationToken = webBasedPluginAuthenticationProvider.authenticate(accessToken, pluginId);
 

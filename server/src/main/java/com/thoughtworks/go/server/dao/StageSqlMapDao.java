@@ -311,10 +311,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             .and("cancelledBy", username)
             .and("completedByTransitionId", stage.getCompletedByTransitionId()).asMap());
 
-        upddateLastTransitionedTime(stage);
+        updateLastTransitionedTime(stage);
     }
 
-    private void upddateLastTransitionedTime(Stage stage) {
+    private void updateLastTransitionedTime(Stage stage) {
         Timestamp lastTransitionedTime = getSqlMapClientTemplate().queryForObject("getLastTransitionedTimeByStageId", stage.getId());
         stage.setLastTransitionedTime(lastTransitionedTime);
     }

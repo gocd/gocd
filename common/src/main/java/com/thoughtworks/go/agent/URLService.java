@@ -42,7 +42,7 @@ public class URLService implements ServerUrlGenerator {
     }
 
     public String remotingUrlFor(String action) {
-        return format("%s/%s/%s", baseRemotingURL, "remoting/api/agent", action);
+        return format("%s/remoting/api/agent/%s", baseRemotingURL, action);
     }
 
     public String getAgentRegistrationURL() {
@@ -61,17 +61,15 @@ public class URLService implements ServerUrlGenerator {
         return getUploadUrlOfAgent(jobIdentifier, filePath, 1);
     }
 
-    // TODO - keep buildId for now because currently we do not support 'jobcounter'
-    // and therefore cannot locate job correctly when it is rescheduled
     public String getUploadUrlOfAgent(JobIdentifier jobIdentifier, String filePath, int attempt) {
-        return format("%s/%s/%s/%s?attempt=%d&buildId=%d", baseRemotingURL, "remoting", "files", jobIdentifier.artifactLocator(filePath), attempt, jobIdentifier.getBuildId());
+        return format("%s/remoting/files/%s?attempt=%d&buildId=%d", baseRemotingURL, jobIdentifier.artifactLocator(filePath), attempt, jobIdentifier.getBuildId());
     }
 
     /*
      * Server will use this method, the base url is in the request.
      */
     public String getRestfulArtifactUrl(JobIdentifier jobIdentifier, String filePath) {
-        return format("/%s/%s", "files", jobIdentifier.artifactLocator(filePath));
+        return format("/files/%s", jobIdentifier.artifactLocator(filePath));
     }
 
     @Override

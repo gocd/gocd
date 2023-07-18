@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.server.cache.ZipArtifactCache;
+import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
+import org.springframework.web.servlet.ModelAndView;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.thoughtworks.go.server.view.artifacts.PreparingArtifactFile;
-import com.thoughtworks.go.server.cache.ZipArtifactCache;
-import org.springframework.web.servlet.ModelAndView;
-import com.thoughtworks.go.domain.JobIdentifier;
 
 public class ZipArtifactFolderViewFactory implements ArtifactFolderViewFactory {
     private final ZipArtifactCache zipArtifactCache;
@@ -41,7 +41,4 @@ public class ZipArtifactFolderViewFactory implements ArtifactFolderViewFactory {
         }
     }
 
-    public static ArtifactFolderViewFactory zipViewFactory(ZipArtifactCache zipArtifactCache) {
-        return new ZipArtifactFolderViewFactory(zipArtifactCache);
-    }
 }

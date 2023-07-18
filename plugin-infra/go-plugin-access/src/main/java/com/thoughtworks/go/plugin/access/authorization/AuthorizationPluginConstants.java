@@ -15,13 +15,12 @@
  */
 package com.thoughtworks.go.plugin.access.authorization;
 
-import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
 import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
 
 import java.util.List;
 
 public interface AuthorizationPluginConstants {
-    List<String> SUPPORTED_VERSIONS = List.of(AuthorizationMessageConverterV1.VERSION, AuthorizationMessageConverterV2.VERSION);
+    List<String> SUPPORTED_VERSIONS = List.of(AuthorizationMessageConverterV2.VERSION);
 
     String REQUEST_PREFIX = "go.cd.authorization";
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";

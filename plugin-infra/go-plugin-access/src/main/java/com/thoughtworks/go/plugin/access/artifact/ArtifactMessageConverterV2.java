@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
     public static final String VERSION = ArtifactExtensionConstants.V2;
@@ -105,7 +106,8 @@ public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
 
     @Override
     public List<FetchArtifactEnvironmentVariable> getFetchArtifactEnvironmentVariablesFromResponseBody(String responseBody) {
-        return new Gson().fromJson(responseBody, new TypeToken<List<FetchArtifactEnvironmentVariable>>() {}.getType());
+        List<FetchArtifactEnvironmentVariable> result = new Gson().fromJson(responseBody, new TypeToken<List<FetchArtifactEnvironmentVariable>>() {}.getType());
+        return Optional.ofNullable(result).orElse(List.of());
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

@@ -64,6 +64,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -102,7 +103,7 @@ public class ArtifactsControllerIntegrationTest {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
 
-        pipelineName = "pipeline-" + UUID.randomUUID().toString();
+        pipelineName = "pipeline-" + UUID.randomUUID();
 
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
@@ -156,7 +157,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenFileNotFound() throws Exception {
-        ModelAndView mav = getFileAsHtml("/foo.xml");
+        ModelAndView mav = getNonFolder("/foo.xml");
 
         assertThat(mav.getView().getContentType(), is(RESPONSE_CHARSET));
         assertThat(mav.getView(), is(instanceOf((ResponseCodeView.class))));
@@ -165,7 +166,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null, null);
+        ModelAndView mav = artifactsController.getArtifactNonFolder(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/1/stage/1/build2 not found.");
     }
 
@@ -181,25 +182,15 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLastGoodBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null, null);
-        int status = SC_NOT_FOUND;
+        ModelAndView mav = artifactsController.getArtifactNonFolder(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null);
         String content = "Job " + pipelineName + "/lastgood/stage/1/build not found.";
-        assertValidContentAndStatus(mav, status, content);
+        assertValidContentAndStatus(mav, SC_NOT_FOUND, content);
     }
 
     @Test
     public void shouldReturn404WhenNotAValidBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "whatever", "stage", "1", "build",
-                "/foo.xml",
-                null, null);
+        ModelAndView mav = artifactsController.getArtifactNonFolder(pipelineName, "whatever", "stage", "1", "build", "/foo.xml", null);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/whatever/stage/1/build not found.");
-    }
-
-    @Test
-    public void shouldHaveJobIdentifierInModelForHtmlFolderView() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null, null);
-        assertThat(mav.getModel().get("jobIdentifier"), is(new JobIdentifier(pipeline, stage, job)));
-        assertThat(mav.getViewName(), is("rest/html"));
     }
 
     @Test
@@ -220,24 +211,16 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldGetArtifactFileRestfully() throws Exception {
         createFile(artifactsRoot, "foo.xml");
 
-        ModelAndView mav = getFileAsHtml("/foo.xml");
+        ModelAndView mav = getNonFolder("/foo.xml");
         assertThat(mav.getViewName(), is("fileView"));
-    }
-
-    @Test
-    public void shouldGetDirectoryWithHtmlView() throws Exception {
-        createFile(artifactsRoot, "directory/foo");
-
-        ModelAndView mav = getFileAsHtml("/directory.html");
-        assertThat(mav.getViewName(), is("rest/html"));
     }
 
     @Test
     public void shouldReturn404WhenFooDotHtmlDoesNotExistButFooFileExists() throws Exception {
         createFile(artifactsRoot, "foo");
 
-        ModelAndView view = getFileAsHtml("/foo.html");
-        assertStatus(view, SC_NOT_FOUND);
+        ModelAndView view = getNonFolder("/foo.html");
+        assertValidContentAndStatus(view, SC_NOT_FOUND, "Artifact '/foo.html' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
     @Test
@@ -245,32 +228,41 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo.html");
         createFile(artifactsRoot, "foo/bar.xml");
 
-        ModelAndView mav = getFileAsHtml("/foo.html");
+        ModelAndView mav = getNonFolder("/foo.html");
+        assertThat(mav.getViewName(), is("fileView"));
+
+        createFile(artifactsRoot, "foo.json");
+        createFile(artifactsRoot, "foo/bar.xml");
+
+        mav = getAsJson("/foo.json");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
     @Test
-    public void shouldReturnFolderInHtmlView() throws Exception {
+    public void shouldReturn404ForFolderInGenericArtifactView() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
-        ModelAndView mav = getFileAsHtml("/foo");
-        assertThat(mav.getViewName(), is("rest/html"));
+        ModelAndView mav = getNonFolder("/foo");
+        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Artifact '/foo' is unavailable as it may have been purged by Go or deleted externally.");
+
+        mav = getNonFolder("/foo/");
+        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Artifact '/foo/' is unavailable as it may have been purged by Go or deleted externally.");
+    }
+
+    @Test
+    public void shouldReturn404ForFolderInGenericArtifactViewRatherThanFile() throws Exception {
+        createFile(artifactsRoot, "directory/foo");
+
+        ModelAndView mav = getNonFolder("/directory.html");
+        assertValidContentAndStatus(mav, SC_NOT_FOUND, "Artifact '/directory.html' is unavailable as it may have been purged by Go or deleted externally.");
     }
 
     @Test
     public void shouldReturnFolderInJsonView() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
-        ModelAndView mav = getFolderAsJson("/foo");
+        ModelAndView mav = getAsJson("/foo");
         assertEquals(RESPONSE_CHARSET_JSON, mav.getView().getContentType());
-    }
-
-    @Test
-    public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
-        createFile(artifactsRoot, "foo/bar.xml");
-
-        ModelAndView mav = getFileAsHtml("/foo");
-        assertThat(mav.getViewName(), is("rest/html"));
     }
 
     @Test
@@ -278,7 +270,7 @@ public class ArtifactsControllerIntegrationTest {
         createFile(artifactsRoot, "foo/1.xml");
         createFile(artifactsRoot, "bar/2.xml");
 
-        ModelAndView mav = getFileAsHtml("/foo/../bar/2.xml");
+        ModelAndView mav = getNonFolder("/foo/../bar/2.xml");
         assertStatus(mav, SC_FORBIDDEN);
         // The controller already URL escapes the filePath, so this also works with %2e
     }
@@ -287,7 +279,7 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldTreatSlashSlashAsOne() throws Exception {
         createFile(artifactsRoot, "tmp/1.xml");
 
-        ModelAndView mav = getFileAsHtml("//tmp/1.xml");
+        ModelAndView mav = getNonFolder("//tmp/1.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
@@ -310,7 +302,7 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
         createFile(artifactsRoot, "dir/foo.txt");
         ModelAndView view = postFile("/dir/foo.txt");
-        assertValidContentAndStatus(view, SC_FORBIDDEN, "File /dir/foo.txt already directoryExists.");
+        assertValidContentAndStatus(view, SC_FORBIDDEN, "File /dir/foo.txt already exists.");
     }
 
     @Test
@@ -374,27 +366,18 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldPutConsoleOutput_whenContentMoreThanBufferSizeUsed() throws Exception {
-        StringBuilder builder = new StringBuilder();
-        String str = "This is one full line of text. With 2 sentences without newline separating them.\n";
+        String refContent = "This is one full line of text. With 2 sentences without newline separating them.\n";
         int numberOfLines = ConsoleService.DEFAULT_CONSOLE_LOG_LINE_BUFFER_SIZE / 10;
-        for (int i = 0; i < numberOfLines; i++) {
-            builder.append(str);
-        }
-        for (int i = 0; i < numberOfLines; i++) {
-            builder.append(str);
-        }
-        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", builder.toString());
+        String allContent = refContent.repeat(2 * numberOfLines);
+        ModelAndView mav = putConsoleLogContent("cruise-output/console.log", allContent);
 
         String consoleLogContent = FileUtils.readFileToString(file(consoleLogFile), UTF_8);
         String[] lines = consoleLogContent.split("\n");
         assertThat(lines.length, is(2 * numberOfLines));
-        String hundredThLine = null;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            if (i == numberOfLines) {
-                hundredThLine = line;
-            } else {
-                assertThat("Line " + i + " doesn't have desired content.", line + "\n", is(str));
+            if (i != numberOfLines) {
+                assertThat("Line " + i + " doesn't have desired content.", line + "\n", is(refContent));
             }
         }
         assertStatus(mav, SC_OK);
@@ -514,7 +497,7 @@ public class ArtifactsControllerIntegrationTest {
         JobInstance firstJob = firstStage.getFirstJob();
         firstJob.setState(JobState.Building);
         prepareTempConsoleOut(new JobIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), firstStage.getName(), String.valueOf(firstStage.getCounter()), firstJob.getName()), "fantastic curly coated retriever");
-        ModelAndView view = getFileAsHtml("cruise-output/console.log");
+        ModelAndView view = getNonFolder("cruise-output/console.log");
 
         assertThat(view.getViewName(), is("fileView"));
         File targetFile = (File) (view.getModel().get("targetFile"));
@@ -628,11 +611,11 @@ public class ArtifactsControllerIntegrationTest {
         return new File(buildIdArtifactRoot, "");
     }
 
-    private ModelAndView getFileAsHtml(String file) throws Exception {
-        return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null, null);
+    private ModelAndView getNonFolder(String file) throws Exception {
+        return artifactsController.getArtifactNonFolder(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null);
     }
 
-    private ModelAndView getFolderAsJson(String file) throws Exception {
+    private ModelAndView getAsJson(String file) throws Exception {
         return artifactsController.getArtifactAsJson(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null);
     }
 
@@ -713,9 +696,9 @@ public class ArtifactsControllerIntegrationTest {
         };
     }
 
-    class ResponseOutput {
-        private PrintWriter writer;
-        private ByteArrayOutputStream stream;
+    static class ResponseOutput {
+        private final PrintWriter writer;
+        private final ByteArrayOutputStream stream;
 
         public ResponseOutput() {
             stream = new ByteArrayOutputStream();
@@ -727,7 +710,7 @@ public class ArtifactsControllerIntegrationTest {
         }
 
         public String getOutput() {
-            return new String(stream.toByteArray());
+            return stream.toString();
         }
     }
 }

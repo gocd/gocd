@@ -17,14 +17,17 @@ package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +51,7 @@ public class JobDetailPresentationModelJMockTest {
 
         TrackingTool trackingTool = new TrackingTool();
         jobDetailPresenter = new JobDetailPresentationModel(stubJobInstance,
-                null, null, pipeline, new Tabs(), trackingTool, artifactService, null);
+                null, pipeline, new Tabs(), trackingTool, artifactService, null);
     }
 
     @Test

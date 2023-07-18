@@ -1,4 +1,4 @@
-<#--
+/*
  * Copyright 2023 Thoughtworks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,5 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- -->
-${presenter.renderArtifactFiles(req.getContextPath())?no_esc}
+ */
+package com.thoughtworks.go.server.web;
+
+import com.thoughtworks.go.domain.JobIdentifier;
+import org.springframework.web.servlet.ModelAndView;
+
+import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
+
+public class JsonArtifactFolderViewFactory implements ArtifactFolderViewFactory {
+    @Override
+    public ModelAndView createView(JobIdentifier identifier, ArtifactFolder artifactFolder) {
+        return jsonFound(artifactFolder).createView();
+    }
+}

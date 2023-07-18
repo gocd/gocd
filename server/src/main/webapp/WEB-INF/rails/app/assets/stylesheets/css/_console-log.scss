@@ -89,7 +89,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   font-size: 13px;
 
   .fas {
-    font-family: $fa-style-family, sans-serif;
+    font-family: FontAwesome, sans-serif;
     font-weight: 900;
   }
 
@@ -199,7 +199,7 @@ code {
 .log-fs-status {
   &::before {
     @include fa-icon;
-    font-family: $fa-style-family, sans-serif;
+    font-family: FontAwesome, sans-serif;
 
     position: absolute;
     left: -30px;

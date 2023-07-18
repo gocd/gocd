@@ -118,7 +118,7 @@ public class BuildDetailPageFreeMarkerTemplateTest extends AbstractFreemarkerTem
 
         JobInstances recent25 = new JobInstances();
         recent25.add(jobInstance);
-        JobDetailPresentationModel model = new JobDetailPresentationModel(jobInstance, recent25, null,
+        JobDetailPresentationModel model = new JobDetailPresentationModel(jobInstance, recent25,
             pipeline, new Tabs(), new TrackingTool(),
             mock(ArtifactsService.class), StageMother.custom("stage"));
 

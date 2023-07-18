@@ -1089,12 +1089,12 @@
   </rule>
 
   <rule>
-    <name>Agent files and properties</name>
+    <name>Agent files</name>
     <note>
-      For agent to download/upload artifacts and publish properties
+      For agent to download/upload artifacts
     </note>
-    <from>^/remoting/(files|properties)/(.*)</from>
-    <to last="false">/$1/$2</to>
+    <from>^/remoting/files/(.*)</from>
+    <to last="false">/files/$1</to>
   </rule>
 
   <!-- Spring/Java RESTful URLS -->
@@ -1114,21 +1114,9 @@
   </rule>
 
   <rule>
-    <condition type="request-uri">(.+)\.csv$</condition>
-    <from>(.+)</from>
-    <set name="_type">csv</set>
-  </rule>
-
-  <rule>
     <condition type="request-uri">(.+)\.json$</condition>
     <from>(.+)</from>
     <set name="_type">json</set>
-  </rule>
-
-  <rule>
-    <condition type="request-uri">(.+)\.html$</condition>
-    <from>(.+)</from>
-    <set name="_type">html</set>
   </rule>
 
   <rule>
@@ -1145,7 +1133,7 @@
 
   <rule>
     <name>RESTful Artifacts - List All builds artifacts</name>
-    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.json)?(\?.*)?$</from>
     <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
   </rule>
 
@@ -1172,19 +1160,19 @@
   </rule>
 
   <rule>
-    <name>Cruise Configuration Administration RESTful url - File</name>
+    <name>Configuration Administration RESTful url - File</name>
     <from>^/api/admin/config.xml$</from>
     <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
   </rule>
 
   <rule>
-    <name>Cruise Configuration Administration RESTful url - File</name>
+    <name>Configuration Administration RESTful url - File</name>
     <from>^/api/admin/config/([^/]+)\.xml$</from>
     <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
   </rule>
 
   <rule>
-    <name>Cruise Configuration Administration RESTful url - File</name>
+    <name>Configuration Administration RESTful url - File</name>
     <from>^/admin/configuration/file\.xml(\?.*)?$</from>
     <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
   </rule>

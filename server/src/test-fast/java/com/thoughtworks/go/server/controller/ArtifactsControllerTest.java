@@ -40,8 +40,8 @@ import java.io.InputStream;
 import static com.thoughtworks.go.util.GoConstants.*;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -86,7 +86,7 @@ public class ArtifactsControllerTest {
     }
 
     @Test
-    public void testConsoleOutShouldReturnErrorWhenJobHasBeenCompletedAndLogsNotFound() throws Exception {
+    public void testConsoleOutShouldReturnErrorWhenJobHasBeenCompletedAndLogsNotFound() {
         JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103l);
         when(restfulService.findJob("pipeline", "10", "stage", "2", "build")).thenReturn(jobIdentifier);
 
@@ -137,14 +137,14 @@ public class ArtifactsControllerTest {
     }
 
     @Test
-    void shouldFailToGetConsoleOutWhenStageCounterIsNotAPositiveInteger() throws Exception {
+    void shouldFailToGetConsoleOutWhenStageCounterIsNotAPositiveInteger() {
         ModelAndView modelAndView = artifactsController.consoleout("pipeline-1", "1", "stage-1", "job-1", "NOT_AN_INTEGER", 122L);
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
     }
 
     @Test
     void shouldFailToGetArtifactWhenStageCounterIsNotAPositiveInteger() throws Exception {
-        ModelAndView modelAndView = artifactsController.getArtifactAsHtml("pipeline-1", "1", "stage-1",  "NOT_AN_INTEGER", "job-1", "some-path", "sha1", "alias");
+        ModelAndView modelAndView = artifactsController.getArtifactAsJson("pipeline-1", "1", "stage-1",  "NOT_AN_INTEGER", "job-1", "some-path", "sha1");
         assertThat(((ResponseCodeView) modelAndView.getView()).getStatusCode(), is(SC_NOT_FOUND));
     }
 
@@ -154,12 +154,12 @@ public class ArtifactsControllerTest {
         ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), jobInstanceDao, consoleActivityMonitor, consoleService, systemEnvironment) {
             @Override
             ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
-                                     String buildName, String sha, String serverAlias) throws Exception {
+                                     String buildName, String sha) {
                 return returnVal;
             }
         };
 
-        assertThat(controller.getArtifactAsHtml("pipeline", "counter", "stage", "2", "job", "file_name", "sha1", null), sameInstance(returnVal));
+        assertThat(controller.getArtifactNonFolder("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
         assertThat(controller.getArtifactAsZip("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
         assertThat(controller.getArtifactAsJson("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
     }

@@ -23,6 +23,12 @@
         </#if>
     </#if>
   <div class="files">
-      <#include "../shared/_artifacts.ftlh">
+    ${presenter.renderArtifactFiles(req.getContextPath())?no_esc}
+
+    <script type="text/javascript">
+      try {
+        BuildDetail.collapseAll();
+      } catch(e) {}
+    </script>
   </div>
 </div>

@@ -807,7 +807,7 @@ public class ConfigConverter {
         CRFetchPluggableArtifactTask crTask = new CRFetchPluggableArtifactTask(
                 null, null, null, task.getStage().toString(),
                 task.getJob().toString(), task.getArtifactId(), configuration);
-        crTask.setPipeline(task.getPipelineName().toString());
+        crTask.setPipeline(Objects.toString(task.getPipelineName(), null));
         commonCRTaskMembers(crTask, task);
         return crTask;
     }
@@ -816,7 +816,7 @@ public class ConfigConverter {
         CRFetchArtifactTask fetchTask = new CRFetchArtifactTask(null, null, null, task.getStage().toString(), task.getJob().toString(), task.getSrc(), null, false);
 
         fetchTask.setDestination(task.getDest());
-        fetchTask.setPipeline(task.getPipelineName().toString());
+        fetchTask.setPipeline(Objects.toString(task.getPipelineName(), null));
         fetchTask.setSourceIsDirectory(!task.isSourceAFile());
 
         commonCRTaskMembers(fetchTask, task);

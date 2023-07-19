@@ -1997,6 +1997,27 @@ class ConfigConverterTest {
     }
 
     @Test
+    void shouldConvertFetchArtifactTaskWhenPipelineIsEmptyToCR() {
+        FetchTask fetchTask = new FetchTask(
+            null,
+            new CaseInsensitiveString("stage"),
+            new CaseInsensitiveString("job"),
+            "src",
+            "dest"
+        );
+        fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
+
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getDestination()).isEqualTo("dest");
+        assertThat(result.getJob()).isEqualTo("job");
+        assertThat(result.getPipeline()).isNull();
+        assertThat(result.getSource()).isEqualTo("src");
+        assertThat(result.sourceIsDirectory()).isFalse();
+    }
+
+    @Test
     void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
                 new CaseInsensitiveString("upstream"),
@@ -2010,6 +2031,25 @@ class ConfigConverterTest {
         assertThat(result.getRunIf()).isEqualTo(CRRunIf.passed);
         assertThat(result.getJob()).isEqualTo("job");
         assertThat(result.getPipeline()).isEqualTo("upstream");
+        assertThat(result.getStage()).isEqualTo("stage");
+        assertThat(result.getArtifactId()).isEqualTo("artifactId");
+        assertThat(result.getConfiguration().isEmpty()).isTrue();
+    }
+
+    @Test
+    void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTaskWhenPipelineIsNotSet() {
+        FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
+            null,
+            new CaseInsensitiveString("stage"),
+            new CaseInsensitiveString("job"),
+            "artifactId");
+        fetchPluggableArtifactTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
+
+        CRFetchPluggableArtifactTask result = (CRFetchPluggableArtifactTask) configConverter.taskToCRTask(fetchPluggableArtifactTask);
+
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.passed);
+        assertThat(result.getJob()).isEqualTo("job");
+        assertThat(result.getPipeline()).isNull();
         assertThat(result.getStage()).isEqualTo("stage");
         assertThat(result.getArtifactId()).isEqualTo("artifactId");
         assertThat(result.getConfiguration().isEmpty()).isTrue();

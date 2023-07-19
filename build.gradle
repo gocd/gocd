@@ -160,7 +160,7 @@ project.ext.packaging = [
   adoptiumJavaVersion: new AdoptiumVersion(
     feature: 17,
     interim: 0,    // set to `null` for the first release of a new featureVersion
-    update : 7,    // set to `null` for the first release of a new featureVersion
+    update : 8,    // set to `null` for the first release of a new featureVersion
     patch  : null, // set to `null` for most releases. Patch releases are "exceptional".
     build  : 7
   )

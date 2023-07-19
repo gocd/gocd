@@ -225,6 +225,7 @@ class ConfigConverterTest {
         assertThat(result.getBuildFile()).isEqualTo("nant");
         assertThat(result.getTarget()).isEqualTo("build");
         assertThat(result.workingDirectory()).isEqualTo("src");
+        assertThat(result.getNantPath()).isEqualTo("path");
     }
 
     @Test

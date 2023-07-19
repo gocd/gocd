@@ -187,9 +187,9 @@ public class ConfigConverter {
         if (crTask == null)
             throw new ConfigConvertionException("task cannot be null");
 
-        if (crTask instanceof CRPluggableTask)
+        if (crTask instanceof CRPluggableTask) {
             return toPluggableTask((CRPluggableTask) crTask);
-        else if (crTask instanceof CRBuildTask) {
+        } else if (crTask instanceof CRBuildTask) {
             return toBuildTask((CRBuildTask) crTask);
         } else if (crTask instanceof CRExecTask) {
             return toExecTask((CRExecTask) crTask);
@@ -254,7 +254,9 @@ public class ConfigConverter {
                 buildTask = new AntTask();
                 break;
             case nant:
-                buildTask = new NantTask();
+                NantTask nantTask = new NantTask();
+                nantTask.setNantPath(((CRNantTask)crBuildTask).getNantPath());
+                buildTask = nantTask;
                 break;
             default:
                 throw new RuntimeException(

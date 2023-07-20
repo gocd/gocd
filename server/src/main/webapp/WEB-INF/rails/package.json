@@ -114,7 +114,7 @@
     "speed-measure-webpack-plugin": "^1.5.0",
     "stats-webpack-plugin": "^0.7.0",
     "style-loader": "^2.0.0",
-    "stylelint": "^15.10.1",
+    "stylelint": "^15.10.2",
     "stylelint-config-standard-scss": "^10.0.0",
     "stylelint-webpack-plugin": "^2.5.0",
     "thread-loader": "^3.0.4",

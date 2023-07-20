@@ -107,7 +107,7 @@
     "optimize-css-assets-webpack-plugin": "^6.0.1",
     "patch-package": "^7.0.2",
     "postinstall-postinstall": "^2.1.0",
-    "sass": "^1.63.6",
+    "sass": "^1.64.0",
     "sass-loader": "^10.4.1",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.11",

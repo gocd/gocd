@@ -269,4 +269,14 @@
     <cve>CVE-2023-26119</cve>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[
+    Suppress false positive from Apache Mina, as used by the LDAP Authentication plugin. The plugin does not use the SFTP/SSHD parts of Mina,
+    only that needed for talking to an LDAP server so does not appear to be affected by https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2023-35887
+    which should really only be recorded against mini-sshd, not mina-core.  
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.mina/mina\-core@2\.0\..*$</packageUrl>
+    <cve>CVE-2023-35887</cve>
+  </suppress>
+
 </suppressions>

@@ -22,11 +22,11 @@ import java.util.regex.Pattern
 
 OperatingSystem currentOS = OperatingSystem.current()
 
-// Chrome:        See https://chromedriver.chromium.org/downloads  Must match version of Chrome on build host
+// Chrome:        See https://googlechromelabs.github.io/chrome-for-testing/ Must match version of Chrome on build host
 // Firefox/gecko: See https://github.com/mozilla/geckodriver/releases and review compatibility at
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
-  chromedriver: '114.0.5735.90',
+  chromedriver: '115.0.5790.102',
   geckodriver : '0.33.0',
 ]
 
@@ -110,7 +110,7 @@ task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
 
   switch (currentOS) {
     case OperatingSystem.MacOs:
-      osURIPart = 'macos';
+      osURIPart = 'macos-aarch64';
       break
     case OperatingSystem.Windows:
       osURIPart = 'win64'
@@ -131,16 +131,16 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
 
   switch (currentOS) {
     case OperatingSystem.MacOs:
-      osURIPart = 'mac64';
+      osURIPart = 'mac-arm64';
       break
     case OperatingSystem.Windows:
-      osURIPart = 'win32'
+      osURIPart = 'win64'
       break
     default:
       osURIPart = 'linux64'
       break;
   }
-  url = "https://chromedriver.storage.googleapis.com/${packageVersion}/chromedriver_${osURIPart}.zip"
+  url = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${packageVersion}/${osURIPart}/chromedriver-${osURIPart}.zip"
 }
 
 task jasmineKarma(type: YarnRunTask) {

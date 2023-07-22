@@ -19,4 +19,4 @@
     # initialize init script symlinks on first install
     /usr/share/<%= name %>/bin/<%= name %> install 2>&1
 
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>

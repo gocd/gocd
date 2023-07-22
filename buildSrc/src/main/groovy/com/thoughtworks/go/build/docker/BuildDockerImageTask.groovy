@@ -125,11 +125,18 @@ class BuildDockerImageTask extends DefaultTask {
     project.delete("${gitRepoDirectory}/${artifactZip.name}")
 
     if (project.hasProperty('dockerGitPush') && project.dockerGitPush == 'I_REALLY_WANT_TO_DO_THIS') {
+      logger.lifecycle("Pushing changed Dockerfile for ${imageNameWithTag} to ${gitHubRepoName}...")
       executeInGitRepo("git", "add", ".")
-      executeInGitRepo("git", "commit", "-m", "Bump to version ${project.fullVersion}", "--author", "GoCD CI User <godev+gocd-ci-user@thoughtworks.com>")
-      executeInGitRepo("git", "tag", "v${project.goVersion}")
-      executeInGitRepo("git", "push")
-      executeInGitRepo("git", "push", "--tags")
+
+      if (project.exec { workingDir = getGitRepoDirectory(); commandLine = ["git", "diff-index", "--quiet", "HEAD"]; ignoreExitValue = true}.exitValue != 0) {
+        executeInGitRepo("git", "commit", "-m", "Bump to version ${project.fullVersion}", "--author", "GoCD CI User <godev+gocd-ci-user@thoughtworks.com>")
+        executeInGitRepo("git", "tag", "v${project.goVersion}")
+        executeInGitRepo("git", "push")
+        executeInGitRepo("git", "push", "--tags")
+        logger.lifecycle("Updated Dockerfile for for ${imageNameWithTag} at ${gitHubRepoName}.")
+      } else {
+        logger.lifecycle("No changes to Docker build for ${imageNameWithTag} at ${gitHubRepoName}.")
+      }
     }
   }
 

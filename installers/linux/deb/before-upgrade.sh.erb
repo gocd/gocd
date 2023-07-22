@@ -16,7 +16,7 @@
 #########################################################################
 -%>
 
-<%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-config-migration.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+<%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-config-migration.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
 
     rm -rf /var/run/<%= name %>-running-check-from-deb-package
 

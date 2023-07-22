@@ -17,7 +17,7 @@
 -%>
 
 <% if File.exist?(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")) -%>
-  <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+  <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")), trim_mode: '-', eoutvar: "_#{SecureRandom.hex}").result(binding) %>
 <% end -%>
 
     # Backup the existing go-{server,agent} installation from `/etc/init.d/<%= name %>` to `/etc/init.d/<%= name %>-old`

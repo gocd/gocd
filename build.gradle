@@ -200,6 +200,7 @@ allprojects {
 
   repositories {
     mavenCentral()
+    maven { url 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
   }
 
   if (project.name == 'build-platform') {
@@ -383,6 +384,9 @@ subprojects {
       modules {
         module("dom4j:dom4j") {
           replacedBy("org.dom4j:dom4j", "Upgrade the legacy dom4j in old Hibernate 3.6; dom4j 2 should be sufficiently compatible")
+        }
+        module("net.sf.ehcache:ehcache") {
+          replacedBy("net.sf.ehcache.internal:ehcache-core", "Use the much slimmer core artifact which is fine for our use case")
         }
       }
       components {

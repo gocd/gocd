@@ -24,7 +24,6 @@ dependencies {
   implementation project.deps.freemarker
   implementation project.deps.guava
 
-  testCompileOnly project.deps.ehcache
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
   testImplementation project.deps.jsoup
   testImplementation project.deps.junit5Api

@@ -95,6 +95,7 @@ public class UrlRewriterIntegrationTest {
     private static final ResponseAssertion ARTIFACT_API_CONSOLE_LOG = new ResponseAssertion(HTTP_URL + "/go/files/pipeline/1/stage/2/job/cruise-output/console.log?startLineNumber=1000", HTTP_URL + "/go/consoleout.json?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&buildName=job&filePath=cruise-output%2Fconsole.log&startLineNumber=1000");
 
     private static final ResponseAssertion PIPELINES_STAGE_DETAILS = new ResponseAssertion(HTTP_URL + "/go/pipelines/pipeline/1/stage/2", HTTP_URL + "/go/rails/pipelines/pipeline/1/stage/2");
+    private static final ResponseAssertion PIPELINES_STAGE_HISTORY_PAGINATION = new ResponseAssertion(HTTP_URL + "/go/history/stage/pipeline/1/stage/2?page=3&tab=jobs", HTTP_URL + "/go/rails/history/stage/pipeline/1/stage/2?page=3&tab=jobs");
     private static final ResponseAssertion BUILD_JOB_DETAILS = new ResponseAssertion(HTTP_URL + "/go/tab/build/detail/pipeline/1/stage/2/job", HTTP_URL + "/go/tab/build/recent?pipelineName=pipeline&pipelineCounter=1&stageName=stage&stageCounter=2&jobName=job");
     private static final ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision");
 
@@ -131,6 +132,7 @@ public class UrlRewriterIntegrationTest {
             ARTIFACT_API_CHANGE_FILE,
             ARTIFACT_API_CONSOLE_LOG,
             PIPELINES_STAGE_DETAILS,
+            PIPELINES_STAGE_HISTORY_PAGINATION,
             BUILD_JOB_DETAILS,
             MATERIALS_VALUE_STREAM_MAP,
             LANDING_PAGE_SLASH,

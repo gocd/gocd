@@ -300,4 +300,8 @@ module ApplicationHelper
     active_stage = pipeline_instance_modal.activeStage
     "/go/api/stages/#{active_stage.getPipelineName}/#{active_stage.getPipelineCounter}/#{active_stage.getName}/#{active_stage.getCounter}/cancel"
   end
+
+  def agent_detail_path(uuid)
+    "/go/agents/#{uuid}"
+  end
 end

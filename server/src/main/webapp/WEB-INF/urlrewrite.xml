@@ -1058,7 +1058,7 @@
       (currently RackFilter passes a request to Rails only if Java returns a 40* HTTP response
     </note>
     <from>
-      ^/((assets/.*)|(pipelines/.*)|(materials/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/pipelines/snippet)|(admin/pipelines/snippet/.*))$
+      ^/((assets/.*)|(pipelines/.*)|(materials/.*)|(history/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/pipelines/snippet)|(admin/pipelines/snippet/.*))$
     </from>
     <set name="rails_bound">true</set>
     <to last="true">/rails/$1</to>

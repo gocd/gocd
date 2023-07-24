@@ -21,10 +21,7 @@ import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.ClonerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.thoughtworks.go.config.JobConfig.RESOURCES;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
@@ -32,7 +29,7 @@ import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.SystemUtil.isLocalhost;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -171,8 +168,8 @@ public class Agent extends PersistentObject {
     }
 
     public boolean hasAllResources(Collection<String> resourcesToCheck) {
-        List<String> agentResources = this.getResourcesAsList().stream().map(String::toLowerCase).collect(toList());
-        List<String> requiredResources = resourcesToCheck.stream().map(String::toLowerCase).collect(toList());
+        Set<String> agentResources = this.getResourcesAsList().stream().map(String::toLowerCase).collect(toSet());
+        Set<String> requiredResources = resourcesToCheck.stream().map(String::toLowerCase).collect(toSet());
 
         return agentResources.containsAll(requiredResources);
     }

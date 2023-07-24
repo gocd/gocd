@@ -58,7 +58,7 @@ public class AgentDao extends HibernateDaoSupport {
     private final UuidGenerator uuidGenerator;
     private final AgentMutexes agentMutexes = new AgentMutexes();
 
-    private Set<DatabaseEntityChangeListener<Agent>> agentEntityChangeListenerSet = new HashSet<>();
+    private final Set<DatabaseEntityChangeListener<Agent>> agentEntityChangeListenerSet = new HashSet<>();
 
     @Autowired
     public AgentDao(SessionFactory sessionFactory, GoCache cache, TransactionTemplate transactionTemplate,
@@ -316,7 +316,7 @@ public class AgentDao extends HibernateDaoSupport {
 }
 
 class AgentMutexes {
-    private Map<String, AgentMutex> uuidToMutexMap = new ConcurrentHashMap<>();
+    private final Map<String, AgentMutex> uuidToMutexMap = new ConcurrentHashMap<>();
 
     @Override
     public String toString() {
@@ -326,14 +326,14 @@ class AgentMutexes {
     public synchronized void release(List<String> uuids, AgentMutex mutex) {
         mutex.setUsedByCount(mutex.getUsedByCount() - 1);
         if (mutex.getUsedByCount() <= 0) {
-            uuids.forEach(uuid -> uuidToMutexMap.remove(uuid));
+            uuids.forEach(uuidToMutexMap::remove);
             uuidToMutexMap.entrySet().removeIf(entry -> entry.getValue().equals(mutex));
         }
     }
 
     public synchronized AgentMutex acquire(List<String> uuids) {
         return uuids.stream()
-                .filter(uuid -> uuidToMutexMap.containsKey(uuid))
+                .filter(uuidToMutexMap::containsKey)
                 .map(this::getExistingMutexWithIncrementedUsedByCount)
                 .findAny()
                 .orElseGet(() -> createNewMutex(uuids));

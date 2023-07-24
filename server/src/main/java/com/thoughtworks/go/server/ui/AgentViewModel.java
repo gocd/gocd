@@ -26,10 +26,9 @@ import java.util.*;
 /**
  * @understands agent information for the UI
  */
-@Deprecated
 public class AgentViewModel implements Comparable<AgentViewModel>{
-    private AgentInstance agentInstance;
-    private Set<String> environments;
+    private final AgentInstance agentInstance;
+    private final Set<String> environments;
 
     public AgentViewModel(AgentInstance agentInstance) {
         this(agentInstance, new HashSet<>());

@@ -42,11 +42,11 @@ import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -60,6 +60,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.net.InetAddress;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -100,13 +102,9 @@ public class AgentServiceIntegrationTest {
     @Autowired
     private CachedGoConfig cachedGoConfig;
     @Autowired
-    private SecurityService securityService;
-    @Autowired
     private ServerHealthService serverHealthService;
     @Autowired
     private AgentDao agentDao;
-    @Autowired
-    private ConfigRepository configRepository;
     @Autowired
     private DatabaseAccessHelper dbHelper;
 
@@ -694,7 +692,7 @@ public class AgentServiceIntegrationTest {
         @Test
         void shouldMarkAgentAsLostContactWhenAgentDoesNotPingWithinTimeoutPeriod() {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
-            Date date = new Date(70, 1, 1, 1, 1, 1);
+            Date date = new Date(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli());
             AgentInstance instance = idle(date, "CCeDev01");
             ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
 
@@ -714,7 +712,7 @@ public class AgentServiceIntegrationTest {
             new SystemEnvironment().setProperty("agent.connection.timeout", "-1");
             CONFIG_HELPER.addMailHost(new MailHost("ghost.name", 25, "loser", "boozer", true, false, "go@foo.mail.com", "admin@foo.mail.com"));
 
-            Date date = new Date(70, 1, 1, 1, 1, 1);
+            Date date = new Date(LocalDateTime.of(1970, 1, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli());
             AgentInstance idleAgentInstance = idle(date, "CCeDev01");
             ((AgentRuntimeInfo) ReflectionUtil.getField(idleAgentInstance, "agentRuntimeInfo")).setOperatingSystem("Minix");
 
@@ -973,7 +971,7 @@ public class AgentServiceIntegrationTest {
 
 
             agent = agentService.findAgent(UUID).getAgent();
-            assertTrue(agent.getEnvironmentsAsList().size() == 1);
+            assertEquals(1, agent.getEnvironmentsAsList().size());
             assertTrue(agent.getEnvironmentsAsList().contains(prodEnv));
 
             assertTrue(agent.getResourcesAsList().contains("R3"));
@@ -1187,7 +1185,7 @@ public class AgentServiceIntegrationTest {
 
             assertTrue(environmentConfigService.getAgentEnvironmentNames(UUID).isEmpty());
 
-            assertTrue(environmentConfigService.getAgentEnvironmentNames(UUID2).size() == 1);
+            assertEquals(1, environmentConfigService.getAgentEnvironmentNames(UUID2).size());
             assertThat(environmentConfigService.getAgentEnvironmentNames(UUID2), containsSet("prod"));
         }
 
@@ -1392,10 +1390,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentInstance getFirstAgent() {
-        for (AgentInstance agentInstance : agentService.getAgentInstances()) {
-            return agentInstance;
-        }
-        return null;
+        return IterableUtils.first(agentService.getAgentInstances());
     }
 
     private Set<String> getEnvironments(String uuid) {
@@ -1406,7 +1401,7 @@ public class AgentServiceIntegrationTest {
         return new MockAgentStatusChangeNotifier();
     }
 
-    private class MockAgentStatusChangeNotifier extends AgentStatusChangeNotifier {
+    private static class MockAgentStatusChangeNotifier extends AgentStatusChangeNotifier {
         public MockAgentStatusChangeNotifier() {
             super(null, null);
         }

@@ -158,8 +158,7 @@ task cleanRails(type: Delete) {
 clean.dependsOn cleanRails
 
 task compileAssetsWebpackDev(type: YarnRunTask) {
-  dependsOn yarnInstall
-  dependsOn generateJSRoutes
+  dependsOn yarnInstall, generateJSRoutes
 
   onlyIf { !project.hasProperty('fastBuild') }
 
@@ -307,6 +306,7 @@ task compileAssets {
 
 task rspec(type: ExecuteUnderRailsTask) {
   dependsOn yarnInstall
+  mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
   outputs.cacheIf { true }
   inputs.files project.railsRoot
   inputs.files project.railsClasspath
@@ -335,6 +335,7 @@ task rspec(type: ExecuteUnderRailsTask) {
 
 task parallelRspec(type: ExecuteUnderRailsTask) {
   dependsOn yarnInstall
+  mustRunAfter generateJSRoutes, compileAssets, compileAssetsWebpackDev, compileAssetsRailsTest
   outputs.cacheIf { true }
   inputs.files project.railsRoot
   inputs.files project.railsClasspath

@@ -18,7 +18,7 @@
     <div>
         <a class="auto-scroll" title="Scroll to bottom">Scroll to end of logs</a>
         <a href="${req.getContextPath()}/files/${presenter.consoleoutLocator}">Raw output</a>
-        <a class='toggle-timestamps' href="#"><span class="timestamps"></span> Timestamps</a>
+        <a class='toggle-timestamps' href="#"><i class="fas fa-clock"></i> Timestamps</a>
         <a class='toggle-folding' href="#" data-collapsed="true"></a>
         <a id="full-screen">
           <span class="expand">Fullscreen</span>

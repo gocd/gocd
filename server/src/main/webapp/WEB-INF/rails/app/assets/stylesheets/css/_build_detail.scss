@@ -718,7 +718,3 @@ a.collapse-all {
 .compress {
   display: none;
 }
-
-.timestamps {
-  @include icon-before("clock", $line-height: 1.22em, $margin: 0 5px);
-}

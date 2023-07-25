@@ -39,3 +39,14 @@ $fa-font-path: "@fortawesome/fontawesome-free/webfonts";
   font-style: normal;
   font-weight: 400;
 }
+
+// For backward compatibility with old Font Awesome 4 where certain plugins/places use the
+// old CSS prefixes and/or font family names hard-coded in their views. Overrides default font-family names
+// from within @fortawesome/fontawesome-free/scss/core to match how we declare font-faces
+.fa, .fa-classic, .fas, .fa-solid, .far, .fa-regular {
+  font-family: FontAwesome, sans-serif;
+}
+
+.fab, .fa-brands {
+  font-family: FontAwesomeBrands, sans-serif;
+}

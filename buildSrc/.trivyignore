@@ -1,0 +1,25 @@
+# Additional suppressions for issues detected by Trivy that are not found by OWASP dependency check
+
+# org.bouncycastle:bcprov-jdk18on (go.jar) Fixed: 1.74
+# https://avd.aquasec.com/nvd/cve-2023-33201
+#
+# Suppression for issue coming via JRuby and jruby-openssl's embedded BouncyCastle. This does not affect
+# GoCD as JRuby does not use the LDAP functionaliy within BC. See https://github.com/jruby/jruby-openssl/pull/278
+# and https://github.com/jruby/jruby/pull/7867 for removing the noise.
+CVE-2023-33201
+
+# org.eclipse.jetty:jetty-xml (go.jar)
+# https://github.com/advisories/GHSA-58qw-p7qm-5rvh
+#
+# GoCD is not vulnerable since it does not use XmlParser on user input
+GHSA-58qw-p7qm-5rvh
+
+# org.springframework:spring-core (go.jar) Fixed: 5.2.22.RELEASE, 5.3.20.RELEASE
+# https://avd.aquasec.com/nvd/2022/cve-2022-22971/
+#
+# GoCD is not vulnerable since it does not use STOMP over WebSockets via the framework
+CVE-2022-22971
+
+# Leave whitespace at the end of the file for appending suppressions from OWASP dependency check :-)
+# Augment to this file with
+# grep -oE '<(cve|vulnerabilityName)>[^<]*</(cve|vulnerabilityName)>' buildSrc/dependency-check-suppress.xml | sed -E 's/<(cve|vulnerabilityName)>(.*)<\/(cve|vulnerabilityName)>/\2/' >> buildSrc/.trivyignore

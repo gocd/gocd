@@ -106,76 +106,32 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getBaseImageUpdateCommands(DistroVersion v) {
-      def commands = [
-        "echo 'fastestmirror=1' >> /etc/${pkgFor(v) == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
-        "echo 'install_weak_deps=False' >> /etc/${pkgFor(v) == 'yum' ? 'yum' : 'dnf/dnf'}.conf",
-      ]
-
-      if (v.lessThan(8)) {
-        commands += [
-          "${pkgFor(v)} install -y centos-release-scl-rh grubby",
-          "${pkgFor(v)} autoremove -y",
-          "${pkgFor(v)} remove -y grubby",
-        ]
-      }
-
-      commands += [
+      return [
+        "echo 'fastestmirror=1' >> /etc/dnf/dnf.conf",
+        "echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf",
         "${pkgFor(v)} upgrade -y",
         "${pkgFor(v)} install -y shadow-utils",
       ]
-
-      commands
     }
 
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
-      def commands = [
-        "${pkgFor(v)} install -y mercurial subversion openssh-clients bash unzip procps" +
-          (v.lessThan(8) ? ' rh-git227-git-core sysvinit-tools coreutils' : ' git-core procps-ng coreutils-single') +
-          (v.lessThan(9) ? ' curl' : ' curl-minimal')
-      ]
-
-      if (v.lessThan(8)) {
-        commands += 'cp /opt/rh/rh-git227/enable /etc/profile.d/rh-git227.sh'
-      }
-
-      commands += [
+      return [
+        "${pkgFor(v)} install -y git-core mercurial subversion openssh-clients bash unzip procps-ng coreutils-single glibc-langpack-en ${v.lessThan(9) ? ' curl' : ' curl-minimal'}",
         "${pkgFor(v)} clean all",
-        "rm -rf /var/cache/${pkgFor(v)}",
+        "rm -rf /var/cache/yum /var/cache/dnf",
       ]
-      commands
     }
 
     private String pkgFor(DistroVersion v) {
-      switch (v.version) {
-        case '7': return 'yum'
-        case '8': return 'dnf'
-        case '9': return 'microdnf'
-        default: throw IllegalArgumentException("Unknown version $v")
-      }
-    }
-
-
-    @Override
-    Map<String, String> getEnvironmentVariables(DistroVersion v) {
-      def vars = super.getEnvironmentVariables(v)
-
-      if (v.lessThan(8)) {
-        return vars + [
-          BASH_ENV: "/opt/rh/rh-git227/enable",
-          ENV     : "/opt/rh/rh-git227/enable"
-        ] as Map<String, String>
-      } else {
-        return vars
-      }
+      v.lessThan(9) ? 'dnf' : 'microdnf'
     }
 
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [ // See https://endoflife.date/centos
-        new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-30')),
-        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31'), installPrerequisitesCommands: ['dnf install -y glibc-langpack-en']),
-        new DistroVersion(version: '9', releaseName: 'stream9-minimal', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['microdnf install -y glibc-langpack-en tar tzdata epel-release epel-next-release']),
+        new DistroVersion(version: '8', releaseName: 'stream8', eolDate: parseDate('2024-05-31')),
+        new DistroVersion(version: '9', releaseName: 'stream9-minimal', eolDate: parseDate('2027-05-31'), installPrerequisitesCommands: ['microdnf install -y tar tzdata epel-release epel-next-release']),
       ]
     }
   },

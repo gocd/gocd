@@ -101,7 +101,7 @@ enum Distro implements DistroBehavior {
 
     @Override
     String getBaseImageRegistry(DistroVersion v) {
-      v.lessThan(8) ? super.baseImageRegistry : "quay.io/centos"
+      "quay.io/centos"
     }
 
     @Override

@@ -207,32 +207,6 @@
     <vulnerabilityName>XSS in $sanitize in Safari/Firefox</vulnerabilityName>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    GoCD is not vulnerable to these issues as it does not use jQuery in a vulnerable way.
-    - no user controlled use of `jQuery(strInput)`
-    - no use of cross-site AJAX requests
-    - no use of `jquery.extend`
-    - no ability to pass untrusted code to `.html()`, `.append()`
-    - no ability for users to control boolean attribute names
-    ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/jquery@2\..*$</packageUrl>
-
-    <cve>CVE-2015-9251</cve>
-    <vulnerabilityName>GHSA-rmxg-73gg-4p98</vulnerabilityName>
-
-    <cve>CVE-2019-11358</cve>
-    <vulnerabilityName>GHSA-6c3j-c64m-qhgq</vulnerabilityName>
-
-    <cve>CVE-2020-11022</cve>
-    <vulnerabilityName>GHSA-gxr4-xjj5-5px2</vulnerabilityName>
-    <cve>CVE-2020-11023</cve>
-    <vulnerabilityName>GHSA-jpcq-cgw6-v4j6</vulnerabilityName>
-    <cve>CVE-2020-23064</cve>
-    
-    <vulnerabilityName>jQuery 1.x and 2.x are End-of-Life and no longer receiving security updates</vulnerabilityName>
-  </suppress>
-  
   <!-- Suppression rules for dependencies only visible after a ./gradlew prepare (yarn install / bundle install / tw-go-plugins bundled download -->
   <suppress>
     <notes><![CDATA[

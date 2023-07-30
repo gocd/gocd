@@ -50,12 +50,12 @@
   },
   "jquery": {
     "moduleName": "jquery",
-    "moduleVersion": "2.2.4",
+    "moduleVersion": "3.7.0",
     "moduleUrls": [
       "https://github.com/jquery/jquery"
     ],
     "filenames": [
-      "jquery-2.2.4.js"
+      "jquery-3.7.0.js"
     ],
     "moduleLicenses": [
       {

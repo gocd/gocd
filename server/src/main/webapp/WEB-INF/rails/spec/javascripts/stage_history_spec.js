@@ -55,12 +55,12 @@ describe("stage_history", function () {
     }}, true);
   }
 
-  it("test_bind_link_no_link", function() {
+  it("test_bind_link_no_link", async () => {
     stub_main_refresher();
     $j("#stage-history-page").val("should-not-change");
     assertNull($('doesnt_exist'));
     assertNull(document.getElementById('doesnt_exist'));
-    StageHistory.bindHistoryLink('doesnt_exist', "url-to-page-3", 3);
+    await StageHistory.bindHistoryLink('doesnt_exist', "url-to-page-3", 3);
     $j(document).click();
     assertEquals("should-not-change", $("stage-history-page").value);
     afterRef();
@@ -68,10 +68,10 @@ describe("stage_history", function () {
     assertEquals("should-not-change", $("stage-history-page").value);
   });
 
-  it("test_bind_link", function() {
+  it("test_bind_link", async () => {
     stub_main_refresher();
     $j("#stage-history-page").value = "0";
-    StageHistory.bindHistoryLink('#stage_history_3', "url-to-page-3", 3);
+    await StageHistory.bindHistoryLink('#stage_history_3', "url-to-page-3", 3);
     $j('#stage_history_3').click();
     assertEquals("3", $("stage-history-page").value);
     $j("#stage-history-page").value = "0";

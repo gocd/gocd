@@ -163,7 +163,7 @@
     }
 
     function getOnlyCommand(line) {
-      return line.match(/\ (.*?)\n/)[1];
+      return line.match(/ (.*?)\n/)[1];
     }
 
     function appendNewLineIfDoesNotExists(line) {

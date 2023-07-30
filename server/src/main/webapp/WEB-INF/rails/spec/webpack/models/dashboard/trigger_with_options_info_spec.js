@@ -97,8 +97,8 @@ describe("Dashboard", () => {
         const triggerOptionsJSON = info.getTriggerOptionsJSON();
         expect(triggerOptionsJSON['materials']).toEqual([
           {
-          fingerprint: info.materials[0].fingerprint,
-          revision
+            fingerprint: info.materials[0].fingerprint,
+            revision
           },
           {
             fingerprint: info.materials[1].fingerprint,

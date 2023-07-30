@@ -67,8 +67,8 @@ export const PipelineMetrics = {
     $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
       $.each(supportedAnalytics, (idx, sa) => {
         const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
-              title = sa.title,
-              model = Models.modelFor(uid, pipelineParams(currentPipeline));
+          title = sa.title,
+          model = Models.modelFor(uid, pipelineParams(currentPipeline));
 
         elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
       });

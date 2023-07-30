@@ -120,31 +120,31 @@
 
   function handleRequestResponse(source, message) {
     var reqId = message.head.reqId,
-         type = message.head.type;
+      type = message.head.type;
 
     switch (type) {
-      case "request":
-        var key = messageKey(message);
+    case "request":
+      var key = messageKey(message);
 
-        if (!key) {
-          err("Request is missing key; debug:", JSON.stringify(message));
-          return;
-        }
+      if (!key) {
+        err("Request is missing key; debug:", JSON.stringify(message));
+        return;
+      }
 
-        if ("function" !== typeof HANDLERS[key]) {
-          err("Don't know how to handle request key:", key);
-          return;
-        }
+      if ("function" !== typeof HANDLERS[key]) {
+        err("Don't know how to handle request key:", key);
+        return;
+      }
 
-        HANDLERS[key](message, new Transport(source, reqId));
-        break;
-      case "response":
-        var req = PENDING_REQUESTS.pop(reqId);
-        req.onComplete(message.body.data, message.body.errors);
-        break;
-      default:
-        err("Don't know how to handle type", type, "; debug:", message);
-        break;
+      HANDLERS[key](message, new Transport(source, reqId));
+      break;
+    case "response":
+      var req = PENDING_REQUESTS.pop(reqId);
+      req.onComplete(message.body.data, message.body.errors);
+      break;
+    default:
+      err("Don't know how to handle type", type, "; debug:", message);
+      break;
     }
   }
 

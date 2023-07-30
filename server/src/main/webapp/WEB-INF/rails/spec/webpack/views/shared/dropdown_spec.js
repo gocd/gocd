@@ -30,14 +30,14 @@ describe('Dropdown widget', () => {
       id:   "cat",
       text: "Cat"
     },
-      {
-        id:   "dog",
-        text: "Dog"
-      },
-      {
-        id:   "rabbit",
-        text: "Rabbit"
-      }
+    {
+      id:   "dog",
+      text: "Dog"
+    },
+    {
+      id:   "rabbit",
+      text: "Rabbit"
+    }
     ]
   };
 

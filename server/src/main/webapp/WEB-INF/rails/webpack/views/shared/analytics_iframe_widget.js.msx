@@ -20,7 +20,7 @@ export const AnalyticsiFrameWidget = function () {
 
   function loadFrameContent(vnode) {
     const iframe    = vnode.dom.querySelector("iframe"),
-          container = vnode.dom;
+      container = vnode.dom;
 
     function beforeLoad() {
       container.classList.add("loading-analytics");

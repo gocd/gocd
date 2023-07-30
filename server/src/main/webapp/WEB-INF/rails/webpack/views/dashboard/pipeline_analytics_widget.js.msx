@@ -15,17 +15,16 @@
  */
 import m from "mithril";
 import Interactions from "models/shared/analytics_interaction_manager";
-import {init} from "rails-shared/plugin-endpoint";
+import AnalyticsEndpoint, {init} from "rails-shared/plugin-endpoint";
 import {Modal} from "views/shared/new_modal";
 import {AnalyticsiFrameWidget} from "views/shared/analytics_iframe_widget";
-import AnalyticsEndpoint from "rails-shared/plugin-endpoint";
 
 const Models                = Interactions.ensure().ns("PipelineMetrics");
 
 function createModal(pluginId, metricId, pipeline) {
   const uid = Models.uid(0, pluginId, "pipeline", metricId),
-      model = Models.modelFor(uid),
-     params = { pipeline_name: pipeline.name }; // eslint-disable-line camelcase
+    model = Models.modelFor(uid),
+    params = { pipeline_name: pipeline.name }; // eslint-disable-line camelcase
 
   model.url(Models.toUrl(uid, params));
 

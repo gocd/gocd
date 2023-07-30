@@ -62,7 +62,7 @@ const Footer = {
 const Dialog = {
   oncreate(vnode) {
     function removeAnimation() {
-        vnode.dom.classList.remove("adding");
+      vnode.dom.classList.remove("adding");
     }
     vnode.dom.classList.add("adding");
     setTimeout(removeAnimation, 500);

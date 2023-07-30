@@ -23,9 +23,9 @@ describe("Analytics iFrame Widget", () => {
 
   function newModel(loadedData, loadedView) {
     const data   = Stream(),
-          view   = Stream(),
-          url    = Stream(),
-          errors = Stream();
+      view   = Stream(),
+      url    = Stream(),
+      errors = Stream();
 
     return {
       url, data, view, errors, load: () => {

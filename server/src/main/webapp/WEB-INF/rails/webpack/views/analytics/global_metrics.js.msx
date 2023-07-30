@@ -29,8 +29,8 @@ export const GlobalMetrics = {
     _.each(vnode.attrs.metrics, (supportedAnalytics, pluginId) => {
       _.each(supportedAnalytics, (sa, idx) => {
         const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
-              title = sa.title,
-              model = Models.modelFor(uid);
+          title = sa.title,
+          model = Models.modelFor(uid);
 
         elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
       });

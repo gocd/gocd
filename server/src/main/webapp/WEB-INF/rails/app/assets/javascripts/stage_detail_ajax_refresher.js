@@ -14,48 +14,48 @@
  * limitations under the License.
  */
 function StageDetailAjaxRefresher(url, redirectUrl, after_callback_map) {
-    var oldCheckboxes = null;
-    var replicator = new FieldStateReplicator();
+  var oldCheckboxes = null;
+  var replicator = new FieldStateReplicator();
 
-    function registerAgentSelectorsUnder(table) {
-        $(table).select('.job_selector').each(function (elem) {
-            replicator.register(elem, elem.value);
-        });
-    }
-
-    var jobs_grid = $('jobs_grid');
-    if (jobs_grid){
-        registerAgentSelectorsUnder(jobs_grid);
-    }
-
-    return new AjaxRefresher(url, redirectUrl, {
-        afterRefresh: function (receiver_id) {
-            var callback = after_callback_map[receiver_id];  
-            callback && callback();
-            if (receiver_id === 'jobs_grid') {
-                oldCheckboxes.each(function (elem) {
-                    replicator.unregister(elem, elem.value);
-                });
-                oldCheckboxes = null;
-            }
-        },
-        dataFetcher: function () {
-            return $("stage-history-page")? {"stage-history-page": $("stage-history-page").value} : {};
-        },
-        manipulateReplacement: function (receiver_id, replaceElement, replacementOptions) {
-            if (receiver_id === 'jobs_grid') {
-                registerAgentSelectorsUnder(replaceElement);
-                oldCheckboxes = $$('.job_selector');
-            }
-        }
+  function registerAgentSelectorsUnder(table) {
+    $(table).select('.job_selector').each(function (elem) {
+      replicator.register(elem, elem.value);
     });
+  }
+
+  var jobs_grid = $('jobs_grid');
+  if (jobs_grid){
+    registerAgentSelectorsUnder(jobs_grid);
+  }
+
+  return new AjaxRefresher(url, redirectUrl, {
+    afterRefresh: function (receiver_id) {
+      var callback = after_callback_map[receiver_id];  
+      callback && callback();
+      if (receiver_id === 'jobs_grid') {
+        oldCheckboxes.each(function (elem) {
+          replicator.unregister(elem, elem.value);
+        });
+        oldCheckboxes = null;
+      }
+    },
+    dataFetcher: function () {
+      return $("stage-history-page")? {"stage-history-page": $("stage-history-page").value} : {};
+    },
+    manipulateReplacement: function (receiver_id, replaceElement, replacementOptions) {
+      if (receiver_id === 'jobs_grid') {
+        registerAgentSelectorsUnder(replaceElement);
+        oldCheckboxes = $$('.job_selector');
+      }
+    }
+  });
 }
 
 function compare_link_handlers() {
-    jQuery(".stage_history .stage").mouseover(function() {
-        jQuery(this).find(".compare_pipeline").removeClass("hidden");
-    });
-    jQuery(".stage_history .stage").mouseout(function() {
-        jQuery(this).find(".compare_pipeline").addClass("hidden");
-    });
+  jQuery(".stage_history .stage").mouseover(function() {
+    jQuery(this).find(".compare_pipeline").removeClass("hidden");
+  });
+  jQuery(".stage_history .stage").mouseout(function() {
+    jQuery(this).find(".compare_pipeline").addClass("hidden");
+  });
 }

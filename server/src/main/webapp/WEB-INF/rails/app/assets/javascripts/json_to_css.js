@@ -16,33 +16,33 @@
 var JsonToCss = Class.create();
 
 JsonToCss.prototype = {
-    initialize: function() {},
+  initialize: function() {},
 
-    update_build_detail_header: function(json) {
-        var css_class_name = json.building_info.current_status.toLowerCase();
-        this._renew_class_name('build_status', [css_class_name]);
-        this._renew_class_name('job_details_header', [css_class_name]);
-    },
+  update_build_detail_header: function(json) {
+    var css_class_name = json.building_info.current_status.toLowerCase();
+    this._renew_class_name('build_status', [css_class_name]);
+    this._renew_class_name('job_details_header', [css_class_name]);
+  },
 
-    update_build_list: function(json, id, imgSrc) {
-        var elementId = "build_list_" + id
-        var css_class_name = json.building_info.current_status.toLowerCase();
-        this._renew_class_name(elementId, [css_class_name]);
-        if (css_class_name == "cancelled"){
-            var colorCodeElement = $(elementId).getElementsByClassName("color_code_small")[0];
-            var img = document.createElement('img');
-            img.setAttribute('src', imgSrc);
-            colorCodeElement.appendChild(img);
-        }
-    },
-    
-    _renew_class_name: function(elementOrId, cssClasses) {
-        var element = $(elementOrId);
-        clean_active_css_class_on_element(element);
-        $A(cssClasses).each(function(cssClass) {
-            Element.addClassName(element, cssClass);
-        });
+  update_build_list: function(json, id, imgSrc) {
+    var elementId = "build_list_" + id;
+    var css_class_name = json.building_info.current_status.toLowerCase();
+    this._renew_class_name(elementId, [css_class_name]);
+    if (css_class_name == "cancelled"){
+      var colorCodeElement = $(elementId).getElementsByClassName("color_code_small")[0];
+      var img = document.createElement('img');
+      img.setAttribute('src', imgSrc);
+      colorCodeElement.appendChild(img);
     }
-}
+  },
+    
+  _renew_class_name: function(elementOrId, cssClasses) {
+    var element = $(elementOrId);
+    clean_active_css_class_on_element(element);
+    $A(cssClasses).each(function(cssClass) {
+      Element.addClassName(element, cssClass);
+    });
+  }
+};
 
 var json_to_css = new JsonToCss();

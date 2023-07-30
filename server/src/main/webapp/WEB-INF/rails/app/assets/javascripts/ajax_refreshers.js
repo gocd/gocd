@@ -14,45 +14,45 @@
  * limitations under the License.
  */
 var AjaxRefreshers = function () {
-    var ajaxRefreshers = $A();
-    var mainContentRefresher = {
+  var ajaxRefreshers = $A();
+  var mainContentRefresher = {
+    afterRefreshOf: function(_, executeThis) {
+      executeThis();
+    }
+  };
+
+  return {
+    disableAjax: function() {
+      ajaxRefreshers.each(function (ajaxRefresher) {
+        ajaxRefresher.stopRefresh();
+      });
+    },
+
+    enableAjax: function() {
+      ajaxRefreshers.each(function (ajaxRefresher) {
+        ajaxRefresher.restartRefresh();
+      });
+    },
+
+    main: function() {
+      return mainContentRefresher;
+    },
+
+    addRefresher: function(refresher, isMainContentRefresher) {
+      if (isMainContentRefresher) {
+        mainContentRefresher = refresher;
+      }
+      ajaxRefreshers.push(refresher);
+    },
+
+    clear: function() {
+      mainContentRefresher = {
         afterRefreshOf: function(_, executeThis) {
-            executeThis();
+          executeThis();
         }
-    };
-
-    return {
-        disableAjax: function() {
-            ajaxRefreshers.each(function (ajaxRefresher) {
-                ajaxRefresher.stopRefresh();
-            });
-        },
-
-        enableAjax: function() {
-            ajaxRefreshers.each(function (ajaxRefresher) {
-                ajaxRefresher.restartRefresh();
-            });
-        },
-
-        main: function() {
-            return mainContentRefresher;
-        },
-
-        addRefresher: function(refresher, isMainContentRefresher) {
-            if (!!isMainContentRefresher) {
-                mainContentRefresher = refresher;
-            }
-            ajaxRefreshers.push(refresher);
-        },
-
-        clear: function() {
-            mainContentRefresher = {
-                afterRefreshOf: function(_, executeThis) {
-                    executeThis();
-                }
-            };
-            ajaxRefreshers.clear();
-        }
-    };
+      };
+      ajaxRefreshers.clear();
+    }
+  };
 }();
 

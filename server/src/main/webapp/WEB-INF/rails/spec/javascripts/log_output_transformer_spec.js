@@ -13,96 +13,98 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function($) {
+(function($) {
   "use strict";
 
   describe("LogOutputTransformerSpec", function LogOutputTransformerSpec() {
-      var transformer, output, fixture;
+    var transformer, output, fixture;
 
-      function extractText(collection) {
-        return _.map(collection, function (el) { return $(el).text(); });
-      }
+    function extractText(collection) {
+      return _.map(collection, function (el) { return $(el).text(); });
+    }
 
-      function extractAttr(collection, name) {
-        return _.map(collection, function (el) { return $(el).attr(name); });
-      }
+    function extractAttr(collection, name) {
+      return _.map(collection, function (el) { return $(el).attr(name); });
+    }
 
-      if ("function" !== window.requestAnimationFrame) {
-        window.requestAnimationFrame = function (callback) { callback(); };
-      }
 
-      beforeEach(function () {
-          setFixtures("<div id='fixture'><div class='console-log-loading'></div><div id=\"console\"></div></div>");
-          fixture = $('#fixture');
-          transformer = new LogOutputTransformer(output = $("#console"), FoldableSection, false);
-      });
+    beforeEach(function () {
+      window.requestAnimationFrame = function (callback) { callback(); };
+      setFixtures("<div id='fixture'><div class='console-log-loading'></div><div id=\"console\"></div></div>");
+      fixture = $('#fixture');
+      transformer = new LogOutputTransformer(output = $("#console"), FoldableSection, false);
+    });
 
-      it("basic unprefixed append to console", function () {
-        var lines = [
-          "Starting build",
-          "Build finished in no time!"
-        ];
+    afterEach(function() {
+      delete window.requestAnimationFrame;
+    });
 
-        transformer.transform(lines);
-        assertEquals(2, output.find("dd").length);
+    it("basic unprefixed append to console", function () {
+      var lines = [
+        "Starting build",
+        "Build finished in no time!"
+      ];
 
-        var actual = extractText(output.find("dd"));
-        assertEquals(lines.join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
-      });
+      transformer.transform(lines);
+      assertEquals(2, output.find("dd").length);
 
-      it("basic prefixed append to console", function () {
-        var lines = [
-          "##|01:01:00.123 Starting build",
-          "##|01:02:00.123 Build finished in no time!"
-        ];
+      var actual = extractText(output.find("dd"));
+      assertEquals(lines.join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
+    });
 
-        transformer.transform(lines);
-        var section = output.find(".log-fs-type-info")
-        assertTrue(!!section.length);
+    it("basic prefixed append to console", function () {
+      var lines = [
+        "##|01:01:00.123 Starting build",
+        "##|01:02:00.123 Build finished in no time!"
+      ];
 
-        var timestamps = extractAttr(section.find(".log-fs-line"), "data-timestamp").join(",");
-        assertEquals(["01:01:00.123", "01:02:00.123"].join(","), timestamps);
+      transformer.transform(lines);
+      var section = output.find(".log-fs-type-info");
+      assertTrue(!!section.length);
 
-        output.find(".ts").remove(); // exclude timestamps so it's easier to assert content
-        var actual = extractText(output.find(".log-fs-line-INFO"));
-        assertEquals(["Starting build", "Build finished in no time!"].join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
-      });
+      var timestamps = extractAttr(section.find(".log-fs-line"), "data-timestamp").join(",");
+      assertEquals(["01:01:00.123", "01:02:00.123"].join(","), timestamps);
 
-      it("should remove loading bar when console has lines to show", function() {
-        var lines = [
-          "##|01:01:00.123 Starting build",
-          "##|01:02:00.123 Build finished in no time!"
-        ];
+      output.find(".ts").remove(); // exclude timestamps so it's easier to assert content
+      var actual = extractText(output.find(".log-fs-line-INFO"));
+      assertEquals(["Starting build", "Build finished in no time!"].join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
+    });
 
-        assertTrue(fixture.find(".console-log-loading").is(':visible'));
-        transformer.transform(lines);
+    it("should remove loading bar when console has lines to show", function() {
+      var lines = [
+        "##|01:01:00.123 Starting build",
+        "##|01:02:00.123 Build finished in no time!"
+      ];
 
-        assertFalse(fixture.find(".console-log-loading").is(':visible'));
-      });
+      assertTrue(fixture.find(".console-log-loading").is(':visible'));
+      transformer.transform(lines);
 
-      it("should remove loading bar when build has finished and there is no output", function() {
-        assertTrue(fixture.find(".console-log-loading").is(':visible'));
-        output.trigger('consoleCompleted');
+      assertFalse(fixture.find(".console-log-loading").is(':visible'));
+    });
 
-        assertFalse(fixture.find(".console-log-loading").is(':visible'));
-      });
+    it("should remove loading bar when build has finished and there is no output", function() {
+      assertTrue(fixture.find(".console-log-loading").is(':visible'));
+      output.trigger('consoleCompleted');
 
-      it("should inline multiline executable task", function() {
-        var lines = [
-          "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \n",
-          "!!|12:33:01.817 theBestUse \n",
-          "!!|12:33:01.817 ofOurplugin\n",
-          "!!|12:33:01.817 '>testFile.txt\"\n"
-        ];
+      assertFalse(fixture.find(".console-log-loading").is(':visible'));
+    });
 
-        var expectedLines = [
-          "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \\ntheBestUse \\nofOurplugin\\n'>testFile.txt\""
-        ];
+    it("should inline multiline executable task", function() {
+      var lines = [
+        "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \n",
+        "!!|12:33:01.817 theBestUse \n",
+        "!!|12:33:01.817 ofOurplugin\n",
+        "!!|12:33:01.817 '>testFile.txt\"\n"
+      ];
 
-        transformer.transform(lines);
+      var expectedLines = [
+        "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \\ntheBestUse \\nofOurplugin\\n'>testFile.txt\""
+      ];
 
-        assertEquals(lines[0], expectedLines[0]);
-      })
+      transformer.transform(lines);
+
+      assertEquals(lines[0], expectedLines[0]);
+    });
   });
 
 })(jQuery);

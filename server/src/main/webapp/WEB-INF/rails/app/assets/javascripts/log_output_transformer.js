@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function ($, c) {
+(function ($, c) {
   "use strict";
 
   function LogOutputTransformer(consoleElement, Section, deferTransform) {
@@ -22,7 +22,7 @@
     var deferred = [];
 
     var PREFIXED_LOG_LINE = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/, // parses prefix, timestamp, and line content
-        LEGACY_LOG_LINE   = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps are not guaranteed on each line in the old format
+      LEGACY_LOG_LINE   = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps are not guaranteed on each line in the old format
 
     consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
       e.stopPropagation();
@@ -47,7 +47,7 @@
     });
 
     function injectFragment(fragment, parentElement) {
-      if (!!fragment.childNodes.length) {
+      if (fragment.childNodes.length) {
         window.requestAnimationFrame(function attachSubtree() {
           parentElement.appendChild(fragment);
         });

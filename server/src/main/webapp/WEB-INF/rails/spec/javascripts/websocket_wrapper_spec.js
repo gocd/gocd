@@ -35,8 +35,7 @@ describe("Websocket Wrapper", function () {
     wait.and.returnValue(oftenWrapper);
 
     MockedWebsocket = function () {
-      this.close = function () {
-      }
+      this.close = function () {};
     };
   });
 

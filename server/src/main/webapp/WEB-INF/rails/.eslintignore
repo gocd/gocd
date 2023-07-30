@@ -1,2 +1,3 @@
 **/*.ts
 **/*.tsx
+app/assets/javascripts/lib/*

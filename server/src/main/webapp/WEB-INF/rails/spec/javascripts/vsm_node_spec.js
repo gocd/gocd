@@ -42,7 +42,7 @@ describe("vsm_node", function () {
     });
 
     it("should deserialize a pipeline dependency node with no instances from JSON", function () {
-      var node = PipelineDependencyNode.fromJSON(no_run);
+      var node = PipelineDependencyNode.fromJSON(noRun);
 
       expect(node.id).toBe("post-release-github-activities");
       expect(node.name).toBe("post-release-github-activities");
@@ -84,43 +84,43 @@ describe("vsm_node", function () {
   });
 
   var nodeJSON = {
-        "can_edit": true,
-        "dependents": [
-          "plugins"
-        ],
-        "depth": 1,
-        "edit_path": "/go/admin/pipelines/build-linux/edit",
-        "id": "build-linux",
-        "instances": [
+    "can_edit": true,
+    "dependents": [
+      "plugins"
+    ],
+    "depth": 1,
+    "edit_path": "/go/admin/pipelines/build-linux/edit",
+    "id": "build-linux",
+    "instances": [
+      {
+        "counter": 2590,
+        "label": "2590",
+        "locator": "/go/pipelines/value_stream_map/build-linux/2590",
+        "stages": [
           {
-            "counter": 2590,
-            "label": "2590",
-            "locator": "/go/pipelines/value_stream_map/build-linux/2590",
-            "stages": [
-              {
-                "duration": 326,
-                "locator": "/go/pipelines/build-linux/2590/build-non-server/2",
-                "name": "build-non-server",
-                "status": "Passed"
-              },
-              {
-                "duration": 1239,
-                "locator": "/go/pipelines/build-linux/2590/build-server/1",
-                "name": "build-server",
-                "status": "Passed"
-              }
-            ]
+            "duration": 326,
+            "locator": "/go/pipelines/build-linux/2590/build-non-server/2",
+            "name": "build-non-server",
+            "status": "Passed"
+          },
+          {
+            "duration": 1239,
+            "locator": "/go/pipelines/build-linux/2590/build-server/1",
+            "name": "build-server",
+            "status": "Passed"
           }
-        ],
-        "locator": "/go/pipeline/activity/build-linux",
-        "name": "build-linux",
-        "node_type": "PIPELINE",
-        "parents": [
-          "21f6ea93b7"
         ]
-      };
+      }
+    ],
+    "locator": "/go/pipeline/activity/build-linux",
+    "name": "build-linux",
+    "node_type": "PIPELINE",
+    "parents": [
+      "21f6ea93b7"
+    ]
+  };
 
-  var no_run =                 {
+  var noRun =                 {
     "can_edit": true,
     "dependents": [],
     "depth": 3,
@@ -203,6 +203,6 @@ describe("vsm_node", function () {
     "parents": [
       "21f6ea93b72144560a90ad9398e67c5c9f0f7c6cdf03e022a7fc2445bd8a3f2b"
     ]
-  }
+  };
 
 });

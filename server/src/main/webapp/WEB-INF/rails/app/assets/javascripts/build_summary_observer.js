@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function ($) {
+(function ($) {
   "use strict";
 
   function BuildSummaryObserver(summaryElement) {
@@ -46,7 +46,7 @@
       var container = $(".build-status");
 
       clean_active_css_class_on_element(container[0]);
-      container.addClass(result.toLowerCase())
+      container.addClass(result.toLowerCase());
     },
     updateBuildSummary: function updateBuildSummary(json) {
 
@@ -57,7 +57,7 @@
         }
         var time = new Date(timestamp);
         return moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]');
-      };
+      }
 
       $(".job_details_content").attr("data-result", status).removeData("data-result");
       $('#build_scheduled_date').text(toHumanReadable(json.building_info.build_scheduled_date));

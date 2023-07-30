@@ -5,25 +5,9 @@
   "env": {
     "browser": true,
     "amd": true,
-    "es6": true
-  },
-  "globals": {
-    "it": true,
-    "describe": true,
-    "xdescribe": true,
-    "expect": true,
-    "beforeEach": true,
-    "afterEach": true,
-    "afterAll": true,
-    "beforeAll": true,
-    "xit": true,
-    "spyOn": true,
+    "es2018": true,
     "jasmine": true,
-    "angular": true,
-    "module": true
-  },
-  "parserOptions": {
-    "ecmaVersion": 6
+    "jquery": true
   },
   "rules": {
     "arrow-parens": [
@@ -52,6 +36,10 @@
     "quotes": [
       "off"
     ],
+    "indent-legacy": [
+      "error",
+      2
+    ],
     "semi": [
       "error",
       "always"
@@ -68,13 +56,7 @@
     "no-redeclare": [
       "off"
     ],
-    "no-fallthrough": [
-      "off"
-    ],
     "no-cond-assign": [
-      "off"
-    ],
-    "no-useless-escape": [
       "off"
     ]
   }

@@ -30,7 +30,7 @@ describe("Dashboard Pipeline Widget", () => {
   const pipelineName = 'up42';
 
   let dashboardViewModel, dashboard, pipelinesJson, dashboardJSON, pipeline, doCancelPolling,
-      doRefreshImmediately;
+    doRefreshImmediately;
   let pipelineInstances;
   const helper = new TestHelper();
 

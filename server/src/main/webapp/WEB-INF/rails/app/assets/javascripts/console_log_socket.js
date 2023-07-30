@@ -31,13 +31,13 @@
     function endpointUrl(startLine) {
       var l        = document.location;
       var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
-        "console-websocket",
-        details.data("pipeline"),
-        details.data("pipeline-counter"),
-        details.data("stage"),
-        details.data("stage-counter"),
-        details.data("build")
-      ].join("/");
+          "console-websocket",
+          details.data("pipeline"),
+          details.data("pipeline-counter"),
+          details.data("stage"),
+          details.data("stage-counter"),
+          details.data("build")
+        ].join("/");
 
       return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
     }

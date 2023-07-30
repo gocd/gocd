@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import m from "mithril";
 import $ from "jquery";
 import _ from "lodash";
-import { v4 as uuid4 } from 'uuid';
+import {v4 as uuid4} from 'uuid';
 import Stream from "mithril/stream";
 import {mixins as s} from "helpers/string-plus";
 import 'foundation-sites';
@@ -93,7 +92,7 @@ function wireUpModel(attrs, property = "value", listener = "onchange") {
     attrs[property]          = deleteKeyAndReturnValue(attrs, property, model[attrName]());
 
     const chainedCallback = deleteKeyAndReturnValue(attrs, "onModelUpdate"),
-          onUpdate        = deleteKeyAndReturnValue(attrs, listener, withAttr(property, model[attrName]));
+      onUpdate        = deleteKeyAndReturnValue(attrs, listener, withAttr(property, model[attrName]));
 
     attrs[listener] = ("function" === typeof chainedCallback) ? function chained(e) {
       onUpdate(e);
@@ -110,7 +109,7 @@ function validateModel(model, attrs) {
   }
 
   const performValidations = deleteKeyAndReturnValue(attrs, 'validate', false),
-        attrName           = attrs["attrName"] || attrs["data-prop-name"];
+    attrName           = attrs["attrName"] || attrs["data-prop-name"];
 
   let validationErrors;
 
@@ -148,8 +147,8 @@ export const f = {
       const children = vnode.children;
 
       const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
-            size      = deleteKeyAndReturnValue(args, 'size', 6),
-            largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
+        size      = deleteKeyAndReturnValue(args, 'size', 6),
+        largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
       return (
         <div class={compactClasses(args, 'columns', `medium-${size}`, `large-${largeSize}`, end)}
@@ -177,9 +176,9 @@ export const f = {
       const listen = deleteKeyAndReturnValue(args, "listen");
 
       const model            = wireUpModel(args, prop, listen),
-            validationErrors = validateModel(model, args),
-            label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-            contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
+        validationErrors = validateModel(model, args),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
 
       args["class"]    = compactClasses(args, validationErrors ? "is-invalid-input" : null);
       const labelAttrs = {};
@@ -207,8 +206,8 @@ export const f = {
       wireUpModel(args, prop, listen);
 
       const label        = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-            labelClass   = deleteKeyAndReturnValue(args, "labelClass", ""),
-            inputElement = <input type="checkbox" {...args} />;
+        labelClass   = deleteKeyAndReturnValue(args, "labelClass", ""),
+        inputElement = <input type="checkbox" {...args} />;
 
       return _.isEmpty(label) ? inputElement : <label class={labelClass}>
         {inputElement}
@@ -222,11 +221,11 @@ export const f = {
       const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
 
       const model            = wireUpModel(args), // alters args, should be called first
-            validationErrors = validateModel(model, args),
-            items            = coerceArray(unwrapStream(deleteKeyAndReturnValue(args, "items", []))),
-            label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-            contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
-            selected         = unwrapStream(args.value);
+        validationErrors = validateModel(model, args),
+        items            = coerceArray(unwrapStream(deleteKeyAndReturnValue(args, "items", []))),
+        label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
+        contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan),
+        selected         = unwrapStream(args.value);
 
       args["class"]    = compactClasses(args, validationErrors ? "is-invalid-input" : null);
       const labelAttrs = {};
@@ -370,10 +369,10 @@ export const f = {
       }
 
       const direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
-            size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
-            content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
-            clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
-            type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
+        size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+        content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+        clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
+        type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
 
       let tooltipId = 'tooltip-';
 

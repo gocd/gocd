@@ -1,24 +1,81 @@
 {
-  "plugins": [
-    "es5"
+  "extends": [
+    "eslint:recommended"
   ],
+  "env": {
+    "browser": true,
+    "amd": true,
+    "es6": true
+  },
+  "globals": {
+    "it": true,
+    "describe": true,
+    "xdescribe": true,
+    "expect": true,
+    "beforeEach": true,
+    "afterEach": true,
+    "afterAll": true,
+    "beforeAll": true,
+    "xit": true,
+    "spyOn": true,
+    "jasmine": true,
+    "angular": true,
+    "module": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
   "rules": {
-    "es5/no-arrow-functions": "error",
-    "es5/no-binary-and-octal-literals": "error",
-    "es5/no-block-scoping": "error",
-    "es5/no-classes": "error",
-    "es5/no-computed-properties": "error",
-    "es5/no-default-parameters": "error",
-    "es5/no-destructuring": "error",
-    "es5/no-exponentiation-operator": "error",
-    "es5/no-for-of": "error",
-    "es5/no-generators": "error",
-    "es5/no-modules": "error",
-    "es5/no-object-super": "error",
-    "es5/no-rest-parameters": "error",
-    "es5/no-shorthand-properties": "error",
-    "es5/no-spread": "error",
-    "es5/no-template-literals": "error",
-    "es5/no-unicode-code-point-escape": "error"
+    "arrow-parens": [
+      "error"
+    ],
+    "arrow-spacing": [
+      "error"
+    ],
+    "template-curly-spacing": [
+      "error",
+      "never"
+    ],
+    "no-const-assign": [
+      "error"
+    ],
+    "prefer-const": [
+      "error"
+    ],
+    "eol-last": [
+      "error"
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "quotes": [
+      "off"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "no-unused-vars": [
+      "off"
+    ],
+    "no-empty": [
+      "off"
+    ],
+    "no-undef": [
+      "off"
+    ],
+    "no-redeclare": [
+      "off"
+    ],
+    "no-fallthrough": [
+      "off"
+    ],
+    "no-cond-assign": [
+      "off"
+    ],
+    "no-useless-escape": [
+      "off"
+    ]
   }
 }

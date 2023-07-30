@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 Util = function() {
-    return {
-        escapeDotsFromId: function(theId) {
-            return '#' + theId.replace(/(:|\.)/g,'\\$1');
-        },
+  return {
+    escapeDotsFromId: function(theId) {
+      return '#' + theId.replace(/(:|\.)/g,'\\$1');
+    },
 
-        spinny: function(element) {
-            $(element).update('&nbsp;');
-            $(element).addClassName('spinny');
-        },
-    };
+    spinny: function(element) {
+      $(element).update('&nbsp;');
+      $(element).addClassName('spinny');
+    },
+  };
 }();

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
-    var orig_write_attribute = Element.writeAttribute;
-    var observer;
-    beforeEach(function () {
-        setFixtures("<div id=\"container\" class=\"build_detail\">\n" +
+  var orig_write_attribute = Element.writeAttribute;
+  var observer;
+  beforeEach(function () {
+    setFixtures("<div id=\"container\" class=\"build_detail\">\n" +
             "    <span class=\"page_panel\"><b class=\"rtop\"><b class=\"r1\"></b> <b class=\"r2\"></b> <b class=\"r3\"></b> <b class=\"r4\"></b></b></span>\n" +
             "\n" +
             "<div id=\"build_status\" class=\"build-status\"></div>\n" +
@@ -38,20 +38,20 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
             "\n" +
             "<div id=\"trans_content\"></div>");
 
-        Element.addMethods({writeAttribute: orig_write_attribute});
-        jQuery('.buildoutput_pre').html('');
+    Element.addMethods({writeAttribute: orig_write_attribute});
+    jQuery('.buildoutput_pre').html('');
 
-        observer = new BuildSummaryObserver(jQuery(".build_detail_summary"));
-        jQuery('#container').addClass("building_passed");
+    observer = new BuildSummaryObserver(jQuery(".build_detail_summary"));
+    jQuery('#container').addClass("building_passed");
 
-        jQuery('#trans_content').html('');
-        TransMessage.prototype.initialize = function() {};
-    });
+    jQuery('#trans_content').html('');
+    TransMessage.prototype.initialize = function() {};
+  });
 
-    it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
-        var status = jQuery(".build-status").addClass("building_passed");
-        var json = failed_json('project1')
-        observer.updateBuildResult(json);
-        assertTrue(status.hasClass("failed"));
-    });
+  it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
+    var status = jQuery(".build-status").addClass("building_passed");
+    var json = failed_json('project1');
+    observer.updateBuildResult(json);
+    assertTrue(status.hasClass("failed"));
+  });
 });

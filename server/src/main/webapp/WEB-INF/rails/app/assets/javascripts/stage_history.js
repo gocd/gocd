@@ -14,39 +14,40 @@
  * limitations under the License.
  */
 var StageHistory = function() {
-    function _bindHistoryLink(id, url, page_num) {
-        var elem = jQuery(id).get(0);
-        if (!elem) return;        
-        var element = $j(elem);
-        element.unbind();
-        element.click(function() {
-            changePage(url, page_num);
-        });
-    }
+  function _bindHistoryLink(id, url, page_num) {
+    var elem = jQuery(id).get(0);
+    if (!elem) return;        
+    var element = $j(elem);
+    element.unbind();
+    element.click(function() {
+      changePage(url, page_num);
+    });
+  }
 
-    function changePage(url, pageNum) {    
-        new Ajax.Updater($('stage_history'), url, {method: 'get', evalScripts: true});
-        setCurrentPage(pageNum);
-    }
+  function changePage(url, pageNum) {    
+    new Ajax.Updater($('stage_history'), url, {method: 'get', evalScripts: true});
+    setCurrentPage(pageNum);
+  }
 
-    function setCurrentPage(pageNum) {
-        $("stage-history-page").value = pageNum;
-    }
+  function setCurrentPage(pageNum) {
+    $("stage-history-page").value = pageNum;
+  }
 
-    function init() {
-    }
+  function init() {
+  }
 
 
-    init.prototype._changePage = changePage;
+  init.prototype._changePage = changePage;
 
-    init.prototype.bindHistoryLink = function(id, url, page_num) {
-        jQuery(function() {
-            _bindHistoryLink(id, url, page_num);
-            AjaxRefreshers.main().afterRefreshOf('stage_history', function() {
-                _bindHistoryLink(id, url, page_num);
-            });
-        });
-    };
+  init.prototype.bindHistoryLink = function(id, url, page_num) {
+    return new Promise((resolve) => jQuery(function() {
+      _bindHistoryLink(id, url, page_num);
+      AjaxRefreshers.main().afterRefreshOf('stage_history', function() {
+        _bindHistoryLink(id, url, page_num);
+      });
+      resolve();
+    }));
+  };
 
-    return new init();
+  return new init();
 }();

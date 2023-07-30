@@ -23,15 +23,15 @@
     }
 
     var globalBackToTopButton = $('#back_to_top'),
-        consoleTab            = $('#tab-content-of-console'),
-        $window               = $(window)
+      consoleTab            = $('#tab-content-of-console'),
+      $window               = $(window)
       ;
 
 
     // hide the global "back to top" link, because the one on the console log goes well with the console log
     function maybeHideGlobalBackToTopButton() {
       var hideGlobalBackToTopButton = false,
-          activeTab;
+        activeTab;
 
       if (consoleTab.is(':visible')) {
         hideGlobalBackToTopButton = true;
@@ -52,7 +52,7 @@
       if (!activeTab.data('enable-scroll-to-fixed')) {
         activeTab.data('enable-scroll-to-fixed', true);
         var topActionBar    = activeTab.find('.console-action-bar'),
-            bottomActionBar = activeTab.find('.console-footer-action-bar');
+          bottomActionBar = activeTab.find('.console-footer-action-bar');
 
         topActionBar.pinOnScroll({
           'z-index':      9,

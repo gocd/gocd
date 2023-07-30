@@ -71,19 +71,19 @@ FieldStateReplicator = function() {
   };
 
   init.prototype.unregister_all = function() {
-      for(var id in this.id_fields_map) {
-          var pears = this.id_fields_map[id];
-          for(var i = 0; i < pears.length; i++) {
-              Event.stopObserving(pears[i]);
-          }
-          this.id_fields_map[id] = [];
+    for(var id in this.id_fields_map) {
+      var pears = this.id_fields_map[id];
+      for(var i = 0; i < pears.length; i++) {
+        Event.stopObserving(pears[i]);
       }
+      this.id_fields_map[id] = [];
+    }
   };
 
   init.prototype.register_all_matching = function(under, css_selector, id_loader) {
     var self = this;
     under.select(css_selector).each(function (elem) {
-        self.register(elem, id_loader(elem));
+      self.register(elem, id_loader(elem));
     });
   };
 

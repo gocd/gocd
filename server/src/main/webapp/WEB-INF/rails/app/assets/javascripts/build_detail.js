@@ -14,41 +14,41 @@
  * limitations under the License.
  */
 var BuildDetail = {
-    getSubContainer: function(element) {
-        function lookup_element_with_class(elements, class_name) {
-            var element;
-            for (var i = 0; i < elements.length; i++) {
-                if (elements[i].hasClassName(class_name)) {
-                    element = elements[i];
-                    break;
-                }
-            }
-            return element;
+  getSubContainer: function(element) {
+    function lookup_element_with_class(elements, class_name) {
+      var element;
+      for (var i = 0; i < elements.length; i++) {
+        if (elements[i].hasClassName(class_name)) {
+          element = elements[i];
+          break;
         }
-        var dirContainer = lookup_element_with_class($(element).ancestors(), "dir-container");
-        return lookup_element_with_class($(dirContainer).nextSiblings(), "subdir-container");
-    },
-    expandAll: function() {
-        $$('.files .directory a').each(function(element) {
-            BuildDetail.tree_navigator(element)
-        })
-    },
-    collapseAll: function() {
-        $$('.files .opened_directory a').each(function(element) {
-            BuildDetail.tree_navigator(element)
-        })
-    },
-    tree_navigator: function (element) {
-        var subDirElement = BuildDetail.getSubContainer(element);
-        var spanElem = $(element).ancestors()[0];
-        if (subDirElement.visible()) {
-            spanElem.removeClassName("opened_directory");
-            spanElem.addClassName("directory");
-            subDirElement.hide();
-        } else {
-            spanElem.removeClassName("directory");
-            spanElem.addClassName("opened_directory");
-            subDirElement.show();
-        }
+      }
+      return element;
     }
+    var dirContainer = lookup_element_with_class($(element).ancestors(), "dir-container");
+    return lookup_element_with_class($(dirContainer).nextSiblings(), "subdir-container");
+  },
+  expandAll: function() {
+    $$('.files .directory a').each(function(element) {
+      BuildDetail.tree_navigator(element);
+    });
+  },
+  collapseAll: function() {
+    $$('.files .opened_directory a').each(function(element) {
+      BuildDetail.tree_navigator(element);
+    });
+  },
+  tree_navigator: function (element) {
+    var subDirElement = BuildDetail.getSubContainer(element);
+    var spanElem = $(element).ancestors()[0];
+    if (subDirElement.visible()) {
+      spanElem.removeClassName("opened_directory");
+      spanElem.addClassName("directory");
+      subDirElement.hide();
+    } else {
+      spanElem.removeClassName("directory");
+      spanElem.addClassName("opened_directory");
+      subDirElement.show();
+    }
+  }
 };

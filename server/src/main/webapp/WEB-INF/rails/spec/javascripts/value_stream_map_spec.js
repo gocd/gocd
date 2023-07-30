@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 describe("value_stream_map", function () {
-    beforeEach(function () {
-        setFixtures("<div id=\"vsm-container\">\n" +
+  beforeEach(function () {
+    setFixtures("<div id=\"vsm-container\">\n" +
             "</div>");
-    });
-    var called;
-    beforeEach(function () {
-        jQuery('#vsm-container').html("");
-        called = false;
-    });
+  });
+  var called;
+  beforeEach(function () {
+    jQuery('#vsm-container').html("");
+    called = false;
+  });
 
-    mockRenderer = function () {
-        mockRenderer.prototype.invoke = function (data) {
-            called = true;
-        }
-    }
+  mockRenderer = function () {
+    mockRenderer.prototype.invoke = function (data) {
+      called = true;
+    };
+  };
 
-    it("testShouldRenderGraphIfDataDoesNotHaveError", function () {
-        var node1 = '{"node_type":"MATERIAL","name":"../manual-testing/ant_hg/dummy","parents":[],"dependents":["p2"],"id":"hg_fingerprint"}';
-        var node2 = '{"node_type":"PIPELINE","name":"p2","parents":["hg_fingerprint"],"dependents":[],"id":"p2"}]}';
-        var vsm = eval('({"current_pipeline":"p2","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ']})');
-        new VSM(vsm, "#vsm-container", new mockRenderer()).render();
-        assertEquals(true, called);
-    });
+  it("testShouldRenderGraphIfDataDoesNotHaveError", function () {
+    var node1 = '{"node_type":"MATERIAL","name":"../manual-testing/ant_hg/dummy","parents":[],"dependents":["p2"],"id":"hg_fingerprint"}';
+    var node2 = '{"node_type":"PIPELINE","name":"p2","parents":["hg_fingerprint"],"dependents":[],"id":"p2"}]}';
+    var vsm = eval('({"current_pipeline":"p2","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ']})');
+    new VSM(vsm, "#vsm-container", new mockRenderer()).render();
+    assertEquals(true, called);
+  });
 
-    it("testShouldRenderErrorMessageIfVSMHasErrors", function () {
-        var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape("error message") + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
-        var vsm = eval('({"error":"error message"})');
-        new VSM(vsm, "#vsm-container", new mockRenderer()).render();
-        assertEquals(false, called);
-        assertEquals(unableToFind, jQuery("#vsm-container").html())
-    });
+  it("testShouldRenderErrorMessageIfVSMHasErrors", function () {
+    var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape("error message") + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
+    var vsm = eval('({"error":"error message"})');
+    new VSM(vsm, "#vsm-container", new mockRenderer()).render();
+    assertEquals(false, called);
+    assertEquals(unableToFind, jQuery("#vsm-container").html());
+  });
 });

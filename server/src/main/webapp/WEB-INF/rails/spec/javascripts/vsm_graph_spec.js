@@ -20,47 +20,47 @@ describe("vsm_graph", function () {
       var vsmGraph = VSMGraph.fromJSON(vsmGraphJSON());
 
       expect(vsmGraph.current_pipeline).toBe("P4");
-      expect(vsmGraph.levels.size()).toBe(4);
+      expect(vsmGraph.levels.length).toBe(4);
 
-      expect(vsmGraph.levels[0].nodes.size()).toBe(1);
+      expect(vsmGraph.levels[0].nodes.length).toBe(1);
       expect(vsmGraph.levels[0].nodes[0].id).toBe("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
-      expect(vsmGraph.levels[0].nodes[0].dependents.size()).toBe(3);
+      expect(vsmGraph.levels[0].nodes[0].dependents.length).toBe(3);
       expect(vsmGraph.levels[0].nodes[0].dependents).toContain("P1");
       expect(vsmGraph.levels[0].nodes[0].dependents).toContain("P2");
       expect(vsmGraph.levels[0].nodes[0].dependents).toContain("P4");
-      expect(vsmGraph.levels[0].nodes[0].parents.size()).toBe(0);
+      expect(vsmGraph.levels[0].nodes[0].parents.length).toBe(0);
 
-      expect(vsmGraph.levels[1].nodes.size()).toBe(2);
+      expect(vsmGraph.levels[1].nodes.length).toBe(2);
       expect(vsmGraph.levels[1].nodes[0].id).toBe("P1");
-      expect(vsmGraph.levels[1].nodes[0].parents.size()).toBe(1);
+      expect(vsmGraph.levels[1].nodes[0].parents.length).toBe(1);
       expect(vsmGraph.levels[1].nodes[0].parents).toContain("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
-      expect(vsmGraph.levels[1].nodes[0].dependents.size()).toBe(1);
+      expect(vsmGraph.levels[1].nodes[0].dependents.length).toBe(1);
       expect(vsmGraph.levels[1].nodes[0].dependents).toContain("P3");
       expect(vsmGraph.levels[1].nodes[1].id).toBe("P2");
-      expect(vsmGraph.levels[1].nodes[1].parents.size()).toBe(1);
+      expect(vsmGraph.levels[1].nodes[1].parents.length).toBe(1);
       expect(vsmGraph.levels[1].nodes[1].parents).toContain("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
-      expect(vsmGraph.levels[1].nodes[1].dependents.size()).toBe(1);
+      expect(vsmGraph.levels[1].nodes[1].dependents.length).toBe(1);
       expect(vsmGraph.levels[1].nodes[1].dependents).toContain("P3");
 
-      expect(vsmGraph.levels[2].nodes.size()).toBe(2);
+      expect(vsmGraph.levels[2].nodes.length).toBe(2);
       expect(vsmGraph.levels[2].nodes[0].id).toBe("P3");
-      expect(vsmGraph.levels[2].nodes[0].parents.size()).toBe(2);
+      expect(vsmGraph.levels[2].nodes[0].parents.length).toBe(2);
       expect(vsmGraph.levels[2].nodes[0].parents).toContain("P1");
       expect(vsmGraph.levels[2].nodes[0].parents).toContain("P2");
-      expect(vsmGraph.levels[2].nodes[0].dependents.size()).toBe(1);
+      expect(vsmGraph.levels[2].nodes[0].dependents.length).toBe(1);
       expect(vsmGraph.levels[2].nodes[0].dependents).toContain("P4");
       expect(vsmGraph.levels[2].nodes[1].id).toBe("9e02d1ae843b55f2cf77af4dbaba38e2dfaf8f86d4ca4c890a4ba9396bfc26c8");
-      expect(vsmGraph.levels[2].nodes[1].parents.size()).toBe(0);
-      expect(vsmGraph.levels[2].nodes[1].dependents.size()).toBe(1);
+      expect(vsmGraph.levels[2].nodes[1].parents.length).toBe(0);
+      expect(vsmGraph.levels[2].nodes[1].dependents.length).toBe(1);
       expect(vsmGraph.levels[2].nodes[1].dependents).toContain("P4");
 
-      expect(vsmGraph.levels[3].nodes.size()).toBe(1);
+      expect(vsmGraph.levels[3].nodes.length).toBe(1);
       expect(vsmGraph.levels[3].nodes[0].id).toBe("P4");
-      expect(vsmGraph.levels[3].nodes[0].parents.size()).toBe(3);
+      expect(vsmGraph.levels[3].nodes[0].parents.length).toBe(3);
       expect(vsmGraph.levels[3].nodes[0].parents).toContain("P3");
       expect(vsmGraph.levels[3].nodes[0].parents).toContain("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
       expect(vsmGraph.levels[3].nodes[0].parents).toContain("9e02d1ae843b55f2cf77af4dbaba38e2dfaf8f86d4ca4c890a4ba9396bfc26c8");
-      expect(vsmGraph.levels[3].nodes[0].dependents.size()).toBe(0);
+      expect(vsmGraph.levels[3].nodes[0].dependents.length).toBe(0);
     });
 
     it("should leave the original JSON intact", function () {
@@ -249,10 +249,10 @@ describe("vsm_graph", function () {
     new PrototypeOverrides().overrideJSONStringify();
     return JSON.parse(JSON.stringify({
       "current_pipeline"
-    :
+      :
       "P4",
-        "levels"
-    :
+      "levels"
+      :
       [
         {
           "nodes": [
@@ -473,6 +473,6 @@ describe("vsm_graph", function () {
         }
       ]
     }));
-  }
+  };
 
 });

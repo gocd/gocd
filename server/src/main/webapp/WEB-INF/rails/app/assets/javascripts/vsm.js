@@ -15,22 +15,22 @@
  */
 
 VSM = function(data, container, renderer, preloader){
-    var data = data;
-    var renderer = renderer;
-    var container = $j(container);
-    var preloader = $j(preloader)
+  var data = data;
+  var renderer = renderer;
+  var container = $j(container);
+  var preloader = $j(preloader);
 
-    VSM.prototype.render = function() {
-        if(data.error != null){
-            $j('.page_header').hide();
-            preloader.hide();
-            var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape(data.error) + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
-            $j('#vsm-container').css({margin:0, position:'inherit'});
-            container.html(unableToFind);
+  VSM.prototype.render = function() {
+    if(data.error != null){
+      $j('.page_header').hide();
+      preloader.hide();
+      var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape(data.error) + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
+      $j('#vsm-container').css({margin:0, position:'inherit'});
+      container.html(unableToFind);
 
-        }else{
-            renderer.invoke(data);
-            preloader.hide();
-        }
+    }else{
+      renderer.invoke(data);
+      preloader.hide();
     }
+  };
 };

@@ -70,7 +70,7 @@ describe("value_stream_map_renderer", function () {
           ]
         }
       ]
-    }
+    };
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container #sample .waiting').length, 1);
@@ -200,7 +200,7 @@ describe("value_stream_map_renderer", function () {
           ]
         }
       ]
-    }
+    };
     new Graph_Renderer("#vsm-container").invoke(vsm);
     var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
     var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
@@ -258,7 +258,7 @@ describe("value_stream_map_renderer", function () {
           ]
         }
       ]
-    }
+    };
     new Graph_Renderer("#vsm-container").invoke(vsm);
     var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
     var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
@@ -400,7 +400,7 @@ describe("value_stream_map_renderer", function () {
 
     this.getInfo = function () {
       return 'id: ' + this.id + ' left: ' + this.nodePosition.left + ' width: ' + this.nodePosition.width + ' top: ' + this.nodePosition.top + ' height: ' + this.nodePosition.height + ' level: ' + this.level + ' depth: ' + this.depth + ' type:' + this.type;
-    }
+    };
   };
 
   VsmGrid = function (container) {

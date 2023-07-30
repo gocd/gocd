@@ -69,7 +69,7 @@
           pingDetectionTimeoutTimer.done();
         }
         if (!everConnectedUsingWebsocket) {
-          self.emit('initialConnectFailed', e)
+          self.emit('initialConnectFailed', e);
         } else {
           self.emit('error', e);
         }
@@ -111,7 +111,7 @@
     var isPingFrame = function (data) {
       if (_.isString(data)) {
         try {
-          return JSON.parse(data)['type'] === 'ping'
+          return JSON.parse(data)['type'] === 'ping';
         } catch (e) {
           // ignore, maybe it's not json
         }

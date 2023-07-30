@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 describe("util", function () {
-    beforeEach(function () {
-        setFixtures("<div class='under_test'>\n" +
+  beforeEach(function () {
+    setFixtures("<div class='under_test'>\n" +
           "    <div id=\"elem_id\">\n" +
           "        <a href=\"turner\">Turner's legacy</a>\n" +
           "    </div>\n" +
           "</div>");
-    });
+  });
 
-    it("test_should_replace_element_with_spinny_image", function () {
-      Util.spinny($('elem_id'));
-      assertEquals($('elem_id').innerHTML, "&nbsp;");
-      assertTrue($('elem_id').hasClassName('spinny'));
-    });
+  it("test_should_replace_element_with_spinny_image", function () {
+    Util.spinny($('elem_id'));
+    assertEquals($('elem_id').innerHTML, "&nbsp;");
+    assertTrue($('elem_id').hasClassName('spinny'));
+  });
 
-    it("test_escapeDotsFromId", function () {
-        assertEquals("#2\\.1\\.1\\.2", Util.escapeDotsFromId("2.1.1.2"));
-    });
+  it("test_escapeDotsFromId", function () {
+    assertEquals("#2\\.1\\.1\\.2", Util.escapeDotsFromId("2.1.1.2"));
+  });
 });

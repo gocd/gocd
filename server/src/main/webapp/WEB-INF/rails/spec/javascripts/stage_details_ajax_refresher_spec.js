@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 describe("stage_details_ajax_refresher", function () {
-    beforeEach(function () {
-        setFixtures("<div class='under_test'>\n" +
+  beforeEach(function () {
+    setFixtures("<div class='under_test'>\n" +
             "    <div id=\"jobs_failed\">im failed jobs list</div>\n" +
             "    <input id=\"stage-history-page\" name=\"stage-history-page\">\n" +
             "</div>\n" +
@@ -27,92 +27,92 @@ describe("stage_details_ajax_refresher", function () {
             "        </table>\n" +
             "    </div>\n" +
             "</div>");
-    });
+  });
 
-    var actual_periodical_updater = Ajax.PeriodicalUpdater;
-    var actual_ajax_request = jQuery.ajax;
-    var after_called = false;
-    var options;
-
-
-    beforeEach(function () {
-        after_called = false;
-        jQuery.ajax = function (opts) {
-            options = opts;
-        };
-        jobs_markup_before = jQuery('#jobs_grid_parent').html();
-    });
-
-    afterEach(function () {
-        jQuery.ajax = actual_ajax_request;
-        Ajax.PeriodicalUpdater = actual_periodical_updater;
-        jQuery('#jobs_grid_parent').html(jobs_markup_before);
-    });
-
-    it("test_updates_dom_elements", function () {
-        var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {}, {time: 0});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
-        options.success({jobs_failed: {html: "new_jobs_failed"}});
-        assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
-    });
+  var actual_periodical_updater = Ajax.PeriodicalUpdater;
+  var actual_ajax_request = jQuery.ajax;
+  var after_called = false;
+  var options;
 
 
-    it("test_invokes_callback_for_a_specified_id", function () {
-        var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {jobs_failed: function () {
-            after_called = true;
-        }}, {time: 0});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
+  beforeEach(function () {
+    after_called = false;
+    jQuery.ajax = function (opts) {
+      options = opts;
+    };
+    jobs_markup_before = jQuery('#jobs_grid_parent').html();
+  });
 
-        options.success({jobs_failed: {html: "new_jobs_failed"}});
-        assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
-        assertEquals(after_called, true);
-    });
+  afterEach(function () {
+    jQuery.ajax = actual_ajax_request;
+    Ajax.PeriodicalUpdater = actual_periodical_updater;
+    jQuery('#jobs_grid_parent').html(jobs_markup_before);
+  });
 
-    it("test_invokes_callback_AFTER_REPLACEMENT", function () {
-        var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {jobs_failed: function () {
-            assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
-        }}, {time: 0});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
-
-        options.success({jobs_failed: {html: "new_jobs_failed"}});
-    });
-
-    it("test_refresh_should_honor_page_number", function () {
-        $("stage-history-page").value = "3";
-        var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {jobs_failed: function () {
-            assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
-        }}, {time: 0});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
-
-        assertEquals("3", options.data["stage-history-page"]);
-    });
+  it("test_updates_dom_elements", function () {
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {}, {time: 0});
+    refresher.stopRefresh();
+    refresher.restartRefresh();
+    options.success({jobs_failed: {html: "new_jobs_failed"}});
+    assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
+  });
 
 
-    it("test_update_page_keeps_the_current_selections", function () {
-        var table = jQuery('#jobs_grid').html();
-        var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {}, {time: 0});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
+  it("test_invokes_callback_for_a_specified_id", function () {
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {jobs_failed: function () {
+      after_called = true;
+    }}, {time: 0});
+    refresher.stopRefresh();
+    refresher.restartRefresh();
 
-        var chkbox = jQuery("#foo_checkbox").get(0);
-        chkbox.checked = true;
-        fire_event(chkbox, 'change');
-        options.success({jobs_grid: {html: table}});
-        chkbox = jQuery("#foo_checkbox").get(0);
-        assertTrue(chkbox.checked);
-    });
+    options.success({jobs_failed: {html: "new_jobs_failed"}});
+    assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
+    assertEquals(after_called, true);
+  });
 
-    it("test_updator_does_not_fail_when_jobs_table_is_not_present", function () {
-        jQuery('#jobs_grid_parent').html('quux');
-        var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {}, {time: 0});
-        refresher.stopRefresh();
-        refresher.restartRefresh();
+  it("test_invokes_callback_AFTER_REPLACEMENT", function () {
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {jobs_failed: function () {
+      assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
+    }}, {time: 0});
+    refresher.stopRefresh();
+    refresher.restartRefresh();
 
-        options.success({jobs_failed: {html: "foo"}});
-        assertEquals("foo", jQuery('#jobs_failed').html());
-    });
+    options.success({jobs_failed: {html: "new_jobs_failed"}});
+  });
+
+  it("test_refresh_should_honor_page_number", function () {
+    $("stage-history-page").value = "3";
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {jobs_failed: function () {
+      assertEquals("new_jobs_failed", $('jobs_failed').innerHTML);
+    }}, {time: 0});
+    refresher.stopRefresh();
+    refresher.restartRefresh();
+
+    assertEquals("3", options.data["stage-history-page"]);
+  });
+
+
+  it("test_update_page_keeps_the_current_selections", function () {
+    var table = jQuery('#jobs_grid').html();
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {}, {time: 0});
+    refresher.stopRefresh();
+    refresher.restartRefresh();
+
+    var chkbox = jQuery("#foo_checkbox").get(0);
+    chkbox.checked = true;
+    fire_event(chkbox, 'change');
+    options.success({jobs_grid: {html: table}});
+    chkbox = jQuery("#foo_checkbox").get(0);
+    assertTrue(chkbox.checked);
+  });
+
+  it("test_updator_does_not_fail_when_jobs_table_is_not_present", function () {
+    jQuery('#jobs_grid_parent').html('quux');
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", "foo", {}, {time: 0});
+    refresher.stopRefresh();
+    refresher.restartRefresh();
+
+    options.success({jobs_failed: {html: "foo"}});
+    assertEquals("foo", jQuery('#jobs_failed').html());
+  });
 });

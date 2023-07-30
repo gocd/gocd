@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function ($, c, _) {
+(function ($, c, _) {
   "use strict";
 
   var Types = {
@@ -30,9 +30,9 @@
   function LineWriter() {
 
     var cmd_re = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/,
-        status_re = /^(\s*\[go] (?:Current job|Task) status: )(?:(\w+)(?: \((\d+) ms\))?(?: \(exit code: (\d+)\))?.*)$/,
-        ansi = new AnsiUp(),
-        formatter = new AnsiFormatter();
+      status_re = /^(\s*\[go] (?:Current job|Task) status: )(?:(\w+)(?: \((\d+) ms\))?(?: \(exit code: (\d+)\))?.*)$/,
+      ansi = new AnsiUp(),
+      formatter = new AnsiFormatter();
 
     function isTaskLine(prefix) {
       return [Types.TASK_START, Types.CANCEL_TASK_START].indexOf(prefix) > -1;

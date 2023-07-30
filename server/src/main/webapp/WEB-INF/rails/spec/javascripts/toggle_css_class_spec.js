@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 describe("toggle_css_class", function () {
-    beforeEach(function () {
-        setFixtures("<div class='under_test'>\n" +
+  beforeEach(function () {
+    setFixtures("<div class='under_test'>\n" +
             "    <div id=\"parent_div\">\n" +
             "        <div>\n" +
             "            <a id=\"clickable\">CLickable</a>\n" +
@@ -27,33 +27,33 @@ describe("toggle_css_class", function () {
             "        <div class=\"hidereveal_content\">contents here</div>\n" +
             "    </div>\n" +
             "</div>");
-    });
-    var clickable;
-    var container;
-    var originalmarkup;
-    beforeEach(function () {
-        originalmarkup = $$(".under_test")[0].innerHTML;
-        container = $("pare.nt.div1");
-        make_collapsable("pare.nt.div1");
-        clickable = $$(".hidereveal_expander")[0]
-    });
+  });
+  var clickable;
+  var container;
+  var originalmarkup;
+  beforeEach(function () {
+    originalmarkup = $$(".under_test")[0].innerHTML;
+    container = $("pare.nt.div1");
+    make_collapsable("pare.nt.div1");
+    clickable = $$(".hidereveal_expander")[0];
+  });
 
-    afterEach(function () {
-        $$(".under_test")[0].innerHTML = originalmarkup;
-    });
+  afterEach(function () {
+    $$(".under_test")[0].innerHTML = originalmarkup;
+  });
 
-    it("test_make_collapsible", function () {
-        assertTrue("should not be expanded", container.hasClassName('hidereveal_collapsed'));
-        fire_event($$(".hidereveal_expander")[0], 'click');
-        assertFalse("should be expanded", container.hasClassName('hidereveal_collapsed'));
-    });
+  it("test_make_collapsible", function () {
+    assertTrue("should not be expanded", container.hasClassName('hidereveal_collapsed'));
+    fire_event($$(".hidereveal_expander")[0], 'click');
+    assertFalse("should be expanded", container.hasClassName('hidereveal_collapsed'));
+  });
 
-    it("test_prevents_click_from_bubbling", function () {
-        var click_bubbled = false;
-        Event.observe($('pare.nt.div1'), 'click', function () {
-            click_bubbled = true;
-        });
-        fire_event($$(".hidereveal_expander")[0], 'click');
-        assertFalse("parent must not hear click as it can lead to text selection if done fast", click_bubbled);
+  it("test_prevents_click_from_bubbling", function () {
+    var click_bubbled = false;
+    Event.observe($('pare.nt.div1'), 'click', function () {
+      click_bubbled = true;
     });
+    fire_event($$(".hidereveal_expander")[0], 'click');
+    assertFalse("parent must not hear click as it can lead to text selection if done fast", click_bubbled);
+  });
 });

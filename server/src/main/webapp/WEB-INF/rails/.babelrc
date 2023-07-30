@@ -13,8 +13,11 @@
             "last 3 major versions",
             "Firefox ESR",
             "not dead",
-            "not Kaios > 0",
-            "not OperaMobile > 0"
+            "not op_mini all",
+            "not op_mob > 0",
+            "not KaiOS > 0",
+            "not and_uc > 0",
+            "not and_qq > 0"
             // see http://browserl.ist/?q=defaults and https://github.com/ai/browserslist#queries
           ]
         }

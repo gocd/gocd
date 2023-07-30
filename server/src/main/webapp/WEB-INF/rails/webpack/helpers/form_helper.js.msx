@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// noinspection ES6UnusedImports
 import m from "mithril";
 import $ from "jquery";
 import _ from "lodash";

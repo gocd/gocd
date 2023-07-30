@@ -65,7 +65,7 @@ module ApplicationHelper
     org.joda.time.format.PeriodFormat.getDefault().print(duration.toPeriod())
   end
 
-  def load_flash_message key
+  def load_flash_message(key)
     flash_message_service.get(key.to_s) || session.delete(key) || (default_key?(key) ? load_from_flash : nil)
   end
 
@@ -79,7 +79,7 @@ module ApplicationHelper
     nil
   end
 
-  def default_key? key
+  def default_key?(key)
     key == :notice
   end
 
@@ -87,23 +87,23 @@ module ApplicationHelper
     prefix + java.util.UUID.randomUUID().to_s
   end
 
-  def submit_button name, options = {}
+  def submit_button(name, options = {})
     options = HashWithIndifferentAccess.new(options)
     options.reverse_merge!(type: 'submit')
     options[:value] ||= name
     content_tag(:button, button_content(name), button_options(options), false)
   end
 
-  def add_class css_class_string, *new_classes
+  def add_class(css_class_string, *new_classes)
     (Array(css_class_string) + new_classes).join(" ")
   end
 
-  def button_content name, *other_content
+  def button_content(name, *other_content)
     value = other_content.empty? ? name.upcase : name.upcase + other_content.first.to_s
     content_tag(:span, value, nil, false)
   end
 
-  def button_options options
+  def button_options(options)
     options[:class] = add_class(options[:class], ['submit', options[:type], options[:disabled] ? 'disabled' : nil].compact.uniq)
     options[:disabled] && (options[:disabled] = 'disabled')
     options
@@ -205,11 +205,11 @@ module ApplicationHelper
     function
   end
 
-  def content_wrapper_tag()
+  def content_wrapper_tag
     "<div class=\"content_wrapper_outer\"><div class=\"content_wrapper_inner\">".html_safe
   end
 
-  def end_content_wrapper()
+  def end_content_wrapper
     "</div></div>".html_safe
   end
 
@@ -301,7 +301,7 @@ module ApplicationHelper
     "/go/api/stages/#{active_stage.getPipelineName}/#{active_stage.getPipelineCounter}/#{active_stage.getName}/#{active_stage.getCounter}/cancel"
   end
 
-  def agent_detail_path(uuid)
-    "/go/agents/#{uuid}"
+  def agent_detail_path(options)
+    "/go/agents/#{options[:uuid]}"
   end
 end

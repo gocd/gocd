@@ -31,7 +31,7 @@
     "classnames": "^2.3.2",
     "core-js": "^3.32.0",
     "filesize": "^10.0.8",
-    "foundation-sites": "=6.4.3",
+    "foundation-sites": "^6.7.5",
     "hack-font": "^3.3.0",
     "jquery": "^3.7.0",
     "lodash": "^4.17.21",
@@ -47,7 +47,8 @@
     "shellwords-ts": "^3.0.1",
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "what-input": "^5.2.12"
   },
   "devDependencies": {
     "@babel/core": "^7",

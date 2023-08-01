@@ -399,7 +399,7 @@ subprojects {
           details.allVariants {
             withDependencies {
               removeAll {
-                it.group in [ "com.google.code.findbugs", "org.checkerframework", "com.google.errorprone" ]
+                it.name in [ "jsr305", "checker-qual", "error_prone_annotations", "listenablefuture" ]
               }
             }
           }

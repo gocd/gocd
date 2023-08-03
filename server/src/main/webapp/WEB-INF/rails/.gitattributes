@@ -1,0 +1,2 @@
+.yarn/releases/** linguist-vendored
+.yarn/plugins/** linguist-vendored

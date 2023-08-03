@@ -129,12 +129,5 @@
     "webpack-build-notifier": "^2.2.1",
     "webpack-cli": "^4.10.0"
   },
-  "resolutions": {
-    "**/chokidar/**/glob-parent": ">=6.0.2",
-    "html-webpack-plugin/**/ansi-regex": "^5.0.1",
-    "**/loader-utils": "^2.0.3",
-    "**/semver": "^7.5.4",
-    "**/string-width": "^4.2.3",
-    "**/wrap-ansi": "^7.0.0"
-  }
+  "packageManager": "yarn@3.6.1"
 }

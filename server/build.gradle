@@ -636,8 +636,19 @@ task configureWar {
   doFirst {
     war.from(project.webAppDir) { theSpec ->
       into '/'
+
+      // Unnecessary dev-time configuration
       exclude('WEB-INF/web.xml')
       exclude("**/rails/.tool-versions")
+      exclude("**/rails/.babel*")
+      exclude("**/rails/.eslint*")
+      exclude("**/rails/.stylelint*")
+      exclude("**/rails/.yarnrc.yml")
+      exclude("**/rails/package.json")
+      exclude("**/rails/yarn.lock")
+      exclude("**/rails/karma.conf.js")
+      exclude("**/rails/Rakefile")
+      exclude("**/rails/*.json")
 
       // Unrelated Rails/Ruby stuff
       exclude("**/rails/*.log")
@@ -648,6 +659,7 @@ task configureWar {
       exclude("**/rails/yarn-license-report/")
 
       // Vendored pieces that are compiled and incorporated into `public` as necessary by Rails/Sprockets or Webpack
+      exclude("**/rails/.yarn/")
       exclude("**/rails/node_modules/")
       exclude("**/rails/node-vendor/")
       exclude("**/rails/vendor/")

@@ -60,7 +60,7 @@ class YarnInstallTask extends DefaultTask {
       execTask.errorOutput = System.err
       execTask.workingDir = this.getWorkingDir()
 
-      execTask.commandLine = OperatingSystem.current().isWindows() ? ["yarn.cmd" : "install"] : ["yarn", "install", "--immutable"]
+      execTask.commandLine = OperatingSystem.current().isWindows() ? ["yarn.cmd", "install"] : ["yarn", "install", "--immutable"]
     }
   }
 }

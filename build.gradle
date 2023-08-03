@@ -125,7 +125,6 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(separator)
   println("node: ${getVersion("node", "--version")}")
   println(" npm: ${getVersion((isWindows ? "npm.cmd" : 'npm'), "--version")}")
-  println("yarn: ${getVersion((isWindows ? "yarn.cmd" : 'yarn'), "--version")}")
   println(" git: ${getVersion("git", "--version")}")
   println("  hg: ${getVersion("hg", "--quiet", "--version")}")
   println(" svn: ${getVersion("svn", "--quiet", "--version")}")

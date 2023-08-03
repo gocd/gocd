@@ -12,3 +12,12 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# Yarn 2 stuff
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

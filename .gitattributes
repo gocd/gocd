@@ -1,0 +1,25 @@
+*               text eol=lf
+
+# The above will normalize all line endings to LF (except for the below rules)
+#
+# See https://help.github.com/articles/dealing-with-line-endings/ and https://github.com/Danimoth/gitattributes
+
+# Explicitly Windows text files
+*.bat           text eol=crlf
+
+# Archives and binaries
+*.dll           binary
+*.jar           binary
+*.zip           binary
+*.gz            binary
+*.tgz           binary
+*.tar           binary
+
+# Fonts
+*.woff          binary
+*.woff2         binary
+
+# Images
+*.png           binary
+*.jpg           binary
+*.gif           binary

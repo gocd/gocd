@@ -1,2 +1,3 @@
-git/** linguist-vendored
-*repo*/** linguist-vendored
+# SCM repositories in various formats for testing (git, SVN, Perforce)
+git/**          binary linguist-vendored
+*repo*/**       binary linguist-vendored

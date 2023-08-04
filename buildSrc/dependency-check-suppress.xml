@@ -192,6 +192,15 @@
 
   <suppress>
     <notes><![CDATA[
+    GoCD is not affected by the issue claimed at https://github.com/quartz-scheduler/quartz/issues/943 and https://nvd.nist.gov/vuln/detail/CVE-2023-39017
+    because there is no way to affect contents of JobDataMaps, and GoCD does not use JMS in this way either.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
+    <cve>CVE-2023-39017</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

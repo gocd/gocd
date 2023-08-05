@@ -17,7 +17,6 @@
 import fs from "fs";
 import _ from "lodash";
 import path from "path";
-import webpack from "webpack";
 
 export interface ConfigOptions {
   production: boolean;
@@ -38,16 +37,12 @@ export function getModules(configOptions: ConfigOptions) {
   return modules;
 }
 
-export function getEntries(configOptions: ConfigOptions): webpack.Entry {
-  const entries = _.reduce(fs.readdirSync(configOptions.singlePageAppModuleDir), (memo, file) => {
-    const fileName   = path.basename(file);
+export function getEntries(configOptions: ConfigOptions): [string: string] {
+  return _.reduce(fs.readdirSync(configOptions.singlePageAppModuleDir), (memo, file) => {
+    const fileName = path.basename(file);
     const moduleName = `single_page_apps/${_.split(fileName, ".")[0]}`;
+    // @ts-ignore
     memo[moduleName] = path.join(configOptions.singlePageAppModuleDir, file);
     return memo;
-  }, {} as webpack.Entry);
-
-  if (!configOptions.production) {
-    entries.specRoot = path.join(configOptions.railsRoot, "spec", "webpack", "specRoot.js");
-  }
-  return entries;
+  }, {} as [string: string]);
 }

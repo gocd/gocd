@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Buffer} from "buffer";
 import {CleanWebpackPlugin} from "clean-webpack-plugin";
 import ESLintPlugin from "eslint-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
@@ -29,10 +30,9 @@ import {LicensePlugins} from "./webpack-license-plugin";
 const jasmineCore                = require("jasmine-core");
 const StatsPlugin                = require("stats-webpack-plugin");
 const StylelintPlugin            = require("stylelint-webpack-plugin");
-const UnusedWebpackPlugin        = require("unused-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 
-export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
+export function plugins(configOptions: ConfigOptions): any[] {
   const plugins = [
     new ESLintPlugin({
       extensions: ["js", "msx"],
@@ -41,26 +41,13 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
       threads: true
     }),
     new CleanWebpackPlugin(),
-    new UnusedWebpackPlugin({
-                              directories: [
-                                path.join(configOptions.railsRoot, "webpack"),
-                                path.join(configOptions.railsRoot, "spec", "webpack")
-                              ],
-                              exclude: ["config/**/*.*", "*.d.ts", 'tsconfig.json'],
-                            }) as webpack.Plugin,
-    new StylelintPlugin({configFile: path.join(configOptions.railsRoot, ".stylelintrc.yml"), files: configOptions.assetsDir, failOnWarning: true}) as webpack.Plugin,
-    new StatsPlugin("manifest.json", {
-      chunkModules: false,
-      source: false,
-      chunks: false,
-      modules: false,
-      assets: true
-    }) as webpack.Plugin,
+    new StylelintPlugin({configFile: path.join(configOptions.railsRoot, ".stylelintrc.yml"), files: configOptions.assetsDir, failOnWarning: true}),
+    new StatsPlugin("manifest.json", { chunkModules: false, source: false, chunks: false, modules: false, assets: true}),
     new webpack.ProvidePlugin({
                                 "$": "jquery",
                                 "jQuery": "jquery",
                                 "window.jQuery": "jquery"
-                              }) as webpack.Plugin,
+                              }),
     new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
       typescript: { memoryLimit: 512, diagnosticOptions: { semantic: true, syntactic: true } }
@@ -72,12 +59,11 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                                             filename: "[name]-[contenthash].css",
                                             chunkFilename: "[id]-[contenthash].css",
                                             ignoreOrder: true
-                                          }) as unknown as webpack.Plugin);
+                                          }));
   } else {
     const jasmineFiles = jasmineCore.files;
 
     const entries = getEntries(configOptions);
-    delete entries.specRoot;
 
     const jasmineIndexPage = {
       // rebuild every time; without this, `_specRunner.html` disappears in webpack-watch
@@ -101,7 +87,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
     class JasmineAssetsPlugin {
       apply(compiler: webpack.Compiler) {
         compiler.hooks.emit.tapAsync("JasmineAssetsPlugin",
-                                     (compilation: webpack.compilation.Compilation, callback: () => any) => {
+                                     (compilation: webpack.Compilation, callback: () => any) => {
                                        const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles)
                                                                             .concat(jasmineFiles.cssFiles);
 
@@ -116,6 +102,18 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                                            },
                                            size() {
                                              return contents.length;
+                                           },
+                                           map() {
+                                             return null;
+                                           },
+                                           sourceAndMap() {
+                                             return {source: contents, map: contents};
+                                           },
+                                           updateHash() {
+                                             // no-op
+                                           },
+                                           buffer() {
+                                             return Buffer.from(contents, "utf8");
                                            }
                                          };
                                        });

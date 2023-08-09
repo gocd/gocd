@@ -58,8 +58,7 @@ public class SparkPreFilter extends SparkFilter {
             render404((HttpServletResponse) resp);
             return;
         }
-        String url = request.getRequestURI().replaceAll("^/go/spark/", "/go/");
-        servletHelper.getRequest(request).setRequestURI(url);
+        servletHelper.getRequest(request).modifyPath(path -> path.replaceAll("^/go/spark/", "/go/"));
         super.doFilter(req, resp, chain);
     }
 

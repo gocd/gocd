@@ -16,9 +16,15 @@
 package com.thoughtworks.go.rackhack;
 
 import com.thoughtworks.go.server.util.ServletHelper;
+import com.thoughtworks.go.server.util.ServletRequest;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
@@ -27,24 +33,30 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.function.Function;
 
-import static org.hamcrest.Matchers.isA;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class DelegatingServletTest {
-    private com.thoughtworks.go.server.util.ServletRequest servletRequestWrapper;
+
+    @Mock
+    private ServletRequest servletRequestWrapper;
+
+    @Mock
     private HttpServletRequest httpServletRequest;
 
+    @Mock
+    private ServletHelper servletHelper;
+
+    @Captor
+    private ArgumentCaptor<Function<String, String>> pathModifierCaptor;
+
     @BeforeEach
-    public void setUp() throws Exception {
-        ServletHelper servletHelper = mock(ServletHelper.class);
+    public void setUp() {
         ReflectionUtil.setStaticField(ServletHelper.class, "instance", servletHelper);
-        servletRequestWrapper = mock(com.thoughtworks.go.server.util.ServletRequest.class);
-        httpServletRequest = mock(HttpServletRequest.class);
-        when(httpServletRequest.getRequestURI()).thenReturn("/go/rails/stuff/action");
         when(servletHelper.getRequest(httpServletRequest)).thenReturn(servletRequestWrapper);
     }
 
@@ -55,11 +67,16 @@ public class DelegatingServletTest {
         ServletContextEvent evt = new ServletContextEvent(ctx);
         DelegatingListener listener = new DelegatingListener();
         listener.contextInitialized(evt);
-        assertThat((DummyServlet) ctx.getAttribute(DelegatingListener.DELEGATE_SERVLET), isA(DummyServlet.class));
+        assertThat(ctx.getAttribute(DelegatingListener.DELEGATE_SERVLET)).isInstanceOf(DummyServlet.class);
         DelegatingServlet servlet = new DelegatingServlet();
         servlet.init(new MockServletConfig(ctx));
 
         servlet.service(httpServletRequest, new MockHttpServletResponse());
-        verify(servletRequestWrapper).setRequestURI("/go/stuff/action");
+        verify(servletRequestWrapper).modifyPath(pathModifierCaptor.capture());
+
+        Function<String, String> pathModifier = pathModifierCaptor.getValue();
+        assertThat(pathModifier.apply("/go/rails/")).isEqualTo("/go/");
+        assertThat(pathModifier.apply("/go/rails")).isEqualTo("/go/rails");
+        assertThat(pathModifier.apply("rails")).isEqualTo("rails");
     }
 }

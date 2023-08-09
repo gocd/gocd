@@ -18,21 +18,21 @@ package com.thoughtworks.go.server.websocket;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
-import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
+import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
+import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
+import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
 
 @Component
-public class ConsoleLogSocketCreator implements WebSocketCreator {
+public class ConsoleLogSocketCreator implements JettyWebSocketCreator {
 
     private final ConsoleLogSender handler;
     private final RestfulService restfulService;
     private final Charset consoleLogCharset;
-    private SocketHealthService socketHealthService;
+    private final SocketHealthService socketHealthService;
 
     @Autowired
     public ConsoleLogSocketCreator(ConsoleLogSender handler, RestfulService restfulService, SocketHealthService socketHealthService, SystemEnvironment systemEnvironment) {
@@ -43,7 +43,7 @@ public class ConsoleLogSocketCreator implements WebSocketCreator {
     }
 
     @Override
-    public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
+    public Object createWebSocket(JettyServerUpgradeRequest req, JettyServerUpgradeResponse resp) {
         return new ConsoleLogSocket(handler, getJobIdentifier(req.getRequestPath()), socketHealthService, consoleLogCharset);
     }
 

@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_3.dtd">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_10_0.dtd">
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
 
@@ -25,19 +25,19 @@
 
          See com.thoughtworks.go.server.JettyServer#JETTY_CONFIG_VERSION
     -->
-    <!-- jetty-config-gocd-v9 -->
+    <!-- jetty-config-gocd-v10 -->
 
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
 
     <Get name="ThreadPool">
-      <Set name="minThreads">20</Set>
-      <Set name="maxThreads">300</Set>
+        <Set name="minThreads">20</Set>
+        <Set name="maxThreads">300</Set>
     </Get>
     <Call name="setAttribute">
-      <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
-      <Arg>30000000</Arg>
+        <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+        <Arg>30000000</Arg>
     </Call>
 
     <Call name="addBean">
@@ -45,11 +45,12 @@
             <New class="org.eclipse.jetty.server.LowResourceMonitor">
                 <Arg><Ref refid="Server"/></Arg>
                 <Set name="period"><Property name="jetty.lowresources.period" default="1000"/></Set>
+
                 <Set name="lowResourcesIdleTimeout"><Property name="jetty.lowresources.idleTimeout" default="500"/></Set>
-                <Set name="monitorThreads"><Property name="jetty.lowresources.monitorThreads"  default="true"/></Set>
-                <Set name="maxConnections"><Property name="jetty.lowresources.maxConnections"  default="0"/></Set>
-                <Set name="maxMemory"><Property name="jetty.lowresources.maxMemory"  default="0"/></Set>
                 <Set name="maxLowResourcesTime"><Property name="jetty.lowresources.maxLowResourcesTime" default="5000"/></Set>
+
+                <Set name="monitorThreads"><Property name="jetty.lowresources.monitorThreads"  default="true"/></Set>
+                <Set name="maxMemory"><Property name="jetty.lowresources.maxMemory"  default="0"/></Set>
             </New>
         </Arg>
     </Call>
@@ -63,7 +64,10 @@
             <Arg>
                 <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
                     <Set name="requestLog">
-                        <New class="com.thoughtworks.go.server.logging.Slf4jRequestLogger">
+                        <New class="org.eclipse.jetty.server.CustomRequestLog">
+                            <Arg><New class="org.eclipse.jetty.server.Slf4jRequestLogWriter"/></Arg>
+                            <!-- This is org.eclipse.jetty.server.CustomRequestLog#NCSA_FORMAT with milliseconds added -->
+                            <Arg>%{client}a - %u %t "%r" %s %O %{ms}T</Arg>
                             <Set name="ignorePaths">
                               <Array type="java.lang.String">
                                 <Item>/go/assets/*</Item>

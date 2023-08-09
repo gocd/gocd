@@ -414,13 +414,14 @@ subprojects {
         details.useTarget project.deps.jakartaAnnotation
       }
       // Javax Servlet API has migrated to jakarta Servlet API
-      if (details.requested.group == 'javax.servlet' && details.requested.name == 'javax.servlet-api') {
+      if (details.requested.group in ['javax.servlet', 'org.eclipse.jetty.toolchain'] && details.requested.name in ['javax.servlet-api', 'jetty-servlet-api']) {
         details.useTarget project.deps.servletApi
       }
       // Javax Transaction API has migrated to jakarta Transaction API
       if (details.requested.group == 'javax.transaction' && details.requested.name == 'jta') {
         details.useTarget project.deps.jakartaTransaction
       }
+
     }
   }
 

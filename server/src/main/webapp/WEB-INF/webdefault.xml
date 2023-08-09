@@ -13,16 +13,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee https://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/web-app_4_0.xsd"
         metadata-complete="true"
-        version="3.0">
-
-    <context-param>
-        <param-name>org.eclipse.jetty.servlet.eMaxAge</param-name>
-        <param-value>36000</param-value>
-    </context-param>
+        version="4.0">
 
     <servlet>
         <servlet-name>default</servlet-name>

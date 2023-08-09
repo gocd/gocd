@@ -34,8 +34,8 @@ dependencies {
   }
 
   testImplementation localGroovy()
-  testImplementation project(path: ':jetty9', configuration: 'runtimeElements')
-  testImplementation project(path: ':jetty9', configuration: 'testOutput')
+  testImplementation project(path: ':jetty', configuration: 'runtimeElements')
+  testImplementation project(path: ':jetty', configuration: 'testOutput')
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine

@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.websocket;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
+import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -34,7 +34,7 @@ import static org.apache.http.HttpStatus.SC_FORBIDDEN;
  * Handles upgrade request for console log WebSocket connections. Validates that user is authorized to
  * view the pipeline.
  */
-public class ConsoleLogSocketServlet extends WebSocketServlet {
+public class ConsoleLogSocketServlet extends JettyWebSocketServlet {
 
     private SecurityService securityService;
     private ConsoleLogSocketCreator socketCreator;
@@ -50,7 +50,7 @@ public class ConsoleLogSocketServlet extends WebSocketServlet {
     }
 
     @Override
-    public void configure(WebSocketServletFactory factory) {
+    public void configure(JettyWebSocketServletFactory factory) {
         factory.setCreator(socketCreator);
     }
 

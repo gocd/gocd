@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.websocket;
 
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
+import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
+import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,21 +26,21 @@ import static org.mockito.Mockito.*;
 
 public class ConsoleLogSocketCreatorTest {
     private RestfulService restfulService;
-    private ServletUpgradeRequest request;
+    private JettyServerUpgradeRequest request;
     private ConsoleLogSocketCreator creator;
 
     @BeforeEach
     public void setUp() throws Exception {
         restfulService = mock(RestfulService.class);
 
-        request = mock(ServletUpgradeRequest.class);
+        request = mock(JettyServerUpgradeRequest.class);
         creator = new ConsoleLogSocketCreator(mock(ConsoleLogSender.class), restfulService, new SocketHealthService(), new SystemEnvironment());
     }
 
     @Test
     public void createWebSocketParsesJobIdentifierFromURI() throws Exception {
         when(request.getRequestPath()).thenReturn("/console-websocket/pipe/pipeLabel/stage/stageCount/job");
-        creator.createWebSocket(request, mock(ServletUpgradeResponse.class));
+        creator.createWebSocket(request, mock(JettyServerUpgradeResponse.class));
 
         verify(restfulService).findJob("pipe", "pipeLabel", "stage", "stageCount", "job");
     }

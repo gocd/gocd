@@ -19,6 +19,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.util.UrlEncoded;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.http.HttpServlet;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Understands test http server that is used to test http client code end-to-end
@@ -56,23 +58,16 @@ public class HttpTestUtil {
         }
 
         private void handleRequest(HttpServletRequest request, HttpServletResponse resp) throws IOException {
-            PrintWriter writer = resp.getWriter();
+            try (PrintWriter writer = resp.getWriter()) {
+                Request req = (Request) request;
 
-            Request req = (Request) request;
+                writer.write(req.getRequestURL().toString());
 
-            writer.write(req.getScheme());
-            writer.write("://");
-            writer.write(req.getLocalName());
-            writer.write(":");
-            writer.write(String.valueOf(req.getLocalPort()));
-            writer.write(req.getContextPath());
-            writer.write(req.getPathInfo());
-            String query = req.getQueryString();
-            if (query != null) {
-                writer.write("?" + query);
+                if (req.getQueryParameters() != null) {
+                    String query = UrlEncoded.encode(req.getQueryParameters(), StandardCharsets.UTF_8, true);
+                    writer.write(query.isBlank() ? "" : "?" + query);
+                }
             }
-
-            writer.close();
         }
     }
 

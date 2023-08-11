@@ -54,4 +54,5 @@ dependencies {
   testImplementation project.deps.testcontainers
   testImplementation project.deps.testcontainersJdbc
   testImplementation project.deps.h2
+  testImplementation project(path: ':db-support:db-support-h2', configuration: 'runtimeElements')
 }

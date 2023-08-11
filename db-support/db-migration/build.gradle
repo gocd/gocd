@@ -35,12 +35,16 @@ dependencies {
 
   implementation(project.deps.liquibase) {
     // Not needed, according to https://github.com/liquibase/liquibase/issues/1866
-    exclude group: 'javax.xml.bind', module: 'jaxb-api'
+    exclude module: 'jaxb-api'
+    exclude module: 'javax.activation-api'
 
     // These dependencies used to be shaded, but are now directly added. However they seem only related to use of
     // CSV or YAML snapshots/changelogs and/or offline storage which does not seem relevant to GoCD.
     exclude group: 'org.yaml', module: 'snakeyaml'
     exclude group: 'com.opencsv', module: 'opencsv'
+    exclude module: 'commons-text'
+    exclude module: 'commons-collections4'
+    exclude module: 'commons-lang3'
   }
   implementation project.deps.slf4j
   runtimeOnly project.deps.liquibaseSlf4j

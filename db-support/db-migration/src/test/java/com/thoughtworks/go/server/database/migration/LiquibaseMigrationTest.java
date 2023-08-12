@@ -35,18 +35,16 @@ import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LiquibaseMigtrationTest {
+public class LiquibaseMigrationTest {
     private BasicDataSource dataSource;
 
     @BeforeEach
-    void initializeDatasource() throws SQLException, LiquibaseException {
+    void initializeDatasource() {
         dataSource = new BasicDataSource();
         dataSource.setUrl("jdbc:h2:mem:migration-test");
         dataSource.setDriverClassName(org.h2.Driver.class.getName());
         dataSource.setUsername("sa");
         dataSource.setPassword("");
-
-        migrate("liquibase.xml");
     }
 
     @AfterEach
@@ -56,6 +54,11 @@ public class LiquibaseMigtrationTest {
         }
 
         dataSource.close();
+    }
+
+    @Test
+    void shouldMigrateFromEmpty() throws SQLException, LiquibaseException {
+        migrate("liquibase.xml");
     }
 
     @Test
@@ -80,7 +83,7 @@ public class LiquibaseMigtrationTest {
         Connection connection = dataSource.getConnection();
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
         Liquibase liquibase = new Liquibase("db-migration-scripts/" + migration, new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
-        liquibase.update("test");
+        liquibase.update();
     }
 
     private ArrayList<String> tableList() throws SQLException {

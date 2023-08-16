@@ -37,6 +37,7 @@ import java.util.EnumSet;
 import java.util.Properties;
 
 import static com.thoughtworks.go.agent.testhelper.FakeGoServer.TestResource.*;
+import static com.thoughtworks.go.util.TestFileUtil.resourceToString;
 
 public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
     public enum TestResource {
@@ -80,6 +81,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
     private Server server;
     private int port;
     private int securePort;
+    private int secureMtlsRequiredPort;
     private String extraPropertiesHeaderValue;
 
     FakeGoServer() {
@@ -91,6 +93,10 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
 
     public int getSecurePort() {
         return securePort;
+    }
+
+    public int getSecureMtlsRequiredPort() {
+        return secureMtlsRequiredPort;
     }
 
     @Override
@@ -110,16 +116,19 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         ServerConnector connector = new ServerConnector(server);
         server.addConnector(connector);
 
-        SslContextFactory sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setCertAlias("cruise");
-        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/fake-server-keystore"));
-        sslContextFactory.setKeyStorePassword("serverKeystorepa55w0rd");
-
-        ServerConnector secureConnnector = new ServerConnector(server,
-                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+        ServerConnector secureConnector = new ServerConnector(server,
+                new SslConnectionFactory(newServerSslContextFactory(), HttpVersion.HTTP_1_1.asString()),
                 new HttpConnectionFactory(new HttpConfiguration())
         );
-        server.addConnector(secureConnnector);
+        server.addConnector(secureConnector);
+
+        SslContextFactory.Server mtlsContextFactory = newServerSslContextFactory();
+        mtlsContextFactory.setNeedClientAuth(true);
+        ServerConnector secureMtlsConnector = new ServerConnector(server,
+                new SslConnectionFactory(mtlsContextFactory, HttpVersion.HTTP_1_1.asString()),
+                new HttpConnectionFactory(new HttpConfiguration())
+        );
+        server.addConnector(secureMtlsConnector);
 
         WebAppContext wac = new WebAppContext(".", "/go");
         ServletHolder holder = new ServletHolder();
@@ -141,7 +150,20 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         server.start();
 
         port = connector.getLocalPort();
-        securePort = secureConnnector.getLocalPort();
+        securePort = secureConnector.getLocalPort();
+        secureMtlsRequiredPort = secureMtlsConnector.getLocalPort();
+    }
+
+    private static SslContextFactory.Server newServerSslContextFactory() throws IOException {
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setCertAlias("1");
+        sslContextFactory.setKeyStoreType("PKCS12");
+        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/server-localhost.p12"));
+        sslContextFactory.setKeyStorePassword(resourceToString("/testdata/keystore.pass"));
+        sslContextFactory.setTrustStoreType("PKCS12");
+        sslContextFactory.setTrustStoreResource(Resource.newClassPathResource("testdata/root-ca.p12"));
+        sslContextFactory.setTrustStorePassword(resourceToString("/testdata/keystore.pass"));
+        return sslContextFactory;
     }
 
     private static final class AgentStatusApi extends HttpServlet {

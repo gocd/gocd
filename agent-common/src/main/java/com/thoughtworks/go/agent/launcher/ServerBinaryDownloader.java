@@ -44,13 +44,13 @@ import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES_
 public class ServerBinaryDownloader implements Downloader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerBinaryDownloader.class);
-    public static final String DEFAULT_FAILED_DOWNLOAD_SLEEP_MS = "60000";
-    private final ServerUrlGenerator urlGenerator;
-    private String md5 = null;
-
-    private static final String MD5_HEADER = "Content-MD5";
+    private static final String DEFAULT_FAILED_DOWNLOAD_SLEEP_MS = "60000";
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
+    private static final String MD5_HEADER = "Content-MD5";
+    private final ServerUrlGenerator urlGenerator;
+
     private final GoAgentServerHttpClientBuilder httpClientBuilder;
+    private String md5;
     private Map<String, String> extraProperties;
 
     protected ServerBinaryDownloader(GoAgentServerHttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator) {
@@ -60,11 +60,11 @@ public class ServerBinaryDownloader implements Downloader {
 
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, AgentBootstrapperArgs bootstrapperArgs) {
         this(new GoAgentServerHttpClientBuilder(
-            bootstrapperArgs.getRootCertFile(),
-            SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
-            bootstrapperArgs.getSslPrivateKeyFile(),
-            bootstrapperArgs.getSslPrivateKeyPassphraseFile(),
-            bootstrapperArgs.getSslCertificateFile()
+                bootstrapperArgs.getRootCertFile(),
+                SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
+                bootstrapperArgs.getSslCertificateFile(),
+                bootstrapperArgs.getSslPrivateKeyFile(),
+                bootstrapperArgs.getSslPrivateKeyPassphraseFile()
         ), urlGenerator);
     }
 

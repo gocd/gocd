@@ -31,10 +31,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -115,21 +112,6 @@ public class ServerBinaryDownloaderTest {
     }
 
     @Test
-    public void shouldConnectToAnSSLServerWithSelfSignedCertWhenInsecureModeIsNoVerifyHost() throws Exception {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.NO_VERIFY_HOST, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
-        downloader.download(DownloadableFile.AGENT);
-        assertThat(DownloadableFile.AGENT.getLocalFile().exists(), is(true));
-    }
-
-    @Test
-    public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.FULL, null, null, null), ServerUrlGeneratorMother.generatorFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
-        assertThatThrownBy(() -> downloader.download(DownloadableFile.AGENT))
-                .isInstanceOf(IOException.class)
-                .hasMessage("Certificate for <localhost> doesn't match any of the subject alternative names: []");
-    }
-
-    @Test
     public void shouldFailIfMD5HeadersAreMissing() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
         assertThatThrownBy(() -> downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT))
@@ -139,7 +121,7 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldFailIfServerIsNotAvailable() {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go/hello"));
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go"));
         assertThatThrownBy(() -> downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT))
                 .isExactlyInstanceOf(UnknownHostException.class)
                 .hasMessageContaining("invalidserver");

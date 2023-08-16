@@ -24,7 +24,7 @@ public class ServerUrlGeneratorMother {
 
     public static ServerUrlGenerator generatorFor(final String serverUrl) {
         return subPath -> {
-            if (subPath == null || subPath.trim().length() == 0) {
+            if (subPath == null || subPath.isBlank()) {
                 return serverUrl;
             }
             return serverUrl + "/" + subPath;

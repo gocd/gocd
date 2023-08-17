@@ -34,7 +34,7 @@ export const ModalBody = {
 
 
   view(vnode) {
-    let secureVarsTabContent, environmentVarsTabContent, secureVarsTab, environmentVarsTab;
+    let secureVarsTabContent, environmentVarsTabContent, secureVarsTab, environmentVarsTab, messageContent;
 
     const self    = vnode.state;
     const vm      = vnode.attrs.vm();
@@ -50,6 +50,8 @@ export const ModalBody = {
           <div class="page-spinner"/>
         </div>
       );
+    } else if (message()) {
+      messageContent = (<f.alert>{message()}</f.alert>);
     }
 
     const materialsKey = vm.MATERIALS_TAB_KEY;
@@ -89,6 +91,8 @@ export const ModalBody = {
 
     return (
       <div class="h-tab pipeline-trigger-with-options">
+        {messageContent}
+
         <ul class="h-tab_tab-head pipeline_options-heading">
           <li class={self.visibilityClassForTab(materialsKey)}
               onclick={vm.selectTab.bind(vm, materialsKey)}>

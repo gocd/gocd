@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.parser.GoConfigFieldTypeConverter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigUtil;
 import org.jdom2.Element;
-import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
 
 import java.lang.reflect.Field;
@@ -33,21 +32,15 @@ public class GoConfigFieldWriter {
     private final ConfigUtil configUtil = new ConfigUtil("magic");
     private final Field configField;
     private final Object value;
-    private final SimpleTypeConverter typeConverter;
     private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
-    public GoConfigFieldWriter(Field declaredField, Object value, SimpleTypeConverter converter, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
+    public GoConfigFieldWriter(Field declaredField, Object value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
         this.configField = declaredField;
         this.value = value;
         this.configField.setAccessible(true);
-        this.typeConverter = converter;
         this.configCache = configCache;
         this.registry = registry;
-    }
-
-    public GoConfigFieldWriter(Field declaredField, Object value, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {
-        this(declaredField, value, new GoConfigFieldTypeConverter(), configCache, registry);
     }
 
     public Field getConfigField() {
@@ -78,7 +71,7 @@ public class GoConfigFieldWriter {
         try {
             setFieldIfNotNull(configField, o, val);
         } catch (TypeMismatchException e1) {
-            final String message = format("Could not set value [{0}] on Field [{1}] of type [{2}] ", val,
+            final String message = format("Could not set value [{0}] on field [{1}] of type [{2}] ", val,
                     configField.getName(), configField.getType());
             throw new RuntimeException(message, e1);
         }
@@ -87,9 +80,7 @@ public class GoConfigFieldWriter {
     private void bombIfNullAndNotAllowed(Field field, Object instance, ConfigAttribute attribute) {
         try {
             if (!attribute.allowNull()) {
-                bombIfNull(field.get(instance),
-                    () -> "Field '" + field.getName() + "' is still set to null. "
-                                + "Must give a default value.");
+                bombIfNull(field.get(instance), () -> "Field '" + field.getName() + "' is still set to null. Must give a default value.");
             }
         } catch (IllegalAccessException e) {
             throw bomb("Error getting configField: " + field.getName(), e);
@@ -99,7 +90,7 @@ public class GoConfigFieldWriter {
     private void setFieldIfNotNull(Field field, Object instance, Object val) {
         try {
             if (val != null) {
-                Object convertedValue = typeConverter.convertIfNecessary(val, configField.getType());
+                Object convertedValue = GoConfigFieldTypeConverter.forThread().convertIfNecessary(val, configField.getType());
                 field.set(instance, convertedValue);
             }
         } catch (IllegalAccessException e) {
@@ -107,15 +98,15 @@ public class GoConfigFieldWriter {
         }
     }
 
-@SuppressWarnings({"DataFlowIssue", "unchecked"})
-private Collection<?> parseCollection(Element e, Class<?> collectionType) {
+    @SuppressWarnings({"DataFlowIssue", "unchecked"})
+    private Collection<?> parseCollection(Element e, Class<?> collectionType) {
         ConfigCollection collection = collectionType.getAnnotation(ConfigCollection.class);
         Class<?> type = collection.value();
 
 
         Object o = newInstance(collectionType);
         bombUnless(o instanceof Collection,
-            () -> "Must be some sort of list. Was: " + collectionType.getName());
+                () -> "Must be some sort of list. Was: " + collectionType.getName());
 
         Collection<Object> baseCollection = (Collection<Object>) o;
         for (Element childElement : e.getChildren()) {
@@ -124,7 +115,7 @@ private Collection<?> parseCollection(Element e, Class<?> collectionType) {
             }
         }
         bombIf(baseCollection.size() < collection.minimum(),
-            () -> "Required at least " + collection.minimum() + " subelements to '" + e.getName() + "'. "
+                () -> "Required at least " + collection.minimum() + " subelements to '" + e.getName() + "'. "
                         + "Found " + baseCollection.size() + ".");
         return baseCollection;
     }
@@ -192,7 +183,7 @@ private Collection<?> parseCollection(Element e, Class<?> collectionType) {
         ConfigTag tag = configTag(field.getType());
         boolean optional = field.getAnnotation(ConfigSubtag.class).optional();
         boolean isMissingElement = !configUtil.hasChild(e, tag);
-        if(!optional && isMissingElement) {
+        if (!optional && isMissingElement) {
             throw bomb("Non optional tag '" + tag + "' is not in config file. Found: " + configUtil.elementOutput(e));
         }
         return optional && isMissingElement;
@@ -201,7 +192,7 @@ private Collection<?> parseCollection(Element e, Class<?> collectionType) {
     private boolean optionalAndMissingAttribute(Element e, ConfigAttribute attribute) {
         boolean optional = attribute.optional();
         boolean isMissingAttribute = !configUtil.hasAttribute(e, attribute.value());
-        if(!optional && isMissingAttribute) {
+        if (!optional && isMissingAttribute) {
             throw bomb("Non optional attribute '" + attribute.value() + "' is not in element: " + configUtil.elementOutput(e));
         }
         return optional && isMissingAttribute;

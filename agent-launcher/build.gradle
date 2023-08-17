@@ -40,7 +40,8 @@ jar {
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
-  dependsOn jar, project.configurations.packagingOnly
+  dependsOn jar, configurations.packagingOnly, configurations.runtimeClasspath
+
   manifest {
     attributes 'Go-Agent-Launcher-Class': 'com.thoughtworks.go.agent.launcher.AgentLauncherImpl'
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'

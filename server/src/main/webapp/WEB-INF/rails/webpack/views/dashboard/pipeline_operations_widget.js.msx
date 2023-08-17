@@ -96,6 +96,15 @@ export const PipelineOperationsWidget = {
       return "There was an unknown error.";
     };
 
+    const isRevisionSelected = (triggerWithOptionsInfo) => {
+      for (const m of triggerWithOptionsInfo.materials) {
+        if (m.isRevisionSelected()) {
+          return true;
+        }
+      }
+      return false;
+    };
+
     self.destroyPausePopup = (modal) => {
       self.pauseMessage("");
       modal.destroy();
@@ -137,8 +146,13 @@ export const PipelineOperationsWidget = {
               class:   'save primary',
               onclick: () => {
                 const isValid = self.triggerWithOptionsInfo().validate();
+                const isSelected = isRevisionSelected(self.triggerWithOptionsInfo());
 
-                if (isValid) {
+                if (!isSelected) {
+                  console.error('Dev-Infra: We require users to select a revision/deployment when manually running a pipeline, otherwise the previous pipeline run is re-run instead of using the latest material.');
+                  self.errorMessage(`You must select a revision/deployment to trigger the ${pipeline.name} pipeline.`);
+                  m.redraw();
+                } else if (isValid) {
                   self.trigger(pipeline, self.triggerWithOptionsInfo().getTriggerOptionsJSON());
                   onModalClose();
                 } else {

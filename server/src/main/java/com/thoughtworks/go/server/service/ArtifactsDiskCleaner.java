@@ -53,7 +53,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
                 LOGGER.error("Artifact disk cleanup task aborted. Error encountered: '{}'", e.getMessage());//logging not tested
                 throw new RuntimeException(e);
             }
-        });
+        }, "goArtifactsDiskCleaner");
         cleaner.start();
     }
 
@@ -98,7 +98,7 @@ public class ArtifactsDiskCleaner extends DiskSpaceChecker {
     @Override
     protected long limitInMb() {
         ServerConfig serverConfig = goConfigService.serverConfig();
-        return serverConfig.isArtifactPurgingAllowed() ? new Double(serverConfig.getPurgeStart() * GoConstants.MEGABYTES_IN_GIGABYTE).longValue() : Integer.MAX_VALUE;
+        return serverConfig.isArtifactPurgingAllowed() ? Double.valueOf(serverConfig.getPurgeStart() * GoConstants.MEGABYTES_IN_GIGABYTE).longValue() : Integer.MAX_VALUE;
     }
 
     @Override

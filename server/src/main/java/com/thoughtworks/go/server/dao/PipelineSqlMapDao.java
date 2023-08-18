@@ -74,13 +74,13 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private final LazyCache pipelineByBuildIdCache;
     private final CacheKeyGenerator cacheKeyGenerator;
     private StageDao stageDao;
-    private MaterialRepository materialRepository;
-    private EnvironmentVariableDao environmentVariableDao;
-    private TransactionTemplate transactionTemplate;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private final MaterialRepository materialRepository;
+    private final EnvironmentVariableDao environmentVariableDao;
+    private final TransactionTemplate transactionTemplate;
+    private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final GoConfigDao configFileDao;
     private final Cloner cloner = ClonerFactory.instance();
-    private Clock timeProvider;
+    private final Clock timeProvider;
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
     private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
@@ -171,10 +171,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     public List<String> getPipelineNamesWithMultipleEntriesForLabelCount() {
-        List<String> pipelinenames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
-        if (pipelinenames.size() > 0 && StringUtils.isBlank(pipelinenames.get(0)))
+        List<String> pipelineNames = getSqlMapClientTemplate().queryForList("getPipelineNamesWithMultipleEntriesForLabelCount");
+        if (!pipelineNames.isEmpty() && StringUtils.isBlank(pipelineNames.get(0)))
             return new ArrayList<>();
-        return pipelinenames;
+        return pipelineNames;
     }
 
     public void deleteOldPipelineLabelCountForPipelineInConfig(String pipelineName) {
@@ -332,7 +332,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private Pipeline loadEnvironmentVariables(Pipeline pipeline) {
         if (pipeline == null) {
-            return pipeline;
+            return null;
         }
         pipeline.getBuildCause().setVariables(environmentVariableDao.load(pipeline.getId(), EnvironmentVariableType.Trigger));
         return pipeline;
@@ -378,12 +378,12 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     }
 
     public void cacheActivePipelines() {
-        LOGGER.info("Retriving Active Pipelines from Database...");
+        LOGGER.info("Retrieving Active Pipelines from Database...");
         final List<PipelineInstanceModel> pipelines = getAllPIMs();
         if (pipelines.isEmpty()) {
             return;
         }
-        Thread[] loaderThreads = loadActivePipelineAndHistoryToCache(pipelines);
+        List<Thread> loaderThreads = loadActivePipelineAndHistoryToCache(pipelines);
         cacheMaterialRevisions(pipelines);
         waitForLoaderThreadsToJoin(loaderThreads);
     }
@@ -396,33 +396,33 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return configFileDao.load().getAllPipelineNames();
     }
 
-    private void waitForLoaderThreadsToJoin(Thread[] loaderThreads) {
+    private void waitForLoaderThreadsToJoin(Collection<Thread> loaderThreads) {
         for (Thread loaderThread : loaderThreads) {
             try {
                 loaderThread.join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
     }
 
-    private Thread[] loadActivePipelineAndHistoryToCache(final List<PipelineInstanceModel> pipelines) {
+    private List<Thread> loadActivePipelineAndHistoryToCache(final List<PipelineInstanceModel> pipelines) {
         final Thread activePipelinesCacheLoader = new Thread(() -> {
             LOGGER.info("Loading Active Pipelines to cache...Started");
             Map<CaseInsensitiveString, TreeSet<Long>> result = groupPipelineInstanceIdsByPipelineName(pipelines);
             goCache.put(activePipelinesCacheKey(), result);
             LOGGER.info("Loading Active Pipelines to cache...Done");
-        });
+        }, "goActivePipelinesCacheLoader");
         final Thread historyCacheLoader = new Thread(() -> {
             LOGGER.info("Loading pipeline history to cache...Started");
             for (PipelineInstanceModel pipeline : pipelines) {
                 goCache.put(pipelineHistoryCacheKey(pipeline.getId()), pipeline);
             }
             LOGGER.info("Loading pipeline history to cache...Done");
-        });
+        }, "goPipelineHistoryCacheLoader");
         historyCacheLoader.start();
         activePipelinesCacheLoader.start();
-        return new Thread[]{activePipelinesCacheLoader, historyCacheLoader};
+        return List.of(activePipelinesCacheLoader, historyCacheLoader);
     }
 
     @Override
@@ -472,9 +472,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
 
         List<Long> pipelineIds = loadIdsFromHistory(result);
-        int collectionCount = pipelineIds.size();
-        for (int i = 0; i < collectionCount; i++) {
-            Long id = pipelineIds.get(i);
+        for (Long id : pipelineIds) {
             PipelineInstanceModel model = loadHistory(id);
             if (model == null) {
                 continue;
@@ -741,7 +739,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private Pipeline loadStages(Pipeline pipeline) {
         if (pipeline == null) {
-            return pipeline;
+            return null;
         }
         Stages stages = stageDao.getStagesByPipelineId(pipeline.getId());
         pipeline.setStages(stages);
@@ -754,7 +752,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private Pipeline loadMaterialRevisions(Pipeline pipeline) {
         if (pipeline == null) {
-            return pipeline;
+            return null;
         }
         long pipelineId = pipeline.getId();
 

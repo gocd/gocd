@@ -35,7 +35,7 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE
 public class PluginSettingsMetadataLoader implements PluginChangeListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginSettingsMetadataLoader.class);
     private final List<GoPluginExtension> extensions;
-    private PluginSettingsMetadataStore metadataStore = PluginSettingsMetadataStore.getInstance();
+    private final PluginSettingsMetadataStore metadataStore = PluginSettingsMetadataStore.getInstance();
 
     @Autowired
     public PluginSettingsMetadataLoader(List<GoPluginExtension> extensions, PluginManager pluginManager) {
@@ -59,7 +59,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
         List<ExtensionSettingsInfo> allMetadata = findSettingsAndViewOfAllExtensionsIn(pluginId);
         List<ExtensionSettingsInfo> validMetadata = allSettingsAndViewPairsWhichAreValid(allMetadata);
 
-        if (validMetadata.size() == 0) {
+        if (validMetadata.isEmpty()) {
             LOGGER.warn("Failed to fetch plugin settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", pluginId);
             LOGGER.warn("Plugin: {} - Metadata load info: {}", pluginId, allMetadata);
             LOGGER.warn("Not all plugins are required to implement the request above. This error may be safe to ignore.");
@@ -96,7 +96,7 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
         return allMetadata.stream().filter(ExtensionSettingsInfo::settingsAndViewAreValid).collect(Collectors.toList());
     }
 
-    private class ExtensionSettingsInfo {
+    private static class ExtensionSettingsInfo {
         private final String extensionName;
         private final String errorMessage;
         private final PluginSettingsConfiguration configuration;

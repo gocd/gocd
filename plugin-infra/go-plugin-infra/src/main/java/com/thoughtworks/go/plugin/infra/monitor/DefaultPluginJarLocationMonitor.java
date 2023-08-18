@@ -96,7 +96,6 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             throw new IllegalStateException("Cannot start the monitor multiple times.");
         }
         monitorThread = new PluginLocationMonitorThread(bundledPluginDirectory, externalPluginDirectory, pluginJarChangeListeners, systemEnvironment);
-        monitorThread.setDaemon(true);
     }
 
     @Override
@@ -115,6 +114,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         try {
             monitorThread.join();
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
         monitorThread = null;
     }
@@ -165,6 +165,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                                            File externalPluginDirectory,
                                            List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener,
                                            SystemEnvironment systemEnvironment) {
+            super("goPluginLocationMonitor");
+            setDaemon(true);
             this.bundledPluginDirectory = bundledPluginDirectory;
             this.externalPluginDirectory = externalPluginDirectory;
             this.pluginJarChangeListener = pluginJarChangeListener;
@@ -209,9 +211,9 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             return new DoOnAllListeners(pluginJarChangeListener);
         }
 
-        private void waitForMonitorInterval(int interval) {
+        private void waitForMonitorInterval(int intervalSeconds) {
             try {
-                Thread.sleep(interval * 1000);
+                Thread.sleep(intervalSeconds * 1000L);
             } catch (InterruptedException e) {
                 this.interrupt();
             }

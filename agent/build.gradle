@@ -89,7 +89,7 @@ clean {
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
-  dependsOn jar, project.configurations.extractedAtTopLevel, project.configurations.packagingOnly
+  dependsOn jar, configurations.extractedAtTopLevel, configurations.packagingOnly, configurations.runtimeClasspath
 
   manifest {
     attributes 'Main-Class': 'com.thoughtworks.gocd.Boot'

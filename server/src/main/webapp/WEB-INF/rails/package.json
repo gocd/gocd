@@ -132,5 +132,5 @@
   "resolutions": {
     "chokidar@npm:2.1.8/glob-parent": "^5.1.2"
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.2"
 }

@@ -20,14 +20,13 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
-import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;
 import static com.thoughtworks.go.config.parser.GoConfigAttributeLoader.attributeParser;
@@ -38,8 +37,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.text.MessageFormat.format;
 
 public class GoConfigFieldLoader<T> {
-    private static final Map<Field, Boolean> implicits = new HashMap<>();
-    private static final SimpleTypeConverter typeConverter = new GoConfigFieldTypeConverter();
+    private static final Map<Field, Boolean> implicits = new ConcurrentHashMap<>();
 
     private final Element e;
     private final T instance;
@@ -49,7 +47,7 @@ public class GoConfigFieldLoader<T> {
     private final ConfigElementImplementationRegistry registry;
 
     public static <T> GoConfigFieldLoader<T> fieldParser(Element e, T instance, Field field, ConfigCache configCache, final ConfigElementImplementationRegistry registry,
-                                                             ConfigReferenceElements configReferenceElements) {
+                                                         ConfigReferenceElements configReferenceElements) {
         return new GoConfigFieldLoader<>(e, instance, field, configCache, registry, configReferenceElements);
     }
 
@@ -93,11 +91,8 @@ public class GoConfigFieldLoader<T> {
     }
 
     private boolean isImplicitCollection() {
-        if (!implicits.containsKey(field)) {
-            implicits.put(field, ConfigCache.isAnnotationPresent(field, ConfigSubtag.class)
-                    && GoConfigClassLoader.isImplicitCollection(field.getType()));
-        }
-        return implicits.get(field);
+        return implicits.computeIfAbsent(field,
+                f -> ConfigCache.isAnnotationPresent(f, ConfigSubtag.class) && GoConfigClassLoader.isImplicitCollection(f.getType()));
     }
 
     private void setValue(Object val) {
@@ -109,13 +104,12 @@ public class GoConfigFieldLoader<T> {
                     field.set(instance, constructor.newInstance(val));
                 }
             } else if (val != null) {
-                Object convertedValue = typeConverter.convertIfNecessary(val, field.getType());
-                field.set(instance, convertedValue);
+                field.set(instance, GoConfigFieldTypeConverter.forThread().convertIfNecessary(val, field.getType()));
             }
         } catch (IllegalAccessException e) {
             throw bomb("Error setting configField: " + field.getName(), e);
         } catch (TypeMismatchException e) {
-            final String message = format("Could not set value [{0}] on Field [{1}] of type [{2}] ",
+            final String message = format("Could not set value [{0}] on field [{1}] of type [{2}] ",
                     val, field.getName(), field.getType());
             throw bomb(message, e);
         } catch (NoSuchMethodException e) {

@@ -15,15 +15,24 @@
  */
 package com.thoughtworks.go.config.parser;
 
-import java.io.File;
-
-import org.springframework.beans.SimpleTypeConverter;
-import org.springframework.beans.propertyeditors.FileEditor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.SimpleTypeConverter;
+import org.springframework.beans.TypeConverter;
+import org.springframework.beans.propertyeditors.FileEditor;
+
+import java.io.File;
 
 public class GoConfigFieldTypeConverter extends SimpleTypeConverter {
 
+    public static TypeConverter forThread() {
+        return typeConverter.get();
+    }
+
     private static final CustomizedFileEditor propertyEditor = new CustomizedFileEditor();
+
+    // Type converters are NOT thread safe. Should be OK to cache them per thread as not too large and don't think
+    // we have too many threads that will be doing so?
+    private static final ThreadLocal<TypeConverter> typeConverter = ThreadLocal.withInitial(GoConfigFieldTypeConverter::new);
 
     public GoConfigFieldTypeConverter() {
         super();

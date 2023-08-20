@@ -23,8 +23,6 @@ import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -70,7 +68,7 @@ public class ServerBinaryDownloaderTest {
         MessageDigest digester = MessageDigest.getInstance("MD5");
         try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(DownloadableFile.AGENT.getLocalFile()))) {
             try (DigestInputStream digest = new DigestInputStream(stream, digester)) {
-                IOUtils.copy(digest, new NullOutputStream());
+                digest.transferTo(OutputStream.nullOutputStream());
             }
             assertThat(downloader.getMd5(), is(Hexadecimals.toHexString(digester.digest()).toLowerCase()));
         }

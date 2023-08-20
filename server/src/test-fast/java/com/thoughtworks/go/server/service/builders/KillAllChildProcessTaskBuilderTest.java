@@ -22,13 +22,13 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
@@ -77,7 +77,7 @@ public class KillAllChildProcessTaskBuilderTest {
     public void builderReturnedByThisTaskBuilderShouldBeSerializable() throws Exception {
         KillAllChildProcessTaskBuilder killAllChildProcessTaskBuilder = new KillAllChildProcessTaskBuilder();
         Builder builder = killAllChildProcessTaskBuilder.createBuilder(null, null, null, null);
-        new ObjectOutputStream(new NullOutputStream()).writeObject(builder);
+        new ObjectOutputStream(OutputStream.nullOutputStream()).writeObject(builder);
     }
 
     public long getSystemTime() {

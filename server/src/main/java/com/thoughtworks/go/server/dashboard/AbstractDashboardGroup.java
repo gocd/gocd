@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.dashboard;
 import com.thoughtworks.go.server.domain.Username;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.security.DigestOutputStream;
@@ -34,9 +34,9 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractDashboardGroup implements DashboardGroup {
-    private String name;
-    private boolean hasDefinedPipelines;
-    private Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
+    private final String name;
+    private final boolean hasDefinedPipelines;
+    private final Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
 
     AbstractDashboardGroup(String name, boolean hasDefinedPipelines) {
         this.name = name;
@@ -89,7 +89,7 @@ public abstract class AbstractDashboardGroup implements DashboardGroup {
     protected String digest(String permissionsSegment) {
         try {
             MessageDigest digest = DigestUtils.getSha256Digest();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new DigestOutputStream(new NullOutputStream(), digest));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new DigestOutputStream(OutputStream.nullOutputStream(), digest));
             outputStreamWriter.write(getClass().getSimpleName());
             outputStreamWriter.write("$");
             outputStreamWriter.write(name());

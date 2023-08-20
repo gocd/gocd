@@ -17,7 +17,6 @@ package com.thoughtworks.go.agent.testhelper;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.assertj.core.util.Hexadecimals;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
@@ -56,7 +55,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
             try (InputStream input = source.getInputStream()) {
                 MessageDigest digester = MessageDigest.getInstance("MD5");
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
-                    IOUtils.copy(digest, new NullOutputStream());
+                    digest.transferTo(OutputStream.nullOutputStream());
                 }
                 return Hexadecimals.toHexString(digester.digest()).toLowerCase();
             } catch (Exception e) {

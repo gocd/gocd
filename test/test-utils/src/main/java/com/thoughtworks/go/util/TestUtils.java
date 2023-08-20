@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -47,7 +46,7 @@ public class TestUtils {
 
     public static void copyAndClose(InputStream fileInputStream, OutputStream fileOutputStream) {
         try (InputStream is = fileInputStream; OutputStream os = fileOutputStream) {
-            IOUtils.copy(is, os);
+            is.transferTo(os);
         } catch (IOException e) {
             bomb(e);
         }

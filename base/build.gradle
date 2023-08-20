@@ -34,6 +34,8 @@ dependencies {
   compileOnly project.deps.jetBrainsAnnotations
 
   testRuntimeOnly project.deps.bouncyCastle
+  testRuntimeOnly project.deps.bouncyCastlePkix
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.systemStubs

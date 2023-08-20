@@ -39,33 +39,33 @@ import java.util.List;
 import java.util.UUID;
 
 public abstract class GoAgentServerClientBuilder<T> {
-    protected final File rootCertFile;
     protected final SystemEnvironment systemEnvironment;
+    protected final File rootCertificate;
     protected final SslVerificationMode sslVerificationMode;
-    protected final File sslPrivateKey;
-    protected final File sslPrivateKeyPassphraseFile;
-    protected final File sslCertificate;
+    protected final File agentSslPrivateKey;
+    protected final File agentSslPrivateKeyPassphraseFile;
+    protected final File agentSslCertificate;
     protected final char[] agentKeystorePassword = UUID.randomUUID().toString().toCharArray();
 
     public abstract T build() throws Exception;
 
-    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertFile, SslVerificationMode sslVerificationMode, File sslPrivateKey, File sslPrivateKeyPassphraseFile, File sslCertificate) {
+    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
         this.systemEnvironment = systemEnvironment;
-        this.rootCertFile = rootCertFile;
+        this.rootCertificate = rootCertificate;
         this.sslVerificationMode = sslVerificationMode;
-        this.sslPrivateKey = sslPrivateKey;
-        this.sslPrivateKeyPassphraseFile = sslPrivateKeyPassphraseFile;
-        this.sslCertificate = sslCertificate;
+        this.agentSslCertificate = agentSslCertificate;
+        this.agentSslPrivateKey = agentSslPrivateKey;
+        this.agentSslPrivateKeyPassphraseFile = agentSslPrivateKeyPassphraseFile;
     }
 
     GoAgentServerClientBuilder(SystemEnvironment systemEnvironment) {
-        this(systemEnvironment, systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment.getAgentPrivateKeyFile(), systemEnvironment.getAgentSslPrivateKeyPassphraseFile(), systemEnvironment.getAgentSslCertificate());
+        this(systemEnvironment, systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment.getAgentSslCertificate(), systemEnvironment.getAgentPrivateKeyFile(), systemEnvironment.getAgentSslPrivateKeyPassphraseFile());
     }
 
     KeyStore agentTruststore() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
         KeyStore trustStore = null;
 
-        List<X509Certificate> certificates = new CertificateFileParser().certificates(rootCertFile);
+        List<X509Certificate> certificates = new CertificateFileParser().certificates(rootCertificate);
 
         for (X509Certificate certificate : certificates) {
             if (trustStore == null) {
@@ -79,7 +79,7 @@ public abstract class GoAgentServerClientBuilder<T> {
     }
 
     KeyStore agentKeystore() throws IOException, GeneralSecurityException {
-        if (this.sslPrivateKey != null && this.sslPrivateKey.exists() && this.sslCertificate != null && this.sslCertificate.exists()) {
+        if (this.agentSslCertificate != null && this.agentSslCertificate.exists() && this.agentSslPrivateKey != null && this.agentSslPrivateKey.exists()) {
             return keyStoreFromPem();
         } else {
             return null;
@@ -89,7 +89,7 @@ public abstract class GoAgentServerClientBuilder<T> {
     private KeyStore keyStoreFromPem() throws IOException, GeneralSecurityException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(null);
-        if (sslCertificate != null && sslPrivateKey != null) {
+        if (agentSslCertificate != null && agentSslPrivateKey != null) {
             PrivateKey privateKey = getPrivateKey();
             keyStore.setKeyEntry("1", privateKey, agentKeystorePassword, agentCertificate().toArray(new X509Certificate[]{}));
         }
@@ -102,12 +102,14 @@ public abstract class GoAgentServerClientBuilder<T> {
 
     private PrivateKey getPrivateKey() throws IOException {
         PrivateKey privateKey;
-        try (PEMParser reader = new PEMParser(new FileReader(this.sslPrivateKey, StandardCharsets.UTF_8))) {
+        try (PEMParser reader = new PEMParser(new FileReader(this.agentSslPrivateKey, StandardCharsets.UTF_8))) {
             Object pemObject = reader.readObject();
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProviderHolder.INSTANCE);
 
             if (pemObject instanceof PEMEncryptedKeyPair) {
-                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(passphrase());
+                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder()
+                    .setProvider(BouncyCastleProviderHolder.INSTANCE)
+                    .build(passphrase());
                 KeyPair keyPair = converter.getKeyPair(((PEMEncryptedKeyPair) pemObject).decryptKeyPair(decProv));
                 privateKey = keyPair.getPrivate();
             } else if (pemObject instanceof PEMKeyPair) {
@@ -124,12 +126,12 @@ public abstract class GoAgentServerClientBuilder<T> {
     }
 
     private List<X509Certificate> agentCertificate() throws IOException, CertificateException {
-        return new CertificateFileParser().certificates(this.sslCertificate);
+        return new CertificateFileParser().certificates(this.agentSslCertificate);
     }
 
     private char[] passphrase() throws IOException {
-        if (sslPrivateKeyPassphraseFile != null && sslPrivateKeyPassphraseFile.exists()) {
-            String passphrase = FileUtils.readFileToString(sslPrivateKeyPassphraseFile, StandardCharsets.UTF_8);
+        if (agentSslPrivateKeyPassphraseFile != null && agentSslPrivateKeyPassphraseFile.exists()) {
+            String passphrase = FileUtils.readFileToString(agentSslPrivateKeyPassphraseFile, StandardCharsets.UTF_8);
             return StringUtils.trimToEmpty(passphrase).toCharArray();
         }
         throw new RuntimeException("SSL private key passphrase not specified!");

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 public class DownloadableFileTest {
     @Test
-    public void shouldReturnTrueIfChecksumIsEqual() throws Exception {
+    public void shouldReturnTrueIfChecksumIsEqual() {
         File inputFile = new File("src/test/resources/checksum.txt");
         assertTrue(DownloadableFile.matchChecksum(inputFile, "16508b3a80b828afd13318003b58626e"));
     }
@@ -41,24 +41,24 @@ public class DownloadableFileTest {
      $ md5sum checksum.txt | cut -f1 -d\  | xxd -r -p | base64
     */
     @Test
-    public void shouldReturnFalseIfChecksumIsNotEqual() throws Exception {
+    public void shouldReturnFalseIfChecksumIsNotEqual() {
         File inputFile = new File("src/test/resources/checksum.txt");
         assertFalse(DownloadableFile.matchChecksum(inputFile, "nonmat"));
     }
 
     @Test
-    public void shouldCheckIfFileExists() throws Exception {
+    public void shouldCheckIfFileExists() {
         assertTrue(DownloadableFile.AGENT.doesNotExist());
     }
 
     @Test
-    public void shouldValidateTheUrl() throws Exception {
+    public void shouldValidateTheUrl() {
         ServerUrlGenerator serverUrlGenerator = ServerUrlGeneratorMother.generatorFor("localhost", 9090);
         assertThat(DownloadableFile.AGENT.validatedUrl(serverUrlGenerator), is("http://localhost:9090/go/admin/agent"));
     }
 
     @Test
-    public void shouldThrowExceptionIfUrlIsInvalid() throws Exception {
+    public void shouldThrowExceptionIfUrlIsInvalid() {
         ServerUrlGenerator serverUrlGenerator = mock(ServerUrlGenerator.class);
         when(serverUrlGenerator.serverUrlFor("admin/agent")).thenReturn("invalidUrl");
         assertThatThrownBy(() -> DownloadableFile.AGENT.validatedUrl(serverUrlGenerator))

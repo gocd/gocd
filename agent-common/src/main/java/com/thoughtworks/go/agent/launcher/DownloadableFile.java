@@ -17,11 +17,10 @@ package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.util.Downloader;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -66,7 +65,7 @@ public enum DownloadableFile {
         try (FileInputStream input = new FileInputStream(localFile)) {
             MessageDigest digester = MessageDigest.getInstance("MD5");
             try (DigestInputStream digest = new DigestInputStream(input, digester)) {
-                IOUtils.copy(digest, new NullOutputStream());
+                digest.transferTo(OutputStream.nullOutputStream());
             }
             return expectedSignature.equalsIgnoreCase(encodeHexString(digester.digest()));
         } catch (Exception e) {

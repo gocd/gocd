@@ -17,16 +17,21 @@ package com.thoughtworks.go.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 
 public class TestFileUtil {
-    private static TempFiles tempFiles = new TempFiles();
+    private static final TempFiles tempFiles = new TempFiles();
 
     public static File createTempFolder(String folderName) {
         return tempFiles.mkdir(folderName);
     }
 
     public static File createUniqueTempFile(String prefix) {
-        return tempFiles.createUniqueFile(prefix);
+        return TempFiles.createUniqueFile(prefix);
     }
 
     public static File createTempFile(String fileName) throws IOException {
@@ -45,5 +50,27 @@ public class TestFileUtil {
         subDir.mkdirs();
         subDir.deleteOnExit();
         return subDir;
+    }
+
+    public static File resourceToTempFile(String resourcePath) throws Exception {
+        return resourceToTempPath(resourcePath).toFile();
+    }
+
+    public static Path resourceToTempPath(String resourcePath) throws IOException {
+        Path tempPath = Files.createTempFile(Path.of(resourcePath).getFileName().toString(), null);
+        try (InputStream is = openStream(resourcePath)) {
+            Files.write(tempPath, is.readAllBytes());
+        }
+        return tempPath;
+    }
+
+    public static String resourceToString(String resourcePath) throws IOException {
+        try (InputStream inputStream = openStream(resourcePath)) {
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    private static InputStream openStream(String resourcePath) {
+        return Objects.requireNonNull(TestFileUtil.class.getResourceAsStream(resourcePath), "Could not find resource at " + resourcePath);
     }
 }

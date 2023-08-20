@@ -34,8 +34,8 @@ import java.security.KeyStore;
 
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
 
-    public GoAgentServerHttpClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode, File sslPrivateKey, File sslPrivateKeyPassphraseFile, File sslCertificate) {
-        super(new SystemEnvironment(), rootCertFile, sslVerificationMode, sslPrivateKey, sslPrivateKeyPassphraseFile, sslCertificate);
+    public GoAgentServerHttpClientBuilder(File rootCertificate, SslVerificationMode sslVerificationMode, File agentSslCertificate, File agentSslPrivateKey, File agentSslPrivateKeyPassphraseFile) {
+        super(new SystemEnvironment(), rootCertificate, sslVerificationMode, agentSslCertificate, agentSslPrivateKey, agentSslPrivateKeyPassphraseFile);
     }
 
     public GoAgentServerHttpClientBuilder(SystemEnvironment systemEnvironment) {

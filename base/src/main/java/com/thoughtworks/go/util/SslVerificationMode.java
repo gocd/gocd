@@ -27,7 +27,7 @@ public enum SslVerificationMode {
     NONE(NoopHostnameVerifier.INSTANCE, TrustAllStrategy.INSTANCE),
     NO_VERIFY_HOST(NoopHostnameVerifier.INSTANCE, null);
 
-    private HostnameVerifier verifier;
+    private final HostnameVerifier verifier;
     private final TrustStrategy trustStrategy;
 
 

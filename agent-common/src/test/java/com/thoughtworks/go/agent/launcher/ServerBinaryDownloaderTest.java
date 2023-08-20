@@ -23,8 +23,6 @@ import com.thoughtworks.go.agent.testhelper.GoTestResource;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -33,10 +31,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -70,7 +65,7 @@ public class ServerBinaryDownloaderTest {
         MessageDigest digester = MessageDigest.getInstance("MD5");
         try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(DownloadableFile.AGENT.getLocalFile()))) {
             try (DigestInputStream digest = new DigestInputStream(stream, digester)) {
-                IOUtils.copy(digest, new NullOutputStream());
+                digest.transferTo(OutputStream.nullOutputStream());
             }
             assertThat(downloader.getMd5(), is(Hexadecimals.toHexString(digester.digest()).toLowerCase()));
         }
@@ -117,21 +112,6 @@ public class ServerBinaryDownloaderTest {
     }
 
     @Test
-    public void shouldConnectToAnSSLServerWithSelfSignedCertWhenInsecureModeIsNoVerifyHost() throws Exception {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.NO_VERIFY_HOST, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
-        downloader.download(DownloadableFile.AGENT);
-        assertThat(DownloadableFile.AGENT.getLocalFile().exists(), is(true));
-    }
-
-    @Test
-    public void shouldRaiseExceptionWhenSelfSignedCertDoesNotMatchTheHostName() {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.FULL, null, null, null), ServerUrlGeneratorMother.generatorFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
-        assertThatThrownBy(() -> downloader.download(DownloadableFile.AGENT))
-                .isInstanceOf(IOException.class)
-                .hasMessage("Certificate for <localhost> doesn't match any of the subject alternative names: []");
-    }
-
-    @Test
     public void shouldFailIfMD5HeadersAreMissing() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
         assertThatThrownBy(() -> downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT))
@@ -141,7 +121,7 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldFailIfServerIsNotAvailable() {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go/hello"));
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go"));
         assertThatThrownBy(() -> downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT))
                 .isExactlyInstanceOf(UnknownHostException.class)
                 .hasMessageContaining("invalidserver");

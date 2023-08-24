@@ -201,6 +201,14 @@
 
   <suppress>
     <notes><![CDATA[
+    This is a false positive within OSSIndex as the vulnerability is with the PostgreSQL server rather than the client libraries.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.postgresql/postgresql@.*$</packageUrl>
+    <vulnerabilityName>CVE-2020-21469</vulnerabilityName>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
     `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on

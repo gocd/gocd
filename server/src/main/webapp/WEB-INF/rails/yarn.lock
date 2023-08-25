@@ -5979,7 +5979,7 @@ __metadata:
     html-webpack-plugin: ^4.5.2
     jasmine: ^5.1.0
     jasmine-ajax: ^4.0.0
-    jasmine-browser-runner: ^2.1.0
+    jasmine-browser-runner: ^2.2.0
     jasmine-core: ^5.1.0
     jasmine-jquery: ^2.1.1
     jquery: ^3.7.0
@@ -7080,9 +7080,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-browser-runner@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "jasmine-browser-runner@npm:2.1.0"
+"jasmine-browser-runner@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "jasmine-browser-runner@npm:2.2.0"
   dependencies:
     ejs: ^3.1.6
     express: ^4.16.4
@@ -7092,7 +7092,7 @@ __metadata:
     jasmine-core: ^5.0.0
   bin:
     jasmine-browser-runner: bin/jasmine-browser-runner
-  checksum: 88170b0908f204af79913094614942800d58870d52b39f68d524688b3ed45ae214f7696d16f406f363b8376a73b727a28ba002bc88b6bdc4dee473e3402d79c7
+  checksum: dfc9d575f2cb0c28727107d0a19f378225404876812cd0311e770fec25d1770292daac069791425f040a4b1248cbfc459b6719821f7b982bd90aa48d11752f56
   languageName: node
   linkType: hard
 

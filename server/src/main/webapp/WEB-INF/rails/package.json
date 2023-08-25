@@ -51,7 +51,7 @@
     "what-input": "^5.2.12"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.10",
+    "@babel/core": "^7.22.11",
     "@babel/eslint-parser": "^7.22.11",
     "@babel/preset-env": "^7.22.10",
     "@babel/preset-react": "^7.22.5",

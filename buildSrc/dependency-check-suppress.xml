@@ -175,7 +175,6 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.h2database/h2@1\.4\.200$</packageUrl>
     <cve>CVE-2021-42392</cve>
-    <vulnerabilityName>GHSA-h376-j262-vhq6</vulnerabilityName>
     <cve>CVE-2022-23221</cve>
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>

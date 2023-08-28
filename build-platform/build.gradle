@@ -19,12 +19,7 @@ dependencies {
   constraints {
     api project.deps.angusActivation
     api project.deps.commonsCodec
-    api('commons-io:commons-io') {
-      version {
-        // Prevent early upgrade from transitive dependencies (e.g. commons-fileupload)
-        strictly(project.versions.commonsIO as String)
-      }
-    }
+    api project.deps.commonsIO
     api project.deps.commonsPool
     api project.deps.commonsCollections
     api project.deps.guava

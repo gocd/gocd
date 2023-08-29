@@ -145,7 +145,7 @@ subprojects {
       def expectedProcess = "lib/go.jar"
       def processList = psOutput.toString()
       if (!processList.contains(expectedProcess)) {
-        throw new GradleException("Expected process output to contain ${expectedProcessg}, but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
+        throw new GradleException("Expected process output to contain ${expectedProcess}, but was: [${processList}]\n\nContainer output:\n${containerOutput.toString()}")
       }
     }
   }

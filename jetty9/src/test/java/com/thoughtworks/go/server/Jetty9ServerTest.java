@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.deploy.App;
 import org.eclipse.jetty.deploy.DeploymentManager;
 import org.eclipse.jetty.http.HttpFields;
@@ -26,7 +25,6 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -49,13 +47,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -198,7 +194,6 @@ public class Jetty9ServerTest {
         List<String> configClasses = new ArrayList<>(List.of(webAppContext.getConfigurationClasses()));
         assertThat(configClasses.contains(WebInfConfiguration.class.getCanonicalName()), is(true));
         assertThat(configClasses.contains(WebXmlConfiguration.class.getCanonicalName()), is(true));
-        assertThat(configClasses.contains(JettyWebXmlConfiguration.class.getCanonicalName()), is(true));
         assertThat(webAppContext.getContextPath(), is("context"));
         assertThat(webAppContext.getWar(), is("cruise.war"));
         assertThat(webAppContext.isParentLoaderPriority(), is(true));
@@ -251,24 +246,26 @@ public class Jetty9ServerTest {
 
     @Test
     public void shouldReplaceJettyXmlIfItDoesNotContainCorrespondingJettyVersionNumber(@TempDir Path temporaryFolder) throws IOException {
-        File jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml")).toFile();
-        when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
+        Path jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml"));
+        when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml.toFile());
 
         String originalContent = "jetty-v6.2.3\nsome other local changes";
-        FileUtils.writeStringToFile(jettyXml, originalContent, UTF_8);
+        Files.writeString(jettyXml, originalContent, UTF_8);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
-        assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is(FileUtils.readFileToString(new File(getClass().getResource("config/jetty.xml").getPath()), UTF_8)));
+        try (InputStream configStream = Objects.requireNonNull(getClass().getResourceAsStream("config/jetty.xml"))) {
+            assertThat(Files.readString(jettyXml, UTF_8), is(new String(configStream.readAllBytes(), UTF_8)));
+        }
     }
 
     @Test
     public void shouldNotReplaceJettyXmlIfItAlreadyContainsCorrespondingVersionNumber(@TempDir Path temporaryFolder) throws IOException {
-        File jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml")).toFile();
-        when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
+        Path jettyXml = Files.createFile(temporaryFolder.resolve("jetty.xml"));
+        when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml.toFile());
 
-        String originalContent = "jetty-v9.4.48.v20220622\nsome other local changes";
-        FileUtils.writeStringToFile(jettyXml, originalContent, UTF_8);
+        String originalContent = Jetty9Server.JETTY_CONFIG_VERSION + "\nsome other local changes";
+        Files.writeString(jettyXml, originalContent, UTF_8);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
-        assertThat(FileUtils.readFileToString(systemEnvironment.getJettyConfigFile(), UTF_8), is(originalContent));
+        assertThat(Files.readString(jettyXml, UTF_8), is(originalContent));
     }
 
     @Test

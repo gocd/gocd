@@ -41,19 +41,19 @@ import static com.thoughtworks.go.util.TestFileUtil.resourceToString;
 
 public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
     public enum TestResource {
-        TEST_AGENT(Resource.newClassPathResource("testdata/gen/test-agent.jar")),
-        TEST_AGENT_LAUNCHER(Resource.newClassPathResource("testdata/gen/agent-launcher.jar")),
-        TEST_AGENT_PLUGINS(Resource.newClassPathResource("testdata/agent-plugins.zip")),
-        TEST_TFS_IMPL(Resource.newClassPathResource("testdata/gen/tfs-impl-14.jar")),;
+        TEST_AGENT("testdata/gen/test-agent.jar"),
+        TEST_AGENT_LAUNCHER("testdata/gen/agent-launcher.jar"),
+        TEST_AGENT_PLUGINS("testdata/agent-plugins.zip"),
+        TEST_TFS_IMPL("testdata/gen/tfs-impl-14.jar");
 
-        private final Resource source;
+        private final String source;
 
-        TestResource(Resource source) {
+        TestResource(String source) {
             this.source = source;
         }
 
         public String getMd5() {
-            try (InputStream input = source.getInputStream()) {
+            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
                 MessageDigest digester = MessageDigest.getInstance("MD5");
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
                     digest.transferTo(OutputStream.nullOutputStream());
@@ -65,15 +65,15 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         }
 
         public void copyTo(OutputStream outputStream) throws IOException {
-            try (InputStream in = source.getInputStream()) {
-                IOUtils.copy(in, outputStream);
+            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
+                IOUtils.copy(input, outputStream);
             }
         }
 
-        // Because the resource can be a jarresource, which extracts to dir instead of a simple copy.
+        // Because the resource can be a jar resource, which extracts to dir instead of a simple copy.
         public void copyTo(File output) throws IOException {
-            try (InputStream in = source.getInputStream()) {
-                FileUtils.copyToFile(in, output);
+            try (Resource resource = Resource.newClassPathResource(source); InputStream input = resource.getInputStream()) {
+                FileUtils.copyToFile(input, output);
             }
         }
     }
@@ -116,9 +116,11 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         ServerConnector connector = new ServerConnector(server);
         server.addConnector(connector);
 
+        HttpConfiguration config = new HttpConfiguration();
+        config.addCustomizer(new SecureRequestCustomizer(false));
         ServerConnector secureConnector = new ServerConnector(server,
                 new SslConnectionFactory(newServerSslContextFactory(), HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(new HttpConfiguration())
+                new HttpConnectionFactory(config)
         );
         server.addConnector(secureConnector);
 
@@ -126,7 +128,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         mtlsContextFactory.setNeedClientAuth(true);
         ServerConnector secureMtlsConnector = new ServerConnector(server,
                 new SslConnectionFactory(mtlsContextFactory, HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(new HttpConfiguration())
+                new HttpConnectionFactory(config)
         );
         server.addConnector(secureMtlsConnector);
 
@@ -143,7 +145,7 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", TEST_AGENT_LAUNCHER, this);
         addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", TEST_AGENT_PLUGINS, this);
         addFakeAgentBinaryServlet(wac, "/admin/tfs-impl.jar", TEST_TFS_IMPL, this);
-        addlatestAgentStatusCall(wac);
+        addLatestAgentStatusCall(wac);
         addDefaultServlet(wac);
         server.setHandler(wac);
         server.setStopAtShutdown(true);
@@ -182,16 +184,15 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         }
     }
 
-    public FakeGoServer setExtraPropertiesHeaderValue(String value) {
+    public void setExtraPropertiesHeaderValue(String value) {
         extraPropertiesHeaderValue = value;
-        return this;
     }
 
     String getExtraPropertiesHeaderValue() {
         return extraPropertiesHeaderValue;
     }
 
-    private void addlatestAgentStatusCall(WebAppContext wac) {
+    private void addLatestAgentStatusCall(WebAppContext wac) {
         wac.addServlet(AgentStatusApi.class, "/admin/latest-agent.status");
     }
 
@@ -204,11 +205,6 @@ public class FakeGoServer implements ExtensionContext.Store.CloseableResource {
         @Override
         public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
             filterChain.doFilter(servletRequest, servletResponse);
-        }
-
-        @Override
-        public void destroy() {
-
         }
     }
 

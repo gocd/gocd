@@ -26,12 +26,12 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.SystemEnvironment.LOADING_PAGE;
 import static org.eclipse.jetty.http.MimeTypes.Type.*;
@@ -40,9 +40,9 @@ import static org.eclipse.jetty.http.MimeTypes.Type.*;
  *  During that time, this handler shows a 503 for all requests, while waiting for the rest of the server to be up.
  */
 class GoServerLoadingIndicationHandler extends ContextHandler {
-    private WebAppContext webAppContext;
-    private boolean isWebAppStarting;
-    private SystemEnvironment systemEnvironment;
+    private final WebAppContext webAppContext;
+    private final SystemEnvironment systemEnvironment;
+    private volatile boolean isWebAppStarting;
 
     GoServerLoadingIndicationHandler(WebAppContext webAppContext, SystemEnvironment systemEnvironment) {
         setContextPath("/");
@@ -55,16 +55,16 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
 
     private class LoadingHandler extends AbstractHandler {
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             if (isWebAppStarting()) {
-                handleQueriesWhenWebAppIsStarting(target, baseRequest, request, response);
+                handleQueriesWhenWebAppIsStarting(baseRequest, response);
             } else if ("/".equals(target)) {
                 addHeaders(response);
                 response.sendRedirect(GoConstants.GO_URL_CONTEXT + systemEnvironment.landingPage());
             }
         }
 
-        private void handleQueriesWhenWebAppIsStarting(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        private void handleQueriesWhenWebAppIsStarting(Request baseRequest, HttpServletResponse response) throws IOException {
             if (acceptHeaderValue(baseRequest).contains("json")) {
                 respondWith503(baseRequest, response, APPLICATION_JSON.asString(), "{ \"message\": \"GoCD server is starting\" }");
             } else if (acceptHeaderValue(baseRequest).contains("html")) {
@@ -108,7 +108,7 @@ class GoServerLoadingIndicationHandler extends ContextHandler {
 
     private String loadingPage() {
         try {
-            return IOUtils.toString(getClass().getResource(systemEnvironment.get(LOADING_PAGE)), StandardCharsets.UTF_8);
+            return IOUtils.toString(Objects.requireNonNull(getClass().getResource(systemEnvironment.get(LOADING_PAGE))), StandardCharsets.UTF_8);
         } catch (Exception e) {
             return "<h2>GoCD is starting up. Please wait ....</h2>";
         }

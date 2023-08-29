@@ -1,79 +1,43 @@
 <?xml version="1.0"?>
-<!-- *
- * Copyright 2023 Thoughtworks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * -->
+<!--
+  ~ Copyright 2023 Thoughtworks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_3.dtd">
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
-    <!--Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.-->
-    <!--jetty-v9.2.3-->
-    <!-- =========================================================== -->
-    <!-- Server Thread Pool                                          -->
-    <!-- =========================================================== -->
-    <Get name="ThreadPool">
-        <Set name="minThreads">20</Set>
-        <Set name="maxThreads">300</Set>
-        <!-- New Jetty QTP does not have these two properties below.
-        <Set name="lowThreads">10</Set>
-        <Set name="SpawnOrShrinkAt">2</Set>
-        -->
-    </Get>
-    <Call name="setAttribute">
-        <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
-        <Arg>30000000</Arg>
-    </Call>
 
-    <!--<Call name="addBean">-->
-    <!--<Arg>-->
-    <!--<New class="org.eclipse.jetty.server.LowResourceMonitor">-->
-    <!--<Arg><Ref id="Server"/></Arg>-->
-    <!--<Set name="period"><Property name="lowresources.period" default="1000"/></Set>-->
-    <!--<Set name="lowResourcesIdleTimeout"><Property name="lowresources.lowResourcesIdleTimeout" default="1000"/></Set>-->
-    <!--<Set name="monitorThreads"><Property name="lowresources.monitorThreads" default="true"/></Set>-->
-    <!--<Set name="maxConnections"><Property name="lowresources.maxConnections" default="0"/></Set>-->
-    <!--<Set name="maxMemory"><Property name="lowresources.maxMemory" default="0"/></Set>-->
-    <!--<Set name="maxLowResourcesTime"><Property name="lowresources.maxLowResourcesTime" default="5000"/></Set>-->
-    <!--</New>-->
-    <!--</Arg>-->
-    <!--</Call>-->
+  <!-- Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.
+       This is used by the GoCD server to determine whether a breaking change has been made to Jetty config and the
+       user's custom configuration needs to be overridden with that packages.
 
+       See com.thoughtworks.go.server.Jetty9Server#JETTY_CONFIG_VERSION
+  -->
+  <!-- jetty-config-gocd-intentionally-outdated -->
 
-    <!-- =========================================================== -->
-    <!-- Logging                                                     -->
-    <!-- =========================================================== -->
-    <!-- Note: Please create the weblogs directory if not exist -->
-    <!--
-    <Get name="handler">
-        <Call name="addHandler">
-            <Arg>
-                <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
-                    <Set name="requestLog">
-                        <New class="org.eclipse.jetty.server.NCSARequestLog">
-                            <Arg><SystemProperty name="jetty.logs" default="./weblogs"/>/jetty-yyyy_mm_dd.request.log</Arg>
-                            <Set name="filenameDateFormat">yyyy_MM_dd</Set>
-                            <Set name="retainDays">7</Set>
-                            <Set name="append">true</Set>
-                            <Set name="extended">false</Set>
-                            <Set name="logCookies">false</Set>
-                            <Set name="logLatency">false</Set>
-                        </New>
-                    </Set>
-                </New>
-            </Arg>
-        </Call>
-    </Get>
-    -->
+  <!-- =========================================================== -->
+  <!-- Server Thread Pool                                          -->
+  <!-- =========================================================== -->
+
+  <Get name="ThreadPool">
+    <Set name="minThreads">20</Set>
+    <Set name="maxThreads">300</Set>
+  </Get>
+  <Call name="setAttribute">
+    <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+    <Arg>30000000</Arg>
+  </Call>
+
 </Configure>

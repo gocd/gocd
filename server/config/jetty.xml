@@ -15,39 +15,35 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure.dtd">
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "http://www.eclipse.org/jetty/configure_9_3.dtd">
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
-    <!--Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.-->
-    <!--jetty-v9.4.48.v20220622-->
-    <!-- =========================================================== -->
-    <!-- Server Thread Pool                                          -->
-    <!-- =========================================================== -->
 
-    <!--<Get name="ThreadPool">-->
-        <!--<Set name="minThreads" type="int"><Property name="jetty.threadPool.minThreads" deprecated="threads.min" default="10"/></Set>-->
-        <!--<Set name="maxThreads" type="int"><Property name="jetty.threadPool.maxThreads" deprecated="threads.max" default="200"/></Set>-->
-        <!--<Set name="idleTimeout" type="int"><Property name="jetty.threadPool.idleTimeout" deprecated="threads.timeout" default="60000"/></Set>-->
-        <!--<Set name="detailedDump">false</Set>-->
-    <!--</Get>-->
+  <!-- Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.
+       This is used by the GoCD server to determine whether a breaking change has been made to Jetty config and the
+       user's custom configuration needs to be overridden with that packages.
 
-    <Get name="ThreadPool">
-        <Set name="minThreads">20</Set>
-        <Set name="maxThreads">300</Set>
-        <!-- New Jetty QTP does not have these two properties below.
-        <Set name="lowThreads">10</Set>
-        <Set name="SpawnOrShrinkAt">2</Set>
-        -->
-    </Get>
-    <Call name="setAttribute">
-        <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
-        <Arg>30000000</Arg>
-    </Call>
+       See com.thoughtworks.go.server.JettyServer#JETTY_CONFIG_VERSION
+  -->
+  <!-- jetty-config-gocd-v9 -->
+
+  <!-- =========================================================== -->
+  <!-- Server Thread Pool                                          -->
+  <!-- =========================================================== -->
+
+  <Get name="ThreadPool">
+    <Set name="minThreads">20</Set>
+    <Set name="maxThreads">300</Set>
+  </Get>
+  <Call name="setAttribute">
+    <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+    <Arg>30000000</Arg>
+  </Call>
 
     <Call name="addBean">
         <Arg>
             <New class="org.eclipse.jetty.server.LowResourceMonitor">
-                <Arg><Ref id="Server"/></Arg>
+                <Arg><Ref refid="Server"/></Arg>
                 <Set name="period"><Property name="jetty.lowresources.period" default="1000"/></Set>
                 <Set name="lowResourcesIdleTimeout"><Property name="jetty.lowresources.idleTimeout" default="500"/></Set>
                 <Set name="monitorThreads"><Property name="jetty.lowresources.monitorThreads"  default="true"/></Set>

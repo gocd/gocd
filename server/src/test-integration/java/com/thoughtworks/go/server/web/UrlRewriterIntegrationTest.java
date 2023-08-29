@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
-import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.*;
@@ -143,7 +142,6 @@ public class UrlRewriterIntegrationTest {
 
     @BeforeAll
     public static void beforeClass() throws Exception {
-        ServletHelper.init();
         httpUtil = new HttpTestUtil(ctx -> {
             wac = mock(WebApplicationContext.class);
             ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);

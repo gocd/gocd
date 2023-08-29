@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.server.util;
 
+import lombok.experimental.UtilityClass;
+
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.eclipse.jetty.server.Request.MULTIPART_CONFIG_ELEMENT;
 
+@UtilityClass
 public class RequestUtils {
     public static void configureMultipart(HttpServletRequest req) {
         req.setAttribute(MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement(System.getProperty("java.io.tmpdir", "tmp")));
-    }
-
-    private RequestUtils() {
     }
 }

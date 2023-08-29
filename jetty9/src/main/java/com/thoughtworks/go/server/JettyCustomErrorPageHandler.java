@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import static java.lang.String.valueOf;
 
@@ -32,7 +33,7 @@ public class JettyCustomErrorPageHandler extends ErrorPageErrorHandler {
     private final String fileContents;
 
     public JettyCustomErrorPageHandler() throws IOException {
-        try (InputStream in = getClass().getResourceAsStream("/error.html")) {
+        try (InputStream in = Objects.requireNonNull(getClass().getResourceAsStream("/error.html"))) {
             fileContents = IOUtils.toString(in, StandardCharsets.UTF_8);
         }
     }

@@ -8,6 +8,12 @@
 # and https://github.com/jruby/jruby/pull/7867 for removing the noise.
 CVE-2023-33201
 
+# org.eclipse.jetty:jetty-xml (go.jar)
+# https://github.com/advisories/GHSA-58qw-p7qm-5rvh
+#
+# GoCD is not vulnerable since it does not use XmlParser on user input
+GHSA-58qw-p7qm-5rvh
+
 # org.springframework:spring-core (go.jar) Fixed: 5.2.22.RELEASE, 5.3.20.RELEASE
 # https://avd.aquasec.com/nvd/2022/cve-2022-22971/
 #

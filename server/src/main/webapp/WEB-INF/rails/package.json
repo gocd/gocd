@@ -70,7 +70,7 @@
     "@types/prismjs": "^1.26.0",
     "@types/shell-quote": "^1.7.1",
     "@types/underscore.string": "^0.0.39",
-    "@types/url-parse": "^1.4.8",
+    "@types/url-parse": "^1.4.9",
     "@types/uuid": "^9.0.3",
     "@types/webpack": "^4.41.33",
     "add-matchers": "^0.6.2",

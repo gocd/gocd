@@ -2080,10 +2080,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/url-parse@npm:^1.4.8":
-  version: 1.4.8
-  resolution: "@types/url-parse@npm:1.4.8"
-  checksum: 44a5e96ed4b579c43750f3578bfa9165f97a359c3b2a85ee126e9c16db964f6ea105e152afd3d1adbd15850a8b812043215f3820112177bb4255a60b432dbd85
+"@types/url-parse@npm:^1.4.9":
+  version: 1.4.9
+  resolution: "@types/url-parse@npm:1.4.9"
+  checksum: 4057c82f917f2ae8456cf7f7dd6a2908733a0c114c7d77e7e4642edbbde4b007ce445c492ae81daac77a9355d0dabb914f6ac396c16a91ca111d0b4029c33d17
   languageName: node
   linkType: hard
 
@@ -6003,7 +6003,7 @@ __metadata:
     "@types/prismjs": ^1.26.0
     "@types/shell-quote": ^1.7.1
     "@types/underscore.string": ^0.0.39
-    "@types/url-parse": ^1.4.8
+    "@types/url-parse": ^1.4.9
     "@types/uuid": ^9.0.3
     "@types/webpack": ^4.41.33
     add-matchers: ^0.6.2

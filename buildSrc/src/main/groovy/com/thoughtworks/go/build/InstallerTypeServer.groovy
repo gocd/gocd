@@ -58,11 +58,6 @@ class InstallerTypeServer implements InstallerType {
       '-XX:MaxMetaspaceSize=400m',
       '-Duser.language=en',
       '-Duser.country=US',
-      // jruby rack will buffer the output stream in memory, before it writes to disk.
-      // This writing to disk and then sending the contents over an http socket can cause significant performance overhead
-      // so we increase the buffer limit to 30mb.
-      // See org.jruby.rack.servlet.RewindableInputStream
-      '-Djruby.rack.request.size.threshold.bytes=30000000',
     ]
   }
 
@@ -71,7 +66,7 @@ class InstallerTypeServer implements InstallerType {
     [
       '-Dgocd.server.log.dir=/var/log/go-server',
       '-Dcruise.config.dir=/etc/go',
-      '-Dcruise.config.file=/etc/go/cruise-config.xml'
+      '-Dcruise.config.file=/etc/go/cruise-config.xml',
     ]
   }
 

@@ -67,7 +67,7 @@
                             <Set name="ignorePaths">
                               <Array type="java.lang.String">
                                 <Item>/go/assets/*</Item>
-                                <Item>/go/server/api/server_health_messages</Item>
+                                <Item>/go/api/server_health_messages</Item>
                               </Array>
                             </Set>
                         </New>

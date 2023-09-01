@@ -19,12 +19,12 @@ import java.io.File;
 
 public class GoWebXmlConfiguration {
 
-    private static String webdefaultXml = "WEB-INF/webdefault.xml";
+    private static final String WEB_DEFAULT_XML = "WEB-INF/webdefault.xml";
 
     public static String configuration(String warFile) {
         if (new File(warFile).isDirectory()) {
-            return new File(warFile, webdefaultXml).getPath();
+            return new File(warFile, WEB_DEFAULT_XML).getPath();
         }
-        return "jar:file:" + warFile + "!/" + webdefaultXml;
+        return "jar:file:" + warFile + "!/" + WEB_DEFAULT_XML;
     }
 }

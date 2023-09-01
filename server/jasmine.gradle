@@ -1,3 +1,4 @@
+import com.thoughtworks.go.build.Architecture
 import com.thoughtworks.go.build.DownloaderTask
 import com.thoughtworks.go.build.YarnRunTask
 import org.gradle.internal.os.OperatingSystem
@@ -21,12 +22,13 @@ import java.util.regex.Pattern
  */
 
 OperatingSystem currentOS = OperatingSystem.current()
+Architecture currentArch = Architecture.current()
 
 // Chrome:        See https://googlechromelabs.github.io/chrome-for-testing/ Must match version of Chrome on build host
 // Firefox/gecko: See https://github.com/mozilla/geckodriver/releases and review compatibility at
 //                https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
 final Map<String, String> seleniumDrivers = [
-  chromedriver: '115.0.5790.102',
+  chromedriver: '116.0.5845.96',
   geckodriver : '0.33.0',
 ]
 
@@ -50,8 +52,8 @@ def execute = { String path, String... argv ->
       for (String entryInPath : path.split(Pattern.quote(File.pathSeparator))) {
         def candidateExecutable = new File(entryInPath, executableName)
         if (candidateExecutable.isFile() && candidateExecutable.canExecute()) {
-          executable = candidateExecutable;
-          break;
+          executable = candidateExecutable
+          break
         }
       }
 
@@ -83,11 +85,11 @@ def browserExecutable = { String path ->
     case 'chrome':
       println("       chrome: ${execute(path, "google-chrome", "--version")}")
       println(" chromedriver: ${execute(path, "chromedriver", "--version").readLines().first()}")
-      return;
+      return
     default:
       println("     firefox: ${execute(path, "firefox", "--version")}")
       println(" geckodriver: ${execute(path, "geckodriver", "--version").readLines().first()}")
-      return;
+      return
   }
 }
 
@@ -105,19 +107,19 @@ task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
   packageName = 'geckodriver'
   packageVersion = seleniumDrivers.geckodriver
 
-  String osURIPart;
-  String archiveExtension = currentOS.isWindows() ? 'zip' : 'tar.gz';
+  String osURIPart
+  String archiveExtension = currentOS.isWindows() ? 'zip' : 'tar.gz'
 
   switch (currentOS) {
     case OperatingSystem.MacOs:
-      osURIPart = 'macos-aarch64';
+      osURIPart = currentArch == Architecture.aarch64 ? 'macos-aarch64' : 'macos'
       break
     case OperatingSystem.Windows:
-      osURIPart = 'win64'
+      osURIPart = currentArch == Architecture.aarch64 ? 'win-aarch64' : 'win64'
       break
     default:
-      osURIPart = 'linux64'
-      break;
+      osURIPart = currentArch == Architecture.aarch64 ? 'linux-aarch64' : 'linux64'
+      break
   }
   url = "https://github.com/mozilla/geckodriver/releases/download/v${packageVersion}/geckodriver-v${packageVersion}-${osURIPart}.${archiveExtension}"
 }
@@ -127,18 +129,18 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
   packageName = 'chromedriver'
   packageVersion = seleniumDrivers.chromedriver
 
-  String osURIPart;
+  String osURIPart
 
   switch (currentOS) {
     case OperatingSystem.MacOs:
-      osURIPart = 'mac-arm64';
+      osURIPart = currentArch == Architecture.aarch64 ? 'mac-arm64' : 'mac-x64'
       break
     case OperatingSystem.Windows:
       osURIPart = 'win64'
       break
     default:
       osURIPart = 'linux64'
-      break;
+      break
   }
   url = "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${packageVersion}/${osURIPart}/chromedriver-${osURIPart}.zip"
 }

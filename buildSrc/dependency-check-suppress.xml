@@ -263,14 +263,4 @@
     <cve>CVE-2023-35887</cve>
   </suppress>
 
-  <suppress until="2023-10-01Z">
-    <notes><![CDATA[
-    Time-limited suppression of issue from yamlbeans via the yaml config repo plugin )gocd-yaml-config-plugin.jar). There is no fixed version
-    released at time of writing, see https://github.com/EsotericSoftware/yamlbeans/pull/164#issuecomment-1702397167
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.esotericsoftware\.yamlbeans/yamlbeans@.*$</packageUrl>
-    <cve>CVE-2023-24620</cve>
-    <cve>CVE-2023-24621</cve>
-  </suppress>
-
 </suppressions>

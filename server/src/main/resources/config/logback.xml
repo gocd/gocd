@@ -81,6 +81,9 @@
 
   <!-- Change to INFO to enable request logging -->
   <logger name="org.eclipse.jetty.server.RequestLog" level="WARN"/>
+
+  <!-- Lower default log levels of certain loggers to improve debuggability if something goes wrong -->
+  <logger name="org.jruby.rack.JRubyRack" level="INFO"/>
   <logger name="liquibase.changelog.visitor.UpdateVisitor" level="DEBUG"/>
 
   <!-- make sure this is the last line in the config -->

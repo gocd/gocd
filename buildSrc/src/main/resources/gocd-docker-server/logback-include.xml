@@ -15,18 +15,21 @@
   ~ limitations under the License.
   -->
 
-<included>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>
-                ${gocd.server.logback.defaultPattern:-%date{ISO8601} %-5level [%thread] %logger{0}:%line - %msg%n}
-            </pattern>
-        </encoder>
-    </appender>
+<included
+    xmlns="http://ch.qos.logback/xml/ns/logback"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd"
+>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        ${gocd.server.logback.defaultPattern:-%date{ISO8601} %-5level [%thread] %logger{0}:%line - %msg%n}
+      </pattern>
+    </encoder>
+  </appender>
 
-
-    <root>
-        <appender-ref ref="CONSOLE"/>
-    </root>
+  <root level="${gocd.server.logback.root.level:-WARN}">
+    <appender-ref ref="CONSOLE"/>
+  </root>
 
 </included>

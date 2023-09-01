@@ -17,7 +17,7 @@
 <configuration
     xmlns="http://ch.qos.logback/xml/ns/logback"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback http://ch.qos.logback/xml/ns/logback/logback.xsd"
+    xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd"
     debug="${gocd.agentBootstrapper.logback.debug:-false}"
     scan="${gocd.agentBootstrapper.logback.scan:-true}"
     scanPeriod="${gocd.agentBootstrapper.logback.scanPeriod:-5 seconds}"

@@ -30,6 +30,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -55,8 +56,8 @@ public class Jetty9Server extends AppServer {
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
     private static final String JETTY_XML = "jetty.xml";
     private final Server server;
-    private WebAppContext webAppContext;
     private final DeploymentManager deploymentManager;
+    private WebAppContext webAppContext;
 
     public Jetty9Server(SystemEnvironment systemEnvironment) {
         this(systemEnvironment, new Server(), new DeploymentManager());
@@ -81,7 +82,7 @@ public class Jetty9Server extends AppServer {
 
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
-        webAppContext.insertHandler(gzipHandler());
+        webAppContext.setGzipHandler(gzipHandler());
         server.addBean(errorHandler);
         server.addBean(deploymentManager);
 
@@ -168,7 +169,7 @@ public class Jetty9Server extends AppServer {
         if (systemEnvironment.useCompressedJs()) {
             AssetsContextHandler assetsContextHandler = new AssetsContextHandler(systemEnvironment);
             deploymentManager.addApp(new App(deploymentManager, webAppProvider, "assetsHandler", assetsContextHandler));
-            webAppContext.addEventListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));
+            webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));
         }
 
         deploymentManager.addApp(new App(deploymentManager, webAppProvider, "realApp", webAppContext));
@@ -225,7 +226,8 @@ public class Jetty9Server extends AppServer {
 
         context.setConfigurationClasses(new String[]{
             WebInfConfiguration.class.getCanonicalName(),
-            WebXmlConfiguration.class.getCanonicalName()
+            WebXmlConfiguration.class.getCanonicalName(),
+            JettyWebXmlConfiguration.class.getCanonicalName()
         });
         context.setContextPath(systemEnvironment.getWebappContextPath());
 

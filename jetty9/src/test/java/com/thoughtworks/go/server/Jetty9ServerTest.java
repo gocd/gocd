@@ -25,6 +25,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -194,6 +195,7 @@ public class Jetty9ServerTest {
         List<String> configClasses = new ArrayList<>(List.of(webAppContext.getConfigurationClasses()));
         assertThat(configClasses.contains(WebInfConfiguration.class.getCanonicalName()), is(true));
         assertThat(configClasses.contains(WebXmlConfiguration.class.getCanonicalName()), is(true));
+        assertThat(configClasses.contains(JettyWebXmlConfiguration.class.getCanonicalName()), is(true));
         assertThat(webAppContext.getContextPath(), is("context"));
         assertThat(webAppContext.getWar(), is("cruise.war"));
         assertThat(webAppContext.isParentLoaderPriority(), is(true));

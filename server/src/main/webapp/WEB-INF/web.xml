@@ -118,7 +118,7 @@
     <param-value>30000000</param-value>
   </context-param>
 
-  <!-- DelegatingServlet below loads this servlet and delegates to it, the source is in PROJECT_ROOT/rack_hack. Default ant task for this project runs tests, packages a jar, and deploys to the correct localivy directory(it always overwrites becuase there is no version) -->
+  <!-- DelegatingServlet below loads this servlet and delegates to it, the source is in PROJECT_ROOT/rack_hack. -->
   <context-param>
     <param-name>delegate.servlet.name</param-name>
     <param-value>org.jruby.rack.RackServlet</param-value>

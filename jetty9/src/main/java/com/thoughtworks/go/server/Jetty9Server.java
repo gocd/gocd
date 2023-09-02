@@ -30,7 +30,6 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -226,8 +225,7 @@ public class Jetty9Server extends AppServer {
 
         context.setConfigurationClasses(new String[]{
             WebInfConfiguration.class.getCanonicalName(),
-            WebXmlConfiguration.class.getCanonicalName(),
-            JettyWebXmlConfiguration.class.getCanonicalName()
+            WebXmlConfiguration.class.getCanonicalName()
         });
         context.setContextPath(systemEnvironment.getWebappContextPath());
 

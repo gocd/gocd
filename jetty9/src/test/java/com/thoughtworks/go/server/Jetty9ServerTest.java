@@ -25,7 +25,6 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -52,12 +51,13 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SystemStubsExtension.class)
@@ -75,7 +75,7 @@ public class Jetty9ServerTest {
     @SystemStub
     private SystemProperties systemProperties;
 
-    private Jetty9Server jetty9Server;
+    private Jetty9Server jettyServer;
     private Handler serverLevelHandler;
     private ArgumentCaptor<App> appCaptor;
 
@@ -109,51 +109,48 @@ public class Jetty9ServerTest {
         when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
-        jetty9Server = new Jetty9Server(systemEnvironment, server, deploymentManager);
+        jettyServer = new Jetty9Server(systemEnvironment, server, deploymentManager);
         Jetty9Server.JETTY_XML_LOCATION_IN_JAR = "config";
     }
 
     @Test
     public void shouldAddMBeanContainerAsEventListener() throws Exception {
         ArgumentCaptor<MBeanContainer> captor = ArgumentCaptor.forClass(MBeanContainer.class);
-        jetty9Server.configure();
+        jettyServer.configure();
 
         verify(server).addEventListener(captor.capture());
         MBeanContainer mBeanContainer = captor.getValue();
-        assertThat(mBeanContainer.getMBeanServer(), is(not(nullValue())));
+        assertThat(mBeanContainer.getMBeanServer()).isNotNull();
     }
 
     @Test
     public void shouldAddHttpSocketConnector() throws Exception {
         ArgumentCaptor<Connector> captor = ArgumentCaptor.forClass(Connector.class);
-        jetty9Server.configure();
+        jettyServer.configure();
 
         verify(server, times(1)).addConnector(captor.capture());
 
-        List<Connector> connectors = captor.getAllValues();
-        Connector plainConnector = connectors.get(0);
-
-        assertThat(plainConnector instanceof ServerConnector, is(true));
-        ServerConnector connector = (ServerConnector) plainConnector;
-        assertThat(connector.getServer(), is(server));
-        assertThat(connector.getConnectionFactories().size(), is(1));
-        ConnectionFactory connectionFactory = connector.getConnectionFactories().iterator().next();
-        assertThat(connectionFactory instanceof HttpConnectionFactory, is(true));
+        assertThat(captor.getValue()).asInstanceOf(type(ServerConnector.class))
+                .satisfies(connector -> {
+                    assertThat(connector.getServer()).isEqualTo(server);
+                    assertThat(connector.getConnectionFactories()).singleElement().isInstanceOf(HttpConnectionFactory.class);
+                    assertThat(connector.getIdleTimeout()).isEqualTo(2000L);
+                });
     }
 
     @Test
     public void shouldAddRootRequestHandler() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
         ContextHandler rootRequestHandler = getLoadedHandlers().get(GoServerLoadingIndicationHandler.class);
-        assertThat(rootRequestHandler.getContextPath(), is("/"));
+        assertThat(rootRequestHandler.getContextPath()).isEqualTo("/");
     }
 
     @Test
     public void shouldAddDefaultHeadersForRootContext() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getWriter()).thenReturn(mock(PrintWriter.class));
@@ -176,74 +173,93 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldAddResourceHandlerForAssets() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+    public void shouldAddAndInitializeResourceHandlerForAssets(@TempDir Path temporaryFolder) throws Exception {
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
         ContextHandler assetsContextHandler = getLoadedHandlers().get(AssetsContextHandler.class);
-        assertThat(assetsContextHandler.getContextPath(), is("context/assets"));
+        assertThat(assetsContextHandler.getContextPath()).isEqualTo("context/assets");
+
+        WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
+
+        // Initialize the webapp
+        webAppContext.setInitParameter("rails.root", "/WEB-INF/somelocation");
+        Files.createDirectory(temporaryFolder.resolve("WEB-INF"));
+        webAppContext.setResourceBase(temporaryFolder.toString());
+        webAppContext.start();
+
+        // Ensure it was initialized
+        assertThat(assetsContextHandler).asInstanceOf(type(AssetsContextHandler.class))
+                .satisfies(handler -> assertThat(handler.getAssetsHandler().getResourceHandler()).satisfies(resourceHandler -> {
+                    assertThat(resourceHandler.getCacheControl()).isEqualTo("max-age=31536000,public");
+                    assertThat(resourceHandler.isEtags()).isFalse();
+                    assertThat(resourceHandler.isDirAllowed()).isFalse();
+                    assertThat(resourceHandler.isDirectoriesListed()).isFalse();
+                    assertThat(resourceHandler.getResourceBase())
+                            .isEqualTo("file://" + temporaryFolder.resolve("WEB-INF/somelocation/public/assets/"));
+                }));
     }
 
     @Test
     public void shouldAddWebAppContextHandler() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
 
-        assertThat(webAppContext, instanceOf(WebAppContext.class));
-        List<String> configClasses = new ArrayList<>(List.of(webAppContext.getConfigurationClasses()));
-        assertThat(configClasses.contains(WebInfConfiguration.class.getCanonicalName()), is(true));
-        assertThat(configClasses.contains(WebXmlConfiguration.class.getCanonicalName()), is(true));
-        assertThat(configClasses.contains(JettyWebXmlConfiguration.class.getCanonicalName()), is(true));
-        assertThat(webAppContext.getContextPath(), is("context"));
-        assertThat(webAppContext.getWar(), is("cruise.war"));
-        assertThat(webAppContext.isParentLoaderPriority(), is(true));
-        assertThat(webAppContext.getDefaultsDescriptor(), is("jar:file:cruise.war!/WEB-INF/webdefault.xml"));
+        assertThat(webAppContext).isInstanceOf(WebAppContext.class);
+        assertThat(webAppContext.getConfigurationClasses()).containsExactly(
+                WebInfConfiguration.class.getCanonicalName(),
+                WebXmlConfiguration.class.getCanonicalName()
+        );
+        assertThat(webAppContext.getContextPath()).isEqualTo("context");
+        assertThat(webAppContext.getWar()).isEqualTo("cruise.war");
+        assertThat(webAppContext.isParentLoaderPriority()).isTrue();
+        assertThat(webAppContext.getDefaultsDescriptor()).isEqualTo("jar:file:cruise.war!/WEB-INF/webdefault.xml");
     }
 
     @Test
     public void shouldSetStopAtShutdown() throws Exception {
-        jetty9Server.configure();
+        jettyServer.configure();
         verify(server).setStopAtShutdown(true);
     }
 
     @Test
     public void shouldSetSessionMaxInactiveInterval() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.setSessionConfig();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.setSessionConfig();
+        jettyServer.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
-        assertThat(webAppContext.getSessionHandler().getMaxInactiveInterval(), is(1234));
+        assertThat(webAppContext.getSessionHandler().getMaxInactiveInterval()).isEqualTo(1234);
     }
 
     @Test
     public void shouldSetSessionCookieConfig() throws Exception {
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true);
-        jetty9Server.configure();
-        jetty9Server.setSessionConfig();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.setSessionConfig();
+        jettyServer.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
         SessionCookieConfig sessionCookieConfig = webAppContext.getSessionHandler().getSessionCookieConfig();
-        assertThat(sessionCookieConfig.isHttpOnly(), is(true));
-        assertThat(sessionCookieConfig.isSecure(), is(true));
-        assertThat(sessionCookieConfig.getMaxAge(), is(5678));
+        assertThat(sessionCookieConfig.isHttpOnly()).isTrue();
+        assertThat(sessionCookieConfig.isSecure()).isTrue();
+        assertThat(sessionCookieConfig.getMaxAge()).isEqualTo(5678);
 
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
-        jetty9Server.setSessionConfig();
-        assertThat(sessionCookieConfig.isSecure(), is(false));
+        jettyServer.setSessionConfig();
+        assertThat(sessionCookieConfig.isSecure()).isFalse();
     }
 
     @Test
     public void shouldSetInitParams() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.setInitParameter("name", "value");
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.setInitParameter("name", "value");
+        jettyServer.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
-        assertThat(webAppContext.getInitParameter("name"), is("value"));
+        assertThat(webAppContext.getInitParameter("name")).isEqualTo("value");
     }
 
     @Test
@@ -253,9 +269,9 @@ public class Jetty9ServerTest {
 
         String originalContent = "jetty-v6.2.3\nsome other local changes";
         Files.writeString(jettyXml, originalContent, UTF_8);
-        jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
+        jettyServer.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
         try (InputStream configStream = Objects.requireNonNull(getClass().getResourceAsStream("config/jetty.xml"))) {
-            assertThat(Files.readString(jettyXml, UTF_8), is(new String(configStream.readAllBytes(), UTF_8)));
+            assertThat(Files.readString(jettyXml, UTF_8)).isEqualTo(new String(configStream.readAllBytes(), UTF_8));
         }
     }
 
@@ -266,45 +282,47 @@ public class Jetty9ServerTest {
 
         String originalContent = Jetty9Server.JETTY_CONFIG_VERSION + "\nsome other local changes";
         Files.writeString(jettyXml, originalContent, UTF_8);
-        jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
-        assertThat(Files.readString(jettyXml, UTF_8), is(originalContent));
+        jettyServer.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
+        assertThat(Files.readString(jettyXml, UTF_8)).isEqualTo(originalContent);
     }
 
     @Test
     public void shouldSetErrorHandlerForServer() throws Exception {
-        jetty9Server.configure();
+        jettyServer.configure();
         verify(server).addBean(any(JettyCustomErrorPageHandler.class));
     }
 
     @Test
     public void shouldSetErrorHandlerForWebAppContext() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
-        assertThat(webAppContext.getErrorHandler() instanceof JettyCustomErrorPageHandler, is(true));
+        assertThat(webAppContext.getErrorHandler()).isInstanceOf(JettyCustomErrorPageHandler.class);
     }
 
     @Test
     public void shouldAddGzipHandlerAtWebAppContextLevel() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
-        assertThat(webAppContext.getGzipHandler(), is(not(nullValue())));
+        assertThat(webAppContext.getGzipHandler()).isNotNull();
     }
 
     @Test
     public void shouldHaveAHandlerCollectionAtServerLevel_ToAllowRequestLoggingHandlerToBeAdded() throws Exception {
-        jetty9Server.configure();
-        jetty9Server.startHandlers();
+        jettyServer.configure();
+        jettyServer.startHandlers();
 
-        assertThat(serverLevelHandler, instanceOf(HandlerCollection.class));
-        assertThat(serverLevelHandler, not(instanceOf(ContextHandlerCollection.class)));
+        assertThat(serverLevelHandler)
+                .isInstanceOf(HandlerCollection.class)
+                .isNotInstanceOf(ContextHandlerCollection.class);
 
         Handler[] contentsOfServerLevelHandler = ((HandlerCollection) serverLevelHandler).getHandlers();
-        assertThat(contentsOfServerLevelHandler.length, is(1));
-        assertThat(contentsOfServerLevelHandler[0], instanceOf(ContextHandlerCollection.class));
+        assertThat(contentsOfServerLevelHandler)
+                .singleElement()
+                .isInstanceOf(ContextHandlerCollection.class);
     }
 
     private Map<Class<? extends ContextHandler>, ContextHandler> getLoadedHandlers() throws Exception {

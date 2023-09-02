@@ -21,6 +21,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.ServletException;
@@ -29,27 +30,31 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class AssetsContextHandler extends ContextHandler {
-    private final AssetsHandler handler;
+    private final AssetsHandler assetsHandler = new AssetsHandler();
     private final SystemEnvironment systemEnvironment;
 
     public AssetsContextHandler(SystemEnvironment systemEnvironment) {
         super(systemEnvironment.getWebappContextPath() + "/assets");
         this.systemEnvironment = systemEnvironment;
-        handler = new AssetsHandler();
 
         GzipHandler gzipHandler = Jetty9Server.gzipHandler();
-        gzipHandler.setHandler(this.handler);
+        gzipHandler.setHandler(this.assetsHandler);
         setHandler(gzipHandler);
     }
 
     public void init(WebAppContext webAppContext) throws IOException {
         String railsRootDirName = webAppContext.getInitParameter("rails.root").replaceAll("/WEB-INF/", "");
-        String assetsDir = webAppContext.getWebInf().addPath(String.format("%s/public/assets/", railsRootDirName)).getName();
-        handler.setAssetsDir(assetsDir);
+        try (Resource assetsPathResource = webAppContext.getWebInf().addPath(railsRootDirName + "/public/assets/")) {
+            assetsHandler.setAssetsDir(assetsPathResource.getName());
+        }
     }
 
     private boolean shouldNotHandle() {
         return !systemEnvironment.useCompressedJs();
+    }
+
+    AssetsHandler getAssetsHandler() {
+        return assetsHandler;
     }
 
     class AssetsHandler extends AbstractHandler {
@@ -77,6 +82,10 @@ public class AssetsContextHandler extends ContextHandler {
 
         private void setAssetsDir(String assetsDir) {
             resourceHandler.setResourceBase(assetsDir);
+        }
+
+        public ResourceHandler getResourceHandler() {
+            return resourceHandler;
         }
     }
 

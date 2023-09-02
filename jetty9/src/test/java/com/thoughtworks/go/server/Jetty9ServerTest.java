@@ -196,7 +196,7 @@ public class Jetty9ServerTest {
                     assertThat(resourceHandler.isDirAllowed()).isFalse();
                     assertThat(resourceHandler.isDirectoriesListed()).isFalse();
                     assertThat(resourceHandler.getResourceBase())
-                            .isEqualTo("file://" + temporaryFolder.resolve("WEB-INF/somelocation/public/assets/"));
+                            .isEqualTo(temporaryFolder.resolve("WEB-INF/somelocation/public/assets/").toUri().toString()));
                 }));
     }
 

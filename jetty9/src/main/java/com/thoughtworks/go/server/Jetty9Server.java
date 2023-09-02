@@ -169,7 +169,7 @@ public class Jetty9Server extends AppServer {
         if (systemEnvironment.useCompressedJs()) {
             AssetsContextHandler assetsContextHandler = new AssetsContextHandler(systemEnvironment);
             deploymentManager.addApp(new App(deploymentManager, webAppProvider, "assetsHandler", assetsContextHandler));
-            webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));
+            webAppContext.addEventListener(new AssetsContextHandlerInitializer(assetsContextHandler, webAppContext));
         }
 
         deploymentManager.addApp(new App(deploymentManager, webAppProvider, "realApp", webAppContext));

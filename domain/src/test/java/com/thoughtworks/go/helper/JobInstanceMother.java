@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 public class JobInstanceMother {
-    protected JobInstanceMother() {
+    private JobInstanceMother() {
     }
 
     public static JobInstance scheduled(String jobConfigName, Date scheduleDate) {
@@ -62,16 +62,6 @@ public class JobInstanceMother {
         instance.completing(result, completedDate);
         instance.completed(completedDate);
         instance.getTransitions().add(new JobStateTransition(JobState.Building, startbuilding));
-        return instance;
-    }
-
-    public static JobInstance cancelled(String jobConfigName, Date scheduledDate, int interval) {
-        JobInstance instance = new JobInstance(jobConfigName);
-        instance.setIdentifier(defaultJobIdentifier(jobConfigName));
-        instance.schedule();
-        instance.getTransition(JobState.Scheduled).setStateChangeTime(scheduledDate);
-        instance.setResult(JobResult.Cancelled);
-        instance.completed(addMillis(scheduledDate, interval));
         return instance;
     }
 

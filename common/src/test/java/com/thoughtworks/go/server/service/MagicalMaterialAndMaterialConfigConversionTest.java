@@ -62,12 +62,12 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MagicalMaterialAndMaterialConfigConversionTest {
-    private static PackageRepository packageRepo = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(create("k1", false, "v1")));
-    private static PackageDefinition packageDefinition = PackageDefinitionMother.create("id", "name1", new Configuration(create("k2", false, "v2")), packageRepo);
-    private static SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
+    private static final PackageRepository packageRepo = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(create("k1", false, "v1")));
+    private static final PackageDefinition packageDefinition = PackageDefinitionMother.create("id", "name1", new Configuration(create("k2", false, "v2")), packageRepo);
+    private static final SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
 
-    private static Map<Class, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<>();
-    private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
+    private static final Map<Class<?>, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<>();
+    private final MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
     @SuppressWarnings("unused")
     private static Stream<MaterialConfig> testMaterials() {
@@ -133,7 +133,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
         ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AssignableTypeFilter(MaterialConfig.class));
         Set<BeanDefinition> candidateComponents = provider.findCandidateComponents("com/thoughtworks");
-        List<Class> reflectionsSubTypesOf = candidateComponents.stream().map(BeanDefinition::getBeanClassName).map(s -> {
+        List<Class<?>> reflectionsSubTypesOf = candidateComponents.stream().map(BeanDefinition::getBeanClassName).map(s -> {
             try {
                 return Class.forName(s);
             } catch (ClassNotFoundException e) {
@@ -143,21 +143,21 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
 
         reflectionsSubTypesOf.removeIf(this::isNotAConcrete_NonTest_MaterialConfigImplementation);
 
-        List<Class> allExpectedMaterialConfigImplementations = testMaterials().map(MaterialConfig::getClass).collect(Collectors.toList());
+        List<Class<?>> allExpectedMaterialConfigImplementations = testMaterials().map(MaterialConfig::getClass).collect(Collectors.toList());
 
         assertThatAllMaterialConfigsInCodeAreTestedHere(reflectionsSubTypesOf, allExpectedMaterialConfigImplementations);
     }
 
-    private void assertThatAllMaterialConfigsInCodeAreTestedHere(List<Class> reflectionsSubTypesOf, List<Class> allExpectedMaterialConfigImplementations) {
-        List<Class> missingImplementations = new ArrayList<>(reflectionsSubTypesOf);
+    private void assertThatAllMaterialConfigsInCodeAreTestedHere(List<Class<?>> reflectionsSubTypesOf, List<Class<?>> allExpectedMaterialConfigImplementations) {
+        List<Class<?>> missingImplementations = new ArrayList<>(reflectionsSubTypesOf);
         missingImplementations.removeAll(allExpectedMaterialConfigImplementations);
         String message = "You need to add a `MaterialConfig` to `testMaterials()` in this test: " + missingImplementations;
 
         assertThat(message, reflectionsSubTypesOf.size(), is(allExpectedMaterialConfigImplementations.size()));
-        assertThat(message, reflectionsSubTypesOf, hasItems(allExpectedMaterialConfigImplementations.toArray(new Class[0])));
+        assertThat(message, reflectionsSubTypesOf, hasItems(allExpectedMaterialConfigImplementations.toArray(new Class<?>[0])));
     }
 
-    private boolean isNotAConcrete_NonTest_MaterialConfigImplementation(Class aClass) {
+    private boolean isNotAConcrete_NonTest_MaterialConfigImplementation(Class<?> aClass) {
         return Pattern.matches(".*(Test|Dummy).*", aClass.toString()) || Modifier.isAbstract(aClass.getModifiers());
     }
 

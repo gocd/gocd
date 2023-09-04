@@ -28,7 +28,6 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -50,7 +49,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.sql.SQLException;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;

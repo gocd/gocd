@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.server.controller;
 
+import org.springframework.mock.web.MockHttpServletResponse;
+
 import java.io.UnsupportedEncodingException;
 
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 public class RestfulActionTestHelper {
     public static void assertValidContentAndStatus(MockHttpServletResponse response, int status, String contentType,

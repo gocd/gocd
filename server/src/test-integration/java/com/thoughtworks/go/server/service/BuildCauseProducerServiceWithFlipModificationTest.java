@@ -35,7 +35,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
@@ -58,7 +57,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 

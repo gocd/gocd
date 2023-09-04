@@ -42,9 +42,7 @@ public class SecretConfigRepresenter {
             jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, secretConfig));
         }
 
-        jsonWriter.addChildList("properties", listWriter -> {
-            ConfigurationPropertyRepresenter.toJSON(listWriter, secretConfig.getConfiguration());
-        });
+        jsonWriter.addChildList("properties", listWriter -> ConfigurationPropertyRepresenter.toJSON(listWriter, secretConfig.getConfiguration()));
 
         if (!CollectionUtils.isEmpty(secretConfig.getRules())) {
             jsonWriter.addChildList("rules", rulesWriter -> RulesRepresenter.toJSON(rulesWriter, secretConfig.getRules()));
@@ -56,9 +54,7 @@ public class SecretConfigRepresenter {
         jsonReader.optString("description").ifPresent(secretConfig::setDescription);
         secretConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
 
-        jsonReader.readArrayIfPresent("rules", array -> {
-            secretConfig.setRules(RulesRepresenter.fromJSON(array));
-        });
+        jsonReader.readArrayIfPresent("rules", array -> secretConfig.setRules(RulesRepresenter.fromJSON(array)));
 
         return secretConfig;
     }

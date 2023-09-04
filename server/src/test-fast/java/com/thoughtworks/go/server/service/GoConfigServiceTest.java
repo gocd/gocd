@@ -733,7 +733,7 @@ public class GoConfigServiceTest {
 
         String entityValue = pipeline.getParams().getParamNamed("foo").getValue();
         assertThat(entityValue, not(containsString("CONTENTS_OF_FILE")));
-        assertThat(entityValue, isEmptyString());
+        assertThat(entityValue, is(emptyString()));
     }
 
     @Test

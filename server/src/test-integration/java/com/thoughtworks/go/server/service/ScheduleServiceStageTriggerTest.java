@@ -48,7 +48,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -337,9 +336,7 @@ public class ScheduleServiceStageTriggerTest {
         StageConfig stageConfig = preCondition.ftStage();
         configHelper.configureStageAsManualApproval(pipeline.getName(), stageConfig.name().toString(), true);
 
-        Throwable exception = assertThrows(RuntimeException.class, () -> {
-            scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString());
-        });
+        Throwable exception = assertThrows(RuntimeException.class, () -> scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString()));
 
         assertThat(exception.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
     }

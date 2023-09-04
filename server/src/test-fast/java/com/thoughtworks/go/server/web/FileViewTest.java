@@ -37,7 +37,6 @@ import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static com.thoughtworks.go.util.TempDirUtils.newFile;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class FileViewTest {

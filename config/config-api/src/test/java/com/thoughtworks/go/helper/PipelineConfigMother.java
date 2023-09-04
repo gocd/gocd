@@ -23,16 +23,9 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ClonerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PipelineConfigMother {
-    public static PipelineConfigs studiosAndEvolve() {
-        return new BasicPipelineConfigs(pipelineConfig("studios"), pipelineConfig("evolve"));
-    }
-
     public static PipelineConfig pipelineConfig(String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) {
         return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs,
                 new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(buildNames)));
@@ -88,15 +81,6 @@ public class PipelineConfigMother {
         return createGroup(groupName, configs.toArray(new PipelineConfig[0]));
     }
 
-    public static List<PipelineConfigs> createGroups(String... groupNames) {
-        List<PipelineConfigs> configs = new ArrayList<>();
-        int i = 0;
-        for (String groupName : groupNames) {
-            configs.add(createGroup(groupName, "pipeline_" + i++, "pipeline_" + i++));
-        }
-        return configs;
-    }
-
     public static PipelineConfig pipelineConfig(String name, StageConfig... stageConfigs) {
         return new PipelineConfig(new CaseInsensitiveString(name), MaterialConfigsMother.defaultMaterialConfigs(), stageConfigs);
     }
@@ -110,14 +94,6 @@ public class PipelineConfigMother {
         return new PipelineConfig(new CaseInsensitiveString(name), PipelineLabel.COUNT_TEMPLATE, timerSpec, timerShouldTriggerOnlyOnMaterialChanges, MaterialConfigsMother.defaultMaterialConfigs(), stages);
     }
 
-    public static PipelineConfigs groupWithOperatePermission(PipelineConfig pipelineConfig, String... users) {
-        Authorization authorization = new Authorization();
-        for (String user : users) {
-            authorization.getOperationConfig().add(new AdminUser(new CaseInsensitiveString(user)));
-        }
-        return new BasicPipelineConfigs("defaultGroup", authorization, pipelineConfig);
-    }
-
     public static PipelineConfig pipelineConfigWithTemplate(String name, String templateName) {
         PipelineConfig pipelineWithTemplate = new PipelineConfig(new CaseInsensitiveString(name), MaterialConfigsMother.defaultMaterialConfigs());
         pipelineWithTemplate.setTemplateName(new CaseInsensitiveString(templateName));
@@ -126,7 +102,7 @@ public class PipelineConfigMother {
 
     public static PipelineConfig renamePipeline(PipelineConfig oldConfig, String newPipelineName) {
         PipelineConfig newConfig = ClonerFactory.instance().deepClone(oldConfig);
-        HashMap attributes = new HashMap();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(PipelineConfig.NAME, newPipelineName);
         newConfig.setConfigAttributes(attributes);
         return newConfig;
@@ -212,15 +188,6 @@ public class PipelineConfigMother {
         materialConfig.setAutoUpdate(false);
         pipelineConfig.materialConfigs().add(materialConfig);
         pipelineConfig.first().setApproval(Approval.manualApproval());
-        return pipelineConfig;
-    }
-
-    public static PipelineConfig pipelineConfigWithExternalArtifact(String pipelineName, ArtifactTypeConfig artifactTypeConfig) {
-        final String stageName = pipelineName + ".stage";
-        final String jobName = pipelineName + ".job";
-        PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, jobName);
-        final JobConfig jobConfig = pipelineConfig.getStage(stageName).jobConfigByConfigName(jobName);
-        jobConfig.artifactTypeConfigs().add(artifactTypeConfig);
         return pipelineConfig;
     }
 }

@@ -16,7 +16,10 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
@@ -34,10 +37,6 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.mockito.Mockito.mock;
 
 public class AgentInstanceMother {
-
-    public static AgentInstance local(SystemEnvironment systemEnvironment) {
-        return AgentInstance.createFromAgent(new Agent("uuid-local", "localhost", "127.0.0.1"), systemEnvironment, null);
-    }
 
     public static AgentInstance idle() {
         return idle(new Date(), "CCeDev01");
@@ -258,11 +257,6 @@ public class AgentInstanceMother {
         newRuntimeInfo.setBuildingInfo(new AgentBuildingInfo("buildInfo", buildLocator));
         instance.update(newRuntimeInfo);
         return instance;
-    }
-
-
-    public static AgentInstance idle(String hostname) {
-        return updateHostname(idle(new Date(), "CCeDev01"), hostname);
     }
 
     public static AgentInstance agentWithConfigErrors() {

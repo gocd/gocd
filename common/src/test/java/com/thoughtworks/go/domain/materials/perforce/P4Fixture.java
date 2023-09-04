@@ -24,9 +24,6 @@ import com.thoughtworks.go.util.command.ConsoleResult;
 public class P4Fixture {
     private P4TestRepo repo;
 
-    public void start() {
-    }
-
     public void setRepo(P4TestRepo repo) {
         this.repo = repo;
     }
@@ -42,9 +39,10 @@ public class P4Fixture {
             ConsoleResult consoleResult = p4.checkConnection();
             while (!consoleResult.failed()) {
                 try {
-                    //Wait for the server to shutdown
+                    // Wait for the server to shutdown
                     Thread.sleep(100);
                 } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
                 }
             }
         } catch (CommandLineException expected) {
@@ -57,10 +55,6 @@ public class P4Fixture {
             }
             throw expected;
         }
-    }
-
-    public String port() {
-        return repo.serverAndPort();
     }
 
     public P4Client createClient() throws Exception {

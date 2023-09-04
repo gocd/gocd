@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
@@ -42,21 +41,6 @@ public class MaterialsMother {
 
     public static Materials defaultSvnMaterialsWithUrl(String svnUrl) {
         return new Materials(svnMaterial(svnUrl, "svnDir", null, null, false, null));
-    }
-
-    public static Materials multipleMaterials() {
-        Materials materials = new Materials();
-        materials.add(svnMaterial("http://svnurl"));
-        materials.add(hgMaterial("http://hgurl", "hgdir"));
-        materials.add(dependencyMaterial("cruise", "dev"));
-        return materials;
-    }
-
-     public static Materials twoMaterials() {
-         Materials materials = new Materials();
-         materials.add(svnMaterial("http://svnurl"));
-         materials.add(hgMaterial("http://hgurl", "hgdir"));
-         return materials;
     }
 
     public static PackageMaterial packageMaterial(){
@@ -194,11 +178,5 @@ public class MaterialsMother {
 
     public static SvnMaterial svnMaterial() {
         return svnMaterial("url");
-    }
-
-    public static Material filteredHgMaterial(String pattern) {
-        HgMaterial material = hgMaterial();
-        material.setFilter(new Filter(new IgnoredFiles(pattern)));
-        return material;
     }
 }

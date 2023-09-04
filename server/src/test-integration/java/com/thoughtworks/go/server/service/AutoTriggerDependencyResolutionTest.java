@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;

@@ -24,17 +24,8 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
-import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.Packages;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ClonerFactory;
 
 import java.io.File;
@@ -274,27 +265,6 @@ public class GoConfigMother {
         return config;
     }
 
-    public static CruiseConfig configWithPackageRepo(String... ids) throws Exception {
-        final CruiseConfig config = new BasicCruiseConfig();
-        PackageConfigurations configuration = new PackageConfigurations();
-        configuration.addConfiguration(new PackageConfiguration("key1"));
-        configuration.addConfiguration(new PackageConfiguration("key2").with(PackageConfiguration.SECURE, true));
-        RepositoryMetadataStore.getInstance().addMetadataFor("plugin-1", configuration);
-        for (String id : ids) {
-            PackageRepository packageRepository = new PackageRepository();
-            packageRepository.setId(id);
-            packageRepository.setName("name" + id);
-            packageRepository.setPluginConfiguration(new PluginConfiguration("plugin-1", "1.0.0"));
-            packageRepository.setPackages(new Packages(PackageDefinitionMother.create(id + "-pkg-1", packageRepository), PackageDefinitionMother.create(id + "-pkg-2", packageRepository)));
-            GoCipher cipher = new GoCipher();
-            ConfigurationProperty p1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"));
-            ConfigurationProperty p2 = new ConfigurationProperty(new ConfigurationKey("key2"), null, new EncryptedConfigurationValue(cipher.encrypt("value2")), cipher);
-            packageRepository.setConfiguration(new Configuration(p1, p2));
-            config.setPackageRepositories(new PackageRepositories(packageRepository));
-        }
-        return config;
-    }
-
     public static PipelineConfig createPipelineConfigWithMaterialConfig(MaterialConfig... materialConfigs) {
         return createPipelineConfigWithMaterialConfig("pipeline", materialConfigs);
     }
@@ -336,12 +306,6 @@ public class GoConfigMother {
         return config;
     }
 
-    public CruiseConfig addApprovalForStage(CruiseConfig cruiseConfig, String pipelineName, String stageName, String roleName) {
-        Approval stageApproval = cruiseConfig.stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName)).getApproval();
-        stageApproval.addAdmin(new AdminRole(new CaseInsensitiveString(roleName)));
-        return cruiseConfig;
-    }
-
     public static CruiseConfig simpleDiamond() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(MaterialConfigsMother.gitMaterialConfig("g1")));
@@ -361,10 +325,6 @@ public class GoConfigMother {
                 git("https://github.com/tomzo/gocd-indep-config-part.git"), "myplugin", "id2"
         )));
         return cruiseConfig;
-    }
-
-    public PluginRoleConfig createPluginRole(String roleName, String pluginId) {
-        return new PluginRoleConfig(roleName, pluginId);
     }
 
     public static CruiseConfig configWithSecretConfig(SecretConfig... SecretConfigs) {

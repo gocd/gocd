@@ -158,12 +158,9 @@ public class ScheduledPipelineLoaderIntegrationTest {
         String jobName = "job-one";
         PipelineConfig pipelineConfig = setupPipelineWithScmMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderScmConfig = simulateSuccessfulPipelineRun(pipelineConfig);
-        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), new GoConfigFileHelper.Updater<PipelineConfig>() {
-            @Override
-            public void update(PipelineConfig config) {
-                PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().first();
-                materialConfig.getSCMConfig().getConfiguration().getProperty("password").setConfigurationValue(new ConfigurationValue("new_value"));
-            }
+        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), config -> {
+            PluggableSCMMaterialConfig materialConfig = (PluggableSCMMaterialConfig) config.materialConfigs().first();
+            materialConfig.getSCMConfig().getConfiguration().getProperty("password").setConfigurationValue(new ConfigurationValue("new_value"));
         });
 
         final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderScmConfig);
@@ -181,13 +178,10 @@ public class ScheduledPipelineLoaderIntegrationTest {
         String jobName = "job-one";
         PipelineConfig pipelineConfig = setupPipelineWithPackageMaterial("pipeline_with_pluggable_scm_mat", "stage", jobName);
         final Pipeline previousSuccessfulBuildWithOlderPackageConfig = simulateSuccessfulPipelineRun(pipelineConfig);
-        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), new GoConfigFileHelper.Updater<PipelineConfig>() {
-            @Override
-            public void update(PipelineConfig config) {
-                PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().first();
-                materialConfig.getPackageDefinition().getConfiguration().getProperty("package-key2").setConfigurationValue(new ConfigurationValue("package-updated-value"));
-                materialConfig.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").setConfigurationValue(new ConfigurationValue("repo-updated-value"));
-            }
+        PipelineConfig updatedPipelineConfig = configHelper.updatePipeline(pipelineConfig.name(), config -> {
+            PackageMaterialConfig materialConfig = (PackageMaterialConfig) config.materialConfigs().first();
+            materialConfig.getPackageDefinition().getConfiguration().getProperty("package-key2").setConfigurationValue(new ConfigurationValue("package-updated-value"));
+            materialConfig.getPackageDefinition().getRepository().getConfiguration().getProperty("repo-key2").setConfigurationValue(new ConfigurationValue("repo-updated-value"));
         });
         final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderPackageConfig);
         Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);

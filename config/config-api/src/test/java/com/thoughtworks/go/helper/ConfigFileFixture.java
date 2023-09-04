@@ -130,11 +130,6 @@ public final class ConfigFileFixture {
                 + "</pipelines>\n", schemaVersion);
     }
 
-
-    public static String configWithPipelines(String pipelinesBlock) {
-        return configWithPipelines(pipelinesBlock, CONFIG_SCHEMA_VERSION);
-    }
-
     public static String configWithPipelines(String pipelinesBlock, int schemaVersion) {
         return "<cruise schemaVersion='" + schemaVersion + "'>\n"
                 + pipelinesBlock
@@ -992,7 +987,7 @@ public final class ConfigFileFixture {
                     + "    </pipeline>"
                     + "    <pipeline name='pipeline2'>"
                     + "      <materials>"
-                    + "        <hg url='http://hgUrl.com' username='username' password='password' />"
+                    + "        <hg url='https://hgUrl.com' username='username' password='password' />"
                     + "      </materials>"
                     + "      <stage name='stage1'>"
                     + "        <jobs>"
@@ -1397,18 +1392,7 @@ public final class ConfigFileFixture {
                     + "</pipelines>\n"
                     + "</cruise>";
 
-    public static final String VERSION_16 =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                    + "<cruise schemaVersion=\"16\">\n"
-                    + "    <server artifactsdir='artifactsDir' />"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test2.com' ipaddress='192.168.0.2' isDenied='true' />\n"
-                    + "        <agent uuid='3' hostname='test3.com' ipaddress='192.168.0.3' />\n"
-                    + "    </agents>\n"
-                    + "</cruise>";
-
-    public static final String JOBS_WITH_DIFFERNT_CASE =
+    public static final String JOBS_WITH_DIFFERENT_CASE =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                     + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                     + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"

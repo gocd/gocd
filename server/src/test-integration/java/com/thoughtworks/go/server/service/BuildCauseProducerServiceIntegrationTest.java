@@ -43,7 +43,6 @@ import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;

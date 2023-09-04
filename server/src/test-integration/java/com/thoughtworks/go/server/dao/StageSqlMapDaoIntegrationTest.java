@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;

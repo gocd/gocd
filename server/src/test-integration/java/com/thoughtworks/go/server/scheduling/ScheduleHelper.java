@@ -37,7 +37,6 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.HashMap;
 import java.util.Map;

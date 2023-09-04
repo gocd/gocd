@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.Agent;
-import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.exception.UnregisteredAgentException;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
@@ -34,7 +33,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashMap;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -331,10 +329,6 @@ public class AgentDaoTest {
             agentDao.saveOrUpdate(agent2);
             agentDao.saveOrUpdate(agent3);
 
-            HashMap<String, AgentConfigStatus> agentToStatusMap = new HashMap<>();
-            agentToStatusMap.put(agent1.getUuid(), agentInstance1.getStatus().getConfigStatus());
-            agentToStatusMap.put(agent3.getUuid(), agentInstance3.getStatus().getConfigStatus());
-
             agent1.addResources(List.of("r3", "r4"));
             agent3.addResources(List.of("r3", "r4"));
 
@@ -354,7 +348,7 @@ public class AgentDaoTest {
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getResources(), is("r3,r4"));
 
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getEnvironments(), is("e2,e4"));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments(), isEmptyString());
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments(), is(emptyString()));
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getEnvironments(), is("e2,e4"));
         }
 

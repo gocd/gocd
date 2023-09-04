@@ -33,23 +33,8 @@ public class AgentMother {
         return agent;
     }
 
-    public static Agent localhost() {
-        return new Agent("1234", "localhost", "10.10.1.1", UUID.randomUUID().toString());
-    }
-
     public static Agent approvedAgent() {
         return new Agent("uuid", "approvedAgent", "192.168.0.1", UUID.randomUUID().toString());
-    }
-
-    public static Agent approvedLocalAgent() throws UnknownHostException {
-        InetAddress localHost = InetAddress.getLocalHost();
-        return new Agent("uuid", localHost.getHostName(), localHost.getHostAddress(), UUID.randomUUID().toString());
-    }
-
-    public static Agent deniedAgent() {
-        Agent agent = new Agent("uuid", "deniedAgent", "192.168.0.1", UUID.randomUUID().toString());
-        agent.disable();
-        return agent;
     }
 
     public static Agent localAgent() {

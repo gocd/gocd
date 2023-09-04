@@ -581,17 +581,6 @@ public class GoConfigFileHelper {
         addSecurity(new SecurityConfig());
     }
 
-    public void addBogusSecurity(boolean anonymous) {
-        final SecurityConfig securityConfig = new SecurityConfig(new AdminsConfig());
-
-        final SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.authorization.ldap");
-        final SecurityAuthConfig passwordFile = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile");
-
-        securityConfig.securityAuthConfigs().add(securityAuthConfig);
-        securityConfig.securityAuthConfigs().add(passwordFile);
-        addSecurity(securityConfig);
-    }
-
     public File addSecurityWithPasswordFile() throws IOException {
         final SecurityAuthConfig authConfig = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile",
                 create("PasswordFilePath", false, addPasswordFile().getAbsolutePath())
@@ -669,10 +658,6 @@ public class GoConfigFileHelper {
 
     public void getXml(CruiseConfig cruiseConfig, ByteArrayOutputStream buffer) throws Exception {
         new MagicalGoConfigXmlWriter(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins()).write(cruiseConfig, buffer, false);
-    }
-
-    public void configureStageAsAutoApproval(String pipelineName, String stage) {
-        updateApproval(pipelineName, stage, Approval.automaticApproval());
     }
 
     public void configureStageAsManualApproval(String pipelineName, String stage) {
@@ -765,11 +750,6 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public EnvironmentConfig getEnvironment(String env) {
-        CruiseConfig config = load();
-        return config.getEnvironments().find(new CaseInsensitiveString(env));
-    }
-
     public void addPipelineToEnvironment(String env, String pipelineName) {
         CruiseConfig config = loadForEdit();
         config.getEnvironments().addPipelinesToEnvironment(env, pipelineName);
@@ -826,7 +806,7 @@ public class GoConfigFileHelper {
         return pipelineConfig;
     }
 
-    public PipelineConfig changeStagenameForToPipeline(String pipelineName, String oldStageName, String newStageName) {
+    public PipelineConfig changeStageNameForToPipeline(String pipelineName, String oldStageName, String newStageName) {
         CruiseConfig config = loadForEdit();
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
 
@@ -885,17 +865,6 @@ public class GoConfigFileHelper {
         addEnvironments(environmentNames.toArray(new String[0]));
     }
 
-    public void addEnvironmentVariablesToEnvironment(String environmentName, String variableName, String variableValue) {
-        CruiseConfig config = loadForEdit();
-        EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
-        env.addEnvironmentVariable(variableName, variableValue);
-        writeConfigFile(config);
-    }
-
-    public void deleteConfigFile() {
-        configFile.delete();
-    }
-
     public void setBaseUrls(SiteUrl siteUrl, SecureSiteUrl secureSiteUrl) {
         CruiseConfig config = loadForEdit();
 
@@ -912,13 +881,6 @@ public class GoConfigFileHelper {
         StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
         JobConfig job = stageConfig.getJobs().getJob(new CaseInsensitiveString(jobName));
         stageConfig.getJobs().remove(job);
-        writeConfigFile(cruiseConfig);
-    }
-
-    public void addParamToPipeline(String pipeline, String paramName, String paramValue) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-        pipelineConfig.addParam(new ParamConfig(paramName, paramValue));
         writeConfigFile(cruiseConfig);
     }
 
@@ -950,21 +912,6 @@ public class GoConfigFileHelper {
         };
     }
 
-    public NoOverwriteUpdateConfigCommand addPipelineCommand(final String oldMd5, final PipelineConfig pipelineConfig) {
-        return new NoOverwriteUpdateConfigCommand() {
-            @Override
-            public String unmodifiedMd5() {
-                return oldMd5;
-            }
-
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                cruiseConfig.addPipeline("g1", pipelineConfig);
-                return cruiseConfig;
-            }
-        };
-    }
-
     public UpdateConfigCommand changeJobNameCommand(final String md5, final String pipelineName, final String stageName, final String oldJobName, final String newJobName) {
         return new NoOverwriteUpdateConfigCommand() {
             @Override
@@ -991,11 +938,6 @@ public class GoConfigFileHelper {
         } catch (Exception e) {
             bomb(e);
         }
-    }
-
-    private void writeToFileAndDB(String configContent) {
-        writeXmlToConfigFile(loadAndMigrate(configContent));
-        writeConfigFile(load());
     }
 
     private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,
@@ -1032,13 +974,6 @@ public class GoConfigFileHelper {
         FileUtils.writeStringToFile(passwordFile, nonAdmin + admin1, UTF_8);
         return passwordFile;
     }
-
-
-    /*public void addPipelineGroup(String groupName) {
-        CruiseConfig config = loadForEdit();
-        config.addGroup(groupName);
-        writeConfigFile(config);
-    }*/
 
     private PipelineConfig addMaterialConfigForPipeline(String pipelinename, MaterialConfig... materialConfigs) {
         CruiseConfig cruiseConfig = loadForEdit();

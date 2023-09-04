@@ -35,8 +35,6 @@ public class MergedEnvironmentRepresenter {
     private static void addOrigin(OutputWriter outputWriter, ConfigOrigin origin) {
         List<ConfigOrigin> origins = (origin instanceof MergeConfigOrigin) ? ((MergeConfigOrigin) origin) : Collections.singletonList(origin);
 
-        outputWriter.addChildList("origins", childListWriter -> {
-            origins.forEach(subOrigin -> childListWriter.addChild(childWriter -> EntityConfigOriginRepresenter.toJSON(childWriter, subOrigin)));
-        });
+        outputWriter.addChildList("origins", childListWriter -> origins.forEach(subOrigin -> childListWriter.addChild(childWriter -> EntityConfigOriginRepresenter.toJSON(childWriter, subOrigin))));
     }
 }

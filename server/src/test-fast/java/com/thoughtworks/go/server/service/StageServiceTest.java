@@ -735,9 +735,7 @@ public class StageServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
             when(pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter)).thenReturn(null);
 
-            assertThatCode(() -> {
-                stageService.findStageWithIdentifier(pipelineName, pipelineCounter, stageName, "1", username);
-            }).isInstanceOf(RecordNotFoundException.class)
+            assertThatCode(() -> stageService.findStageWithIdentifier(pipelineName, pipelineCounter, stageName, "1", username)).isInstanceOf(RecordNotFoundException.class)
                 .hasMessage("Pipeline 'up42' with counter '1' not found!");
         }
 

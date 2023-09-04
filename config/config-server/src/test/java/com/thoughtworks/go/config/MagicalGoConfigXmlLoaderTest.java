@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,7 +109,7 @@ import static org.assertj.core.api.Assertions.*;
 public class MagicalGoConfigXmlLoaderTest {
     private MagicalGoConfigXmlLoader xmlLoader;
     private static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid destination directory. Every material needs a different destination directory and the directories should not be nested";
-    private ConfigCache configCache = new ConfigCache();
+    private final ConfigCache configCache = new ConfigCache();
     private final SystemEnvironment systemEnvironment = new SystemEnvironment();
     private MagicalGoConfigXmlWriter xmlWriter;
     private GoConfigMigration goConfigMigration;
@@ -235,54 +235,39 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldThrowXsdValidationException_WhenNoRepository() {
-        assertThatCode(() -> {
-            xmlLoader.loadConfigHolder(configWithConfigRepos(
-                    "  <config-repos>\n"
-                            + "    <config-repo pluginId=\"myplugin\">\n"
-                            + "    </config-repo >\n"
-                            + "  </config-repos>\n"
-            ));
-        }).isInstanceOf(XsdValidationException.class);
+        assertThatCode(() -> xmlLoader.loadConfigHolder(configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo pluginId=\"myplugin\">\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        ))).isInstanceOf(XsdValidationException.class);
     }
 
     @Test
     void shouldThrowXsdValidationException_When2RepositoriesInSameConfigElement() {
-        assertThatCode(() -> {
-            xmlLoader.loadConfigHolder(configWithConfigRepos(
-                    "  <config-repos>\n"
-                            + "    <config-repo pluginId=\"myplugin\">\n"
-                            + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                            + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
-                            + "    </config-repo >\n"
-                            + "  </config-repos>\n"
-            ));
-        }).isInstanceOf(XsdValidationException.class);
+        assertThatCode(() -> xmlLoader.loadConfigHolder(configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo pluginId=\"myplugin\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-refmain-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        ))).isInstanceOf(XsdValidationException.class);
     }
 
     @Test
     void shouldFailValidation_WhenSameMaterialUsedBy2ConfigRepos() {
-        assertThatCode(() -> {
-            xmlLoader.loadConfigHolder(configWithConfigRepos(
-                    "  <config-repos>\n"
-                            + "    <config-repo pluginId=\"myplugin\" id=\"id1\">\n"
-                            + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                            + "    </config-repo >\n"
-                            + "    <config-repo pluginId=\"myotherplugin\" id=\"id2\">\n"
-                            + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
-                            + "    </config-repo >\n"
-                            + "  </config-repos>\n"
-            ));
-        })
+        assertThatCode(() -> xmlLoader.loadConfigHolder(configWithConfigRepos(
+                "  <config-repos>\n"
+                        + "    <config-repo pluginId=\"myplugin\" id=\"id1\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "    <config-repo pluginId=\"myotherplugin\" id=\"id2\">\n"
+                        + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
+                        + "    </config-repo >\n"
+                        + "  </config-repos>\n"
+        )))
                 .isInstanceOf(GoConfigInvalidException.class);
-    }
-
-    private ConfigRepoPartialPreprocessor findConfigRepoPartialPreprocessor() {
-        List<GoConfigPreprocessor> preprocessors = MagicalGoConfigXmlLoader.PREPROCESSORS;
-        for (GoConfigPreprocessor preprocessor : preprocessors) {
-            if (preprocessor instanceof ConfigRepoPartialPreprocessor)
-                return (ConfigRepoPartialPreprocessor) preprocessor;
-        }
-        return null;
     }
 
     @Test
@@ -474,10 +459,10 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     void shouldLoadFromSvnPartial() throws Exception {
         String buildXmlPartial =
-                "<svn url=\"http://foo.bar\" username=\"cruise\" password=\"password\" materialName=\"http___foo.bar\"/>";
+                "<svn url=\"https://foo.bar\" username=\"cruise\" password=\"password\" materialName=\"https___foo.bar\"/>";
 
         MaterialConfig materialConfig = xmlLoader.fromXmlPartial(buildXmlPartial, SvnMaterialConfig.class);
-        MaterialConfig svnMaterial = MaterialConfigsMother.svnMaterialConfig("http://foo.bar", null, "cruise", "password", false, null);
+        MaterialConfig svnMaterial = MaterialConfigsMother.svnMaterialConfig("https://foo.bar", null, "cruise", "password", false, null);
         assertThat(materialConfig).isEqualTo(svnMaterial);
     }
 
@@ -924,7 +909,7 @@ public class MagicalGoConfigXmlLoaderTest {
     private void shouldBeHgMaterial(MaterialConfig material) {
         assertThat(material).isInstanceOf(HgMaterialConfig.class);
         HgMaterialConfig hgMaterial = (HgMaterialConfig) material;
-        assertThat(hgMaterial.getUrl()).isEqualTo("http://hgUrl.com");
+        assertThat(hgMaterial.getUrl()).isEqualTo("https://hgUrl.com");
         assertThat(hgMaterial.getUserName()).isEqualTo("username");
         assertThat(hgMaterial.getPassword()).isEqualTo("password");
     }
@@ -1419,7 +1404,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
                 "<server>" +
                 "<siteUrls>" +
-                "<siteUrl>http://www.someurl.com/go</siteUrl>" +
+                "<siteUrl>https://www.someurl.com/go</siteUrl>" +
                 "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl> " +
                 "</siteUrls>" +
                 "</server></cruise>";
@@ -1432,7 +1417,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
                 "<server jobTimeout='30'>" +
                 "<siteUrls>" +
-                "<siteUrl>http://www.someurl.com/go</siteUrl>" +
+                "<siteUrl>https://www.someurl.com/go</siteUrl>" +
                 "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
                 "</siteUrls>" +
                 "</server></cruise>";
@@ -1442,23 +1427,22 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldHaveJobTimeoutAttributeOnJob_37xsl() {
-        String content = CONFIG_WITH_ANT_BUILDER;
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_ANT_BUILDER).config;
         JobConfig jobConfig = cruiseConfig.findJob("pipeline1", "mingle", "cardlist");
         assertThat(jobConfig.getTimeout()).isEqualTo("5");
     }
 
     @Test
-    void shouldAllowSiteUrlandSecureSiteUrlAttributes() {
+    void shouldAllowSiteUrlAndSecureSiteUrlAttributes() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n" +
                 "<server>" +
                 "<siteUrls>" +
-                "<siteUrl>http://www.someurl.com/go</siteUrl>" +
+                "<siteUrl>https://www.someurl.com/go</siteUrl>" +
                 "<secureSiteUrl>https://www.someotherurl.com/go</secureSiteUrl>" +
                 "</siteUrls>" +
                 "</server></cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(cruiseConfig.server().getSiteUrl()).isEqualTo(new SiteUrl("http://www.someurl.com/go"));
+        assertThat(cruiseConfig.server().getSiteUrl()).isEqualTo(new SiteUrl("https://www.someurl.com/go"));
         assertThat(cruiseConfig.server().getSecureSiteUrl()).isEqualTo(new SecureSiteUrl("https://www.someotherurl.com/go"));
     }
 
@@ -2346,7 +2330,7 @@ public class MagicalGoConfigXmlLoaderTest {
         return xmlLoader.loadConfigHolder(content).config;
     }
 
-    private void assertValidMaterials(String materials) throws Exception {
+    private void assertValidMaterials(String materials) {
         createConfig(materials);
     }
 
@@ -2744,7 +2728,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "      <configuration>\n"
                 + "        <property>\n"
                 + "          <key>url</key>\n"
-                + "          <value>http://go</value>\n"
+                + "          <value>https://go</value>\n"
                 + "        </property>\n"
                 + "      </configuration>\n"
                 + "      <packages>\n"
@@ -2877,7 +2861,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "      <configuration>\n"
                 + "        <property>\n"
                 + "          <key>url</key>\n"
-                + "          <value>http://go</value>\n"
+                + "          <value>https://go</value>\n"
                 + "        </property>\n"
                 + "      </configuration>\n"
                 + "      <packages>\n"
@@ -2974,14 +2958,14 @@ public class MagicalGoConfigXmlLoaderTest {
         );
     }
 
-    private final static String REPO = " <repository id='repo-id' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
-    private final static String REPO_WITH_NAME = " <repository id='%s' name='%s'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
-    private final static String REPO_WITH_MISSING_ID = " <repository name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration><packages>%s</packages></repository>";
-    private final static String REPO_WITH_INVALID_ID = " <repository id='id with space' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
-    private final static String REPO_WITH_EMPTY_ID = " <repository id='' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
-    private final static String REPO_WITH_MISSING_NAME = " <repository id='id' ><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
-    private final static String REPO_WITH_INVALID_NAME = " <repository id='id' name='name with space'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
-    private final static String REPO_WITH_EMPTY_NAME = " <repository id='id' name=''><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
+    private final static String REPO = " <repository id='repo-id' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
+    private final static String REPO_WITH_NAME = " <repository id='%s' name='%s'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
+    private final static String REPO_WITH_MISSING_ID = " <repository name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration><packages>%s</packages></repository>";
+    private final static String REPO_WITH_INVALID_ID = " <repository id='id with space' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
+    private final static String REPO_WITH_EMPTY_ID = " <repository id='' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
+    private final static String REPO_WITH_MISSING_NAME = " <repository id='id' ><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
+    private final static String REPO_WITH_INVALID_NAME = " <repository id='id' name='name with space'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
+    private final static String REPO_WITH_EMPTY_NAME = " <repository id='id' name=''><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>https://go</value></property></configuration>%s</repository>";
 
     private final static String PACKAGE = "<package id='package-id' name='name'><configuration><property><key>name</key><value>go-agent</value></property></configuration></package>";
     private final static String PACKAGE_WITH_MISSING_ID = "<package name='name'><configuration><property><key>name</key><value>go-agent</value></property></configuration></package>";
@@ -3106,7 +3090,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "       <configuration>" +
                 "           <property>" +
                 "               <key>REPO_URL</key>" +
-                "               <value>http://fake-yum-repo/go/yum/no-arch</value>" +
+                "               <value>https://fake-yum-repo/go/yum/no-arch</value>" +
                 "               </property>" +
                 "       </configuration>" +
                 "	    <packages>" +
@@ -3114,7 +3098,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "               <configuration>" +
                 "                   <property>" +
                 "                       <key>REPO_URL</key>" +
-                "                       <value>http://fake-yum-repo/go/yum/no-arch</value>" +
+                "                       <value>https://fake-yum-repo/go/yum/no-arch</value>" +
                 "                   </property>" +
                 "               </configuration>" +
                 "           </package>" +
@@ -3144,7 +3128,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "      <configuration>\n"
                 + "        <property>\n"
                 + "          <key>url</key>\n"
-                + "          <value>http://go</value>\n"
+                + "          <value>https://go</value>\n"
                 + "        </property>\n"
                 + "      </configuration>\n"
                 + "      <packages>\n"
@@ -3218,7 +3202,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "        <task>"
                         + "          <pluginConfiguration id='plugin-id-1' version='1.0'/>"
                         + "          <configuration>"
-                        + "            <property><key>url</key><value>http://fake-go-server</value></property>"
+                        + "            <property><key>url</key><value>https://fake-go-server</value></property>"
                         + "            <property><key>username</key><value>godev</value></property>"
                         + "            <property><key>password</key><value>password</value></property>"
                         + "          </configuration>"
@@ -3245,12 +3229,11 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigurationProperty property = configuration.getProperty(o);
             return property.getConfigurationValue().getValue();
         });
-        assertThat(new ArrayList<>(values)).isEqualTo(List.of("http://fake-go-server", "godev", "password"));
+        assertThat(new ArrayList<>(values)).isEqualTo(List.of("https://fake-go-server", "godev", "password"));
     }
 
     @Test
     void shouldBeAbleToResolveSecureConfigPropertiesForPluggableTasks() throws Exception {
-        String encryptedValue = new GoCipher().encrypt("password");
         String configString =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                         + " <pipelines>"
@@ -4035,8 +4018,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = configWithPipeline(
-                ""
-                        + "<pipeline name='some_pipeline'>"
+                        "<pipeline name='some_pipeline'>"
                         + "  <environmentvariables>"
                         + "    <variable name='var_name' secure='true'>"
                         + "      <encryptedValue>" + desEncryptedPassword + "</encryptedValue>"
@@ -4107,7 +4089,6 @@ public class MagicalGoConfigXmlLoaderTest {
         String desEncryptedPassword = "mvcX9yrQsM4iPgm1tDxN1A==";
 
         String content = configWithPluggableScm(
-                "" +
                         "  <scm id='f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b' name='gocd-private'>" +
                         "      <pluginConfiguration id='github.pr' version='1' />" +
                         "      <configuration>" +
@@ -4326,13 +4307,13 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = config(
                 "<config-repos>" +
                         "    <config-repo id=\"Test\" pluginId=\"cd.go.json\">" +
-                        "        <hg url=\"http://domain.com\" branch=\"feature\" />" +
+                        "        <hg url=\"https://domain.com\" branch=\"feature\" />" +
                         "     </config-repo>" +
                         "</config-repos>" +
                         "<pipelines group=\"first\">" +
                         "    <pipeline name=\"Test\" template=\"test_template\">" +
                         "      <materials>" +
-                        "          <hg url=\"http://domain.com\" branch=\"feature\" />" +
+                        "          <hg url=\"https://domain.com\" branch=\"feature\" />" +
                         "      </materials>" +
                         "     </pipeline>" +
                         "</pipelines>" +

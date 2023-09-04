@@ -35,7 +35,7 @@ public class LogFixture implements Closeable {
     private final ListAppender appender;
     private final Logger logger;
 
-    private LogFixture(Class aClass, Level level) {
+    private LogFixture(Class<?> aClass, Level level) {
         this((Logger) LoggerFactory.getLogger(aClass), level);
     }
 
@@ -47,16 +47,12 @@ public class LogFixture implements Closeable {
         logger.setLevel(level);
     }
 
-    public static LogFixture logFixtureFor(Class aClass, Level level) {
+    public static LogFixture logFixtureFor(Class<?> aClass, Level level) {
         return new LogFixture(aClass, level);
     }
 
     public static LogFixture logFixtureForRootLogger(Level level) {
         return new LogFixture(LogHelper.rootLogger(), level);
-    }
-
-    public static LogFixture logFixtureForLogger(String name) {
-        return new LogFixture((Logger) LoggerFactory.getLogger(name), Level.ALL);
     }
 
     @Override

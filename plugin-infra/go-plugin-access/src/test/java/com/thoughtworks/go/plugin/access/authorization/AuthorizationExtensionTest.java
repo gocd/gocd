@@ -271,9 +271,7 @@ public class AuthorizationExtensionTest {
 
     @Test
     void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() {
-        Executable codeThatShouldThrowError = () -> {
-            authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null, null);
-        };
+        Executable codeThatShouldThrowError = () -> authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null, null);
 
         MissingAuthConfigsException exception = assertThrows(MissingAuthConfigsException.class, codeThatShouldThrowError);
 

@@ -46,7 +46,7 @@ public class ModificationsMother {
 
     public static final Date TODAY_CHECKIN = new Date();
     public static final ModifiedAction MOD_MODIFIED_ACTION = ModifiedAction.added;
-    public static final String MOD_TYPE = "svn";
+
     public static final String MOD_FILE_BUILD_XML = "build.xml";
     public static final String MOD_FILE_OLD_BUILD_XML = "oldbuild.xml";
     public static final String MOD_FILE_READ_ME = "README.txt";
@@ -59,7 +59,7 @@ public class ModificationsMother {
     }
 
 
-    protected ModificationsMother() {
+    private ModificationsMother() {
     }
 
     public static BuildCause modifySomeFiles(PipelineConfig pipelineConfig) {
@@ -124,13 +124,6 @@ public class ModificationsMother {
         return new MaterialRevision(material, modifications);
     }
 
-    public static MaterialRevision createPipelineMaterialRevision(String stageIdentifier) {
-        Material material = MaterialsMother.dependencyMaterial();
-        List<Modification> modifications = new ArrayList<>();
-        modifications.add(new Modification(new Date(), stageIdentifier, "123", 1L));
-        return new MaterialRevision(material, modifications);
-    }
-
     public static List<Modification> multipleModificationsInHg() {
         final List<Modification> modifications = new ArrayList<>();
 
@@ -153,9 +146,7 @@ public class ModificationsMother {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         Materials expandedMaterials = new Materials();
 
-        for (Material material : materials) {
-            expandedMaterials.add(material);
-        }
+        expandedMaterials.addAll(materials);
 
         for (Material material : expandedMaterials) {
             Modification modification;
@@ -215,11 +206,7 @@ public class ModificationsMother {
     }
 
     private static String generateString(int length) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            builder.append('a');
-        }
-        return builder.toString();
+        return "a".repeat(Math.max(0, length));
     }
 
     public static Modification oneModifiedFile(String modRevision) {
@@ -279,7 +266,7 @@ public class ModificationsMother {
         });
     }
 
-    public static List<Modification> multipleModificationList(RevisionToUse revisionToUse) {
+    private static List<Modification> multipleModificationList(RevisionToUse revisionToUse) {
         Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
                 TWO_DAYS_AGO_CHECKIN, revisionToUse.next());
         modification1.createModifiedFile(MOD_FILE_BUILD_XML, "\\build", MOD_MODIFIED_ACTION);

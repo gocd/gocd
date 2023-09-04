@@ -209,15 +209,11 @@ public class MaterialConfigsMother {
         return new P4MaterialConfig();
     }
 
-    public static P4MaterialConfig p4(String serverAndPort, String view, GoCipher goCipher) {
+    public static P4MaterialConfig p4(String serverAndPort, String view) {
         P4MaterialConfig p4MaterialConfig = p4();
         p4MaterialConfig.setUrl(serverAndPort);
         p4MaterialConfig.setView(view);
         return p4MaterialConfig;
-    }
-
-    public static P4MaterialConfig p4(String serverAndPort, String view) {
-        return p4(serverAndPort, view, new GoCipher());
     }
 
     public static P4MaterialConfig p4(String url, String view, String userName) {

@@ -31,7 +31,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.TimeProvider;
 
@@ -42,7 +41,6 @@ import java.util.List;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 
 public class PipelineMother {
-    public static final String NAME_SEPARATOR = "-";
 
     public static PipelineConfig withSingleStageWithMaterials(String pipelineName, String stageName, JobConfigs jobConfigs) {
         MaterialConfigs materialConfigs = com.thoughtworks.go.helper.MaterialConfigsMother.defaultMaterialConfigs();
@@ -56,10 +54,6 @@ public class PipelineMother {
     public static Pipeline pipeline(String pipelineName, Stage... stages) {
         Materials materials = MaterialsMother.defaultMaterials();
         return new Pipeline(pipelineName, BuildCause.createWithModifications(com.thoughtworks.go.helper.ModificationsMother.modifyOneFile(materials, com.thoughtworks.go.helper.ModificationsMother.nextRevision()), ""), stages);
-    }
-
-    public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName) {
-        return pipelineWithAllTypesOfMaterials(pipelineName, stageName, jobName, ModificationsMother.nextRevision());
     }
 
     public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName, String fixedMaterialRevisionForAllMaterials) {
@@ -82,10 +76,6 @@ public class PipelineMother {
             approvedBy = "test";
         }
         return createPipelineInstance(pipelineConfig, cause, approvedBy);
-    }
-
-    public static Pipeline scheduleWithContext(PipelineConfig pipelineConfig, BuildCause buildCause, DefaultSchedulingContext context) {
-        return createPipelineInstance(pipelineConfig, buildCause, context.getApprovedBy());
     }
 
     private static Pipeline createPipelineInstance(PipelineConfig pipelineConfig, BuildCause cause, String approvedBy) {
@@ -128,15 +118,13 @@ public class PipelineMother {
     private static Stages stagesAndBuildsWithEndState(JobState endState, JobResult result, List<String> baseStageNames, List<String> baseBuildNames) {
         Stages stages = new Stages();
         for (String baseStageName : baseStageNames) {
-            String stageName = baseStageName;
-            stages.add(com.thoughtworks.go.helper.StageMother.stageWithNBuildsHavingEndState(endState, result,
-                    stageName, baseBuildNames));
+            stages.add(com.thoughtworks.go.helper.StageMother.stageWithNBuildsHavingEndState(endState, result, baseStageName, baseBuildNames));
         }
         return stages;
     }
 
     public static Pipeline firstStageBuildingAndSecondStageScheduled(String pipelineName, List<String> stageNames, List<String> buildNames) {
-        if (stageNames.size() < 1) {
+        if (stageNames.isEmpty()) {
             throw new IllegalArgumentException("stageNames is empty!");
         }
 
@@ -171,15 +159,6 @@ public class PipelineMother {
     public static PipelineConfig twoBuildPlansWithResourcesAndSvnMaterialsAtUrl(String pipeline, String stageName, String svnUrl) {
         MaterialConfigs materials = com.thoughtworks.go.helper.MaterialConfigsMother.defaultSvnMaterialConfigsWithUrl(svnUrl);
         return createPipelineConfig(pipeline, materials, stageName);
-    }
-
-    public static PipelineConfig twoBuildPlansWithResourcesAndHgMaterialsAtUrl(String pipeline, String stageName, String hgUrl) {
-        return twoBuildPlansWithResourcesAndHgMaterialsAtUrl(pipeline, stageName, hgUrl, "hgdir");
-    }
-
-    public static PipelineConfig twoBuildPlansWithResourcesAndHgMaterialsAtUrl(String pipeline, String stageName, String hgUrl, String materialDir) {
-        MaterialConfig materials = com.thoughtworks.go.helper.MaterialConfigsMother.hgMaterialConfig(hgUrl, materialDir);
-        return createPipelineConfig(pipeline, new MaterialConfigs(materials), stageName);
     }
 
     public static PipelineConfig withMaterials(String pipelineName, String stageName, JobConfigs jobConfigs) {

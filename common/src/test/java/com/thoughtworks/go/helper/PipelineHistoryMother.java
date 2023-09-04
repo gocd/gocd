@@ -18,7 +18,6 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -36,7 +35,8 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
-import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialWithMultipleRevisions;
+import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationList;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createPipeline;
 
 public class PipelineHistoryMother {
@@ -182,21 +182,11 @@ public class PipelineHistoryMother {
         return singlePipeline(pipelineName, stageHistory, modifiedDate);
     }
 
-    public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages) {
-        return singlePipeline(pipelineName, stages, new Date());
-    }
-
     public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages, Date modifiedDate) {
         BuildCause manualForced = BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), new Modification(modifiedDate, "abc", "MOCK_LABEL-12", null))), Username.ANONYMOUS);
         PipelineInstanceModel model = createPipeline(pipelineName, -1, "1", manualForced, stages);
         model.setCounter(1);
         return model;
-    }
-
-    public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModel stage) {
-        StageInstanceModels stageInstanceModels = new StageInstanceModels();
-        stageInstanceModels.add(stage);
-        return singlePipeline(pipelineName, stageInstanceModels, new Date());
     }
 
     public static StageInstanceModels stagePerJob(String baseName, List<JobHistory> histories) {
@@ -230,15 +220,5 @@ public class PipelineHistoryMother {
 
     public static JobHistory job(JobState state, JobResult result, Date scheduledDate) {
         return JobHistory.withJob("firstJob", state, result, scheduledDate);
-    }
-
-    public static PipelineModel pipeline() {
-        PipelineModel pipelineModel = new PipelineModel("pipe1", true, true, PipelinePauseInfo.notPaused());
-        MaterialRevisions materialRevisions = createHgMaterialRevisions();
-        PipelineInstanceModel instanceModel = createPipeline("pipe1", -1, "label1", BuildCause.createWithModifications(materialRevisions, "foo-bar"), new StageInstanceModels());
-        instanceModel.setMaterialConfigs(new MaterialConfigs(materialRevisions.getMaterialRevision(0).getMaterial().config()));
-        instanceModel.setLatestRevisions(materialRevisions);
-        pipelineModel.addPipelineInstance(instanceModel);
-        return pipelineModel;
     }
 }

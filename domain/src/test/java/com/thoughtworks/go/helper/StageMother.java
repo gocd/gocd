@@ -22,7 +22,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.Timeout;
 import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
@@ -34,7 +33,7 @@ import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
 public class StageMother {
 
-    protected StageMother() {
+    private StageMother() {
     }
 
     public static Stage withOneScheduledBuild(String stageName, String failedBuildplanName,
@@ -95,49 +94,6 @@ public class StageMother {
         Stage stage = scheduledStage(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         passBuildInstancesOfStage(stage, completionDate);
         stage.calculateResult();
-        return stage;
-    }
-
-    public static Stage createPassedStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final DateTime scheduleTime,
-                                                          DateTime completedTime) {
-        return createStageWithFakeDuration(pipelineName, pipelineCounter, stageName, stageCounter, jobName, scheduleTime, completedTime, JobResult.Passed);
-    }
-
-    public static Stage createFailedStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final DateTime scheduleTime,
-                                                          DateTime completedTime) {
-        return createStageWithFakeDuration(pipelineName, pipelineCounter, stageName, stageCounter, jobName, scheduleTime, completedTime, JobResult.Failed);
-    }
-
-    private static Stage createStageWithFakeDuration(String pipelineName, int pipelineCounter, String stageName, int stageCounter, String jobName, final DateTime scheduleTime, DateTime completedTime,
-                                                     JobResult jobResult) {
-        TimeProvider timeProvider = new TimeProvider() {
-            @Override public Date currentTime() {
-                return scheduleTime.toDate();
-            }
-
-            @Override
-            public DateTime currentDateTime() {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-
-            @Override
-            public DateTime timeoutTime(Timeout timeout) {
-                throw new UnsupportedOperationException("Not implemented");
-            }
-        };
-
-        JobInstance firstJob = new JobInstance(jobName, timeProvider);
-        JobInstances jobInstances = new JobInstances(firstJob);
-        Stage stage = StageMother.custom(pipelineName, stageName, jobInstances);
-
-        firstJob.assign("AGENT-1", completedTime.toDate());
-        firstJob.completing(jobResult, completedTime.toDate());
-        firstJob.completed(completedTime.toDate());
-        stage.calculateResult();
-        stage.setCreatedTime(new Timestamp(timeProvider.currentTime().getTime()));
-        stage.setLastTransitionedTime(new Timestamp(completedTime.toDate().getTime()));
-        stage.setIdentifier(new StageIdentifier(pipelineName, pipelineCounter, "LABEL-" + pipelineCounter, stageName, String.valueOf(stageCounter)));
-
         return stage;
     }
 
@@ -237,10 +193,5 @@ public class StageMother {
         }
         stageInstanceModel.setBuildHistory(jobHistory);
         return stageInstanceModel;
-    }
-
-
-    public  static Stage unrunStage(String stageName) {
-        return new NullStage(stageName, new JobInstances());
     }
 }

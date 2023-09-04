@@ -336,9 +336,7 @@ public class ScheduleServiceStageTriggerTest {
         StageConfig stageConfig = preCondition.ftStage();
         configHelper.configureStageAsManualApproval(pipeline.getName(), stageConfig.name().toString(), true);
 
-        Throwable exception = assertThrows(RuntimeException.class, () -> {
-            scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString());
-        });
+        Throwable exception = assertThrows(RuntimeException.class, () -> scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString()));
 
         assertThat(exception.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
     }

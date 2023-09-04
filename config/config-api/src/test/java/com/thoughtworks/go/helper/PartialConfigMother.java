@@ -33,9 +33,6 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 
 public class PartialConfigMother {
-    public static PartialConfig empty() {
-        return new PartialConfig();
-    }
 
     public static PartialConfig withPipeline(String name) {
         return withPipeline(name, createRepoOrigin());

@@ -388,7 +388,7 @@ public class ScheduleTestUtil {
     }
 
     public AddedPipeline changeStagenameForToPipeline(String pipelineName, String oldStageName, String newStageName) {
-        PipelineConfig cfg = configHelper.changeStagenameForToPipeline(pipelineName, oldStageName, newStageName);
+        PipelineConfig cfg = configHelper.changeStageNameForToPipeline(pipelineName, oldStageName, newStageName);
         return new AddedPipeline(cfg, new DependencyMaterial(str(pipelineName), str(newStageName)));
     }
 

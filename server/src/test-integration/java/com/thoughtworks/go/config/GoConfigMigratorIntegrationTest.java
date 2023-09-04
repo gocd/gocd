@@ -264,7 +264,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldFailIfJobsWithSameNameButDifferentCasesExistInConfig() throws Exception {
-        FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERNT_CASE, UTF_8);
+        FileUtils.writeStringToFile(configFile, ConfigFileFixture.JOBS_WITH_DIFFERENT_CASE, UTF_8);
         GoConfigHolder configHolder = goConfigMigrator.migrate();
         Assertions.assertThat(configHolder).isNull();
         PipelineConfig frameworkPipeline = goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString("framework"));

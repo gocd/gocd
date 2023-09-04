@@ -61,7 +61,7 @@ final Map<String, String> libraries = [
   jacksonBom          : 'com.fasterxml.jackson:jackson-bom:2.15.2',
   jakartaAnnotation   : 'jakarta.annotation:jakarta.annotation-api:1.3.5',
   jakartaMail         : 'jakarta.mail:jakarta.mail-api:2.1.2',
-  jakartaTransaction  : 'jakarta.transaction:jakarta.transaction-api:1.3.3',
+  jakartaTransaction  : 'jakarta.transaction:jakarta.transaction-api:2.0.1',
   javassist           : 'javassist:javassist:3.12.1.GA',
   jaxbBom             : 'org.glassfish.jaxb:jaxb-bom:4.0.3',
   jaxen               : 'jaxen:jaxen:2.0.0',

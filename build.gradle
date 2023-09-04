@@ -426,6 +426,10 @@ subprojects {
       if (details.requested.group == 'javax.servlet' && details.requested.name == 'javax.servlet-api') {
         details.useTarget project.deps.servletApi
       }
+      // Javax Transaction API has migrated to jakarta Transaction API
+      if (details.requested.group == 'javax.transaction' && details.requested.name == 'jta') {
+        details.useTarget project.deps.jakartaTransaction
+      }
     }
   }
 

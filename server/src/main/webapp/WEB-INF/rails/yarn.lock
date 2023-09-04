@@ -1997,12 +1997,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/optimize-css-assets-webpack-plugin@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@types/optimize-css-assets-webpack-plugin@npm:5.0.5"
+"@types/optimize-css-assets-webpack-plugin@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "@types/optimize-css-assets-webpack-plugin@npm:5.0.6"
   dependencies:
     "@types/webpack": ^4
-  checksum: a7fd1aa770f3da7a4a1a013150d9eb31ee8ed45d41f027430cbc2e877b1509c0212aee11019e95d29af89f6169b6a3da31b44f0c844958bb2e09ecda8310c4b9
+  checksum: 3f9c2cd96c84991a65151f3dd0b9d8201b8d1f36a4b2b7b6a1f733eed00a495d428a554ffbe60bb4c4b02ad0c33a283a16b1d8b0a1240073b774aea1478d7b08
   languageName: node
   linkType: hard
 
@@ -5999,7 +5999,7 @@ __metadata:
     "@types/mini-css-extract-plugin": ^1.4.3
     "@types/mithril": 2.0.14
     "@types/node": ^18.17.14
-    "@types/optimize-css-assets-webpack-plugin": ^5.0.5
+    "@types/optimize-css-assets-webpack-plugin": ^5.0.6
     "@types/prismjs": ^1.26.0
     "@types/shell-quote": ^1.7.1
     "@types/underscore.string": ^0.0.39

@@ -55,6 +55,11 @@ public class LogFixture implements Closeable {
         return new LogFixture(LogHelper.rootLogger(), level);
     }
 
+    @SuppressWarnings("unused") // Used by slf4j_logger_spec.rb
+    public static LogFixture logFixtureForLogger(String name) {
+        return new LogFixture((Logger) LoggerFactory.getLogger(name), Level.ALL);
+    }
+
     @Override
     public void close() {
         logger.detachAppender(appender);

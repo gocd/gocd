@@ -182,6 +182,11 @@ public class PipelineHistoryMother {
         return singlePipeline(pipelineName, stageHistory, modifiedDate);
     }
 
+    @SuppressWarnings("unused") // Used by stages_controller_spec.rb
+    public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages) {
+        return singlePipeline(pipelineName, stages, new Date());
+    }
+
     public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages, Date modifiedDate) {
         BuildCause manualForced = BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), new Modification(modifiedDate, "abc", "MOCK_LABEL-12", null))), Username.ANONYMOUS);
         PipelineInstanceModel model = createPipeline(pipelineName, -1, "1", manualForced, stages);

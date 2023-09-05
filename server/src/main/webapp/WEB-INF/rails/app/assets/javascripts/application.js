@@ -25,7 +25,7 @@
 // Read Sprockets README (https://github.com/rails/sprockets#directives) for details about supported directives
 
 // Many things depend on jquery (incl direct code, jquery-ui and bootstrap)
-//= require "lib/jquery-3.7.0.js"
+//= require "lib/jquery-3.7.1.js"
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
 

@@ -34,7 +34,7 @@ tasks.register('initializeBuildx') {
         commandLine = ['docker', 'buildx', 'rm', '--force', '--keep-state', builderName]
         ignoreExitValue = true
       }
-      project.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName] }
+      project.exec { commandLine = ['docker', 'buildx', 'create', '--use', '--name', builderName, '--driver-opt', 'image=moby/buildkit:rootless'] }
       project.exec { commandLine = ['docker', 'buildx', 'inspect', '--bootstrap', builderName] }
     }
   }

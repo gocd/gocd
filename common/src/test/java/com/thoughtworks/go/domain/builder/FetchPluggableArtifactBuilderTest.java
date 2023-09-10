@@ -30,7 +30,6 @@ import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -38,8 +37,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +55,9 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class FetchPluggableArtifactBuilderTest {
+    private static final String PLUGIN_ID = "cd.go.s3";
 
-    private File metadataDest;
+    private Path metadataDest;
     private String sourceOnServer;
     private JobIdentifier jobIdentifier;
     private ArtifactStore artifactStore;
@@ -66,7 +66,6 @@ public class FetchPluggableArtifactBuilderTest {
     private ChecksumFileHandler checksumFileHandler;
     private FetchPluggableArtifactTask fetchPluggableArtifactTask;
     private PluginRequestProcessorRegistry registry;
-    private static final String PLUGIN_ID = "cd.go.s3";
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -75,8 +74,8 @@ public class FetchPluggableArtifactBuilderTest {
         checksumFileHandler = mock(ChecksumFileHandler.class);
         registry = mock(PluginRequestProcessorRegistry.class);
 
-        metadataDest = TempDirUtils.createTempDirectoryIn(tempDir, "dest").resolve("cd.go.s3.json").toFile();
-        FileUtils.writeStringToFile(metadataDest, "{\"artifactId\":{}}", UTF_8);
+        metadataDest = TempDirUtils.createTempDirectoryIn(tempDir, "dest").resolve("cd.go.s3.json");
+        Files.writeString(metadataDest, "{\"artifactId\":{}}", UTF_8);
 
         jobIdentifier = new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L);
         artifactStore = new ArtifactStore("s3", PLUGIN_ID, ConfigurationPropertyMother.create("ACCESS_KEY", true, "hksjdfhsksdfh"));
@@ -93,7 +92,7 @@ public class FetchPluggableArtifactBuilderTest {
 
     @Test
     public void shouldCallPublisherToFetchMetadataFile() {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest.toFile(), checksumFileHandler);
 
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
@@ -109,43 +108,43 @@ public class FetchPluggableArtifactBuilderTest {
 
     @Test
     public void shouldCallArtifactExtension() {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest.toFile(), checksumFileHandler);
 
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
-        verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
+        verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent().toString()));
     }
 
     @Test
     public void shouldCallArtifactExtensionWithMetadata() throws IOException {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest.toFile(), checksumFileHandler);
         final Map<String, Object> metadata = Map.of("Version", "10.12.0");
 
-        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), UTF_8);
+         Files.writeString(metadataDest, new Gson().toJson(Map.of("artifactId", metadata)), UTF_8);
 
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
-        verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
+        verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), eq(metadata), eq(metadataDest.getParent().toString()));
     }
 
     @Test
     public void shouldRegisterAndDeRegisterArtifactRequestProcessBeforeAndAfterPublishingPluggableArtifact() throws IOException {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest.toFile(), checksumFileHandler);
         final Map<String, Object> metadata = Map.of("Version", "10.12.0");
 
-        FileUtils.writeStringToFile(metadataDest, new Gson().toJson(metadata), UTF_8);
+         Files.writeString(metadataDest, new Gson().toJson(Map.of("artifactId", metadata)), UTF_8);
 
         builder.build(publisher, new EnvironmentVariableContext(), null, artifactExtension, registry, UTF_8);
 
         InOrder inOrder = inOrder(registry, artifactExtension);
         inOrder.verify(registry, times(1)).registerProcessorFor(eq(CONSOLE_LOG.requestName()), ArgumentMatchers.any(ArtifactRequestProcessor.class));
-        inOrder.verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), any(), eq(metadataDest.getParent()));
+        inOrder.verify(artifactExtension).fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), eq(fetchPluggableArtifactTask.getConfiguration()), eq(metadata), eq(metadataDest.getParent().toString()));
         inOrder.verify(registry, times(1)).removeProcessorFor(CONSOLE_LOG.requestName());
     }
 
     @Test
     public void shouldUpdateEnvironmentVariableContextAfterFetchingArtifact() {
-        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest, checksumFileHandler);
+        final FetchPluggableArtifactBuilder builder = new FetchPluggableArtifactBuilder(new RunIfConfigs(), new NullBuilder(), "", jobIdentifier, artifactStore, fetchPluggableArtifactTask.getConfiguration(), fetchPluggableArtifactTask.getArtifactId(), sourceOnServer, metadataDest.toFile(), checksumFileHandler);
 
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("VAR1", "old-value1", false);
@@ -153,7 +152,7 @@ public class FetchPluggableArtifactBuilderTest {
         environmentVariableContext.setProperty("VAR3", "old-value3", true);
         environmentVariableContext.setProperty("VAR4", "old-value4", true);
 
-        when(artifactExtension.fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), any(), anyMap(), eq(metadataDest.getParent())))
+        when(artifactExtension.fetchArtifact(eq(PLUGIN_ID), eq(artifactStore), any(), anyMap(), eq(metadataDest.getParent().toString())))
                 .thenReturn(List.of(
                         new FetchArtifactEnvironmentVariable("VAR1", "value1-is-now-secure", true),
                         new FetchArtifactEnvironmentVariable("VAR2", "value2-is-now-insecure", false),

@@ -24,7 +24,6 @@ dependencies {
   implementation project.deps.slf4j
 
   compileOnly project.deps.jetty
-  compileOnly project.deps.jettyPlus
   compileOnly project.deps.jettyJmx
   compileOnly project.deps.jettyServlets
   compileOnly project.deps.jettyUtil

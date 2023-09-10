@@ -19,26 +19,26 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
 
-  <!-- Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.
-       This is used by the GoCD server to determine whether a breaking change has been made to Jetty config and the
-       user's custom configuration needs to be overridden with that packages.
+    <!-- Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.
+         This is used by the GoCD server to determine whether a breaking change has been made to Jetty config and the
+         user's custom configuration needs to be overridden with that packages.
 
-       See com.thoughtworks.go.server.JettyServer#JETTY_CONFIG_VERSION
-  -->
-  <!-- jetty-config-gocd-v9 -->
+         See com.thoughtworks.go.server.JettyServer#JETTY_CONFIG_VERSION
+    -->
+    <!-- jetty-config-gocd-v9 -->
 
-  <!-- =========================================================== -->
-  <!-- Server Thread Pool                                          -->
-  <!-- =========================================================== -->
+    <!-- =========================================================== -->
+    <!-- Server Thread Pool                                          -->
+    <!-- =========================================================== -->
 
-  <Get name="ThreadPool">
-    <Set name="minThreads">20</Set>
-    <Set name="maxThreads">300</Set>
-  </Get>
-  <Call name="setAttribute">
-    <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
-    <Arg>30000000</Arg>
-  </Call>
+    <Get name="ThreadPool">
+      <Set name="minThreads">20</Set>
+      <Set name="maxThreads">300</Set>
+    </Get>
+    <Call name="setAttribute">
+      <Arg>org.eclipse.jetty.server.Request.maxFormContentSize</Arg>
+      <Arg>30000000</Arg>
+    </Call>
 
     <Call name="addBean">
         <Arg>

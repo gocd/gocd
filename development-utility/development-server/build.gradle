@@ -27,7 +27,6 @@ dependencies {
   implementation project(':api').subprojects.collect { project(path: it.path, configuration: 'runtimeElements') }
   implementation project(':spark').subprojects.collect { project(path: it.path, configuration: 'runtimeElements') }
   implementation project.deps.jetty
-  implementation project.deps.jettyPlus
   implementation project.deps.jettyJmx
   implementation project.deps.jettyServlets
   implementation project.deps.jettyUtil

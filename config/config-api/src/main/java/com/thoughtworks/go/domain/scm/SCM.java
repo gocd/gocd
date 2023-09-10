@@ -271,7 +271,7 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
         setPluginConfigurationAttributes(attributesMap);
     }
 
-    protected void setPluginConfigurationAttributes(Map attributes) {
+    protected void setPluginConfigurationAttributes(Map<String, String> attributes) {
         SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(pluginConfiguration.getId());
         if (scmConfigurations == null) {
             throw new RuntimeException("metadata unavailable for plugin: " + pluginConfiguration.getId());
@@ -282,7 +282,7 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
                 if (configuration.getProperty(key) == null) {
                     configuration.addNewConfiguration(scmConfiguration.getKey(), scmConfiguration.getOption(Property.SECURE));
                 }
-                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
+                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue(attributes.get(key)));
                 configuration.getProperty(key).handleSecureValueConfiguration(scmConfiguration.getOption(Property.SECURE));
             }
         }

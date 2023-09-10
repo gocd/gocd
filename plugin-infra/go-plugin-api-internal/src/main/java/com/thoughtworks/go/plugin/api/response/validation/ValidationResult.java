@@ -22,8 +22,6 @@ import java.util.List;
 /**
  * Represents result of validation
  */
-@Deprecated
-//Will be moved to internal scope
 public class ValidationResult {
 
     private List<ValidationError> errors = new ArrayList<>();

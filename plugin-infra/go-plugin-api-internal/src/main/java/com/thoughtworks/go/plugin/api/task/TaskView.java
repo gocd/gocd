@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.api.material.packagerepository;
-
-import java.util.Collections;
-import java.util.List;
-
-import com.thoughtworks.go.plugin.api.config.Configuration;
-import com.thoughtworks.go.plugin.api.config.Property;
+package com.thoughtworks.go.plugin.api.task;
 
 /**
- * Represents {@link Configuration} specific to package
+ * Used to define the view of the task configuration.
  */
-@Deprecated
-//Will be moved to internal scope
-public class PackageConfiguration extends Configuration {
+public interface TaskView {
+    /**
+     * Specifies the display value of this task plugin. This value is used in the job UI's task dropdown
+     * as well as in the title of the task definition dialog box.
+     *
+     * @return display value for the task plugin
+     */
+    String displayValue();
 
-    @Override
-    public List<? extends Property> list() {
-        List<PackageMaterialProperty> list = (List<PackageMaterialProperty>) super.list();
-        Collections.sort(list);
-        return list;
-    }
+    /**
+     * The template for the task configuration, written using Angular.js templating language.
+     *
+     * @return Angular.js template for the task configuration
+     */
+    String template();
 }

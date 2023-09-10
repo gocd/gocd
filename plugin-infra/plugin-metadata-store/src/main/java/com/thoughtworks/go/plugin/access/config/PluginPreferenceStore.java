@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.plugin.access.config;
 
+import com.thoughtworks.go.plugin.api.config.Option;
+import com.thoughtworks.go.plugin.api.config.PluginPreference;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.thoughtworks.go.plugin.api.config.Option;
-import com.thoughtworks.go.plugin.api.config.PluginPreference;
-
 public abstract class PluginPreferenceStore<T extends PluginPreference> {
-    private Map<String, T> pluginIdPreferenceMap = new ConcurrentHashMap<>();
+    private final Map<String, T> pluginIdPreferenceMap = new ConcurrentHashMap<>();
 
     public T preferenceFor(String pluginId) {
         return pluginIdPreferenceMap.get(pluginId);
@@ -43,13 +43,13 @@ public abstract class PluginPreferenceStore<T extends PluginPreference> {
     }
 
     private void validatePluginId(String pluginId) {
-        if (pluginId == null || pluginId.trim().length() == 0) {
+        if (pluginId == null || pluginId.isBlank()) {
             throw new IllegalArgumentException("Invalid Plugin Id. Its null or empty.");
         }
     }
 
-    public T removePreferenceFor(String pluginId) {
-        return pluginIdPreferenceMap.remove(pluginId);
+    public void removePreferenceFor(String pluginId) {
+        pluginIdPreferenceMap.remove(pluginId);
     }
 
     public boolean hasPreferenceFor(String pluginId) {

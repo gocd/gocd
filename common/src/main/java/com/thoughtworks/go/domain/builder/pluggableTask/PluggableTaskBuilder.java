@@ -29,7 +29,10 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.CompositeConsumer;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.lang3.StringUtils;
 
@@ -73,8 +76,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
         }
         if (executionResult == null) {
             logError(publisher, "ExecutionResult cannot be null. Please return a success or a failure response.");
-        }
-        if (!executionResult.isSuccessful()) {
+        } else if (!executionResult.isSuccessful()) {
             logError(publisher, executionResult.getMessagesForDisplay());
         }
     }
@@ -94,7 +96,7 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
         CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR,  publisher);
         CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT,  publisher);
-        SafeOutputStreamConsumer safeOutputStreamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer(errorStreamConsumer, outputStreamConsumer));
+        SafeOutputStreamConsumer safeOutputStreamConsumer = new SafeOutputStreamConsumer(new ProcessOutputStreamConsumer<>(errorStreamConsumer, outputStreamConsumer));
         safeOutputStreamConsumer.addSecrets(environmentVariableContext.secrets());
         return new PluggableTaskContext(safeOutputStreamConsumer, environmentVariableContext, workingDir, consoleLogCharset);
     }

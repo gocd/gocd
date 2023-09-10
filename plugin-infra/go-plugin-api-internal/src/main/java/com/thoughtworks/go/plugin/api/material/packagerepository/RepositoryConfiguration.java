@@ -15,31 +15,22 @@
  */
 package com.thoughtworks.go.plugin.api.material.packagerepository;
 
+import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 
-@Deprecated
-//Will be moved to internal scope
-public class PackageMaterialProperty extends Property implements Comparable {
-    public PackageMaterialProperty(String key) {
-        super(key);
-        updateDefaults();
-    }
+import java.util.Collections;
+import java.util.List;
 
-    private void updateDefaults() {
-        with(REQUIRED, true);
-        with(PART_OF_IDENTITY, true);
-        with(SECURE, false);
-        with(DISPLAY_NAME, "");
-        with(DISPLAY_ORDER, 0);
-    }
+/**
+ * Represents {@link Configuration} specific to repository
+ */
 
-    public PackageMaterialProperty(String key, String value) {
-        super(key, value);
-        updateDefaults();
-    }
+public class RepositoryConfiguration extends Configuration {
 
     @Override
-    public int compareTo(Object o) {
-        return this.getOption(DISPLAY_ORDER) - ((PackageMaterialProperty) o).getOption(DISPLAY_ORDER);
+    public List<? extends Property> list() {
+        List<PackageMaterialProperty> list = (List<PackageMaterialProperty>) super.list();
+        Collections.sort(list);
+        return list;
     }
 }

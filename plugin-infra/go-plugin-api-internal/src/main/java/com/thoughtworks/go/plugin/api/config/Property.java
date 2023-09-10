@@ -21,8 +21,6 @@ package com.thoughtworks.go.plugin.api.config;
  * A given property can have set of metadata which can be represented by options.
  * The valid options are Property.REQUIRED, Property.PART_OF_IDENTITY, Property.SECURE, Property.DISPLAY_NAME and Property.DISPLAY_ORDER
  */
-@Deprecated
-//Will be moved to internal scope
 public class Property {
 
     /**

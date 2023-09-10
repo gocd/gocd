@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.api.annotation;
+package com.thoughtworks.go.plugin.api.task;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Map;
 
 /**
- * A method mark by this annotation indicates that the method is
- * invoked on the Go server.
- *
- * The information is useful for plugin developers to understand
- * semantics of methods involved in the extension point.
- *
- * @see UsedOnGoAgent
- *
- * @author GoCD Team
+ * Environment variables for the task.
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface UsedOnGoServer {
+public interface EnvironmentVariables {
+    /**
+     * @return A map (key-value pairs) of the environment variables.
+     */
+    Map<String, String> asMap();
+
+    /**
+     * Write the environment variables to a {@link Console}.
+     * @param console to write
+     */
+    void writeTo(Console console);
+
+    /**
+     * @return the {@link Console.SecureEnvVarSpecifier}
+     */
+    Console.SecureEnvVarSpecifier secureEnvSpecifier();
 }

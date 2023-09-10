@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.api.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.thoughtworks.go.plugin.api.material.packagerepository.exceptions;
 
 /**
- * A method mark by this annotation indicates that the method is
- * invoked on the Go Agent.
- *
- * The information is useful for plugin developers to understand
- * semantics of methods involved in the extension point.
- *
- * @see UsedOnGoServer
+ * Exception generated when the data related to package revision is invalid
+ * - may be empty or may be invalid format.
  *
  * @author GoCD Team
+ * @see com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision#addData(String, String)
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface UsedOnGoAgent {
+public class InvalidPackageRevisionDataException extends RuntimeException {
+    public InvalidPackageRevisionDataException(String message) {
+        super(message);
+    }
 }

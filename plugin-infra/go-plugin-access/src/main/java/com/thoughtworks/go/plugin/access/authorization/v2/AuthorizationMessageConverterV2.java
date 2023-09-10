@@ -33,7 +33,6 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -182,10 +181,7 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
 
     @Override
     public Map<String, String> getCredentials(String responseBody) {
-        Type type = new TypeToken<Map<String, String>>() {
-        }.getType();
-
-        return GSON.fromJson(responseBody, type);
+        return GSON.fromJson(responseBody, new TypeToken<Map<String, String>>() {}.getType());
     }
 
     @Override

@@ -194,7 +194,6 @@ final Map<String, String> related = [
   jaxbRuntime             : "org.glassfish.jaxb:jaxb-runtime",
   jettyDeploy             : "org.eclipse.jetty:jetty-deploy:${v.jetty}",
   jettyJmx                : "org.eclipse.jetty:jetty-jmx:${v.jetty}",
-  jettyPlus               : "org.eclipse.jetty:jetty-plus:${v.jetty}",
   jettyServlet            : "org.eclipse.jetty:jetty-servlet:${v.jetty}",
   jettyServlets           : "org.eclipse.jetty:jetty-servlets:${v.jetty}",
   jettyUtil               : "org.eclipse.jetty:jetty-util:${v.jetty}",

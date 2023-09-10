@@ -20,6 +20,7 @@ dependencies {
   compileOnly project.deps.servletApi
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project.deps.mockitoCore
+  testImplementation project.deps.mockitoJunit5
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
 }

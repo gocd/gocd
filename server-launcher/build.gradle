@@ -52,7 +52,6 @@ dependencies {
   packagingInLibDir project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
 
   packagingInLibDir project.deps.jetty
-  packagingInLibDir project.deps.jettyPlus
   packagingInLibDir project.deps.jettyJmx
   packagingInLibDir project.deps.jettyServlets
   packagingInLibDir project.deps.jettyUtil
@@ -215,8 +214,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-http-${project.versions.jetty}.jar",
       "jetty-io-${project.versions.jetty}.jar",
       "jetty-jmx-${project.versions.jetty}.jar",
-      "jetty-jndi-${project.versions.jetty}.jar",
-      "jetty-plus-${project.versions.jetty}.jar",
       "jetty-security-${project.versions.jetty}.jar",
       "jetty-server-${project.versions.jetty}.jar",
       "jetty-servlet-${project.versions.jetty}.jar",

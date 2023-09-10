@@ -28,7 +28,6 @@ dependencies {
   api project.deps.springTest
   api project.deps.logback
   implementation project.deps.jetty
-  implementation project.deps.jettyPlus
   implementation project.deps.jettyJmx
   implementation project.deps.jettyUtil
   implementation project.deps.jettyServlet

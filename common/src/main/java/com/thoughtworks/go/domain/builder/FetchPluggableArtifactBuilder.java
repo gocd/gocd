@@ -26,7 +26,8 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -49,9 +49,9 @@ public class FetchPluggableArtifactBuilder extends Builder {
     private final JobIdentifier jobIdentifier;
     private final String artifactId;
     private final File metadataFileDest;
-    private ChecksumFileHandler checksumFileHandler;
-    private ArtifactStore artifactStore;
-    private Configuration configuration;
+    private final ChecksumFileHandler checksumFileHandler;
+    private final ArtifactStore artifactStore;
+    private final Configuration configuration;
     private final String metadataFileLocationOnServer;
 
     public FetchPluggableArtifactBuilder(RunIfConfigs conditions, Builder cancelBuilder, String description,
@@ -125,9 +125,7 @@ public class FetchPluggableArtifactBuilder extends Builder {
     private Map<String, Object> getMetadataFromFile(String artifactId) throws IOException {
         final String fileToString = FileUtils.readFileToString(metadataFileDest, StandardCharsets.UTF_8);
         LOGGER.debug(format("Reading metadata from file %s.", metadataFileDest.getAbsolutePath()));
-        final Type type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        final Map<String, Map> allArtifactsPerPlugin = new GsonBuilder().create().fromJson(fileToString, type);
+        final Map<String, Map<String, Object>> allArtifactsPerPlugin = new GsonBuilder().create().fromJson(fileToString, new TypeToken<Map<String, Map<String, Object>>>() {}.getType());
         return allArtifactsPerPlugin.get(artifactId);
     }
 

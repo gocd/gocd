@@ -24,7 +24,6 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
@@ -76,9 +75,7 @@ class AgentMetadataDTO implements Serializable {
     }
 
     public static Collection<AgentMetadataDTO> fromJSONArray(String json) {
-        Type AGENT_METADATA_LIST_TYPE = new TypeToken<List<AgentMetadataDTO>>() {
-        }.getType();
-        return GSON.fromJson(json, AGENT_METADATA_LIST_TYPE);
+        return GSON.fromJson(json, new TypeToken<List<AgentMetadataDTO>>() {}.getType());
     }
 
     @Override

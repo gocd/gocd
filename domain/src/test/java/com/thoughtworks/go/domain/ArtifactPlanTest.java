@@ -20,37 +20,30 @@ import com.thoughtworks.go.config.BuildArtifactConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.TestArtifactConfig;
 import com.thoughtworks.go.work.GoPublisher;
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class ArtifactPlanTest {
-    private File testFolder;
-    private File srcFolder;
+
+    @TempDir
+    private Path testFolder;
 
     @BeforeEach
-    public void setUp() {
-        testFolder = new File("test.com");
-        srcFolder = new File(testFolder, "src");
-        srcFolder.mkdirs();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        FileUtils.deleteQuietly(testFolder);
+    public void setUp() throws Exception {
+        Files.createDirectories(testFolder.resolve("src"));
     }
 
     @Test
@@ -58,8 +51,8 @@ public class ArtifactPlanTest {
         final GoPublisher publisher = mock(GoPublisher.class);
         final ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "src", "dest");
 
-        artifactPlan.publishBuiltInArtifacts(publisher, testFolder);
-        verify(publisher).upload(new File(testFolder, "src"), "dest");
+        artifactPlan.publishBuiltInArtifacts(publisher, testFolder.toFile());
+        verify(publisher).upload(testFolder.resolve("src").toFile(), "dest");
     }
 
     @Test
@@ -72,73 +65,73 @@ public class ArtifactPlanTest {
         installer_2.setId(200);
         installer_2.setBuildId(2000);
 
-        assertTrue(installer_1.equals(installer_2));
+        assertThat(installer_1).isEqualTo(installer_2);
     }
 
     @Test
     public void shouldNormalizePath() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "folder\\src", "folder\\dest");
-        assertThat(artifactPlan.getSrc(), is("folder/src"));
-        assertThat(artifactPlan.getDest(), is("folder/dest"));
+        assertThat(artifactPlan.getSrc()).isEqualTo("folder/src");
+        assertThat(artifactPlan.getDest()).isEqualTo("folder/dest");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDest() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/**/*/a.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
-                new File("pipelines/pipelineA/test/a/b/a.log")), is("logs/a/b"));
+            new File("pipelines/pipelineA/test/a/b/a.log"))).isEqualTo("logs/a/b");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingDoubleStart() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "**/*/a.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
-                new File("pipelines/pipelineA/test/a/b/a.log")), is("logs/test/a/b"));
+            new File("pipelines/pipelineA/test/a/b/a.log"))).isEqualTo("logs/test/a/b");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathProvidedAreSame() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/a/b/a.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
-                new File("pipelines/pipelineA/test/b/a.log")), is("logs"));
+            new File("pipelines/pipelineA/test/b/a.log"))).isEqualTo("logs");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenUsingSingleStarToMatchFile() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "test/a/b/*.log", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
-                new File("pipelines/pipelineA/test/a/b/a.log")), is("logs"));
+            new File("pipelines/pipelineA/test/a/b/a.log"))).isEqualTo("logs");
     }
 
     @Test
     public void shouldProvideAppendFilePathToDestWhenPathMatchingAtTheRoot() {
         ArtifactPlan artifactPlan = new ArtifactPlan(ArtifactPlanType.file, "*.jar", "logs");
         assertThat(artifactPlan.destinationURL(new File("pipelines/pipelineA"),
-                new File("pipelines/pipelineA/a.jar")), is("logs"));
+            new File("pipelines/pipelineA/a.jar"))).isEqualTo("logs");
     }
 
     @Test
     public void shouldTrimThePath() {
-        assertThat(new ArtifactPlan(ArtifactPlanType.file, "pkg   ", "logs "),
-                is(new ArtifactPlan(ArtifactPlanType.file, "pkg", "logs")));
+        assertThat(new ArtifactPlan(ArtifactPlanType.file, "pkg   ", "logs "))
+            .isEqualTo(new ArtifactPlan(ArtifactPlanType.file, "pkg", "logs"));
     }
 
     @Test
     public void toArtifactPlans_shouldConvertArtifactConfigsToArtifactPlanList() {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("id", "storeId", create("Foo", true, "Bar"));
         final ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs(Arrays.asList(
-                new BuildArtifactConfig("source", "destination"),
-                new TestArtifactConfig("test-source", "test-destination"),
-                artifactConfig
+            new BuildArtifactConfig("source", "destination"),
+            new TestArtifactConfig("test-source", "test-destination"),
+            artifactConfig
         ));
 
         final List<ArtifactPlan> artifactPlans = ArtifactPlan.toArtifactPlans(artifactTypeConfigs);
 
-        assertThat(artifactPlans, containsInAnyOrder(
-                new ArtifactPlan(ArtifactPlanType.file, "source", "destination"),
-                new ArtifactPlan(ArtifactPlanType.unit, "test-source", "test-destination"),
-                new ArtifactPlan(artifactConfig.toJSON())
-        ));
+        assertThat(artifactPlans).containsExactlyInAnyOrder(
+            new ArtifactPlan(ArtifactPlanType.file, "source", "destination"),
+            new ArtifactPlan(ArtifactPlanType.unit, "test-source", "test-destination"),
+            new ArtifactPlan(artifactConfig.toJSON())
+        );
     }
 
     @Test
@@ -147,14 +140,16 @@ public class ArtifactPlanTest {
 
         final ArtifactPlan artifactPlan = new ArtifactPlan(artifactConfig);
 
-        assertThat(artifactPlan.getArtifactPlanType(), is(ArtifactPlanType.external));
-        assertThat(artifactPlan.getPluggableArtifactConfiguration().size(), is(3));
-        assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("id", "ID"));
-        assertThat(artifactPlan.getPluggableArtifactConfiguration(), hasEntry("storeId", "StoreID"));
+        assertThat(artifactPlan.getArtifactPlanType()).isEqualTo(ArtifactPlanType.external);
+        assertThat(artifactPlan.getPluggableArtifactConfiguration())
+            .hasSize(3)
+            .containsEntry("id", "ID")
+            .containsEntry("storeId", "StoreID")
+            .hasEntrySatisfying("configuration", configuration -> assertThat(configuration)
+                .asInstanceOf(InstanceOfAssertFactories.MAP)
+                .hasSize(2)
+                .containsEntry("Foo", "Bar")
+                .containsEntry("Baz", "Car"));
 
-        final Map<String, String> configuration = (Map<String, String>) artifactPlan.getPluggableArtifactConfiguration().get("configuration");
-        assertThat(configuration.size(), is(2));
-        assertThat(configuration, hasEntry("Foo", "Bar"));
-        assertThat(configuration, hasEntry("Baz", "Car"));
     }
 }

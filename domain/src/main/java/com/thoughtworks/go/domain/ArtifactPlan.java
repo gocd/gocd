@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,7 +153,7 @@ public class ArtifactPlan extends PersistentObject {
             if (files.length > 0) {
                 allFiles.addAll(uploadArtifactFile(publisher, rootPath, artifactPlan.getSrc(), artifactPlan.getDest(), files));
             } else {
-                final String message = MessageFormat.format("The Directory {0} specified as a test artifact was not found."
+                final String message = MessageFormat.format("The directory {0} specified as a test artifact was not found."
                         + " Please check your configuration", FilenameUtils.separatorsToUnix(artifactPlan.getSource(rootPath).getPath()));
                 publisher.taggedConsumeLineWithPrefix(GoPublisher.PUBLISH_ERR, message);
                 LOG.error(message);
@@ -177,7 +176,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     private void mergeAndUploadTestResult(GoPublisher publisher, List<File> allFiles) {
-        if (allFiles.size() > 0) {
+        if (!allFiles.isEmpty()) {
             File tempFolder = null;
             try {
                 tempFolder = FileUtil.createTempFolder();
@@ -229,9 +228,7 @@ public class ArtifactPlan extends PersistentObject {
     }
 
     public Map<String, Object> getPluggableArtifactConfiguration() {
-        final Type type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        return GSON.fromJson(pluggableArtifactConfigJson, type);
+        return GSON.fromJson(pluggableArtifactConfigJson, new TypeToken<Map<String, Object>>() {}.getType());
     }
 
     @Override

@@ -20,8 +20,6 @@ import com.thoughtworks.go.plugin.api.config.Property;
 /**
  * Specialization of {@link Property} class, for task configuration.
  */
-@Deprecated
-//Will be moved to internal scope
 public class TaskConfigProperty extends Property implements Comparable{
     protected TaskConfigProperty(String key) {
         super(key);

@@ -22,8 +22,6 @@ import java.util.List;
 /**
  * Represents result of a plugin method invocation
  */
-@Deprecated
-//Will be moved to internal scope
 public class Result {
 
     private Status status = Status.SUCCESS;

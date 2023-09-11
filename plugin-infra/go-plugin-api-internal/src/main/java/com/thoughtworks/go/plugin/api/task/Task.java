@@ -15,14 +15,11 @@
  */
 package com.thoughtworks.go.plugin.api.task;
 
-import com.thoughtworks.go.plugin.api.annotation.UsedOnGoAgent;
-import com.thoughtworks.go.plugin.api.annotation.UsedOnGoServer;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 /**
  * Task interface is the starting point for the task plugin.
  */
-@Deprecated
 public interface Task {
     /**
      * Specifies the configuration accepted and expected for the task. It has a list of configuration
@@ -30,8 +27,6 @@ public interface Task {
      *
      * @return an instance of {@link TaskConfig}
      */
-    @UsedOnGoServer
-    @UsedOnGoAgent
     TaskConfig config();
 
     /**
@@ -41,7 +36,6 @@ public interface Task {
      *
      * @return an implementation of {@link TaskExecutor}
      */
-    @UsedOnGoAgent
     TaskExecutor executor();
 
     /**
@@ -50,7 +44,6 @@ public interface Task {
      *
      * @return an implementation of {@link TaskView}
      */
-    @UsedOnGoAgent
     TaskView view();
 
     /**
@@ -63,6 +56,5 @@ public interface Task {
      * which has any errors that need to be shown on the UI. The key against which the error is created
      * should be the same as the one in the configuration.
      */
-    @UsedOnGoServer
     ValidationResult validate(TaskConfig configuration);
 }

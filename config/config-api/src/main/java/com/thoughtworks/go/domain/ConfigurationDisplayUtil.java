@@ -15,17 +15,17 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.config.PluginPreferenceStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConfigurationDisplayUtil {
-    public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(PluginPreferenceStore metadataStore, String pluginId, final Configuration configuration) {
+    public static List<ConfigurationProperty> getConfigurationPropertiesToBeUsedForDisplay(PluginPreferenceStore<?> metadataStore, String pluginId, final Configuration configuration) {
         List<ConfigurationProperty> keysForDisplay = new ArrayList<>();
         boolean pluginDoesNotExist = !metadataStore.hasPreferenceFor(pluginId);
 

@@ -19,8 +19,6 @@ package com.thoughtworks.go.plugin.api.config;
  * Option could be used to specify metadata for a Property.
  * @param <T> type for the option value
  */
-@Deprecated
-//Will be moved to internal scope
 public class Option<T> {
     private String name;
     private T value;

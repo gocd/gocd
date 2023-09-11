@@ -21,8 +21,6 @@ import java.util.List;
 /**
  * Container for {@link Option}
  */
-@Deprecated
-//Will be moved to internal scope
 public class Options {
     private List<Option> options = new ArrayList<>();
 

@@ -27,10 +27,8 @@ import java.util.regex.Pattern;
  * Represents specific revision of the package. Package revision consists of revision, timestamp, user, revision comment and addition data. Additional data is key vale map.
  * Each entry added to additional data will be provided to agent as environment variable.
  */
-@Deprecated
-//Will be moved to internal scope
 public class PackageRevision {
-    private static Pattern DATA_KEY_PATTERN = Pattern.compile("[a-zA-Z0-9_]*");
+    private static final Pattern DATA_KEY_PATTERN = Pattern.compile("[a-zA-Z0-9_]*");
     private static final String DATA_KEY_EMPTY_MESSAGE = "Key names cannot be null or empty.";
 
     private String revision;
@@ -182,11 +180,7 @@ public class PackageRevision {
         if (timestamp != null ? !timestamp.equals(that.timestamp) : that.timestamp != null) {
             return false;
         }
-        if (user != null ? !user.equals(that.user) : that.user != null) {
-            return false;
-        }
-
-        return true;
+        return user != null ? user.equals(that.user) : that.user == null;
     }
 
     @Override

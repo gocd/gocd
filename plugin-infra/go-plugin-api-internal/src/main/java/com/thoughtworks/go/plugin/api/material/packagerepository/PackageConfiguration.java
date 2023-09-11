@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.api.task;
+package com.thoughtworks.go.plugin.api.material.packagerepository;
 
-import java.util.Map;
+import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.api.config.Property;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Environment variables for the task.
+ * Represents {@link Configuration} specific to package
  */
-@Deprecated
-//Will be moved to internal scope
-public interface EnvironmentVariables {
-    /**
-     * @return A map (key-value pairs) of the environment variables.
-     */
-    Map<String, String> asMap();
+public class PackageConfiguration extends Configuration {
 
-    /**
-     * Write the environment variables to a {@link Console}.
-     * @param console to write
-     */
-    void writeTo(Console console);
-
-    /**
-     * @return the {@link Console.SecureEnvVarSpecifier}
-     */
-    Console.SecureEnvVarSpecifier secureEnvSpecifier();
+    @Override
+    public List<? extends Property> list() {
+        List<PackageMaterialProperty> list = (List<PackageMaterialProperty>) super.list();
+        Collections.sort(list);
+        return list;
+    }
 }

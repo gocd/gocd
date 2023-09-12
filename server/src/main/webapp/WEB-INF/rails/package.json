@@ -47,7 +47,7 @@
     "shellwords-ts": "^3.0.1",
     "underscore.string": "^3.3.6",
     "url-parse": "^1.5.10",
-    "uuid": "^9.0.0",
+    "uuid": "^9.0.1",
     "what-input": "^5.2.12"
   },
   "devDependencies": {

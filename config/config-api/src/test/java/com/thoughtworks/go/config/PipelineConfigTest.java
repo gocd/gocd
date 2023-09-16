@@ -48,14 +48,15 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class PipelineConfigTest {
     private static final String BUILDING_PLAN_NAME = "building";
 
-    private EnvironmentVariablesConfig mockEnvironmentVariablesConfig = mock(EnvironmentVariablesConfig.class);
-    private ParamsConfig mockParamsConfig = mock(ParamsConfig.class);
+    private final EnvironmentVariablesConfig mockEnvironmentVariablesConfig = mock(EnvironmentVariablesConfig.class);
+    private final ParamsConfig mockParamsConfig = mock(ParamsConfig.class);
 
     public enum Foo {
-        Bar, Baz;
+        Bar, Baz
     }
 
     @Test
@@ -89,7 +90,7 @@ public class PipelineConfigTest {
     }
 
     @Test //#6821
-    public void shouldCopyOverAllEnvironmentVariablesWhileCloningAPipeline() throws CryptoException {
+    public void shouldCopyOverAllEnvironmentVariablesWhileCloningAPipeline() {
         PipelineConfig source = PipelineConfigMother.createPipelineConfig("somePipeline", "stage", "job");
         source.addEnvironmentVariable("k1", "v1");
         source.addEnvironmentVariable("k2", "v2");
@@ -137,7 +138,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldGetDependenciesAsNode() throws Exception {
+    public void shouldGetDependenciesAsNode() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("framework"), new CaseInsensitiveString("dev")));
         pipelineConfig.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("middleware"), new CaseInsensitiveString("dev")));
@@ -304,14 +305,14 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax() throws Exception {
+    public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax() {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name())));
     }
 
     @Test
-    public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax2() throws Exception {
+    public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax2() {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}${one[:00]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name())));
@@ -321,13 +322,13 @@ public class PipelineConfigTest {
     @Test
     public void shouldSetPipelineConfigFromConfigAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap trackingToolMap = new HashMap();
+        Map<String, String> trackingToolMap = new HashMap<>();
         trackingToolMap.put("trackingtool", "trackingtool");
-        HashMap timerConfigMap = new HashMap();
+        Map<String, String> timerConfigMap = new HashMap<>();
         String cronSpec = "0 0 11 * * ?";
         timerConfigMap.put(TimerConfig.TIMER_SPEC, cronSpec);
 
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LABEL_TEMPLATE, "LABEL123-${COUNT}");
         configMap.put(PipelineConfig.TRACKING_TOOL, trackingToolMap);
         configMap.put(PipelineConfig.TIMER_CONFIG, timerConfigMap);
@@ -342,12 +343,12 @@ public class PipelineConfigTest {
     @Test
     public void shouldSetPipelineConfigFromConfigAttributesForTimerConfig() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap timerConfigMap = new HashMap();
+        Map<String, String> timerConfigMap = new HashMap<>();
         String cronSpec = "0 0 11 * * ?";
         timerConfigMap.put(TimerConfig.TIMER_SPEC, cronSpec);
         timerConfigMap.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "1");
 
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LABEL_TEMPLATE, "LABEL123-${COUNT}");
         configMap.put(PipelineConfig.TIMER_CONFIG, timerConfigMap);
 
@@ -362,7 +363,7 @@ public class PipelineConfigTest {
     public void shouldSetLabelTemplateToDefaultValueIfBlankIsEnteredWhileSettingConfigAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LABEL_TEMPLATE, "");
 
         pipelineConfig.setConfigAttributes(configMap);
@@ -372,7 +373,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldNotSetLockStatusOnPipelineConfigWhenValueIsNone() {
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_NONE);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
@@ -382,7 +383,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldSetLockStatusOnPipelineConfigWhenValueIsLockOnFailure() {
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
@@ -392,7 +393,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldSetLockStatusOnPipelineConfigWhenValueIsUnlockWhenFinished() {
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LOCK_BEHAVIOR, PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED);
 
         PipelineConfig pipelineConfig = new PipelineConfig();
@@ -406,7 +407,7 @@ public class PipelineConfigTest {
         TrackingTool trackingTool = new TrackingTool("link", "regex");
         pipelineConfig.setTrackingTool(trackingTool);
 
-        Map configMap = new HashMap();
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LABEL_TEMPLATE, "LABEL123-${COUNT}");
 
         pipelineConfig.setConfigAttributes(configMap);
@@ -424,8 +425,8 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldValidateLockBehaviorValues() throws Exception {
-        Map configMap = new HashMap();
+    public void shouldValidateLockBehaviorValues() {
+        Map<String, Object> configMap = new HashMap<>();
         configMap.put(PipelineConfig.LOCK_BEHAVIOR, "someRandomValue");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
@@ -438,7 +439,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldAllowNullForLockBehavior() throws Exception {
+    public void shouldAllowNullForLockBehavior() {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         pipelineConfig.setLockBehaviorIfNecessary(null);
         pipelineConfig.validate(null);
@@ -449,8 +450,8 @@ public class PipelineConfigTest {
     @Test
     public void shouldPopulateEnvironmentVariablesFromAttributeMap() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("name", "FOO");
         valueHashMap.put("value", "BAR");
         map.put(PipelineConfig.ENVIRONMENT_VARIABLES, valueHashMap);
@@ -464,8 +465,8 @@ public class PipelineConfigTest {
     public void shouldPopulateParamsFromAttributeMapWhenConfigurationTypeIsNotSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        final HashMap map = new HashMap();
-        final HashMap valueHashMap = new HashMap();
+        final Map<String, Object> map = new HashMap<>();
+        final Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("param-name", "FOO");
         valueHashMap.put("param-value", "BAR");
         map.put(PipelineConfig.PARAMS, valueHashMap);
@@ -478,8 +479,8 @@ public class PipelineConfigTest {
     @Test
     public void shouldPopulateParamsFromAttributeMapIfConfigurationTypeIsTemplate() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("param-name", "FOO");
         valueHashMap.put("param-value", "BAR");
         map.put(PipelineConfig.PARAMS, valueHashMap);
@@ -494,8 +495,8 @@ public class PipelineConfigTest {
     @Test
     public void shouldNotPopulateParamsFromAttributeMapIfConfigurationTypeIsStages() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("param-name", "FOO");
         valueHashMap.put("param-value", "BAR");
         map.put(PipelineConfig.PARAMS, valueHashMap);
@@ -510,8 +511,8 @@ public class PipelineConfigTest {
     public void shouldPopulateTrackingToolWhenTrackingToolAndLinkAndRegexAreDefined() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("link", "GoleyLink");
         valueHashMap.put("regex", "GoleyRegex");
 
@@ -535,7 +536,7 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline");
         assertThat(pipelineConfig.hasTemplate(), is(false));
 
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         map.put(PipelineConfig.CONFIGURATION_TYPE, PipelineConfig.CONFIGURATION_TYPE_TEMPLATE);
         map.put(PipelineConfig.TEMPLATE_NAME, "foo-template");
 
@@ -617,17 +618,17 @@ public class PipelineConfigTest {
     public void shouldUpdateNameAndMaterialsOnAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        HashMap svnMaterialConfigMap = new HashMap();
+        Map<String, Object> svnMaterialConfigMap = new HashMap<>();
         svnMaterialConfigMap.put(SvnMaterialConfig.URL, "http://url");
         svnMaterialConfigMap.put(SvnMaterialConfig.USERNAME, "loser");
         svnMaterialConfigMap.put(SvnMaterialConfig.PASSWORD, "passwd");
         svnMaterialConfigMap.put(SvnMaterialConfig.CHECK_EXTERNALS, false);
 
-        HashMap materialConfigsMap = new HashMap();
+        Map<String, Object> materialConfigsMap = new HashMap<>();
         materialConfigsMap.put(AbstractMaterialConfig.MATERIAL_TYPE, SvnMaterialConfig.TYPE);
         materialConfigsMap.put(SvnMaterialConfig.TYPE, svnMaterialConfigMap);
 
-        HashMap attributeMap = new HashMap();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(PipelineConfig.NAME, "startup");
         attributeMap.put(PipelineConfig.MATERIALS, materialConfigsMap);
 
@@ -641,12 +642,12 @@ public class PipelineConfigTest {
     public void shouldUpdateStageOnAttributes() {
         PipelineConfig pipelineConfig = new PipelineConfig();
 
-        HashMap stageMap = new HashMap();
-        List jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
+        Map<String, Object> stageMap = new HashMap<>();
+        List<Map<String, String>> jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
         stageMap.put(StageConfig.NAME, "someStage");
         stageMap.put(StageConfig.JOBS, jobList);
 
-        HashMap attributeMap = new HashMap();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(PipelineConfig.NAME, "startup");
         attributeMap.put(PipelineConfig.STAGE, stageMap);
 
@@ -672,12 +673,12 @@ public class PipelineConfigTest {
                 new StageConfig(
                         new CaseInsensitiveString("second"), new JobConfigs()));
 
-        HashMap stageMap = new HashMap();
-        List jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
+        Map<String, Object> stageMap = new HashMap<>();
+        List<Map<String, String>> jobList = List.of(Map.of(JobConfig.NAME, "JobName"));
         stageMap.put(StageConfig.NAME, "someStage");
         stageMap.put(StageConfig.JOBS, jobList);
 
-        HashMap attributeMap = new HashMap();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(PipelineConfig.NAME, "startup");
         attributeMap.put(PipelineConfig.STAGE, stageMap);
 
@@ -752,9 +753,9 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldAssignApprovalTypeOnFirstStageAsAuto() throws Exception {
-        Map approvalAttributes = Map.of(Approval.TYPE, Approval.SUCCESS);
-        Map<String, Map> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
+    public void shouldAssignApprovalTypeOnFirstStageAsAuto() {
+        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.SUCCESS);
+        Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.get(0).updateApproval(Approval.manualApproval());
 
@@ -764,9 +765,9 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldAssignApprovalTypeOnFirstStageAsManual() throws Exception {
-        Map approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
-        Map<String, Map> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
+    public void shouldAssignApprovalTypeOnFirstStageAsManual() {
+        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("p1", "s1", "j1");
         pipelineConfig.get(0).updateApproval(Approval.manualApproval());
 
@@ -776,9 +777,9 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldAssignApprovalTypeOnFirstStageAsManualAndRestOfStagesAsUntouched() throws Exception {
-        Map approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
-        Map<String, Map> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
+    public void shouldAssignApprovalTypeOnFirstStageAsManualAndRestOfStagesAsUntouched() {
+        Map<String, Object> approvalAttributes = Map.of(Approval.TYPE, Approval.MANUAL);
+        Map<String, Map<String, Object>> map = Map.of(StageConfig.APPROVAL, approvalAttributes);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("p1", StageConfigMother.custom("s1", Approval.automaticApproval()),
                 StageConfigMother.custom("s2", Approval.automaticApproval()));
 
@@ -789,7 +790,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldGetPackageMaterialConfigs() throws Exception {
+    public void shouldGetPackageMaterialConfigs() {
         SvnMaterialConfig svn = svn("svn", false);
         PackageMaterialConfig packageMaterialOne = new PackageMaterialConfig();
         PackageMaterialConfig packageMaterialTwo = new PackageMaterialConfig();
@@ -802,7 +803,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldGetPluggableSCMMaterialConfigs() throws Exception {
+    public void shouldGetPluggableSCMMaterialConfigs() {
         SvnMaterialConfig svn = svn("svn", false);
         PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-1");
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");

@@ -15,52 +15,49 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.Stages;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.server.domain.JobDurationStrategy;
+import org.joda.time.Duration;
+import org.junit.jupiter.api.Test;
+
 import static com.thoughtworks.go.helper.StageMother.completedFailedStageInstance;
 import static com.thoughtworks.go.helper.StageMother.custom;
-
-import com.thoughtworks.go.server.domain.JobDurationStrategy;
-import static org.hamcrest.Matchers.is;
-
-import org.joda.time.Duration;
 import static org.hamcrest.MatcherAssert.assertThat;
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.Matchers.is;
 
 public class StageSummaryModelTest {
     private static final JobDurationStrategy JOB_DURATION_STRATEGY = JobDurationStrategy.ALWAYS_ZERO;
 
-    @Test public void shouldReturnInProgressWhenTheDurationIs0() throws Exception {
+    @Test
+    public void shouldReturnInProgressWhenTheDurationIs0() {
         Stage stage = StageMother.scheduledStage("pipeline-name", 1, "stage", 1, "job");
         StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
         assertThat(stageSummaryModel.getDuration(), is("In Progress"));
     }
 
-    @Test public void shouldReturn0ForAFailedStage0() throws Exception {
+    @Test
+    public void shouldReturn0ForAFailedStage0() {
         Stage stage = completedFailedStageInstance("pipeline-name", "stage", "job");
         StageSummaryModel stageSummaryModel = new StageSummaryModel(stage, new Stages(), JOB_DURATION_STRATEGY, null);
         assertThat(stageSummaryModel.getDuration(), is("00:00:00"));
     }
 
-    @Test public void shouldReturnTotalRuns() throws Exception {
+    @Test
+    public void shouldReturnTotalRuns() {
         Stage failed = completedFailedStageInstance("pipeline-name", "stage", "job");
         failed.setCounter(1);
         Stage passed = custom("stage");
         passed.setCounter(2);
         StageSummaryModel stageSummaryModel = new StageSummaryModel(failed, new Stages(failed, passed), JOB_DURATION_STRATEGY, null);
-        assertThat(stageSummaryModel.getTotalRuns(),is(2));
-        assertThat(stageSummaryModel.getStateForRun(1),is(StageState.Failed));
-        assertThat(stageSummaryModel.getStateForRun(2),is(StageState.Passed));
+        assertThat(stageSummaryModel.getTotalRuns(), is(2));
+        assertThat(stageSummaryModel.getStateForRun(1), is(StageState.Failed));
+        assertThat(stageSummaryModel.getStateForRun(2), is(StageState.Passed));
     }
 
     @Test
-    public void shouldReturnJobsForAGivenResult() throws Exception {
+    public void shouldReturnJobsForAGivenResult() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         JobInstance second = JobInstanceMother.completed("bsecond", JobResult.Passed);
         JobInstance third = JobInstanceMother.completed("athird", JobResult.Passed);
@@ -83,7 +80,7 @@ public class StageSummaryModelTest {
     }
 
     @Test
-    public void shouldRetriveShowElapsedTime() throws Exception {
+    public void shouldRetriveShowElapsedTime() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, null);
@@ -91,7 +88,7 @@ public class StageSummaryModelTest {
     }
 
     @Test
-    public void shouldRetrivePercentCompleteOnJobs() throws Exception {
+    public void shouldRetrivePercentCompleteOnJobs() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), new JobDurationStrategy.ConstantJobDuration(1000 * 1000), null);
@@ -100,7 +97,7 @@ public class StageSummaryModelTest {
     }
 
     @Test
-    public void shouldExplainWhetherJobIsComplete() throws Exception {
+    public void shouldExplainWhetherJobIsComplete() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, null);
@@ -108,7 +105,7 @@ public class StageSummaryModelTest {
     }
 
     @Test
-    public void shouldGetPipelineCounter() throws Exception {
+    public void shouldGetPipelineCounter() {
         JobInstance first = JobInstanceMother.completed("first", JobResult.Failed);
         Stage stage = StageMother.custom("pipeline", "stage", new JobInstances(first));
         StageSummaryModel model = new StageSummaryModel(stage, new Stages(stage), JOB_DURATION_STRATEGY, stage.getIdentifier());

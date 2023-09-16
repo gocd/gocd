@@ -28,23 +28,24 @@ import static org.hamcrest.Matchers.is;
 
 public class HgModificationSplitterTest {
 
-    @Test public void shouldBeAbleToParseModifications() throws Exception {
+    @Test
+    public void shouldBeAbleToParseModifications() {
         ConsoleResult result = new ConsoleResult(0, List.of(("<changeset>\n"
-                + "<node>ca3ebb67f527c0ad7ed26b789056823d8b9af23f</node>\n"
-                + "<author>cruise</author>\n"
-                + "<date>Tue, 09 Dec 2008 18:56:14 +0800</date>\n"
-                + "<desc>test</desc>\n"
-                + "<files>\n"
-                + "<modified>\n"
-                + "<file>end2end/file</file>\n"
-                + "</modified>\n"
-                + "<added>\n"
-                + "<file>end2end/file</file>\n"
-                + "</added>\n"
-                + "<deleted>\n"
-                + "</deleted>\n"
-                + "</files>\n"
-                + "</changeset>").split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+            + "<node>ca3ebb67f527c0ad7ed26b789056823d8b9af23f</node>\n"
+            + "<author>cruise</author>\n"
+            + "<date>Tue, 09 Dec 2008 18:56:14 +0800</date>\n"
+            + "<desc>test</desc>\n"
+            + "<files>\n"
+            + "<modified>\n"
+            + "<file>end2end/file</file>\n"
+            + "</modified>\n"
+            + "<added>\n"
+            + "<file>end2end/file</file>\n"
+            + "</added>\n"
+            + "<deleted>\n"
+            + "</deleted>\n"
+            + "</files>\n"
+            + "</changeset>").split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         HgModificationSplitter splitter = new HgModificationSplitter(result);
         List<Modification> list = splitter.modifications();
         assertThat(list.size(), is(1));

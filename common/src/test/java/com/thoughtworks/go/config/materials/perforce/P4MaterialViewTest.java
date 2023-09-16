@@ -15,66 +15,71 @@
  */
 package com.thoughtworks.go.config.materials.perforce;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class P4MaterialViewTest {
     private static final String CLIENT_NAME = "cruise-ccedev01-mingle";
 
-    @Test public void shouldReplaceClientNameOnView() throws Exception {
+    @Test
+    public void shouldReplaceClientNameOnView() {
         P4MaterialView view = new P4MaterialView("//depot/... //something/...");
         assertThat(view.viewUsing(CLIENT_NAME), containsString("//depot/... //cruise-ccedev01-mingle/..."));
     }
 
-    @Test public void shouldNotrelyOnDepotInTheViews() throws Exception {
+    @Test
+    public void shouldNotRelyOnDepotInTheViews() {
         P4MaterialView view = new P4MaterialView("//SZOPT/... //MDYNYCMDCDEV03/SZOPT/...");
         assertThat(view.viewUsing(CLIENT_NAME), containsString("//SZOPT/... //cruise-ccedev01-mingle/SZOPT/..."));
     }
 
-    @Test public void shouldSetCorrectTabs() throws Exception {
+    @Test
+    public void shouldSetCorrectTabs() {
         String from = "\n"
-                + "    //depot/dir1/... //cws/...\n"
-                + "//depot/dir1/... //cws/...\n"
-                + "//foo/dir1/... //cws/...\n"
-                + "//foo/dir2/... //cws/foo2/...\n"
-                + "    //depot/dir1/... //cws/...\r\n"
-                + "    //depot/dir1/...    //cws/...\n"
-                + "\t\t//depot/rel1/... //cws/release1/...";
+            + "    //depot/dir1/... //cws/...\n"
+            + "//depot/dir1/... //cws/...\n"
+            + "//foo/dir1/... //cws/...\n"
+            + "//foo/dir2/... //cws/foo2/...\n"
+            + "    //depot/dir1/... //cws/...\r\n"
+            + "    //depot/dir1/...    //cws/...\n"
+            + "\t\t//depot/rel1/... //cws/release1/...";
         String to = "\n"
-                + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-                + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-                + "\t//foo/dir1/... //" + CLIENT_NAME + "/...\n"
-                + "\t//foo/dir2/... //" + CLIENT_NAME + "/foo2/...\n"
-                + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-                + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-                + "\t//depot/rel1/... //" + CLIENT_NAME + "/release1/...";
+            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
+            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
+            + "\t//foo/dir1/... //" + CLIENT_NAME + "/...\n"
+            + "\t//foo/dir2/... //" + CLIENT_NAME + "/foo2/...\n"
+            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
+            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
+            + "\t//depot/rel1/... //" + CLIENT_NAME + "/release1/...";
         assertMapsTo(from, to);
     }
 
-    @Test public void shouldSupportExcludedAndIncludeMappings() throws Exception {
+    @Test
+    public void shouldSupportExcludedAndIncludeMappings() {
         String from = "//depot/dir1/... //cws/...\n"
-                + "-//depot/dir1/exclude/... //cws/dir1/exclude/...\n"
-                + "+//depot/dir1/include/... //cws/dir1/include/...";
+            + "-//depot/dir1/exclude/... //cws/dir1/exclude/...\n"
+            + "+//depot/dir1/include/... //cws/dir1/include/...";
         String to = "\n"
-                + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
-                + "\t-//depot/dir1/exclude/... //" + CLIENT_NAME + "/dir1/exclude/...\n"
-                + "\t+//depot/dir1/include/... //" + CLIENT_NAME + "/dir1/include/...";
+            + "\t//depot/dir1/... //" + CLIENT_NAME + "/...\n"
+            + "\t-//depot/dir1/exclude/... //" + CLIENT_NAME + "/dir1/exclude/...\n"
+            + "\t+//depot/dir1/include/... //" + CLIENT_NAME + "/dir1/include/...";
         assertMapsTo(from, to);
     }
 
-    @Test public void shouldSupportMappingsWithSpecialCharacters() throws Exception {
+    @Test
+    public void shouldSupportMappingsWithSpecialCharacters() {
         String from = "//depot/dir1/old.* //cws/renamed/new.*\n"
-                + "//depot/dir1/%1.%2 //cws/dir1/%2.%1\n"
-                + "\t//foobar/dir1/%1.%2 //cws/dir1/%2.%1\n"
-                + "\"-//depot/with spaces/...\" \"//cws/with spaces/...\"\n\n";
+            + "//depot/dir1/%1.%2 //cws/dir1/%2.%1\n"
+            + "\t//foobar/dir1/%1.%2 //cws/dir1/%2.%1\n"
+            + "\"-//depot/with spaces/...\" \"//cws/with spaces/...\"\n\n";
         String to = "\n"
-                + "\t//depot/dir1/old.* //" + CLIENT_NAME + "/renamed/new.*\n"
-                + "\t//depot/dir1/%1.%2 //" + CLIENT_NAME + "/dir1/%2.%1\n"
-                + "\t//foobar/dir1/%1.%2 //" + CLIENT_NAME + "/dir1/%2.%1\n"
-                + "\t\"-//depot/with spaces/...\" \"//" + CLIENT_NAME + "/with spaces/...\"\n\n";
+            + "\t//depot/dir1/old.* //" + CLIENT_NAME + "/renamed/new.*\n"
+            + "\t//depot/dir1/%1.%2 //" + CLIENT_NAME + "/dir1/%2.%1\n"
+            + "\t//foobar/dir1/%1.%2 //" + CLIENT_NAME + "/dir1/%2.%1\n"
+            + "\t\"-//depot/with spaces/...\" \"//" + CLIENT_NAME + "/with spaces/...\"\n\n";
         assertMapsTo(from, to);
     }
 

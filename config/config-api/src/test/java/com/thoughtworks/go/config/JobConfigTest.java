@@ -285,8 +285,8 @@ class JobConfigTest {
     @Test
     void shouldPopulateEnvironmentVariablesFromAttributeMap() {
         JobConfig jobConfig = new JobConfig();
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("name", "FOO");
         valueHashMap.put("value", "BAR");
         map.put(JobConfig.ENVIRONMENT_VARIABLES, valueHashMap);
@@ -300,7 +300,7 @@ class JobConfigTest {
 
     @Test
     void shouldPopulateResourcesFromAttributeMap() {
-        HashMap map = new HashMap();
+        Map<String, String> map = new HashMap<>();
         String value = "a,  b,c   ,d,e";
         map.put(JobConfig.RESOURCES, value);
         ResourceConfigs resourceConfigs = new ResourceConfigs();
@@ -328,7 +328,7 @@ class JobConfigTest {
     @Test
     void shouldSetJobRunTypeCorrectly_forRails4() {
         // single instance
-        HashMap map1 = new HashMap();
+        Map<String, String> map1 = new HashMap<>();
         map1.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
         map1.put(JobConfig.RUN_INSTANCE_COUNT, "10"); // should be ignored
         JobConfig jobConfig1 = new JobConfig();
@@ -340,7 +340,7 @@ class JobConfigTest {
         assertThat(jobConfig1.getRunInstanceCount()).isNull();
 
         // run on all agents
-        HashMap map2 = new HashMap();
+        Map<String, String> map2 = new HashMap<>();
         map2.put(JobConfig.RUN_TYPE, JobConfig.RUN_ON_ALL_AGENTS);
         JobConfig jobConfig2 = new JobConfig();
 
@@ -351,7 +351,7 @@ class JobConfigTest {
         assertThat(jobConfig2.getRunInstanceCount()).isNull();
 
         // run multiple instance
-        HashMap map3 = new HashMap();
+        Map<String, String> map3 = new HashMap<>();
         map3.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
         map3.put(JobConfig.RUN_INSTANCE_COUNT, "10");
         JobConfig jobConfig3 = new JobConfig();
@@ -362,7 +362,7 @@ class JobConfigTest {
         assertThat(jobConfig3.getRunInstanceCountValue()).isEqualTo(10);
         assertThat(jobConfig3.isRunOnAllAgents()).isFalse();
 
-        HashMap map4 = new HashMap();
+        Map<String, String> map4 = new HashMap<>();
         map4.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
         map4.put(JobConfig.RUN_INSTANCE_COUNT, "");
         JobConfig jobConfig4 = new JobConfig();
@@ -376,7 +376,7 @@ class JobConfigTest {
 
     @Test
     void shouldResetJobRunTypeCorrectly() {
-        HashMap map1 = new HashMap();
+        Map<String, String> map1 = new HashMap<>();
         map1.put(JobConfig.RUN_TYPE, JobConfig.RUN_MULTIPLE_INSTANCE);
         map1.put(JobConfig.RUN_INSTANCE_COUNT, "10");
         JobConfig jobConfig = new JobConfig();
@@ -388,7 +388,7 @@ class JobConfigTest {
         assertThat(jobConfig.isRunOnAllAgents()).isFalse();
 
         // should not reset value when correct key not present
-        HashMap map2 = new HashMap();
+        Map<String, String> map2 = new HashMap<>();
 
         jobConfig.setConfigAttributes(map2);
 
@@ -397,7 +397,7 @@ class JobConfigTest {
         assertThat(jobConfig.isRunOnAllAgents()).isFalse();
 
         // reset value for same job config
-        HashMap map3 = new HashMap();
+        Map<String, String> map3 = new HashMap<>();
         map3.put(JobConfig.RUN_TYPE, JobConfig.RUN_SINGLE_INSTANCE);
 
         jobConfig.setConfigAttributes(map3);
@@ -409,8 +409,8 @@ class JobConfigTest {
 
     @Test
     void shouldPopulateArtifactPlansFromAttributeMap() {
-        HashMap map = new HashMap();
-        HashMap valueHashMap = new HashMap();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, String> valueHashMap = new HashMap<>();
         valueHashMap.put("src", "dest");
         valueHashMap.put("src1", "dest1");
         map.put(JobConfig.ARTIFACT_CONFIGS, valueHashMap);

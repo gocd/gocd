@@ -44,7 +44,8 @@ public class ModificationTest {
         assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
     }
 
-    @Test public void shouldAllowAdditionalData() {
+    @Test
+    public void shouldAllowAdditionalData() {
         String expected = "some additional data";
         Modification modification = new Modification("loser", "", null, new Date(), "rev-123", expected);
         assertThat(modification.getAdditionalData(), is(expected));

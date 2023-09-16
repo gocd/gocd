@@ -24,7 +24,8 @@ import static org.hamcrest.Matchers.nullValue;
 
 public class StringUtilTest {
 
-    @Test public void shouldFindSimpleRegExMatch() throws Exception {
+    @Test
+    public void shouldFindSimpleRegExMatch() {
         String url = "http://java.sun.com:80/docs/books/tutorial/essential/regex/test_harness.html";
         String baseUrl = StringUtil.matchPattern("^(http://[^/]*)/", url);
         assertThat(baseUrl, is("http://java.sun.com:80"));
@@ -38,7 +39,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void shouldStripTillLastOccurrenceOfGivenString(){
+    public void shouldStripTillLastOccurrenceOfGivenString() {
         assertThat(stripTillLastOccurrenceOf("HelloWorld@@\\nfoobar\\nquux@@keep_this", "@@"), is("keep_this"));
         assertThat(stripTillLastOccurrenceOf("HelloWorld", "@@"), is("HelloWorld"));
         assertThat(stripTillLastOccurrenceOf(null, "@@"), is(nullValue()));

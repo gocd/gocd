@@ -20,15 +20,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DFSCycleDetectorTest {
-    public Hashtable<CaseInsensitiveString, Node> hashtable;
     private DFSCycleDetector project;
     private PipelineDependencyState state;
 
@@ -39,7 +37,7 @@ public class DFSCycleDetectorTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenCycleDependencyFound() throws Exception {
+    public void shouldThrowExceptionWhenCycleDependencyFound() {
         when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
         when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("c"), new CaseInsensitiveString("stage"))));
         when(state.getDependencyMaterials(new CaseInsensitiveString("c"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("a"), new CaseInsensitiveString("stage"))));
@@ -66,7 +64,8 @@ public class DFSCycleDetectorTest {
         project.topoSort(new CaseInsensitiveString("a"), state);
     }
 
-    @Test public void shouldThrowExceptionWhenDependencyExistsWithUnknownPipeline() throws Exception {
+    @Test
+    public void shouldThrowExceptionWhenDependencyExistsWithUnknownPipeline() {
         when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
         when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("z"), new CaseInsensitiveString("stage"))));
         when(state.hasPipeline(new CaseInsensitiveString("a"))).thenReturn(true);

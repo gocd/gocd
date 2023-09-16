@@ -17,18 +17,21 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.apache.commons.lang3.StringUtils;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 public class ModificationSummariesTest {
-    @Test public void shouldGetLatestRevisionGivenMultipleRevisions() throws Exception {
+    @Test
+    public void shouldGetLatestRevisionGivenMultipleRevisions() {
         ModificationSummaries summaries = new ModificationSummaries(ModificationsMother.multipleModifications());
         String latest = summaries.latestRevision();
         assertThat(latest, is(ModificationsMother.currentRevision()));
     }
 
-    @Test public void shouldHandleEmptyRevisions() throws Exception {
+    @Test
+    public void shouldHandleEmptyRevisions() {
         ModificationSummaries summaries = new ModificationSummaries();
         String latest = summaries.latestRevision();
         assertThat(latest, is(StringUtils.EMPTY));

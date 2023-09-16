@@ -164,12 +164,12 @@ public class JobInstanceTest {
         final Date date = new Date();
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         JobStateTransitions transitions = new JobStateTransitions(
-                new JobStateTransition(JobState.Building, date));
+            new JobStateTransition(JobState.Building, date));
         instance.setTransitions(transitions);
         assertThat(instance.getStartedDateFor(JobState.Building), is(date));
     }
 
-    public static JobStateTransitionMatcher isTransitionWithState(final JobState expectedState) {
+    private static JobStateTransitionMatcher isTransitionWithState(final JobState expectedState) {
         return new JobStateTransitionMatcher(expectedState);
     }
 
@@ -195,7 +195,8 @@ public class JobInstanceTest {
         assertThat(duration, is(120L));
     }
 
-    @Test public void durationShouldBeZeroForIncompleteBuild() {
+    @Test
+    public void durationShouldBeZeroForIncompleteBuild() {
         JobInstance building = JobInstanceMother.scheduled("building");
         Long duration = building.durationOfCompletedBuildInSeconds();
         assertThat(duration, is(0L));
@@ -211,12 +212,13 @@ public class JobInstanceTest {
         assertThat(instance.getResult(), is(JobResult.Unknown));
     }
 
-    @Test public void shouldReturnDateForLatestTransition() {
+    @Test
+    public void shouldReturnDateForLatestTransition() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.setClock(timeProvider);
         when(timeProvider.currentTime()).thenReturn(new DateTime().plusDays(1).toDate());
         instance.completing(JobResult.Passed);
-        assertThat(instance.latestTransitionDate(),is(greaterThan(instance.getScheduledDate())));
+        assertThat(instance.latestTransitionDate(), is(greaterThan(instance.getScheduledDate())));
     }
 
     @Test
@@ -241,19 +243,19 @@ public class JobInstanceTest {
         assertThat(instance.getDuration(), is(RunDuration.IN_PROGRESS_DURATION));
     }
 
-	@Test
-	public void shouldReturnJobTypeCorrectly() {
-		JobInstance jobInstance = new JobInstance();
-		jobInstance.setRunOnAllAgents(true);
-		assertThat(jobInstance.jobType(), instanceOf(RunOnAllAgents.class));
+    @Test
+    public void shouldReturnJobTypeCorrectly() {
+        JobInstance jobInstance = new JobInstance();
+        jobInstance.setRunOnAllAgents(true);
+        assertThat(jobInstance.jobType(), instanceOf(RunOnAllAgents.class));
 
-		jobInstance = new JobInstance();
-		jobInstance.setRunMultipleInstance(true);
-		assertThat(jobInstance.jobType(), instanceOf(RunMultipleInstance.class));
+        jobInstance = new JobInstance();
+        jobInstance.setRunMultipleInstance(true);
+        assertThat(jobInstance.jobType(), instanceOf(RunMultipleInstance.class));
 
-		jobInstance = new JobInstance();
-		assertThat(jobInstance.jobType(), instanceOf(SingleJobInstance.class));
-	}
+        jobInstance = new JobInstance();
+        assertThat(jobInstance.jobType(), instanceOf(SingleJobInstance.class));
+    }
 
     private static class JobStateTransitionMatcher extends BaseMatcher<JobStateTransition> {
         private JobState actualState;

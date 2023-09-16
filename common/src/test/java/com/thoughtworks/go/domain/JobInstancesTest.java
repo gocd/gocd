@@ -29,10 +29,8 @@ import static org.hamcrest.Matchers.is;
 public class JobInstancesTest {
     @Test
     public void shouldFilterByStatus() {
-        final JobInstance instance1 = new JobInstance("test"
-        );
-        final JobInstance instance2 = new JobInstance("test2"
-        );
+        final JobInstance instance1 = new JobInstance("test");
+        final JobInstance instance2 = new JobInstance("test2");
         instance2.setState(JobState.Assigned);
         JobInstances instances = new JobInstances(instance1, instance2);
         JobInstances actual = instances.filterByState(JobState.Assigned);
@@ -90,7 +88,8 @@ public class JobInstancesTest {
         assertThat(actual.isNull(), is(true));
     }
 
-    @Test public void shouldReturnStatusBuildingWhenAnyBuildsAreBuilding() {
+    @Test
+    public void shouldReturnStatusBuildingWhenAnyBuildsAreBuilding() {
         JobInstances builds = new JobInstances();
         builds.add(completed("passports", JobResult.Passed));
         builds.add(completed("visas", JobResult.Cancelled));
@@ -98,7 +97,8 @@ public class JobInstancesTest {
         assertThat(builds.stageState(), is(Building));
     }
 
-    @Test public void jobShouldBeCancelledWhenNoActiveBuildAndHaveAtLeastOneCancelledJob() {
+    @Test
+    public void jobShouldBeCancelledWhenNoActiveBuildAndHaveAtLeastOneCancelledJob() {
         JobInstances builds = new JobInstances();
         builds.add(completed("passports", JobResult.Passed));
         builds.add(completed("passports-failed", JobResult.Failed));
@@ -107,7 +107,8 @@ public class JobInstancesTest {
         assertThat(builds.stageState(), is(Cancelled));
     }
 
-    @Test public void shouldReturnStatusFailingWhenAnyPlansHaveFailedAndNotAllAreCompleted() {
+    @Test
+    public void shouldReturnStatusFailingWhenAnyPlansHaveFailedAndNotAllAreCompleted() {
         JobInstances builds = new JobInstances();
         builds.add(completed("passports", JobResult.Failed));
         builds.add(completed("visas", JobResult.Passed));
@@ -119,10 +120,10 @@ public class JobInstancesTest {
     public void shouldReturnLatestTransitionDate() {
         Date expectedLatest = date(3908, 10, 12);
         Date actualLatest = new JobInstances(
-                completed(completed("job1"), JobResult.Failed, expectedLatest),
-                completed(completed("job1"), JobResult.Failed, date(3908, 10, 11)),
-                completed(completed("job1"), JobResult.Failed, date(3908, 10, 5))).latestTransitionDate();
-        assertThat(actualLatest,is(expectedLatest));
+            completed(completed("job1"), JobResult.Failed, expectedLatest),
+            completed(completed("job1"), JobResult.Failed, date(3908, 10, 11)),
+            completed(completed("job1"), JobResult.Failed, date(3908, 10, 5))).latestTransitionDate();
+        assertThat(actualLatest, is(expectedLatest));
     }
 
     private Date date(int year, int month, int day) {

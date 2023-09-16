@@ -18,16 +18,17 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import com.thoughtworks.go.domain.materials.NullRevision;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class PipelineInstanceModelRealRevisionTest {
 
-    @Test public void shouldPublishItselfAsARealRevision() throws Exception {
+    @Test
+    public void shouldPublishItselfAsARealRevision() {
         assertThat(new StringRevision("foo").isRealRevision(), is(true));
-        assertThat(DependencyMaterialRevision.create("blahPipeline",5,"blahLabel","blahStage",2).isRealRevision(), is(true));
+        assertThat(DependencyMaterialRevision.create("blahPipeline", 5, "blahLabel", "blahStage", 2).isRealRevision(), is(true));
         assertThat(new NullRevision().isRealRevision(), is(false));
         assertThat(PipelineInstanceModel.UNKNOWN_REVISION.isRealRevision(), is(false));
     }

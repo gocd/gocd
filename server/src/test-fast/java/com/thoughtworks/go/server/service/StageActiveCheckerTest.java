@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.server.service.result.OperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 public class StageActiveCheckerTest {
@@ -50,9 +49,10 @@ public class StageActiveCheckerTest {
         verify(result).success(any(HealthStateType.class));
     }
 
-    @Test public void shouldBeAConflictOperationResultWhenStageAlreadyScheduled() throws Exception {
+    @Test
+    public void shouldBeAConflictOperationResultWhenStageAlreadyScheduled() throws Exception {
         when(service.isStageActive(pipelineName, stageName)).thenReturn(true);
         checker.check(result);
-        verify(result).conflict(eq("Failed to trigger pipeline [cruise]"),eq("Stage [dev] in pipeline [cruise] is still in progress"),any(HealthStateType.class));
+        verify(result).conflict(eq("Failed to trigger pipeline [cruise]"), eq("Stage [dev] in pipeline [cruise] is still in progress"), any(HealthStateType.class));
     }
 }

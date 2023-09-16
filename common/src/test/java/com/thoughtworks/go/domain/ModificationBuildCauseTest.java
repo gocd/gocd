@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -31,12 +29,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
+
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationList;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ModificationBuildCauseTest {
 
@@ -48,7 +48,8 @@ public class ModificationBuildCauseTest {
         buildCause = BuildCause.createWithModifications(materialRevisions, "");
     }
 
-    @Test public void shouldAggreateUserNameFromModifications() throws Exception {
+    @Test
+    public void shouldAggregateUserNameFromModifications() {
         String message = String.format("modified by %s", ModificationsMother.MOD_USER_WITH_HTML_CHAR);
         assertThat(buildCause.getBuildCauseMessage(), is(message));
     }
@@ -73,7 +74,8 @@ public class ModificationBuildCauseTest {
         assertThat(message, containsString("triggered by pipelineName/123/stageName/1"));
     }
 
-    @Test public void shouldAggreateUserCommentFromModifications() throws Exception {
+    @Test
+    public void shouldAggreateUserCommentFromModifications() {
         ModificationSummaries summaries = buildCause.toModificationSummaries();
         String message = summaries.getModification(0).getComment();
         String user = summaries.getModification(0).getUserName();
@@ -81,18 +83,19 @@ public class ModificationBuildCauseTest {
         assertThat(message, is(ModificationsMother.MOD_COMMENT_3));
     }
 
-    @Test public void shouldDisplayNoModifications() throws Exception {
+    @Test
+    public void shouldDisplayNoModifications() {
         buildCause = BuildCause.createWithModifications(new MaterialRevisions(), "");
         assertThat(buildCause.getBuildCauseMessage(), is("No modifications"));
     }
 
     @Test
-    public void shouldSafelyGetBuildCausedBy() throws Exception {
+    public void shouldSafelyGetBuildCausedBy() {
         assertThat(BuildCause.createWithEmptyModifications().getBuildCauseMessage(), is("No modifications"));
     }
 
     @Test
-    public void shouldGetBuildCausedByIfIsDenpendencyMaterial() throws Exception {
+    public void shouldGetBuildCausedByIfIsDenpendencyMaterial() {
         MaterialRevisions revisions = new MaterialRevisions();
         Modification modification = new Modification(new Date(), "pipelineName/10/stageName/1", "MOCK_LABEL-12", null);
         revisions.addRevision(new DependencyMaterial(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev")), modification);
@@ -125,8 +128,8 @@ public class ModificationBuildCauseTest {
         try {
             BuildCause.createManualForced(null, null);
             Assertions.fail("Expected NullPointerException to be thrown");
-        } catch (IllegalArgumentException ignore) {
-            assertThat(ignore.getMessage(), containsString("Username cannot be null"));
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), containsString("Username cannot be null"));
         }
     }
 

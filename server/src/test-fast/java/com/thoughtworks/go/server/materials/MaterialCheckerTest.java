@@ -93,14 +93,15 @@ public class MaterialCheckerTest {
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1[LABEL-1]/stage-name/0");
 
-        when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(revisions(dependencyMaterial,modification));
+        when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(revisions(dependencyMaterial, modification));
 
         materialChecker.findLatestRevisions(new MaterialRevisions(), new Materials(dependencyMaterial));
 
         verify(materialRepository).findLatestModification(dependencyMaterial);
     }
 
-    @Test public void shouldSkipLatestRevisionsForMaterialsThatWereAlreadyChecked() {
+    @Test
+    public void shouldSkipLatestRevisionsForMaterialsThatWereAlreadyChecked() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         SvnMaterial svnMaterial = new SvnMaterial("svnUrl", null, null, false);
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
@@ -110,7 +111,7 @@ public class MaterialCheckerTest {
 
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(revisions(dependencyMaterial, svnModification));
         materialChecker.findLatestRevisions(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification)),
-                new Materials(dependencyMaterial, svnMaterial));
+            new Materials(dependencyMaterial, svnMaterial));
 
         verify(materialRepository, never()).findLatestModification(dependencyMaterial);
         verify(materialRepository).findLatestModification(svnMaterial);
@@ -122,7 +123,7 @@ public class MaterialCheckerTest {
         Stage passedStage = StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name");
         Modification modification = new Modification("Unknown", "Unknown", null, passedStage.completedDate(), "pipeline-name/1/stage-name/0");
 
-        when(materialRepository.findModificationWithRevision(dependencyMaterial,"pipeline-name/1/stage-name/0")).thenReturn(modification);
+        when(materialRepository.findModificationWithRevision(dependencyMaterial, "pipeline-name/1/stage-name/0")).thenReturn(modification);
 
         MaterialRevision actualRevision = materialChecker.findSpecificRevision(dependencyMaterial, "pipeline-name/1/stage-name/0");
         assertThat(actualRevision.getModifications().size(), is(1));
@@ -130,9 +131,10 @@ public class MaterialCheckerTest {
         assertThat(actualRevision.getModification(0).getRevision(), is("pipeline-name/1/stage-name/0"));
     }
 
-    @Test public void shouldThrowExceptionIfSpecifiedRevisionDoesNotExist() {
+    @Test
+    public void shouldThrowExceptionIfSpecifiedRevisionDoesNotExist() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        when(materialRepository.findModificationWithRevision(dependencyMaterial,"pipeline-name/500/stage-name/0")).thenReturn(null);
+        when(materialRepository.findModificationWithRevision(dependencyMaterial, "pipeline-name/500/stage-name/0")).thenReturn(null);
 
         try {
             materialChecker.findSpecificRevision(dependencyMaterial, "pipeline-name/500/stage-name/0");
@@ -142,7 +144,8 @@ public class MaterialCheckerTest {
         }
     }
 
-    @Test public void shouldThrowExceptionIfRevisionIsNotSpecified() {
+    @Test
+    public void shouldThrowExceptionIfRevisionIsNotSpecified() {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
 
         try {
@@ -195,8 +198,8 @@ public class MaterialCheckerTest {
 
         assertThat(revisionsSince, is(new MaterialRevisions(new MaterialRevision(dependencyMaterial, dependencyModification), new MaterialRevision(oldPkgMaterial, newPkgMod))));
         // since name is not part of equals
-        assertThat(((PackageMaterial)revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getName(), is("pkg-new-name"));
-        assertThat(((PackageMaterial)revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getRepository().getName(), is("repo-new-name"));
+        assertThat(((PackageMaterial) revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getName(), is("pkg-new-name"));
+        assertThat(((PackageMaterial) revisionsSince.getMaterialRevision(1).getMaterial()).getPackageDefinition().getRepository().getName(), is("repo-new-name"));
 
         verify(materialRepository, never()).findLatestModification(dependencyMaterial);
         verify(materialRepository).findModificationsSince(oldPkgMaterial, previousPkgRevision);

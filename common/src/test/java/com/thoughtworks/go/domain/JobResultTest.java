@@ -16,12 +16,14 @@
 package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class JobResultTest {
 
-    @Test public void shouldConvertToCctrayStatus() throws Exception {
+    @Test
+    public void shouldConvertToCctrayStatus() {
         assertThat(JobResult.Passed.toCctrayStatus(), is("Success"));
         assertThat(JobResult.Failed.toCctrayStatus(), is("Failure"));
         assertThat(JobResult.Cancelled.toCctrayStatus(), is("Failure"));
@@ -30,17 +32,17 @@ public class JobResultTest {
 
 
     @Test
-    public void compatorShouldOrderBy_failed_passed_and_then_unknown() throws Exception {
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Failed),is(1));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Passed),is(-1));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Failed, JobResult.Passed),is(-1));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Passed, JobResult.Failed),is(1));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Passed, JobResult.Passed),is(0));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Cancelled, JobResult.Failed),is(0));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Cancelled, JobResult.Passed),is(-1));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Cancelled, JobResult.Unknown),is(-1));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Unknown),is(0));
-        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Cancelled),is(1));
+    public void compatorShouldOrderBy_failed_passed_and_then_unknown() {
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Failed), is(1));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Passed), is(-1));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Failed, JobResult.Passed), is(-1));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Passed, JobResult.Failed), is(1));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Passed, JobResult.Passed), is(0));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Cancelled, JobResult.Failed), is(0));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Cancelled, JobResult.Passed), is(-1));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Cancelled, JobResult.Unknown), is(-1));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Unknown), is(0));
+        assertThat(JobResult.JOB_RESULT_COMPARATOR.compare(JobResult.Unknown, JobResult.Cancelled), is(1));
     }
 
 

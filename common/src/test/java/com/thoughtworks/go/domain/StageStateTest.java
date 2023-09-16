@@ -41,12 +41,14 @@ public class StageStateTest {
         shouldCoverAllStates();
     }
 
-    @Test public void shouldNotReturnActiveStatusIfCancelled() {
+    @Test
+    public void shouldNotReturnActiveStatusIfCancelled() {
         isActiveShouldBe(false, StageState.Cancelled, StageState.Passed, StageState.Unknown, StageState.Failed);
         isActiveShouldBe(true, StageState.Building, StageState.Failing);
     }
 
-    @Test public void shouldMapStageStatesToStageResults() {
+    @Test
+    public void shouldMapStageStatesToStageResults() {
         assertStageResultIs(StageResult.Cancelled, StageState.Cancelled);
         assertStageResultIs(StageResult.Unknown, StageState.Building, StageState.Unknown);
         assertStageResultIs(StageResult.Passed, StageState.Passed);
@@ -54,7 +56,8 @@ public class StageStateTest {
         shouldCoverAllResults();
     }
 
-    @Test public void shouldConvertToCctrayStatus() throws Exception {
+    @Test
+    public void shouldConvertToCctrayStatus() {
         assertCCTrayStatus(StageState.Passed, is("Success"));
         assertCCTrayStatus(StageState.Failed, is("Failure"));
         assertCCTrayStatus(StageState.Building, is("Success"));
@@ -64,7 +67,7 @@ public class StageStateTest {
     }
 
     @Test
-    public void shouldConvertToCctrayActivity() throws Exception {
+    public void shouldConvertToCctrayActivity() {
         assertCCTrayActivity(StageState.Passed, is("Sleeping"));
         assertCCTrayActivity(StageState.Failed, is("Sleeping"));
         assertCCTrayActivity(StageState.Building, is("Building"));
@@ -85,7 +88,7 @@ public class StageStateTest {
 
     private void assertStatus(StageState state, Matcher<String> matcher) {
         testedStates.add(state);
-        assertThat(state.status(),matcher);
+        assertThat(state.status(), matcher);
     }
 
     private void assertCCTrayActivity(StageState state, Matcher<String> stringMatcher) {
@@ -103,14 +106,14 @@ public class StageStateTest {
         Set<StageResult> missingResults = new HashSet<>(Set.of(StageResult.values()));
         missingResults.removeAll(testedResults);
         assertThat("Update all tests when you add a new StageResult (missing " + missingResults + ")",
-                missingResults.isEmpty(), is(true));
+            missingResults.isEmpty(), is(true));
     }
 
     private void shouldCoverAllStates() {
         Set<StageState> missingStates = new HashSet<>(Set.of(StageState.values()));
         missingStates.removeAll(testedStates);
         assertThat("Update all tests when you add a new StageState (missing " + missingStates + ")",
-                missingStates.isEmpty(), is(true));
+            missingStates.isEmpty(), is(true));
     }
 
     private void isActiveShouldBe(boolean active, StageState... states) {

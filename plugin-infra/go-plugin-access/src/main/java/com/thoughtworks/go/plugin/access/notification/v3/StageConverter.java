@@ -24,10 +24,11 @@ import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.DataConverter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class StageConverter extends DataConverter<StageNotificationDTO> {
-    private Stage stage;
+    private final Stage stage;
     private final String pipelineGroup;
     private final BuildCause buildCause;
 
@@ -48,7 +49,7 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
     }
 
     private StageNotificationDTO.StageDTO createStageDTO() {
-        ArrayList<StageNotificationDTO.JobDTO> jobs = new ArrayList<>();
+        List<StageNotificationDTO.JobDTO> jobs = new ArrayList<>();
         for (JobInstance job : stage.getJobInstances()) {
             StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(job.getName(),
                     DateUtil.dateToString(job.getScheduledDate()), DateUtil.dateToString(job.getAssignedDate()),
@@ -61,11 +62,11 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
                 DateUtil.dateToString(stage.getLastTransitionedTime()), jobs);
     }
 
-    private ArrayList<StageNotificationDTO.MaterialRevisionDTO> createBuildCause(BuildCause buildCause) {
-        ArrayList<StageNotificationDTO.MaterialRevisionDTO> revisions = new ArrayList<>();
+    private List<StageNotificationDTO.MaterialRevisionDTO> createBuildCause(BuildCause buildCause) {
+        List<StageNotificationDTO.MaterialRevisionDTO> revisions = new ArrayList<>();
         for (MaterialRevision currentRevision : buildCause.getMaterialRevisions()) {
             Map<String, Object> attributes = currentRevision.getMaterial().getAttributes(false);
-            ArrayList<StageNotificationDTO.ModificationDTO> modifications = new ArrayList<>();
+            List<StageNotificationDTO.ModificationDTO> modifications = new ArrayList<>();
             for (Modification modification : currentRevision.getModifications()) {
                 modifications.add(new StageNotificationDTO.ModificationDTO(modification.getRevision(),
                         DateUtil.dateToString(modification.getModifiedTime()), modification.getAdditionalDataMap()));

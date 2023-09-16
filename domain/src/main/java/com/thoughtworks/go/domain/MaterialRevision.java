@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.*;
@@ -25,16 +24,19 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
 public class MaterialRevision implements Serializable {
-    private Material material;
+    private final Material material;
+    private final Modifications modifications;
     private boolean changed;
-    private Modifications modifications;
 
     public MaterialRevision(Material material, boolean changed, List<Modification> modifications) {
         bombIfNull(modifications, "modifications cannot be null");
@@ -60,7 +62,7 @@ public class MaterialRevision implements Serializable {
     }
 
     public Date getDateOfLatestModification() {
-        if (modifications.size() > 0) {
+        if (!modifications.isEmpty()) {
             return modifications.get(0).getModifiedTime();
         } else {
             return null;
@@ -92,7 +94,7 @@ public class MaterialRevision implements Serializable {
 
 
     public boolean hasModifications() {
-        return modifications.size() > 0;
+        return !modifications.isEmpty();
     }
 
     public Modification getModification(int i) {
@@ -119,15 +121,7 @@ public class MaterialRevision implements Serializable {
 
         MaterialRevision that = (MaterialRevision) o;
 
-        if (material != null ? !material.equals(that.material) : that.material != null) {
-            return false;
-        }
-
-        if (modifications != null ? !modifications.equals(that.modifications) : that.modifications != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(material, that.material) && Objects.equals(modifications, that.modifications);
     }
 
     @Override
@@ -237,7 +231,7 @@ public class MaterialRevision implements Serializable {
     }
 
     private void assertHasModifications() {
-        if (modifications.size() == 0) {
+        if (modifications.isEmpty()) {
             bomb(String.format("There are no modifications on material %s.", material));
         }
     }
@@ -245,9 +239,9 @@ public class MaterialRevision implements Serializable {
     public void populateEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {
         material.populateEnvironmentContext(context, this, workingDir);
         String materialNameForEnvironmentVariable = material.getMaterialNameForEnvironmentVariable();
-        if(StringUtils.isNotBlank(materialNameForEnvironmentVariable)){
+        if (StringUtils.isNotBlank(materialNameForEnvironmentVariable)) {
             context.setPropertyWithEscape(format("GO_MATERIAL_%s_HAS_CHANGED", materialNameForEnvironmentVariable), Boolean.toString(isChanged()));
-        }else {
+        } else {
             context.setPropertyWithEscape("GO_MATERIAL_HAS_CHANGED", Boolean.toString(isChanged()));
         }
     }
@@ -299,29 +293,8 @@ public class MaterialRevision implements Serializable {
         this.modifications.addAll(modifications);
     }
 
-    @Deprecated //used only in triangle dependency case of fan-in off - Srini
-    public void updateRevisionChangedStatus(MaterialRevision revisionFor) {
-        if (revisionFor.isChanged() && revisionFor.hasModification(getLatestModification())) {
-            markAsChanged();
-        } else {
-            markAsNotChanged();
-        }
-    }
-
     public boolean isDependencyMaterialRevision() {
         return material instanceof DependencyMaterial;
-    }
-
-    public boolean isPackageMaterialRevision() {
-        return material instanceof PackageMaterial;
-    }
-
-    public Set<String> getCardNumbersFromComments() {
-        TreeSet<String> cardNumbers = new TreeSet<>();
-        for (Modification modification : modifications) {
-            cardNumbers.addAll(modification.getCardNumbersFromComment());
-        }
-        return cardNumbers;
     }
 
     public boolean shouldIgnoreForScheduling() {

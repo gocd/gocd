@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import java.util.Set;
-
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.materials.Modification;
 
@@ -38,10 +36,6 @@ public class ModificationForPipeline {
 
     public PipelineId getPipelineId() {
         return pipelineId;
-    }
-
-    public Set<String> getCardNumbersFromComments() {
-        return modification.getCardNumbersFromComment();
     }
 
     public Author getAuthor() {

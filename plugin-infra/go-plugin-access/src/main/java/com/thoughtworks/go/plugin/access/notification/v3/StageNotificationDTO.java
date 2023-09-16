@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.StageState;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,9 +91,9 @@ public class StageNotificationDTO {
         private String modifiedTime;
         @Expose
         @SerializedName("data")
-        private HashMap<String, String> data;
+        private Map<String, String> data;
 
-        public ModificationDTO(String revision, String modifiedTime, HashMap<String, String> data) {
+        public ModificationDTO(String revision, String modifiedTime, Map<String, String> data) {
             this.revision = revision;
             this.modifiedTime = modifiedTime;
             this.data = data;
@@ -133,7 +132,7 @@ public class StageNotificationDTO {
         public StageDTO(String name, int counter, String approvalType, String approvedBy, StageState state, StageResult result,
                         String createTime, String lastTransitionTime, List<JobDTO> jobs) {
             this.name = name;
-            this.counter = new Integer(counter).toString();
+            this.counter = Integer.valueOf(counter).toString();
             this.approvalType = approvalType;
             this.approvedBy = approvedBy;
             this.state = state.toString();

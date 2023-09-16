@@ -73,7 +73,7 @@ public class Modifications extends BaseCollection<Modification> {
         return false;
     }
 
-    public boolean hasModfication(long id) {
+    public boolean hasModification(long id) {
         for (Modification modification : this) {
             if (modification.getId() == id) {
                 return true;
@@ -122,12 +122,14 @@ public class Modifications extends BaseCollection<Modification> {
         Set<ModifiedFile> ignoredFiles = new HashSet<>();
 
         for (ModifiedFile file : allFiles) {
-            appyIgnoreFilter(materialConfig, file, ignoredFiles);
+            applyIgnoreFilter(materialConfig, file, ignoredFiles);
         }
 
-        LOG.debug("Checking ignore filters for {}", materialConfig);
-        LOG.debug("Ignored files: {}", ignoredFiles);
-        LOG.debug("Changed files: {}", CollectionUtils.subtract(allFiles, ignoredFiles));
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Checking ignore filters for {}", materialConfig);
+            LOG.debug("Ignored files: {}", ignoredFiles);
+            LOG.debug("Changed files: {}", CollectionUtils.subtract(allFiles, ignoredFiles));
+        }
 
         if (materialConfig.isInvertFilter()) {
             // return true (ignore) if we are inverting the filter, and the ignoredFiles and allFiles are disjoint sets
@@ -137,7 +139,7 @@ public class Modifications extends BaseCollection<Modification> {
         }
     }
 
-    private void appyIgnoreFilter(MaterialConfig materialConfig, ModifiedFile file, Set<ModifiedFile> ignoredFiles) {
+    private void applyIgnoreFilter(MaterialConfig materialConfig, ModifiedFile file, Set<ModifiedFile> ignoredFiles) {
         for (IgnoredFiles ignore : materialConfig.filter()) {
             if (ignore.shouldIgnore(materialConfig, file.getFileName())) {
                 ignoredFiles.add(file);

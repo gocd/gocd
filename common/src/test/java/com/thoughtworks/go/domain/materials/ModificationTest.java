@@ -44,20 +44,14 @@ public class ModificationTest {
         assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
     }
 
-    @Test public void shouldAllowAdditionalData() throws Exception {
+    @Test public void shouldAllowAdditionalData() {
         String expected = "some additional data";
         Modification modification = new Modification("loser", "", null, new Date(), "rev-123", expected);
         assertThat(modification.getAdditionalData(), is(expected));
     }
 
-    @Test public void shouldAllowNullComment() throws Exception {
-        Modification mod = new Modification("user", null, "email", new Date(), "1");
-        assertThat(mod.getComment(), is(nullValue()));
-        assertThat(mod.getCardNumbersFromComment().isEmpty(), is(true));
-    }
-
     @Test
-    public void shouldReturnUserNameWhenUserNameIsNotEmpty() throws Exception {
+    public void shouldReturnUserNameWhenUserNameIsNotEmpty() {
         Modification modification = new Modification("jack", "", null, null, null);
         assertThat(modification.getUserDisplayName(), is("jack"));
     }
@@ -107,12 +101,5 @@ public class ModificationTest {
         Modification copiedModification = new Modification(modification);
         assertThat(copiedModification, is(modification));
         assertThat(copiedModification.getAdditionalDataMap(), is(modification.getAdditionalDataMap()));
-    }
-
-    @Test
-    public void shouldParseCardNumberFromAComment() {
-        Modification modification = new Modification(null, "Fixing #3455 and #1234",null , null, null);
-        assertThat(modification.getCardNumbersFromComment().size(), is(2));
-        assertThat(modification.getCardNumbersFromComment(), hasItems("3455","1234"));
     }
 }

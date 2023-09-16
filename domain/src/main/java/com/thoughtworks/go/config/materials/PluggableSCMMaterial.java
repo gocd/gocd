@@ -271,7 +271,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
             context.setProperty(getEnvironmentVariableKey("GO_SCM_%s_%s", configurationProperty.getConfigurationKey().getName()),
                     configurationProperty.getResolvedValue(), configurationProperty.isSecure() || configurationProperty.hasSecretParams());
         }
-        HashMap<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
+        Map<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
         if (additionalData != null) {
             for (Map.Entry<String, String> entry : additionalData.entrySet()) {
                 String key = entry.getKey();

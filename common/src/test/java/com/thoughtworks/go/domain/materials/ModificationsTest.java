@@ -80,12 +80,12 @@ public class ModificationsTest {
     }
 
     @Test
-    public void hasModifcationShouldReturnCorrectResults() {
+    public void hasModificationShouldReturnCorrectResults() {
         Modifications modifications = modificationWithIds();
-        assertThat(modifications.hasModfication(3), is(true));
-        assertThat(modifications.hasModfication(2), is(true));
-        assertThat(modifications.hasModfication(5), is(false));
-        assertThat(modifications.hasModfication(0), is(false));
+        assertThat(modifications.hasModification(3), is(true));
+        assertThat(modifications.hasModification(2), is(true));
+        assertThat(modifications.hasModification(5), is(false));
+        assertThat(modifications.hasModification(0), is(false));
     }
 
     @Test

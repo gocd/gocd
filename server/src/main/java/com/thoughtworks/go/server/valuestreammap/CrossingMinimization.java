@@ -15,14 +15,10 @@
  */
 package com.thoughtworks.go.server.valuestreammap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.domain.valuestreammap.NodeLevelMap;
+
+import java.util.*;
 
 import static java.lang.Math.abs;
 import static java.util.Collections.sort;
@@ -108,7 +104,7 @@ public class CrossingMinimization {
 
     private NodeBaryCentre getNodeBaryCentre(Node node, List<Node> relatedNodes) {
         if (relatedNodes.isEmpty()) {
-            return new NodeBaryCentre(node, Float.valueOf(node.getDepth()));
+            return new NodeBaryCentre(node, (float) node.getDepth());
         }
         float sum = 0f;
         for (Node relatedNode : relatedNodes) {
@@ -164,7 +160,7 @@ public class CrossingMinimization {
         List<Node> getRelatedNodesAtNextLevel(Node node);
     }
 
-    private class LeftToRight implements TraversalDirection {
+    private static class LeftToRight implements TraversalDirection {
 
         private final NodeLevelMap nodeLevelMap;
         private int index;
@@ -199,7 +195,7 @@ public class CrossingMinimization {
         }
     }
 
-    private class RightToLeft implements TraversalDirection {
+    private static class RightToLeft implements TraversalDirection {
 
         private final NodeLevelMap nodeLevelMap;
         private int index;
@@ -234,7 +230,7 @@ public class CrossingMinimization {
         }
     }
 
-    private class NodeBaryCentre implements Comparable {
+    private static class NodeBaryCentre implements Comparable<NodeBaryCentre> {
 
         private final Node node;
         private final Float averageDepth;
@@ -245,8 +241,8 @@ public class CrossingMinimization {
         }
 
         @Override
-        public int compareTo(Object other) {
-            return this.averageDepth.compareTo(((NodeBaryCentre) other).averageDepth);
+        public int compareTo(NodeBaryCentre other) {
+            return this.averageDepth.compareTo(other.averageDepth);
         }
     }
 }

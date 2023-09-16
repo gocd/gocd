@@ -174,7 +174,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
             context.setProperty(getEnvironmentVariableKey("GO_PACKAGE_%s_%s", configurationProperty.getConfigurationKey().getName()),
                     configurationProperty.getResolvedValue(), configurationProperty.isSecure() || configurationProperty.hasSecretParams());
         }
-        HashMap<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
+        Map<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
         if (additionalData != null) {
             for (Map.Entry<String, String> entry : additionalData.entrySet()) {
                 String key = entry.getKey();

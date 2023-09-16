@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -261,11 +262,7 @@ public class BuildWork implements Work {
 
         BuildWork work = (BuildWork) o;
 
-        if (assignment != null ? !assignment.equals(work.assignment) : work.assignment != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(assignment, work.assignment);
     }
 
     @Override

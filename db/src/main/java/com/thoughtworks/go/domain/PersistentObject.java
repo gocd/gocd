@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.Objects;
 
 public abstract class PersistentObject implements Serializable {
@@ -24,14 +23,6 @@ public abstract class PersistentObject implements Serializable {
     public static final long NOT_PERSISTED = -1;
 
     protected long id = NOT_PERSISTED;
-
-    public static final Comparator ORDER_DESCENDING_ID = (o1, o2) -> {
-        PersistentObject po1 = (PersistentObject) o1;
-        PersistentObject po2 = (PersistentObject) o2;
-        long comparison = po2.getId() - po1.getId();
-        if (comparison==0) return 0;
-        return comparison > 0? 1: -1;
-    };
 
     public long getId() {
         return id;

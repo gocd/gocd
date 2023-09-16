@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.helper.ReversingEncrypter;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -33,6 +34,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -144,6 +149,7 @@ class SerializationTest {
     @Test
     void serializesCharsets() {
         assertThatJson(Serialization.instance().toJson(StandardCharsets.UTF_8)).isEqualTo("UTF-8");
+        //noinspection CharsetObjectCanBeUsed
         assertThatJson(Serialization.instance().toJson(Charset.forName("ascii"))).isEqualTo("US-ASCII");
     }
 
@@ -153,11 +159,36 @@ class SerializationTest {
         assertEquals(StandardCharsets.US_ASCII, Serialization.instance().fromJson("ascii", Charset.class));
     }
 
+    @Nested
+    public class DateTimes {
+        final Date TEST_TIME = new Date(ZonedDateTime.of(2023, 12, 13, 1, 2, 3, 4000000, ZoneId.of("UTC")).toInstant().toEpochMilli());
+
+        @Test
+        void serializesDatesDeterministically() {
+            assertEquals("null", Serialization.instance().toJson((Date)null));
+            assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.instance().toJson(new Date(0)));
+            assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.instance().toJson(TEST_TIME));
+        }
+        @Test
+        void serializesSqlTimeStampsDeterministically() {
+            assertEquals("null", Serialization.instance().toJson((Timestamp)null));
+            assertEquals("\"1970-01-01T00:00:00Z\"", Serialization.instance().toJson(new Timestamp(0)));
+            assertEquals("\"2023-12-13T01:02:03.004Z\"", Serialization.instance().toJson(new Timestamp(TEST_TIME.getTime())));
+        }
+
+        @Test
+        void deserializesDatesDeterministically() {
+            assertNull(Serialization.instance().fromJson("null", Date.class));
+            assertEquals(new Date(0), Serialization.instance().fromJson("\"1970-01-01T00:00:00Z\"", Date.class));
+            assertEquals(TEST_TIME, Serialization.instance().fromJson("\"2023-12-13T01:02:03.004Z\"", Date.class));
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     void successfullySerializesConfigurationPropertyBecauseGoCipherIsHiddenFromSerialization() {
         assertDoesNotThrow(() -> {
-            final String json = Serialization.instance().toJson(new ConfigurationProperty(dumbcipher())
+            final String json = Serialization.instance().toJson(new ConfigurationProperty(dumbCipher())
                     .withKey("hello")
                     .withEncryptedValue("dlrow"));
             Map<String, String> actual = new Gson().fromJson(json, Map.class);
@@ -230,16 +261,16 @@ class SerializationTest {
 
     @SuppressWarnings("SameParameterValue")
     private ConfigurationProperty plainProperty(String name, String value) {
-        return new ConfigurationProperty(new ConfigurationKey(name), new ConfigurationValue(value), null, dumbcipher());
+        return new ConfigurationProperty(new ConfigurationKey(name), new ConfigurationValue(value), null, dumbCipher());
     }
 
-    private GoCipher dumbcipher() {
+    private GoCipher dumbCipher() {
         return new GoCipher(new ReversingEncrypter());
     }
 
     @SuppressWarnings("SameParameterValue")
     private ConfigurationProperty secretProperty(String name, String encryptedValue) {
-        return new ConfigurationProperty(new ConfigurationKey(name), null, new EncryptedConfigurationValue(encryptedValue), dumbcipher());
+        return new ConfigurationProperty(new ConfigurationKey(name), null, new EncryptedConfigurationValue(encryptedValue), dumbCipher());
     }
 
     private static class TempSystemEnvironment extends SystemEnvironment {

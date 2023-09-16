@@ -274,6 +274,7 @@ subprojects {
     exclude '**/CommandLine.java'
     exclude '**/StreamPumper.java'
     exclude '**/StreamConsumer.java'
+    exclude '**/RuntimeTypeAdapterFactory*.java'
 
     // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
     exclude '**/freemarker_implicit.ftl'

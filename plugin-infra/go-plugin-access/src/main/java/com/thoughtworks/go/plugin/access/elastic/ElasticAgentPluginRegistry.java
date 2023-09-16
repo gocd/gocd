@@ -92,11 +92,11 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
 
     public void notifyPluginAboutClusterProfileChanged(String pluginId, ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
         try {
-            LOGGER.debug("Processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {} ", pluginId, status, oldClusterProfile, newClusterProfile);
+            LOGGER.debug("Processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {}", pluginId, status, oldClusterProfile, newClusterProfile);
             extension.clusterProfileChanged(pluginId, status, oldClusterProfile, newClusterProfile);
-            LOGGER.debug("Done processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {} ", pluginId, status, oldClusterProfile, newClusterProfile);
+            LOGGER.debug("Done processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {}", pluginId, status, oldClusterProfile, newClusterProfile);
         } catch (Exception e) {
-            LOGGER.error("An error occurred while processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {}. Error: {}", pluginId, status, oldClusterProfile, newClusterProfile, e);
+            LOGGER.error("An error occurred while processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {}", pluginId, status, oldClusterProfile, newClusterProfile, e);
         }
     }
 

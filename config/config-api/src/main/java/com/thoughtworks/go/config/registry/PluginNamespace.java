@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.config.registry;
 
-import java.net.URL;
-
 import com.thoughtworks.go.plugins.GoPluginManifest;
 import com.thoughtworks.go.util.GoConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import java.net.URL;
+
 /**
-* @understands the XML namespace that a plugin provides for a given set of config tags
+* Understands the XML namespace that a plugin provides for a given set of config tags
 */
 public class PluginNamespace {
     public static final String XSD_NAMESPACE_PREFIX = GoConstants.GO_PLUGIN_MANIFEST_HEADER_PREFIX + "Xsd-Prefix";

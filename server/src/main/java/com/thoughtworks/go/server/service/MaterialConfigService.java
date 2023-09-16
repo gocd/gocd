@@ -33,7 +33,7 @@ import java.util.*;
 import static java.util.stream.Collectors.toList;
 
 /**
- * @understands providing services around a pipeline configuration
+ * Understands providing services around a pipeline configuration
  */
 @Service
 public class MaterialConfigService {

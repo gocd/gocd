@@ -475,7 +475,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public static boolean isBisect(double naturalOrder) {
-        return naturalOrder - new Double(naturalOrder).intValue() > 0;//TODO: may be we should be using long, as int can lead to truncation
+        return naturalOrder - Double.valueOf(naturalOrder).longValue() > 0;
     }
 
     public TrackingTool getTrackingTool() {

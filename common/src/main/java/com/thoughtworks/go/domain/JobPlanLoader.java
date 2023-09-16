@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 /**
- * @understands loading job plan for job
+ * Understands loading job plan for job
  */
 public interface JobPlanLoader {
     JobPlan loadOriginalJobPlan(JobIdentifier jobId);

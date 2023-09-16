@@ -21,7 +21,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 /**
- * @understands if a Stage can be scheduled in a locked pipeline
+ * Understands if a Stage can be scheduled in a locked pipeline
  */
 public class StageLockChecker implements SchedulingChecker {
     private final PipelineIdentifier pipeline;

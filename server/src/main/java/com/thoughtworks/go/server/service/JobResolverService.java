@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * @understands resolving actual job in case of copy-for-rerun
+ * Understands resolving actual job in case of copy-for-rerun
  */
 @Service
 public class JobResolverService {

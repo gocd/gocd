@@ -43,7 +43,7 @@ import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static java.lang.String.format;
 
 /**
- * @understands configuration for subversion
+ * Understands configuration for subversion
  */
 public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private static final Logger LOGGER = LoggerFactory.getLogger(SvnMaterial.class);

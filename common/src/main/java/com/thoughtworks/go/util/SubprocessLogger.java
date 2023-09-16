@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @understands handling subprocesses
+ * Understands handling subprocesses
  */
 public class SubprocessLogger implements Runnable {
     private CurrentProcess currentProcess;

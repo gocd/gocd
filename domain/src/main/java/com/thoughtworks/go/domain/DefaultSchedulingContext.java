@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @understands what a job needs to know to be scheduled
+ * Understands what a job needs to know to be scheduled
  */
 public class DefaultSchedulingContext implements SchedulingContext {
     private final String approvedBy;

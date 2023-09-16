@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import java.io.File;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Material;
@@ -26,8 +23,11 @@ import com.thoughtworks.go.server.service.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.util.List;
+
 /**
- * @understands how to find modifications for materials using the SCM directly
+ * Understands how to find modifications for materials using the SCM directly
  */
 @Component
 public class LegacyMaterialChecker implements ModificationSource {

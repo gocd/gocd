@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.config.preprocessor;
 
-/**
- * @understands
- */
 public interface ParamScope {
     ParamResolver applyOver(ParamResolver resolver);
 }

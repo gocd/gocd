@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentPipelinesConfig;
 
+import java.util.List;
+
 /**
- * @understands how to reference an logical grouping of machines
+ * Understands how to reference an logical grouping of machines
  */
 public class EnvironmentPipelineMatcher {
     private final CaseInsensitiveString name;

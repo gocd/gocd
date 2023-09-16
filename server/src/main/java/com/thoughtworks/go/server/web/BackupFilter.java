@@ -39,7 +39,7 @@ import java.io.InputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * @understands redirecting all requests to a service unavailable page when the server is being backed up.
+ * Understands redirecting all requests to a service unavailable page when the server is being backed up.
  */
 @Component
 public class BackupFilter extends OncePerRequestFilter {

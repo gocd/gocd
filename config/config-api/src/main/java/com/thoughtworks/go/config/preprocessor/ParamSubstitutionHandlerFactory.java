@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.preprocessor;
 import com.thoughtworks.go.config.ParamsConfig;
 
 /**
- * @understands creating com.thoughtworks.go.config.preprocessor.ParamSubstitutionHandler
+ * Understands creating com.thoughtworks.go.config.preprocessor.ParamSubstitutionHandler
  */
 public class ParamSubstitutionHandlerFactory implements ParamHandlerFactory {
 

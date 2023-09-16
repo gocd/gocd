@@ -17,9 +17,6 @@ package com.thoughtworks.go.server.ui;
 
 import java.util.Comparator;
 
-/**
-* @understands sort direction
-*/
 public enum SortOrder {
     ASC {
         @Override

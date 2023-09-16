@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugins.presentation;
 
 /**
- * @understands creates pluggable view model with given a model
+ * Understands creates pluggable view model with given a model
  */
 public interface PluggableViewModelFactory<T> {
     PluggableViewModel viewModelFor(T renderable, String actionName);

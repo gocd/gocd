@@ -44,7 +44,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 
 /**
- * @understands how to migrate from a previous version of config
+ * Understands how to migrate from a previous version of config
  */
 @Component
 public class GoConfigMigration {

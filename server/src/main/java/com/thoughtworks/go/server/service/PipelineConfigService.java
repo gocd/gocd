@@ -43,7 +43,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFa
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
 /**
- * @understands providing services around a pipeline configuration
+ * Understands providing services around a pipeline configuration
  */
 @Service
 public class PipelineConfigService {

@@ -24,7 +24,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import java.util.Collection;
 
 /**
- * @understands the context in which jobs are being scheduled
+ * Understands the context in which jobs are being scheduled
  */
 public interface SchedulingContext {
     String getApprovedBy();

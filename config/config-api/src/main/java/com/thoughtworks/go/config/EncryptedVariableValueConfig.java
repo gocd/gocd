@@ -18,7 +18,7 @@ package com.thoughtworks.go.config;
 import java.io.Serializable;
 
 /**
- * @understands encrypted values for env variables
+ * Understands encrypted values for env variables
  */
 @ConfigTag("encryptedValue")
 public class EncryptedVariableValueConfig implements Serializable{

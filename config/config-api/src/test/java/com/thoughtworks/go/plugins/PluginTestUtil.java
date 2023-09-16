@@ -15,18 +15,15 @@
  */
 package com.thoughtworks.go.plugins;
 
-import java.util.Hashtable;
-import java.util.Map;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+
+import java.util.Hashtable;
+import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * @understands: PluginTestUtil
- */
 public class PluginTestUtil {
     public static BundleContext bundleCtxWithHeaders(Map headerMap) {
         BundleContext bundleCtx = mock(BundleContext.class);

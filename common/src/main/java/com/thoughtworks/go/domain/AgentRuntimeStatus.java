@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 /**
- * @understands live information about an agent
+ * Understands live information about an agent
  */
 public enum AgentRuntimeStatus {
     Idle, Building, LostContact, Missing, Cancelled, Unknown;

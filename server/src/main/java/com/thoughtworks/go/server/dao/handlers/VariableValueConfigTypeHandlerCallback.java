@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * @understands converting a {@link VariableValueConfig } to a string and back
+ * Understands converting a {@link VariableValueConfig } to a string and back
  */
 public class VariableValueConfigTypeHandlerCallback extends StringColumnBasedTypeHandler<VariableValueConfig> {
 

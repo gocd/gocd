@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @understands the configuration for a stage
+ * Understands the configuration for a stage
  */
 @ConfigTag("stage")
 public class StageConfig implements Validatable, ParamsAttributeAware, EnvironmentVariableScope {

@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.Map;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Map;
+
 /**
- * @understands MQL criteria for a mingle config
+ * Understands MQL criteria for a mingle config
  */
 @ConfigTag("mqlGroupingConditions")
 public class MqlCriteria implements ParamsAttributeAware, Validatable {

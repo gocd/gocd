@@ -19,7 +19,7 @@ import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.materials.Modification;
 
 /**
- * @understands association of material revisions of a pipeline
+ * Understands association of material revisions of a pipeline
  */
 public class ModificationForPipeline {
     private final PipelineId pipelineId;

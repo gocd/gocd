@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 
 /**
- * @understands builds that are triggered in different ways
+ * Understands builds that are triggered in different ways
  */
 public interface BuildType {
     BuildCause onModifications(MaterialRevisions materialRevisions, boolean materialConfigurationChanged, MaterialRevisions previousMaterialRevisions);

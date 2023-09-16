@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service.result;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 /**
- * @understands the current status of a given task.
+ * Understands the current status of a given task.
  */
 public interface LocalizedOperationResult {
 

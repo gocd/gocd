@@ -56,7 +56,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 /**
- * @understands the configuration for cruise
+ * Understands the configuration for cruise
  */
 @ConfigTag("cruise")
 public class BasicCruiseConfig implements CruiseConfig {

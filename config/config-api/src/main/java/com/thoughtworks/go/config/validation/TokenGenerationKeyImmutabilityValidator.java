@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 /**
- * @understands: ensures tokenGenerationKey is never changed
+ * Understands: ensures tokenGenerationKey is never changed
  */
 public class TokenGenerationKeyImmutabilityValidator implements GoConfigValidator {
     private final SystemEnvironment systemEnvironment;

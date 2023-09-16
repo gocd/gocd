@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.materials;
 import java.util.Map;
 
 /**
- * @understands environmental information of process performing material update
+ * Understands environmental information of process performing material update
  */
 public interface SubprocessExecutionContext {
     String getProcessNamespace(String fingerprint);

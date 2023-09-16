@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 /**
- * @understands: ensures serverId is never changed
+ * Understands: ensures serverId is never changed
  */
 public class ServerIdImmutabilityValidator implements GoConfigValidator {
     private String serverId;

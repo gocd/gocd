@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 /**
- * @understands status of agent based on persistent information
+ * Understands status of agent based on persistent information
  */
 public enum AgentConfigStatus {
     Pending, Enabled, Disabled

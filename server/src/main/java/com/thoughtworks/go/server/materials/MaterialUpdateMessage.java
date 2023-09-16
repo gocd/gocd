@@ -22,7 +22,7 @@ import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.HashCodeBuilder.reflectionHashCode;
 
 /**
- * @understands what material needs to be updated
+ * Understands what material needs to be updated
  */
 public class MaterialUpdateMessage implements GoMessage {
     private final Material material;

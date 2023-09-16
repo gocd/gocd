@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * @understands A single backup of the server
+ * Understands A single backup of the server
  */
 @EqualsAndHashCode(callSuper = true)
 public class ServerBackup extends PersistentObject {

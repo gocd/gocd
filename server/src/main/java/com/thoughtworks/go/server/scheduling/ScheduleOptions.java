@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * @understands parameter object that contains information like revisions and variables with which the pipeline is triggered
+ * Understands parameter object that contains information like revisions and variables with which the pipeline is triggered
  */
 public class ScheduleOptions {
     private final Map<String, String> specifiedRevisions;

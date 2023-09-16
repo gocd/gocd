@@ -17,9 +17,6 @@ package com.thoughtworks.go.config.registry;
 
 import java.util.List;
 
-/**
- * @understands
- */
 public interface ConfigElementRegistry {
     <T> List<Class<? extends T>> implementersOf(Class<T> type);
 }

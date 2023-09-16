@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @understands a build that was triggered by a change in some external materials
+ * Understands a build that was triggered by a change in some external materials
  */
 public class AutoBuild implements BuildType {
     private final GoConfigService goConfigService;

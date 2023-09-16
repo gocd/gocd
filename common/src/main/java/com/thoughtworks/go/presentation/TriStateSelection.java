@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @understands What values are selected on multiple agents
+ * Understands What values are selected on multiple agents
  */
 public class TriStateSelection implements Comparable<TriStateSelection> {
     private String value;

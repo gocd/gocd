@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * @understands collection of agents view model
+ * Understands collection of agents view model
  */
 public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 

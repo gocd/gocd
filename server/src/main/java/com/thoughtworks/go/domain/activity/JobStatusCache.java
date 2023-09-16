@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @understands jobs that are currently in progress
+ * Understands jobs that are currently in progress
  */
 @Component
 public class JobStatusCache implements JobStatusListener {

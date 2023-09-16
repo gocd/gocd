@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @understands removing server health message on valid config changes
+ * Understands removing server health message on valid config changes
  */
 @Component
 public class InvalidConfigMessageRemover implements ConfigChangedListener {

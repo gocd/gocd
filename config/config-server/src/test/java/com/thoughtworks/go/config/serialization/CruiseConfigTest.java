@@ -21,13 +21,10 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @understands
- */
 public class CruiseConfigTest {
 
     @Test public void shouldFindAllResourcesOnAllJobs() throws Exception {

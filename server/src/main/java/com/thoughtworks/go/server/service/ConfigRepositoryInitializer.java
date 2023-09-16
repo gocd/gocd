@@ -43,7 +43,7 @@ import java.util.LinkedList;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 
 /**
- * @understands initializing config repositories. Loads the configurations from the last checked out modification on server startup.
+ * Understands initializing config repositories. Loads the configurations from the last checked out modification on server startup.
  */
 @Service
 public class ConfigRepositoryInitializer implements ConfigChangedListener, PluginChangeListener {

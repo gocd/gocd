@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import java.util.*;
 
 /**
- * @understands configuration of all the upstream pipelines.
+ * Understands configuration of all the upstream pipelines.
  */
 public class PipelineConfigDependencyGraph {
 

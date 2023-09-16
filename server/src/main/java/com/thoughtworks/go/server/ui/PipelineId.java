@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.ui;
 
 /**
- * @understands identifying a pipeline uniquely in both config and db
+ * Understands identifying a pipeline uniquely in both config and db
  */
 public class PipelineId {
     private final String pipelineName;

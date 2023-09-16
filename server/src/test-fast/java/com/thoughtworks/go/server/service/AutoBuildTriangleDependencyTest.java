@@ -34,9 +34,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
-/**
- * @understands
- */
 public class AutoBuildTriangleDependencyTest {
 
     private GoConfigService goConfigService;

@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -31,10 +29,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static java.lang.String.format;
 
 /**
- * @understands how to retrieve changes on SCMs given a material
+ * Understands how to retrieve changes on SCMs given a material
  */
 @Component
 public class MaterialChecker {

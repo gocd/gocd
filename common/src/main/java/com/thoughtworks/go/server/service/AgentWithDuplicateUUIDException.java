@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 /**
- *  @understands The situation when an agent has the same UUID as an other agent and does not have a cookie.
+ * Understands The situation when an agent has the same UUID as an other agent and does not have a cookie.
  */
 public class AgentWithDuplicateUUIDException extends RuntimeException {
 

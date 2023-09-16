@@ -23,7 +23,7 @@ import java.util.Map;
 
 
 /**
- * @understands Configuration of a Pipeline cron timer
+ * Understands Configuration of a Pipeline cron timer
  */
 @ConfigTag("timer")
 public class TimerConfig implements Validatable {

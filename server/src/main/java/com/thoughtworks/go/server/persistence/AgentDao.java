@@ -46,7 +46,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 /**
- * @understands persisting and retrieving agent uuid-cookie mapping
+ * Understands persisting and retrieving agent uuid-cookie mapping
  */
 @SuppressWarnings({"ALL"})
 @Component

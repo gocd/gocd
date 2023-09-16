@@ -22,7 +22,7 @@ import java.util.List;
 import static org.apache.commons.lang3.StringUtils.join;
 
 /**
- * @understands converting the localized message for a given key
+ * Understands converting the localized message for a given key
  */
 public abstract class LocalizedMessage {
 

@@ -36,7 +36,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * @understands a sorted collection of PipelineMaterialModification
+ * Understands a sorted collection of PipelineMaterialModification
  */
 @Component
 public class PipelineTimeline {

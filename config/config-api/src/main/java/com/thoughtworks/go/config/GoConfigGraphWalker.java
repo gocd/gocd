@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap;
@@ -22,10 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.thoughtworks.go.config.preprocessor.ClassAttributeCache;
-
 /**
- * @understands visits all the nodes in the cruise config once using Java reflection
+ * Understands visits all the nodes in the cruise config once using Java reflection
  */
 public class GoConfigGraphWalker {
     private final Validatable rootValidatable;

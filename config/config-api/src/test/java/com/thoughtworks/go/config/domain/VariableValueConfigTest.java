@@ -18,12 +18,9 @@ package com.thoughtworks.go.config.domain;
 import com.thoughtworks.go.config.VariableValueConfig;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-/**
- * @understands
- */
 public class VariableValueConfigTest {
     @Test
     public void shouldBeEqualIfValuesAreEqual(){

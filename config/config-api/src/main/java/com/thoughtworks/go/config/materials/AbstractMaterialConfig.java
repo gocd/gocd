@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 /**
- * @understands material configuration
+ * Understands material configuration
  */
 public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAttributeAware {
     public static final String MATERIAL_NAME = "materialName";

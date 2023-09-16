@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.ui.SortOrder;
 import java.util.List;
 
 /**
- * @understands how to retrieve and save jobInstances on the db
+ * Understands how to retrieve and save jobInstances on the db
  */
 public interface JobInstanceDao {
 

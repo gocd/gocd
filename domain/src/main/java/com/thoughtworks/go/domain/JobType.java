@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.util.Clock;
 
 /**
- * @understands how to match job instances associated with different types of JobConfigs
+ * Understands how to match job instances associated with different types of JobConfigs
  */
 public interface JobType {
     boolean isInstanceOf(String jobInstanceName, boolean ignoreCase, String jobConfigName);

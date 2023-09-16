@@ -18,7 +18,7 @@ package com.thoughtworks.go.config;
 import java.io.Serializable;
 
 /**
- * @understands Value of env variable
+ * Understands Value of env variable
  */
 @ConfigTag("value")
 public class VariableValueConfig implements Serializable {

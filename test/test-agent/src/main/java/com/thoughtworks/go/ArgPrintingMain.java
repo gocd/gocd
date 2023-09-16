@@ -18,7 +18,7 @@ package com.thoughtworks.go;
 import java.lang.management.ManagementFactory;
 
 /**
- * @understands printing arguments for testing purpose and exiting
+ * Understands printing arguments for testing purpose and exiting
  */
 public class ArgPrintingMain {
     public static void main(String[] args) {

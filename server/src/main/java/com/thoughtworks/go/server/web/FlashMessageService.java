@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.presentation.FlashMessageModel;
+import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.thoughtworks.go.presentation.FlashMessageModel;
-import org.springframework.stereotype.Service;
-
 /**
- * @understands persisting and retrieving messages from flash(session store, but deleted on read)
+ * Understands persisting and retrieving messages from flash(session store, but deleted on read)
  */
 @Service
 public class FlashMessageService {

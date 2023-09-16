@@ -20,7 +20,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
- * @understands updating server health information relating to disk space
+ * Understands updating server health information relating to disk space
  */
 public class DiskSpaceOperationResult implements OperationResult {
     private final ServerHealthService serverHealthService;

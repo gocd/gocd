@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config;
 
 /**
- * @understands unidirectonal transformation of persistable config object to usable config object
+ * Understands unidirectonal transformation of persistable config object to usable config object
  */
 public interface GoConfigPreprocessor {
     void process(CruiseConfig cruiseConfig);

@@ -36,7 +36,7 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escape
 
 
 /**
- * @understands a source control repository and its configuration
+ * Understands a source control repository and its configuration
  */
 public abstract class ScmMaterial extends AbstractMaterial implements SecretParamAware {
 

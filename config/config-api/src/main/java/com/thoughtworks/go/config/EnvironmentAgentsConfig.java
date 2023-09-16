@@ -24,7 +24,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 /**
-* @understands references to existing agents that are associated to an Environment
+* Understands references to existing agents that are associated to an Environment
  */
 public class EnvironmentAgentsConfig extends BaseCollection<EnvironmentAgentConfig> implements ParamsAttributeAware, Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();

@@ -15,16 +15,12 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * @understands a pipeline which can be compared based on its material checkin (natural) order
+ * Understands a pipeline which can be compared based on its material checkin (natural) order
  */
 public class PipelineTimelineEntry implements Comparable {
     private final String pipelineName;

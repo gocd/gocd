@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.server.scheduling;
 
-import java.util.concurrent.ConcurrentSkipListSet;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ConcurrentSkipListSet;
+
 /**
- * @understands what is currently being schedule
+ * Understands what is currently being schedule
  */
 @Component
 public class TriggerMonitor {

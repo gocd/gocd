@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import java.lang.reflect.Constructor;
-
 import com.thoughtworks.go.security.GoCipher;
+
+import java.lang.reflect.Constructor;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * @understands creating instance of a config element class
+ * Understands creating instance of a config element class
  */
 public class ConfigElementInstantiator {
     public static <T> T instantiateConfigElement(GoCipher goCipher, Class<T> toGenerate) {

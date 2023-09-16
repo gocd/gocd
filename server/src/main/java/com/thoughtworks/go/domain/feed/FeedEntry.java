@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @understands an atom feed entry
+ * Understands an atom feed entry
  */
 public interface FeedEntry {
 

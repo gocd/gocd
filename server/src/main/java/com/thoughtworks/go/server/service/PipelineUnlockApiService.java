@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 import static java.lang.String.format;
 
 /**
- * @understands forced unlocking of pipeline by a user
+ * Understands forced unlocking of pipeline by a user
  * <p>
  * unlock belongs in PipelineLockService but had to be pulled into a separate service
  * because of circular dependency between CachedCurrentActivityService and PipelineLockService

@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.materials.postcommit;
 
-/**
- * @understands: PostCommitHookMaterial
- */
 public interface PostCommitHookMaterialType {
     boolean isKnown();
     boolean isValid(String type);

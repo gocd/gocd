@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 /**
- * @understands obtaining a resource feed
+ * Understands obtaining a resource feed
  */
 public interface FeedResolver {
     FeedEntries feed(Username user, LocalizedOperationResult operationResult);

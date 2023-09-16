@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @understands appending any information that this provider wants to contribute while collecting the information for the
+ * Understands appending any information that this provider wants to contribute while collecting the information for the
  */
 public interface ServerInfoProvider {
     double priority();

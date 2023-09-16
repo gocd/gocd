@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
+import com.thoughtworks.go.domain.PipelinePauseInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-
 /**
- * @understands group level aggregation of active pipelines
+ * Understands group level aggregation of active pipelines
  */
 public class PipelineGroupModel {
     private String name;

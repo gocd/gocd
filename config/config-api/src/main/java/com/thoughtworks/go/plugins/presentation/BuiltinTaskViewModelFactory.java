@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* @understands creating a view model for a built in task.
-*/
+ * Understands creating a view model for a built in task.
+ */
 public class BuiltinTaskViewModelFactory implements PluggableViewModelFactory {
     private Map<String, String> viewTemplates;
 

@@ -15,17 +15,14 @@
  */
 package com.thoughtworks.go.plugins;
 
-import java.util.Dictionary;
-
 import com.thoughtworks.go.config.registry.PluginNamespace;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Namespace;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 
-/**
- * @understands: GoPluginManifest
- */
+import java.util.Dictionary;
+
 public class GoPluginManifest {
     private final Dictionary<String, String> headers;
 

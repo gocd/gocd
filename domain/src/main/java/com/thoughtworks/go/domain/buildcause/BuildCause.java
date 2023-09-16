@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @understands why a pipeline was triggered and what revisions it contains
+ * Understands why a pipeline was triggered and what revisions it contains
  */
 public class BuildCause implements Serializable {
 

@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.domain.xml;
 
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -40,8 +37,11 @@ import org.dom4j.Element;
 import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * @understands rendering xml representation of Pipeline
+ * Understands rendering xml representation of Pipeline
  */
 public class PipelineXmlViewModel implements XmlRepresentable {
     private final PipelineInstanceModel pipeline;

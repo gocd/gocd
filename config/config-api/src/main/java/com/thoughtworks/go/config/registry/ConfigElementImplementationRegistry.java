@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @understands mapping the implementers of a given Config interface.
+ * Understands mapping the implementers of a given Config interface.
  */
 @Component
 public class ConfigElementImplementationRegistry implements ConfigElementRegistry {

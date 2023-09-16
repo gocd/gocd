@@ -19,7 +19,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
- * @understands the current status of the Server Health.
+ * Understands the current status of the Server Health.
  */
 public class ServerHealthStateOperationResult implements OperationResult {
     private ServerHealthState lastHealthState = null;

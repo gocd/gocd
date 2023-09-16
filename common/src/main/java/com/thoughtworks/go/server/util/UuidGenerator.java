@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.server.util;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 /**
- * @understands generating random uuid
+ * Understands generating random uuid
  */
 @Component
 public class UuidGenerator {

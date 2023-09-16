@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @understands references to existing pipelines that are associated to an Environment
+ * Understands references to existing pipelines that are associated to an Environment
  */
 @ConfigTag("pipelines")
 @ConfigCollection(EnvironmentPipelineConfig.class)

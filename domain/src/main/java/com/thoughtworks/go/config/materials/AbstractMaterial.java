@@ -32,7 +32,7 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escape
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * @understands material configuration
+ * Understands material configuration
  */
 public abstract class AbstractMaterial extends PersistentObject implements Material {
     /**

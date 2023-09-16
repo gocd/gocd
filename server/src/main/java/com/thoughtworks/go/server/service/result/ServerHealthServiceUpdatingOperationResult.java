@@ -20,7 +20,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
- * @understands how to report results of common operations to the user
+ * Understands how to report results of common operations to the user
  */
 public class ServerHealthServiceUpdatingOperationResult implements OperationResult {
 

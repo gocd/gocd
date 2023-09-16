@@ -33,9 +33,8 @@ import java.util.Map;
 import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
 
 /**
- * @understands abstracting a pipeline definition
+ * Understands abstracting a pipeline definition
  */
-
 @ConfigTag("pipeline")
 @ConfigCollection(value = StageConfig.class)
 public class PipelineTemplateConfig extends BaseCollection<StageConfig> implements Validatable, ParamsAttributeAware {

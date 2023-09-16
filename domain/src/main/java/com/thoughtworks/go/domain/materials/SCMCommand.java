@@ -20,9 +20,6 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ConsoleResult;
 
-/**
- * @understands: SCMCommand
- */
 public abstract class SCMCommand {
     protected String materialFingerprint;
 

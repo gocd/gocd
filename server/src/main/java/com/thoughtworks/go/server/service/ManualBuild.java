@@ -17,17 +17,17 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @understands operations related to a pipeline that was forced
+ * Understands operations related to a pipeline that was forced
  */
 public class ManualBuild implements BuildType {
     private static final Logger LOGGER = LoggerFactory.getLogger(ManualBuild.class);

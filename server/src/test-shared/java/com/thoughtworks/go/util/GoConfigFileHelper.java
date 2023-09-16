@@ -56,7 +56,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.mock;
 
 /**
- * @understands how to edit the cruise config file for testing
+ * Understands how to edit the cruise config file for testing
  */
 public class GoConfigFileHelper {
 

@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
- * @understands serving prepared artifacts and preparing artifact offline
+ * Understands serving prepared artifacts and preparing artifact offline
  */
 public abstract class ArtifactCache<T extends Comparable<T>> {
     protected final ArtifactsDirHolder artifactsDirHolder;

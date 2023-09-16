@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * @understands creating a view model for a pluggable task.
+ * Understands creating a view model for a pluggable task.
  */
 public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<PluggableTask> {
 

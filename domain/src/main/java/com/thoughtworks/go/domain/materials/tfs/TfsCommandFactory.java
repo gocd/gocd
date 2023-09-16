@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @understands: Factory to give appropriate TFS Command
+ * Understands: Factory to give appropriate TFS Command
  */
 public class TfsCommandFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(TfsCommandFactory.class);

@@ -1,20 +1,4 @@
 /*
- * Copyright 2023 Thoughtworks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
  * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,13 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/*
- * This class has been copied from https://github.com/google/gson/blob/master/extras/src/main/java/com/google/gson/typeadapters/RuntimeTypeAdapterFactory.java
+ *
+ * Originally from Gson project. Modifications copyright Thoughtworks and respective GoCD contributors.
+ * This class has been copied from https://github.com/google/gson/blob/main/extras/src/main/java/com/google/gson/typeadapters/RuntimeTypeAdapterFactory.java
  * since the gson-extras library is not officially released or maintained, refer - https://github.com/google/gson/issues/845
-*/
-
+ */
 package com.thoughtworks.go.remote.adapter;
 
 import com.google.gson.*;
@@ -194,7 +176,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
      * sensitive.
      *
      * @throws IllegalArgumentException if either {@code type} or {@code label}
-     *     have already been registered on this type adapter.
+     *                                  have already been registered on this type adapter.
      */
     public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type, String label) {
         if (type == null || label == null) {
@@ -213,7 +195,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
      * name}. Labels are case sensitive.
      *
      * @throws IllegalArgumentException if either {@code type} or its simple name
-     *     have already been registered on this type adapter.
+     *                                  have already been registered on this type adapter.
      */
     public RuntimeTypeAdapterFactory<T> registerSubtype(Class<? extends T> type) {
         return registerSubtype(type, type.getSimpleName());
@@ -225,9 +207,9 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         }
 
         final Map<String, TypeAdapter<?>> labelToDelegate
-                = new LinkedHashMap<>();
+            = new LinkedHashMap<>();
         final Map<Class<?>, TypeAdapter<?>> subtypeToDelegate
-                = new LinkedHashMap<>();
+            = new LinkedHashMap<>();
         for (Map.Entry<String, Class<?>> entry : labelToSubtype.entrySet()) {
             TypeAdapter<?> delegate = gson.getDelegateAdapter(this, TypeToken.get(entry.getValue()));
             labelToDelegate.put(entry.getKey(), delegate);
@@ -235,7 +217,8 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
         }
 
         return new TypeAdapter<R>() {
-            @Override public R read(JsonReader in) throws IOException {
+            @Override
+            public R read(JsonReader in) throws IOException {
                 JsonElement jsonElement = Streams.parse(in);
                 JsonElement labelJsonElement;
                 if (maintainType) {
@@ -246,26 +229,27 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
                 if (labelJsonElement == null) {
                     throw new JsonParseException("cannot deserialize " + baseType
-                            + " because it does not define a field named " + typeFieldName);
+                        + " because it does not define a field named " + typeFieldName);
                 }
                 String label = labelJsonElement.getAsString();
                 @SuppressWarnings("unchecked") // registration requires that subtype extends T
                 TypeAdapter<R> delegate = (TypeAdapter<R>) labelToDelegate.get(label);
                 if (delegate == null) {
                     throw new JsonParseException("cannot deserialize " + baseType + " subtype named "
-                            + label + "; did you forget to register a subtype?");
+                        + label + "; did you forget to register a subtype?");
                 }
                 return delegate.fromJsonTree(jsonElement);
             }
 
-            @Override public void write(JsonWriter out, R value) throws IOException {
+            @Override
+            public void write(JsonWriter out, R value) throws IOException {
                 Class<?> srcType = value.getClass();
                 String label = subtypeToLabel.get(srcType);
                 @SuppressWarnings("unchecked") // registration requires that subtype extends T
                 TypeAdapter<R> delegate = (TypeAdapter<R>) subtypeToDelegate.get(srcType);
                 if (delegate == null) {
                     throw new JsonParseException("cannot serialize " + srcType.getName()
-                            + "; did you forget to register a subtype?");
+                        + "; did you forget to register a subtype?");
                 }
                 JsonObject jsonObject = delegate.toJsonTree(value).getAsJsonObject();
 
@@ -278,7 +262,7 @@ public final class RuntimeTypeAdapterFactory<T> implements TypeAdapterFactory {
 
                 if (jsonObject.has(typeFieldName)) {
                     throw new JsonParseException("cannot serialize " + srcType.getName()
-                            + " because it already defines a field named " + typeFieldName);
+                        + " because it already defines a field named " + typeFieldName);
                 }
                 clone.add(typeFieldName, new JsonPrimitive(label));
 

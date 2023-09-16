@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.api.material.packagerepository;
 
 import com.thoughtworks.go.plugin.api.config.Property;
 
-public class PackageMaterialProperty extends Property implements Comparable {
+public class PackageMaterialProperty extends Property implements Comparable<PackageMaterialProperty> {
     public PackageMaterialProperty(String key) {
         super(key);
         updateDefaults();
@@ -37,7 +37,7 @@ public class PackageMaterialProperty extends Property implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return this.getOption(DISPLAY_ORDER) - ((PackageMaterialProperty) o).getOption(DISPLAY_ORDER);
+    public int compareTo(PackageMaterialProperty o) {
+        return this.getOption(DISPLAY_ORDER) - o.getOption(DISPLAY_ORDER);
     }
 }

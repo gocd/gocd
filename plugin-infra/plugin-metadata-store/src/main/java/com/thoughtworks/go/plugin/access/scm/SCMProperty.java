@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.access.scm;
 
 import com.thoughtworks.go.plugin.api.config.Property;
 
-public class SCMProperty extends Property implements Comparable {
+public class SCMProperty extends Property implements Comparable<SCMProperty> {
     public SCMProperty(String key) {
         super(key);
         updateDefaults();
@@ -37,7 +37,7 @@ public class SCMProperty extends Property implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return this.getOption(DISPLAY_ORDER) - ((SCMProperty) o).getOption(DISPLAY_ORDER);
+    public int compareTo(SCMProperty o) {
+        return this.getOption(DISPLAY_ORDER) - o.getOption(DISPLAY_ORDER);
     }
 }

@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineHistoryMother;
-import com.thoughtworks.go.helper.PipelineMaterialModificationMother;
+import com.thoughtworks.go.helper.PipelineTimelineEntryMother;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.FeedModifier;
@@ -353,8 +353,8 @@ class PipelineHistoryServiceTest {
     @Test
     void shouldPopulatePipelineInstanceModelWithTheBeforeAndAfterForTheGivenPipeline() {
         DateTime now = new DateTime();
-        PipelineTimelineEntry first = PipelineMaterialModificationMother.modification(List.of("first"), 1, "123", now);
-        PipelineTimelineEntry second = PipelineMaterialModificationMother.modification(List.of("first"), 1, "123", now);
+        PipelineTimelineEntry first = PipelineTimelineEntryMother.modification(List.of("first"), 1, "123", now);
+        PipelineTimelineEntry second = PipelineTimelineEntryMother.modification(List.of("first"), 1, "123", now);
 
         when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline"))).thenReturn(first);
         when(pipelineTimeline.runAfter(1, new CaseInsensitiveString("pipeline"))).thenReturn(second);

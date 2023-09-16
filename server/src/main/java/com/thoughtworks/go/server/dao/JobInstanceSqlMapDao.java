@@ -200,7 +200,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return Optional.ofNullable(findOriginalJobIdentifier(job.getStageIdentifier(), job.getBuildName()))
             .map(JobIdentifier::getBuildId)
             .map(this::buildByIdWithTransitions)
-            .orElse(JobInstance.NULL);
+            .orElse(NullJobInstance.NAMELESS);
     }
 
     @Override

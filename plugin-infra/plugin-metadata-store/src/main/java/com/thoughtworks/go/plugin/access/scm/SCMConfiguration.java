@@ -20,7 +20,7 @@ import com.thoughtworks.go.plugin.api.config.Option;
 import com.thoughtworks.go.plugin.api.config.Options;
 import com.thoughtworks.go.plugin.api.config.Property;
 
-public class SCMConfiguration implements Comparable {
+public class SCMConfiguration implements Comparable<SCMConfiguration> {
 
     public static final Option<Boolean> REQUIRED = Property.REQUIRED;
     public static final Option<Boolean> PART_OF_IDENTITY = Property.PART_OF_IDENTITY;
@@ -68,7 +68,7 @@ public class SCMConfiguration implements Comparable {
     }
 
     public boolean hasOption(Option<Boolean> option) {
-        return getOption(option) == true;
+        return getOption(option);
     }
 
     public <T> T getOption(Option<T> option) {
@@ -76,8 +76,8 @@ public class SCMConfiguration implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return this.getOption(DISPLAY_ORDER) - ((SCMConfiguration) o).getOption(DISPLAY_ORDER);
+    public int compareTo(SCMConfiguration o) {
+        return this.getOption(DISPLAY_ORDER) - o.getOption(DISPLAY_ORDER);
     }
 }
 

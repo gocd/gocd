@@ -84,7 +84,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<PluggableSCMMaterialInstance> getInstanceType() {
         return PluggableSCMMaterialInstance.class;
     }
 
@@ -162,7 +162,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
     }
 
     @Override
-    public void toJson(Map jsonMap, Revision revision) {
+    public void toJson(Map<String, Object> jsonMap, Revision revision) {
         jsonMap.put("scmType", getTypeForDisplay());
         jsonMap.put("materialName", getDisplayName());
         jsonMap.put("location", getUriForDisplay());

@@ -30,7 +30,8 @@ import java.util.Date;
 import static java.text.MessageFormat.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +48,8 @@ public class JobInstanceTest {
         JobInstance mostRecent = JobInstanceMother.building("mostRecent");
         mostRecent.completing(JobResult.Passed, new Date());
         mostRecent.completed(new Date());
-        assertEquals(mostRecent, mostRecent.mostRecentPassed(JobInstance.NULL));
-        assertEquals(mostRecent, JobInstance.NULL.mostRecentPassed(mostRecent));
+        assertEquals(mostRecent, mostRecent.mostRecentPassed(NullJobInstance.NAMELESS));
+        assertEquals(mostRecent, NullJobInstance.NAMELESS.mostRecentPassed(mostRecent));
     }
 
     @Test
@@ -84,7 +85,7 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldChangeStatus() throws Exception {
+    public void shouldChangeStatus() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.assign("1234", timeProvider.currentTime());
         assertThat(instance.getState(), is(JobState.Assigned));
@@ -92,7 +93,7 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldSetCompletingTimeAndResult() throws Exception {
+    public void shouldSetCompletingTimeAndResult() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         final Date completionDate = new Date();
         instance.completing(JobResult.Passed, completionDate);
@@ -102,7 +103,7 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldSetCompletedTimeOnComplete() throws Exception {
+    public void shouldSetCompletedTimeOnComplete() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         final Date completionDate = new Date();
         instance.completing(JobResult.Passed, completionDate);
@@ -114,7 +115,7 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldIncreaseElapsedTimeWhileBuilding() throws Exception {
+    public void shouldIncreaseElapsedTimeWhileBuilding() {
         JobInstance instance = JobInstanceMother.building("jobConfig1");
         instance.setClock(timeProvider);
         when(timeProvider.currentTime()).thenReturn(new Date(1000000));
@@ -125,19 +126,19 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldReturnTotalDurationOfBuild() throws Exception {
+    public void shouldReturnTotalDurationOfBuild() {
         JobInstance instance = JobInstanceMother.completed("jobConfig1");
-        assertThat(instance.getCurrentBuildDuration(), is(instance.durationOfCompletedBuildInSeconds().toString()));
+        assertThat(instance.getCurrentBuildDuration(), is(instance.durationOfCompletedBuildInSeconds() + ""));
     }
 
     @Test
-    public void shouldReturnBuildLocatorAsTitle() throws Exception {
+    public void shouldReturnBuildLocatorAsTitle() {
         JobInstance instance = JobInstanceMother.completed("jobConfig1");
         assertThat(instance.getTitle(), is("pipeline/label-1/stage/1/jobConfig1"));
     }
 
     @Test
-    public void shouldCreateATransitionOnStateChange() throws Exception {
+    public void shouldCreateATransitionOnStateChange() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.completing(JobResult.Passed);
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
@@ -148,7 +149,7 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldNotCreateATransitionWhenPreviousStateIsTheSame() throws Exception {
+    public void shouldNotCreateATransitionWhenPreviousStateIsTheSame() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.changeState(JobState.Scheduled);
         final JobStateTransition scheduledState = new JobStateTransition(JobState.Scheduled, new Date());
@@ -188,20 +189,20 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldDetermineDurationOfCompletedBuild() throws Exception {
+    public void shouldDetermineDurationOfCompletedBuild() {
         JobInstance testJob = JobInstanceMother.completed("testJob");
         Long duration = testJob.durationOfCompletedBuildInSeconds();
         assertThat(duration, is(120L));
     }
 
-    @Test public void durationShouldBeZeroForIncompleteBuild() throws Exception {
+    @Test public void durationShouldBeZeroForIncompleteBuild() {
         JobInstance building = JobInstanceMother.scheduled("building");
         Long duration = building.durationOfCompletedBuildInSeconds();
         assertThat(duration, is(0L));
     }
 
     @Test
-    public void shouldCleanAgentIdAndResultAfterRescheduled() throws Exception {
+    public void shouldCleanAgentIdAndResultAfterRescheduled() {
         JobInstance instance = JobInstanceMother.assignedWithAgentId("testBuild", "uuid");
         instance.completing(JobResult.Failed);
         instance.reschedule();
@@ -210,7 +211,7 @@ public class JobInstanceTest {
         assertThat(instance.getResult(), is(JobResult.Unknown));
     }
 
-    @Test public void shouldReturnDateForLatestTransition() throws Exception {
+    @Test public void shouldReturnDateForLatestTransition() {
         JobInstance instance = JobInstanceMother.scheduled("jobConfig1");
         instance.setClock(timeProvider);
         when(timeProvider.currentTime()).thenReturn(new DateTime().plusDays(1).toDate());

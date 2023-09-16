@@ -27,8 +27,8 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -37,10 +37,8 @@ import static org.mockito.Mockito.*;
 public class AbstractMaterialTest {
 
     public static class TestMaterial extends AbstractMaterial {
+        private static final AtomicInteger PIPELINE_UNIQUE_ATTRIBUTE_ADDED = new AtomicInteger(0);
         private final String displayName;
-        private String bar = "bar";
-        private String quux = "quux";
-        public static int PIPELINE_UNIQUE_ATTRIBUTE_ADDED = 0;
 
         public TestMaterial(String displayName) {
             super(displayName);
@@ -50,17 +48,17 @@ public class AbstractMaterialTest {
 
         @Override
         protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
-            basicCriteria.put("pipeline-unique", "unique-" + PIPELINE_UNIQUE_ATTRIBUTE_ADDED++);
+            basicCriteria.put("pipeline-unique", "unique-" + PIPELINE_UNIQUE_ATTRIBUTE_ADDED.getAndIncrement());
         }
 
         @Override
         protected void appendCriteria(Map<String, Object> parameters) {
-            parameters.put("foo", bar);
+            parameters.put("foo", "bar");
         }
 
         @Override
         protected void appendAttributes(Map<String, Object> parameters) {
-            parameters.put("baz", quux);
+            parameters.put("baz", "quux");
         }
 
         @Override
@@ -73,12 +71,8 @@ public class AbstractMaterialTest {
             throw new UnsupportedOperationException();
         }
 
-        public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
-            throw new UnsupportedOperationException();
-        }
-
         @Override
-        public void toJson(Map jsonMap, Revision revision) {
+        public void toJson(Map<String, Object> jsonMap, Revision revision) {
             throw new UnsupportedOperationException();
         }
 
@@ -89,10 +83,6 @@ public class AbstractMaterialTest {
 
         @Override
         public void emailContent(StringBuilder content, Modification modification) {
-            throw new UnsupportedOperationException();
-        }
-
-        public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
             throw new UnsupportedOperationException();
         }
 
@@ -142,7 +132,7 @@ public class AbstractMaterialTest {
         }
 
         @Override
-        public Class getInstanceType() {
+        public Class<MaterialInstance> getInstanceType() {
             throw new UnsupportedOperationException("instance not available for test material");
         }
 
@@ -178,9 +168,9 @@ public class AbstractMaterialTest {
         TestMaterial testMaterial = new TestMaterial("foo");
 
         String pipelineUniqueFingerprint = testMaterial.getPipelineUniqueFingerprint();
-        int appendPipelineUniqueAttrsCallCount = TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED;
+        int appendPipelineUniqueAttrsCallCount = TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED.get();
         assertThat(testMaterial.getPipelineUniqueFingerprint()).isSameAs(pipelineUniqueFingerprint);
-        assertThat(appendPipelineUniqueAttrsCallCount).isEqualTo(TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED);
+        assertThat(appendPipelineUniqueAttrsCallCount).isEqualTo(TestMaterial.PIPELINE_UNIQUE_ATTRIBUTE_ADDED.get());
     }
 
     @Test

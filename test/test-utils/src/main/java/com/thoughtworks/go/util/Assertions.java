@@ -19,7 +19,6 @@ import org.hamcrest.Matcher;
 
 import java.util.function.BooleanSupplier;
 
-import static com.thoughtworks.go.util.Timeout.TWENTY_SECONDS;
 import static com.thoughtworks.go.util.Timeout.TWO_MINUTES;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -46,14 +45,6 @@ public class Assertions {
             sleepOneSec();
         }
         assertThat(String.format("Expected the following would happen in %s milliseconds ", timeInMillis), obj, matcher);
-    }
-
-    public static <T> void assertAlwaysHappens(T obj, Matcher<T> matcher) {
-        assertAlwaysHappens(obj, matcher, TWENTY_SECONDS);
-    }
-
-    public static <T> void assertAlwaysHappens(T obj, Matcher<T> matcher, Timeout timeout) {
-        assertAlwaysHappens(obj, matcher, timeout.inMillis());
     }
 
     public static <T> void assertAlwaysHappens(T obj, Matcher<T> matcher, long timeoutInMillis) {
@@ -99,7 +90,7 @@ public class Assertions {
                 sleepMillis(sleepInMillis);
             }
         }
-        String msg = e == null ? "wait timed out after " + timeout + " for: " + predicate.toString() : e.getMessage();
+        String msg = e == null ? "wait timed out after " + timeout + " for: " + predicate : e.getMessage();
         throw new RuntimeException(msg, e);
     }
 

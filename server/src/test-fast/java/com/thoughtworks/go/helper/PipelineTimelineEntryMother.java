@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class PipelineMaterialModificationMother {
+public class PipelineTimelineEntryMother {
     private static long id = 1;
 
     public static PipelineTimelineEntry modification(List<String> materials, final int modId, final String rev, DateTime... datetime) {
@@ -46,7 +46,7 @@ public class PipelineMaterialModificationMother {
         Map<String, List<PipelineTimelineEntry.Revision>> materialToMod = new HashMap<>();
         for (int i = 0; i < materials.size(); i++) {
             String fingerprint = materials.get(i);
-            materialToMod.put(fingerprint, List.of(new PipelineTimelineEntry.Revision(datetimes.get(i).toDate(), rev, fingerprint, PipelineMaterialModificationMother.id++)));
+            materialToMod.put(fingerprint, List.of(new PipelineTimelineEntry.Revision(datetimes.get(i).toDate(), rev, fingerprint, PipelineTimelineEntryMother.id++)));
         }
         return new PipelineTimelineEntry(pipelineName, id, counter, materialToMod);
     }

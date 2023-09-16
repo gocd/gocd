@@ -91,7 +91,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     public static String filesystemSafeFileHash(File folder) {
         String hash = Base64.getEncoder().encodeToString(DigestUtils.sha1(folder.getAbsolutePath().getBytes()));
-        hash = hash.replaceAll("[^0-9a-zA-Z\\.\\-]", "");
+        hash = hash.replaceAll("[^0-9a-zA-Z.\\-]", "");
         return hash;
     }
 
@@ -240,7 +240,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<P4MaterialInstance> getInstanceType() {
         return P4MaterialInstance.class;
     }
 

@@ -23,8 +23,8 @@ import java.util.Date;
 
 import static com.thoughtworks.go.domain.StageState.*;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class JobInstancesTest {
     @Test
@@ -78,7 +78,7 @@ public class JobInstancesTest {
         JobInstance newest = failed("newest");
         newest.completed(new Date());
         instances.add(newest);
-        instances.add(JobInstance.NULL);
+        instances.add(NullJobInstance.NAMELESS);
         JobInstance scheduled = scheduled("redHerring");
         instances.add(scheduled);
         return instances;

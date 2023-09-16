@@ -76,7 +76,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public JobInstance mostRecentPassed() {
-        JobInstance mostRecent = JobInstance.NULL;
+        JobInstance mostRecent = NullJobInstance.NAMELESS;
         for (JobInstance instance : this) {
             mostRecent = instance.mostRecentPassed(mostRecent);
         }
@@ -84,7 +84,7 @@ public class JobInstances extends BaseCollection<JobInstance> {
     }
 
     public JobInstance mostRecentCompleted() {
-        JobInstance mostRecent = JobInstance.NULL;
+        JobInstance mostRecent = NullJobInstance.NAMELESS;
         for (JobInstance instance : this) {
             mostRecent = instance.mostRecentCompleted(mostRecent);
         }

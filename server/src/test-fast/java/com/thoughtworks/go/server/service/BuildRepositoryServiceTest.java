@@ -82,7 +82,7 @@ public class BuildRepositoryServiceTest {
 
     @Test
     public void shouldReturnFalseIfBuildInstanceDoesNotExist() {
-        when(jobInstanceService.buildByIdWithTransitions(123L)).thenReturn(NullJobInstance.NULL);
+        when(jobInstanceService.buildByIdWithTransitions(123L)).thenReturn(NullJobInstance.NAMELESS);
         assertThat(buildRepositoryService.isCancelledOrRescheduled(123L), is(false));
     }
 }

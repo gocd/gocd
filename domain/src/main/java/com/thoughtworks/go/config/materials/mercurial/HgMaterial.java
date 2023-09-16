@@ -341,7 +341,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<HgMaterialInstance> getInstanceType() {
         return HgMaterialInstance.class;
     }
 

@@ -31,10 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
@@ -123,7 +120,7 @@ public class DependencyMaterial extends AbstractMaterial {
     }
 
     @Override
-    public void toJson(Map json, Revision revision) {
+    public void toJson(Map<String, Object> json, Revision revision) {
         json.put("folder", getFolder() == null ? "" : getFolder());
         json.put("scmType", "Dependency");
         json.put("location", pipelineName + "/" + stageName);
@@ -140,9 +137,12 @@ public class DependencyMaterial extends AbstractMaterial {
 
     @Override
     public void emailContent(StringBuilder content, Modification modification) {
-        content.append("Dependency: " + pipelineName + "/" + stageName).append('\n').append(
-                format("revision: %s, completed on %s", modification.getRevision(),
-                        modification.getModifiedTime()));
+        content.append("Dependency: ")
+            .append(pipelineName)
+            .append("/")
+            .append(stageName)
+            .append('\n')
+            .append(format("revision: %s, completed on %s", modification.getRevision(), modification.getModifiedTime()));
     }
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
@@ -218,17 +218,9 @@ public class DependencyMaterial extends AbstractMaterial {
             return false;
         }
         DependencyMaterial that = (DependencyMaterial) o;
-        if (materialType != null ? !materialType.equals(that.materialType) : that.materialType != null) {
-            return false;
-        }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(materialType, that.materialType) &&
+            Objects.equals(pipelineName, that.pipelineName) &&
+            Objects.equals(stageName, that.stageName);
     }
 
     @Override
@@ -279,7 +271,7 @@ public class DependencyMaterial extends AbstractMaterial {
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<DependencyMaterialInstance> getInstanceType() {
         return DependencyMaterialInstance.class;
     }
 }

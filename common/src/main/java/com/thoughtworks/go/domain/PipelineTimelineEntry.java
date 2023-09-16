@@ -22,7 +22,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 /**
  * Understands a pipeline which can be compared based on its material checkin (natural) order
  */
-public class PipelineTimelineEntry implements Comparable {
+public class PipelineTimelineEntry implements Comparable<PipelineTimelineEntry> {
     private final String pipelineName;
     private final long id;
     private final int counter;
@@ -45,10 +45,7 @@ public class PipelineTimelineEntry implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (o == null) {
-            throw new NullPointerException("Cannot compare this object with null");
-        }
+    public int compareTo(PipelineTimelineEntry o) {
         if (o.getClass() != this.getClass()) {
             throw new RuntimeException("Cannot compare '" + o + "' with '" + this + "'");
         }
@@ -56,12 +53,11 @@ public class PipelineTimelineEntry implements Comparable {
             return 0;
         }
 
-        PipelineTimelineEntry that = (PipelineTimelineEntry) o;
         Map<Date, TreeSet<Integer>> earlierMods = new HashMap<>();
 
         for (String materialFlyweight : revisions.keySet()) {
             List<Revision> thisRevs = this.revisions.get(materialFlyweight);
-            List<Revision> thatRevs = that.revisions.get(materialFlyweight);
+            List<Revision> thatRevs = o.revisions.get(materialFlyweight);
             if (thisRevs == null || thatRevs == null) {
                 continue;
             }
@@ -78,11 +74,11 @@ public class PipelineTimelineEntry implements Comparable {
             populateEarlierModification(earlierMods, thisDate, thatDate);
         }
         if (earlierMods.isEmpty()) {
-            return counter < that.counter ? -1 : 1;
+            return counter < o.counter ? -1 : 1;
         }
         TreeSet<Date> sortedModDate = new TreeSet<>(earlierMods.keySet());
         if (hasContentionOnEarliestMod(earlierMods, sortedModDate.first())) {
-            return counter < that.counter ? -1 : 1;
+            return counter < o.counter ? -1 : 1;
         }
         return earlierMods.get(sortedModDate.first()).first();
     }
@@ -229,14 +225,8 @@ public class PipelineTimelineEntry implements Comparable {
 
             Revision revision1 = (Revision) o;
 
-            if (date != null ? !date.equals(revision1.date) : revision1.date != null) {
-                return false;
-            }
-            if (revision != null ? !revision.equals(revision1.revision) : revision1.revision != null) {
-                return false;
-            }
-
-            return true;
+            return Objects.equals(date, revision1.date) &&
+                Objects.equals(revision, revision1.revision);
         }
 
         @Override
@@ -260,15 +250,7 @@ public class PipelineTimelineEntry implements Comparable {
                 return true;
             }
 
-//            if (!folder.equals(revision.folder)) {
-//                return false;
-//            }
-
-            if (date.compareTo(revision.date) < 0) {
-                return true;
-            }
-
-            return false;
+            return date.compareTo(revision.date) < 0;
         }
     }
 }

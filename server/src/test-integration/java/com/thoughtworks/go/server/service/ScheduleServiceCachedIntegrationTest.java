@@ -84,7 +84,7 @@ public class ScheduleServiceCachedIntegrationTest {
     @Autowired private TransactionSynchronizationManager synchronizationManager;
 
     private PipelineWithTwoStages preCondition;
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -122,10 +122,6 @@ public class ScheduleServiceCachedIntegrationTest {
 
     @Test
     public void shouldUpdateResultOfStageWhenJobCompletes() throws Exception {
-//        ScheduleService service = new ScheduleService(goConfigService, pipelineService, stageService, currentActivityService, schedulingChecker, pipelineScheduledTopic, pipelineDao,
-//                stageDao, stageOrderService, securityService, pipelineScheduleQueue, jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService,
-//                pipelineLockService, serverHealthService, transactionTemplate, agentService);
-
         Pipeline assigned = preCondition.createPipelineWithFirstStageAssigned();
 
         Stage stage = assigned.findStage(preCondition.devStage);
@@ -141,13 +137,12 @@ public class ScheduleServiceCachedIntegrationTest {
         Pipeline assigned = preCondition.createPipelineWithFirstStageAssigned();
 
         Stage stage = assigned.findStage(preCondition.devStage);
-        StageSummaryModel model = stageService.findStageSummaryByIdentifier(stage.getIdentifier(), new Username(new CaseInsensitiveString("foo")), new HttpLocalizedOperationResult());
 
         JobIdentifier identifier = stage.getFirstJob().getIdentifier();
         scheduleService.updateJobStatus(identifier, JobState.Building);
         scheduleService.jobCompleting(identifier, JobResult.Passed, "uuid");
 
-        Stage stageLoadedByOtherFlows = stageDao.stageById(stage.getId());//priming the cache
+        stageDao.stageById(stage.getId()); //priming the cache
 
         scheduleService.updateJobStatus(stage.getFirstJob().getIdentifier(), JobState.Completed);
 

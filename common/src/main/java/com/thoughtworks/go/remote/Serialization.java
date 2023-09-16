@@ -17,6 +17,9 @@
 package com.thoughtworks.go.remote;
 
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -48,10 +51,15 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 import static java.lang.String.format;
+import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static org.apache.commons.io.FilenameUtils.separatorsToSystem;
 
 public class Serialization {
@@ -69,6 +77,7 @@ public class Serialization {
     @SuppressWarnings("deprecation")
     public static Gson create() {
         return new GsonBuilder()
+                .registerTypeAdapter(Date.class, new IsoInstantDateTypeAdapter())
                 .registerTypeAdapter(GoCipher.class, new SecurityRejectingAdapter<GoCipher>())
                 .registerTypeAdapter(AESEncrypter.class, new SecurityRejectingAdapter<AESEncrypter>())
                 .registerTypeAdapter(AESCipherProvider.class, new SecurityRejectingAdapter<AESCipherProvider>())
@@ -272,6 +281,31 @@ public class Serialization {
         @Override
         public String decrypt(String cipherText) throws CryptoException {
             throw new CryptoException("Agents should not be decrypting!");
+        }
+    }
+
+    private static class IsoInstantDateTypeAdapter extends TypeAdapter<Date> {
+        @Override
+        public void write(JsonWriter out, Date date) throws IOException {
+            if (date == null) {
+                out.nullValue();
+            } else {
+                out.value(ISO_INSTANT.format(date.toInstant()));
+            }
+        }
+
+        @Override
+        public Date read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+
+            try {
+                return new Date(ISO_INSTANT.parse(in.nextString(), Instant::from).toEpochMilli());
+            } catch (DateTimeParseException e) {
+                throw new JsonParseException(e);
+            }
         }
     }
 }

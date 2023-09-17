@@ -6044,7 +6044,7 @@ __metadata:
     html-webpack-plugin: ^4.5.2
     jasmine: ^5.1.0
     jasmine-ajax: ^4.0.0
-    jasmine-browser-runner: ^2.2.0
+    jasmine-browser-runner: ^2.3.0
     jasmine-core: ^5.1.1
     jasmine-jquery: ^2.1.1
     jquery: ^3.7.1
@@ -7137,19 +7137,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-browser-runner@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "jasmine-browser-runner@npm:2.2.0"
+"jasmine-browser-runner@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "jasmine-browser-runner@npm:2.3.0"
   dependencies:
     ejs: ^3.1.6
     express: ^4.16.4
     glob: ^10.0.0
-    selenium-webdriver: ^4.8.2
+    selenium-webdriver: ^4.12.0
   peerDependencies:
     jasmine-core: ^5.0.0
   bin:
     jasmine-browser-runner: bin/jasmine-browser-runner
-  checksum: dfc9d575f2cb0c28727107d0a19f378225404876812cd0311e770fec25d1770292daac069791425f040a4b1248cbfc459b6719821f7b982bd90aa48d11752f56
+  checksum: d09e93f24e364e1b121160875c8b6b374ec9d142e418e0bd511913abdfbad3cd300bd019f51ae479baf66bcbc2eb74536307259a5917b7a616fd73b8b0f6127d
   languageName: node
   linkType: hard
 
@@ -10445,7 +10445,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"selenium-webdriver@npm:^4.8.2":
+"selenium-webdriver@npm:^4.12.0":
   version: 4.12.0
   resolution: "selenium-webdriver@npm:4.12.0"
   dependencies:

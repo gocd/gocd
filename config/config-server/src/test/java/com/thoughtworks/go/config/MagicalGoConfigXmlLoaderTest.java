@@ -3728,9 +3728,9 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     private String configWithTokenGenerationKey(final String key) {
-        final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) MagicalGoConfigXmlLoader.VALIDATORS.stream().filter(goConfigValidator -> goConfigValidator instanceof ServerIdImmutabilityValidator).findFirst().orElse(null);
+        final ServerIdImmutabilityValidator serverIdImmutabilityValidator = (ServerIdImmutabilityValidator) MagicalGoConfigXmlLoader.VALIDATORS.stream().filter(goConfigValidator -> goConfigValidator instanceof ServerIdImmutabilityValidator).findFirst().orElseThrow();
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><cruise schemaVersion=\"" + CONFIG_SCHEMA_VERSION + "\">\n" +
-                "<server serverId=\"" + serverIdImmutabilityValidator.getServerId() + "\" tokenGenerationKey=\"" + key + "\"/>" +
+                "<server serverId=\"" + serverIdImmutabilityValidator.getInitialServerId() + "\" tokenGenerationKey=\"" + key + "\"/>" +
                 "<pipelines>\n" +
                 "</pipelines>\n" +
                 "</cruise>";

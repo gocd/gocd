@@ -23,8 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,12 +41,12 @@ public class TokenGenerationKeyImmutabilityValidatorTest {
     }
 
     @Test
-    public void shouldRememberTokenGenerationKeyOnStartup() throws Exception {
+    public void shouldRememberTokenGenerationKeyOnStartup() {
         final BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         tokenGenerationKeyImmutabilityValidator.validate(cruiseConfig);
 
-        assertThat(tokenGenerationKeyImmutabilityValidator.getTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
+        assertThat(tokenGenerationKeyImmutabilityValidator.getInitialTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
     }
 
     @Test
@@ -54,22 +54,22 @@ public class TokenGenerationKeyImmutabilityValidatorTest {
         final BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         tokenGenerationKeyImmutabilityValidator.validate(cruiseConfig);
-        assertThat(tokenGenerationKeyImmutabilityValidator.getTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
+        assertThat(tokenGenerationKeyImmutabilityValidator.getInitialTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
         assertThatThrownBy(() -> tokenGenerationKeyImmutabilityValidator.validate(GoConfigMother.defaultCruiseConfig()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.");
     }
 
     @Test
-    public void shouldAllowSaveIfTokenGenerationKeyIsUnChanged() throws Exception {
+    public void shouldAllowSaveIfTokenGenerationKeyIsUnChanged() {
         final BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         tokenGenerationKeyImmutabilityValidator.validate(cruiseConfig);
-        assertThat(tokenGenerationKeyImmutabilityValidator.getTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
+        assertThat(tokenGenerationKeyImmutabilityValidator.getInitialTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
 
         cruiseConfig.server().useSecurity(new SecurityConfig());
 
         tokenGenerationKeyImmutabilityValidator.validate(cruiseConfig);
-        assertThat(tokenGenerationKeyImmutabilityValidator.getTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
+        assertThat(tokenGenerationKeyImmutabilityValidator.getInitialTokenGenerationKey(), is(cruiseConfig.server().getTokenGenerationKey()));
     }
 }

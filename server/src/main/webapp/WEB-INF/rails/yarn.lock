@@ -1900,14 +1900,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/html-webpack-plugin@npm:^3.2.6":
-  version: 3.2.6
-  resolution: "@types/html-webpack-plugin@npm:3.2.6"
+"@types/html-webpack-plugin@npm:^3.2.7":
+  version: 3.2.7
+  resolution: "@types/html-webpack-plugin@npm:3.2.7"
   dependencies:
     "@types/html-minifier": "*"
     "@types/tapable": ^1
     "@types/webpack": ^4
-  checksum: 75aeb668e626687db7d24dfb6ef500de2362c1703839ca9ef5b7ec742ff5d3e5d9cef31ac189e8fead0e791f5bdfcb430d74e2cfb7cd8365927d7899ead3edc5
+  checksum: 6a09dad5f4c9841fb6b1071a7a0f4ed0d1341c63ccd9ba975a9d3bd58ad601ec79993e5cbb09503a2bb5563fe4a95b5fdf82f48fed000b9516a34e8300b25b47
   languageName: node
   linkType: hard
 
@@ -6017,7 +6017,7 @@ __metadata:
     "@shopify/draggable": ^1.0.0-beta.12
     "@types/awesomplete": ^1.1.11
     "@types/fs-extra": ^11.0.2
-    "@types/html-webpack-plugin": ^3.2.6
+    "@types/html-webpack-plugin": ^3.2.7
     "@types/jasmine": ^4.3.6
     "@types/jasmine-ajax": ^3.3.3
     "@types/jquery": ^3.5.19
@@ -6110,7 +6110,7 @@ __metadata:
     url-loader: ^4.1.1
     url-parse: ^1.5.10
     uuid: ^9.0.1
-    webpack: ^4.46.0
+    webpack: ^4.47.0
     webpack-build-notifier: ^2.3.0
     webpack-cli: ^4.10.0
     what-input: ^5.2.12
@@ -12382,7 +12382,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^4.46.0":
+"webpack@npm:^4.47.0":
   version: 4.47.0
   resolution: "webpack@npm:4.47.0"
   dependencies:

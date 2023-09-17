@@ -26,8 +26,7 @@ import java.util.Date;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 
-public class JobInstance extends PersistentObject implements Serializable, Comparable, BuildStateAware, Cloneable {
-    public static final JobInstance NULL = new NullJobInstance("");
+public class JobInstance extends PersistentObject implements Serializable, Comparable<JobInstance>, BuildStateAware, Cloneable {
 
     private Clock timeProvider = new TimeProvider();
 
@@ -186,9 +185,8 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
     }
 
     @Override
-    public int compareTo(Object o) {
-        return getStartedDateFor(JobState.Building)
-                .compareTo(((JobInstance) o).getStartedDateFor(JobState.Building));
+    public int compareTo(JobInstance o) {
+        return getStartedDateFor(JobState.Building).compareTo(o.getStartedDateFor(JobState.Building));
     }
 
     public void setStageId(long stageId) {
@@ -274,22 +272,21 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
 
     // Begin Date / Time Related Methods
 
-    public Long durationOfCompletedBuildInSeconds() {
+    public long durationOfCompletedBuildInSeconds() {
         Date buildingDate = getStartedDateFor(JobState.Building);
         Date completedDate = getCompletedDate();
         if (buildingDate == null || completedDate == null) {
             return 0L;
         }
-        Long elapsed = completedDate.getTime() - buildingDate.getTime();
-        int elapsedSeconds = Math.round(elapsed / 1000);
-        return Long.valueOf(elapsedSeconds);
+        long elapsed = completedDate.getTime() - buildingDate.getTime();
+        return Math.round((double) elapsed / 1000);
     }
 
     public String getCurrentBuildDuration() {
         return String.valueOf(elapsedSeconds());
     }
 
-    private Long elapsedSeconds() {
+    private long elapsedSeconds() {
         if (state.isCompleted()) {
             return durationOfCompletedBuildInSeconds();
         }
@@ -297,7 +294,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         Date buildingDate = getStartedDateFor(JobState.Building);
         if (buildingDate != null) {
             long elapsed = timeProvider.currentTime().getTime() - buildingDate.getTime();
-            return (long) Math.round(elapsed / 1000);
+            return Math.round((double) elapsed / 1000);
         } else {
             return 0L;
         }

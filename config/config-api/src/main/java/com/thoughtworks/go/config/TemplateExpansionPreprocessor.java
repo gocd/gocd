@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config;
 
 /**
- * @understands de-referencing template body into pipeline
+ * Understands de-referencing template body into pipeline
  */
 public class TemplateExpansionPreprocessor implements GoConfigPreprocessor {
     @Override

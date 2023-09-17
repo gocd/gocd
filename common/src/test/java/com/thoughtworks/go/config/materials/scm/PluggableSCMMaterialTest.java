@@ -183,7 +183,7 @@ class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
         material.setFolder("folder");
-        Map<String, String> jsonMap = new LinkedHashMap<>();
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
         material.toJson(jsonMap, new PluggableSCMMaterialRevision("rev123", new Date()));
 
         assertThat(jsonMap.get("scmType")).isEqualTo("SCM");

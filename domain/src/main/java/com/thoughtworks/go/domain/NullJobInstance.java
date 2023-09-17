@@ -22,6 +22,8 @@ import java.util.Date;
 import static com.thoughtworks.go.util.GoConstants.NEVER;
 
 public class NullJobInstance extends JobInstance {
+    public static final JobInstance NAMELESS = new NullJobInstance("");
+
     public NullJobInstance(String name) {
         super(name, new TimeProvider());
     }

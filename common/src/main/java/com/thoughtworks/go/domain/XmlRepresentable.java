@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import org.dom4j.Document;
 
 /**
- * @understands interface to get xml representation of an object
+ * Understands interface to get xml representation of an object
  */
 public interface XmlRepresentable {
     Document toXml(XmlWriterContext writerContext);

@@ -61,7 +61,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 
 /**
- * @understands when to send requests to update a material on the database
+ * Understands when to send requests to update a material on the database
  */
 @Service
 public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCompletedMessage>, ConfigChangedListener {

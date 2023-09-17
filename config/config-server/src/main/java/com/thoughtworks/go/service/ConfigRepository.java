@@ -54,7 +54,7 @@ import java.util.stream.StreamSupport;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * @understands versioning cruise-config
+ * Understands versioning cruise-config
  */
 @Component
 public class ConfigRepository {

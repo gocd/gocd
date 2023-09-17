@@ -661,7 +661,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private boolean modificationExists(long sinceModificationId, Modifications modifications) {
-        return modifications != null && modifications.hasModfication(sinceModificationId);
+        return modifications != null && modifications.hasModification(sinceModificationId);
     }
 
     private boolean shouldCache(Modifications modifications) {

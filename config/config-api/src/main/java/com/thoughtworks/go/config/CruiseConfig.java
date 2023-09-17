@@ -29,10 +29,13 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * @understands the configuration for cruise
+ * Understands the configuration for cruise
  */
 public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     String WORKING_BASE_DIR = "pipelines/";

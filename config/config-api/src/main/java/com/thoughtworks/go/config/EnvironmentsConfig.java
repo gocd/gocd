@@ -28,7 +28,7 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static java.util.stream.Collectors.*;
 
 /**
- * @understands the current persistent information related to multiple logical groupings of machines
+ * Understands the current persistent information related to multiple logical groupings of machines
  */
 @ConfigTag("environments")
 @ConfigCollection(BasicEnvironmentConfig.class)

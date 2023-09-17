@@ -16,15 +16,17 @@
 package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * @understands: ensures serverId is never changed
+ * Understands: ensures serverId is never changed
  */
 public class ServerIdImmutabilityValidator implements GoConfigValidator {
-    private String serverId;
-    private SystemEnvironment env;
+    private final SystemEnvironment env;
+    private final AtomicReference<String> initialIdHolder = new AtomicReference<>();
 
     public ServerIdImmutabilityValidator() {
         env = new SystemEnvironment();
@@ -32,20 +34,18 @@ public class ServerIdImmutabilityValidator implements GoConfigValidator {
 
     @Override
     public void validate(CruiseConfig cruiseConfig) {
-        ServerConfig server = cruiseConfig.server();
-        String newServerId = server.getServerId();
-        if (serverId == null) {
-            serverId = newServerId;
-        }
-
-        if (serverId == null || serverId.equals(newServerId) || ! env.enforceServerImmutability()) {
+        String newServerId = cruiseConfig.server().getServerId();
+        if (initialIdHolder.compareAndSet(null, newServerId)) {
             return;
         }
 
-        throw new RuntimeException("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified.");
+        String initialId = initialIdHolder.get();
+        if (!Objects.equals(initialId, newServerId) && env.enforceServerImmutability()) {
+            throw new RuntimeException(String.format("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified (attempting to change from [%s] to [%s]).", initialId, newServerId));
+        }
     }
 
-    public String getServerId() {
-        return serverId;
+    public String getInitialServerId() {
+        return initialIdHolder.get();
     }
 }

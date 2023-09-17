@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @understands messages for initiating server backup
+ * Understands messages for initiating server backup
  */
 @Component
 public class ServerBackupQueue extends GoMessageQueue<StartServerBackupMessage> {

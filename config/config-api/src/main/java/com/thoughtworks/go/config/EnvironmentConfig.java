@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * @understands the current persistent information related to a logical grouping of machines
+ * Understands the current persistent information related to a logical grouping of machines
  */
 public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable, SecretParamAware {
 

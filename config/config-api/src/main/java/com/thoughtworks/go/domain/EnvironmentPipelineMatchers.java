@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import java.util.Collection;
 
 /**
- * @understands matching job with agents in situations where either, both or none are in environment
+ * Understands matching job with agents in situations where either, both or none are in environment
  */
 public class EnvironmentPipelineMatchers extends BaseCollection<EnvironmentPipelineMatcher> {
 

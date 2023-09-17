@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @understands how to modify the cruise config sources
+ * Understands how to modify the cruise config sources
  */
 @Component
 public class GoConfigDao {

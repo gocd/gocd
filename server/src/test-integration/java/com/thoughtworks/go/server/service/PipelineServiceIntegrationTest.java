@@ -57,10 +57,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class PipelineServiceIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
@@ -100,8 +100,8 @@ public class PipelineServiceIntegrationTest {
 
         UpstreamPipelineResolver resolver = pipelineService;
         BuildCause loadedBC = resolver.buildCauseFor(
-                DependencyMaterialRevision.create(pipeline.getStages().get(0).getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineName(),
-                DependencyMaterialRevision.create(pipeline.getStages().get(0).getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineCounter());
+            DependencyMaterialRevision.create(pipeline.getStages().get(0).getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineName(),
+            DependencyMaterialRevision.create(pipeline.getStages().get(0).getIdentifier().getStageLocator(), pipeline.getLabel()).getPipelineCounter());
 
         assertEquals(pipeline.getBuildCause(), loadedBC);
     }
@@ -159,21 +159,21 @@ public class PipelineServiceIntegrationTest {
         File file4 = new File("file4");
         Material hg1 = new HgMaterial("url1", "Dest1");
         Material hg2 = new HgMaterial("url2", "Dest2");
-        String[] hgRevs = new String[]{"h1","h2"};
+        String[] hgRevs = new String[]{"h1", "h2"};
 
         Date latestModification = new Date();
-        u.checkinFiles(hg2, "h2", List.of(file1, file2, file3, file4), ModifiedAction.added,  org.apache.commons.lang3.time.DateUtils.addDays(latestModification, -1));
+        u.checkinFiles(hg2, "h2", List.of(file1, file2, file3, file4), ModifiedAction.added, org.apache.commons.lang3.time.DateUtils.addDays(latestModification, -1));
         u.checkinFiles(hg1, "h1", List.of(file1, file2, file3, file4), ModifiedAction.added, latestModification);
 
-        ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1),u.m(hg2));
+        ScheduleTestUtil.AddedPipeline pair01 = u.saveConfigWith("pair01", "stageName", u.m(hg1), u.m(hg2));
         u.runAndPass(pair01, hgRevs);
 
         Pipeline pipeline = pipelineService.mostRecentFullPipelineByName("pair01");
         MaterialRevisions materialRevisions = pipeline.getBuildCause().getMaterialRevisions();
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size(), is(2));
-        assertThat(materials.get(0),is(hg1));
-        assertThat(materials.get(1),is(hg2));
+        assertThat(materials.get(0), is(hg1));
+        assertThat(materials.get(1), is(hg2));
     }
 
     @Test
@@ -197,7 +197,8 @@ public class PipelineServiceIntegrationTest {
         assertThat(pipelineInstance.getCounter(), is(31));
     }
 
-    @Test public void returnPipelineForBuildDetailViewShouldContainOnlyMods() {
+    @Test
+    public void returnPipelineForBuildDetailViewShouldContainOnlyMods() {
         Pipeline pipeline = createPipelineWithStagesAndMods();
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
 
@@ -254,6 +255,7 @@ public class PipelineServiceIntegrationTest {
         assertThat(actual.getStages().size(), is(not(0)));
         assertThat(actual.getBuildCause().getMaterialRevisions().getRevisions().size(), is(not(0)));
     }
+
     private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {
         Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
         pipeline.updateCounter(9);

@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * @understands persisting and retrieving artifact plan
+ * Understands persisting and retrieving artifact plan
  */
 @Service
 public class ArtifactPlanRepository extends HibernateDaoSupport {

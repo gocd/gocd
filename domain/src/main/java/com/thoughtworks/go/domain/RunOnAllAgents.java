@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @understands how to match job instances associated with run-on-all-agents Jobs
+ * Understands how to match job instances associated with run-on-all-agents Jobs
  */
 public class RunOnAllAgents implements JobType {
     private static final Pattern CONFIG_NAME_PATTERN = Pattern.compile("^(.+?)-" + RunOnAllAgentsJobTypeConfig.MARKER + "-\\d+$");

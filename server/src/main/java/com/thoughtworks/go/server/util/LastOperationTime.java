@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.util;
 
 /**
- * @understands when an operation was last performed and how long it needs to wait till it retries
+ * Understands when an operation was last performed and how long it needs to wait till it retries
  */
 public class LastOperationTime {
 

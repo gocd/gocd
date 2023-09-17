@@ -46,7 +46,7 @@ import java.util.List;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 /**
- * @understands how to update materials on the database from the real SCMs
+ * Understands how to update materials on the database from the real SCMs
  */
 @Component
 public class MaterialDatabaseUpdater {

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @understands information required to display a task
+ * Understands information required to display a task
  */
 public class TaskViewModel implements PluggableViewModel {
     private String templatePath;

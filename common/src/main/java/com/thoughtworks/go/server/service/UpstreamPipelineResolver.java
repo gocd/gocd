@@ -17,9 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 
-/**
- * @understands: UpstreamPipelineResolver
- */
 public interface UpstreamPipelineResolver {
     BuildCause buildCauseFor(String pipelineName, int pipelineCounter);
 }

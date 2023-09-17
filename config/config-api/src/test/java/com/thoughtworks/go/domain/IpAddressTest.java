@@ -17,29 +17,32 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-public class IpAddressTest  {
+public class IpAddressTest {
 
     @Test
     public void shouldParseValidIpAddressString() {
         assertThat(IpAddress.create("10.12.16.18").toString(), is("10.12.16.18"));
     }
 
-    @Test public void invalidIpAddress(){
+    @Test
+    public void invalidIpAddress() {
         assertThat(IpAddress.create("").toString(), is(""));
     }
 
-    @Test public void shouldAcceptLegalValuesForIpAddresses() {
+    @Test
+    public void shouldAcceptLegalValuesForIpAddresses() {
         assertThat(IpAddress.create("255.255.255.255").toString(), is("255.255.255.255"));
     }
 
 
-    @Test public void ipAddressComparator(){
-        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.3")),is(greaterThan(0)));
-        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20")),is(0));
+    @Test
+    public void ipAddressComparator() {
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.3")), is(greaterThan(0)));
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20")), is(0));
         assertThat(IpAddress.create("112.12.34.20").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("")), is(greaterThan(0)));
         assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3")), is(org.hamcrest.Matchers.lessThan(0)));

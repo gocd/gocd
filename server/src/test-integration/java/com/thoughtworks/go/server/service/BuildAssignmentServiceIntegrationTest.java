@@ -428,8 +428,6 @@ public class BuildAssignmentServiceIntegrationTest {
             } catch (Throwable e) {
                 e.printStackTrace();
                 fromThread[0] = e;
-            } finally {
-
             }
         }, "assignmentThread");
         assigner.start();

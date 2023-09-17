@@ -54,7 +54,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.substringsBetween;
 
 /**
- * @understands how a cruise pipeline is configured by the user
+ * Understands how a cruise pipeline is configured by the user
  */
 @ConfigTag("pipeline")
 @ConfigCollection(StageConfig.class)

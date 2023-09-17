@@ -21,17 +21,12 @@ import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.ServerHealthMatcher;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,15 +34,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class MaterialUpdateServiceIntegrationTest {
     @Autowired private ServerHealthService serverHealthService;
@@ -55,7 +51,8 @@ public class MaterialUpdateServiceIntegrationTest {
     @Autowired private MaterialConfigConverter materialConfigConverter;
     @Autowired private MaintenanceModeService maintenanceModeService;
 
-    @Test public void shouldClearServerHealthLogsForMaterialThatNoLongerExistsInCruiseConfig() throws Exception {
+    @Test
+    public void shouldClearServerHealthLogsForMaterialThatNoLongerExistsInCruiseConfig() throws Exception {
         HealthStateScope badScope = HealthStateScope.forMaterial(new SvnMaterial("non-existent-url!", "user", "pwd", false));
         serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(badScope)));
 
@@ -63,25 +60,26 @@ public class MaterialUpdateServiceIntegrationTest {
         HealthStateScope goodScope = HealthStateScope.forMaterialConfig(goodMaterial);
         serverHealthService.update(ServerHealthState.error("could not update!", "why", HealthStateType.general(goodScope)));
 
-        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null,null, mock(MaterialUpdateCompletedTopic.class),
-                mock(GoConfigWatchList.class),mock(GoConfigService.class),
-                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService, null, null);
+        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null, null, mock(MaterialUpdateCompletedTopic.class),
+            mock(GoConfigWatchList.class), mock(GoConfigService.class),
+            systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService, null, null);
 
         materialUpdateService.onConfigChange(configWithMaterial(goodMaterial));
 
         assertThat(serverHealthService, ServerHealthMatcher.containsState(HealthStateType.general(goodScope)));
     }
 
-    @Test public void shouldClearServerHealthLogsForMaterialWhereAutoUpdateChanged() throws Exception {
+    @Test
+    public void shouldClearServerHealthLogsForMaterialWhereAutoUpdateChanged() throws Exception {
         SvnMaterialConfig material = svn("non-existent-url!", "user", "pwd2", false);
         HealthStateScope scope = HealthStateScope.forMaterialConfig(material);
         serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(scope)));
 
         material.setAutoUpdate(false);
 
-        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null,null, mock(MaterialUpdateCompletedTopic.class),
-                mock(GoConfigWatchList.class),mock(GoConfigService.class),
-                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService, null, null);
+        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null, null, mock(MaterialUpdateCompletedTopic.class),
+            mock(GoConfigWatchList.class), mock(GoConfigService.class),
+            systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService, null, null);
 
         materialUpdateService.onConfigChange(configWithMaterial(material));
 

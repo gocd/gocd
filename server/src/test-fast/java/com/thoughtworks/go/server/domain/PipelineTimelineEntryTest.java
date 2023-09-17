@@ -19,26 +19,15 @@ import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.helper.PipelineMaterialModificationMother.modification;
+import static com.thoughtworks.go.helper.PipelineTimelineEntryMother.modification;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
 
-public class PipelineMaterialModificationTest {
-
-    @Test public void shouldThrowNPEIfNullIsPassedIn() throws Exception {
-        try {
-            modification(new ArrayList<>(), 1, "123").compareTo(null);
-            fail("Should throw NPE. That is the Comparable's contract.");
-        } catch (NullPointerException expected) {
-            assertThat(expected.getMessage(), is("Cannot compare this object with null"));
-        }
-    }
-
-    @Test public void shouldReturn0IfComparedToItself() throws Exception {
+public class PipelineTimelineEntryTest {
+    @Test
+    public void shouldReturn0IfComparedToItself() {
         DateTime now = new DateTime();
         PipelineTimelineEntry self = modification(List.of("flyweight"), 1, "123", now);
         assertThat(self.compareTo(self), is(0));
@@ -48,15 +37,8 @@ public class PipelineMaterialModificationTest {
         assertThat(another.compareTo(self), is(0));
     }
 
-    @Test public void shouldThrowExceptionIfIfComparedToADifferentClassObject() throws Exception {
-        try {
-            modification(List.of("flyweight"), 1, "123").compareTo(new Object());
-            fail("Should throw up.");
-        } catch (RuntimeException expected) {
-        }
-    }
-
-    @Test public void shouldCompareWhenThisModificationOccuredBeforeTheOtherModification() throws Exception {
+    @Test
+    public void shouldCompareWhenThisModificationOccurredBeforeTheOtherModification() {
         PipelineTimelineEntry modification = modification(List.of("flyweight"), 1, "123", new DateTime());
         PipelineTimelineEntry that = modification(2, List.of("flyweight"), List.of(new DateTime().plusMinutes(1)), 1, "123");
 
@@ -64,7 +46,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(1));
     }
 
-    @Test public void shouldCompareModsWithMultipleMaterials() throws Exception {
+    @Test
+    public void shouldCompareModsWithMultipleMaterials() {
         List<String> materials = List.of("flyweight", "another");
         DateTime base = new DateTime();
 
@@ -75,7 +58,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(1));
     }
 
-    @Test public void shouldCompareModsWithMultipleMaterialsWithOneMaterialNotChanged() throws Exception {
+    @Test
+    public void shouldCompareModsWithMultipleMaterialsWithOneMaterialNotChanged() {
         List<String> materials = List.of("flyweight", "another");
         DateTime base = new DateTime();
 
@@ -86,7 +70,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(-1));
     }
 
-    @Test public void shouldCompareModsWithNoMaterialsChanged() throws Exception {
+    @Test
+    public void shouldCompareModsWithNoMaterialsChanged() {
         List<String> materials = List.of("flyweight", "another");
         DateTime base = new DateTime();
 
@@ -97,7 +82,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(1));
     }
 
-    @Test public void shouldBreakTieOnMinimumUsingPipelineCounter() throws Exception {
+    @Test
+    public void shouldBreakTieOnMinimumUsingPipelineCounter() {
         List<String> materials = List.of("first", "second", "third", "fourth");
         DateTime base = new DateTime();
 
@@ -109,7 +95,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(1));
     }
 
-    @Test public void shouldCompareModsWith4MaterialsWithOneMaterialNotChanged() throws Exception {
+    @Test
+    public void shouldCompareModsWith4MaterialsWithOneMaterialNotChanged() {
         List<String> materials = List.of("first", "second", "third", "fourth");
         DateTime base = new DateTime();
 
@@ -120,7 +107,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(-1));
     }
 
-    @Test public void shouldCompareModsUsingCounterToBreakTies() throws Exception {
+    @Test
+    public void shouldCompareModsUsingCounterToBreakTies() {
         List<String> materials = List.of("first", "second", "third");
         DateTime base = new DateTime();
 
@@ -131,7 +119,8 @@ public class PipelineMaterialModificationTest {
         assertThat(that.compareTo(modification), is(1));
     }
 
-    @Test public void shouldIgnoreExtraMaterialForComparison() throws Exception {
+    @Test
+    public void shouldIgnoreExtraMaterialForComparison() {
         DateTime base = new DateTime();
 
         //Ignore the extra material

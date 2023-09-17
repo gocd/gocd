@@ -21,7 +21,7 @@ import org.apache.http.HttpStatus;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
 /**
- * @understands localized operation result for http
+ * Understands localized operation result for http
  */
 public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     private String message;

@@ -37,18 +37,21 @@ public class GoAclTest {
         assertThat("admin should be granted", acl.isGranted(new CaseInsensitiveString("admin")), is(true));
     }
 
-    @Test public void shouldNotBeGrantedIfUserNotInApprovalList() {
+    @Test
+    public void shouldNotBeGrantedIfUserNotInApprovalList() {
         GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         assertThat("noexist should not be granted", acl.isGranted(new CaseInsensitiveString("noexist")), is(false));
     }
 
-    @Test public void userNameShouldNotBeCaseSensitive() {
+    @Test
+    public void userNameShouldNotBeCaseSensitive() {
         GoAcl acl = new GoAcl(List.of(new CaseInsensitiveString("admin")));
         boolean granted = acl.isGranted(new CaseInsensitiveString("ADMIN"));
         assertThat("ADMIN should be granted", granted, is(true));
     }
 
-    @Test public void shouldNotGrantIfNoUsersDefined() {
+    @Test
+    public void shouldNotGrantIfNoUsersDefined() {
         GoAcl acl = new GoAcl(List.of());
         assertThat("ADMIN should not be granted", acl.isGranted(new CaseInsensitiveString("ADMIN")), is(false));
     }

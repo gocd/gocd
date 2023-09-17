@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 
 /**
- * @understands key for error validation (used by views)
+ * Understands key for error validation (used by views)
  */
 @Retention(RUNTIME)
 @Target(FIELD)

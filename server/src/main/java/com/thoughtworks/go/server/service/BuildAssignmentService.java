@@ -56,7 +56,7 @@ import static java.util.stream.StreamSupport.stream;
 
 
 /**
- * @understands how to assign work to agents
+ * Understands how to assign work to agents
  */
 @Service
 public class BuildAssignmentService implements ConfigChangedListener {

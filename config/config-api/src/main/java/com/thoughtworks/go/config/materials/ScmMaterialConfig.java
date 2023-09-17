@@ -32,7 +32,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
- * @understands a source control repository and its configuration
+ * Understands a source control repository and its configuration
  */
 public abstract class ScmMaterialConfig extends AbstractMaterialConfig implements ParamsAttributeAware {
     public static final String URL = "url";

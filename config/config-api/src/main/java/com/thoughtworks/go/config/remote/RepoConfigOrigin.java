@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import java.util.Objects;
 
 /**
- * @understands that configuration is defined in versioned source code repository at particular revision.
+ * Understands that configuration is defined in versioned source code repository at particular revision.
  */
 public class RepoConfigOrigin implements ConfigOrigin {
 

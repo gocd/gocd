@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 /**
- * @understands agent information for the UI
+ * Understands agent information for the UI
  */
 public class AgentViewModel implements Comparable<AgentViewModel>{
     private final AgentInstance agentInstance;

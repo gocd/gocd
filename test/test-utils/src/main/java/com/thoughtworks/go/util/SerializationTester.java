@@ -18,7 +18,7 @@ package com.thoughtworks.go.util;
 import java.io.*;
 
 /**
- * @understands how to test serialization of classes
+ * Understands how to test serialization of classes
  */
 public class SerializationTester {
     @SuppressWarnings("unchecked")

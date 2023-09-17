@@ -33,17 +33,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static java.lang.String.format;
 
 /**
- * @understands configuration for subversion
+ * Understands configuration for subversion
  */
 public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private static final Logger LOGGER = LoggerFactory.getLogger(SvnMaterial.class);
@@ -121,14 +118,14 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     @Override
-    protected void appendCriteria(Map parameters) {
+    protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }
 
     @Override
-    protected void appendAttributes(Map parameters) {
+    protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url);
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
@@ -201,18 +198,10 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
         SvnMaterial that = (SvnMaterial) o;
 
-        if (checkExternals != that.checkExternals) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
+        return checkExternals == that.checkExternals &&
+            Objects.equals(url, that.url) &&
+            Objects.equals(userName, that.userName);
 
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-
-        return true;
     }
 
     @Override
@@ -252,7 +241,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<SvnMaterialInstance> getInstanceType() {
         return SvnMaterialInstance.class;
     }
 

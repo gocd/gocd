@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * @understands persisting and retrieving resource
+ * Understands persisting and retrieving resource
  */
 @Service
 public class ResourceRepository extends HibernateDaoSupport {

@@ -39,7 +39,7 @@ import static com.thoughtworks.go.server.service.GoConfigService.INVALID_CRUISE_
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * @understands when to reload the config file or other config source
+ * Understands when to reload the config file or other config source
  */
 @Component
 public class CachedGoConfig {

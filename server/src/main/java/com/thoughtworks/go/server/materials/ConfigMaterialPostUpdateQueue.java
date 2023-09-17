@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @understands messages about completed config material updates
+ * Understands messages about completed config material updates
  */
 @Component
 public class ConfigMaterialPostUpdateQueue extends GoMessageQueue<MaterialUpdateCompletedMessage> {

@@ -18,21 +18,21 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.BaseCollection;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.domain.AgentStatus.Disabled;
 import static com.thoughtworks.go.domain.AgentStatus.Pending;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.commons.collections4.CollectionUtils.exists;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * @understands collection of agents view model
+ * Understands collection of agents view model
  */
 public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 
@@ -82,7 +82,7 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 
     private boolean agentFiltersHas(final String enumKey) {
-        return CollectionUtils.exists(Arrays.asList(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
+        return IterableUtils.matchesAny(List.of(AgentFilters.values()), agentFilters -> agentFilters.name().equals(enumKey.toUpperCase()));
     }
 
     private int count(AgentStatus status) {
@@ -91,8 +91,6 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
     }
 }
 
-
-@SuppressWarnings("deprecation")
 enum AgentFilters {
     RESOURCE {
         @Override public boolean matches(AgentViewModel agent, final String searchCriteria) {
@@ -125,9 +123,9 @@ enum AgentFilters {
         }
     };
 
-    static boolean matchesFilter(Collection collection, final String searchCriteria) {
+    static boolean matchesFilter(Collection<String> collection, final String searchCriteria) {
         final SearchCriteria criteria = new SearchCriteria(searchCriteria);
-        return exists(collection, o -> criteria.matches((String) o));
+        return IterableUtils.matchesAny(collection, criteria::matches);
     }
 
     static boolean matchesFilter(String agentValue, String searchCriteria) {

@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-/**
- * @understands
- */
 public interface ParamsAttributeAware {
     void setConfigAttributes(Object attributes);
 }

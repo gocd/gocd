@@ -24,7 +24,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
- * @understands objects required by domain entities to render xml representation
+ * Understands objects required by domain entities to render xml representation
  */
 public class XmlWriterContext {
     private final String baseUrl;

@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @understands when disk space is too low to be safe on server
+ * Understands when disk space is too low to be safe on server
  */
 public abstract class DiskSpaceChecker implements SchedulingChecker {
     protected final SystemEnvironment systemEnvironment;

@@ -21,30 +21,28 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * @understands
- */
 public class CruiseConfigTest {
 
-    @Test public void shouldFindAllResourcesOnAllJobs() throws Exception {
+    @Test
+    public void shouldFindAllResourcesOnAllJobs() throws Exception {
         String jobXml = "<job name=\"dev1\">\n"
-                + "<tasks><ant /></tasks>\n"
-                + "<resources>\n"
-                + "<resource>one</resource>\n"
-                + "<resource>two</resource>\n"
-                + "</resources>\n"
-                + "</job>";
+            + "<tasks><ant /></tasks>\n"
+            + "<resources>\n"
+            + "<resource>one</resource>\n"
+            + "<resource>two</resource>\n"
+            + "</resources>\n"
+            + "</job>";
         String jobXml2 = "<job name=\"dev2\">\n"
-                + "<tasks><ant /></tasks>\n"
-                + "<resources>\n"
-                + "<resource>two</resource>\n"
-                + "<resource>three</resource>\n"
-                + "</resources>\n"
-                + "</job>";
+            + "<tasks><ant /></tasks>\n"
+            + "<resources>\n"
+            + "<resource>two</resource>\n"
+            + "<resource>three</resource>\n"
+            + "</resources>\n"
+            + "</job>";
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         CruiseConfig config = new MagicalGoConfigXmlLoader(new ConfigCache(), registry).loadConfigHolder(ConfigFileFixture.withJob(jobXml + jobXml2)).config;

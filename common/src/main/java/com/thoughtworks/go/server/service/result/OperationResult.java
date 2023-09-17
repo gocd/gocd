@@ -19,7 +19,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
 /**
- * @understands the current status of a given task.
+ * Understands the current status of a given task.
  */
 public interface OperationResult {
 

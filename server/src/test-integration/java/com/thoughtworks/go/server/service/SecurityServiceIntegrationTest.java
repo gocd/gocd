@@ -41,10 +41,10 @@ import static org.hamcrest.Matchers.is;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class SecurityServiceIntegrationTest {
     private static final String GROUP_NAME = "group";
@@ -270,7 +270,7 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTrueIfUserHasOperatePermission() throws Exception {
+    public void shouldReturnTrueIfUserHasOperatePermission() {
         configHelper.setOperatePermissionForGroup(GROUP_NAME, OPERATOR);
         assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(true));
     }
@@ -312,7 +312,8 @@ public class SecurityServiceIntegrationTest {
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, ADMIN), is(true));
     }
 
-    @Test public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
+    @Test
+    public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
         configHelper.onTearDown();
         configHelper.saveFullConfig(CONFIG_WITH_2_GROUPS, true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("blah"))).size(), is(0));
@@ -320,29 +321,34 @@ public class SecurityServiceIntegrationTest {
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan"))), is(List.of(new CaseInsensitiveString("pipeline3"))));
     }
 
-    @Test public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
+    @Test
+    public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
         configHelper.onTearDown();
         configHelper.saveFullConfig(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))),
-                is(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
+            is(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
         assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS),
-                is(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
+            is(List.of(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
     }
 
-    @Test public void shouldNotHaveOperatePermissionsOnStagesThatDoNotExist() throws Exception {
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME,"doesnt-exist","raghu"),is(false));
+    @Test
+    public void shouldNotHaveOperatePermissionsOnStagesThatDoNotExist() {
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, "doesnt-exist", "raghu"), is(false));
     }
 
-    @Test public void shouldNotHaveOperatePermissionsOnPipelinesThatDoNotExist() throws Exception {
-        assertThat(securityService.hasOperatePermissionForStage("doesnt-exists","doesnt-exist","raghu"),is(false));
+    @Test
+    public void shouldNotHaveOperatePermissionsOnPipelinesThatDoNotExist() {
+        assertThat(securityService.hasOperatePermissionForStage("doesnt-exists", "doesnt-exist", "raghu"), is(false));
     }
 
-    @Test public void shouldReturnSiteUrlAsCasServiceBaseUrlIfOnlySiteUrlIsDefined() throws Exception {
+    @Test
+    public void shouldReturnSiteUrlAsCasServiceBaseUrlIfOnlySiteUrlIsDefined() {
         configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl());
         assertThat(securityService.casServiceBaseUrl(), is("http://example.com"));
     }
 
-    @Test public void shouldReturnSecureSiteUrlAsCasServiceBaseUrlIfBothSiteUrlAndSecureSiteUrlAreDefined() throws Exception {
+    @Test
+    public void shouldReturnSecureSiteUrlAsCasServiceBaseUrlIfBothSiteUrlAndSecureSiteUrlAreDefined() {
         configHelper.setBaseUrls(new SiteUrl("http://example.com"), new SecureSiteUrl("https://example.com"));
         assertThat(securityService.casServiceBaseUrl(), is("https://example.com"));
     }
@@ -394,66 +400,66 @@ public class SecurityServiceIntegrationTest {
     }
 
     private static final String CONFIG_WITH_2_GROUPS = "<cruise schemaVersion='16'>\n"
-            + "<server artifactsdir='artifacts' >"
-            +  "<license user=\"Cruise team internal\">E+2WI6OuZ6hQ9wnNZGaiIQzGaLerbJR73qC+4OXlTDhC3Vafq8phXVPjFzUWXzpeBjcyytmQetqKG0TCKSoOhlDKdVrO982jHv7Gal6fz1kD0KbKoNnWo9vwqTEXndOfr+qoVr9KydLtyC3WdpDyjw7fPTBmB/eZmaTHKvZvJHHeYbKsvX8kZPYwhQT6oxbzwylqOPhJAiq6EKxS2S0jk1h0Uy5c07IiE4+y8PmwoElnfl3kpAARHMv40vfxamttp6IljBCuJ2fXQ0rXuukA/jIkv1i78A6dqL0Ii3RAIjRvglVHeI9HT9a0SyOR0eUMorFJJPDoqUnb1TVu/Ij3EQ==</license>\n"
-            + "    <security>\n"
-            + " <passwordFile path=\"/home/cruise/admins.properties\"/>\n"
-            + "      <roles>\n"
-            + "        <role name=\"simple\" >\n"
-            + "           <user>admin</user>\n"
-            + "           <user>pavan</user>\n"
-            + "        </role>\n"
-            + "      </roles>\n"
-            + "      <admins>\n"
-            + "           <user>raghu</user>\n"
-            + "           <user>jumble</user>\n"
-            + "      </admins>\n"
-            + "    </security>\n"
-            + "</server>\n"
-            + "<pipelines group=\"first\">\n"
-            +" <authorization>\n"
-            + "        <view>\n"
-            + "           <user>admin</user>\n"
-            + "        </view>\n"
-            + "    </authorization>"
-            + "<pipeline name='pipeline1'>\n"
-            + "    <materials>\n"
-            + "      <svn url =\"svnurl\"/>"
-            + "    </materials>\n"
-            + "  <stage name='mingle'>\n"
-            + "    <jobs>\n"
-            + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-            + "    </jobs>\n"
-            + "  </stage>\n"
-            + "</pipeline>\n"
-            + "<pipeline name='pipeline2'>\n"
-            + "    <materials>\n"
-            + "      <svn url =\"svnurl\"/>"
-            + "    </materials>\n"
-            + "  <stage name='mingle'>\n"
-            + "    <jobs>\n"
-            + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-            + "    </jobs>\n"
-            + "  </stage>\n"
-            + "</pipeline>\n"
-            + "</pipelines>\n"
-            + "<pipelines group='second'>\n"
-            +" <authorization>\n"
-            + "        <view>\n"
-            + "           <user>pavan</user>\n"
-            + "        </view>\n"
-            + "    </authorization>"
-            + "<pipeline name='pipeline3'>\n"
+        + "<server artifactsdir='artifacts' >"
+        + "<license user=\"Cruise team internal\">E+2WI6OuZ6hQ9wnNZGaiIQzGaLerbJR73qC+4OXlTDhC3Vafq8phXVPjFzUWXzpeBjcyytmQetqKG0TCKSoOhlDKdVrO982jHv7Gal6fz1kD0KbKoNnWo9vwqTEXndOfr+qoVr9KydLtyC3WdpDyjw7fPTBmB/eZmaTHKvZvJHHeYbKsvX8kZPYwhQT6oxbzwylqOPhJAiq6EKxS2S0jk1h0Uy5c07IiE4+y8PmwoElnfl3kpAARHMv40vfxamttp6IljBCuJ2fXQ0rXuukA/jIkv1i78A6dqL0Ii3RAIjRvglVHeI9HT9a0SyOR0eUMorFJJPDoqUnb1TVu/Ij3EQ==</license>\n"
+        + "    <security>\n"
+        + " <passwordFile path=\"/home/cruise/admins.properties\"/>\n"
+        + "      <roles>\n"
+        + "        <role name=\"simple\" >\n"
+        + "           <user>admin</user>\n"
+        + "           <user>pavan</user>\n"
+        + "        </role>\n"
+        + "      </roles>\n"
+        + "      <admins>\n"
+        + "           <user>raghu</user>\n"
+        + "           <user>jumble</user>\n"
+        + "      </admins>\n"
+        + "    </security>\n"
+        + "</server>\n"
+        + "<pipelines group=\"first\">\n"
+        + " <authorization>\n"
+        + "        <view>\n"
+        + "           <user>admin</user>\n"
+        + "        </view>\n"
+        + "    </authorization>"
+        + "<pipeline name='pipeline1'>\n"
+        + "    <materials>\n"
+        + "      <svn url =\"svnurl\"/>"
+        + "    </materials>\n"
+        + "  <stage name='mingle'>\n"
+        + "    <jobs>\n"
+        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
+        + "    </jobs>\n"
+        + "  </stage>\n"
+        + "</pipeline>\n"
+        + "<pipeline name='pipeline2'>\n"
+        + "    <materials>\n"
+        + "      <svn url =\"svnurl\"/>"
+        + "    </materials>\n"
+        + "  <stage name='mingle'>\n"
+        + "    <jobs>\n"
+        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
+        + "    </jobs>\n"
+        + "  </stage>\n"
+        + "</pipeline>\n"
+        + "</pipelines>\n"
+        + "<pipelines group='second'>\n"
+        + " <authorization>\n"
+        + "        <view>\n"
+        + "           <user>pavan</user>\n"
+        + "        </view>\n"
+        + "    </authorization>"
+        + "<pipeline name='pipeline3'>\n"
 
-            + "    <materials>\n"
-            + "      <svn url =\"svnurl\"/>"
-            + "    </materials>\n"
-            + "  <stage name='mingle'>\n"
-            + "    <jobs>\n"
-            + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
-            + "    </jobs>\n"
-            + "  </stage>\n"
-            + "</pipeline>\n"
-            + "</pipelines>\n"
-            + "</cruise>";
+        + "    <materials>\n"
+        + "      <svn url =\"svnurl\"/>"
+        + "    </materials>\n"
+        + "  <stage name='mingle'>\n"
+        + "    <jobs>\n"
+        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
+        + "    </jobs>\n"
+        + "  </stage>\n"
+        + "</pipeline>\n"
+        + "</pipelines>\n"
+        + "</cruise>";
 }

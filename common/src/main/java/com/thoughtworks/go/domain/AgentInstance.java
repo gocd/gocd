@@ -42,7 +42,7 @@ import static com.thoughtworks.go.remote.AgentInstruction.*;
 import static java.lang.String.format;
 
 /**
- * @understands runtime and configuration information of a builder machine
+ * Understands runtime and configuration information of a builder machine
  */
 public class AgentInstance implements Comparable<AgentInstance> {
     private final AgentType agentType;

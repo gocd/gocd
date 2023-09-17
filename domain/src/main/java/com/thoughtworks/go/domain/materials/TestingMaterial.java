@@ -29,10 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 public class TestingMaterial extends ScmMaterial {
-    public static final Date TWO_DAYS_AGO_CHECKIN = new DateTime().minusDays(2).toDate();
-
-    public static final String MOD_TYPE = "svn";
-    public static final String MOD_REVISION = "98";
 
     public static final String TYPE = "TestingMaterial";
 
@@ -47,11 +43,7 @@ public class TestingMaterial extends ScmMaterial {
         this.url = config.getUrl();
     }
 
-    public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
-        throw new RuntimeException("NOT USED");
-    }
-
-    public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
+    public List<Modification> modificationsSince() {
         return multipleModificationList();
     }
 
@@ -129,7 +121,7 @@ public class TestingMaterial extends ScmMaterial {
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<TestingMaterialInstance> getInstanceType() {
         return TestingMaterialInstance.class;
     }
 

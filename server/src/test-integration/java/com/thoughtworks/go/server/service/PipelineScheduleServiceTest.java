@@ -17,11 +17,9 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.TestingMaterial;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
@@ -68,6 +66,8 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/spring-all-servlet.xml",
 })
 public class PipelineScheduleServiceTest {
+    private static final String STAGE_NAME = "dev";
+
     @Autowired private ScheduleService scheduleService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
@@ -82,19 +82,17 @@ public class PipelineScheduleServiceTest {
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private AgentService agentService;
 
     private PipelineWithTwoStages pipelineWithTwoStages;
     private PipelineConfig mingleConfig;
     private PipelineConfig evolveConfig;
-    private String md5 = "md5-test";
+    private final String md5 = "md5-test";
 
-    private static final String STAGE_NAME = "dev";
     private GoConfigFileHelper configHelper;
-    public Subversion repository;
-    public static TestRepo testRepo;
+    private Subversion repository;
+    private TestRepo testRepo;
     private PipelineConfig goConfig;
 
     @BeforeEach
@@ -138,12 +136,12 @@ public class PipelineScheduleServiceTest {
     @Test
     public void shouldScheduleStageAfterModifications() throws Exception {
         scheduleAndCompleteInitialPipelines();
-        Material stubMaterial = new TestingMaterial();
+        TestingMaterial stubMaterial = new TestingMaterial();
 
         mingleConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(stubMaterial, ((TestingMaterial)stubMaterial).modificationsSince(null, null, subprocessExecutionContext));
+        revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
@@ -158,13 +156,13 @@ public class PipelineScheduleServiceTest {
 
         configHelper.lockPipeline("mingle");
 
-        Material stubMaterial = new TestingMaterial();
+        TestingMaterial stubMaterial = new TestingMaterial();
         mingleConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 
         assertThat(pipelineLockService.isLocked("mingle"), is(false));
 
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(stubMaterial, ((TestingMaterial) stubMaterial).modificationsSince(null, null, subprocessExecutionContext));
+        revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline pipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
@@ -183,10 +181,10 @@ public class PipelineScheduleServiceTest {
         agentService.saveOrUpdate(new Agent("uuid3", "localhost", "127.0.0.1", "cookie3"));
         configHelper.setRunOnAllAgents(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", true);
 
-        Material stubMaterial = new TestingMaterial();
+        TestingMaterial stubMaterial = new TestingMaterial();
         evolveConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(stubMaterial, ((TestingMaterial) stubMaterial).modificationsSince(null, null, subprocessExecutionContext));
+        revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
@@ -208,10 +206,10 @@ public class PipelineScheduleServiceTest {
 	public void shouldScheduleMultipleJobsWhenToBeRunMultipleInstance() throws Exception {
 		configHelper.setRunMultipleInstance(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", 2);
 
-		Material stubMaterial = new TestingMaterial();
+		TestingMaterial stubMaterial = new TestingMaterial();
 		evolveConfig.setMaterialConfigs(new MaterialConfigs(stubMaterial.config()));
 		MaterialRevisions revisions = new MaterialRevisions();
-		revisions.addRevision(stubMaterial, ((TestingMaterial) stubMaterial).modificationsSince(null, null, subprocessExecutionContext));
+		revisions.addRevision(stubMaterial, stubMaterial.modificationsSince());
 		BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
 		dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
@@ -280,7 +278,7 @@ public class PipelineScheduleServiceTest {
         mingleConfig.setMaterialConfigs(new MaterialConfigs(testingMaterial.config()));
 
         MaterialRevisions revisions = new MaterialRevisions();
-        revisions.addRevision(testingMaterial, testingMaterial.modificationsSince(null, null, subprocessExecutionContext));
+        revisions.addRevision(testingMaterial, testingMaterial.modificationsSince());
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
         Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingleConfig, buildCause, new DefaultSchedulingContext(

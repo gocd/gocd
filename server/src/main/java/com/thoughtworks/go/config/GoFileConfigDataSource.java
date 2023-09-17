@@ -464,12 +464,11 @@ public class GoFileConfigDataSource {
 
     private static void logConfigLoadException(File configFile, Exception e) throws Exception {
         LOGGER.error("Unable to load config file: {} {}", configFile.getAbsolutePath(), e.getMessage(), e);
-        if (configFile.exists()) {
-            LOGGER.warn("--- {} ---", configFile.getAbsolutePath());
-            LOGGER.warn(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
-            LOGGER.warn("------");
+        if (LOGGER.isDebugEnabled() && configFile.exists()) {
+            LOGGER.debug("--- {} ---", configFile.getAbsolutePath());
+            LOGGER.debug(FileUtils.readFileToString(configFile, StandardCharsets.UTF_8));
+            LOGGER.debug("------");
         }
-        LOGGER.debug("", e);
     }
 
     private void writeToConfigXmlFile(String content) {

@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import java.io.Serializable;
 
 /**
- * @understands different states agent can be in
+ * Understands different states agent can be in
  */
 public enum AgentStatus implements Comparable<AgentStatus>, Serializable {
     Pending("Pending", AgentConfigStatus.Pending, AgentRuntimeStatus.Unknown),

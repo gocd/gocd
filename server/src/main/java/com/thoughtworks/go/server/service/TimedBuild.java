@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @understands builds that are triggered by a timer
+ * Understands builds that are triggered by a timer
  */
 public class TimedBuild implements BuildType {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimedBuild.class);

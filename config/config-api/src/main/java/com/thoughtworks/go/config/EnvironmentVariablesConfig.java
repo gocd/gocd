@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @understands environment variables that are passed to a running job
+ * Understands environment variables that are passed to a running job
  */
 @ConfigTag("environmentvariables")
 @ConfigCollection(EnvironmentVariableConfig.class)

@@ -34,10 +34,13 @@ import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * @understands configuration of pluggable task
+ * Understands configuration of pluggable task
  */
 @ConfigTag("task")
 public class PluggableTask extends AbstractTask {

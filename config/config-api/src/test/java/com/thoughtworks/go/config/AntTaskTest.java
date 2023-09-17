@@ -18,8 +18,8 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class AntTaskTest {
     private AntTask antTask;
@@ -41,17 +41,20 @@ public class AntTaskTest {
         assertThat(antTask.describe(), is("ant 'foo bar' baz —debug"));
     }
 
-    @Test public void shouldNotSetTargetOnBuilderWhenNotSet() throws Exception {
+    @Test
+    public void shouldNotSetTargetOnBuilderWhenNotSet() {
         assertThat(antTask.arguments(), is(""));
     }
 
-    @Test public void shouldSetTargetOnBuilderWhenAvailable() throws Exception {
+    @Test
+    public void shouldSetTargetOnBuilderWhenAvailable() {
         String target = "target";
         antTask.setTarget(target);
         assertThat(antTask.arguments(), is(target));
     }
 
-    @Test public void shouldSetBuildFileWhenAvailable() throws Exception {
+    @Test
+    public void shouldSetBuildFileWhenAvailable() {
         String target = "target";
         String buildXml = "build.xml";
         antTask.setBuildFile(buildXml);
@@ -64,7 +67,7 @@ public class AntTaskTest {
     }
 
     @Test
-    public void describeTest() throws Exception {
+    public void describeTest() {
         antTask.setBuildFile("build.xml");
         antTask.setTarget("test");
         antTask.setWorkingDirectory("lib");
@@ -72,14 +75,14 @@ public class AntTaskTest {
     }
 
     @Test
-    public void shouldReturnCommandAndWorkingDir(){
+    public void shouldReturnCommandAndWorkingDir() {
         antTask.setWorkingDirectory("lib");
-        assertThat(antTask.command(),is("ant"));
+        assertThat(antTask.command(), is("ant"));
         assertThat(antTask.workingDirectory(), is("lib"));
     }
 
     @Test
-    public void shouldGiveArgumentsIncludingBuildfileAndTarget(){
+    public void shouldGiveArgumentsIncludingBuildfileAndTarget() {
         AntTask task = new AntTask();
         task.setBuildFile("build/build.xml");
         task.setTarget("compile");

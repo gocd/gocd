@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
 /**
- * @understands how to turn the problems that can occur during api calls into human-readable form and http codes
+ * Understands how to turn the problems that can occur during api calls into human-readable form and http codes
  */
 public class HttpOperationResult implements OperationResult {
 

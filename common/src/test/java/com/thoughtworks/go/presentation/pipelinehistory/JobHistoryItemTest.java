@@ -15,30 +15,34 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.Date;
-
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import org.junit.jupiter.api.Test;
+
+import java.util.Date;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 public class JobHistoryItemTest {
 
-    @Test public void shouldBeUnsuccessfullyCompletedWhenFailedOrCancelled() {
-        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Failed, new Date()).hasUnsuccessfullyCompleted(),is(true));
-        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Cancelled, new Date()).hasUnsuccessfullyCompleted(),is(true));
+    @Test
+    public void shouldBeUnsuccessfullyCompletedWhenFailedOrCancelled() {
+        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Failed, new Date()).hasUnsuccessfullyCompleted(), is(true));
+        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Cancelled, new Date()).hasUnsuccessfullyCompleted(), is(true));
     }
 
-    @Test public void shouldPassedWhenJobCompletesSuccessfully() {
-        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Passed, new Date()).hasPassed(),is(true));
+    @Test
+    public void shouldPassedWhenJobCompletesSuccessfully() {
+        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Passed, new Date()).hasPassed(), is(true));
     }
 
-    @Test public void shouldBeRunningBasedOnJobState() {
-        assertThat(new JobHistoryItem("", JobState.Assigned, JobResult.Unknown, new Date()).isRunning(),is(true));
-        assertThat(new JobHistoryItem("", JobState.Building, JobResult.Unknown, new Date()).isRunning(),is(true));
-        assertThat(new JobHistoryItem("", JobState.Completing, JobResult.Unknown, new Date()).isRunning(),is(true));
-        assertThat(new JobHistoryItem("", JobState.Preparing, JobResult.Unknown, new Date()).isRunning(),is(true));
-        assertThat(new JobHistoryItem("", JobState.Scheduled, JobResult.Unknown, new Date()).isRunning(),is(true));
+    @Test
+    public void shouldBeRunningBasedOnJobState() {
+        assertThat(new JobHistoryItem("", JobState.Assigned, JobResult.Unknown, new Date()).isRunning(), is(true));
+        assertThat(new JobHistoryItem("", JobState.Building, JobResult.Unknown, new Date()).isRunning(), is(true));
+        assertThat(new JobHistoryItem("", JobState.Completing, JobResult.Unknown, new Date()).isRunning(), is(true));
+        assertThat(new JobHistoryItem("", JobState.Preparing, JobResult.Unknown, new Date()).isRunning(), is(true));
+        assertThat(new JobHistoryItem("", JobState.Scheduled, JobResult.Unknown, new Date()).isRunning(), is(true));
     }
 }

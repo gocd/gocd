@@ -206,6 +206,6 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     private boolean naturalOrderIsNotAnInteger() {
-        return naturalOrder - new Double(naturalOrder).intValue() > 0;
+        return naturalOrder - Double.valueOf(naturalOrder).intValue() > 0;
     }
 }

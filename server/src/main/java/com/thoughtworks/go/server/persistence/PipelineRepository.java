@@ -37,7 +37,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 /**
- * @understands how to store and retrieve piplines from the database
+ * Understands how to store and retrieve pipelines from the database
  */
 @Component
 public class PipelineRepository extends HibernateDaoSupport {

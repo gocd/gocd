@@ -57,7 +57,7 @@ public class ScheduleServiceSecurityTest {
     @Autowired private TransactionTemplate transactionTemplate;
 
     private PipelineWithTwoStages fixture;
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -118,9 +118,6 @@ public class ScheduleServiceSecurityTest {
         assertThat(resultStage, is(not(nullValue())));
         assertThat(operationResult.isSuccessful(), is(true));
         assertThat(operationResult.httpCode(), is(SC_OK));
-        //TODO: Check why stage result is not persisted after stage is cancelled
-//        Stage mostRecent = stageDao.mostRecentStage(new StageConfigIdentifier(fixture.pipelineName, fixture.ftStage));
-//        assertThat(mostRecent.getResult(), is(StageResult.Cancelled));
     }
 
 }

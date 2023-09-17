@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @understands how/whether to lock/unlock a pipeline instance
+ * Understands how/whether to lock/unlock a pipeline instance
  */
 @Service
 public class PipelineLockService implements ConfigChangedListener {

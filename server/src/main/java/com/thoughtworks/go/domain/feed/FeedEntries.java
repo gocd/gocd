@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @understands a collection of feeds
+ * Understands a collection of feeds
  */
 public class FeedEntries extends BaseCollection<FeedEntry> {
 

@@ -59,29 +59,36 @@ public class ZipArtifactCacheTest {
         artifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
     }
 
-    @Test public void shouldKnowWhenCacheAlreadyCreated() throws Exception {
+    @Test
+    public void shouldKnowWhenCacheAlreadyCreated() throws Exception {
         zipArtifactCache.createCachedFile(artifactFolder);
 
         assertThat(zipArtifactCache, cacheCreated(artifactFolder));
         assertThat(zipArtifactCache.cachedFile(artifactFolder).getName(), is("dir.zip"));
     }
 
-    @Test public void shouldCreateCacheWhenNotYetCreated() throws Exception {
+    @Test
+    public void shouldCreateCacheWhenNotYetCreated() throws Exception {
         waitForCacheCreated();
         assertThat(zipArtifactCache, cacheCreated(artifactFolder));
         File zipFile = zipArtifactCache.cachedFile(artifactFolder);
         assertThat(zipFile.getAbsolutePath().replaceAll("\\\\", "/"), endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
     }
 
-    @Test public void shouldOnlyCreateCacheOnce() throws Exception {
+    @Test
+    public void shouldOnlyCreateCacheOnce() throws Exception {
         ArrayList<FileCheckerThread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             threads.add(new FileCheckerThread());
         }
-        for (FileCheckerThread thread : threads) { thread.start(); }
+        for (FileCheckerThread thread : threads) {
+            thread.start();
+        }
         for (FileCheckerThread thread : threads) {
             thread.join(1000);
-            if (thread.isAlive()) { fail("Timeout waiting for threads"); }
+            if (thread.isAlive()) {
+                fail("Timeout waiting for threads");
+            }
         }
 
         for (FileCheckerThread thread : threads) {
@@ -90,7 +97,8 @@ public class ZipArtifactCacheTest {
         }
     }
 
-    @Test public void shouldRecoverFromOldZipTmpFile() throws Exception {
+    @Test
+    public void shouldRecoverFromOldZipTmpFile() throws Exception {
         File cacheDir = new File(folder, "cache/artifacts/" + JOB_FOLDERS);
         cacheDir.mkdirs();
         TestFileUtil.createTestFile(cacheDir, "dir.zip.tmp");
@@ -107,7 +115,9 @@ public class ZipArtifactCacheTest {
             Thread.sleep(100);
             timesTried--;
         }
-        if (timesTried <= 0) { fail("Timeout creating cache"); }
+        if (timesTried <= 0) {
+            fail("Timeout creating cache");
+        }
     }
 
     private class FileCheckerThread extends Thread {

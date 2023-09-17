@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config.remote;
 
 /**
- * @understands where configuration comes from.
+ * Understands where configuration comes from.
  */
 public interface ConfigOrigin {
     /**

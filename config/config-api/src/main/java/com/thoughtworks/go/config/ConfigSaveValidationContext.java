@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @understands providing right state required to validate a given config element
+ * Understands providing right state required to validate a given config element
  */
 public class ConfigSaveValidationContext implements ValidationContext {
     private final Validatable immediateParent;

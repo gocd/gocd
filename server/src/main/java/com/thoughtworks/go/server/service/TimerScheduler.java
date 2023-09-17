@@ -45,7 +45,7 @@ import static org.quartz.TriggerKey.triggerKey;
 import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
 /**
- * @understands scheduling pipelines based on a timer
+ * Understands scheduling pipelines based on a timer
  */
 @Component
 public class TimerScheduler implements ConfigChangedListener {

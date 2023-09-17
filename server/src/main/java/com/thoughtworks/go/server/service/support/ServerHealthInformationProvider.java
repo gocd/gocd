@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @understands Dumping all the server health messages
+ * Understands Dumping all the server health messages
  */
 @Component
 public class ServerHealthInformationProvider implements ServerInfoProvider {

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @understands a collection of configuration abstractions
+ * Understands a collection of configuration abstractions
  */
 @ConfigTag("templates")
 @ConfigCollection(PipelineTemplateConfig.class)

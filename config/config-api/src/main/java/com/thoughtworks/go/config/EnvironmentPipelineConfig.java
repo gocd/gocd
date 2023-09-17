@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.List;
+
 /**
- * @understands a reference to an existing pipeline that is associated to an Environment
+ * Understands a reference to an existing pipeline that is associated to an Environment
  */
 @ConfigTag("pipeline")
 public class EnvironmentPipelineConfig implements Validatable {

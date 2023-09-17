@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.access.common.settings;
 
 import com.thoughtworks.go.plugin.api.config.Property;
 
-public class PluginSettingsProperty extends Property implements Comparable {
+public class PluginSettingsProperty extends Property implements Comparable<PluginSettingsProperty> {
     public PluginSettingsProperty(String key) {
         super(key);
         updateDefaults();
@@ -36,7 +36,7 @@ public class PluginSettingsProperty extends Property implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        return this.getOption(DISPLAY_ORDER) - ((PluginSettingsProperty) o).getOption(DISPLAY_ORDER);
+    public int compareTo(PluginSettingsProperty o) {
+        return this.getOption(DISPLAY_ORDER) - o.getOption(DISPLAY_ORDER);
     }
 }

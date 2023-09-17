@@ -38,15 +38,10 @@ public interface Material extends Serializable {
     CaseInsensitiveString getName();
 
     //-- SCM behaviour
-    //better:
-    //scm = material.createScm(workingDirectory, output)
-    //scm.updateTo(revision)
-    //scm.findModificationsSince(revision)
-    //scm.findRecentModifications(5)
 
     void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx);
 
-    void toJson(Map jsonMap, Revision revision);
+    void toJson(Map<String, Object> jsonMap, Revision revision);
 
     boolean matches(String name, String regex);
 
@@ -96,7 +91,7 @@ public interface Material extends Serializable {
 
     Boolean isUsedInFetchArtifact(PipelineConfig pipelineConfig);
 
-    Class getInstanceType();
+    Class<? extends MaterialInstance> getInstanceType();
 
     Revision oldestRevision(Modifications modifications);
 

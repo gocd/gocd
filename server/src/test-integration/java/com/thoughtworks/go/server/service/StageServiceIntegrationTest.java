@@ -87,10 +87,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class StageServiceIntegrationTest {
     @Autowired private JobInstanceDao jobInstanceDao;
@@ -214,11 +214,11 @@ public class StageServiceIntegrationTest {
     public void shouldReturnStageWithSpecificCounter() {
         Stage firstStage = savedPipeline.getStages().first();
         Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext(
-                "anonymous"), md5, new TimeProvider());
+            "anonymous"), md5, new TimeProvider());
         Stage newSavedStage = stageService.save(savedPipeline, newInstance);
 
         Stage latestStage = stageService.findStageWithIdentifier(
-                new StageIdentifier(CaseInsensitiveString.str(pipelineConfig.name()), null, savedPipeline.getLabel(), firstStage.getName(), String.valueOf(newSavedStage.getCounter())));
+            new StageIdentifier(CaseInsensitiveString.str(pipelineConfig.name()), null, savedPipeline.getLabel(), firstStage.getName(), String.valueOf(newSavedStage.getCounter())));
         assertThat(latestStage, is(newSavedStage));
 
     }
@@ -290,8 +290,8 @@ public class StageServiceIntegrationTest {
         for (int i = 1; i < stages.length; i++) {
             DefaultSchedulingContext ctx = new DefaultSchedulingContext("anonumous");
             StageConfig stageCfg = pipelineConfig.first();
-            stages[i] = i%2 == 0 ? instanceFactory.createStageInstance(stageCfg, ctx, md5, new TimeProvider()) : instanceFactory.createStageForRerunOfJobs(stages[i - 1], List.of("unit", "blah"), ctx,
-                    stageCfg, new TimeProvider(), "md5");
+            stages[i] = i % 2 == 0 ? instanceFactory.createStageInstance(stageCfg, ctx, md5, new TimeProvider()) : instanceFactory.createStageForRerunOfJobs(stages[i - 1], List.of("unit", "blah"), ctx,
+                stageCfg, new TimeProvider(), "md5");
             stageService.save(savedPipeline, stages[i]);
         }
         StageHistoryEntry[] entries = new StageHistoryEntry[5];
@@ -347,7 +347,7 @@ public class StageServiceIntegrationTest {
         stageService.addStageStatusListener(listener);
 
         Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(),
-                new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());
+            new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());
         Stage savedStage = stageService.save(savedPipeline, newInstance);
 
         verify(listener).stageStatusChanged(savedStage);
@@ -369,7 +369,8 @@ public class StageServiceIntegrationTest {
         verify(listener).stageStatusChanged(stage);
     }
 
-    @Test public void shouldLookupModifiedStageById_afterCancel() {
+    @Test
+    public void shouldLookupModifiedStageById_afterCancel() {
         Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -381,7 +382,8 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.stageById(stage.getId()), is(not(stageLoadedBeforeCancellation)));
     }
 
-    @Test public void shouldSetCancelledByWhileCancellingAStage() {
+    @Test
+    public void shouldSetCancelledByWhileCancellingAStage() {
         Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -395,7 +397,8 @@ public class StageServiceIntegrationTest {
         assertNull(stageLoadedBeforeCancellation.getCancelledBy());
     }
 
-    @Test public void shouldLookupModifiedStageById_afterJobUpdate() {
+    @Test
+    public void shouldLookupModifiedStageById_afterJobUpdate() {
         Stage stageLoadedBeforeUpdate = stageService.stageById(stage.getId());
         dbHelper.completeAllJobs(stage, JobResult.Passed);
         assertThat(stageService.stageById(stage.getId()), is(stageLoadedBeforeUpdate));
@@ -404,7 +407,8 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.stageById(stage.getId()), is(not(stageLoadedBeforeUpdate)));
     }
 
-    @Test public void shouldNotCancelAlreadyCompletedBuild() {
+    @Test
+    public void shouldNotCancelAlreadyCompletedBuild() {
         jobResultTopic.addListener(message -> {
             JobIdentifier jobIdentifier = message.getJobIdentifier();
             JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier);
@@ -449,7 +453,7 @@ public class StageServiceIntegrationTest {
 
         final DurationBean duration = stageService.getBuildDuration("Cruise-1.1", STAGE_NAME, buildingJob);
         assertThat("we should not load duration according to stage name + job name + agent uuid only, "
-                + "we should also use pipeline name as a paramater", duration.getDuration(), is(0L));
+            + "we should also use pipeline name as a paramater", duration.getDuration(), is(0L));
     }
 
     @Test
@@ -480,7 +484,7 @@ public class StageServiceIntegrationTest {
         Stage stage = StageMother.custom("stage");
         when(stageDao.findStageWithIdentifier(jobId.getStageIdentifier())).thenReturn(stage);
         StageService service = new StageService(stageDao, jobInstanceService, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache, listener);
+            goCache, listener);
         try {
             service.cancelJob(job);
             fail("should have thrown up when underlying service bombed");
@@ -501,7 +505,7 @@ public class StageServiceIntegrationTest {
         Stage stage = StageMother.custom("stage");
         when(stageDao.findStageWithIdentifier(jobId.getStageIdentifier())).thenReturn(stage);
         StageService service = new StageService(stageDao, jobInstanceService, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache, listener);
+            goCache, listener);
         service.cancelJob(job);
         verify(listener).stageStatusChanged(stage);
     }
@@ -564,12 +568,10 @@ public class StageServiceIntegrationTest {
     public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() {
         PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
         configFileHelper.turnOffSecurity();
-        List<Pipeline> completedPipelines = new ArrayList<>();
         Pipeline pipeline;
         for (int i = 0; i < 16; i++) {
             pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
             dbHelper.pass(pipeline);
-            completedPipelines.add(pipeline);
         }
         StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4);
         assertThat(stages.size(), is(4));
@@ -639,13 +641,13 @@ public class StageServiceIntegrationTest {
         FeedEntries feed = stageService.feed(downstream.name().toString(), new Username(new CaseInsensitiveString("loser")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(0),
-                List.of(new Author("svn 3 guy", "svn.3@gmail.com"),
-                        new Author("p4 2 guy", "p4.2@gmail.com")));
+            List.of(new Author("svn 3 guy", "svn.3@gmail.com"),
+                new Author("p4 2 guy", "p4.2@gmail.com")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(1),
-                List.of(new Author("svn 1 guy", "svn.1@gmail.com"),
-                        new Author("svn 2 guy", "svn.2@gmail.com"),
-                        new Author("p4 1 guy", "p4.1@gmail.com")));
+            List.of(new Author("svn 1 guy", "svn.1@gmail.com"),
+                new Author("svn 2 guy", "svn.2@gmail.com"),
+                new Author("p4 1 guy", "p4.1@gmail.com")));
     }
 
     @Test
@@ -671,10 +673,10 @@ public class StageServiceIntegrationTest {
         setup2DependentInstances();
         List<StageIdentity> latestStageInstances = stageService.findLatestStageInstances();
         assertThat(latestStageInstances.size(), is(4));
-        assertThat(latestStageInstances.contains(new StageIdentity("mingle", "dev",8L)),is(true));
-        assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage",13L)),is(true));
-        assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage",14L)),is(true));
-        assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage",10L)),is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("mingle", "dev", 8L)), is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage", 13L)), is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage", 14L)), is(true));
+        assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage", 10L)), is(true));
     }
 
     @Test
@@ -731,18 +733,18 @@ public class StageServiceIntegrationTest {
     private void assertStageEntryAuthor(FeedEntries feed) {
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(0),
-                List.of(new Author("hg 3 guy", "hg.3@gmail.com"),
-                        new Author("git 2&3 guy", "git.2.and.3@gmail.com"),
-                        new Author("svn 3 guy", "svn.3@gmail.com"),
-                        new Author("p4 2 guy", "p4.2@gmail.com")));
+            List.of(new Author("hg 3 guy", "hg.3@gmail.com"),
+                new Author("git 2&3 guy", "git.2.and.3@gmail.com"),
+                new Author("svn 3 guy", "svn.3@gmail.com"),
+                new Author("p4 2 guy", "p4.2@gmail.com")));
 
         assertAuthorsOnEntry((StageFeedEntry) feed.get(1),
-                List.of(new Author("hg 1 guy", "hg.1@gmail.com"),
-                        new Author("hg 2 guy", null),
-                        new Author("git 1 guy", "git.1@gmail.com"),
-                        new Author("svn 1 guy", "svn.1@gmail.com"),
-                        new Author("svn 2 guy", "svn.2@gmail.com"),
-                        new Author("p4 1 guy", "p4.1@gmail.com")));
+            List.of(new Author("hg 1 guy", "hg.1@gmail.com"),
+                new Author("hg 2 guy", null),
+                new Author("git 1 guy", "git.1@gmail.com"),
+                new Author("svn 1 guy", "svn.1@gmail.com"),
+                new Author("svn 2 guy", "svn.2@gmail.com"),
+                new Author("p4 1 guy", "p4.1@gmail.com")));
     }
 
     private void assertAuthorsOnEntry(StageFeedEntry stage2, List<Author> authors) {

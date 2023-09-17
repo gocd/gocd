@@ -47,7 +47,7 @@ class DependencyMaterialTest {
 
     @Test
     void shouldReturnJson() {
-        Map<String, String> json = new LinkedHashMap<>();
+        Map<String, Object> json = new LinkedHashMap<>();
         dependencyMaterial.toJson(json, create("pipeline", 10, "1.0.123", "stage", 1));
 
         assertThat(json.get("location")).isEqualTo("pipeline/stage");

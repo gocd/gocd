@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @understands searching for users(from authentication sources)
+ * Understands searching for users(from authentication sources)
  */
 @Service
 public class UserSearchService {

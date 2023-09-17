@@ -331,24 +331,6 @@ public class MaterialRevisionTest {
     }
 
     @Test
-    public void shouldRecomputeIsChanged() {
-        MaterialRevision original = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2"), oneModifiedFile("rev1")).getMaterialRevision(0);
-        MaterialRevision recomputed = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev1")).getMaterialRevision(0);
-        MaterialRevision recomputedAnother = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev0")).getMaterialRevision(0);
-
-        recomputed.updateRevisionChangedStatus(original);
-        recomputedAnother.updateRevisionChangedStatus(original);
-        assertThat(recomputed.isChanged(), is(false));
-        assertThat(recomputedAnother.isChanged(), is(false));
-
-        original.markAsChanged();
-        recomputed.updateRevisionChangedStatus(original);
-        recomputedAnother.updateRevisionChangedStatus(original);
-        assertThat(recomputed.isChanged(), is(true));
-        assertThat(recomputedAnother.isChanged(), is(false));
-    }
-
-    @Test
     public void shouldRemoveFromThisWhateverModificationIsPresentInThePassedInRevision() {
         MaterialRevision revision = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev2"), oneModifiedFile("rev1")).getMaterialRevision(0);
         MaterialRevision passedIn = createHgMaterialWithMultipleRevisions(1, oneModifiedFile("rev1")).getMaterialRevision(0);

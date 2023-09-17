@@ -56,7 +56,7 @@ import static org.apache.commons.codec.binary.Hex.encodeHexString;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
- * @understands backing up db and config
+ * Understands backing up db and config
  */
 @Service
 public class BackupService implements BackupStatusProvider {

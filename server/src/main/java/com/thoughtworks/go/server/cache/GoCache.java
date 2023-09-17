@@ -37,7 +37,7 @@ import java.util.Set;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * understands storing and retrieving objects from an underlying LRU cache
+ * Understands storing and retrieving objects from an underlying LRU cache
  */
 public class GoCache {
     public static final String SUB_KEY_DELIMITER = "!_#$#_!";

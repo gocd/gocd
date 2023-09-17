@@ -17,9 +17,6 @@ package com.thoughtworks.go.service;
 
 import com.thoughtworks.go.domain.Task;
 
-/**
- * @understands: TaskFactory
- */
 public interface TaskFactory {
     Task taskInstanceFor(String type);
 }

@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.FileSizeUtils;
 
 /**
- * @understands storage measurement
+ * Understands storage measurement
  */
 public class DiskSpace implements Comparable<DiskSpace> {
     private final Long space;

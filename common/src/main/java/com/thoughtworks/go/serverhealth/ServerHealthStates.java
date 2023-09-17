@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.serverhealth;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.BaseCollection;
 
+import java.util.List;
+
 /**
- * @understands a collection of server health states
+ * Understands a collection of server health states
  */
 public class ServerHealthStates extends BaseCollection<ServerHealthState> {
     public ServerHealthStates(List<ServerHealthState> serverHealthStates) {

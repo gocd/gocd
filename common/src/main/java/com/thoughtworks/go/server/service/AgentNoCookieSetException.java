@@ -16,9 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 /**
- *  @understands The situation when an agent does not have cookie set has the same UUID as an other agent and does not have a cookie.
+ *  understands The situation when an agent does not have cookie set has the same UUID as an other agent and does not have a cookie.
 */
-
 public class AgentNoCookieSetException extends RuntimeException {
 
     public AgentNoCookieSetException(String message) {

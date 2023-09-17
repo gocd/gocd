@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.server.service.result.OperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+
 import static java.lang.String.format;
 
-import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-
 /**
- * @understands whether a pipeline is locked
+ * Understands whether a pipeline is locked
  */
 public class PipelineLockChecker implements SchedulingChecker {
     private final String pipelineName;

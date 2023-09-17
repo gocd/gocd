@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @understands when a material update has completed
+ * Understands when a material update has completed
  */
 @Component
 public class MaterialUpdateCompletedTopic extends GoMessageTopic<MaterialUpdateCompletedMessage> {

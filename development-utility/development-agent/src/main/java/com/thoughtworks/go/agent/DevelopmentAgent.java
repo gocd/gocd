@@ -19,7 +19,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.ProcessRunner;
 
 /**
- * @understands how to run a local development mode agent so we can develop live
+ * Understands how to run a local development mode agent so we can develop live
  * Set the following before running the main method:
  * Working directory: <project-path>/agent
  * VM arguments: -Djava.awt.headless=true

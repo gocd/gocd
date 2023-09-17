@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 
 /**
- * @understands when to trigger updates for materials
+ * Understands when to trigger updates for materials
  */
 public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialUpdateListener.class);

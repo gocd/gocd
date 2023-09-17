@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.ParamsConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 
 /**
- * @understands Interpolation of config parameters
+ * Understands Interpolation of config parameters
  */
 public class ConfigParamPreprocessor implements GoConfigPreprocessor {
 

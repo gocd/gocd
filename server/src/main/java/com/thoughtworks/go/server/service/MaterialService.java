@@ -56,7 +56,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * @understands interactions between material-config, repository and modifications
+ * Understands interactions between material-config, repository and modifications
  */
 @Service
 public class MaterialService {

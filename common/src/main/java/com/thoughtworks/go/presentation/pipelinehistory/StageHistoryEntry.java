@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageState;
 
 /**
- * @understands stage details to allow rendering of an entry in stage-history page
+ * Understands stage details to allow rendering of an entry in stage-history page
  */
 public class StageHistoryEntry extends PersistentObject {
     private StageIdentifier identifier;

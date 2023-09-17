@@ -55,7 +55,7 @@ import static java.util.Collections.sort;
 import static java.util.stream.Collectors.toList;
 
 /**
- * @understands grouping of agents and pipelines within an environment
+ * Understands grouping of agents and pipelines within an environment
  */
 @Service
 public class EnvironmentConfigService implements ConfigChangedListener, AgentChangeListener {

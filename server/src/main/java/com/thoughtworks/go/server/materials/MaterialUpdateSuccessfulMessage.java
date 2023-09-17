@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.domain.materials.Material;
 
 /**
- * @understands when a material has been updated successfully
+ * Understands when a material has been updated successfully
  */
 public class MaterialUpdateSuccessfulMessage extends MaterialUpdateCompletedMessage {
     public MaterialUpdateSuccessfulMessage(Material material, long trackingId) {

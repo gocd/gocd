@@ -15,11 +15,7 @@
  */
 package com.thoughtworks.go.server.domain.xml;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.XmlRepresentable;
-import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.DateUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -27,7 +23,7 @@ import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
 
 /**
- * @understands rendering xml representation of Stage
+ * Understands rendering xml representation of Stage
  */
 public class StageXmlViewModel implements XmlRepresentable {
     private final Stage stage;

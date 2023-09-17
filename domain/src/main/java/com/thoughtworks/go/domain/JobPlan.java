@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @understands how to perform a job. This is the persistent version of the JobConfig
+ * Understands how to perform a job. This is the persistent version of the JobConfig
  */
 public interface JobPlan extends Serializable {
     String getPipelineName();

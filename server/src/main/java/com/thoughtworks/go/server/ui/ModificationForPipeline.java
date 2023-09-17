@@ -15,13 +15,11 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import java.util.Set;
-
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.materials.Modification;
 
 /**
- * @understands association of material revisions of a pipeline
+ * Understands association of material revisions of a pipeline
  */
 public class ModificationForPipeline {
     private final PipelineId pipelineId;
@@ -38,10 +36,6 @@ public class ModificationForPipeline {
 
     public PipelineId getPipelineId() {
         return pipelineId;
-    }
-
-    public Set<String> getCardNumbersFromComments() {
-        return modification.getCardNumbersFromComment();
     }
 
     public Author getAuthor() {

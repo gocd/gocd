@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.server.util.Pagination;
 
 /**
- * @understands how to represent a paginated list of stages with pagination
+ * Understands how to represent a paginated list of stages with pagination
 */
 public class StageSummaryModels extends BaseCollection<StageSummaryModel> {
 

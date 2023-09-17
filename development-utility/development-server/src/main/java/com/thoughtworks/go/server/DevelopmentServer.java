@@ -27,7 +27,7 @@ import static com.thoughtworks.go.server.util.GoLauncher.DEFAULT_LOGBACK_CONFIGU
 import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
 
 /**
- * @understands how to run a local development mode webserver so we can develop live
+ * Understands how to run a local development mode webserver so we can develop live
  * Set the following before running the main method:
  * Working directory: <project-path>/server
  * VM arguments:

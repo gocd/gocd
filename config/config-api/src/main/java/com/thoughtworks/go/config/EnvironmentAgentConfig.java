@@ -23,7 +23,7 @@ import static java.lang.String.format;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
- * @understands a reference to an existing agent that is associated to an Environment
+ * Understands a reference to an existing agent that is associated to an Environment
  */
 public class EnvironmentAgentConfig implements Validatable {
     private String uuid;

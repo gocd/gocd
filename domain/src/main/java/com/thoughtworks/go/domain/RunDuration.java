@@ -21,7 +21,7 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
 /**
- * @understands the time taken for a stage to complete
+ * Understands the time taken for a stage to complete
  */
 public abstract class RunDuration  {
     public static final PeriodFormatter PERIOD_FORMATTER =

@@ -16,9 +16,7 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.google.common.collect.Sets;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.Timeout;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +41,8 @@ public class GoQueueTest {
     @Autowired private MessagingService messageService;
     Set<String> receivedMessage = Collections.synchronizedSet(new HashSet<>());
 
-    @BeforeAll
-    public static void beforeClass() {
-        GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
-    }
-
     @Test
-    public void shouldNotifyOneListenerForEachMessage() throws InterruptedException {
+    public void shouldNotifyOneListenerForEachMessage() {
         GoMessageQueue<GoMessage> queue = new GoMessageQueue<>(messageService, "TestQueue");
 
         int numberOfListeners = 2;
@@ -71,7 +64,7 @@ public class GoQueueTest {
 
 
     class StubGoMessageListener implements GoMessageListener<GoMessage> {
-        private int id;
+        private final int id;
 
         public StubGoMessageListener(int id) {
             this.id = id;
@@ -80,16 +73,13 @@ public class GoQueueTest {
         @Override
         public void onMessage(GoMessage message) {
             String text = ((GoTextMessage) message).getText();
-//            System.out.println(
-//                    "Listener - " + id + " thread id=" + Thread.currentThread().getJobId() + " Got message: " + text);
-
             receivedMessage.add(text);
 
             if (id == 0) {
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
 

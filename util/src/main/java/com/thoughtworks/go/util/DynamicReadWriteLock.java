@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * @understands handling of multiple dynamically-created readWriteLocks
+ * Understands handling of multiple dynamically-created readWriteLocks
  */
 public class DynamicReadWriteLock {
     private Map<String, ReadWriteLock> locks = new HashMap<>();

@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 
 /**
- * @understands artifact url for jobs
+ * Understands artifact url for jobs
  */
 public interface ArtifactUrlReader {
     String findArtifactRoot(JobIdentifier identifier) throws IllegalArtifactLocationException;

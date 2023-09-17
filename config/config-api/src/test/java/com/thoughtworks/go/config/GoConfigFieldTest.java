@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoConfigFieldTest {
     public SystemEnvironment systemEnvironment;
-    private ConfigCache configCache = new ConfigCache();
+    private final ConfigCache configCache = new ConfigCache();
 
     @Test
     public void shouldConvertFromXmlToJavaObjectCorrectly() throws Exception {
@@ -60,7 +60,8 @@ public class GoConfigFieldTest {
         assertThat(object.directory, is(nullValue()));
     }
 
-    @Test public void shouldValidateAndConvertOnlyIfAppropriate() {
+    @Test
+    public void shouldValidateAndConvertOnlyIfAppropriate() {
         assertThrows(RuntimeException.class, () -> {
             final Foo object = new Foo();
             final GoConfigFieldWriter field = new GoConfigFieldWriter(Foo.class.getDeclaredField("number"), object, configCache, null);
@@ -75,7 +76,7 @@ public class GoConfigFieldTest {
         systemEnvironment = new SystemEnvironment();
     }
 
-    private class Foo {
+    private static class Foo {
         @ConfigAttribute("number")
         private Long number;
 

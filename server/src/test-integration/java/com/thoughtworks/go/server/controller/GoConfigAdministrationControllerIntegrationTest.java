@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
+import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -31,7 +32,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
-import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayOutputStream;
@@ -39,23 +39,23 @@ import java.io.ByteArrayOutputStream;
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(ClearSingleton.class)
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml"
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml"
 })
 public class GoConfigAdministrationControllerIntegrationTest {
     @Autowired private GoConfigAdministrationController controller;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoFileConfigDataSource dataSource;
     @Autowired private ConfigElementImplementationRegistry registry;
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
     @BeforeEach
@@ -74,7 +74,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
         configHelper.onTearDown();
     }
 
-    @Test public void shouldGetConfigAsXml() throws Exception {
+    @Test
+    public void shouldGetConfigAsXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
 
         controller.getCurrentConfigXml(null, response);
@@ -84,7 +85,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
     }
 
-    @Test public void shouldConflictWhenGivenMd5IsDifferent() throws Exception {
+    @Test
+    public void shouldConflictWhenGivenMd5IsDifferent() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
 
         controller.getCurrentConfigXml("crapy_md5", response);

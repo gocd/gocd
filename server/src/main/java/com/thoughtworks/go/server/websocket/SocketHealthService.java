@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketHealthService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketHealthService.class);
 
-    private ConcurrentHashMap<String, SocketEndpoint> connections = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, SocketEndpoint> connections = new ConcurrentHashMap<>();
 
     public void register(SocketEndpoint socket) {
         connections.put(socket.key(), socket);
@@ -36,6 +36,7 @@ public class SocketHealthService {
         connections.remove(socket.key());
     }
 
+    @SuppressWarnings("unused") // used via Spring
     public void keepalive() {
         connections.forEachValue(25, socket -> {
             try {
@@ -47,7 +48,7 @@ public class SocketHealthService {
                     deregister(socket);
                     socket.close();
                 }
-                LOGGER.error("Failed to ping socket %s", socket.key(), e);
+                LOGGER.error("Failed to ping socket {}", socket.key(), e);
             }
         });
     }

@@ -22,7 +22,7 @@ import org.dom4j.dom.DOMDocument;
 import org.dom4j.dom.DOMElement;
 
 /**
- * @understands rendering xml representation of Job
+ * Understands rendering xml representation of Job
  */
 public class JobXmlViewModel implements XmlRepresentable {
     private final JobInstance jobInstance;

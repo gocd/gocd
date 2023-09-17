@@ -25,7 +25,7 @@ import java.util.*;
 import static java.lang.String.format;
 
 /**
- * @understands a set of variables to be passed to the Agent for a job
+ * Understands a set of variables to be passed to the Agent for a job
  */
 public class EnvironmentVariableContext implements Serializable, SecretParamAware {
 

@@ -904,7 +904,7 @@ public class ChangesetServiceIntegrationTest {
                     grouped.addRevision(revision);
                 }
                 revision.addModifications(materialRevision.getModifications());
-                Collections.sort(revision.getModifications(), PersistentObject.ORDER_DESCENDING_ID);
+                revision.getModifications().sort((Comparator<PersistentObject>) (o1, o2) -> Math.toIntExact(o2.getId() - o1.getId()));
             }
         }
         return grouped.getRevisions();

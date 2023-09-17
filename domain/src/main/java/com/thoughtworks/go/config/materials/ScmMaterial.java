@@ -30,13 +30,14 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
 
 
 /**
- * @understands a source control repository and its configuration
+ * Understands a source control repository and its configuration
  */
 public abstract class ScmMaterial extends AbstractMaterial implements SecretParamAware {
 
@@ -74,7 +75,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     }
 
     @Override
-    public void toJson(Map json, Revision revision) {
+    public void toJson(Map<String, Object> json, Revision revision) {
         json.put("folder", getFolder() == null ? "" : getFolder());
         json.put("scmType", getTypeForDisplay());
         json.put("location", getLocation());
@@ -166,7 +167,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
     @Override
     public void emailContent(StringBuilder content, Modification modification) {
-        content.append(getTypeForDisplay() + ": " + getLocation()).append('\n').append(
+        content.append(getTypeForDisplay()).append(": ").append(getLocation()).append('\n').append(
                 String.format("revision: %s, modified by %s on %s", modification.getRevision(),
                         modification.getUserName(), modification.getModifiedTime()))
                 .append('\n')
@@ -275,7 +276,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
         ScmMaterial that = (ScmMaterial) o;
 
-        return folder != null ? folder.equals(that.folder) : that.folder == null;
+        return Objects.equals(folder, that.folder);
     }
 
     @Override

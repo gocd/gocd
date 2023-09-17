@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -25,8 +23,10 @@ import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
- * @understands how to create material revisions from an already known revision
+ * Understands how to create material revisions from an already known revision
  */
 @Component
 public class SpecificMaterialRevisionFactory {

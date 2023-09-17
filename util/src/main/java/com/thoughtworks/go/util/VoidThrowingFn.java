@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.util;
 
-/**
- * @understands: VoidThrowingFn
- */
 public abstract class VoidThrowingFn<E extends Exception> implements ThrowingFn<Object, E> {
 
     @Override

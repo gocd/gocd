@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.util.Map;
+import java.util.Objects;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
@@ -82,14 +83,14 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    protected void appendCriteria(Map parameters) {
+    protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }
 
     @Override
-    protected void appendAttributes(Map parameters) {
+    protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, url);
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
@@ -126,17 +127,10 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
         SvnMaterialConfig that = (SvnMaterialConfig) o;
 
-        if (checkExternals != that.checkExternals) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
+        return checkExternals == that.checkExternals &&
+            Objects.equals(url, that.url) &&
+            Objects.equals(userName, that.userName);
 
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-        return true;
     }
 
     @Override

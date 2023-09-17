@@ -29,7 +29,7 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENV
 import static java.util.stream.Collectors.toCollection;
 
 /**
- * @understands the current persistent information related to a logical grouping of machines
+ * Understands the current persistent information related to a logical grouping of machines
  */
 @ConfigTag("environment")
 public class BasicEnvironmentConfig implements EnvironmentConfig {

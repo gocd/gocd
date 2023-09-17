@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.plugins;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.registry.ConfigurationExtension;
 
+import java.util.List;
+
 /**
- * @understands extensions that plugins provide and exposes them to Go services
+ * Understands extensions that plugins provide and exposes them to Go services
  */
 public interface PluginExtensions {
     public List<ConfigurationExtension> configTagImplementations();

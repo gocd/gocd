@@ -105,7 +105,7 @@ public class ValueStreamMapPerformanceTest {
                     Thread.sleep(5000);
                     doRun(numberOfDownstreamPipelines, cruiseConfig, "Thread" + finalI);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }, "Thread" + i);
             ts.add(t);

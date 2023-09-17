@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * @understands configuratin for a job
+ * Understands configuratin for a job
  */
 @ConfigTag("job")
 public class JobConfig implements Validatable, ParamsAttributeAware, EnvironmentVariableScope {

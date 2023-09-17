@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.util.Pagination;
 import java.util.Iterator;
 
 /**
- * @understands how to represent a paginated list of jobs on the UI
+ * Understands how to represent a paginated list of jobs on the UI
  */
 public class JobInstancesModel implements Iterable<JobInstance> {
 

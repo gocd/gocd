@@ -35,10 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -206,7 +203,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<TfsMaterialInstance> getInstanceType() {
         return TfsMaterialInstance.class;
     }
 
@@ -224,19 +221,10 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
         TfsMaterial material = (TfsMaterial) o;
 
-        if (projectPath != null ? !projectPath.equals(material.projectPath) : material.projectPath != null) {
-            return false;
-        }
-        if (url != null ? !url.equals(material.url) : material.url != null) {
-            return false;
-        }
-        if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
-            return false;
-        }
-        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
-            return false;
-        }
-        return true;
+        return Objects.equals(projectPath, material.projectPath) &&
+            Objects.equals(url, material.url) &&
+            Objects.equals(domain, material.domain) &&
+            Objects.equals(userName, material.userName);
     }
 
     @Override

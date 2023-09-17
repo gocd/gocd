@@ -22,7 +22,6 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -72,16 +71,8 @@ public final class DummyMaterial extends ScmMaterial {
     }
 
     @Override
-    public Class getInstanceType() {
-        throw new UnsupportedOperationException("dummy material doens't have a type");
-    }
-
-    public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
-        throw unsupported();
-    }
-
-    public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
-        throw unsupported();
+    public Class<MaterialInstance> getInstanceType() {
+        throw new UnsupportedOperationException("dummy material doesn't have a type");
     }
 
     @Override

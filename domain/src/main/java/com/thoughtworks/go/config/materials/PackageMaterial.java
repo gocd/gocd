@@ -120,7 +120,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
     }
 
     @Override
-    public void toJson(Map jsonMap, Revision revision) {
+    public void toJson(Map<String, Object> jsonMap, Revision revision) {
         jsonMap.put("scmType", getTypeForDisplay());
         jsonMap.put("action", "Modified");
         jsonMap.put("location", getUriForDisplay());
@@ -134,9 +134,11 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
 
     @Override
     public void emailContent(StringBuilder content, Modification modification) {
-        content.append(getTypeForDisplay() + " : " + getDisplayName()).append('\n').append(
-                format("revision: %s, completed on %s", modification.getRevision(),
-                        modification.getModifiedTime()));
+        content.append(getTypeForDisplay())
+            .append(" : ")
+            .append(getDisplayName())
+            .append('\n')
+            .append(format("revision: %s, completed on %s", modification.getRevision(), modification.getModifiedTime()));
     }
 
     @Override
@@ -174,7 +176,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
             context.setProperty(getEnvironmentVariableKey("GO_PACKAGE_%s_%s", configurationProperty.getConfigurationKey().getName()),
                     configurationProperty.getResolvedValue(), configurationProperty.isSecure() || configurationProperty.hasSecretParams());
         }
-        HashMap<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
+        Map<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
         if (additionalData != null) {
             for (Map.Entry<String, String> entry : additionalData.entrySet()) {
                 String key = entry.getKey();
@@ -226,7 +228,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
     }
 
     @Override
-    public Class getInstanceType() {
+    public Class<PackageMaterialInstance> getInstanceType() {
         return PackageMaterialInstance.class;
     }
 

@@ -16,15 +16,15 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import org.hamcrest.Matchers;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class PreparingToScheduleInstanceTest {
 
-    @Test public void shouldUnderstandPipelineStatusMessage() throws Exception {
+    @Test
+    public void shouldUnderstandPipelineStatusMessage() {
         StageInstanceModels stages = new StageInstanceModels();
         stages.addFutureStage("unit1", false);
         stages.addFutureStage("unit2", false);
@@ -36,7 +36,7 @@ public class PreparingToScheduleInstanceTest {
 
 
     @Test
-    public void shouldNotReturnNullForScheduledDate() throws Exception {
+    public void shouldNotReturnNullForScheduledDate() {
         PipelineInstanceModel pipeline = PipelineInstanceModel.createPreparingToSchedule("pipeline-name", new StageInstanceModels());
         assertThat(pipeline.getScheduledDate(), is(not(nullValue())));
     }

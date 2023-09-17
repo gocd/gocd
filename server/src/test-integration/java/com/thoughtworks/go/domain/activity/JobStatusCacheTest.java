@@ -43,10 +43,10 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class JobStatusCacheTest {
     @Autowired private GoConfigDao goConfigDao;
@@ -56,12 +56,12 @@ public class JobStatusCacheTest {
     @Autowired private TransactionTemplate transactionTemplate;
 
     private PipelineWithTwoStages pipelineFixture;
-    private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configFileHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
         dbHelper.onSetUp();
-        configFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
+        GoConfigFileHelper.usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
 
         pipelineFixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
@@ -84,7 +84,7 @@ public class JobStatusCacheTest {
         JobInstance expect = pipeline.getStages().byName(pipelineFixture.devStage).getJobInstances().first();
 
         assertThat(jobStatusCache.currentJob(new JobConfigIdentifier(pipelineFixture.pipelineName,
-                pipelineFixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE)), is(expect));
+            pipelineFixture.devStage, PipelineWithTwoStages.JOB_FOR_DEV_STAGE)), is(expect));
     }
 
     @Test
@@ -165,7 +165,8 @@ public class JobStatusCacheTest {
         return instance;
     }
 
-    @Test public void shouldReturnNullWhenNoCurrentJob() {
+    @Test
+    public void shouldReturnNullWhenNoCurrentJob() {
         pipelineFixture.createdPipelineWithAllStagesPassed();
 
         JobConfigIdentifier jobConfigIdentifier = new JobConfigIdentifier(pipelineFixture.pipelineName, pipelineFixture.devStage, "wrong-job");
@@ -189,21 +190,21 @@ public class JobStatusCacheTest {
         assertThat(list.size(), is(2));
     }
 
-	@Test
-	public void shouldFindAllMatchingJobsForJobsThatAreRunMultipleInstance() {
-		JobInstance job1 = JobInstanceMother.instanceForRunMultipleInstance("cruise", "dev", "linux-firefox", "1", 1);
-		JobInstance job2 = JobInstanceMother.instanceForRunMultipleInstance("cruise", "dev", "linux-firefox", "1", 2);
+    @Test
+    public void shouldFindAllMatchingJobsForJobsThatAreRunMultipleInstance() {
+        JobInstance job1 = JobInstanceMother.instanceForRunMultipleInstance("cruise", "dev", "linux-firefox", "1", 1);
+        JobInstance job2 = JobInstanceMother.instanceForRunMultipleInstance("cruise", "dev", "linux-firefox", "1", 2);
 
-		jobStatusCache.jobStatusChanged(job1);
-		jobStatusCache.jobStatusChanged(job2);
+        jobStatusCache.jobStatusChanged(job1);
+        jobStatusCache.jobStatusChanged(job2);
 
-		JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
+        JobConfigIdentifier config = new JobConfigIdentifier("cruise", "dev", "linux-firefox");
 
-		List<JobInstance> list = jobStatusCache.currentJobs(config);
-		assertThat(list, hasItem(job1));
-		assertThat(list, hasItem(job2));
-		assertThat(list.size(), is(2));
-	}
+        List<JobInstance> list = jobStatusCache.currentJobs(config);
+        assertThat(list, hasItem(job1));
+        assertThat(list, hasItem(job2));
+        assertThat(list.size(), is(2));
+    }
 
     @Test
     public void shouldExcludeJobFromOtherPipelines() {

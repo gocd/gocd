@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.server.messaging.GoMessage;
 
 /**
- * @understands when a material update has completed
+ * Understands when a material update has completed
  */
 public class MaterialUpdateCompletedMessage implements GoMessage {
     private final Material material;

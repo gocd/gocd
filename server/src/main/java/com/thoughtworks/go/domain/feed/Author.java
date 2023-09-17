@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 
 /**
-* @understands author of a commit
+* Understands author of a commit
 */
 public class Author {
     private final String name;

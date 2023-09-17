@@ -16,35 +16,36 @@
 package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * @understands: ensures tokenGenerationKey is never changed
+ * Understands: ensures tokenGenerationKey is never changed
  */
 public class TokenGenerationKeyImmutabilityValidator implements GoConfigValidator {
-    private final SystemEnvironment systemEnvironment;
-    private String tokenGenerationKey;
+    private final SystemEnvironment env;
+    private final AtomicReference<String> initialKeyHolder = new AtomicReference<>();
 
-    public TokenGenerationKeyImmutabilityValidator(SystemEnvironment systemEnvironment) {
-        this.systemEnvironment = systemEnvironment;
+    public TokenGenerationKeyImmutabilityValidator(SystemEnvironment env) {
+        this.env = env;
     }
 
     @Override
     public void validate(CruiseConfig cruiseConfig) {
-        ServerConfig server = cruiseConfig.server();
-        String newTokenGenerationKey = server.getTokenGenerationKey();
-        if (tokenGenerationKey == null) {
-            tokenGenerationKey = newTokenGenerationKey;
-        }
-
-        if (tokenGenerationKey == null || tokenGenerationKey.equals(newTokenGenerationKey) || ! systemEnvironment.enforceServerImmutability() ) {
+        String newTokenGenerationKey = cruiseConfig.server().getTokenGenerationKey();
+        if (initialKeyHolder.compareAndSet(null, newTokenGenerationKey)) {
             return;
         }
-        throw new RuntimeException("The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.");
+
+        String initialKey = initialKeyHolder.get();
+        if (!Objects.equals(initialKey, newTokenGenerationKey) && env.enforceServerImmutability()) {
+            throw new RuntimeException("The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.");
+        }
     }
 
-    protected String getTokenGenerationKey() {
-        return tokenGenerationKey;
+    protected String getInitialTokenGenerationKey() {
+        return initialKeyHolder.get();
     }
 }

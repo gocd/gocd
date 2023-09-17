@@ -33,7 +33,7 @@ import java.util.Map;
 import static java.lang.String.format;
 
 /**
- * @understands an environment variable value that will be passed to a job when it is run
+ * Understands an environment variable value that will be passed to a job when it is run
  */
 @ConfigTag("variable")
 public class EnvironmentVariableConfig implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable, SecretParamAware {

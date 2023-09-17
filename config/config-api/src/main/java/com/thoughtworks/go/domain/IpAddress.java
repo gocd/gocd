@@ -21,7 +21,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * @understands the network address for a machine
+ * Understands the network address for a machine
  */
 public class IpAddress implements Comparable<IpAddress> {
     private InetAddress address;

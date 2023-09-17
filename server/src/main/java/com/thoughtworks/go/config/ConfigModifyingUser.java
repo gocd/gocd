@@ -19,7 +19,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 
 /**
- * @understands who modified config for a particular update command
+ * Understands who modified config for a particular update command
  */
 public class ConfigModifyingUser {
     private final String userName;

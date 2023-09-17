@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.presentation;
 
 /**
- * @understands being a view model of whether a pipeline can be deleted or not
+ * Understands being a view model of whether a pipeline can be deleted or not
  */
 public class CanDeleteResult {
     private final boolean canDelete;

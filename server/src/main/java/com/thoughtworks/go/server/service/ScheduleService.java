@@ -166,7 +166,7 @@ public class ScheduleService {
                     }
                 }
             } catch (Throwable e) {
-                LOGGER.error("[Pipeline Schedule] An exception occurred while scheduling the pipeline. {}", e);
+                LOGGER.error("[Pipeline Schedule] An exception occurred while scheduling the pipeline.", e);
             }
         }
     }

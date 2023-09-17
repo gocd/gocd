@@ -19,7 +19,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Revision;
 
 /**
- * @understands empty pipeline instance for scenarios where there is no instance to be shown
+ * Understands empty pipeline instance for scenarios where there is no instance to be shown
  */
 public class EmptyPipelineInstanceModel extends PipelineInstanceModel {
     EmptyPipelineInstanceModel(String pipelineName, BuildCause withEmptyModifications, StageInstanceModels stageHistory) {

@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-/**
- * @understands: NoModificationsPresentForDependentMaterial
- */
 public class NoModificationsPresentForDependentMaterialException extends RuntimeException{
     public NoModificationsPresentForDependentMaterialException(String stageLocator) {
         super(String.format("No modifications found for %s. Material Database Update for this instance has not completed.", stageLocator));

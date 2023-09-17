@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.domain.materials;
 
+import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.ModificationVisitor;
 import com.thoughtworks.go.domain.PersistentObject;
@@ -24,14 +25,10 @@ import com.thoughtworks.go.util.json.JsonHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.TestOnly;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * data structure for holding data about a single modification
@@ -41,9 +38,8 @@ import java.util.regex.Pattern;
  * <comment></comment>
  * <file >
  * </modification>
- *
  */
-public class Modification extends PersistentObject implements Comparable, Serializable {
+public class Modification extends PersistentObject implements Comparable<Modification>, Serializable {
 
     private static final long serialVersionUID = 6102576575583133520L;
 
@@ -55,7 +51,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     private String emailAddress;
     private String revision;
     private String additionalData;
-    private HashMap<String, String> additionalDataMap;
+    private Map<String, String> additionalDataMap;
 
     private Date modifiedTime;
     private Set<ModifiedFile> files = new LinkedHashSet<>();
@@ -96,7 +92,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     public Modification(Modification modification, boolean shouldCopyModifiedFiles) {
         this(modification.userName, modification.comment, modification.emailAddress, modification.modifiedTime, modification.getRevision());
         this.id = modification.id;
-        if(shouldCopyModifiedFiles){
+        if (shouldCopyModifiedFiles) {
             this.files = modification.files;
         }
         this.pipelineLabel = modification.pipelineLabel;
@@ -112,14 +108,14 @@ public class Modification extends PersistentObject implements Comparable, Serial
         return file;
     }
 
-    public HashMap<String, String> getAdditionalDataMap() {
-        return additionalDataMap == null ? new HashMap<>(): additionalDataMap;
+    public Map<String, String> getAdditionalDataMap() {
+        return additionalDataMap == null ? new HashMap<>() : additionalDataMap;
     }
 
 
     public void setAdditionalData(String additionalData) {
         this.additionalData = additionalData;
-        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, HashMap.class);
+        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, new TypeToken<HashMap<String, String>>() {}.getType());
     }
 
     public void setUserName(String name) {
@@ -150,18 +146,16 @@ public class Modification extends PersistentObject implements Comparable, Serial
      * Returns the list of modified files for this modification set.
      *
      * @return list of {@link ModifiedFile} objects. If there are no files, this returns an empty list
-     *         (<code>null</code> is never returned).
+     * (<code>null</code> is never returned).
      */
     public List<ModifiedFile> getModifiedFiles() {
-        return Collections.unmodifiableList(new ArrayList<>(files));
+        return List.copyOf(files);
     }
 
     @Override
-    public int compareTo(Object o) {
-        Modification modification = (Modification) o;
-        return modifiedTime.compareTo(modification.modifiedTime);
+    public int compareTo(Modification o) {
+        return modifiedTime.compareTo(o.modifiedTime);
     }
-
 
     public Date getModifiedTime() {
         return modifiedTime;
@@ -190,7 +184,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     @Override
     public String toString() {
         SimpleDateFormat formatter =
-                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuilder sb = new StringBuilder();
         if (materialInstance != null) {
             sb.append("Material: ").append(materialInstance).append('\n');
@@ -231,48 +225,30 @@ public class Modification extends PersistentObject implements Comparable, Serial
 
         Modification that = (Modification) o;
 
-        if (comment != null ? !comment.equals(that.comment) : that.comment != null) {
-            return false;
-        }
-        if (emailAddress != null ? !emailAddress.equals(that.emailAddress) : that.emailAddress != null) {
-            return false;
-        }
-        if (files != null ? !files.equals(that.files) : that.files != null) {
-            return false;
-        }
-        if (modifiedTime != null ? !modifiedTime.equals(that.modifiedTime) : that.modifiedTime != null) {
-            return false;
-        }
-        if (pipelineId != null ? !pipelineId.equals(that.pipelineId) : that.pipelineId != null) {
-            return false;
-        }
-        if (pipelineLabel != null ? !pipelineLabel.equals(that.pipelineLabel) : that.pipelineLabel != null) {
-            return false;
-        }
-        if (revision != null ? !revision.equals(that.revision) : that.revision != null) {
-            return false;
-        }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-        if (additionalData != null ? !additionalData.equals(that.additionalData) : that.additionalData != null) {
-            return false;
-        }
-
-        return true;
+        // Doesn't include additionalDataMap or materialInstance
+        return Objects.equals(userName, that.userName) &&
+            Objects.equals(comment, that.comment) &&
+            Objects.equals(emailAddress, that.emailAddress) &&
+            Objects.equals(revision, that.revision) &&
+            Objects.equals(additionalData, that.additionalData) &&
+            Objects.equals(modifiedTime, that.modifiedTime) &&
+            Objects.equals(files, that.files) &&
+            Objects.equals(pipelineLabel, that.pipelineLabel) &&
+            Objects.equals(pipelineId, that.pipelineId);
     }
 
     @Override
     public int hashCode() {
+        // Doesn't include additionalDataMap or materialInstance
         int result = userName != null ? userName.hashCode() : 0;
         result = 31 * result + (comment != null ? comment.hashCode() : 0);
         result = 31 * result + (emailAddress != null ? emailAddress.hashCode() : 0);
         result = 31 * result + (revision != null ? revision.hashCode() : 0);
+        result = 31 * result + (additionalData != null ? additionalData.hashCode() : 0);
         result = 31 * result + (modifiedTime != null ? modifiedTime.hashCode() : 0);
         result = 31 * result + (files != null ? files.hashCode() : 0);
         result = 31 * result + (pipelineLabel != null ? pipelineLabel.hashCode() : 0);
         result = 31 * result + (pipelineId != null ? pipelineId.hashCode() : 0);
-        result = 31 * result + (additionalData != null ? additionalData.hashCode() : 0);
         return result;
     }
 
@@ -290,53 +266,8 @@ public class Modification extends PersistentObject implements Comparable, Serial
         return modifications;
     }
 
-    /**
-     * @deprecated Remove this when we do not need to serialize these to the db and agent
-     */
-    @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.writeObject(userName);
-        out.writeObject(comment);
-        out.writeObject(emailAddress);
-        out.writeObject(revision);
-        out.writeObject(additionalData);
-        out.writeObject(additionalDataMap);
-        out.writeObject(modifiedTime);
-        out.writeObject(pipelineLabel);
-        out.writeObject(materialInstance);
-        out.writeObject(new LinkedHashSet<>(files));
-    }
-
-    /**
-     * @deprecated Remove this when we do not need to serialize these to the db and agent
-     */
-    @SuppressWarnings({"PMD.UnusedPrivateMethod", "unused"})
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        userName = (String) in.readObject();
-        comment = (String) in.readObject();
-        emailAddress = (String) in.readObject();
-        revision = (String) in.readObject();
-        additionalData = (String) in.readObject();
-        additionalDataMap = (HashMap) in.readObject();
-        modifiedTime = (Date) in.readObject();
-        pipelineLabel = (String) in.readObject();
-        materialInstance = (MaterialInstance) in.readObject();
-        Set files = (Set) in.readObject();
-        if (files == null) {
-            this.files = new LinkedHashSet<>();
-        } else {
-            this.files = new LinkedHashSet<>(files);
-        }
-    }
-
-    /**
-     * @deprecated Remove this when we do not need to serialize these to the db and agent
-     */
-    private void readObjectNoData() {
-    }
-
     public boolean isSameRevision(Modification that) {
-        return revision != null ? revision.equals(that.revision) : that.revision == null;
+        return Objects.equals(revision, that.revision);
     }
 
     public String getPipelineLabel() {
@@ -346,24 +277,6 @@ public class Modification extends PersistentObject implements Comparable, Serial
     @TestOnly
     public void setPipelineLabel(String pipelineLabel) {
         this.pipelineLabel = pipelineLabel;
-    }
-
-    public Set<String> getCardNumbersFromComment() {
-        Set<String> cardNumbers = new TreeSet<>();
-        Pattern pattern = Pattern.compile("#(\\d+)");
-        String comment = this.comment == null ? "" : this.comment;
-        Matcher matcher = pattern.matcher(comment);
-
-        while (hasMatch(matcher)) {
-            cardNumbers.add(id(matcher));
-            matcher.end();
-        }
-
-        return cardNumbers;
-    }
-
-    private boolean hasMatch(Matcher matcher) {
-        return matcher.find() && id(matcher) != null;
     }
 
     public String id(Matcher matcher) {
@@ -388,7 +301,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
         if (modifications.isEmpty()) {
             throw new RuntimeException("Cannot find oldest revision.");
         } else {
-            return new StringRevision(modifications.get(modifications.size()-1).getRevision());
+            return new StringRevision(modifications.get(modifications.size() - 1).getRevision());
         }
     }
 

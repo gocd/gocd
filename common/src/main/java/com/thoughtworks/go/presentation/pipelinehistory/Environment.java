@@ -18,7 +18,7 @@ package com.thoughtworks.go.presentation.pipelinehistory;
 import java.util.List;
 
 /**
- * @understands history of pipelines run within an environment
+ * Understands history of pipelines run within an environment
  */
 public class Environment {
     private final String name;

@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 
 /**
- * @understands configuration has multiple origins
+ * Understands configuration has multiple origins
  */
 public class MergeConfigOrigin extends BaseCollection<ConfigOrigin> implements ConfigOrigin {
 

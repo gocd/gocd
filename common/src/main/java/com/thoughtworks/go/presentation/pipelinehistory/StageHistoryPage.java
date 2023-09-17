@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import java.util.List;
-
 import com.thoughtworks.go.server.util.Pagination;
 
+import java.util.List;
+
 /**
- * @understands a single page of the stagehistory
+ * Understands a single page of the stagehistory
  */
 public class StageHistoryPage {
     private List<StageHistoryEntry> stages;

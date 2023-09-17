@@ -15,15 +15,15 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.service.TaskFactory;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.service.TaskFactory;
-
 /**
- * @understands how to get the builder to kill all child processes of the current process
+ * Understands how to get the builder to kill all child processes of the current process
  */
 public class KillAllChildProcessTask implements Task, Serializable {
     private final ConfigErrors configErrors = new ConfigErrors();

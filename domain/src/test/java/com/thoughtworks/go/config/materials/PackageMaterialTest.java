@@ -164,7 +164,7 @@ class PackageMaterialTest {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        Map<String, String> jsonMap = new LinkedHashMap<>();
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
         material.toJson(jsonMap, new PackageMaterialRevision("rev123", new Date()));
 
         assertThat(jsonMap.get("scmType")).isEqualTo("Package");

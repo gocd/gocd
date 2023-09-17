@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 public class JsonHelper {
@@ -39,9 +40,8 @@ public class JsonHelper {
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(jsonString, clazz);
     }
 
-    public static <T> T fromJson(final String jsonString) {
-        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().
-                fromJson(jsonString, new TypeToken<T>() {}.getType());
+    public static <T> T fromJson(final String jsonString, Type type) {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(jsonString, type);
     }
 
     public static <T> T safeFromJson(final String jsonString, final Class<T> clazz) {
@@ -52,11 +52,15 @@ public class JsonHelper {
         }
     }
 
-    public static <T> T safeFromJson(final String jsonString) {
+    public static <T> T safeFromJson(final String jsonString, Type type) {
         try {
-            return fromJson(jsonString);
+            return fromJson(jsonString, type);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static <T> T safeFromJson(final String jsonString) {
+        return safeFromJson(jsonString, new TypeToken<T>() {}.getType());
     }
 }

@@ -43,25 +43,15 @@ if (file('build-ext.gradle').exists()) {
 def script = this
 
 def gitRevision = { ->
-  def hashStdOut = new ByteArrayOutputStream()
-  exec {
-    commandLine "git", "log", "-n", "1", "--format=%H"
-    standardOutput = hashStdOut
-    workingDir = script.buildscript.sourceFile.canonicalFile.parent
-  }
-
-  return hashStdOut.toString().trim()
+  def process = "git rev-list HEAD --max-count=1".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
+  process.waitFor()
+  return process.text.stripIndent().trim()
 }
 
 def releaseRevision = { ->
-  def hashStdOut = new ByteArrayOutputStream()
-  exec {
-    commandLine "git", "log", "--pretty=format:"
-    standardOutput = hashStdOut
-    workingDir = script.buildscript.sourceFile.canonicalFile.parent
-  }
-
-  return hashStdOut.size().toString()
+  def process = "git rev-list HEAD --count".execute(null, project.file(script.buildscript.sourceFile.canonicalFile.parent))
+  process.waitFor()
+  return process.text.stripIndent().trim()
 }
 
 def getVersion = { ... args ->

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.domain;
 
 /**
- * @understands why a stage cannot be scheduled
+ * Understands why a stage cannot be scheduled
  */
 public class CannotScheduleException extends RuntimeException {
     private final String stageName;

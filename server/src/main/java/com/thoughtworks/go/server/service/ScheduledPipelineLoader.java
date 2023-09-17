@@ -38,7 +38,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 
 /**
- * @understands loads scheduled pipeline for creating work
+ * Understands loads scheduled pipeline for creating work
  */
 @Component
 public class ScheduledPipelineLoader {

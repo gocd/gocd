@@ -17,9 +17,6 @@ package com.thoughtworks.go.server.view.artifacts;
 
 import org.springframework.web.servlet.ModelAndView;
 
-/**
- * @understands
- */
 public interface ArtifactsView {
     ModelAndView createView(String filePath, String sha) throws Exception;
 }

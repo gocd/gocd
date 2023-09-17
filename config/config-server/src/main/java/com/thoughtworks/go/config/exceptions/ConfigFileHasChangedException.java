@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config.exceptions;
 
 /**
- * @understands the condition when the config file change failed because it has already been changed by someone else
+ * Understands the condition when the config file change failed because it has already been changed by someone else
  */
 public class ConfigFileHasChangedException extends RuntimeException {
     public static final String CONFIG_CHANGED_PLEASE_REFRESH = "Configuration file has been modified by someone else.";

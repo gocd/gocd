@@ -16,7 +16,7 @@
 package com.thoughtworks.cruise.agent.common.launcher;
 
 /**
- * @understands starting agent with lock file management
+ * Understands starting agent with lock file management
  */
 public interface AgentLauncher {
 

@@ -22,7 +22,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * @understands mapping cruise-config attribute mapping to domain object
+ * Understands mapping cruise-config attribute mapping to domain object
  */
 @Retention(RUNTIME)
 @Target(TYPE)

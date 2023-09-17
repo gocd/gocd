@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.Stage;
@@ -29,8 +26,11 @@ import com.thoughtworks.go.server.util.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @understands fetching modifications from local stages
+ * Understands fetching modifications from local stages
  */
 @Component
 public class LocalDependencyMaterialSourceDao implements DependencyMaterialSourceDao {

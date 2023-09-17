@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.preprocessor;
 import com.thoughtworks.go.config.ParamsConfig;
 
 /**
- * @understands creating a com.thoughtworks.go.config.preprocessor.ParamHandler
+ * Understands creating a com.thoughtworks.go.config.preprocessor.ParamHandler
  */
 public interface ParamHandlerFactory {
     ParamHandler createHandler(Object resolvable, String fieldName, String stringToResolve);

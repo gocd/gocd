@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.domain;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+
+import java.util.List;
 
 /**
- * @understands pipeline instance's reference to modifications
+ * Understands pipeline instance's reference to modifications
  */
 public class PipelineMaterialRevision extends PersistentObject {
     private String name;

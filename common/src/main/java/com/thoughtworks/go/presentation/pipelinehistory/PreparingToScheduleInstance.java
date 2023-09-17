@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.materials.Revision;
 import java.util.Date;
 
 /**
- * @understands a pipeline that is preparing to schedule
+ * Understands a pipeline that is preparing to schedule
  */
 public class PreparingToScheduleInstance extends PipelineInstanceModel {
 

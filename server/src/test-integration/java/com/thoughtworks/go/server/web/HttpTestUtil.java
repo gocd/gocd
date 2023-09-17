@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
- * @understands test http server that is used to test http client code end-to-end
+ * Understands test http server that is used to test http client code end-to-end
  * <p>
  * Flicked from https://github.com/test-load-balancer/tlb (pre http-components) e19d4911b089eeaf1a2c
  */

@@ -20,7 +20,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Date;
 
 /**
- * @understands a material revision which matches a search criteria
+ * Understands a material revision which matches a search criteria
  */
 public class MatchedRevision {
     private final String searchString;

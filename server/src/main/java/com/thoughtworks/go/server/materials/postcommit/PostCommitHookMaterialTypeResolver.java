@@ -15,17 +15,17 @@
  */
 package com.thoughtworks.go.server.materials.postcommit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.server.materials.postcommit.git.GitPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.mercurial.MercurialPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.pluggablescm.PluggableSCMPostCommitHookImplementer;
 import com.thoughtworks.go.server.materials.postcommit.svn.SvnPostCommitHookImplementer;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @understands: All Materials that can use the post commit hook feature
+ * Understands: All Materials that can use the post commit hook feature
  */
 @Component
 public class PostCommitHookMaterialTypeResolver {

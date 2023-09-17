@@ -26,7 +26,7 @@ import java.util.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
- * @understands pipeline group configuration in many parts.
+ * Understands pipeline group configuration in many parts.
  * <p>
  * Composite of many pipeline configuration parts.
  */

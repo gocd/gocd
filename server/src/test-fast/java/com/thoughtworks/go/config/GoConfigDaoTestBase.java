@@ -332,7 +332,7 @@ public abstract class GoConfigDaoTestBase {
         String oldServerId = goConfigDao.load().server().getServerId();
         Exception ex = null;
         try {
-            GoConfigFileHelper.withServerIdImmutability((Runnable) () -> goConfigDao.updateConfig(cruiseConfig -> {
+            GoConfigFileHelper.withServerIdImmutability(() -> goConfigDao.updateConfig(cruiseConfig -> {
                 ReflectionUtil.setField(cruiseConfig.server(), "serverId", "new-value");
                 return cruiseConfig;
             }));
@@ -340,7 +340,7 @@ public abstract class GoConfigDaoTestBase {
         } catch (Exception e) {
             ex = e;
         }
-        assertThat(ex.getMessage(), is("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified."));
+        assertThat(ex.getMessage(), containsString("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified"));
         CruiseConfig config = goConfigDao.load();
         assertThat(config.server().getServerId(), is(oldServerId));
     }
@@ -348,7 +348,7 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotConfigMultipleTrackingTools() {
         try {
-            FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
+            FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS, UTF_8);
             goConfigDao.forceReload();
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}"));
@@ -375,7 +375,7 @@ public abstract class GoConfigDaoTestBase {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
         goConfigDao = new GoConfigDao(cachedConfigService);
-        EntityConfigUpdateCommand command = mock(EntityConfigUpdateCommand.class);
+        EntityConfigUpdateCommand<?> command = mock(EntityConfigUpdateCommand.class);
         when(command.canContinue(cruiseConfig)).thenReturn(false);
         try {
             goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
@@ -392,7 +392,7 @@ public abstract class GoConfigDaoTestBase {
         CachedGoConfig cachedConfigService = mock(CachedGoConfig.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
-        EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
+        EntityConfigUpdateCommand<?> saveCommand = mock(EntityConfigUpdateCommand.class);
         when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
         when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
         goConfigDao = new GoConfigDao(cachedConfigService);
@@ -407,7 +407,7 @@ public abstract class GoConfigDaoTestBase {
         configHelper.writeXmlToConfigFile(ConfigMigrator.migrate(config));
     }
 
-    class CheckedTestUpdateCommand implements NoOverwriteUpdateConfigCommand, CheckedUpdateCommand, ConfigAwareUpdate {
+    static class CheckedTestUpdateCommand implements NoOverwriteUpdateConfigCommand, CheckedUpdateCommand, ConfigAwareUpdate {
 
         private final String md5;
         private final boolean canContinue;

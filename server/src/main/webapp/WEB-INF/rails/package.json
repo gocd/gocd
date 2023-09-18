@@ -5,7 +5,7 @@
   "scripts": {
     "webpack-watch": "cross-env NODE_OPTIONS=\"--max_old_space_size=1280\" webpack --config webpack/config/webpack.config.ts --color --mode=development --watch",
     "webpack-dev": "cross-env NODE_OPTIONS=\"--max_old_space_size=1280\" webpack --config webpack/config/webpack.config.ts --color --mode=development",
-    "webpack-prod": "cross-env NODE_OPTIONS=\"--max_old_space_size=1280 --openssl-legacy-provider\" webpack --config webpack/config/webpack.config.ts --color --mode=production",
+    "webpack-prod": "cross-env NODE_OPTIONS=\"--max_old_space_size=1280\" webpack --config webpack/config/webpack.config.ts --color --mode=production",
     "jasmine-ci": "karma start --single-run",
     "jasmine-server": "karma start",
     "jasmine-old-ci": "jasmine-browser-runner runSpecs --config=spec/javascripts/support/jasmine-browser.js",
@@ -130,7 +130,8 @@
     "webpack-cli": "^4.10.0"
   },
   "resolutions": {
-    "chokidar@npm:2.1.8/glob-parent": "^5.1.2"
+    "chokidar@npm:2.1.8/glob-parent": "^5.1.2",
+    "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3"
   },
   "packageManager": "yarn@3.6.3"
 }

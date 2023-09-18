@@ -200,6 +200,14 @@
   </suppress>
 
   <suppress>
+   <notes><![CDATA[
+    GoCD is not affected by https://nvd.nist.gov/vuln/detail/CVE-2023-36479 since it does not use CgiServlet or CGI at all.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlets@.*$</packageUrl>
+    <cve>CVE-2023-36479</cve>
+  </suppress>
+
+  <suppress>
     <notes><![CDATA[
     GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of

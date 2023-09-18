@@ -36,7 +36,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
     }
 
     private Map<String, Object> getThreadCount(ThreadMXBean threadMXBean) {
-        LinkedHashMap<String, Object> count = new LinkedHashMap<>();
+        Map<String, Object> count = new LinkedHashMap<>();
         count.put("Current", threadMXBean.getThreadCount());
         count.put("Total", threadMXBean.getTotalStartedThreadCount());
         count.put("Daemon", threadMXBean.getDaemonThreadCount());
@@ -45,22 +45,18 @@ public class ThreadInformationProvider implements ServerInfoProvider {
     }
 
     private Map<String, Object> getDeadLockThreadInformation(ThreadMXBean threadMXBean) {
-        LinkedHashMap<String, Object> json = new LinkedHashMap<>();
+        Map<String, Object> json = new LinkedHashMap<>();
         long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
 
         if (deadlockedThreads != null && deadlockedThreads.length > 0) {
             json.put("Count", deadlockedThreads.length);
             for (long deadlockedThread : deadlockedThreads) {
-                LinkedHashMap<String, Object> threadsInfo = new LinkedHashMap<>();
-                LinkedHashMap<String, Object> lockedMonitorsInfo = new LinkedHashMap<>();
-                LinkedHashMap<String, Object> stackTrackInfo = new LinkedHashMap<>();
+                Map<String, Object> threadsInfo = new LinkedHashMap<>();
+                Map<String, Object> lockedMonitorsInfo = new LinkedHashMap<>();
+                Map<String, Object> stackTrackInfo = new LinkedHashMap<>();
                 ThreadInfo threadInfo = threadMXBean.getThreadInfo(deadlockedThread);
                 LockInfo lockInfo = threadInfo.getLockInfo();
-                if (lockInfo != null) {
-                    threadsInfo.put(threadInfo.getThreadName(), lockInfo);
-                } else {
-                    threadsInfo.put(threadInfo.getThreadName(), "This thread is not waiting for any locks");
-                }
+                threadsInfo.put(threadInfo.getThreadName(), Objects.requireNonNullElse(lockInfo, "This thread is not waiting for any locks"));
                 MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
                 for (MonitorInfo lockedMonitor : lockedMonitors) {
                     lockedMonitorsInfo.put("Monitor for class " + lockedMonitor.getClassName(), "taken at stack frame " + lockedMonitor.getLockedStackFrame());
@@ -86,20 +82,9 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("CPUTime(nanoseconds)", threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
             threadStackTrace.put("DaemonThreadInfo", daemonThreadStatsCollector.statsFor(threadInfo.getThreadId()));
             threadStackTrace.put("AllocatedMemory(Bytes)", getAllocatedMemory(threadInfo));
+
             Map<String, Object> lockMonitorInfo = new LinkedHashMap<>();
-            MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
-            List<Map<String, Object>> lockedMonitorsJson = new ArrayList<>();
-
-            for (MonitorInfo lockedMonitor : lockedMonitors) {
-                LinkedHashMap<String, Object> lockedMonitorJson = new LinkedHashMap<>();
-                lockedMonitorJson.put("Class", lockedMonitor.getClassName());
-                lockedMonitorJson.put("IdentityHashCode", lockedMonitor.getIdentityHashCode());
-                lockedMonitorJson.put("LockedStackDepth", lockedMonitor.getLockedStackDepth());
-                lockedMonitorJson.put("StackFrame", lockedMonitor.getLockedStackFrame().toString());
-                lockedMonitorsJson.add(lockedMonitorJson);
-            }
-
-            lockMonitorInfo.put("Locked Monitors", lockedMonitorsJson);
+            lockMonitorInfo.put("Locked Monitors", asJSON(threadInfo.getLockedMonitors()));
             lockMonitorInfo.put("Locked Synchronizers", asJSON(threadInfo.getLockedSynchronizers()));
             threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
 
@@ -147,13 +132,27 @@ public class ThreadInformationProvider implements ServerInfoProvider {
 
     }
 
+    private List<Map<String, Object>> asJSON(MonitorInfo[] lockedMonitors) {
+        List<Map<String, Object>> json = new ArrayList<>();
+
+        for (MonitorInfo lockedMonitor : lockedMonitors) {
+            Map<String, Object> lockedMonitorJson = new LinkedHashMap<>();
+            lockedMonitorJson.put("Class", lockedMonitor.getClassName());
+            lockedMonitorJson.put("IdentityHashCode", lockedMonitor.getIdentityHashCode());
+            lockedMonitorJson.put("LockedStackDepth", lockedMonitor.getLockedStackDepth());
+            lockedMonitorJson.put("StackFrame", lockedMonitor.getLockedStackFrame().toString());
+            json.add(lockedMonitorJson);
+        }
+        return json;
+    }
+
     private List<Map<String, Object>> asJSON(LockInfo[] lockInfos) {
-        List<Map<String, Object>> objects = new ArrayList<>();
+        List<Map<String, Object>> json = new ArrayList<>();
 
         for (LockInfo lockInfo : lockInfos) {
-            objects.add(asJSON(lockInfo));
+            json.add(asJSON(lockInfo));
         }
-        return objects;
+        return json;
     }
 
     private Map<String, Object> asJSON(LockInfo lockInfo) {

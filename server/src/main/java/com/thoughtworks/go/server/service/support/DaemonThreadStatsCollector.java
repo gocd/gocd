@@ -18,41 +18,41 @@ package com.thoughtworks.go.server.service.support;
 import org.springframework.stereotype.Component;
 
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class DaemonThreadStatsCollector {
-    private final ConcurrentHashMap<Long, Info> cpuInfoConcurrentHashMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Info> cpuInfoByThreadId = new ConcurrentHashMap<>();
 
     public void captureStats(long threadId) {
-        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        long threadCpuTime = threadMXBean.getThreadCpuTime(threadId);
-        cpuInfoConcurrentHashMap.put(threadId, new Info(threadCpuTime, UUID.randomUUID().toString()));
+        long threadCpuTime = ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId);
+        if (threadCpuTime != -1 ) {
+            cpuInfoByThreadId.put(threadId, new Info(threadCpuTime, UUID.randomUUID().toString()));
+        }
     }
 
     public void clearStats(long threadId) {
-        cpuInfoConcurrentHashMap.remove(threadId);
+        cpuInfoByThreadId.remove(threadId);
     }
 
     public Map<String, Object> statsFor(long threadId) {
-        if (!cpuInfoConcurrentHashMap.containsKey(threadId)) {
+        Info info = cpuInfoByThreadId.get(threadId);
+        long end = ManagementFactory.getThreadMXBean().getThreadCpuTime(threadId);
+        if (info == null || end == -1) {
             return null;
         }
-        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        long end = threadMXBean.getThreadCpuTime(threadId);
-        Info info = cpuInfoConcurrentHashMap.get(threadId);
-        Long start = info.time;
-        HashMap<String, Object> map = new HashMap<>();
+        long start = info.time;
+        Map<String, Object> map = new HashMap<>();
         map.put("CPUTime(nanoseconds)", end - start);
         map.put("UUID", info.uuid);
         return map;
     }
 
-    private class Info {
+    private static class Info {
         public long time;
         public String uuid;
 

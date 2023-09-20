@@ -210,7 +210,7 @@
   <suppress>
     <notes><![CDATA[
     This is a false positive caused by inaccuracy in NVD version data at https://nvd.nist.gov/vuln/detail/CVE-2023-4759 - the issue
-    is fixed in jgit 6.7.0 and onwards.
+    is fixed in jgit 6.7.0 and onwards. See https://github.com/jeremylong/DependencyCheck/issues/5943
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jgit/org\.eclipse\.jgit@6\.[7-9].*$</packageUrl>
     <cve>CVE-2023-4759</cve>

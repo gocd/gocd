@@ -201,7 +201,7 @@ GEM
       rake (>= 13.0.0)
     sass-embedded (1.68.0-x86_64-linux-gnu)
       google-protobuf (~> 3.23)
-    sassc-embedded (1.68.1)
+    sassc-embedded (1.68.2)
       sass-embedded (~> 1.68)
     sassc-rails (2.1.2)
       railties (>= 4.0.0)

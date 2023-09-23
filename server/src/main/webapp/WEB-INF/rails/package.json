@@ -17,8 +17,7 @@
     "tslint": "yarn run tslint:prod && yarn run tslint:spec",
     "tslint:prod": "tslint --format stylish --project webpack/tsconfig.json --config tslint.json",
     "tslint:spec": "tslint --format stylish --project spec/tsconfig.json --config tslint.json",
-    "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix",
-    "postinstall": "patch-package --patch-dir spec/javascripts/support"
+    "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.2",
@@ -105,8 +104,6 @@
     "mini-css-extract-plugin": "^1.6.2",
     "mockdate": "^3.0.5",
     "optimize-css-assets-webpack-plugin": "^6.0.1",
-    "patch-package": "^8.0.0",
-    "postinstall-postinstall": "^2.1.0",
     "sass": "^1.68.0",
     "sass-loader": "^10.4.1",
     "simulate-event": "^1.4.0",
@@ -131,7 +128,8 @@
   },
   "resolutions": {
     "chokidar@npm:2.1.8/glob-parent": "^5.1.2",
-    "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3"
+    "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3",
+    "jasmine-browser-runner@^2.3.0": "patch:jasmine-browser-runner@npm%3A2.3.0#./.yarn/patches/jasmine-browser-runner-npm-2.3.0-40f5d8899b.patch"
   },
   "packageManager": "yarn@3.6.3"
 }

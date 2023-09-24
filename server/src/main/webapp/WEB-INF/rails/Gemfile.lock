@@ -79,15 +79,12 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
-    coderay (1.1.3)
     concurrent-ruby (1.2.2)
     crass (1.0.6)
     date (3.3.3)
     date (3.3.3-java)
     diff-lcs (1.5.0)
     erubi (1.12.0)
-    ffi (1.16.1)
-    ffi (1.16.1-java)
     globalid (1.2.1)
       activesupport (>= 6.1)
     google-protobuf (3.24.3-java)
@@ -124,13 +121,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
-    pry (0.14.2-java)
-      coderay (~> 1.1)
-      method_source (~> 1.0)
-      spoon (~> 0.0)
-    pry-debugger-jruby (2.1.1-java)
-      pry (>= 0.13, < 0.15)
-      ruby-debug-base (>= 0.10.4, < 0.12)
     public_suffix (5.0.3)
     racc (1.7.1)
     racc (1.7.1-java)
@@ -196,7 +186,6 @@ GEM
     rspec-support (3.12.1)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
-    ruby-debug-base (0.11.0-java)
     sass-embedded (1.68.0)
       google-protobuf (~> 3.23)
       rake (>= 13.0.0)
@@ -210,8 +199,6 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    spoon (0.0.6)
-      ffi
     sprockets (4.2.1)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -245,7 +232,6 @@ PLATFORMS
 DEPENDENCIES
   capybara
   js-routes
-  pry-debugger-jruby
   rails
   rails-controller-testing
   rspec-instafail

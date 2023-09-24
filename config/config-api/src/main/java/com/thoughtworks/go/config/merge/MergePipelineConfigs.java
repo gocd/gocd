@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.merge;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
+import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -494,7 +494,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     @Override
-    public void accept(PiplineConfigVisitor visitor) {
+    public void accept(PipelineConfigVisitor visitor) {
         for (PipelineConfig pipelineConfig : this) {
             visitor.visit(pipelineConfig);
         }

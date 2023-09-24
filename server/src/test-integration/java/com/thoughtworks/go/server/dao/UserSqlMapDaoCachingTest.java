@@ -70,8 +70,8 @@ public class UserSqlMapDaoCachingTest {
     @Test
     public void shouldCacheUserOnFind() {
         User first = new User("first");
-        first.addNotificationFilter(new NotificationFilter("pipline", "stage1", StageEvent.Fails, true));
-        first.addNotificationFilter(new NotificationFilter("pipline", "stage2", StageEvent.Fails, true));
+        first.addNotificationFilter(new NotificationFilter("pipeline", "stage1", StageEvent.Fails, true));
+        first.addNotificationFilter(new NotificationFilter("pipeline", "stage2", StageEvent.Fails, true));
         int originalUserCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName()).getEntries().size();
         int originalNotificationsCacheSize = sessionFactory.getStatistics().getSecondLevelCacheStatistics(User.class.getCanonicalName() + ".notificationFilters").getEntries().size();
         userDao.saveOrUpdate(first);

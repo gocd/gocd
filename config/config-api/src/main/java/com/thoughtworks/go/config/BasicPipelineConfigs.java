@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
+import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -219,7 +219,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public void accept(PiplineConfigVisitor visitor) {
+    public void accept(PipelineConfigVisitor visitor) {
         for (PipelineConfig pipelineConfig : this) {
             visitor.visit(pipelineConfig);
         }

@@ -18,7 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
+import com.thoughtworks.go.domain.PipelineConfigVisitor;
 
 import java.util.List;
 import java.util.Map;
@@ -72,7 +72,7 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     Authorization getAuthorization();
 
-    void accept(PiplineConfigVisitor visitor);
+    void accept(PipelineConfigVisitor visitor);
 
     void setAuthorization(Authorization authorization);
 

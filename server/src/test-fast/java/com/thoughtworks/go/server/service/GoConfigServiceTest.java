@@ -519,7 +519,7 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnDependentPiplinesForAGivenPipeline() {
+    public void shouldReturnDependentPipelinesForAGivenPipeline() {
         PipelineConfig up = createPipelineConfig("blahPipeline", "blahStage");
         up.addMaterialConfig(MaterialConfigsMother.hgMaterialConfig());
         PipelineConfig down1 = GoConfigMother.createPipelineConfigWithMaterialConfig("down1", new DependencyMaterialConfig(new CaseInsensitiveString("blahPipeline"), new CaseInsensitiveString("blahStage")));

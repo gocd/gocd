@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.domain.PiplineConfigVisitor;
+import com.thoughtworks.go.domain.PipelineConfigVisitor;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -207,7 +207,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         synchronized (pipelines) {
-            newCruiseConfig.accept((PiplineConfigVisitor) pipelineConfig -> addPipelineIfNotPresent(pipelineConfig, pipelines));
+            newCruiseConfig.accept((PipelineConfigVisitor) pipelineConfig -> addPipelineIfNotPresent(pipelineConfig, pipelines));
 
             List<String> deletedPipeline = new ArrayList<>();
             for (String pipelineName : pipelines.keySet()) {

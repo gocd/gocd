@@ -374,7 +374,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("expected pipline " + pipeline.getName() + " with counter " + pipeline.getCounter());
+                description.appendText("expected pipeline " + pipeline.getName() + " with counter " + pipeline.getCounter());
             }
         };
     }

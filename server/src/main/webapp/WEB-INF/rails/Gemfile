@@ -19,15 +19,9 @@ platforms :jruby do
     gem 'ts_routes'
   end
 
-  group :development, :test do
-    # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
-    gem 'pry-debugger-jruby'
-  end
-
   group :test do
     gem 'capybara'
     gem 'rspec-rails'
-    gem 'rspec-instafail', require: false
     gem 'rspec_junit_formatter'
     gem 'rails-controller-testing'
   end

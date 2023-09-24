@@ -51,9 +51,9 @@ describe StagesController do
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(nil)
     allow(@go_config_service).to receive(:isPipelineEditable)
 
-    @pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
+    @pim = PipelineHistoryMother.singlePipeline("pipeline-name", StageInstanceModels.new)
     allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
-    allow(controller).to receive(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
+    allow(controller).to receive(:pipeline_lock_service).and_return(@pipeline_lock_service=double())
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
     allow(@localized_result).to receive(:isSuccessful).and_return(true)
   end
@@ -68,7 +68,7 @@ describe StagesController do
       allow(@stage_service).to receive(:findStageHistoryPage).and_return(@stage_history = stage_history_page(3))
       allow(@pipeline_history_service).to receive(:validate).with("pipeline", @user, @status)
       allow(@pipeline_history_service).to receive(:findPipelineInstance).and_return(:pim)
-      allow(@pipieline_lock_service).to receive(:lockedPipeline).and_return(@pipeline_identifier)
+      allow(@pipeline_lock_service).to receive(:lockedPipeline).and_return(@pipeline_identifier)
       allow(@status).to receive(:canContinue).and_return(true)
     end
 
@@ -92,7 +92,7 @@ describe StagesController do
       stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
       allow(@status).to receive(:canContinue).and_return(true)
 
       get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
@@ -102,9 +102,9 @@ describe StagesController do
 
     describe "rerun_jobs" do
       before(:each) do
+        @schedule_service = stub_service(:schedule_service)
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
         expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
-        @schedule_service = stub_service(:schedule_service)
         stub_current_config
       end
 
@@ -136,7 +136,7 @@ describe StagesController do
       end
     end
 
-    it "should resolve url with dots in pipline and stage name" do
+    it "should resolve url with dots in pipeline and stage name" do
       expect(:get => "/pipelines/blah.pipe-line/1/_blah.stage/1").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "blah.pipe-line", :stage_name => "_blah.stage", :pipeline_counter => "1", :stage_counter => "1"})
       expect(controller.send(:stage_detail_tab_path_for, :pipeline_counter => "1", :pipeline_name => "blah.pipe-line", :stage_counter => "1", :stage_name => "_blah.stage")).to eq("/pipelines/blah.pipe-line/1/_blah.stage/1")
     end
@@ -164,7 +164,7 @@ describe StagesController do
       expect(response.status).to eq 404
     end
 
-    it "should resolve piplines/stage-locator to the stage action" do
+    it "should resolve pipelines/stage-locator to the stage action" do
       expect(:get => "/pipelines/pipeline_name/10/stage_name/2").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2"})
       expect(controller.send(:stage_detail_tab_path_for, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2")).to eq("/pipelines/pipeline_name/10/stage_name/2")
     end
@@ -194,29 +194,29 @@ describe StagesController do
       allow(@status).to receive(:canContinue).and_return(true)
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
       get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => 'xml'}
 
       redirect_url = "/go/api/feed/pipelines/#{@stage_summary_model.getPipelineName()}/#{@stage_summary_model.getPipelineCounter()}/#{@stage_summary_model.getName()}/#{@stage_summary_model.getStageCounter()}"
       expect(response).to redirect_to redirect_url
     end
 
-    it "should resolve piplines/stage-locator to the stage action" do
+    it "should resolve pipelines/stage-locator to the stage action" do
       expect(:get => "/pipelines/pipeline_name/10/stage_name/2.xml").to route_to({:controller => "stages", :action => 'overview', :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "xml"})
       expect(controller.send(:stage_detail_tab_path_for, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "xml")).to eq("/pipelines/pipeline_name/10/stage_name/2.xml")
     end
 
-    it "should load pipline instance " do
+    it "should load pipeline instance " do
       stub_current_config
       now = org.joda.time.DateTime.new
-      pim = PipelineHistoryMother.singlePipeline("pipline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate()),
+      pim = PipelineHistoryMother.singlePipeline("pipeline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate()),
                                                                                                               PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).toDate())]))
       stage_summary_model=StageSummaryModel.new(stage_instance = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("blah-pipeline-name", 12, "stage-0", "3"), @user, @localized_result).and_return(stage_summary_model)
       stage_instance.setPipelineId(100)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("blah-pipeline-name", 12, 100, @user, @status).and_return(pim)
       allow(@pipeline_history_service).to receive(:validate).with("blah-pipeline-name", @user, @status)
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("blah-pipeline-name").and_return(@pipeline_identifier)
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("blah-pipeline-name").and_return(@pipeline_identifier)
       allow(@status).to receive(:canContinue).and_return(true)
       expect(@localized_result).to receive(:isSuccessful).and_return(true)
 
@@ -238,7 +238,7 @@ describe StagesController do
       stub_current_config
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(@stage_summary_model)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
       allow(@status).to receive(:canContinue).and_return(true)
 
       get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
@@ -505,7 +505,7 @@ describe StagesController do
       allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
       allow(@status).to receive(:canContinue).and_return(true)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
       expect(@stage_service).to receive(:findStageHistoryForChart).with("pipeline-name", "stage", 2, StagesController::STAGE_DURATION_RANGE).and_return(models = StageSummaryModels.new)
 
       get :stats_iframe, params:{:pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"}
@@ -545,7 +545,7 @@ describe StagesController do
       models = StageSummaryModels.new
       models.addAll(stage_summary_models)
       models.setPagination(Pagination.pageStartingAt(12, 200, 10))
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
       stage_iden = stage_summary_models[0].getStage().getIdentifier()
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_iden, @user, @localized_result).and_return(stage_summary_models[0])
       allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
@@ -575,7 +575,7 @@ describe StagesController do
     end
 
     def setup_stubs(stage_summary_model)
-      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
+      expect(@pipeline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
       expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_summary_model.getStage().getIdentifier(), @user, @localized_result).and_return(stage_summary_model)
       allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
       expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)

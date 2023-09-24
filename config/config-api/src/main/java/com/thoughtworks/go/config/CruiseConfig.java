@@ -107,7 +107,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     void accept(TaskConfigVisitor visitor);
 
-    void accept(PiplineConfigVisitor visitor);
+    void accept(PipelineConfigVisitor visitor);
 
     void setGroup(PipelineGroups pipelineGroups);
 

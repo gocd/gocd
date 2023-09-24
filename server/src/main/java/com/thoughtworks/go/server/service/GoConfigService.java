@@ -416,7 +416,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return currentCruiseConfig().isSmtpEnabled();
     }
 
-    public void accept(PiplineConfigVisitor visitor) {
+    public void accept(PipelineConfigVisitor visitor) {
         getCurrentConfig().accept(visitor);
     }
 

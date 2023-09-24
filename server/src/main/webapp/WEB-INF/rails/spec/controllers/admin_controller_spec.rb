@@ -18,7 +18,6 @@ require 'rails_helper'
 
 describe AdminController do
   before do
-    @go_config_service = stub_service(:go_config_service)
     mother = GoConfigMother.new()
     @cruise_config = mother.cruiseConfigWithPipelineUsingTwoMaterials()
     @user = current_user

@@ -79,8 +79,8 @@ public class StageAsDMR {
         return pipelineId;
     }
 
-    public void setPipelineId(Long piplineId) {
-        this.pipelineId = piplineId;
+    public void setPipelineId(Long pipelineId) {
+        this.pipelineId = pipelineId;
     }
 
     @Override public String toString() {

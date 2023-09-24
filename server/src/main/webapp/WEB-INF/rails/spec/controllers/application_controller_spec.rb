@@ -141,9 +141,6 @@ describe ApplicationController do
     end
 
     it "should populate the config file validity for every request" do
-      go_config_service = stub_service(:go_config_service)
-      expect(go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-
       get :index
 
       expect(assigns[:config_valid]).to eq(true)
@@ -161,8 +158,6 @@ describe ApplicationController do
       @routes.draw do
         get "/anonymous/test_action"
       end
-      config_service = stub_service(:go_config_service)
-      allow(config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid)
     end
 
     it "should set the current user as @user on set_current_user" do

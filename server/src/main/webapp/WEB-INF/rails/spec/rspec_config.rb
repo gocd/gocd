@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-require 'rspec/instafail'
 RSpec.configure do |config|
 # Use color not only in STDOUT but also in pagers and files
   config.tty = true
@@ -24,7 +23,6 @@ RSpec.configure do |config|
 
   config.add_formatter :documentation
   config.add_formatter RspecJunitFormatter, File.join(ENV['REPORTS_DIR'] || Rails.root.join('tmp/reports'), 'spec_full_report.xml')
-  config.add_formatter RSpec::Instafail
   config.include AuthenticationSpecHelper
   config.include MiscSpecExtensions
 

@@ -17,6 +17,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.PipelineConfig;
 
-public interface PiplineConfigVisitor {
+public interface PipelineConfigVisitor {
     void visit(PipelineConfig pipelineConfig);
 }

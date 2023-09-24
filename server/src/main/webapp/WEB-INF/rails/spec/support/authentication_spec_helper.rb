@@ -56,17 +56,6 @@ module AuthenticationSpecHelper
     allow(@security_service).to receive(:isUserAdminOfGroup).with(anything, anything).and_return(true)
   end
 
-  def login_as_template_admin
-    enable_security
-    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)
-    allow(@security_service).to receive(:isUserGroupAdmin).with(@user).and_return(false)
-    allow(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(true)
-    allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
-    allow(@security_service).to receive(:isAuthorizedToViewTemplate).with(an_instance_of(CaseInsensitiveString), @user).and_return(true)
-    allow(@security_service).to receive(:isAuthorizedToViewTemplates).with(@user).and_return(true)
-  end
-
   def login_as_anonymous
     allow(controller).to receive(:current_user).and_return(@user = Username::ANONYMOUS)
     allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(false)

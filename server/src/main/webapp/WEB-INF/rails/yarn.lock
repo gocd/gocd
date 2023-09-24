@@ -1988,10 +1988,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prismjs@npm:^1.26.0":
-  version: 1.26.0
-  resolution: "@types/prismjs@npm:1.26.0"
-  checksum: cd5e7a6214c1f4213ec512a5fcf6d8fe37a56b813fc57ac95b5ff5ee074742bfdbd2f2730d9fd985205bf4586728e09baa97023f739e5aa1c9735a7c1ecbd11a
+"@types/prismjs@npm:^1.26.1":
+  version: 1.26.1
+  resolution: "@types/prismjs@npm:1.26.1"
+  checksum: ef34b2f47e34645760a48fc351e5926c330810a724c64838bfc30b7317c6038ea66abd19fe9c713002679d6f2faa97d90d432869e512dcb660d9a791c150595a
   languageName: node
   linkType: hard
 
@@ -5840,7 +5840,7 @@ __metadata:
     "@types/mithril": 2.2.1
     "@types/node": ^18.17.19
     "@types/optimize-css-assets-webpack-plugin": ^5.0.6
-    "@types/prismjs": ^1.26.0
+    "@types/prismjs": ^1.26.1
     "@types/shell-quote": ^1.7.1
     "@types/underscore.string": ^0.0.39
     "@types/url-parse": ^1.4.9

@@ -109,14 +109,14 @@ export type ResponseWithErrors = any & { errors?: ErrorMap; };
  * be bound to a known field are recorded in the `unmatchedErrors` instance, so that one
  * can display them (if so desired).
  *
- * @param response:  The server API response.
- * @param model:     The `model` object on which to bind errors to fields. Often this is an
+ * @param response   The server API response.
+ * @param model      The `model` object on which to bind errors to fields. Often this is an
  *                   `ErrorsConsumer` object; it is expected that the top-level invocation
  *                   is an `ErrorsConsumer`. Subsequent recursive invocations may or may
  *                   not be.
- * @param path:      A `string` representing the path to the current hierarchy. The top-level
+ * @param path       A `string` representing the path to the current hierarchy. The top-level
  *                   invocation should be a meaningful name for the top-level model instance.
- * @param unmatched: An `Errors` object that will collect any errors that could not be bound
+ * @param unmatched  An `Errors` object that will collect any errors that could not be bound
  *                   to a model field.
  */
 function consume(response: any, model: any, path: string, unmatched: Errors): void {
@@ -175,14 +175,14 @@ function addErrorsToModelForPipelineConfigSPA(errors: ErrorMap, model: any, path
  * the errors is recorded in the `unmatched` Errors object. `path` allows us to report
  * the current hierarchy of the unmatched error.
  *
- * @param errors:    The `errors` hash detailing errors per field.
- * @param model:     The (sub-)`model` object on which to bind errors to fields. When this is
+ * @param errors     The `errors` hash detailing errors per field.
+ * @param model      The (sub-)`model` object on which to bind errors to fields. When this is
  *                   an `ErrorsConsumer` object, errors are recorded/bound on the model's
  *                   fields. When not an `ErrorConsumer`, any errors will be flagged as
  *                   unmatched.
- * @param path:      A `string` representing the path to the current hierarchy. This is used
+ * @param path       A `string` representing the path to the current hierarchy. This is used
  *                   strictly for marking unmatched/unbound errors.
- * @param unmatched: An `Errors` object that will collect any errors that could not be bound
+ * @param unmatched  An `Errors` object that will collect any errors that could not be bound
  *                   to a model field.
  */
 function addErrorsToModel(errors: ErrorMap, model: any, path: string, unmatched: Errors): void {

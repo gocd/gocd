@@ -88,7 +88,6 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     google-protobuf (3.24.3-java)
-    google-protobuf (3.24.3-x86_64-linux)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
@@ -118,8 +117,6 @@ GEM
     nio4r (2.5.9)
     nio4r (2.5.9-java)
     nokogiri (1.15.4-java)
-      racc (~> 1.4)
-    nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
     public_suffix (5.0.3)
     racc (1.7.1)
@@ -183,8 +180,6 @@ GEM
     sass-embedded (1.68.0)
       google-protobuf (~> 3.23)
       rake (>= 13.0.0)
-    sass-embedded (1.68.0-x86_64-linux-gnu)
-      google-protobuf (~> 3.23)
     sassc-embedded (1.68.3)
       sass-embedded (~> 1.68)
     sassc-rails (2.1.2)
@@ -221,7 +216,6 @@ GEM
 PLATFORMS
   java
   universal-java-17
-  x86_64-linux
 
 DEPENDENCIES
   capybara

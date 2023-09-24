@@ -34,9 +34,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    tagName: 'v2.1.2-191',
-    asset: 'gocd-filebased-authentication-plugin-2.1.2-191.jar',
-    checksum: 'b71cb26ea31b820a9b37edb870f1bbacdc8ea999983613105fa4333a9f86bf62'
+    tagName: 'v2.1.2-210',
+    asset: 'gocd-filebased-authentication-plugin-2.1.2-210.jar',
+    checksum: 'd25cde68fe700b80bd134fe0582ad6dea71075424e87f64ab797b194ee2ee6d3'
   ),
   new GithubArtifact(
     user: 'tomzo',

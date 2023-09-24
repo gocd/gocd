@@ -161,17 +161,11 @@ GEM
       thor (~> 1.0)
     rake (13.0.6)
     regexp_parser (2.8.1)
-    rspec (3.12.0)
-      rspec-core (~> 3.12.0)
-      rspec-expectations (~> 3.12.0)
-      rspec-mocks (~> 3.12.0)
     rspec-core (3.12.2)
       rspec-support (~> 3.12.0)
     rspec-expectations (3.12.3)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
-    rspec-instafail (1.0.0)
-      rspec
     rspec-mocks (3.12.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
@@ -234,7 +228,6 @@ DEPENDENCIES
   js-routes
   rails
   rails-controller-testing
-  rspec-instafail
   rspec-rails
   rspec_junit_formatter
   sassc!

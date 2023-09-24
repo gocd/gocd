@@ -22,7 +22,6 @@ platforms :jruby do
   group :test do
     gem 'capybara'
     gem 'rspec-rails'
-    gem 'rspec-instafail', require: false
     gem 'rspec_junit_formatter'
     gem 'rails-controller-testing'
   end

@@ -124,7 +124,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
     public static final GoSystemProperty<Long> GO_SERVER_CONNECTION_IDLE_TIMEOUT_IN_MILLIS = new GoLongSystemProperty("idle.timeout", SECONDS.toMillis(30));
     public static final GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32 * 1024);
-    public static final GoSystemProperty<Integer> ARTIFACT_COPY_BUFFER_SIZE = new GoIntSystemProperty("artifact.copy.buffer.size", 8 * 1024);
     public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", (int) MINUTES.toSeconds(5));
     public static final GoSystemProperty<Integer> AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("agent.request.idle.timeout.seconds", 30);
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.session.timeout.seconds", (int) DAYS.toSeconds(14));

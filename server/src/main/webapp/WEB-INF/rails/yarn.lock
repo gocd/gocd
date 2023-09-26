@@ -2003,10 +2003,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.18.0":
-  version: 18.18.0
-  resolution: "@types/node@npm:18.18.0"
-  checksum: 61bcffa28eb713e7a4c66fd369df603369c3f834a783faeced95fe3e78903faa25f1a704d49e054f41d71b7915eeb066d10a37cc699421fcf5dd267f96ad5808
+"@types/node@npm:^20.7.0":
+  version: 20.7.0
+  resolution: "@types/node@npm:20.7.0"
+  checksum: 1b2919925c213f4d2039ada7a8354c998e144f7291db8d719ef58ea9924ab636c113690073b0ec3b82ba62907385f7e0f51e9d1583c1a818776daa5156d3a590
   languageName: node
   linkType: hard
 
@@ -5883,7 +5883,7 @@ __metadata:
     "@types/lodash": ^4.14.199
     "@types/mini-css-extract-plugin": ^1.4.3
     "@types/mithril": 2.2.1
-    "@types/node": ^18.18.0
+    "@types/node": ^20.7.0
     "@types/optimize-css-assets-webpack-plugin": ^5.0.6
     "@types/prismjs": ^1.26.1
     "@types/shell-quote": ^1.7.2

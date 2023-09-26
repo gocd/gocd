@@ -34,7 +34,7 @@ import java.io.InputStream;
  */
 public class CachedDigestUtils {
 
-    private static final int STREAM_BUFFER_LENGTH = 1024;
+    private static final int STREAM_BUFFER_LENGTH = 8192;
     private static final DigestObjectPools objectPools = new DigestObjectPools();
     private static final Cache<String, String> sha256DigestCache = CacheBuilder.
             newBuilder().

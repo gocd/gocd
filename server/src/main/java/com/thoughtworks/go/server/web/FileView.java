@@ -38,6 +38,7 @@ import java.util.zip.Deflater;
 public class FileView implements View, ServletContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileView.class);
+    private static final int FILE_VIEW_BUFFER_SIZE = 32 * 1024;
 
     private ServletContext servletContext;
     public static final String NEED_TO_ZIP = "need_to_zip";
@@ -70,7 +71,7 @@ public class FileView implements View, ServletContextAware {
             new ZipUtil().zip(file, out, Deflater.NO_COMPRESSION);
         } else {
             try (FileInputStream input = new FileInputStream(file)) {
-                IOUtils.copy(input, out, 32 * 1024);
+                IOUtils.copy(input, out, FILE_VIEW_BUFFER_SIZE);
             }
         }
         out.flush();

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
@@ -50,13 +49,6 @@ public class LogoutPageController implements SparkController {
     public ModelAndView show(Request request, Response response) {
         SessionUtils.recreateSessionWithoutCopyingOverSessionState(request.raw());
 
-        Map<String, Object> meta = loginLogoutHelper.buildMeta(request);
-
-        Map<String, Object> object = ImmutableMap.<String, Object>builder()
-                .put("viewTitle", "Logout")
-                .put("meta", meta)
-                .build();
-
-        return new ModelAndView(object, null);
+        return new ModelAndView(Map.of("viewTitle", "Logout", "meta", loginLogoutHelper.buildMeta(request)), null);
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -536,7 +535,7 @@ class EnvironmentConfigServiceTest {
 
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB1() {
-            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+            shouldSyncEnvironmentsFromAgentAssociationInDB(Map.of(
                     "dev", "uuid1",
                     "test", "uuid1",
                     "stage", "uuid2",
@@ -546,7 +545,7 @@ class EnvironmentConfigServiceTest {
 
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB2() {
-            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+            shouldSyncEnvironmentsFromAgentAssociationInDB(Map.of(
                     "dev", "uuid1",
                     "stage", "uuid2"
             ));
@@ -554,7 +553,7 @@ class EnvironmentConfigServiceTest {
 
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB5() {
-            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+            shouldSyncEnvironmentsFromAgentAssociationInDB(Map.of(
                     "dev", "uuid3",
                     "test", "uuid3",
                     "stage", "uuid3",

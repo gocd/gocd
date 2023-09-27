@@ -63,7 +63,7 @@
     "@types/license-checker": "^25.0.4",
     "@types/lodash": "^4.14.199",
     "@types/mini-css-extract-plugin": "^1.4.3",
-    "@types/mithril": "2.2.1",
+    "@types/mithril": "2.2.2",
     "@types/node": "^20.7.0",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.6",
     "@types/prismjs": "^1.26.1",

@@ -49,7 +49,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache nss git mercurial subversion openssh-client bash curl procps'
+        'apk add --no-cache git mercurial subversion openssh-client bash curl procps'
       ]
     }
 

@@ -49,7 +49,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache git mercurial subversion openssh-client bash curl procps'
+        'apk add --no-cache git openssh-client bash curl procps'
       ]
     }
 
@@ -117,7 +117,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
-        "${pkgFor(v)} install -y git-core mercurial subversion openssh-clients bash unzip procps-ng coreutils-single glibc-langpack-en ${v.lessThan(9) ? ' curl' : ' curl-minimal'}",
+        "${pkgFor(v)} install -y git-core openssh-clients bash unzip procps-ng coreutils-single glibc-langpack-en ${v.lessThan(9) ? ' curl' : ' curl-minimal'}",
         "${pkgFor(v)} clean all",
         "rm -rf /var/cache/yum /var/cache/dnf",
       ]
@@ -153,7 +153,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
-        'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core subversion mercurial openssh-client bash unzip curl ca-certificates locales procps coreutils',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core openssh-client bash unzip curl ca-certificates locales procps coreutils',
         'DEBIAN_FRONTEND=noninteractive apt-get clean all',
         'rm -rf /var/lib/apt/lists/*',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'

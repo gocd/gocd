@@ -1,6 +1,6 @@
-# GoCD Server Docker image
+# GoCD Server Container image
 
-An ${distro.name()} based docker image for [GoCD server](https://www.gocd.org).
+A ${distro.name()?capitalize}-based container image for [GoCD server](https://www.gocd.org).
 
 # Issues, feedback?
 
@@ -14,7 +14,7 @@ Start the container with this:
 docker run -d -p8153:8153 gocd/${imageName}:v${goVersion}
 ```
 
-This will expose container ports 8153(http) onto your server.
+This will expose container port 8153 (http) onto your server.
 You can now open `http://localhost:8153`
 
 # Available configuration options
@@ -132,10 +132,6 @@ Then, the below commands will determine to GoCD server IP, server port and ssl p
 docker inspect --format='{{(index (index .NetworkSettings.IPAddress))}}' server
 docker inspect --format='{{(index (index .NetworkSettings.Ports "8153/tcp") 0).HostPort}}' server
 ```
-
-# Running GoCD Containers as Non Root
-
-With release `v19.6.0`, GoCD containers will run as non-root user, by default. The Dockerized GoCD application will run with user `go` (uid: `1000`) and group `root` (gid: `0`) instead of running as user `root` (uid: `0`) and group `root` (gid: `0`). For more information, checkout [Running Dockerized GoCD Containers as Non Root](https://www.gocd.org/2019/06/25/GoCD-non-root-containers/) blog post.
 
 # Troubleshooting
 

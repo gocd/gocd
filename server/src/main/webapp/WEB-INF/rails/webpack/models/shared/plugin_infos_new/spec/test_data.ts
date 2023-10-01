@@ -224,7 +224,7 @@ export class ArtifactPluginInfo {
         name: "Artifact plugin for docker",
         version: "1.0.0-3",
         target_go_version: "18.7.0",
-        description: "Plugin allows to push/pull docker image from public or private docker registry",
+        description: "Plugin allows to push/pull container image from public or private docker registry",
         target_operating_systems: [],
         vendor: {
           name: "GoCD Contributors",

@@ -68,7 +68,7 @@ final Map<String, String> libraries = [
   jcommander          : 'com.beust:jcommander:1.82',
   jdom                : 'org.jdom:jdom2:2.0.6.1',
   jetBrainsAnnotations: 'org.jetbrains:annotations:24.0.1',
-  jetty               : 'org.eclipse.jetty:jetty-server:9.4.52.v20230823',
+  jetty               : 'org.eclipse.jetty:jetty-server:10.0.16',
   jgit                : 'org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r',
   jodaTime            : 'joda-time:joda-time:2.12.5', // joda-time version has to be compatible with the jruby version
   jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.8',
@@ -198,7 +198,7 @@ final Map<String, String> related = [
   jettyServlets           : "org.eclipse.jetty:jetty-servlets:${v.jetty}",
   jettyUtil               : "org.eclipse.jetty:jetty-util:${v.jetty}",
   jettyWebapp             : "org.eclipse.jetty:jetty-webapp:${v.jetty}",
-  jettyWebsocket          : "org.eclipse.jetty.websocket:websocket-server:${v.jetty}",
+  jettyWebsocket          : "org.eclipse.jetty.websocket:websocket-jetty-server:${v.jetty}",
   jgitServer              : "org.eclipse.jgit:org.eclipse.jgit.http.server:${v.jgit}",
   joltJsonUtils           : "com.bazaarvoice.jolt:json-utils:${v.jolt}",
   junit5Api               : "org.junit.jupiter:junit-jupiter-api",

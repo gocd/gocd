@@ -31,13 +31,15 @@ dependencies {
   implementation project.deps.jettyServlets
   implementation project.deps.jettyUtil
   implementation project.deps.jettyDeploy
-  implementation project.deps.jettyWebsocket
+  implementation(project.deps.jettyWebsocket) {
+    exclude(module: 'jetty-annotations')
+  }
 
   implementation(project.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  implementation project(path: ':jetty9', configuration: 'runtimeElements')
+  implementation project(path: ':jetty', configuration: 'runtimeElements')
   implementation project.deps.servletApi
   implementation project.deps.jruby
   implementation project.deps.rack

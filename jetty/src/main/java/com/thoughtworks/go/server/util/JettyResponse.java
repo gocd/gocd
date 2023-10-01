@@ -15,16 +15,22 @@
  */
 package com.thoughtworks.go.server.util;
 
-import lombok.experimental.UtilityClass;
+import org.eclipse.jetty.server.Response;
 
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.http.HttpServletRequest;
+public class JettyResponse implements ServletResponse {
+    private final javax.servlet.ServletResponse servletResponse;
 
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
+    public JettyResponse(javax.servlet.ServletResponse servletResponse) {
+        this.servletResponse = servletResponse;
+    }
 
-@UtilityClass
-public class RequestUtils {
-    public static void configureMultipart(HttpServletRequest req) {
-        req.setAttribute(__MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement(System.getProperty("java.io.tmpdir", "tmp")));
+    @Override
+    public int getStatus() {
+        return ((Response) servletResponse).getStatus();
+    }
+
+    @Override
+    public long getContentCount() {
+        return ((Response) servletResponse).getContentCount();
     }
 }

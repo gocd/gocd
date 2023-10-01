@@ -26,7 +26,7 @@ public abstract class ServletHelper {
 
     public static void init() {
         try {
-            instance = getAppServerHelper("com.thoughtworks.go.server.util.Jetty9ServletHelper");
+            instance = getAppServerHelper("com.thoughtworks.go.server.util.JettyServletHelper");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

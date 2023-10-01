@@ -1,0 +1,46 @@
+/*
+ * Copyright 2023 Thoughtworks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+description = 'GoCD Jetty Bootstrapper'
+
+dependencies {
+  implementation project(path: ':app-server', configuration: 'runtimeElements')
+  implementation project(path: ':config:config-server', configuration: 'runtimeElements')
+  implementation project(path: ':common', configuration: 'runtimeElements')
+  implementation project(path: ':rack_hack', configuration: 'runtimeElements')
+  implementation project.deps.slf4j
+
+  compileOnly project.deps.jetty
+  compileOnly project.deps.jettyJmx
+  compileOnly project.deps.jettyServlets
+  compileOnly project.deps.jettyUtil
+  compileOnly project.deps.jettyDeploy
+  compileOnly(project.deps.jettyWebsocket) {
+    exclude(module: 'jetty-annotations')
+  }
+
+  testImplementation project.deps.jettyDeploy
+  testImplementation project.deps.jettyJmx
+  testImplementation(project.deps.jettyWebsocket) {
+    exclude(module: 'jetty-annotations')
+  }
+  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
+  testImplementation project.deps.junit5Api
+  testImplementation project.deps.junit5Params
+  testImplementation project.deps.mockitoCore
+  testImplementation project.deps.mockitoJunit5
+  testRuntimeOnly project.deps.junit5Engine
+}

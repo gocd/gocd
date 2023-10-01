@@ -42,8 +42,7 @@ public class DelegatingServlet extends HttpServlet {
 
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String url = request.getRequestURI().replaceAll("^/go/rails/", "/go/");
-        servletHelper.getRequest(request).setRequestURI(url);
+        servletHelper.getRequest(request).modifyPath(path -> path.replaceAll("^/go/rails/", "/go/"));
         rackServlet.service(request, response);
     }
 

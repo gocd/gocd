@@ -296,7 +296,9 @@ dependencies {
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok
   compileOnly project.deps.logback
-  compileOnly project.deps.jettyWebsocket
+  compileOnly(project.deps.jettyWebsocket) {
+    exclude(module: 'jetty-annotations')
+  }
 
   testImplementation(project.deps.dbunit) {
     exclude(group: 'org.postgresql')
@@ -306,7 +308,7 @@ dependencies {
   testImplementation project(path: ':config:config-server', configuration: 'testOutput')
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
-  testImplementation project(path: ':jetty9', configuration: 'runtimeElements')
+  testImplementation project(path: ':jetty', configuration: 'runtimeElements')
   testImplementation project.deps.jsonUnit
   testImplementation project.deps.jsoup
   testImplementation project.deps.xmlUnitMatchers

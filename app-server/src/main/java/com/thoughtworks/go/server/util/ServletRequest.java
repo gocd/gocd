@@ -15,10 +15,9 @@
  */
 package com.thoughtworks.go.server.util;
 
+import java.util.function.Function;
+
 public interface ServletRequest {
-    String getUrl();
-    String getUriPath();
-    String getUriAsString();
-    void setRequestURI(String uri);
+    void modifyPath(Function<String, String> pathModifier);
     String getRootURL();
 }

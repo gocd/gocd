@@ -139,8 +139,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
-    public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
-    public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY9));
+    public static final String JETTY = "com.thoughtworks.go.server.JettyServer";
+    public static final GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY));
     public static final GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     public static final GoSystemProperty<Boolean> ARTIFACT_VIEW_INCLUDE_ALL_FILES = new GoBooleanSystemProperty("go.view-artifacts.include-all", true);

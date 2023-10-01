@@ -153,7 +153,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion v) {
       return [
-        'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core subversion mercurial openssh-client bash unzip curl ca-certificates locales procps sysvinit-utils coreutils',
+        'DEBIAN_FRONTEND=noninteractive apt-get install -y git-core subversion mercurial openssh-client bash unzip curl ca-certificates locales procps coreutils',
         'DEBIAN_FRONTEND=noninteractive apt-get clean all',
         'rm -rf /var/lib/apt/lists/*',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'

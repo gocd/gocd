@@ -29,14 +29,9 @@ enum PackageType {
 
       // for basic stuff like `ls`, `id`
       fpmArgs += ['--depends', 'coreutils']
-      // for `pidof`
-      fpmArgs += ['--depends', 'sysvinit-utils']
 
       // for `ps`
       fpmArgs += ['--depends', 'procps']
-
-      // for `su`
-      fpmArgs += ['--depends', 'login']
 
       // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
       def tmpDir = project.file("${project.buildDir}/tmp")

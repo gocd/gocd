@@ -260,10 +260,10 @@
     <cve>CVE-2022-42920</cve>
   </suppress>
 
-  <suppress until="2023-10-01Z">
+  <suppress until="2023-12-01Z">
     <notes><![CDATA[
-    Time-limited suppression of issue from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
-    and corresponding release of nokogiri. We are probably not affected, but there is no mitigation we can apply right now either. Needs upgrade to neko-htmlunit 2.70.0.
+    Time-limited suppression of issues from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
+    and corresponding release of nokogiri. We are probably not affected, but there is no mitigation we can apply right now either. Needs upgrade to neko-htmlunit 3.0.0+.
     ]]></notes>
     <sha1>d4d159a789c5446eea7edc184cab9adab12baa1c</sha1>
     <cve>CVE-2023-2798</cve>

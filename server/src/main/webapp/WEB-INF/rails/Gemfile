@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 ruby '3.1.4'
 
 platforms :jruby do
-  gem 'rails', '~> 6.1.7'
+  gem 'rails', '~> 7.0.8'
   gem 'sprockets-rails'
 
   # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

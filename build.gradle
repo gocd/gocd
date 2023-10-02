@@ -148,7 +148,9 @@ allprojects {
 
   repositories {
     mavenCentral()
+    mavenLocal()
     maven { url = 'https://repo.terracotta.org/maven2/' } // Needed for later ehcache repos
+    maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5 and jruby-rack
   }
 }
 

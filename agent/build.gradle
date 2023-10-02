@@ -18,10 +18,6 @@ import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Agent'
 
-repositories {
-  maven { url = 'https://jitpack.io' } // Needed for spring-test-junit5
-}
-
 sourceSets {
   functionalTest {
     java {

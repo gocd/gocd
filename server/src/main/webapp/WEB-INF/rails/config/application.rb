@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-require_relative 'boot'
+require_relative "boot"
 
 require "rails"
 require "active_model/railtie"
@@ -23,45 +23,47 @@ require "action_view/railtie"
 require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
+# Require the gems listed in Gemfile, including any gems
+# you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups(assets: %w[development test]))
 
 module Go
   class Application < Rails::Application
-    config.load_defaults 6.1
-    config.autoloader = :zeitwerk
-    require_relative '../lib/all_libs'
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 7.0
+    require_relative "../lib/all_libs"
 
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration can go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded after loading
-    # the framework and any gems in your application.
+    # Configuration for the application, engines, and railties goes here.
+    #
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
+    #
+    # config.time_zone = "Central Time (US & Canada)"
+    # config.eager_load_paths << Rails.root.join("extras")
 
-    # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
-    # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    # config.i18n.default_locale = :de
 
     # Rails4 does not load lib/* by default. Forcing it to do so.
     config.autoload_paths += Dir[
-        Rails.root.join('lib'),
-        Rails.root.join('app', 'models'),
-        Rails.root.join('app', 'presenters')
+      Rails.root.join("lib"),
+      Rails.root.join("app", "models"),
+      Rails.root.join("app", "presenters")
     ]
 
     # Add catch-all route, after all Rails routes and Engine routes are initialized.
     initializer :add_catch_all_route, :after => :add_routing_paths do |app|
       app.routes.append do
-        match '*url', via: :all, to: 'application#unresolved'
+        match "*url", via: :all, to: "application#unresolved"
       end
     end
 
     require Rails.root.join("lib", "slf4j_logger.rb")
-    config.logger = Slf4jLogger::Logger.new('com.thoughtworks.go.server.Rails')
+    config.logger = Slf4jLogger::Logger.new("com.thoughtworks.go.server.Rails")
 
     config.generators do |g|
       g.test_framework        :rspec, :fixture_replacement => nil
     end
 
-    config.action_controller.include_all_helpers = true
+    config.action_controller.include_all_helpers  = true
     config.action_controller.per_form_csrf_tokens = false
 
     # Disable default headers in rails, since they are added from other filters like DefaultHeadersFilter

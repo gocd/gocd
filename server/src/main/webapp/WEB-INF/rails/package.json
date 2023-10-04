@@ -129,7 +129,6 @@
   "resolutions": {
     "chokidar@npm:2.1.8/glob-parent": "^5.1.2",
     "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3",
-    "caniuse-lite": "1.0.30001538",
     "jasmine-browser-runner@^2.3.0": "patch:jasmine-browser-runner@npm%3A2.3.0#./.yarn/patches/jasmine-browser-runner-npm-2.3.0-40f5d8899b.patch"
   },
   "packageManager": "yarn@3.6.4"

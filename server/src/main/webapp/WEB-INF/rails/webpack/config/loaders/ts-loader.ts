@@ -34,7 +34,7 @@ export function getTypescriptLoader(configOptions: ConfigOptions): webpack.RuleS
     {
       loader: "babel-loader",
       options: {
-        cacheDirectory: path.join(configOptions.tempDir, "babel-loader")
+        cacheDirectory: path.join(configOptions.cacheDir, "babel-loader")
       }
     },
     {

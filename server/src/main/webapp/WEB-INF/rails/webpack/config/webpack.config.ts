@@ -29,7 +29,7 @@ function getConfigOptions(argv: any, env: any): ConfigOptions {
   const production             = argv.mode === "production";
   const watch                  = argv.watch;
   const singlePageAppModuleDir = path.join(assetsDir, "single_page_apps");
-  const tempDir                = path.join(railsRoot, "tmp");
+  const cacheDir               = path.join(railsRoot, "tmp");
   const outputDir              = env.outputDir || path.join(railsRoot, "public", "assets", "webpack");
   const licenseReportFile      = env.licenseReportFile || path.join(railsRoot,
                                                                     "yarn-license-report",
@@ -40,7 +40,7 @@ function getConfigOptions(argv: any, env: any): ConfigOptions {
     assetsDir,
     singlePageAppModuleDir,
     railsRoot,
-    tempDir,
+    cacheDir,
     outputDir,
     licenseReportFile
   };

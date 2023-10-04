@@ -172,11 +172,14 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
   yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+
+  doFirst {
+    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+  }
 }
 
 task compileAssetsWebpackProd(type: YarnRunTask) {
-  dependsOn yarnInstall
-  dependsOn generateJSRoutes
+  dependsOn yarnInstall, generateJSRoutes
 
   onlyIf { !project.hasProperty('fastBuild') }
 
@@ -190,6 +193,10 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   workingDir = project.railsRoot
   destinationDir = project.file("${project.buildDir}/webpack-assets")
   yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+
+  doFirst {
+    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+  }
 }
 
 task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {

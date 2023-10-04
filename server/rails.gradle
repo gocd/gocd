@@ -165,6 +165,8 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
   ext.licenseReportFile = project.file("${project.buildDir}/reports/yarn-license/license-report.json")
   outputs.dir(ext.licenseReportFile.parentFile)
 
+  source(project.file("${project.railsRoot}/.babelrc"))
+  source(project.file("${project.railsRoot}/tsconfig.json"))
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/vendor/assets"))
   source(project.file("${project.railsRoot}/config"))
@@ -186,6 +188,8 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   ext.licenseReportFile = project.file("${project.buildDir}/reports/yarn-license/license-report.json")
   outputs.dir(ext.licenseReportFile.parentFile)
 
+  source(project.file("${project.railsRoot}/.babelrc"))
+  source(project.file("${project.railsRoot}/tsconfig.json"))
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/vendor/assets"))
   source(project.file("${project.railsRoot}/config"))

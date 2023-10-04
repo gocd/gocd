@@ -30,5 +30,8 @@
         "pragma": "m"
       }
     ]
-  ]
+  ],
+  // Workaround for "Module parse failed: Unexpected token" on class properties.
+  // Likely can be removed with Webpack 5.
+  "plugins": ["@babel/plugin-transform-class-properties"]
 }

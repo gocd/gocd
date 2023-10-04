@@ -32,7 +32,7 @@ export function getBabelLoader(configOptions: ConfigOptions): webpack.RuleSetRul
       {
         loader: loaderName,
         options: {
-          cacheDirectory: path.join(configOptions.tempDir, loaderName)
+          cacheDirectory: path.join(configOptions.cacheDir, loaderName)
         }
       }
     ]

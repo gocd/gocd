@@ -22,7 +22,7 @@ export function getCacheLoader(configOptions: ConfigOptions): webpack.RuleSetUse
   return {
     loader: "cache-loader",
     options: {
-      cacheDirectory: path.join(configOptions.tempDir, "cache-loader")
+      cacheDirectory: path.join(configOptions.cacheDir, "cache-loader")
     }
   };
 }

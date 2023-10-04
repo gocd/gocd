@@ -165,6 +165,8 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
   ext.licenseReportFile = project.file("${project.buildDir}/reports/yarn-license/license-report.json")
   outputs.dir(ext.licenseReportFile.parentFile)
 
+  source(project.file("${project.railsRoot}/.babelrc"))
+  source(project.file("${project.railsRoot}/tsconfig.json"))
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/vendor/assets"))
   source(project.file("${project.railsRoot}/config"))
@@ -172,17 +174,22 @@ task compileAssetsWebpackDev(type: YarnRunTask) {
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
   yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+
+  doFirst {
+    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+  }
 }
 
 task compileAssetsWebpackProd(type: YarnRunTask) {
-  dependsOn yarnInstall
-  dependsOn generateJSRoutes
+  dependsOn yarnInstall, generateJSRoutes
 
   onlyIf { !project.hasProperty('fastBuild') }
 
   ext.licenseReportFile = project.file("${project.buildDir}/reports/yarn-license/license-report.json")
   outputs.dir(ext.licenseReportFile.parentFile)
 
+  source(project.file("${project.railsRoot}/.babelrc"))
+  source(project.file("${project.railsRoot}/tsconfig.json"))
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/vendor/assets"))
   source(project.file("${project.railsRoot}/config"))
@@ -190,6 +197,10 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   workingDir = project.railsRoot
   destinationDir = project.file("${project.buildDir}/webpack-assets")
   yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
+
+  doFirst {
+    delete "${project.railsRoot}/tmp" // Clean the cacheDir from webpack/config/webpack.config.ts
+  }
 }
 
 task compileAssetsRailsTest(type: ExecuteUnderRailsTask) {

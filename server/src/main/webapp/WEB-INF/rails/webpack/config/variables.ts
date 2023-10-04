@@ -25,7 +25,7 @@ export interface ConfigOptions {
   assetsDir: string;
   singlePageAppModuleDir: string;
   railsRoot: string;
-  tempDir: string;
+  cacheDir: string;
   outputDir: string;
   licenseReportFile: string;
 }

@@ -25,4 +25,4 @@
 
 # Make sure your secret_key_base is kept private
 # if you're sharing your code publicly.
-Rails.application.config.secret_key_base = 'ba568936c09123be7c08e4115eca7a2fe0718223aa2ae165cc2e5daf4171d82a18cc2746ad3e02c7c5a3cb7747654889771f2f601bdd62f3695793aefda8e1cb'
+Rails.application.config.secret_key_base = "ba568936c09123be7c08e4115eca7a2fe0718223aa2ae165cc2e5daf4171d82a18cc2746ad3e02c7c5a3cb7747654889771f2f601bdd62f3695793aefda8e1cb"

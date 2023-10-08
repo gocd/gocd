@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-if ENV['RAILS_GROUPS'] =~ /assets/
+if ENV["RAILS_GROUPS"] =~ /assets/
   JsRoutes.setup do |config|
     config.prefix = com.thoughtworks.go.util.SystemEnvironment.new.getWebappContextPath
     config.camel_case = true

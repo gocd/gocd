@@ -16,22 +16,34 @@
 package com.thoughtworks.go.plugin.infra.monitor;
 
 import com.thoughtworks.go.plugin.FileHelper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.Charset;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 abstract class AbstractDefaultPluginJarLocationMonitorTest {
-    private static final int NO_OF_TRIES_TO_CHECK_MONITOR_RUN = 150;
+    public static final long MONITOR_WAIT_MILLIS = TimeUnit.SECONDS.toMillis(2);
+
     File pluginWorkDir;
     FileHelper tempFolder;
+
+    @Mock
+    PluginJarChangeListener changeListener;
 
     @BeforeEach
     void setUp(@TempDir File tempFolder) throws Exception {
@@ -39,41 +51,25 @@ abstract class AbstractDefaultPluginJarLocationMonitorTest {
         pluginWorkDir = this.tempFolder.newFolder("plugin-work-dir");
     }
 
-    void waitAMoment() throws InterruptedException {
-        Thread.yield();
-        Thread.sleep(2000);
-    }
-
-    void waitUntilNextRun(DefaultPluginJarLocationMonitor monitor) throws InterruptedException {
-        long previousRun = monitor.getLastRun();
-        int numberOfTries = 0;
-        while (previousRun >= monitor.getLastRun() && numberOfTries < NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
-            Thread.yield();
-            Thread.sleep(100);
-            numberOfTries++;
-        }
-        if (numberOfTries >= NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
-            throw new RuntimeException("Number of tries exceeded, but monitor thread hasn't run yet");
+    void copyPluginToThePluginDirectory(BundleOrPluginFileDetails plugin) throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("defaultFiles/descriptor-aware-test-plugin.jar"))) {
+            Files.copy(is, plugin.file().toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
-    void copyPluginToThePluginDirectory(File pluginDir,
-                                        String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
-        URL resource = getClass().getClassLoader().getResource("defaultFiles/descriptor-aware-test-plugin.jar");
-
-        FileUtils.copyURLToFile(resource, new File(pluginDir, destinationFilenameOfPlugin));
-    }
-
-    void updateFileContents(File someFile) {
-        try (FileOutputStream output = new FileOutputStream(someFile)) {
-            IOUtils.write("some rubbish", output, Charset.defaultCharset());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    void updateFileContents(File someFile) throws IOException {
+        Files.writeString(someFile.toPath(), "some rubbish", StandardCharsets.UTF_8, StandardOpenOption.APPEND);
     }
 
     BundleOrPluginFileDetails pluginFileDetails(File directory, String pluginFile, boolean bundledPlugin) {
         return new BundleOrPluginFileDetails(new File(directory, pluginFile), bundledPlugin, pluginWorkDir);
     }
 
+    void verifyNoMoreInteractionsOtherThanPhantomUpdatesFor(BundleOrPluginFileDetails... plugins) {
+        // Sometimes there are phantom update events from the OS. We are not worried about these.
+        for (var plugin : Optional.ofNullable(plugins).orElse(new BundleOrPluginFileDetails[0])) {
+            verify(changeListener, atMostOnce()).pluginJarUpdated(plugin);
+        }
+        verifyNoMoreInteractions(changeListener);
+    }
 }

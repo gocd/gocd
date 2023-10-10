@@ -29,10 +29,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
+import java.time.Duration;
+import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.mockito.Mockito.*;
 
 
@@ -42,12 +45,9 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
 
     private DefaultPluginJarLocationMonitor monitor;
     private File bundledPluginDir;
-    private File pluginExternalDir;
 
     @Mock(strictness = Mock.Strictness.LENIENT)
     private SystemEnvironment systemEnvironment;
-    @Mock
-    private PluginJarChangeListener changeListener;
 
     @Override
     @BeforeEach
@@ -55,11 +55,10 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         super.setUp(tempFolder);
 
         bundledPluginDir = this.tempFolder.newFolder("bundled-plugins");
-        pluginExternalDir = this.tempFolder.newFolder("external-plugins");
 
-        when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(1);
+        when(systemEnvironment.getPluginLocationMonitorIntervalInMillis()).thenReturn(100L);
         when(systemEnvironment.get(PLUGIN_GO_PROVIDED_PATH)).thenReturn(bundledPluginDir.getAbsolutePath());
-        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDir.getAbsolutePath());
+        when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(this.tempFolder.newFolder("external-plugins").getAbsolutePath());
         when(systemEnvironment.get(PLUGIN_WORK_DIR)).thenReturn(pluginWorkDir.getAbsolutePath());
 
         monitor = new DefaultPluginJarLocationMonitor(systemEnvironment);
@@ -67,7 +66,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         monitor.stop();
     }
 
@@ -80,10 +79,10 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
 
     @Test
     void shouldNotFailIfNoListenerIsPresentWhenAPluginJarIsAdded() throws Exception {
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
+        copyPluginToThePluginDirectory(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
         monitor.start();
 
-        waitUntilNextRun(monitor);
+        assertTimeout(Duration.ofMillis(MONITOR_WAIT_MILLIS), () -> monitor.hasRunAtLeastOnce());
 
         verifyNoMoreInteractions(changeListener);
     }
@@ -93,10 +92,10 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
-        waitUntilNextRun(monitor);
+        BundleOrPluginFileDetails plugin = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true);
+        copyPluginToThePluginDirectory(plugin);
 
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin);
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -105,25 +104,26 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.something-other-than-jar.zip");
-        waitUntilNextRun(monitor);
+        copyPluginToThePluginDirectory(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.something-other-than-jar.zip", true));
+
+        assertTimeout(Duration.ofMillis(MONITOR_WAIT_MILLIS), () -> monitor.hasRunAtLeastOnce());
 
         verifyNoMoreInteractions(changeListener);
     }
 
     @Test
     void shouldRunOnlyOnceWhenIntervalIsLessThanZero() throws Exception {
-        when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(-1);
+        when(systemEnvironment.getPluginLocationMonitorIntervalInMillis()).thenReturn(-1L);
+
+        BundleOrPluginFileDetails plugin = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true);
 
         monitor.addPluginJarChangeListener(changeListener);
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
+        copyPluginToThePluginDirectory(plugin);
         monitor.start();
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin);
 
-        waitAMoment();
-        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
-        waitAMoment();
+        FileUtils.deleteQuietly(plugin.file());
 
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -131,14 +131,16 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     void shouldDetectRemovedPluginJar() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
 
-        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
-        waitUntilNextRun(monitor);
+        BundleOrPluginFileDetails plugin = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true);
 
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
+        copyPluginToThePluginDirectory(plugin);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin);
+
+        FileUtils.deleteQuietly(plugin.file());
+
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarRemoved(plugin);
+        verify(changeListener, never()).pluginJarUpdated(any());
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -147,42 +149,52 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
+        BundleOrPluginFileDetails plugin1 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
+        BundleOrPluginFileDetails plugin2 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true);
+        BundleOrPluginFileDetails plugin3 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true);
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-2.jar");
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-3.jar");
-        waitUntilNextRun(monitor);
+        copyPluginToThePluginDirectory(plugin1);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin1);
 
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true));
-        verifyNoMoreInteractions(changeListener);
+        copyPluginToThePluginDirectory(plugin2);
+        copyPluginToThePluginDirectory(plugin3);
+
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin2);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin3);
+
+        verifyNoMoreInteractionsOtherThanPhantomUpdatesFor(plugin1, plugin2, plugin3);
     }
 
     @Test
     void shouldNotifyListenerOfMultiplePluginFilesAddedEvenIfOneListenerThrowsAnException() throws Exception {
-        PluginJarChangeListener exceptionRasingListener = mock(PluginJarChangeListener.class);
-        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRasingListener).pluginJarAdded(any(BundleOrPluginFileDetails.class));
-        monitor.addPluginJarChangeListener(exceptionRasingListener);
+        PluginJarChangeListener exceptionRaisingListener = mock(PluginJarChangeListener.class);
+        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRaisingListener).pluginJarAdded(any(BundleOrPluginFileDetails.class));
+        monitor.addPluginJarChangeListener(exceptionRaisingListener);
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
-        verify(exceptionRasingListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
+        BundleOrPluginFileDetails plugin1 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
+        BundleOrPluginFileDetails plugin2 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true);
+        BundleOrPluginFileDetails plugin3 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true);
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-2.jar");
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-3.jar");
-        waitUntilNextRun(monitor);
+        copyPluginToThePluginDirectory(plugin1);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin1);
+        verify(exceptionRaisingListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin1);
 
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
-        verify(exceptionRasingListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true));
-        verify(exceptionRasingListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true));
-        verifyNoMoreInteractions(changeListener);
-        verifyNoMoreInteractions(exceptionRasingListener);
+        copyPluginToThePluginDirectory(plugin2);
+        copyPluginToThePluginDirectory(plugin3);
+
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin2);
+        verify(exceptionRaisingListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin2);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin3);
+        verify(exceptionRaisingListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin3);
+
+        verifyNoMoreInteractionsOtherThanPhantomUpdatesFor(plugin1, plugin2, plugin3);
+
+        for (var plugin : List.of(plugin1, plugin2, plugin3)) {
+            verify(exceptionRaisingListener, atMostOnce()).pluginJarUpdated(plugin);
+        }
+        verifyNoMoreInteractions(exceptionRaisingListener);
     }
 
     @Test
@@ -190,24 +202,23 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-2.jar");
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-3.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true));
+        BundleOrPluginFileDetails plugin1 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
+        BundleOrPluginFileDetails plugin2 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true);
+        BundleOrPluginFileDetails plugin3 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-3.jar", true);
 
-        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin-1.jar"));
-        FileUtils.deleteQuietly(new File(bundledPluginDir, "descriptor-aware-test-plugin-2.jar"));
-        waitUntilNextRun(monitor);
+        copyPluginToThePluginDirectory(plugin1);
+        copyPluginToThePluginDirectory(plugin2);
+        copyPluginToThePluginDirectory(plugin3);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin1);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin2);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin3);
 
-        verify(changeListener, atMost(1)).pluginJarUpdated(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
-        verify(changeListener, atMost(1)).pluginJarUpdated(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
+        FileUtils.deleteQuietly(plugin1.file());
+        FileUtils.deleteQuietly(plugin2.file());
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarRemoved(plugin1);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarRemoved(plugin2);
 
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true));
-        verifyNoMoreInteractions(changeListener);
+        verifyNoMoreInteractionsOtherThanPhantomUpdatesFor(plugin1, plugin2, plugin3);
     }
 
     @Test
@@ -215,19 +226,17 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
-        waitUntilNextRun(monitor);
         BundleOrPluginFileDetails orgFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
-        verify(changeListener).pluginJarAdded(orgFile);
-
         BundleOrPluginFileDetails newFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1-new.jar", true);
+
+        copyPluginToThePluginDirectory(orgFile);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(orgFile);
+
         FileUtils.moveFile(orgFile.file(), newFile.file());
 
-        waitUntilNextRun(monitor);
-
         InOrder inOrder = inOrder(changeListener);
-        inOrder.verify(changeListener).pluginJarRemoved(orgFile);
-        inOrder.verify(changeListener).pluginJarAdded(newFile);
+        inOrder.verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarRemoved(orgFile);
+        inOrder.verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(newFile);
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -235,14 +244,15 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
 
-        updateFileContents(new File(bundledPluginDir, "descriptor-aware-test-plugin.jar"));
-        waitUntilNextRun(monitor);
+        BundleOrPluginFileDetails plugin = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true);
 
-        verify(changeListener).pluginJarUpdated(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
+        copyPluginToThePluginDirectory(plugin);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin);
+
+        updateFileContents(plugin.file());
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarUpdated(plugin);
+
         verifyNoMoreInteractions(changeListener);
     }
 
@@ -250,23 +260,24 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     void shouldCreatePluginZipIfPluginJarIsAdded() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true));
+
+        BundleOrPluginFileDetails plugin = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true);
+
+        copyPluginToThePluginDirectory(plugin);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin);
     }
 
     @Test
     void shouldCreatePluginZipIfPluginJarIsRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        String pluginJar = "descriptor-aware-test-plugin.jar";
-        copyPluginToThePluginDirectory(bundledPluginDir, pluginJar);
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, pluginJar, true));
+        BundleOrPluginFileDetails plugin = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin.jar", true);
 
-        FileUtils.deleteQuietly(new File(bundledPluginDir, pluginJar));
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarRemoved(pluginFileDetails(bundledPluginDir, pluginJar, true));
+        copyPluginToThePluginDirectory(plugin);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin);
+
+        FileUtils.deleteQuietly(plugin.file());
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarRemoved(plugin);
     }
 
     @Test
@@ -274,46 +285,47 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
-        waitUntilNextRun(monitor);
         BundleOrPluginFileDetails orgFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
-        verify(changeListener).pluginJarAdded(orgFile);
-
         BundleOrPluginFileDetails newFile = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1-new.jar", true);
+
+        copyPluginToThePluginDirectory(orgFile);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(orgFile);
+
         FileUtils.moveFile(orgFile.file(), newFile.file());
-        waitUntilNextRun(monitor);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarRemoved(orgFile);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(newFile);
     }
 
     @Test
-    void shouldNotCreatePluginZipIfPluginJarIsNeitherUpdatedNorAddedOrRemoved() throws Exception {
+    void shouldNotCreatePluginZipIfPluginJarIsNeitherUpdatedNorAddedOrRemoved() {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        waitUntilNextRun(monitor);
+        assertTimeout(Duration.ofMillis(MONITOR_WAIT_MILLIS), () -> monitor.hasRunAtLeastOnce());
     }
 
     @Test
     void shouldNotSendAnyNotificationsToAListenerWhichHasBeenRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
-        waitUntilNextRun(monitor);
-        verify(changeListener).pluginJarAdded(pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true));
+
+        BundleOrPluginFileDetails plugin1 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-1.jar", true);
+        BundleOrPluginFileDetails plugin2 = pluginFileDetails(bundledPluginDir, "descriptor-aware-test-plugin-2.jar", true);
+
+        copyPluginToThePluginDirectory(plugin1);
+        verify(changeListener, timeout(MONITOR_WAIT_MILLIS)).pluginJarAdded(plugin1);
 
         monitor.removePluginJarChangeListener(changeListener);
-        copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-2.jar");
-        waitUntilNextRun(monitor);
+        copyPluginToThePluginDirectory(plugin2);
+        long removed = System.currentTimeMillis();
+        assertTimeout(Duration.ofMillis(MONITOR_WAIT_MILLIS), () -> monitor.hasRunSince(removed));
 
         verifyNoMoreInteractions(changeListener);
     }
 
     @Test
-    void shouldNotAllowMonitorToBeStartedMultipleTimes() throws Exception {
-        try {
-            monitor.start();
-            monitor.start();
-            fail("Expected an IllegalStateException.");
-        } catch (IllegalStateException e) {
-            assertThat(e.getMessage()).isEqualTo("Cannot start the monitor multiple times.");
-        }
+    void shouldNotAllowMonitorToBeStartedMultipleTimes() {
+        monitor.start();
+        assertThatThrownBy(() -> monitor.start()).isExactlyInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Cannot start the monitor multiple times.");
     }
 }

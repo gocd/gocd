@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.infra.monitor;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -29,8 +28,10 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
@@ -81,14 +82,11 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     @Override
     public boolean hasRunAtLeastOnce() {
-        return getLastRun() > 0;
+        return hasRunSince(0);
     }
 
-    long getLastRun() {
-        if (monitorThread == null) {
-            return 0;
-        }
-        return monitorThread.getLastRun();
+    public boolean hasRunSince(long timestamp) {
+        return Optional.ofNullable(monitorThread).map(t -> t.hasRunSince(timestamp)).orElse(false);
     }
 
     private void initializeMonitorThread() {
@@ -159,7 +157,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         private final File externalPluginDirectory;
         private final List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
         private final SystemEnvironment systemEnvironment;
-        private long lastRun;
+        private volatile long lastRun;
 
         public PluginLocationMonitorThread(File bundledPluginDirectory,
                                            File externalPluginDirectory,
@@ -178,7 +176,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             do {
                 oneShot();
 
-                int interval = systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS);
+                long interval = systemEnvironment.getPluginLocationMonitorIntervalInMillis();
                 if (interval <= 0) {
                     break;
                 }
@@ -195,8 +193,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             lastRun = System.currentTimeMillis();
         }
 
-        synchronized long getLastRun() {
-            return lastRun;
+        boolean hasRunSince(long timestamp) {
+            return lastRun > timestamp;
         }
 
         private Set<BundleOrPluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory,
@@ -211,9 +209,9 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             return new DoOnAllListeners(pluginJarChangeListener);
         }
 
-        private void waitForMonitorInterval(int intervalSeconds) {
+        private void waitForMonitorInterval(long intervalMillis) {
             try {
-                Thread.sleep(intervalSeconds * 1000L);
+                Thread.sleep(intervalMillis);
             } catch (InterruptedException e) {
                 this.interrupt();
             }
@@ -249,7 +247,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                 doOnAllPluginJarChangeListener(o -> o.pluginJarRemoved(bundleOrPluginFileDetails));
             }
 
-            private void doOnAllPluginJarChangeListener(Closure<PluginJarChangeListener> closure) {
+            private void doOnAllPluginJarChangeListener(Consumer<PluginJarChangeListener> closure) {
                 for (WeakReference<PluginJarChangeListener> listener : listeners) {
                     PluginJarChangeListener changeListener = listener.get();
                     if (changeListener == null) {
@@ -257,7 +255,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                     }
 
                     try {
-                        closure.execute(changeListener);
+                        closure.accept(changeListener);
                     } catch (Exception e) {
                         LOGGER.warn("Plugin listener failed", e);
                     }

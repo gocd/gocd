@@ -509,7 +509,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public long getUnresponsiveJobWarningThreshold() {
-        return Long.parseLong(getPropertyImpl(UNRESPONSIVE_JOB_WARNING_THRESHOLD, "5")) * 60 * 1000;//mins to mills
+        return Long.parseLong(getPropertyImpl(UNRESPONSIVE_JOB_WARNING_THRESHOLD, "5")) * 60 * 1000; // mins to millis
     }
 
     public boolean getParentLoaderPriority() {
@@ -694,6 +694,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean shouldInitializeConfigRepositoriesOnStartup() {
         return INITIALIZE_CONFIG_REPOSITORIES_ON_STARTUP.getValue();
+    }
+
+    public long getPluginLocationMonitorIntervalInMillis() {
+        return SECONDS.toMillis(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS.getValue());
     }
 
     public static abstract class GoSystemProperty<T> {

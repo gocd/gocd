@@ -19,31 +19,25 @@ import com.thoughtworks.go.plugin.FileHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 abstract class AbstractDefaultPluginJarLocationMonitorTest {
-    public static final long MONITOR_WAIT_MILLIS = TimeUnit.SECONDS.toMillis(2);
+    public static final long TEST_MONITOR_INTERVAL_MILLIS = 100L;
+    public static final long TEST_TIMEOUT = TEST_MONITOR_INTERVAL_MILLIS * 5;
 
     File pluginWorkDir;
     FileHelper tempFolder;
-
-    @Mock
-    PluginJarChangeListener changeListener;
 
     @BeforeEach
     void setUp(@TempDir File tempFolder) throws Exception {
@@ -51,25 +45,27 @@ abstract class AbstractDefaultPluginJarLocationMonitorTest {
         pluginWorkDir = this.tempFolder.newFolder("plugin-work-dir");
     }
 
-    void copyPluginToThePluginDirectory(BundleOrPluginFileDetails plugin) throws IOException {
-        try (InputStream is = Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("defaultFiles/descriptor-aware-test-plugin.jar"))) {
-            Files.copy(is, plugin.file().toPath(), StandardCopyOption.REPLACE_EXISTING);
-        }
-    }
-
-    void updateFileContents(File someFile) throws IOException {
-        Files.writeString(someFile.toPath(), "some rubbish", StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-    }
-
     BundleOrPluginFileDetails pluginFileDetails(File directory, String pluginFile, boolean bundledPlugin) {
         return new BundleOrPluginFileDetails(new File(directory, pluginFile), bundledPlugin, pluginWorkDir);
     }
 
-    void verifyNoMoreInteractionsOtherThanPhantomUpdatesFor(BundleOrPluginFileDetails... plugins) {
-        // Sometimes there are phantom update events from the OS. We are not worried about these.
-        for (var plugin : Optional.ofNullable(plugins).orElse(new BundleOrPluginFileDetails[0])) {
-            verify(changeListener, atMostOnce()).pluginJarUpdated(plugin);
+    void addPlugin(BundleOrPluginFileDetails plugin) throws IOException {
+        try (InputStream is = Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("defaultFiles/descriptor-aware-test-plugin.jar"))) {
+            Path tempFile = Files.createTempFile(tempFolder.getRoot().toPath(), "plugin-", null);
+            Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(tempFile, plugin.file().toPath(), StandardCopyOption.ATOMIC_MOVE);
         }
-        verifyNoMoreInteractions(changeListener);
+    }
+
+    void updatePlugin(BundleOrPluginFileDetails plugin) throws IOException {
+        Files.setLastModifiedTime(plugin.file().toPath(), FileTime.from(Instant.now()));
+    }
+
+    void deletePlugin(BundleOrPluginFileDetails plugin) throws IOException {
+        Files.delete(plugin.file().toPath());
+    }
+
+    void renamePlugin(BundleOrPluginFileDetails orgExternalFile, BundleOrPluginFileDetails newExternalFile) throws IOException {
+        Files.move(orgExternalFile.file().toPath(), newExternalFile.file().toPath(), StandardCopyOption.ATOMIC_MOVE);
     }
 }

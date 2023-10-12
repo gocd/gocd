@@ -1698,10 +1698,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shopify/draggable@npm:1.0.0-beta.12":
-  version: 1.0.0-beta.12
-  resolution: "@shopify/draggable@npm:1.0.0-beta.12"
-  checksum: 4641ab8a3ad7402342d4e6ee02c3c5a8c4fdaf89a029efb21518d47e522d51809b7f226e4e18bb657e0be55476bdc1cc96048b0cc79e427aeb1e87dc01b6c958
+"@shopify/draggable@npm:1.1.3":
+  version: 1.1.3
+  resolution: "@shopify/draggable@npm:1.1.3"
+  checksum: 95be37f0bf58b5f67bdf92d4af51c139294ce360d15f6d404199ca18d3f268f611583cdc1ed90bc129548e8a9bdc32c0faa0349f435561c6d3abc9033c62eb9a
   languageName: node
   linkType: hard
 
@@ -5836,7 +5836,7 @@ __metadata:
     "@babel/preset-env": ^7.23.2
     "@babel/preset-react": ^7.22.15
     "@fortawesome/fontawesome-free": ^6.4.2
-    "@shopify/draggable": 1.0.0-beta.12
+    "@shopify/draggable": 1.1.3
     "@types/awesomplete": ^1.1.12
     "@types/fs-extra": ^11.0.2
     "@types/html-webpack-plugin": ^3.2.7

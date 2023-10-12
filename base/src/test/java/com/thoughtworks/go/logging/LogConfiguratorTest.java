@@ -27,10 +27,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LogConfiguratorTest {
@@ -42,7 +40,7 @@ public class LogConfiguratorTest {
     private PrintStream originalOut;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         originalErr = System.err;
         originalOut = System.out;
 
@@ -51,13 +49,13 @@ public class LogConfiguratorTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         System.setErr(originalErr);
         System.setOut(originalOut);
     }
 
     @Test
-    public void shouldUseDefaultLog4jConfigIfUserSpecifiedConfigFileIsNotFound() throws Exception {
+    public void shouldUseDefaultConfigIfUserSpecifiedConfigFileIsNotFound() {
         final boolean[] defaultLoggingInvoked = {false};
         LogConfigurator logConfigurator = new LogConfigurator("non-existant-dir", "non-existant.properties") {
             @Override
@@ -75,7 +73,7 @@ public class LogConfiguratorTest {
     }
 
     @Test
-    public void shouldUseDefaultLog4jConfigFromClasspathIfUserSpecifiedConfigFileIsNotFound() throws Exception {
+    public void shouldUseDefaultConfigFromClasspathIfUserSpecifiedConfigFileIsNotFound() {
         final URL[] initializeFromPropertyResource = {null};
         LogConfigurator logConfigurator = new LogConfigurator("xxx", "logging-test-logback.xml") {
             @Override
@@ -93,7 +91,7 @@ public class LogConfiguratorTest {
     }
 
     @Test
-    public void shouldFallbackToDefaultFileIfLog4jConfigFound(@TempDir Path temporaryFolder) throws Exception {
+    public void shouldFallbackToDefaultFileIfConfigFound(@TempDir Path temporaryFolder) throws Exception {
         Path configFile = Files.createTempFile(temporaryFolder, "config", null);
         final URL[] initializeFromPropertiesFile = {null};
         LogConfigurator logConfigurator = new LogConfigurator(temporaryFolder.toAbsolutePath().toString(), configFile.getFileName().toString()) {

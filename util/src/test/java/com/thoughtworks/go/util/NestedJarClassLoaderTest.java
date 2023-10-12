@@ -35,7 +35,7 @@ class NestedJarClassLoaderTest {
      * └── nestedhelloworld.jar
      *     └── NestedHelloWorld.class
      */
-    private URL testJar = getClass().getResource("/helloworld.jar");
+    private final URL testJar = getClass().getResource("/helloworld.jar");
 
     private NestedJarClassLoader nestedJarClassLoader;
 

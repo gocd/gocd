@@ -234,9 +234,9 @@ public class JettyServer extends AppServer {
 
         // delegate all logging to parent classloader to avoid initialization of loggers in multiple classloaders
         context.addSystemClassMatcher(new ClassMatcher(
-            "org.apache.log4j.",
-            "org.slf4j.",
-            "org.apache.commons.logging.")
+                "org.slf4j.",
+                "org.apache.commons.logging."
+            )
         );
 
         context.setWar(getWarFile());

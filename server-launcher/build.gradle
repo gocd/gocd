@@ -73,7 +73,6 @@ dependencies {
 
   // Not needed for compilation, but we want to centralize all logging using logback
   packagingInLibDir project.deps.slf4j
-  packagingInLibDir project.deps.slf4jLog4j
   packagingInLibDir project.deps.slf4jJcl
   packagingInLibDir project.deps.slf4jJul
   packagingInLibDir project.deps.logback
@@ -225,7 +224,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-xml-${project.versions.jetty}.jar",
       "joda-time-${project.versions.jodaTime}.jar",
       "jul-to-slf4j-${project.versions.slf4j}.jar",
-      "log4j-over-slf4j-${project.versions.slf4j}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "server-launcher-${project.version}-main.jar",

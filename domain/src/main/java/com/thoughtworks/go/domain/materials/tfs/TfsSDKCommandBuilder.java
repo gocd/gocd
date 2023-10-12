@@ -95,7 +95,7 @@ class TfsSDKCommandBuilder {
 
         explodeNatives();
         setNativePath(tempFolder);
-        return new NestedJarClassLoader(getJarURL(), "org/apache/log4j/", "org/apache/commons/logging/");
+        return new NestedJarClassLoader(getJarURL(), "org/apache/commons/logging/");
     }
 
     private void setNativePath(File tempFolder) {

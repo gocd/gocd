@@ -27,7 +27,7 @@ import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -249,7 +249,7 @@ class WebBasedPluginAuthenticationProviderTest {
     class ReAuthenticate {
         @Test
         void shouldReAuthenticateUserUsingAuthenticationToken() {
-            final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
+            final GoUserPrincipal user = new GoUserPrincipal("bob", "Bob");
             final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(user, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
 
             authenticationProvider.reauthenticate(oldAuthenticationToken);
@@ -259,7 +259,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
         @Test
         void shouldReturnNullInCaseOfErrors() {
-            final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
+            final GoUserPrincipal user = new GoUserPrincipal("bob", "Bob");
             final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(user, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
             when(authorizationExtension.authenticateUser(PLUGIN_ID, CREDENTIALS.getCredentials(), List.of(githubSecurityAuthconfig), emptyList()))
                     .thenReturn(null);
@@ -271,7 +271,7 @@ class WebBasedPluginAuthenticationProviderTest {
 
         @Test
         void shouldTryToReAuthenticateUserAgainWhenPreviouslyAuthenticatedAuthConfigForThePluginIsDeleted() {
-            final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
+            final GoUserPrincipal user = new GoUserPrincipal("bob", "Bob");
             securityConfig.securityAuthConfigs().remove(githubSecurityAuthconfig);
             final SecurityAuthConfig githubPrivateSecurityConfig = new SecurityAuthConfig("github-private", PLUGIN_ID);
             securityConfig.securityAuthConfigs().add(githubPrivateSecurityConfig);
@@ -286,8 +286,8 @@ class WebBasedPluginAuthenticationProviderTest {
 
         @Test
         void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
-            final GoUserPrinciple goUserPrinciple = new GoUserPrinciple("bob", "Bob");
-            final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
+            final GoUserPrincipal goUserPrincipal = new GoUserPrincipal("bob", "Bob");
+            final AuthenticationToken<AccessToken> oldAuthenticationToken = new AuthenticationToken<>(goUserPrincipal, CREDENTIALS, PLUGIN_ID, clock.currentTimeMillis(), "github");
 
             final User user = new User("username", null, "email");
             AuthenticationResponse authenticationResponse = new AuthenticationResponse(user, List.of("admin"));

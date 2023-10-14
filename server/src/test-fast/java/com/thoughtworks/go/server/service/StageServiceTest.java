@@ -40,7 +40,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -108,7 +108,7 @@ public class StageServiceTest {
 
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
-        SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
+        SessionUtils.setCurrentUser(new GoUserPrincipal("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
     }
 
     @AfterEach

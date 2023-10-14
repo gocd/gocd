@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import org.slf4j.Logger;
@@ -83,7 +83,7 @@ public abstract class AbstractUserEnabledCheckFilter extends OncePerRequestFilte
     private User getUser(HttpServletRequest request) {
         Long userId = SessionUtils.getUserId(request);
         if (userId == null) {
-            final GoUserPrinciple currentUser = SessionUtils.getCurrentUser();
+            final GoUserPrincipal currentUser = SessionUtils.getCurrentUser();
 
             Username userName = new Username(currentUser.getUsername());
 

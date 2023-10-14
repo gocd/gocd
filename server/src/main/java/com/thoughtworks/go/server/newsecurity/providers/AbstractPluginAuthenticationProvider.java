@@ -26,7 +26,7 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
@@ -100,7 +100,7 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
                                                                         SecurityAuthConfig authConfig,
                                                                         List<PluginRoleConfig> pluginRoleConfigs);
 
-    protected abstract AuthenticationToken<T> createAuthenticationToken(GoUserPrinciple userPrinciple,
+    protected abstract AuthenticationToken<T> createAuthenticationToken(GoUserPrincipal userPrincipal,
                                                                         T credentials,
                                                                         String pluginId,
                                                                         String authConfigId);
@@ -124,10 +124,10 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
                 pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.list(response.getRoles()));
                 LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", user.getUsername(), pluginId);
 
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(user.getUsername(), user.getDisplayName(),
+                final GoUserPrincipal goUserPrincipal = new GoUserPrincipal(user.getUsername(), user.getDisplayName(),
                         authorityGranter.authorities(user.getUsername()));
 
-                return createAuthenticationToken(goUserPrinciple, credentials, pluginId, authConfig.getId());
+                return createAuthenticationToken(goUserPrincipal, credentials, pluginId, authConfig.getId());
 
             }
         } catch (OnlyKnownUsersAllowedException e) {

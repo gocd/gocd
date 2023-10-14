@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.newsecurity.utils;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class SessionUtils {
     private static final String SAVED_REQUEST = "GOCD_SECURITY_SAVED_REQUEST";
     private static final PortResolver PORT_RESOLVER = new PortResolverImpl();
 
-    private static final ThreadLocal<GoUserPrinciple> USERS = ThreadLocal.withInitial(() -> new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
+    private static final ThreadLocal<GoUserPrincipal> USERS = ThreadLocal.withInitial(() -> new GoUserPrincipal("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
 
     public static void setAuthenticationTokenWithoutRecreatingSession(AuthenticationToken<?> authenticationToken,
                                                                       HttpServletRequest request) {
@@ -155,11 +155,11 @@ public class SessionUtils {
         }
     }
 
-    public static GoUserPrinciple getCurrentUser() {
+    public static GoUserPrincipal getCurrentUser() {
         return USERS.get();
     }
 
-    public static void setCurrentUser(GoUserPrinciple user) {
+    public static void setCurrentUser(GoUserPrincipal user) {
         if (user == null) {
             throw new IllegalArgumentException("Use unsetCurrentUser instead");
         }

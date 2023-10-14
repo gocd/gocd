@@ -64,7 +64,6 @@ public class TfsMaterialTest {
 
     @BeforeEach
     void setUp() {
-        GoCipher goCipher = mock(GoCipher.class);
         tfsMaterialFirstCollectionFirstProject = new TfsMaterial(new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_FIRST_PROJECT);
         tfsMaterialFirstCollectionSecondProject = new TfsMaterial(new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_SECOND_PROJECT);
     }
@@ -225,7 +224,7 @@ public class TfsMaterialTest {
     }
 
     @Nested
-    class passwordForCommandLine {
+    class PasswordForCommandLine {
         @Test
         void shouldReturnPasswordAsConfigured_IfNotDefinedAsSecretParam() {
             TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("some-url"), null, null, "badger", null);
@@ -253,7 +252,7 @@ public class TfsMaterialTest {
     }
 
     @Nested
-    class setPassword {
+    class SetPassword {
         @Test
         void shouldParsePasswordString_IfDefinedAsSecretParam() {
             TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);

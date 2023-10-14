@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -48,7 +48,7 @@ class ThreadLocalUserFilterTest {
         final AuthenticationToken<UsernamePassword> authenticationToken = SessionUtilsHelper.createUsernamePasswordAuthentication("bob", "p@ssw0rd", 0L);
         SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
 
-        final GoUserPrinciple[] currentUserInFilter = {null};
+        final GoUserPrincipal[] currentUserInFilter = {null};
 
         final FilterChain filterChain = new MockFilterChain(mock(Servlet.class), spy(new OncePerRequestFilter() {
             @Override

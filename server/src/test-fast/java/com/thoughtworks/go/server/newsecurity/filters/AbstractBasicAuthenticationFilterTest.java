@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.AfterEach;
@@ -78,8 +78,8 @@ class AbstractBasicAuthenticationFilterTest {
 
     private AuthenticationToken<UsernamePassword> createAuthentication(String username, String password,
                                                                        GrantedAuthority... grantedAuthorities) {
-        final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(username, username, grantedAuthorities);
-        return new AuthenticationToken<>(goUserPrinciple,
+        final GoUserPrincipal goUserPrincipal = new GoUserPrincipal(username, username, grantedAuthorities);
+        return new AuthenticationToken<>(goUserPrincipal,
                 new UsernamePassword(username, password),
                 null,
                 clock.currentTimeMillis(),

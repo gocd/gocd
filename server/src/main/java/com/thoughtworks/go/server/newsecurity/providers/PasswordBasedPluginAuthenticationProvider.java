@@ -23,7 +23,7 @@ import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.security.AuthorityGranter;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
@@ -78,10 +78,10 @@ public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAut
     }
 
     @Override
-    protected AuthenticationToken<UsernamePassword> createAuthenticationToken(GoUserPrinciple userPrinciple,
+    protected AuthenticationToken<UsernamePassword> createAuthenticationToken(GoUserPrincipal userPrincipal,
                                                                               UsernamePassword credentials,
                                                                               String pluginId,
                                                                               String authConfigId) {
-        return new AuthenticationToken<>(userPrinciple, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
+        return new AuthenticationToken<>(userPrincipal, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
     }
 }

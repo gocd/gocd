@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service.permissions;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.permissions.entity.ConfigRepoPermission;
 import com.thoughtworks.go.server.service.permissions.entity.EnvironmentPermission;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +52,7 @@ class PermissionsServiceTest {
         when(environmentPermission.name()).thenReturn("environment");
         when(configRepoPermission.name()).thenReturn("config_repo");
 
-        SessionUtils.setCurrentUser(new GoUserPrinciple(username.getUsername().toString(), username.getUsername().toString(), GoAuthority.ROLE_ANONYMOUS.asAuthority()));
+        SessionUtils.setCurrentUser(new GoUserPrincipal(username.getUsername().toString(), username.getUsername().toString(), GoAuthority.ROLE_ANONYMOUS.asAuthority()));
     }
 
     @Test

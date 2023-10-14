@@ -23,7 +23,7 @@ import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
@@ -195,8 +195,8 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
     }
 
     private AuthenticationToken<UsernamePassword> setupAuthentication(GrantedAuthority... grantedAuthorities) {
-        final GoUserPrinciple goUserPrinciple = new GoUserPrinciple("bob", "Bob", grantedAuthorities);
-        return new AuthenticationToken<>(goUserPrinciple,
+        final GoUserPrincipal goUserPrincipal = new GoUserPrincipal("bob", "Bob", grantedAuthorities);
+        return new AuthenticationToken<>(goUserPrincipal,
                 new UsernamePassword("bob", "p@ssw0rd"),
                 null,
                 clock.currentTimeMillis(),

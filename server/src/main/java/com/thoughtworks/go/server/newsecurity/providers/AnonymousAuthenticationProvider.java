@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.newsecurity.providers;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,7 +46,7 @@ public class AnonymousAuthenticationProvider extends AbstractAuthenticationProvi
     }
 
     private AuthenticationToken<AnonymousCredential> createNewToken() {
-        GoUserPrinciple anonymous = new GoUserPrinciple("anonymous", "anonymous", authorityGranter.authorities("anonymous"));
+        GoUserPrincipal anonymous = new GoUserPrincipal("anonymous", "anonymous", authorityGranter.authorities("anonymous"));
 
         AuthenticationToken<AnonymousCredential> authenticationToken = new AuthenticationToken<>(anonymous, AnonymousCredential.INSTANCE, null, clock.currentTimeMillis(), null);
 

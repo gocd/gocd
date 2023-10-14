@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.domain.authorization.AuthorizationServerUrlRes
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
@@ -81,11 +81,11 @@ public class WebBasedPluginAuthenticationProvider extends AbstractPluginAuthenti
     }
 
     @Override
-    protected AuthenticationToken<AccessToken> createAuthenticationToken(GoUserPrinciple userPrinciple,
+    protected AuthenticationToken<AccessToken> createAuthenticationToken(GoUserPrincipal userPrincipal,
                                                                          AccessToken credentials,
                                                                          String pluginId,
                                                                          String authConfigId) {
-        return new AuthenticationToken<>(userPrinciple, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
+        return new AuthenticationToken<>(userPrincipal, credentials, pluginId, clock.currentTimeMillis(), authConfigId);
     }
 
     private String rootUrlFrom(String urlString) {

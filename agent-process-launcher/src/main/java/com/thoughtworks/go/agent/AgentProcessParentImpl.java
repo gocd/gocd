@@ -44,9 +44,9 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     static final String GO_AGENT_STDOUT_LOG = "go-agent-stdout.log";
 
     @Override
-    public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
+    public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map<String, String> context) {
         int exitValue = 0;
-        LOG.info("Agent is version: {}", CurrentGoCDVersion.getInstance().fullVersion());
+        LOG.info("Agent launcher is version: {}", CurrentGoCDVersion.getInstance().fullVersion());
         String[] command = new String[]{};
 
         try {
@@ -105,12 +105,11 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     private void removeShutdownHook(Shutdown shutdownHook) {
         try {
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
-        } catch (Exception e) {
+        } catch (Exception ignore) {
         }
     }
 
-    private String[] agentInvocationCommand(String agentMD5, String launcherMd5, String agentPluginsZipMd5, String tfsImplMd5, Map<String, String> env, Map context,
-                                            // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
+    private String[] agentInvocationCommand(String agentMD5, String launcherMd5, String agentPluginsZipMd5, String tfsImplMd5, Map<String, String> env, Map<String, String> context,
                                             Map<String, String> extraProperties) {
         AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
 
@@ -133,9 +132,9 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, agentMD5));
         commandSnippets.add(property(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, launcherMd5));
         commandSnippets.add(property(GoConstants.TFS_IMPL_MD5, tfsImplMd5));
-        commandSnippets.add(property(GoConstants.AGENT_BOOTSTRAPPER_VERSION, (String) context.getOrDefault(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN")));
-        commandSnippets.add("-jar");
+        commandSnippets.add(property(GoConstants.AGENT_BOOTSTRAPPER_VERSION, context.getOrDefault(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN")));
 
+        commandSnippets.add("-jar");
         commandSnippets.add(Downloader.AGENT_BINARY);
 
         commandSnippets.add("-serverUrl");

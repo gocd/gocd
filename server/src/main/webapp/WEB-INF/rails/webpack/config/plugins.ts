@@ -69,10 +69,8 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
 
   if (configOptions.production) {
     plugins.push(new MiniCssExtractPlugin({
-                                            // Options similar to the same options in webpackOptions.output
-                                            // both options are optional
-                                            filename: "[name]-[hash].css",
-                                            chunkFilename: "[id]-[hash].css",
+                                            filename: "[name]-[contenthash].css",
+                                            chunkFilename: "[id]-[contenthash].css",
                                             ignoreOrder: true
                                           }) as unknown as webpack.Plugin);
   } else {

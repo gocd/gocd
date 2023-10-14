@@ -24,7 +24,7 @@ export function getStaticAssetsLoader(configOptions: ConfigOptions): webpack.Rul
       {
         loader: "file-loader",
         options: {
-          name: configOptions.production ? "[name]-[hash].[ext]" : "[name].[ext]",
+          name: configOptions.production ? "[name]-[contenthash].[ext]" : "[name].[ext]",
           outputPath: configOptions.production ? "media/" : "fonts/",
           esModule: false
         }

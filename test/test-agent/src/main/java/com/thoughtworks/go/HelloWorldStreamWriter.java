@@ -20,10 +20,11 @@ import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 
 import java.util.Map;
 
+@SuppressWarnings("unused") // Used from JarUtilTest dynamically
 public class HelloWorldStreamWriter implements AgentProcessParent {
 
     @Override
-    public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context) {
+    public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map<String, String> context) {
         System.err.print("Hello World Fellas!");
         return 42;
     }

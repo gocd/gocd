@@ -15,12 +15,12 @@
  */
 package com.thoughtworks.go.agent.service;
 
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemUtil;
-import com.thoughtworks.go.agent.URLService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.NullInputStream;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -99,7 +99,7 @@ public class SslInfrastructureService {
                 getTokenIfNecessary();
                 registered = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {
-                LOGGER.error("[Agent Registration] There was a problem registering with the GoCD server.", e);
+                LOGGER.error("[Agent Registration] There was a problem registering with the GoCD server.");
                 throw e;
             }
 

@@ -23,5 +23,5 @@ public interface AgentProcessParent {
     int run(
             @Deprecated //launcherVersion is unused, but keeping it around because the bootstrapper has this contract with the agent launcher
                     String launcherVersion,
-            String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map context);
+            String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> env, Map<String, String> context);
 }

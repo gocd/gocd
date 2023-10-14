@@ -85,7 +85,7 @@ class TokenRequesterTest {
 
         assertThatCode(() -> tokenRequester.getToken())
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("A token has already been issued for this agent.");
+                .hasMessage("Agent registration could not acquire token due to https/1.2 422 : A token has already been issued for this agent.");
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {

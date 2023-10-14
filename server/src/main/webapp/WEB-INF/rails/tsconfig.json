@@ -7,10 +7,7 @@
     },
     "outDir": "./tmp/typescript-out/",
     "lib": [
-      "es2015",
-      "es2016",
-      "es2017",
-      "es2018",
+      "es2022",
       "dom"
     ],
     "strict": true,
@@ -18,7 +15,7 @@
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "jsx": "react",
     "jsxFactory": "m",
     "allowJs": false,

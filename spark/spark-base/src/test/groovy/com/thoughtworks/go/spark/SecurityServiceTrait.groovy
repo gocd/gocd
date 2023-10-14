@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.security.GoAuthority
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityService
 import com.thoughtworks.go.spark.util.SecureRandom
@@ -62,9 +62,9 @@ trait SecurityServiceTrait {
 
   void loginAsAnonymous() {
     if (securityService.isSecurityEnabled()){
-      SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_ANONYMOUS.asAuthority()))
+      SessionUtils.setCurrentUser(new GoUserPrincipal("anonymous", "anonymous", GoAuthority.ROLE_ANONYMOUS.asAuthority()))
     } else {
-      SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ALL_AUTHORITIES))
+      SessionUtils.setCurrentUser(new GoUserPrincipal("anonymous", "anonymous", GoAuthority.ALL_AUTHORITIES))
     }
     when(securityService.isUserAdmin(Username.ANONYMOUS)).thenReturn(false)
     when(securityService.isUserGroupAdmin(Username.ANONYMOUS)).thenReturn(false)
@@ -112,7 +112,7 @@ trait SecurityServiceTrait {
   }
 
   void disableSecurity() {
-    SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ALL_AUTHORITIES))
+    SessionUtils.setCurrentUser(new GoUserPrincipal("anonymous", "anonymous", GoAuthority.ALL_AUTHORITIES))
     when(securityService.isSecurityEnabled()).thenReturn(false)
     when(securityService.isUserAdmin(any() as Username)).thenReturn(true)
   }
@@ -166,7 +166,7 @@ trait SecurityServiceTrait {
     def hex = SecureRandom.hex(20)
     String loginName = "jdoe-${hex}"
     String displayName = "Jon Doe ${hex}"
-    GoUserPrinciple principal = new GoUserPrinciple(loginName, displayName)
+    GoUserPrincipal principal = new GoUserPrincipal(loginName, displayName)
     SessionUtils.setCurrentUser(principal)
     principal.asUsernameObject()
   }

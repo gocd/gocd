@@ -21,6 +21,7 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
 import com.thoughtworks.go.server.newsecurity.filters.*;
 import com.thoughtworks.go.server.newsecurity.handlers.BasicAuthenticationWithChallengeFailureResponseHandler;
+import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
@@ -40,9 +41,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
@@ -63,7 +62,7 @@ public class AuthenticationFilterChainTest {
     private AssumeAnonymousUserFilter assumeAnonymousUserFilter;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);
 
@@ -108,7 +107,7 @@ public class AuthenticationFilterChainTest {
                     .withRequestedSessionIdFromSession()
                     .build();
 
-            final AuthenticationToken authenticationToken = mock(AuthenticationToken.class);
+            final AuthenticationToken<?> authenticationToken = mock(AuthenticationToken.class);
             SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
 
             request.getSession(false).setAttribute(SECURITY_CONFIG_LAST_CHANGE, clock.currentTimeMillis());
@@ -143,17 +142,19 @@ public class AuthenticationFilterChainTest {
 
             final PasswordBasedPluginAuthenticationProvider pluginAuthenticationProvider = mock(PasswordBasedPluginAuthenticationProvider.class);
 
-            final AuthenticationToken reauthenticatedToken = mock(AuthenticationToken.class);
+            final AuthenticationToken<UsernamePassword> reauthenticatedToken = mock();
             when(pluginAuthenticationProvider.reauthenticate(authenticationToken)).thenReturn(reauthenticatedToken);
 
-            new AuthenticationFilterChain(null, new NoOpFilter(),
-                    new ReAuthenticationWithRedirectToLoginFilter(securityService, systemEnvironment, clock, pluginAuthenticationProvider, null, null),
-                    new ReAuthenticationWithChallengeFilter(securityService, systemEnvironment, clock, mock(BasicAuthenticationWithChallengeFailureResponseHandler.class), pluginAuthenticationProvider, null, null),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    assumeAnonymousUserFilter)
-                    .doFilter(request, response, filterChain);
+            new AuthenticationFilterChain(
+                null,
+                new NoOpFilter(),
+                new ReAuthenticationWithRedirectToLoginFilter(securityService, systemEnvironment, clock, pluginAuthenticationProvider, null, null),
+                new ReAuthenticationWithChallengeFilter(securityService, systemEnvironment, clock, mock(BasicAuthenticationWithChallengeFailureResponseHandler.class), pluginAuthenticationProvider, null, null),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                assumeAnonymousUserFilter
+            ).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
             MockHttpServletResponseAssert.assertThat(response).isOk();
@@ -166,14 +167,16 @@ public class AuthenticationFilterChainTest {
             request = HttpRequestBuilder.GET(url)
                     .build();
 
-            new AuthenticationFilterChain(null, null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    assumeAnonymousUserFilter)
-                    .doFilter(request, response, filterChain);
+            new AuthenticationFilterChain(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                assumeAnonymousUserFilter
+            ).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
             MockHttpServletResponseAssert.assertThat(response).isOk();
@@ -191,16 +194,18 @@ public class AuthenticationFilterChainTest {
 
             final PasswordBasedPluginAuthenticationProvider pluginAuthenticationProvider = mock(PasswordBasedPluginAuthenticationProvider.class);
 
-            final AuthenticationToken<UsernamePassword> authenticationToken = mock(AuthenticationToken.class);
+            final AuthenticationToken<UsernamePassword> authenticationToken = mock();
             when(pluginAuthenticationProvider.authenticate(new UsernamePassword("bob", "password"), null)).thenReturn(authenticationToken);
 
-            new AuthenticationFilterChain(null,
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new BasicAuthenticationWithChallengeFilter(securityService, new BasicAuthenticationWithChallengeFailureResponseHandler(securityService), pluginAuthenticationProvider),
-                    new BasicAuthenticationWithRedirectToLoginFilter(securityService, pluginAuthenticationProvider), new NoOpFilter(),
-                    assumeAnonymousUserFilter).doFilter(request, response, filterChain);
+            new AuthenticationFilterChain(
+                null,
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new BasicAuthenticationWithChallengeFilter(securityService, new BasicAuthenticationWithChallengeFailureResponseHandler(securityService), pluginAuthenticationProvider),
+                new BasicAuthenticationWithRedirectToLoginFilter(securityService, pluginAuthenticationProvider), new NoOpFilter(),
+                assumeAnonymousUserFilter
+            ).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
             MockHttpServletResponseAssert.assertThat(response).isOk();
@@ -222,14 +227,20 @@ public class AuthenticationFilterChainTest {
             when(securityAuthConfigService.findProfile(anyString())).thenReturn(new SecurityAuthConfig());
             HttpSession originalSession = request.getSession();
             when(accessTokenService.findByAccessToken("some-access-token")).thenReturn(accessToken);
-            final AuthenticationToken authenticationToken = mock(AuthenticationToken.class);
+            final AuthenticationToken<AccessTokenCredential> authenticationToken = mock();
             when(provider.authenticateUser(any(), any())).thenReturn(authenticationToken);
             final AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter(securityService, accessTokenService, securityAuthConfigService, provider);
 
-            new AuthenticationFilterChain(null,
-                    new NoOpFilter(), new NoOpFilter(), new NoOpFilter(),
-                    new NoOpFilter(), new NoOpFilter(), accessTokenAuthenticationFilter,
-                    assumeAnonymousUserFilter).doFilter(request, response, filterChain);
+            new AuthenticationFilterChain(
+                null,
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                accessTokenAuthenticationFilter,
+                assumeAnonymousUserFilter
+            ).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
             MockHttpServletResponseAssert.assertThat(response).isOk();
@@ -253,14 +264,16 @@ public class AuthenticationFilterChainTest {
         void shouldAuthenticateAsAnonymousWhenSecurityIsDisabled(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url).build();
 
-            new AuthenticationFilterChain(null,
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    assumeAnonymousUserFilter).doFilter(request, response, filterChain);
+            new AuthenticationFilterChain(
+                null,
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                assumeAnonymousUserFilter
+            ).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
             MockHttpServletResponseAssert.assertThat(response).isOk();
@@ -281,14 +294,15 @@ public class AuthenticationFilterChainTest {
             request = HttpRequestBuilder.GET(url).build();
 
             new AuthenticationFilterChain(
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    null,
-                    assumeAnonymousUserFilter).doFilter(request, response, filterChain);
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                new NoOpFilter(),
+                null,
+                assumeAnonymousUserFilter
+            ).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
             MockHttpServletResponseAssert.assertThat(response).isOk();
@@ -296,5 +310,15 @@ public class AuthenticationFilterChainTest {
         }
     }
 
+    static class NoOpFilter implements Filter {
+        @Override
+        public void init(FilterConfig filterConfig) {
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+            chain.doFilter(request, response);
+        }
+    }
 }
 

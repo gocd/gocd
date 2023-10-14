@@ -30,7 +30,7 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -245,7 +245,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
     class ReAuthenticate {
         @Test
         void shouldReAuthenticateUserUsingAuthenticationToken() {
-            final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
+            final GoUserPrincipal user = new GoUserPrincipal("bob", "Bob");
             final AuthenticationToken<UsernamePassword> oldAuthenticationToken = new AuthenticationToken<>(user, CREDENTIALS, PLUGIN_ID_2, clock.currentTimeMillis(), "github");
 
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_1);
@@ -269,7 +269,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
 
         @Test
         void shouldReturnNullInCaseOfErrors() {
-            final GoUserPrinciple user = new GoUserPrinciple("bob", "Bob");
+            final GoUserPrincipal user = new GoUserPrincipal("bob", "Bob");
             final AuthenticationToken<UsernamePassword> oldAuthenticationToken = new AuthenticationToken<>(user, CREDENTIALS, PLUGIN_ID_1, clock.currentTimeMillis(), "file_based");
 
             SecurityAuthConfig fileAuthConfig = new SecurityAuthConfig("file_based", PLUGIN_ID_1);
@@ -324,7 +324,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
         }
 
         @Test
-        void shouldUseTheLoginNameAvailableInGoUserPrinciple() {
+        void shouldUseTheLoginNameAvailableInGoUserPrincipal() {
             final UsernamePassword credentials = new UsernamePassword("foo@bar.com", PASSWORD);
             securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", PLUGIN_ID_1));
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_1);
@@ -335,12 +335,12 @@ class PasswordBasedPluginAuthenticationProviderTest {
                     )
             );
 
-            GoUserPrinciple principal = new GoUserPrinciple(USERNAME, "Display");
+            GoUserPrincipal principal = new GoUserPrincipal(USERNAME, "Display");
             final AuthenticationToken<UsernamePassword> authenticationToken = new AuthenticationToken<>(principal, credentials, PLUGIN_ID_1, clock.currentTimeMillis(), "ldap");
 
             AuthenticationToken<UsernamePassword> newAuthenticationToken = provider.reauthenticate(authenticationToken);
 
-            GoUserPrinciple goUserPrincipal = newAuthenticationToken.getUser();
+            GoUserPrincipal goUserPrincipal = newAuthenticationToken.getUser();
             assertThat(goUserPrincipal.getUsername()).isEqualTo(USERNAME);
             assertThat(newAuthenticationToken.getCredentials().getUsername()).isEqualTo("foo@bar.com");
 
@@ -354,7 +354,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", PLUGIN_ID_2));
             securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
 
-            GoUserPrinciple principal = new GoUserPrinciple(USERNAME, "Display");
+            GoUserPrincipal principal = new GoUserPrincipal(USERNAME, "Display");
             final AuthenticationToken<UsernamePassword> authenticationToken = new AuthenticationToken<>(principal, CREDENTIALS, PLUGIN_ID_1, clock.currentTimeMillis(), "ldap");
 
             AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());

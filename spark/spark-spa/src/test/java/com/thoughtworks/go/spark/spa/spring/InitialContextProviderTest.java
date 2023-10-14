@@ -21,7 +21,7 @@ import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
@@ -64,7 +64,7 @@ class InitialContextProviderTest {
         Toggles.initializeWith(featureToggleService);
         initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
                 versionInfoService, pluginInfoFinder, maintenanceModeService, serverConfigService);
-        SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"));
+        SessionUtils.setCurrentUser(new GoUserPrincipal("bob", "Bob"));
     }
 
     @Test

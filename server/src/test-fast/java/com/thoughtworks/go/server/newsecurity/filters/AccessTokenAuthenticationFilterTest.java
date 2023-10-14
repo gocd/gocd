@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.providers.AccessTokenBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -83,8 +83,8 @@ public class AccessTokenAuthenticationFilterTest {
     }
 
     private AuthenticationToken<AccessTokenCredential> createAuthentication(String username, GrantedAuthority... grantedAuthorities) {
-        final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(username, username, grantedAuthorities);
-        return new AuthenticationToken<>(goUserPrinciple, new AccessTokenCredential(accessToken), null, clock.currentTimeMillis(), null);
+        final GoUserPrincipal goUserPrincipal = new GoUserPrincipal(username, username, grantedAuthorities);
+        return new AuthenticationToken<>(goUserPrincipal, new AccessTokenCredential(accessToken), null, clock.currentTimeMillis(), null);
     }
 
     @Nested

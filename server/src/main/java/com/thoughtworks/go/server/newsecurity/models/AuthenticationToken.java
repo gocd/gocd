@@ -15,19 +15,19 @@
  */
 package com.thoughtworks.go.server.newsecurity.models;
 
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 public class AuthenticationToken<T extends Credentials> {
-    private final GoUserPrinciple user;
+    private final GoUserPrincipal user;
     private final T credentials;
     private final String authConfigId;
     private final long authenticatedAt;
     private final String pluginId;
     private boolean invalidated;
 
-    public AuthenticationToken(GoUserPrinciple user,
+    public AuthenticationToken(GoUserPrincipal user,
                                T credentials,
                                String pluginId,
                                long authenticatedAt,
@@ -40,7 +40,7 @@ public class AuthenticationToken<T extends Credentials> {
         this.authenticatedAt = authenticatedAt;
     }
 
-    public GoUserPrinciple getUser() {
+    public GoUserPrincipal getUser() {
         return user;
     }
 

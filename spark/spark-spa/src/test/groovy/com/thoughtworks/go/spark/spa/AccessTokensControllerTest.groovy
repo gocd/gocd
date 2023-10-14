@@ -20,7 +20,7 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -73,7 +73,7 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
   @Test
   void "should add meta with supportsAccessToken true when plugin supports access token"() {
     def request = HttpRequestBuilder.GET("/").build()
-    def user = new GoUserPrinciple("bob", "Bob")
+    def user = new GoUserPrincipal("bob", "Bob")
     def authenticationToken = new AuthenticationToken<>(user, new UsernamePassword("bob", "some-pass"), "cd.go.ldap-plugin", 0, "ldap")
     SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request)
     when(authorizationExtensionCacheService.isValidUser(any() as String, any() as String, any() as SecurityAuthConfig))
@@ -91,7 +91,7 @@ class AccessTokensControllerTest implements ControllerTrait<AccessTokensControll
   @Test
   void "should add meta with supportsAccessToken false when plugin supports access token"() {
     def request = HttpRequestBuilder.GET("/").build()
-    def user = new GoUserPrinciple("bob", "Bob")
+    def user = new GoUserPrincipal("bob", "Bob")
     def authenticationToken = new AuthenticationToken<>(user, new UsernamePassword("bob", "some-pass"), "cd.go.ldap-plugin", 0, "ldap")
     SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request)
     when(authorizationExtensionCacheService.isValidUser(any() as String, any() as String, any() as SecurityAuthConfig))

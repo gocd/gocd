@@ -16,7 +16,7 @@
 package com.thoughtworks.go.spark.spa.spring
 
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal
 import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
@@ -45,7 +45,7 @@ class FreemarkerTemplateEngineFactoryTest {
     initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder), mock(MaintenanceModeService), mock(ServerConfigService))
     engine = new FreemarkerTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:freemarker")
     engine.afterPropertiesSet()
-    SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"))
+    SessionUtils.setCurrentUser(new GoUserPrincipal("bob", "Bob"))
   }
 
   @Test

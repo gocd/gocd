@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.newsecurity.models.AgentToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.TestingClock;
@@ -75,7 +75,7 @@ public class AgentAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
+            final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication.getUser().getUsername())
                     .isEqualTo("_go_agent_blah");
             assertThat(authentication.getUser().getAuthorities())
@@ -102,7 +102,7 @@ public class AgentAuthenticationFilterTest {
 
             filter.doFilter(request, response, filterChain);
 
-            final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
+            final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication).isNull();
             verifyNoInteractions(filterChain);
             assertThat(response.getStatus()).isEqualTo(403);
@@ -158,7 +158,7 @@ public class AgentAuthenticationFilterTest {
 
             authenticationFilter.doFilter(request, response, filterChain);
 
-            final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
+            final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication.getUser().getUsername())
                     .isEqualTo("_go_agent_blah");
             assertThat(authentication.getUser().getAuthorities())
@@ -182,10 +182,10 @@ public class AgentAuthenticationFilterTest {
             AgentAuthenticationFilter filter = new AgentAuthenticationFilter(goConfigService, clock, agentService);
 
             MockHttpSession existingSession = new MockHttpSession();
-            GoUserPrinciple goodAgentPrinciple = new GoUserPrinciple("_go_agent_blah", "");
+            GoUserPrincipal goodAgentPrincipal = new GoUserPrincipal("_go_agent_blah", "");
             String token = filter.hmacOf(uuid);
 
-            SessionUtils.setAuthenticationTokenWithoutRecreatingSession(new AuthenticationToken<>(goodAgentPrinciple, new AgentToken(uuid, token), null, 0, null), HttpRequestBuilder.GET("/dont-care").withSession(existingSession).build());
+            SessionUtils.setAuthenticationTokenWithoutRecreatingSession(new AuthenticationToken<>(goodAgentPrincipal, new AgentToken(uuid, token), null, 0, null), HttpRequestBuilder.GET("/dont-care").withSession(existingSession).build());
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
                     .withHeader("X-Agent-GUID", uuid)

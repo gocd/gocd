@@ -21,17 +21,17 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Set;
 
-public class GoUserPrinciple {
+public class GoUserPrincipal {
     private final Set<GrantedAuthority> authorities;
 
     private final String displayName;
     private final Username username;
 
-    public GoUserPrinciple(String username, String displayName, GrantedAuthority... authorities) {
+    public GoUserPrincipal(String username, String displayName, GrantedAuthority... authorities) {
         this(username, displayName, Sets.newHashSet(authorities));
     }
 
-    public GoUserPrinciple(String username, String displayName, Set<GrantedAuthority> authorities) {
+    public GoUserPrincipal(String username, String displayName, Set<GrantedAuthority> authorities) {
         this.username = new Username(username, displayName);
         this.authorities = authorities;
         this.displayName = displayName;
@@ -56,9 +56,9 @@ public class GoUserPrinciple {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GoUserPrinciple)) return false;
+        if (!(o instanceof GoUserPrincipal)) return false;
 
-        GoUserPrinciple that = (GoUserPrinciple) o;
+        GoUserPrincipal that = (GoUserPrincipal) o;
 
         if (authorities != null ? !authorities.equals(that.authorities) : that.authorities != null) return false;
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;

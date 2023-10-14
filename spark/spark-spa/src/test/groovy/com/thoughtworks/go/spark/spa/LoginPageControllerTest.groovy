@@ -19,7 +19,7 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.TestingClock
@@ -88,8 +88,8 @@ class LoginPageControllerTest implements ControllerTrait<LoginPageController>, S
         when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true)
         when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(5000L)
 
-        GoUserPrinciple goUserPrinciple = SessionUtils.getCurrentUser()
-        AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, new UsernamePassword("bob@example.com", "p@ssw0rd"), null, clock.currentTimeMillis(), null)
+        GoUserPrincipal goUserPrincipal = SessionUtils.getCurrentUser()
+        AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrincipal, new UsernamePassword("bob@example.com", "p@ssw0rd"), null, clock.currentTimeMillis(), null)
         clock.addMillis(10000)
 
         SessionUtils.setAuthenticationTokenWithoutRecreatingSession(usernamePasswordAuthenticationToken, HttpRequestBuilder.GET("/").withSession(session).build())

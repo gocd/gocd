@@ -19,7 +19,7 @@ import com.thoughtworks.go.server.newsecurity.models.AgentToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrincipal;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.Clock;
@@ -93,7 +93,7 @@ public class AgentAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            GoUserPrinciple agentUser = new GoUserPrinciple("_go_agent_" + uuid, "", GoAuthority.ROLE_AGENT.asAuthority());
+            GoUserPrincipal agentUser = new GoUserPrincipal("_go_agent_" + uuid, "", GoAuthority.ROLE_AGENT.asAuthority());
             AuthenticationToken<AgentToken> authentication = new AuthenticationToken<>(agentUser, agentToken, null, clock.currentTimeMillis(), null);
 
             LOGGER.debug("Adding agent user to current session and proceeding.");

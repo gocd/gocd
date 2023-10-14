@@ -78,7 +78,7 @@ final Map<String, String> libraries = [
   junit5Bom           : 'org.junit:junit-bom:5.10.0',
   liquibase           : 'org.liquibase:liquibase-core:4.20.0',
   liquibaseSlf4j      : 'com.mattbertolini:liquibase-slf4j:5.0.0',
-  logback             : 'ch.qos.logback:logback-classic:1.2.12',
+  logback             : 'ch.qos.logback:logback-classic:1.4.11',
   lombok              : 'org.projectlombok:lombok:1.18.30',
   mockitoBom          : 'org.mockito:mockito-bom:5.6.0',
   mybatis             : 'org.mybatis:mybatis:3.5.13',
@@ -93,7 +93,7 @@ final Map<String, String> libraries = [
   rack                : 'org.jruby.rack:jruby-rack:1.1.22',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.1',
   servletApi          : 'jakarta.servlet:jakarta.servlet-api:4.0.4', // Should be compatible with Jetty and Spring implementations
-  slf4j               : 'org.slf4j:slf4j-api:1.7.36',
+  slf4j               : 'org.slf4j:slf4j-api:2.0.9',
   spark               : 'com.sparkjava:spark-core:2.7.2',
   spring              : 'org.springframework:spring-core:4.3.30.RELEASE',
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.20.RELEASE',

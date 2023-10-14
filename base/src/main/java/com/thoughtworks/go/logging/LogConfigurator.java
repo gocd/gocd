@@ -20,7 +20,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Context;
-import ch.qos.logback.core.hook.DelayingShutdownHook;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -71,8 +70,6 @@ public class LogConfigurator {
             return;
         }
 
-        allowCleanShutdown();
-
         File logbackFile = new File(configDir, childLogbackConfigFile);
 
         if (logbackFile.exists()) {
@@ -93,17 +90,6 @@ public class LogConfigurator {
         }
     }
 
-    // add a shutdown hook that explicitly calls `stop` on the logging context to give it time to shutdown
-    // can be removed if logback is >= 1.3
-    // see https://jira.qos.ch/browse/LOGBACK-1162
-    private void allowCleanShutdown() {
-        DelayingShutdownHook hook = new DelayingShutdownHook();
-        Context context = (Context) this.loggerFactory;
-        hook.setContext(context);
-        Thread hookThread = new Thread(hook, "Logback shutdown hook [" + context.getName() + "]");
-        Runtime.getRuntime().addShutdownHook(hookThread);
-    }
-
     protected void configureDefaultLogging() {
         ((LoggerContext) loggerFactory).reset();
         // reset will cause log level to be set to debug, so we set it to something more useful
@@ -122,7 +108,7 @@ public class LogConfigurator {
             configurator.doConfigure(resource);
         } catch (JoranException ignore) {
         }
-        StatusPrinter.printInCaseOfErrorsOrWarnings((Context) loggerFactory);
+        StatusPrinter.printIfErrorsOccured((Context) loggerFactory);
     }
 
     private void configureWith(File logbackFile) {

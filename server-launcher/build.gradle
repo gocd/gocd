@@ -16,6 +16,10 @@
 
 import com.thoughtworks.go.build.VerifyJarTask
 
+plugins {
+  id 'java-library'
+}
+
 description = 'GoCD Server Launcher'
 
 configurations {
@@ -72,7 +76,7 @@ dependencies {
   packagingInLibDir project.deps.jodaTime
 
   // Not needed for compilation, but we want to centralize all logging using logback
-  packagingInLibDir project.deps.slf4j
+  packagingInLibDir project.deps.slf4jApi
   packagingInLibDir project.deps.slf4jJcl
   packagingInLibDir project.deps.slf4jJul
   packagingInLibDir project.deps.logback
@@ -210,7 +214,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",
       "jakarta.servlet-api-${project.versions.servletApi}.jar",
-      "jcl-over-slf4j-${project.versions.slf4j}.jar",
+      "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
       "jetty-deploy-${project.versions.jetty}.jar",
       "jetty-http-${project.versions.jetty}.jar",
       "jetty-io-${project.versions.jetty}.jar",
@@ -223,11 +227,11 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-webapp-${project.versions.jetty}.jar",
       "jetty-xml-${project.versions.jetty}.jar",
       "joda-time-${project.versions.jodaTime}.jar",
-      "jul-to-slf4j-${project.versions.slf4j}.jar",
+      "jul-to-slf4j-${project.versions.slf4jBom}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "server-launcher-${project.version}-main.jar",
-      "slf4j-api-${project.versions.slf4j}.jar",
+      "slf4j-api-${project.versions.slf4jBom}.jar",
       "tfs-impl-14.jar",
       "websocket-core-common-${project.versions.jetty}.jar",
       "websocket-core-server-${project.versions.jetty}.jar",

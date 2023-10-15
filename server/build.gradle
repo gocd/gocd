@@ -287,7 +287,7 @@ dependencies {
   implementation project.deps.jakartaMail
   runtimeOnly project.deps.angusMailSmtp
 
-  implementation project.deps.slf4j
+  implementation project.deps.slf4jApi
   implementation(project.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
@@ -818,7 +818,7 @@ task verifyWar(type: VerifyJarTask) {
         "jaxb-core-${project.versions.jaxb}.jar",
         "jaxb-runtime-${project.versions.jaxb}.jar",
         "jaxen-${project.versions.jaxen}.jar",
-        "jcl-over-slf4j-${project.versions.slf4j}.jar",
+        "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
         "jdom2-${project.versions.jdom}.jar",
         "joda-time-${project.versions.jodaTime}.jar",
         "jolt-core-${project.versions.jolt}.jar",
@@ -840,7 +840,7 @@ task verifyWar(type: VerifyJarTask) {
         "quartz-${project.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
         "semantic-version-${project.versions.semanticVersion}.jar",
-        "slf4j-api-${project.versions.slf4j}.jar",
+        "slf4j-api-${project.versions.slf4jBom}.jar",
         "smtp-${project.versions.angusMailSmtp}.jar",
         "spark-core-${project.versions.spark}.jar",
         "spring-aop-${project.versions.spring}.jar",

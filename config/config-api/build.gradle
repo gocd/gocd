@@ -33,7 +33,7 @@ dependencies {
   }
   api project.deps.cloning
   api project.deps.jdom
-  implementation project.deps.slf4j
+  implementation project.deps.slf4jApi
   implementation project.deps.felix
   implementation project.deps.guava
   implementation project.deps.jodaTime

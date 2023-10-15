@@ -44,7 +44,7 @@ dependencies {
   implementation project.deps.jruby
   implementation project.deps.rack
   implementation project.deps.bouncyCastle
-  implementation project.deps.slf4j
+  implementation project.deps.slf4jApi
   runtimeOnly project.deps.logback
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')

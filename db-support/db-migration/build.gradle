@@ -50,6 +50,8 @@ dependencies {
   testRuntimeOnly project.deps.junit5Engine
   testImplementation project.deps.assertJ
   testImplementation project.deps.assertJ_DB
+  testImplementation project.deps.mockitoCore
+  testImplementation project.deps.mockitoJunit5
 
   testImplementation project.deps.testcontainers
   testImplementation project.deps.testcontainersJdbc

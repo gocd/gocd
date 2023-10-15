@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import static org.assertj.db.api.Assertions.assertThat;
 
 public abstract class AbstractMigratorIntegrationTest {
-    protected void migrate(JdbcDatabaseContainer container, String listTableQuery, String username, String password) throws SQLException {
+    protected void migrate(JdbcDatabaseContainer<?> container, String listTableQuery, String username, String password) throws SQLException {
         Source source = new Source(container.getJdbcUrl(), username, password);
         assertThat(new Request(source, listTableQuery))
                 .hasNumberOfRows(0);

@@ -23,9 +23,11 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
+import liquibase.exception.LockException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.ui.LoggerUIService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -54,23 +56,29 @@ public class DatabaseMigrator {
             disableLiquibaseConsoleLogging();
 
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            Liquibase liquibase = new Liquibase("db-migration-scripts/liquibase.xml", new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
-            liquibase.update(new Contexts());
+            newLiquibaseFor(database).update(new Contexts());
 
             System.err.println("INFO: Database upgrade completed successfully.");
             log.info("Database upgrade completed successfully.");
 
             DataMigrationRunner.run(connection);
+        } catch (LockException e) {
+            String message = "Unable to migrate the database, as it is currently locked. A previous GoCD start-up may have been interrupted during migration, and you may need to " +
+                "1) validate no GoCD instances are running, " +
+                "2) check the DB health looks OK, " +
+                "3) unlock by connecting directly to the database and running the command noted at https://docs.liquibase.com/concepts/tracking-tables/databasechangeloglock-table.html, " +
+                "4) restarting GoCD.";
+            log.error("{} The problem was: [{}] cause: [{}]", message, ExceptionUtils.getMessage(e), ExceptionUtils.getRootCauseMessage(e), e);
+            throw new SQLException(message, e);
         } catch (LiquibaseException e) {
-            String message = "Unable to create database upgrade script for database. The problem was: " + e.getMessage();
-            if (e.getCause() != null) {
-                message += ". The cause was: " + e.getCause().getMessage();
-            }
-            log.error(message, e);
-            System.err.println(message);
-            e.printStackTrace(System.err);
-            throw new SQLException("Unable to migrate the database", e);
+            String message = "Unable to migrate the database.";
+            log.error("{} The problem was: [{}] cause: [{}]", message, ExceptionUtils.getMessage(e), ExceptionUtils.getRootCauseMessage(e), e);
+            throw new SQLException(message, e);
         }
+    }
+
+    Liquibase newLiquibaseFor(Database database) {
+        return new Liquibase("db-migration-scripts/liquibase.xml", new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
     }
 
     private static void disableLiquibaseConsoleLogging() {

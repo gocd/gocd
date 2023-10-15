@@ -13,8 +13,9 @@ javaPlatform {
 dependencies {
   // Use BOMs to control versions of dependencies for other projects where possible.
   // This is following https://docs.gradle.org/current/userguide/platforms.html#sub:bom_import
+  api enforcedPlatform(project.deps.slf4jBom)
   api enforcedPlatform(project.deps.jacksonBom)
-  api platform(project.deps.jaxbBom)
+  api enforcedPlatform(project.deps.jaxbBom)
 
   constraints {
     api project.deps.angusActivation
@@ -25,12 +26,6 @@ dependencies {
     api project.deps.guava
     api project.deps.jetBrainsAnnotations
     api project.deps.objenesis
-    api('org.slf4j:slf4j-api') {
-      version {
-        // Prevent early upgrade from transitive dependencies due to lack of slf4J BOM to declare as an enforcedPlatform
-        strictly(project.versions.slf4j as String)
-      }
-    }
   }
 
   api enforcedPlatform(project.deps.junit5Bom)

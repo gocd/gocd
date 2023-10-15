@@ -21,7 +21,7 @@ dependencies {
   implementation project(path: ':config:config-server', configuration: 'runtimeElements')
   implementation project(path: ':common', configuration: 'runtimeElements')
   implementation project(path: ':rack_hack', configuration: 'runtimeElements')
-  implementation project.deps.slf4j
+  implementation project.deps.slf4jApi
 
   compileOnly project.deps.jetty
   compileOnly project.deps.jettyJmx

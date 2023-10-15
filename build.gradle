@@ -379,6 +379,9 @@ subprojects {
         module("net.sf.ehcache:ehcache") {
           replacedBy("net.sf.ehcache.internal:ehcache-core", "Use the much slimmer core artifact which is fine for our use case")
         }
+        module("commons-logging:commons-logging") {
+          replacedBy(project.deps.slf4jJcl, "Replace commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html")
+        }
       }
       components {
         // workaround for dom4j Gradle metadata optional dependency issues to avoid it pulling in
@@ -401,10 +404,6 @@ subprojects {
 
   configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-      // replace  commons-logging implementations with the slf4j apis that redirect logs to slf4j per https://www.slf4j.org/legacy.html
-      if (details.requested.group == 'commons-logging' && details.requested.name == 'commons-logging') {
-        details.useTarget project.deps.slf4jJcl
-      }
       // Hamcrest core/library/all have been merged together: https://hamcrest.org/JavaHamcrest/distributables
       if (details.requested.group == 'org.hamcrest' && details.requested.name ==~ /hamcrest-(core|library|all)/) {
         details.useTarget project.deps.hamcrest

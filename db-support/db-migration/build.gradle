@@ -42,7 +42,7 @@ dependencies {
     exclude group: 'org.yaml', module: 'snakeyaml'
     exclude group: 'com.opencsv', module: 'opencsv'
   }
-  implementation project.deps.slf4j
+  implementation project.deps.slf4jApi
   runtimeOnly project.deps.liquibaseSlf4j
   testRuntimeOnly project.deps.logback
 

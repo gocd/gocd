@@ -60,8 +60,7 @@ class DatabaseMigratorTest {
     @Test
     public void shouldRunMigrationOnRequestedConnection() throws Exception {
 
-        try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class)) {
-            Connection connection = dummyH2Connection();
+        try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class); Connection connection = dummyH2Connection()) {
             migrator.migrate(connection);
 
             verify(liquibase).update(assertArg(Contexts::isEmpty));
@@ -72,10 +71,10 @@ class DatabaseMigratorTest {
     @Test
     public void shouldRaiseWrappedLockExceptionWhenDatabaseLocked() throws Exception {
 
-        try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class)) {
+        try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class); Connection connection = dummyH2Connection()) {
             doThrow(new LockException("Database locked")).when(liquibase).update(assertArg(Contexts::isEmpty));
 
-            assertThatThrownBy(() -> migrator.migrate(dummyH2Connection()))
+            assertThatThrownBy(() -> migrator.migrate(connection))
                 .isExactlyInstanceOf(SQLException.class)
                 .hasMessageContaining("Unable to migrate the database, as it is currently locked.")
                 .hasRootCauseExactlyInstanceOf(LockException.class)
@@ -88,10 +87,10 @@ class DatabaseMigratorTest {
     @Test
     public void shouldRaiseWrappedExceptionForOtherErrors() throws Exception {
 
-        try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class)) {
+        try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class); Connection connection = dummyH2Connection()) {
             doThrow(new LiquibaseException("Liquibase error")).when(liquibase).update(assertArg(Contexts::isEmpty));
 
-            assertThatThrownBy(() -> migrator.migrate(dummyH2Connection()))
+            assertThatThrownBy(() -> migrator.migrate(connection))
                 .isExactlyInstanceOf(SQLException.class)
                 .hasMessageContaining("Unable to migrate the database")
                 .hasRootCauseExactlyInstanceOf(LiquibaseException.class)

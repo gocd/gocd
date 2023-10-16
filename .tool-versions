@@ -1,4 +1,4 @@
 # Configuration for https://github.com/asdf-vm/asdf as an alternative to jabba, rvm, nvm etc
 java temurin-17.0.8+101
 ruby 3.2.2
-nodejs 20.8.0
+nodejs 20.8.1

@@ -198,8 +198,7 @@ $icon-color: #647984;
 
   label {
     display: flex;
-    justify-content: space-between;
-    align-content: center;
+    place-content: center space-between;
     flex-wrap: wrap;
     align-items: center;
 

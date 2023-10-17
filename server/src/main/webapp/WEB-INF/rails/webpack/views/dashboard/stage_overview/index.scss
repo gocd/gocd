@@ -493,8 +493,7 @@ $dark-gray: #2f4f4f;
 
 .table-body {
   max-height: 243px;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden scroll;
 }
 
 .cancelled-by-wrapper {

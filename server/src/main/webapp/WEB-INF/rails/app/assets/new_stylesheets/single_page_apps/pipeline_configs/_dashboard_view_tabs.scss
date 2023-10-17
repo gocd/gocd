@@ -103,8 +103,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 21%);
 }
 
 .dashboard-tabs-sortable {
-  overflow-y: hidden;
-  overflow-x: auto;
+  overflow: auto hidden;
   outline: none;
   padding-bottom: 100px;
 }

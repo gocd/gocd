@@ -18,8 +18,7 @@
 .parent {
   display: flex;
   flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-content: space-between;
+  place-content: space-between flex-start;
   align-items: stretch;
 
   .stage-job-tree {
@@ -60,8 +59,7 @@
 .task-row {
   display: flex;
   flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-content: stretch;
+  place-content: stretch flex-start;
   align-items: stretch;
 
   .task-description {

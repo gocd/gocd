@@ -71,8 +71,7 @@ $wizard-footer-height: 56px;
   padding: 10px 15px;
   background: $white;
   flex-grow: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   margin-bottom: $navbar-height;
 }
 

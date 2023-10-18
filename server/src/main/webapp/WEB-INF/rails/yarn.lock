@@ -1880,12 +1880,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jquery@npm:^3.5.22":
-  version: 3.5.22
-  resolution: "@types/jquery@npm:3.5.22"
+"@types/jquery@npm:^3.5.23":
+  version: 3.5.23
+  resolution: "@types/jquery@npm:3.5.23"
   dependencies:
     "@types/sizzle": "*"
-  checksum: b81c95e27bb30686c1ad5d3f414781243d0cbb468b91d5584dedd3d3ca07ac99796d876e257a7246d6d9b69916bbb0cd0508142ab9f88848605c6d431144d729
+  checksum: 9231af0b80efe63257d898d41c4ee03bbe2152654e0d4709a9fd27eba255622f837315ad7529865ad9796312812dacfa4fc2d11dd4559ff13585c642ffd989b4
   languageName: node
   linkType: hard
 
@@ -5846,7 +5846,7 @@ __metadata:
     "@types/html-webpack-plugin": ^3.2.7
     "@types/jasmine": ^5.1.1
     "@types/jasmine-ajax": ^3.3.4
-    "@types/jquery": ^3.5.22
+    "@types/jquery": ^3.5.23
     "@types/license-checker": ^25.0.4
     "@types/lodash": ^4.14.199
     "@types/mini-css-extract-plugin": ^1.4.3

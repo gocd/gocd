@@ -102,7 +102,7 @@ final Map<String, String> libraries = [
   testcontainersBom   : 'org.testcontainers:testcontainers-bom:1.19.1',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   tokenBucket         : 'org.isomorphism:token-bucket:1.7',
-  urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
+  urlrewrite          : 'org.tuckey:urlrewritefilter:5.1.1',
   xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.9.1',
   ztExec              : 'org.zeroturnaround:zt-exec:1.12',
 ]

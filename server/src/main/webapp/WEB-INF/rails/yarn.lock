@@ -1817,13 +1817,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/fs-extra@npm:^11.0.2":
-  version: 11.0.2
-  resolution: "@types/fs-extra@npm:11.0.2"
+"@types/fs-extra@npm:^11.0.3":
+  version: 11.0.3
+  resolution: "@types/fs-extra@npm:11.0.3"
   dependencies:
     "@types/jsonfile": "*"
     "@types/node": "*"
-  checksum: 5b3e30343ee62d2e393e1029355f13f64bab6f3416226e22492483f99da840e2e53ca22cbfa4ac3749f2f83f7086d19c009005c8fa175da01df0fae59c2d73e1
+  checksum: f196bc216906e7016a6c9c549dbe204fe7e1e87515c7e961f741309e25f8e2f8c268dba3dbf0ca7f3ddab5911d39888472f8624ac0c11a461f1b2d05377e38fa
   languageName: node
   linkType: hard
 
@@ -5851,7 +5851,7 @@ __metadata:
     "@fortawesome/fontawesome-free": ^6.4.2
     "@shopify/draggable": 1.0.0-beta.12
     "@types/awesomplete": ^1.1.13
-    "@types/fs-extra": ^11.0.2
+    "@types/fs-extra": ^11.0.3
     "@types/html-webpack-plugin": ^3.2.7
     "@types/jasmine": ^5.1.1
     "@types/jasmine-ajax": ^3.3.4

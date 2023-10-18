@@ -65,7 +65,7 @@
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.2.2",
     "@types/node": "^20.8.7",
-    "@types/optimize-css-assets-webpack-plugin": "^5.0.6",
+    "@types/optimize-css-assets-webpack-plugin": "^5.0.7",
     "@types/prismjs": "^1.26.1",
     "@types/shell-quote": "^1.7.2",
     "@types/underscore.string": "^0.0.39",

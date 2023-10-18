@@ -2006,10 +2006,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/shell-quote@npm:^1.7.2":
-  version: 1.7.2
-  resolution: "@types/shell-quote@npm:1.7.2"
-  checksum: 103deecfcfef9eef813fe904e7cc3da5af42038ca21d892442309618e37734bef218605af5cd04477f7a63900d4a0b965d16cc381083c77fc7eb9bcb14b56c18
+"@types/shell-quote@npm:^1.7.3":
+  version: 1.7.3
+  resolution: "@types/shell-quote@npm:1.7.3"
+  checksum: a14679d55ae31e62d9398a340fd3983345c600e28d74a213598a3fbd279eb1524608b6334a73fde2b7aa6a6644de506552f08206980b15bfd895e737373e4708
   languageName: node
   linkType: hard
 
@@ -5863,7 +5863,7 @@ __metadata:
     "@types/node": ^20.8.7
     "@types/optimize-css-assets-webpack-plugin": ^5.0.7
     "@types/prismjs": ^1.26.1
-    "@types/shell-quote": ^1.7.2
+    "@types/shell-quote": ^1.7.3
     "@types/underscore.string": ^0.0.39
     "@types/url-parse": ^1.4.9
     "@types/uuid": ^9.0.5

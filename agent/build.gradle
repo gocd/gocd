@@ -153,7 +153,7 @@ task verifyJar(type: VerifyJarTask) {
       "jakarta.activation-api-2.1.2.jar",
       "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
       "jakarta.servlet-api-${project.versions.servletApi}.jar",
-      "jakarta.xml.bind-api-4.0.0.jar",
+      "jakarta.xml.bind-api-4.0.1.jar",
       "javax.inject-1.jar",
       "jaxb-core-${project.versions.jaxb}.jar",
       "jaxb-runtime-${project.versions.jaxb}.jar",

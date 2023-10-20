@@ -812,7 +812,7 @@ task verifyWar(type: VerifyJarTask) {
         "jakarta.mail-api-${project.versions.jakartaMail}.jar",
         "jakarta.servlet-api-${project.versions.servletApi}.jar",
         "jakarta.transaction-api-${project.versions.jakartaTransaction}.jar",
-        "jakarta.xml.bind-api-4.0.0.jar",
+        "jakarta.xml.bind-api-4.0.1.jar",
         "javassist-${project.versions.javassist}.jar",
         "javax.inject-1.jar",
         "jaxb-core-${project.versions.jaxb}.jar",

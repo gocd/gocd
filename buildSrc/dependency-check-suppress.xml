@@ -180,15 +180,6 @@
     <cve>CVE-2022-45868</cve>
     <vulnerabilityName>CVE-2018-14335</vulnerabilityName>
   </suppress>
-  
-  <suppress>
-    <notes><![CDATA[
-    This seems like it's not a real issue based on discussion at https://github.com/FasterXML/jackson-databind/issues/3972 - seems
-    more like premature CVE raising by individuals.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-    <cve>CVE-2023-35116</cve>
-  </suppress>
 
   <suppress>
     <notes><![CDATA[
@@ -273,7 +264,7 @@
   <suppress>
     <notes><![CDATA[
     Suppress false positive from the JSON Config repo plugin at plugins-{version}.zip/gocd-json-config-plugin.jar. This plugin is being mis-identified as the json-c project which is completely different.
-    Not sure if/how this can be fixed upstream in OWASP Dependency Check as in our case it's being reported agains a SHA for the plugin jar itself which
+    Not sure if/how this can be fixed upstream in OWASP Dependency Check as in our case it's being reported against a SHA for the plugin jar itself which
     does not have a Maven identifier.  
     ]]></notes>
     <cpe>cpe:/a:json-c:json-c</cpe>

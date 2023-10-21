@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.domain.DirectoryEntries;
@@ -22,26 +22,12 @@ import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Arrays;
-
-import static com.thoughtworks.go.util.SystemEnvironment.ARTIFACT_VIEW_INCLUDE_ALL_FILES;
+import java.util.Comparator;
 
 public class DirectoryReader {
     private final URLService urlService;
     private final JobIdentifier jobIdentifier;
-
-    private static final FileFilter VISIBLE_NON_SERIALIZED_FILES = new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-            return !(file.isHidden() || isSerializedObjectFile(file.getName()));
-        }
-
-        private boolean isSerializedObjectFile(String filename) {
-            return filename.startsWith(".") && filename.endsWith(".ser");
-        }
-
-    };
 
     public DirectoryReader(JobIdentifier jobIdentifier) {
         this.jobIdentifier = jobIdentifier;
@@ -58,12 +44,12 @@ public class DirectoryReader {
         if (rootFolder == null) {
             return entries;
         }
-        File[] files = rootFolder.listFiles(ARTIFACT_VIEW_INCLUDE_ALL_FILES.getValue() ? file -> true : VISIBLE_NON_SERIALIZED_FILES);
+        File[] files = rootFolder.listFiles();
 
         if (files == null) {
             return entries;
         }
-        Arrays.sort(files, new FileComparator());
+        Arrays.sort(files, new DirectoriesFirstFileNameOrder());
         for (File file : files) {
             String name = file.getName();
             String url = getUrl(relativePath, name);
@@ -81,5 +67,17 @@ public class DirectoryReader {
 
     private String getCurrentPath(String currentPath) {
         return "".equals(currentPath) ? "" : currentPath + "/";
+    }
+
+    static class DirectoriesFirstFileNameOrder implements Comparator<File> {
+
+        @Override
+        public int compare(File file1, File file2) {
+            if (file1.isDirectory() && file2.isDirectory() || file1.isFile() && file2.isFile()) {
+                return file1.getName().compareTo(file2.getName());
+            } else {
+                return file1.isDirectory() ? -1 : 1;
+            }
+        }
     }
 }

@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.server.presentation.models;
+package com.thoughtworks.go.server.presentation.html;
 
-public class HtmlRenderer {
-    private final StringBuffer sb = new StringBuffer();
-    private final String contextRoot;
+public class ListedElements implements HtmlRenderable {
+    public static HtmlRenderable sequence(HtmlRenderable... elements) { return new ListedElements(elements); }
 
-    public HtmlRenderer(String contextRoot) {
-        this.contextRoot = contextRoot;
+    private final HtmlRenderable[] elements;
+
+    private ListedElements(HtmlRenderable... elements) {
+        this.elements = elements;
     }
 
-    public HtmlRenderer append(String s) {
-        sb.append(s);
-        return this;
-    }
-
-    public HtmlRenderer appendContextRootedUrl(String href) {
-        append(contextRoot + href);
-        return this;
-    }
-
-    public String asString() {
-        return sb.toString();
+    @Override
+    public void render(HtmlRenderer renderer) {
+        for (HtmlRenderable element : elements) {
+            element.render(renderer);
+            renderer.append("\n");
+        }
     }
 }

@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.presentation.html.HtmlElement;
 import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
+import com.thoughtworks.go.server.presentation.html.HtmlRenderer;
 import com.thoughtworks.go.util.json.JsonAware;
 
 import java.util.ArrayList;

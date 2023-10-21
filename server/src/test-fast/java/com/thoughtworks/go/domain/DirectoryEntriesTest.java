@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
+import com.thoughtworks.go.server.presentation.html.HtmlRenderer;
 import org.hamcrest.Matchers;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -87,7 +87,7 @@ public class DirectoryEntriesTest {
     }
 
     @Test
-    public void shouldAddFolder() throws Exception {
+    public void shouldAddFolder() {
         DirectoryEntries directoryEntries = new DirectoryEntries();
         directoryEntries.addFolder("cruise-output");
 
@@ -95,7 +95,7 @@ public class DirectoryEntriesTest {
     }
 
     @Test
-    public void shouldAddFile() throws Exception {
+    public void shouldAddFile() {
         DirectoryEntries directoryEntries = new DirectoryEntries();
         directoryEntries.addFile("console.log", "path");
 

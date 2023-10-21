@@ -17,8 +17,8 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.domain.DirectoryEntries;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
-import com.thoughtworks.go.util.DirectoryReader;
+import com.thoughtworks.go.server.presentation.html.HtmlRenderer;
+import com.thoughtworks.go.server.presentation.models.DirectoryReader;
 import com.thoughtworks.go.util.json.JsonAware;
 
 import java.io.File;

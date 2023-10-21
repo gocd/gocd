@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.server.presentation.html;
 
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
+import org.junit.jupiter.api.Test;
 
-class TextElement implements HtmlRenderable {
-    private final String body;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    TextElement(String body) {
-        this.body = body;
-    }
+class HtmlElementTest {
+    @Test
+    void shouldEscapeContent() {
+        HtmlElement element = HtmlElement.span().safecontent("<div>Hello</div>");
+        HtmlRenderer renderer = new HtmlRenderer("");
 
-    @Override
-    public void render(HtmlRenderer renderer) {
-        renderer.append(body + "\n");
+        element.render(renderer);
+
+        assertEquals("<span>\n&lt;div&gt;Hello&lt;/div&gt;\n</span>\n", renderer.asString());
     }
 }

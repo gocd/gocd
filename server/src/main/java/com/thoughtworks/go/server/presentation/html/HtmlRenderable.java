@@ -15,22 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.html;
 
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
-
-public class ListedElements implements HtmlRenderable {
-    public static HtmlRenderable sequence(HtmlRenderable... elements) { return new ListedElements(elements); }
-
-    private final HtmlRenderable[] elements;
-
-    private ListedElements(HtmlRenderable... elements) {
-        this.elements = elements;
-    }
-
-    @Override
-    public void render(HtmlRenderer renderer) {
-        for (HtmlRenderable element : elements) {
-            element.render(renderer);
-            renderer.append("\n");
-        }
-    }
+public interface HtmlRenderable {
+    void render(HtmlRenderer renderer);
 }

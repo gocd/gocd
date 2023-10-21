@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.thoughtworks.go.server.presentation.html;
 
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
-import org.junit.jupiter.api.Test;
+public class HtmlRenderer {
+    private final StringBuffer sb = new StringBuffer();
+    private final String contextRoot;
 
-import static org.junit.jupiter.api.Assertions.*;
+    public HtmlRenderer(String contextRoot) {
+        this.contextRoot = contextRoot;
+    }
 
-class HtmlElementTest {
-    @Test
-    void shouldEscapeContent() {
-        HtmlElement element = HtmlElement.span().safecontent("<div>Hello</div>");
-        HtmlRenderer renderer = new HtmlRenderer("");
+    public HtmlRenderer append(String s) {
+        sb.append(s);
+        return this;
+    }
 
-        element.render(renderer);
+    public HtmlRenderer appendContextRootedUrl(String href) {
+        append(contextRoot + href);
+        return this;
+    }
 
-        assertEquals("<span>\n&lt;div&gt;Hello&lt;/div&gt;\n</span>\n", renderer.asString());
+    public String asString() {
+        return sb.toString();
     }
 }

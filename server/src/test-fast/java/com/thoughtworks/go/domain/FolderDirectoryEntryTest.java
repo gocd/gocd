@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
+import com.thoughtworks.go.server.presentation.html.HtmlRenderer;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.*;
 
 public class FolderDirectoryEntryTest {
     @Test
-    public void shouldAddFile() throws Exception {
+    public void shouldAddFile() {
         DirectoryEntries subDirectory = new DirectoryEntries();
         FolderDirectoryEntry entry = new FolderDirectoryEntry("file", "url", subDirectory);
         entry.addFile("file", "path");
@@ -31,7 +31,7 @@ public class FolderDirectoryEntryTest {
     }
 
     @Test
-    public void shouldEscapeFolderName() throws Exception {
+    public void shouldEscapeFolderName() {
         DirectoryEntries subDirectory = new DirectoryEntries();
         FolderDirectoryEntry entry = new FolderDirectoryEntry("<div>Hello</div>", "url", subDirectory);
 

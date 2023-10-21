@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.server.presentation.models;
 
 import com.thoughtworks.go.domain.DirectoryEntry;
 import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
-import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,14 +33,9 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-
-@ExtendWith(SystemStubsExtension.class)
 public class DirectoryReaderTest {
     @TempDir
     File testFolder;
-
-    @SystemStub
-    SystemProperties systemProperties;
 
     private JobIdentifier jobIdentifier;
     private String folderRoot;
@@ -76,8 +69,8 @@ public class DirectoryReaderTest {
         assertThat(entries.size(), is(1));
         assertThat(entries.get(0).getFileName(), is(filename));
         assertThat(entries.get(0).getUrl(),
-                is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/"
-                        + URLEncoder.encode(filename, StandardCharsets.UTF_8)));
+            is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/"
+                + URLEncoder.encode(filename, StandardCharsets.UTF_8)));
     }
 
     @Test
@@ -91,8 +84,8 @@ public class DirectoryReaderTest {
         assertThat(subFolder.getFileName(), is("monkey"));
         assertThat(subFolder.getSubDirectory().get(0).getFileName(), is("baboon.html"));
         assertThat(subFolder.getSubDirectory().get(0).getUrl(),
-                is("/files/pipelineName/LATEST/stageName/LATEST/buildName"
-                        + folderRoot + "/primate/monkey/baboon.html"));
+            is("/files/pipelineName/LATEST/stageName/LATEST/buildName"
+                + folderRoot + "/primate/monkey/baboon.html"));
     }
 
     @Test
@@ -106,11 +99,11 @@ public class DirectoryReaderTest {
         FolderDirectoryEntry folder = (FolderDirectoryEntry) entries.get(0);
         assertThat(folder.getFileName(), is("primate"));
         assertThat(folder.getUrl(), is("/files/pipelineName/LATEST/stageName/LATEST/buildName"
-                + folderRoot + "/primate"));
+            + folderRoot + "/primate"));
         assertThat(entries.get(1).getFileName(), is("text.html"));
         assertThat(folder.getSubDirectory().get(0).getFileName(), is("baboon.html"));
         assertThat(folder.getSubDirectory().get(0).getUrl(),
-                is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/primate/baboon.html"));
+            is("/files/pipelineName/LATEST/stageName/LATEST/buildName" + folderRoot + "/primate/baboon.html"));
     }
 
     @Test
@@ -132,24 +125,55 @@ public class DirectoryReaderTest {
     }
 
     @Test
-    public void shouldNotContainSerializedObjectFileWhenConfigured() throws Exception {
-        String filename = ".log200806041535.xml.ser";
-        TestFileUtil.createTestFile(testFolder, filename);
-        DirectoryReader reader = new DirectoryReader(jobIdentifier);
-        assertThat((reader.listEntries(testFolder, folderRoot)).size(), is(1));
-        systemProperties.set(SystemEnvironment.ARTIFACT_VIEW_INCLUDE_ALL_FILES.propertyName(), false);
-        assertThat((reader.listEntries(testFolder, folderRoot)).size(), is(0));
-    }
-
-    @Test
     public void shouldKeepRootsInUrl() throws Exception {
         File b = TestFileUtil.createTestFolder(testFolder, "b");
         TestFileUtil.createTestFile(b, "c.xml");
         List<DirectoryEntry> entries = new DirectoryReader(jobIdentifier).listEntries(b, folderRoot + "/b");
         assertThat(entries.size(), is(1));
         String expectedUrl = "/files/pipelineName/LATEST/stageName/LATEST/buildName/"
-                + testFolder.getName() + "/b/c.xml";
+            + testFolder.getName() + "/b/c.xml";
         assertThat(entries.get(0).getUrl(), is(expectedUrl));
+    }
+
+    @Nested
+    public class DirectoriesFirstFileNameOrderTest {
+
+        private final File file1 = new FileStub("a", false);
+        private final File file2 = new FileStub("b", false);
+        private final File folder1 = new FileStub("c", true);
+        private final File folder2 = new FileStub("d", true);
+
+        private final DirectoryReader.DirectoriesFirstFileNameOrder comparator = new DirectoryReader.DirectoriesFirstFileNameOrder();
+
+        @Test
+        public void shouldBeAlphabeticForSameType() {
+            assertThat(comparator.compare(file1, file2) < 0, is(true));
+            assertThat(comparator.compare(folder1, folder2) < 0, is(true));
+        }
+
+        @Test
+        public void folderShouldBeLessThanFile() {
+            assertThat(comparator.compare(file1, folder1) > 0, is(true));
+        }
+    }
+
+    private static class FileStub extends File {
+        private final boolean directory;
+
+        public FileStub(String name, boolean isDirectory) {
+            super(name);
+            directory = isDirectory;
+        }
+
+        @Override
+        public boolean isDirectory() {
+            return directory;
+        }
+
+        @Override
+        public boolean isFile() {
+            return !directory;
+        }
     }
 
 }

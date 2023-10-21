@@ -153,7 +153,6 @@ module JavaImports
   java_import com.thoughtworks.go.util.SystemUtil unless defined? SystemUtil
   java_import com.thoughtworks.go.util.TimeConverter unless defined? TimeConverter
   java_import com.thoughtworks.go.util.TriState unless defined? TriState
-  #java_import com.thoughtworks.go.domain.config.Admin unless defined? com.thoughtworks.go.domain.config.Admin
   java_import java.lang.System unless defined? System
   java_import java.util.HashMap unless defined? HashMap
   java_import org.joda.time.Duration unless defined? Duration
@@ -168,7 +167,6 @@ module JavaImports
   java_import org.dom4j.io.OutputFormat unless defined? OutputFormat
   java_import org.dom4j.io.XMLWriter unless defined? XMLWriter
   java_import java.io.ByteArrayOutputStream unless defined? ByteArrayOutputStream
-  java_import com.thoughtworks.go.domain.XmlWriterContext unless defined? XmlWriterContext
   java_import com.thoughtworks.go.domain.StageFinder unless defined? StageFinder
   java_import com.thoughtworks.go.domain.DefaultJobPlan unless defined? DefaultJobPlan
   java_import com.thoughtworks.go.server.ui.JobInstancesModel unless defined? JobInstancesModel

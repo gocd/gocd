@@ -200,17 +200,23 @@
 
   <suppress>
     <notes><![CDATA[
-    GoCD is not vulnerable to these issues as it does not use Angular in a vulnerable way.
-    (no use of, or ability to set `xlink:href`, no use of `<select>` elements, no use of `sanitize()`, no use of
-    `angular.merge()`, no use of `usemap` attribute, not a Firefox add-on
+    GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
+    (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
+    no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, and don't care about Internet Explorer)
     ]]></notes>
     <packageUrl regex="true">^pkg:javascript/angularjs@.*$</packageUrl>
+    <cve>CVE-2019-10768</cve>
     <cve>CVE-2019-14863</cve>
     <cve>CVE-2020-7676</cve>
+    <cve>CVE-2022-25869</cve>
+    <cve>CVE-2023-26116</cve>
+    <cve>CVE-2023-26117</cve>
+    <cve>CVE-2023-26118</cve>
     <vulnerabilityName>DOS in $sanitize</vulnerabilityName>
-    <vulnerabilityName>Prototype pollution</vulnerabilityName>
+    <vulnerabilityName>Cross-Site Scripting via JSONP</vulnerabilityName>
     <vulnerabilityName>The attribute usemap can be used as a security exploit</vulnerabilityName>
     <vulnerabilityName>Universal CSP bypass via add-on in Firefox</vulnerabilityName>
+    <vulnerabilityName>XSS via JQLite DOM manipulation functions in AngularJS</vulnerabilityName>
     <vulnerabilityName>End-of-Life: Long term support for AngularJS has been discontinued</vulnerabilityName>
     <vulnerabilityName>XSS in $sanitize in Safari/Firefox</vulnerabilityName>
   </suppress>

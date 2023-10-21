@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.thoughtworks.go.server.domain.xml;
 
-description = 'GoCD Utils'
+import org.dom4j.Document;
 
-dependencies {
-  implementation project(path: ':base', configuration: 'runtimeElements')
-  api project.deps.springContext
-  api project.deps.gson
-  implementation project.deps.cloning
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.hamcrest
-  testImplementation project.deps.assertJ
+/**
+ * Understands interface to get xml representation of an object
+ */
+public interface XmlRepresentable {
+    Document toXml(XmlWriterContext writerContext);
+
+    String httpUrl(String baseUrl);
 }

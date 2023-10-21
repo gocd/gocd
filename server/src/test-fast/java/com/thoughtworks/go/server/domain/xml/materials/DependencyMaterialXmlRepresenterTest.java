@@ -16,10 +16,14 @@
 package com.thoughtworks.go.server.domain.xml.materials;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.MaterialRevision;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageFinder;
+import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.junit5.FileSource;
+import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.SystemEnvironment;

@@ -27,8 +27,8 @@ import java.util.Map;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
 
 public class SimpleJsonView implements View {
-    private int status;
-    private Object jsonAware;
+    private final int status;
+    private final Object jsonAware;
 
     public SimpleJsonView(int status, Object jsonAware) {
         this.status = status;
@@ -46,7 +46,7 @@ public class SimpleJsonView implements View {
         // In IE, there's a problem with caching. We want to cache if we can.
         // This will force the browser to clear the cache only for this page.
         // If any other pages need to clear the cache, we might want to move this
-        // logic to an intercepter.
+        // logic to an interceptor.
         GoRequestContext goRequestContext = new GoRequestContext(request);
         response.addHeader("Cache-Control", GoConstants.CACHE_CONTROL);
         response.setStatus(status);

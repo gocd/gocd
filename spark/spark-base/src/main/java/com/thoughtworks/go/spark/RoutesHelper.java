@@ -30,6 +30,7 @@ import spark.Response;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +81,7 @@ public class RoutesHelper {
             final String uri = req.requestMethod() + " " + (isNotBlank(query) ? req.pathInfo() + "?" + query : req.pathInfo());
             LOG.error(format("Unhandled exception on [%s]: %s", uri, e.getMessage()), e);
 
-            res.status(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            res.status(HttpURLConnection.HTTP_INTERNAL_ERROR);
             res.body(GSON.toJson(Map.of("error", e.getMessage())));
         });
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());

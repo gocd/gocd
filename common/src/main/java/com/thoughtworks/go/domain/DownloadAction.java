@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.agent.HttpService;
+import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.work.GoPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletResponse;
+import java.net.HttpURLConnection;
 
 public class DownloadAction {
 
@@ -71,7 +71,7 @@ public class DownloadAction {
 
     private int download(HttpService httpService, String url, FetchHandler handler) throws Exception {
         int returnCode = httpService.download(url, handler);
-        while (returnCode == HttpServletResponse.SC_ACCEPTED) {
+        while (returnCode == HttpURLConnection.HTTP_ACCEPTED) {
             clock.sleepForMillis(DOWNLOAD_SLEEP_MILLIS);
             returnCode = httpService.download(url, handler);
         }

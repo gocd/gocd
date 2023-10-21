@@ -16,9 +16,9 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.agent.URLService;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -33,9 +33,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -107,8 +107,8 @@ public class SslInfrastructureServiceTest {
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
         when(agentRegistry.uuid()).thenReturn("some-uuid");
         when(agentRegistry.tokenPresent()).thenReturn(true);
-        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
-        when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.FORBIDDEN.value(), null));
+        when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpURLConnection.HTTP_OK, null));
+        when(httpResponseForbidden.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpURLConnection.HTTP_FORBIDDEN, null));
         when(httpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponseForbidden).thenReturn(httpResponse);
         sslInfrastructureService.createSslInfrastructure();
 

@@ -21,10 +21,10 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -49,20 +49,20 @@ public class ChecksumFileHandler implements FetchHandler {
 
     @Override
     public boolean handleResult(int returncode, GoPublisher goPublisher) {
-        if (returncode == HttpServletResponse.SC_NOT_FOUND) {
+        if (returncode == HttpURLConnection.HTTP_NOT_FOUND) {
             deleteQuietly(checksumFile);
             goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, "[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.");
             return true;
         }
-        if (returncode == HttpServletResponse.SC_NOT_MODIFIED) {
+        if (returncode == HttpURLConnection.HTTP_NOT_MODIFIED) {
             LOG.info("[Agent Fetch Artifact] Not downloading checksum file as it has not changed");
             return true;
         }
-        if (returncode == HttpServletResponse.SC_OK) {
+        if (returncode == HttpURLConnection.HTTP_OK) {
             LOG.info("[Agent Fetch Artifact] Saved checksum property file [{}]", checksumFile);
             return true;
         }
-        return returncode < HttpServletResponse.SC_BAD_REQUEST;
+        return returncode < HttpURLConnection.HTTP_BAD_REQUEST;
     }
 
     @Override

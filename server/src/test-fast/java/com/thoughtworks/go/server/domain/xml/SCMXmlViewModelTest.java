@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.domain.xml;
 
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.ModifiedAction;

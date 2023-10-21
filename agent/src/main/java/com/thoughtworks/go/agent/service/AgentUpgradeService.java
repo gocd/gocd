@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.Map;
 
 import static com.thoughtworks.go.agent.common.util.HeaderUtil.parseExtraProperties;
@@ -86,7 +87,7 @@ public class AgentUpgradeService {
     private void checkForUpgradeAndExtraProperties(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws IOException {
         HttpGet method = getAgentLatestStatusGetMethod();
         try (final CloseableHttpResponse response = httpClient.execute(method)) {
-            if (response.getStatusLine().getStatusCode() != 200) {
+            if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
                 LOGGER.error("[Agent Upgrade] Got status {} {} from GoCD", response.getStatusLine().getStatusCode(), response.getStatusLine());
                 return;
             }

@@ -264,12 +264,14 @@ dependencies {
     // Required for use of org.jdom2.xpath.XPathFactory where jaxen is the default impl
     api project.deps.jaxen
   }
+  api project.deps.dom4j
 
   implementation project.deps.jruby
   implementation project.deps.rack
 
   implementation project.deps.springOrm
   api project.deps.springWeb
+  api project.deps.springWebmvc
   api project.deps.springContextSupport
   api(project.deps.springSecurityWeb) {
     exclude(group: 'org.springframework')

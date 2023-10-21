@@ -17,8 +17,6 @@ package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.domain.XmlRepresentable;
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.presentation.pipelinehistory.NullStageHistoryItem;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.xml.builder.DocumentBuilder;

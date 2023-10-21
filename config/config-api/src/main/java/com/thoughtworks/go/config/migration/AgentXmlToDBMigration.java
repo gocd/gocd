@@ -69,10 +69,12 @@ public class AgentXmlToDBMigration {
         }
     }
 
+    @SuppressWarnings("unused") // used from migration XSL
     public static void migrateAgent(String uuid, String hostname, String ipaddress, String isDisabled, String elasticAgentId, String elasticPluginId, String environments, String resources) {
         agentList.add(new Agent(uuid, hostname, ipaddress, isDisabled, elasticAgentId, elasticPluginId, environments, resources));
     }
 
+    @SuppressWarnings("unused") // used from migration XSL
     public static void endTransaction() throws Exception {
         if (dataSource == null) {
             return;
@@ -143,6 +145,7 @@ public class AgentXmlToDBMigration {
         preparedStatement.execute();
     }
 
+    @SuppressWarnings("unused") // used from migration XSL
     public static void beginTransaction() {
         agentList = new ArrayList<>();
     }

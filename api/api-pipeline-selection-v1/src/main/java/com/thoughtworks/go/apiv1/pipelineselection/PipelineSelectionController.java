@@ -40,11 +40,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +58,6 @@ public class PipelineSelectionController extends ApiController implements SparkS
     private static final int ONE_YEAR = 3600 * 24 * 365;
     private static final String COOKIE_NAME = "selected_pipelines";
 
-    private static final int OK = HttpStatus.OK.value();
     private static final String DATA_IS_OUT_OF_DATE = "Update failed because the view is out-of-date. Try refreshing the page.";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
@@ -148,7 +147,7 @@ public class PipelineSelectionController extends ApiController implements SparkS
             response.cookie("/go", COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
         }
 
-        response.status(OK);
+        response.status(HttpURLConnection.HTTP_OK);
         return format("{ \"contentHash\": \"%s\" }", pipelineSelectionsService.load(fromCookie, userId).etag());
     }
 

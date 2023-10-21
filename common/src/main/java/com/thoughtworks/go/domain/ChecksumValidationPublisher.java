@@ -17,15 +17,15 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.work.GoPublisher;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.ChecksumValidationPublisher, Serializable {
-    private Set<String> md5NotFoundPaths = new HashSet<>();
-    private Set<String> md5MismatchPaths = new HashSet<>();
+    private final Set<String> md5NotFoundPaths = new HashSet<>();
+    private final Set<String> md5MismatchPaths = new HashSet<>();
     private boolean md5ChecksumFileWasNotFound;
 
     @Override
@@ -58,12 +58,12 @@ public class ChecksumValidationPublisher implements com.thoughtworks.go.agent.Ch
             goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, String.format("[WARN] The md5checksum value of the artifact [%s] was not found on the server. Hence, Go could not verify the integrity of its contents.", md5NotFoundPath));
         }
 
-        if (httpCode == HttpServletResponse.SC_NOT_MODIFIED) {
+        if (httpCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
             goPublisher.taggedConsumeLineWithPrefix(GoPublisher.OUT, "Artifact is not modified, skipped fetching it");
         }
 
-        if (httpCode == HttpServletResponse.SC_OK) {
-            if (md5NotFoundPaths.size() > 0 || md5ChecksumFileWasNotFound) {
+        if (httpCode == HttpURLConnection.HTTP_OK) {
+            if (!md5NotFoundPaths.isEmpty() || md5ChecksumFileWasNotFound) {
                 goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, String.format("Saved artifact to [%s] without verifying the integrity of its contents.", artifact));
             } else {
                 goPublisher.taggedConsumeLineWithPrefix(GoPublisher.OUT, String.format("Saved artifact to [%s] after verifying the integrity of its contents.", artifact));

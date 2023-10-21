@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;

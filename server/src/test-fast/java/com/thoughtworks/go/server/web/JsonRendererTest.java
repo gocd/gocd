@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain;
 
-import org.dom4j.Document;
+package com.thoughtworks.go.server.web;
 
-/**
- * Understands interface to get xml representation of an object
- */
-public interface XmlRepresentable {
-    Document toXml(XmlWriterContext writerContext);
+import com.thoughtworks.go.domain.materials.ValidationBean;
+import org.junit.jupiter.api.Test;
 
-    String httpUrl(String baseUrl);
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+
+public class JsonRendererTest {
+
+    @Test
+    public void canSerializeValidationBean()  {
+        assertThatJson(JsonRenderer.render(ValidationBean.notValid("ErrorMessage")))
+            .isEqualTo("{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }");
+    }
 }

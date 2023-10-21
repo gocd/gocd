@@ -22,10 +22,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -72,7 +72,7 @@ public class DirHandler implements FetchHandler {
     @Override
     public boolean handleResult(int httpCode, GoPublisher goPublisher) {
         checksumValidationPublisher.publish(httpCode, destOnAgent, goPublisher);
-        return httpCode < HttpServletResponse.SC_BAD_REQUEST;
+        return httpCode < HttpURLConnection.HTTP_BAD_REQUEST;
     }
 
     @Override

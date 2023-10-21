@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import com.thoughtworks.go.util.json.JsonAware;
-import com.thoughtworks.go.util.json.JsonFakeMap;
 import com.thoughtworks.go.util.json.JsonUrl;
 import org.springframework.context.MessageSourceResolvable;
 

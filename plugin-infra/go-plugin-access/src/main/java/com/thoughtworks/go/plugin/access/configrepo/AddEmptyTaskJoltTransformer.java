@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused") // Used by config repo migrations
 public class AddEmptyTaskJoltTransformer implements ContextualTransform {
 
     @Override

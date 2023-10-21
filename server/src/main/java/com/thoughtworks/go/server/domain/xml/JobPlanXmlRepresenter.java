@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.domain.WaitingJobPlan;
-import com.thoughtworks.go.domain.XmlRepresentable;
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.server.domain.xml.builder.DocumentBuilder;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import org.dom4j.Document;

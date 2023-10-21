@@ -23,7 +23,6 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.HaltException;
 import spark.Request;
@@ -31,6 +30,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 
 import static spark.Spark.*;
 
@@ -105,7 +105,7 @@ public class CctrayController implements SparkSpringController, SparkController 
     }
 
     private HaltException renderForbiddenResponse() {
-        return halt(HttpStatus.FORBIDDEN.value(), ACCESS_DENIED_XML_RESPONSE);
+        return halt(HttpURLConnection.HTTP_FORBIDDEN, ACCESS_DENIED_XML_RESPONSE);
     }
 
 }

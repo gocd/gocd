@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.server.presentation.html;
 
-import java.io.File;
-import java.util.Comparator;
+class TextElement implements HtmlRenderable {
+    private final String body;
 
-//TODO: ChrisS : Make static and rename to FILENAME_ORDER
-public class FileComparator implements Comparator<File> {
+    TextElement(String body) {
+        this.body = body;
+    }
 
     @Override
-    public int compare(File file1, File file2) {
-        if (file1.isDirectory() && file2.isDirectory() || file1.isFile() && file2.isFile()) {
-            return file1.getName().compareTo(file2.getName());
-        } else {
-            return file1.isDirectory() ? -1 : 1;
-        }
+    public void render(HtmlRenderer renderer) {
+        renderer.append(body + "\n");
     }
 }

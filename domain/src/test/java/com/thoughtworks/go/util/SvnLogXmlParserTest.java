@@ -102,7 +102,7 @@ public class SvnLogXmlParserTest {
     }
 
     @Test
-    public void shouldParseLogEntryWithoutComment() throws ParseException {
+    public void shouldParseLogEntryWithoutComment() {
         SvnLogXmlParser parser = new SvnLogXmlParser();
         List<Modification> materialRevisions = parser.parse("<?xml version=\"1.0\"?>\n"
                 + "<log>\n"
@@ -123,7 +123,7 @@ public class SvnLogXmlParserTest {
     }
 
     @Test
-    public void shouldParseLogWithEmptyRevision() throws ParseException {
+    public void shouldParseLogWithEmptyRevision() {
         SvnLogXmlParser parser = new SvnLogXmlParser();
         List<Modification> materialRevisions = parser.parse("<?xml version=\"1.0\"?>\n"
                 + "<log>\n"

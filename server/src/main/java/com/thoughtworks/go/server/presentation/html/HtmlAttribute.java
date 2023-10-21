@@ -15,8 +15,6 @@
  */
 package com.thoughtworks.go.server.presentation.html;
 
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
-
 public class HtmlAttribute {
     public static HtmlAttribute cssClass(String cssClass) { return new HtmlAttribute("class", cssClass); }
     public static HtmlAttribute onclick(String s) { return new HtmlAttribute("onclick", s); }

@@ -15,11 +15,10 @@
  */
 package com.thoughtworks.go.server.presentation.html;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
-import org.apache.commons.text.StringEscapeUtils;
 
 public class HtmlElement implements HtmlRenderable {
     public static HtmlElement div(HtmlAttribute... attributes) { return new HtmlElement("div", attributes); }

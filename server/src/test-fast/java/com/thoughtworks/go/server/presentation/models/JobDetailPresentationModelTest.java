@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.util.DirectoryReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
 import com.thoughtworks.go.server.presentation.html.HtmlAttribute;
 import com.thoughtworks.go.server.presentation.html.HtmlElement;
+import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
 
 public class FileDirectoryEntry extends DirectoryEntry {
 

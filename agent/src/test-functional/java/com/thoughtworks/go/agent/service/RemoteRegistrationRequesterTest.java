@@ -32,14 +32,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
@@ -64,7 +64,7 @@ public class RemoteRegistrationRequesterTest {
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
         final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
+        when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpURLConnection.HTTP_OK, null));
         when(response.getEntity()).thenReturn(new StringEntity(""));
         when(httpClient.execute(isA(HttpRequestBase.class))).thenReturn(response);
         final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
@@ -84,7 +84,7 @@ public class RemoteRegistrationRequesterTest {
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
         final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpStatus.OK.value(), null));
+        when(response.getStatusLine()).thenReturn(new BasicStatusLine(protocolVersion, HttpURLConnection.HTTP_OK, null));
         when(response.getEntity()).thenReturn(new StringEntity(""));
         when(httpClient.execute(isA(HttpRequestBase.class))).thenReturn(response);
 

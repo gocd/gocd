@@ -271,6 +271,7 @@ dependencies {
 
   implementation project.deps.springOrm
   api project.deps.springWeb
+  api project.deps.springWebmvc
   api project.deps.springContextSupport
   api(project.deps.springSecurityWeb) {
     exclude(group: 'org.springframework')

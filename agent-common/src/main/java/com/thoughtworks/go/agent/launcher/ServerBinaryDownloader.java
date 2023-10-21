@@ -23,7 +23,6 @@ import com.thoughtworks.go.agent.common.util.HeaderUtil;
 import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -142,7 +142,7 @@ public class ServerBinaryDownloader implements Downloader {
         try (PrintWriter out = new PrintWriter(sw)) {
             out.print("Problem accessing GoCD Server at ");
             out.println(url);
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            if (response.getStatusLine().getStatusCode() != HttpURLConnection.HTTP_OK) {
                 LOG.info("Response code: {}", response.getStatusLine().getStatusCode());
                 out.println("Possible causes:");
                 out.println("1. Your GoCD Server is down, not accessible or starting up.");

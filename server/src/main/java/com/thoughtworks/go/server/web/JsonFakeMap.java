@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.util.json;
+package com.thoughtworks.go.server.web;
+
+import com.thoughtworks.go.util.json.JsonAware;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

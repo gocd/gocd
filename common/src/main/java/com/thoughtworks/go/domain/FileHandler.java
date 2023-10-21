@@ -24,8 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
@@ -88,7 +88,7 @@ public class FileHandler implements FetchHandler {
     public boolean handleResult(int httpCode, GoPublisher goPublisher) {
         checksumValidationPublisher.publish(httpCode, artifact, goPublisher);
 
-        return httpCode < HttpServletResponse.SC_BAD_REQUEST;
+        return httpCode < HttpURLConnection.HTTP_BAD_REQUEST;
     }
 
     @Override

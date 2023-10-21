@@ -53,20 +53,26 @@ dependencies {
   packagingOnly project.deps.bouncyCastlePkix
 
   implementation project(path: ':agent-common', configuration: 'runtimeElements')
-  implementation project(path: ':common', configuration: 'runtimeElements')
+  implementation(project(path: ':common', configuration: 'runtimeElements')) {
+    exclude(group: 'org.quartz-scheduler') // Comes from config-api, but we don't need this
+    exclude(group: 'com.bazaarvoice.jolt') // Comes from go-plugin-access, but only for config repo migrations
+  }
   implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsConfiguration
   implementation project.deps.nanohttpd
   implementation project.deps.oshi
   compileOnly project.deps.jetBrainsAnnotations
 
-  testImplementation project(path: ':common', configuration: 'testOutput')
-  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
 
   testImplementation project.deps.junit5Api
   testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junit5Params
   testImplementation project.deps.springTestJunit5
+  testImplementation project.deps.assertJ
+  testImplementation project.deps.systemStubs
+  testImplementation project.deps.mockitoCore
+  testImplementation project.deps.mockitoJunit5
 
   extractedAtTopLevel project(path: ':agent-process-launcher', configuration: 'runtimeElements')
   extractedAtTopLevel project(path: ':jar-class-loader', configuration: 'runtimeElements')
@@ -146,14 +152,9 @@ task verifyJar(type: VerifyJarTask) {
       "httpcore-4.4.16.jar",
       "httpmime-${project.versions.apacheHttpComponents}.jar",
       "istack-commons-runtime-4.1.2.jar",
-      "jackson-annotations-${project.versions.jacksonBom}.jar",
-      "jackson-core-${project.versions.jacksonBom}.jar",
-      "jackson-databind-${project.versions.jacksonBom}.jar",
       "jakarta.activation-api-2.1.2.jar",
       "jakarta.annotation-api-${project.versions.jakartaAnnotation}.jar",
-      "jakarta.servlet-api-${project.versions.servletApi}.jar",
       "jakarta.xml.bind-api-4.0.1.jar",
-      "javax.inject-1.jar",
       "jaxb-core-${project.versions.jaxb}.jar",
       "jaxb-runtime-${project.versions.jaxb}.jar",
       "jcl-over-slf4j-${project.versions.slf4jBom}.jar",
@@ -162,8 +163,6 @@ task verifyJar(type: VerifyJarTask) {
       "jna-jpms-5.13.0.jar",
       "jna-platform-jpms-5.13.0.jar",
       "joda-time-${project.versions.jodaTime}.jar",
-      "jolt-core-${project.versions.jolt}.jar",
-      "json-utils-${project.versions.jolt}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "nanohttpd-${project.versions.nanohttpd}.jar",
@@ -171,7 +170,6 @@ task verifyJar(type: VerifyJarTask) {
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "oshi-core-java11-${project.versions.oshi}.jar",
       "plugin-metadata-store-${project.version}.jar",
-      "quartz-${project.versions.quartz}.jar",
       "semantic-version-${project.versions.semanticVersion}.jar",
       "slf4j-api-${project.versions.slf4jBom}.jar",
       "spring-aop-${project.versions.spring}.jar",
@@ -181,7 +179,6 @@ task verifyJar(type: VerifyJarTask) {
       "spring-expression-${project.versions.spring}.jar",
       "spring-tx-${project.versions.spring}.jar",
       "spring-web-${project.versions.spring}.jar",
-      "spring-webmvc-${project.versions.spring}.jar",
       "txw2-${project.versions.jaxb}.jar",
       "util-${project.version}.jar"
     ]

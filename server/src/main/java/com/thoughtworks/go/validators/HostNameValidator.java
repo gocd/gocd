@@ -21,7 +21,6 @@ public class HostNameValidator implements Validator<String> {
 
     private static final String IPV6_ADDRESS_PATTERN = "([a-fA-F0-9]+\\:)*[a-fA-F0-9]+";
     static final String HOSTNAME_PATTERN = "([-_0-9\\w]*\\.)*[-_0-9\\w]+";
-    static final String INVALID_HOSTNAME_KEY = "INVALID_HOSTNAME";
 
     @Override
     public void validate(String hostname, LocalizedOperationResult result) {

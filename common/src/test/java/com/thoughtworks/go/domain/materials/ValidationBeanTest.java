@@ -18,10 +18,8 @@ package com.thoughtworks.go.domain.materials;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
-import static com.thoughtworks.go.server.web.JsonRenderer.render;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ValidationBeanTest {
 
@@ -71,12 +69,5 @@ public class ValidationBeanTest {
         ValidationBean bean = valid();
         assertThat(bean.isValid(), is(true));
         assertThat(bean.toJson().get("isValid"), is("true"));
-    }
-
-    @Test
-    public void shouldBeAbleToSerializeToJson()  {
-        ValidationBean bean = ValidationBean.notValid("ErrorMessage");
-        String output = render(bean);
-        assertThatJson(output).isEqualTo("{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }");
     }
 }

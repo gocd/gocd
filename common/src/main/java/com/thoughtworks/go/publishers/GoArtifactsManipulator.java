@@ -23,7 +23,9 @@ import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemTimeClock;
+import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -33,10 +35,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Properties;
@@ -96,7 +98,7 @@ public class GoArtifactsManipulator {
 
                 int statusCode = httpService.upload(url, size, dataToUpload, artifactChecksums(source, normalizedDestPath));
 
-                if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE) {
+                if (statusCode == HttpURLConnection.HTTP_ENTITY_TOO_LARGE) {
                     String message = String.format("Artifact upload for file %s (Size: %s) was denied by the server. This usually happens when server runs out of disk space.",
                             source.getAbsolutePath(), size);
                     goPublisher.taggedConsumeLineWithPrefix(PUBLISH_ERR, message);
@@ -104,7 +106,7 @@ public class GoArtifactsManipulator {
                     publishingAttempts = PUBLISH_MAX_RETRIES;
                     bomb(message + ".  HTTP return code is " + statusCode);
                 }
-                if (statusCode < HttpServletResponse.SC_OK || statusCode >= HttpServletResponse.SC_MULTIPLE_CHOICES) {
+                if (statusCode < HttpURLConnection.HTTP_OK || statusCode >= HttpURLConnection.HTTP_MULT_CHOICE) {
                     bomb("Failed to upload " + source.getAbsolutePath() + ".  HTTP return code is " + statusCode);
                 }
                 return;

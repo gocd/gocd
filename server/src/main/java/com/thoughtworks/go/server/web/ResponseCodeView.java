@@ -15,17 +15,18 @@
  */
 package com.thoughtworks.go.server.web;
 
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+
+import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
+
 public class ResponseCodeView implements View {
-    private int responseCode;
-    private String message;
+    private final int responseCode;
+    private final String message;
 
     private ResponseCodeView(int responseCode, String message) {
         this.responseCode = responseCode;

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-description = 'GoCD Utils'
+package com.thoughtworks.go.server.web;
 
-dependencies {
-  implementation project(path: ':base', configuration: 'runtimeElements')
-  api project.deps.springContext
-  api project.deps.gson
-  implementation project.deps.cloning
-  testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
-  testImplementation project.deps.junit5Api
-  testRuntimeOnly project.deps.junit5Engine
-  testImplementation project.deps.junit5Params
-  testImplementation project.deps.hamcrest
-  testImplementation project.deps.assertJ
+import com.thoughtworks.go.domain.materials.ValidationBean;
+import org.junit.jupiter.api.Test;
+
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+
+public class JsonRendererTest {
+
+    @Test
+    public void canSerializeValidationBean()  {
+        assertThatJson(JsonRenderer.render(ValidationBean.notValid("ErrorMessage")))
+            .isEqualTo("{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }");
+    }
 }

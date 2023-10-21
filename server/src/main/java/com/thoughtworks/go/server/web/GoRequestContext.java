@@ -15,14 +15,15 @@
  */
 package com.thoughtworks.go.server.web;
 
-import javax.servlet.http.HttpServletRequest;
-
-import static com.thoughtworks.go.util.GoConstants.BASE_URL_PATTERN;
 import com.thoughtworks.go.util.StringUtil;
 import org.springframework.web.servlet.support.RequestContext;
 
+import javax.servlet.http.HttpServletRequest;
+
+import static com.thoughtworks.go.util.GoConstants.BASE_URL_PATTERN;
+
 public class GoRequestContext extends RequestContext {
-    private HttpServletRequest httpServletRequest;
+    private final HttpServletRequest httpServletRequest;
 
     public GoRequestContext(HttpServletRequest httpServletRequest) {
         super(httpServletRequest);

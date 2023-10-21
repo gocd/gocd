@@ -17,7 +17,6 @@
 description = 'GoCD Common Module'
 
 dependencies {
-  api project(path: ':config:config-api', configuration: 'runtimeElements')
   api project(path: ':commandline', configuration: 'runtimeElements')
   api project(path: ':base', configuration: 'runtimeElements')
   api project(path: ':util', configuration: 'runtimeElements')
@@ -26,7 +25,6 @@ dependencies {
   api project.deps.apacheHttpMime
   api project.deps.commonsCollections4
   api project.deps.commonsText
-  api project.deps.springTx
   implementation project.deps.jodaTime
   annotationProcessor project.deps.lombok
   compileOnly project.deps.lombok

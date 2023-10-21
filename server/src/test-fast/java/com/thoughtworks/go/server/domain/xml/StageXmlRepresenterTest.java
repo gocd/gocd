@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.util.SystemEnvironment;

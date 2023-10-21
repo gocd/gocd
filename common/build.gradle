@@ -23,7 +23,6 @@ dependencies {
   api project(path: ':util', configuration: 'runtimeElements')
   api project(path: ':domain', configuration: 'runtimeElements')
   api project(path: ':plugin-infra:go-plugin-access', configuration: 'runtimeElements')
-  api project.deps.dom4j
   api project.deps.apacheHttpMime
   api project.deps.commonsCollections4
   api project.deps.commonsText

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.server.domain.xml;
 
 import org.dom4j.Document;
 

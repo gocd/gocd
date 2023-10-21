@@ -16,8 +16,8 @@
 package com.thoughtworks.go.server.domain.xml.materials;
 
 import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 
 public class ScmMaterialXmlRepresenter extends MaterialXmlRepresenter {

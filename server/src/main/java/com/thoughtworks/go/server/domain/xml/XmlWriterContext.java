@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.server.domain.xml;
 
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -31,7 +32,6 @@ public class XmlWriterContext {
     private final ArtifactUrlReader artifactUrlReader;
     private final JobPlanLoader jobPlanLoader;
     private final StageFinder stageFinder;
-    private final SystemEnvironment systemEnvironment;
 
     public XmlWriterContext(String baseUrl,
                             ArtifactUrlReader artifactUrlReader,
@@ -39,13 +39,12 @@ public class XmlWriterContext {
                             StageFinder stageFinder,
                             SystemEnvironment systemEnvironment) {
         if (!endsWithAny(baseUrl.toLowerCase(), systemEnvironment.getWebappContextPath(), systemEnvironment.getWebappContextPath() + "/")) {
-            throw new IllegalArgumentException("The baseUrl must ends with /go");
+            throw new IllegalArgumentException("The baseUrl must end with /go");
         }
         this.baseUrl = stripEndSlashIfPresent(baseUrl);
         this.artifactUrlReader = artifactUrlReader;
         this.jobPlanLoader = jobPlanLoader;
         this.stageFinder = stageFinder;
-        this.systemEnvironment = systemEnvironment;
     }
 
     public String getBaseUrl() {

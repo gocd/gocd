@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.XmlRepresentable;
-import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.server.domain.xml.XmlRepresentable;
+import com.thoughtworks.go.server.domain.xml.XmlWriterContext;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.springframework.beans.factory.annotation.Autowired;

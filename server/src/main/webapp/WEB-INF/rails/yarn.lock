@@ -5928,7 +5928,7 @@ __metadata:
     sourcemapped-stacktrace: "npm:^1.1.11"
     speed-measure-webpack-plugin: "npm:^1.5.0"
     stats-webpack-plugin: "npm:^0.7.0"
-    style-loader: "npm:^2.0.0"
+    style-loader: "npm:^3.3.3"
     stylelint: "npm:^15.11.0"
     stylelint-config-standard-scss: "npm:^11.0.0"
     stylelint-webpack-plugin: "npm:^2.5.0"
@@ -10885,15 +10885,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"style-loader@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "style-loader@npm:2.0.0"
-  dependencies:
-    loader-utils: "npm:^2.0.0"
-    schema-utils: "npm:^3.0.0"
+"style-loader@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "style-loader@npm:3.3.3"
   peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: 129f8d7124bc46ece4363992a38329c6879356298338c8e448e70ec76eeec83f5214339814863324fe0089286bf6860a1971b9a2247718474db609ac6f04990a
+    webpack: ^5.0.0
+  checksum: 6c13d5075b5a5d69602215a242ef157460766e6e8a2e48276eb5da5b9852716910b48b3f120d492bbc7cd825dfa940b35fc84e1a9ab2a8792fd8d568b6b3e87a
   languageName: node
   linkType: hard
 

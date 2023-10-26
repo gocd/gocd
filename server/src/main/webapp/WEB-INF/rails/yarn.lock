@@ -5921,7 +5921,7 @@ __metadata:
     optimize-css-assets-webpack-plugin: "npm:^6.0.1"
     prismjs: "npm:^1.29.0"
     sass: "npm:^1.69.4"
-    sass-loader: "npm:^10.4.1"
+    sass-loader: "npm:^11.1.1"
     shell-quote: "npm:^1.8.1"
     shellwords-ts: "npm:^3.0.1"
     simulate-event: "npm:^1.4.0"
@@ -10036,20 +10036,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^10.4.1":
-  version: 10.4.1
-  resolution: "sass-loader@npm:10.4.1"
+"sass-loader@npm:^11.1.1":
+  version: 11.1.1
+  resolution: "sass-loader@npm:11.1.1"
   dependencies:
     klona: "npm:^2.0.4"
-    loader-utils: "npm:^2.0.0"
     neo-async: "npm:^2.6.2"
-    schema-utils: "npm:^3.0.0"
-    semver: "npm:^7.3.2"
   peerDependencies:
     fibers: ">= 3.1.0"
-    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0
     sass: ^1.3.0
-    webpack: ^4.36.0 || ^5.0.0
+    webpack: ^5.0.0
   peerDependenciesMeta:
     fibers:
       optional: true
@@ -10057,7 +10054,7 @@ __metadata:
       optional: true
     sass:
       optional: true
-  checksum: cffe9f85a20c1a9cd486a032f05d74f9c50f4296735642d18eab25582c64afcd1e8a6038156b4ea2224e876b215089e93639fc99385c432da3be87254561b7a9
+  checksum: 3a9d09d1ea88cc29220952ff883e685e20d3e68203b5cf28fe5b7c8ee99d8685aa7d005f8b8df50f4d4ba0b33e6c91650e12b54714b3262f9a9b8ec314ffce3c
   languageName: node
   linkType: hard
 

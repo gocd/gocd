@@ -1889,7 +1889,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.4, @types/json-schema@npm:^7.0.5, @types/json-schema@npm:^7.0.8":
+"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.4, @types/json-schema@npm:^7.0.5, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
   version: 7.0.14
   resolution: "@types/json-schema@npm:7.0.14"
   checksum: 84b5efed51984c077f9cb7c5a3dcb8d8288ce1ae8825952b173c3506a0cfc90bc961d7f2a8847c440310d02bbd570cf918ac463d8310b0c9dce2252baa1ba4e0
@@ -2579,12 +2579,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv-formats@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "ajv-formats@npm:2.1.1"
+  dependencies:
+    ajv: "npm:^8.0.0"
+  peerDependencies:
+    ajv: ^8.0.0
+  peerDependenciesMeta:
+    ajv:
+      optional: true
+  checksum: 70c263ded219bf277ffd9127f793b625f10a46113b2e901e150da41931fcfd7f5592da6d66862f4449bb157ffe65867c3294a7df1d661cc232c4163d5a1718ed
+  languageName: node
+  linkType: hard
+
 "ajv-keywords@npm:^3.1.0, ajv-keywords@npm:^3.4.1, ajv-keywords@npm:^3.5.2":
   version: 3.5.2
   resolution: "ajv-keywords@npm:3.5.2"
   peerDependencies:
     ajv: ^6.9.1
   checksum: d57c9d5bf8849bddcbd801b79bc3d2ddc736c2adb6b93a6a365429589dd7993ddbd5d37c6025ed6a7f89c27506b80131d5345c5b1fa6a97e40cd10a96bcd228c
+  languageName: node
+  linkType: hard
+
+"ajv-keywords@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "ajv-keywords@npm:5.1.0"
+  dependencies:
+    fast-deep-equal: "npm:^3.1.3"
+  peerDependencies:
+    ajv: ^8.8.2
+  checksum: 5021f96ab7ddd03a4005326bd06f45f448ebfbb0fe7018b1b70b6c28142fa68372bda2057359814b83fd0b2d4c8726c297f0a7557b15377be7b56ce5344533d8
   languageName: node
   linkType: hard
 
@@ -2600,7 +2625,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.1":
+"ajv@npm:^8.0.0, ajv@npm:^8.0.1, ajv@npm:^8.9.0":
   version: 8.12.0
   resolution: "ajv@npm:8.12.0"
   dependencies:
@@ -5931,7 +5956,7 @@ __metadata:
     style-loader: "npm:^2.0.0"
     stylelint: "npm:^15.11.0"
     stylelint-config-standard-scss: "npm:^11.0.0"
-    stylelint-webpack-plugin: "npm:^2.5.0"
+    stylelint-webpack-plugin: "npm:^3.3.0"
     thread-loader: "npm:^3.0.4"
     ts-loader: "npm:^8.4.0"
     ts-node: "npm:^10.9.1"
@@ -7058,7 +7083,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-worker@npm:^28.1.3":
+"jest-worker@npm:^28.1.0":
   version: 28.1.3
   resolution: "jest-worker@npm:28.1.3"
   dependencies:
@@ -10118,6 +10143,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"schema-utils@npm:^4.0.0":
+  version: 4.2.0
+  resolution: "schema-utils@npm:4.2.0"
+  dependencies:
+    "@types/json-schema": "npm:^7.0.9"
+    ajv: "npm:^8.9.0"
+    ajv-formats: "npm:^2.1.1"
+    ajv-keywords: "npm:^5.1.0"
+  checksum: 808784735eeb153ab7f3f787f840aa3bc63f423d2a5a7e96c9e70a0e53d0bc62d7b37ea396fc598ce19196e4fb86a72f897154b7c6ce2358bbc426166f205e14
+  languageName: node
+  linkType: hard
+
 "selenium-webdriver@npm:^4.12.0":
   version: 4.14.0
   resolution: "selenium-webdriver@npm:4.14.0"
@@ -10984,20 +11021,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-webpack-plugin@npm:^2.5.0":
-  version: 2.5.0
-  resolution: "stylelint-webpack-plugin@npm:2.5.0"
+"stylelint-webpack-plugin@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "stylelint-webpack-plugin@npm:3.3.0"
   dependencies:
-    arrify: "npm:^2.0.1"
     globby: "npm:^11.1.0"
-    jest-worker: "npm:^28.1.3"
+    jest-worker: "npm:^28.1.0"
     micromatch: "npm:^4.0.5"
     normalize-path: "npm:^3.0.0"
-    schema-utils: "npm:^3.1.1"
+    schema-utils: "npm:^4.0.0"
   peerDependencies:
-    stylelint: ^13.0.0 || ^14.0.0 || ^15.0.0
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: bc0b40611b9e0ceade3767fec405b71ac0b1a596cb7837fa7f2439d7a78f8243e26de5e5a4cefa882b436930f8c5ef6afdb49cfe230ea8d7f82efd15491065e6
+    stylelint: ^13.0.0 || ^14.0.0
+    webpack: ^5.0.0
+  checksum: 94bb3da567137c8be834df86ee82b6de77cd0e7d8b93552cd3bacb22ed3c0767fc8dfee751cc7c76e189a28cf5f242b6cefe9f0adda5c1b606bba90e3089c9a1
   languageName: node
   linkType: hard
 

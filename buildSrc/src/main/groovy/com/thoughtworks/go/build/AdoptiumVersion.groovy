@@ -53,9 +53,13 @@ class AdoptiumVersion implements Serializable {
     update == null ? '' : 'U'
   }
 
+  def releaseSuffixHack(OperatingSystem os) {
+    OperatingSystem.windows == os ? '.1' : '' // Temporary hack for JDK 17.0.9 due to Windows builds being delayed
+  }
+
   def toDownloadURLFor(OperatingSystem os, Architecture arch) {
     "https://github.com/adoptium/temurin${feature}-binaries/releases/download/" +
-      "jdk-${urlSafeDisplayVersion()}/" +
+      "jdk-${urlSafeDisplayVersion()}${releaseSuffixHack(os)}/" +
       "OpenJDK${feature}${featureSuffix()}-jre_${arch.canonicalName}_${os.adoptiumAlias}_hotspot_${fileSafeDisplayVersion()}.${os.extension}"
   }
 

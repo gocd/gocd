@@ -27,9 +27,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
-    tagName: 'v2.2.2-252',
-    asset: 'gocd-ldap-authentication-plugin-2.2.2-252.jar',
-    checksum: '9d55fa20d0917a69015b44b24c1dc1276ac2217c1d601c76f5a2b10692f0740a'
+    tagName: 'v2.2.2-264',
+    asset: 'gocd-ldap-authentication-plugin-2.2.2-264.jar',
+    checksum: '703c994c760ed7bdd66d0e5ac8b9aaef8f8bfce521613ccd87f6ba5914141b1c'
   ),
   new GithubArtifact(
     user: 'gocd',

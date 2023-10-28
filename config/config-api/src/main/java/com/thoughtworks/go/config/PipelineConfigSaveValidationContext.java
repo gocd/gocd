@@ -36,7 +36,6 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     private final Validatable immediateParent;
     private BasicCruiseConfig cruiseConfig;
     private PipelineConfig pipelineBeingValidated;
-    private boolean isPipeline = true;//Does not support template editing yet
     private final PipelineConfigSaveValidationContext parentContext;
     private PipelineConfig pipeline;
     private StageConfig stage;
@@ -141,12 +140,12 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public boolean isWithinTemplates() {
-        return !isPipeline;
+        return false;
     }
 
     @Override
     public boolean isWithinPipelines() {
-        return isPipeline;
+        return true;
     }
 
     @Override
@@ -242,9 +241,8 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         }
     }
 
-    private class MaterialConfigFingerprintMap {
-        private Map<String, MaterialConfigs> map = new ConcurrentHashMap<>();
-        private Map<String, MaterialConfigs> pipelineMaterialMap = new ConcurrentHashMap<>();
+    private static class MaterialConfigFingerprintMap {
+        private final Map<String, MaterialConfigs> map = new ConcurrentHashMap<>();
 
         public MaterialConfigFingerprintMap(CruiseConfig cruiseConfig) {
             for (PipelineConfigs group : cruiseConfig.getGroups()) {
@@ -252,16 +250,8 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
                     for (MaterialConfig material : pipelineConfig.materialConfigs()) {
                         String fingerprint = material.getFingerprint();
                         if (fingerprint != null) {
-                            if (!map.containsKey(fingerprint)) {
-                                map.put(fingerprint, new MaterialConfigs());
-                            }
-                            map.get(fingerprint).add(material);
+                            map.computeIfAbsent(fingerprint, f -> new MaterialConfigs()).add(material);
                         }
-
-                        if (!pipelineMaterialMap.containsKey(pipelineConfig.name().toString())) {
-                            pipelineMaterialMap.put(pipelineConfig.name().toString(), new MaterialConfigs());
-                        }
-                        pipelineMaterialMap.get(pipelineConfig.name().toString()).add(material);
                     }
                 }
             }

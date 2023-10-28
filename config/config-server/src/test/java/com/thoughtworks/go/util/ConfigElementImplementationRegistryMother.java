@@ -17,11 +17,10 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 
 public class ConfigElementImplementationRegistryMother {
     public static ConfigElementImplementationRegistry withNoPlugins() {
-        ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry();
         new ConfigElementImplementationRegistrar(registry).initialize();
         return registry;
     }

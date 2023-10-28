@@ -49,16 +49,16 @@ public class IpAddress implements Comparable<IpAddress> {
     @Override
     public int compareTo(IpAddress other) {
         byte[] myAddressInBytes = address.getAddress();
-        byte[] otherAddresInBytes = other.address.getAddress();
+        byte[] otherAddressInBytes = other.address.getAddress();
 
         // general ordering: ipv4 before ipv6
-        if (myAddressInBytes.length < otherAddresInBytes.length) return -1;
-        if (myAddressInBytes.length > otherAddresInBytes.length) return 1;
+        if (myAddressInBytes.length < otherAddressInBytes.length) return -1;
+        if (myAddressInBytes.length > otherAddressInBytes.length) return 1;
 
         // we have 2 ips of the same type, so we have to compare each byte
         for (int i = 0; i < myAddressInBytes.length; i++) {
             int b1 = unsignedByteToInt(myAddressInBytes[i]);
-            int b2 = unsignedByteToInt(otherAddresInBytes[i]);
+            int b2 = unsignedByteToInt(otherAddressInBytes[i]);
             if (b1 == b2)
                 continue;
             if (b1 < b2)
@@ -84,9 +84,11 @@ public class IpAddress implements Comparable<IpAddress> {
             return "";
         }
 
+
+        @SuppressWarnings("ComparatorMethodParameterNotUsed")
         @Override
         public int compareTo(IpAddress other) {
-            return -1;
+            return other instanceof NullIpAddress ? 0 : -1;
         }
     }
 }

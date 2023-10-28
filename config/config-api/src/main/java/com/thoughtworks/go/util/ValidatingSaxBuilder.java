@@ -31,10 +31,4 @@ class ValidatingSaxBuilder extends SAXBuilder {
         this();
         this.setProperty("http://apache.org/xml/properties/schema/external-noNamespaceSchemaLocation", resource.toURI().toString());
     }
-
-    public ValidatingSaxBuilder(URL resource, String xsds) throws URISyntaxException {
-        this(resource);
-        this.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation", xsds);
-    }
-
 }

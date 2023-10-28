@@ -44,8 +44,8 @@ public class TestUtils {
         };
     }
 
-    public static void copyAndClose(InputStream fileInputStream, OutputStream fileOutputStream) {
-        try (InputStream is = fileInputStream; OutputStream os = fileOutputStream) {
+    public static void copyAndClose(InputStream inputStream, OutputStream outputStream) {
+        try (InputStream is = inputStream; OutputStream os = outputStream) {
             is.transferTo(os);
         } catch (IOException e) {
             bomb(e);

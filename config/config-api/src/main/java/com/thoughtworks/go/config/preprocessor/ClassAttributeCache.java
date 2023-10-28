@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 public abstract class ClassAttributeCache<K, T> {
-    private ConcurrentMap<K, T> valueCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<K, T> valueCache = new ConcurrentHashMap<>();
 
     public T valuesFor(K key) {
         T value = valueCache.get(key);

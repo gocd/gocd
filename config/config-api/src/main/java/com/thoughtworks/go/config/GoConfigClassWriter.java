@@ -26,8 +26,8 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GoConfigClassWriter {
-    private Class<?> aClass;
-    private ConfigCache configCache;
+    private final Class<?> aClass;
+    private final ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
     public GoConfigClassWriter(Class aClass, ConfigCache configCache, final ConfigElementImplementationRegistry registry) {

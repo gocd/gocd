@@ -144,7 +144,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     private Element parseInputStream(InputStream inputStream) throws Exception {
-        Element rootElement = buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema(), registry.xsds()).getRootElement();
+        Element rootElement = buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()).getRootElement();
         validateDom(rootElement, registry);
         return rootElement;
     }

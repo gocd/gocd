@@ -34,6 +34,7 @@ import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 public class UnitTestReportGenerator {
+    private static final Logger LOG = LoggerFactory.getLogger(UnitTestReportGenerator.class);
     private static final String TEST_RESULTS_FILE = "index.html";
     private static final Pattern LINE_STARTING_WITH_XML_DECLARATION = Pattern.compile("^\\s*<\\?xml.*?\\?>");
 
@@ -41,7 +42,6 @@ public class UnitTestReportGenerator {
     private final GoPublisher publisher;
     private static Templates templates;
 
-    private static final Logger LOG = LoggerFactory.getLogger(UnitTestReportGenerator.class);
 
     static {
         try (InputStream xslt = UnitTestReportGenerator.class.getResourceAsStream("unittests.xsl")) {
@@ -75,6 +75,7 @@ public class UnitTestReportGenerator {
             publisher.reportErrorMessage("Unable to publish test properties. Error was " + e.getMessage(), e);
         } finally {
             if (mergedResource != null) {
+                //noinspection ResultOfMethodCallIgnored
                 mergedResource.delete();
             }
         }
@@ -95,8 +96,8 @@ public class UnitTestReportGenerator {
 
             for (File testFile : testFiles) {
                 if (testFile.isDirectory()) {
-                    for (Object file : FileUtils.listFiles(testFile, new String[]{"xml"}, true)) {
-                        pumpFileContentIfValid(out, (File) file);
+                    for (File file : FileUtils.listFiles(testFile, new String[]{"xml"}, true)) {
+                        pumpFileContentIfValid(out, file);
                     }
                 } else {
                     pumpFileContentIfValid(out, testFile);

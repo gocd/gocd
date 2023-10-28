@@ -16,5 +16,5 @@
 package com.thoughtworks.go.config;
 
 public interface PasswordEncrypter {
-    public void ensureEncrypted();
+    void ensureEncrypted();
 }

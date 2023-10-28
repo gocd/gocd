@@ -15,16 +15,9 @@
  */
 package com.thoughtworks.go.config.registry;
 
-import com.thoughtworks.go.plugins.PluginExtensions;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModelFactory;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.osgi.framework.BundleContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,82 +31,35 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class ConfigElementImplementationRegistry implements ConfigElementRegistry {
 
-    private final ConcurrentMap<Class, List<Class>> registry;
-    private final ConcurrentMap<String, PluginNamespace> xsdsFor;
-    private final ConcurrentMap<Class, PluggableViewModelFactory> viewRegistry;
+    private final ConcurrentMap<Class<?>, List<Class<?>>> registry;
 
     @Autowired
-    public ConfigElementImplementationRegistry(PluginExtensions pluginExtns) {
+    public ConfigElementImplementationRegistry() {
         this.registry = new ConcurrentHashMap<>();
-        this.viewRegistry = new ConcurrentHashMap<>();
-        this.xsdsFor = new ConcurrentHashMap<>();
-
-        registerPluginExtensions(pluginExtns);
     }
 
     @Override
     public <T> List<Class<? extends T>> implementersOf(Class<T> type) {
         List<Class<? extends T>> toReturn = new ArrayList<>();
-        //noinspection unchecked
-        for (Class<? extends T> impl : registry.get(type)) {
-            toReturn.add(impl);
+        for (Class<?> impl : registry.get(type)) {
+            //noinspection unchecked
+            toReturn.add((Class<? extends T>) impl);
         }
         return toReturn;
     }
 
-    public String xsds() {
-        StringBuilder builder = new StringBuilder();
-        for (PluginNamespace namespace : xsdsFor.values()) {
-            builder.append(namespace.uri).append(" ").append(namespace.xsdResource).append(" ");
-        }
-        return builder.toString().trim();
-    }
-
-    public void xsdFor(BundleContext bundleContext, URL url) {
-        registerPluginNamespace(new PluginNamespace(bundleContext, url));
-    }
-
-    public void registerNamespacesInto(Element element) {
-        for (PluginNamespace namespace : xsdsFor.values()) {
-            element.addNamespaceDeclaration(Namespace.getNamespace(namespace.prefix, namespace.uri));
-        }
-    }
-
-public <T> PluggableViewModel getViewModelFor(T model, String actionName) {
-        return viewRegistry.get(model.getClass()).viewModelFor(model, actionName);
-    }
-
-    private void registerPluginNamespace(PluginNamespace pluginNamespace) {
-        this.xsdsFor.putIfAbsent(pluginNamespace.uri, pluginNamespace);
-    }
-
-    private void registerPluginExtensions(PluginExtensions pluginExtns) {
-        for (ConfigurationExtension configExtension : pluginExtns.configTagImplementations()) {
-            for (ConfigTypeExtension typeExtension : configExtension.implementations) {
-                Class impl = typeExtension.getImplementation();
-                //noinspection unchecked
-                registerImplementer(typeExtension.getType(), impl);
-                registerView(impl, typeExtension.getFactory());
-            }
-            registerPluginNamespace(configExtension.pluginNamespace);
-        }
-    }
-
-    public <T> void registerImplementer(Class<T> configInterface, Class<? extends T> ...implementation) {
-        List<Class> set;
+    @SafeVarargs
+    public final <T> void registerImplementer(Class<T> configInterface, Class<? extends T>... implementation) {
+        List<Class<?>> set;
         if (registry.containsKey(configInterface)) {
             set = registry.get(configInterface);
         } else {//TODO: concurrency issue -jj (someone sets set before putIfAbsent)
-            List<Class> newSet = Collections.synchronizedList(new ArrayList<>());
+            List<Class<?>> newSet = Collections.synchronizedList(new ArrayList<>());
             set = registry.putIfAbsent(configInterface, newSet);
             if (set == null) {
                 set = newSet;
             }
         }
         set.addAll(Arrays.asList(implementation));
-    }
-
-    public void registerView(final Class klazz, final PluggableViewModelFactory factory) {
-        viewRegistry.putIfAbsent(klazz, factory);
     }
 }

@@ -15,20 +15,13 @@
  */
 package com.thoughtworks.go.config.preprocessor;
 
+import com.thoughtworks.go.config.*;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigAttributeValue;
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ConfigValue;
-import com.thoughtworks.go.config.ParamsConfig;
-import com.thoughtworks.go.config.ValidationErrorKey;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -72,7 +65,7 @@ public class ParamResolver {
 
     private <T> void resolveCollection(Object resolvable, ParamResolver resolver) {
         if (hasAnnotation(resolvable.getClass(), ConfigCollection.class)) {
-            for (Object subResolvable : (Collection) resolvable) {
+            for (Object subResolvable : (Collection<?>) resolvable) {
                 resolver.resolve(subResolvable);
             }
         }

@@ -43,10 +43,9 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
 
     private final ConfigErrors configErrors = new ConfigErrors();
     public static final String NAME = "name";
-    public static final String ALLOW_GROUP_ADMINS="allowGroupAdmins";
+    public static final String ALLOW_GROUP_ADMINS = "allowGroupAdmins";
     public static final String PRIVILEGES = "privileges";
     public static final String VALUE = "value";
-    public static final String PRIVILEGE_TYPE = "privilege_type";
     public static final String TYPE = "type";
 
     private ConfigOrigin origin;
@@ -61,52 +60,70 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         origin = origins;
     }
 
-    public static enum UserType {
+    public enum UserType {
         USER {
-            @Override public Admin makeUser(String name) {
+            @Override
+            public Admin makeUser(String name) {
                 return new AdminUser(new CaseInsensitiveString(name));
-            }},
+            }
+        },
         ROLE {
-            @Override public Admin makeUser(String name) {
+            @Override
+            public Admin makeUser(String name) {
                 return new AdminRole(new CaseInsensitiveString(name));
-            }};
+            }
+        };
 
         abstract public Admin makeUser(String name);
     }
 
-    public static enum PrivilegeType {
+    public enum PrivilegeType {
         ADMIN {
-            @Override public AdminsConfig group(Authorization authorization) {
+            @Override
+            public AdminsConfig group(Authorization authorization) {
                 return authorization.getAdminsConfig();
             }
-            @Override public void set(PresentationElement el) {
+
+            @Override
+            public void set(PresentationElement el) {
                 el.makeAdmin();
-            }},
+            }
+        },
         OPERATE {
-            @Override public AdminsConfig group(Authorization authorization) {
+            @Override
+            public AdminsConfig group(Authorization authorization) {
                 return authorization.getOperationConfig();
             }
-            @Override public void set(PresentationElement el) {
+
+            @Override
+            public void set(PresentationElement el) {
                 el.makeOperator();
-            }},
+            }
+        },
         VIEW {
-            @Override public AdminsConfig group(Authorization authorization) {
+            @Override
+            public AdminsConfig group(Authorization authorization) {
                 return authorization.getViewConfig();
             }
-            @Override public void set(PresentationElement el) {
+
+            @Override
+            public void set(PresentationElement el) {
                 el.makeViewer();
-            }};
+            }
+        };
 
         abstract public AdminsConfig group(Authorization authorization);
 
         public abstract void set(PresentationElement el);
     }
 
-    public static enum PrivilegeState {
+    public enum PrivilegeState {
         ON {
-            @Override public void apply(AdminsConfig adminsConfig, Admin userOrRole) {
+            @Override
+            public void apply(AdminsConfig adminsConfig, Admin userOrRole) {
                 adminsConfig.add(userOrRole);
-            }},
+            }
+        },
         OFF,
         DISABLED;
 
@@ -204,19 +221,6 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return allowGroupAdmins;
     }
 
-    public List<PrivilegeType> privilagesOfRole(final CaseInsensitiveString roleName){
-        List<PrivilegeType> result = new ArrayList<>();
-        if (isRoleAnAdmin(roleName)){
-            result.add(PrivilegeType.ADMIN);
-        }
-        if (isRoleAnOperator(roleName)){
-            result.add(PrivilegeType.OPERATE);
-        }
-        if (isRoleAViewer(roleName)){
-            result.add(PrivilegeType.VIEW);
-        }
-        return result;
-    }
 
     public void validateTree(ValidationContext validationContext) {
         for (Admin admin : getAdminsConfig()) {
@@ -236,7 +240,6 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
 
     @Override
     public void validate(ValidationContext validationContext) {
-        return;
     }
 
     @Override
@@ -270,7 +273,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
                 state.apply(privilegeGroup, admin);
             }
             //Give default view permission if no checkbox has been checked in the admin UI
-            if(!(adminsConfig.contains(admin) || operationConfig.contains(admin) || viewConfig.contains(admin))){
+            if (!(adminsConfig.contains(admin) || operationConfig.contains(admin) || viewConfig.contains(admin))) {
                 viewConfig.add(admin);
             }
         }
@@ -320,21 +323,18 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
 
     public static class PresentationElement implements Comparable<PresentationElement>, Validatable {
         public static final String NAME = "name";
-        private String name;
-
         public static final String TYPE = "type";
-        private UserType type;
+        private final String name;
 
-        public static final String ADMIN_PRIVILEGE = "admin";
+        private final UserType type;
+
         private PrivilegeState adminPrivilege;
 
-        public static final String OPERATE_PRIVILEGE = "operate";
         private PrivilegeState operatePrivilege;
 
-        public static final String VIEW_PRIVILEGE = "view";
         private PrivilegeState viewPrivilege;
 
-        private ConfigErrors configErrors = new ConfigErrors();
+        private final ConfigErrors configErrors = new ConfigErrors();
 
 
         public PresentationElement(String name, UserType type) {
@@ -446,26 +446,5 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
             list.add(el);
         }
         privilegeType.set(el);
-    }
-
-    private boolean isRoleAnAdmin(final CaseInsensitiveString roleName){
-        return containsRole(roleName, adminsConfig.getRoles());
-    }
-
-    private boolean isRoleAnOperator(final CaseInsensitiveString roleName){
-        return containsRole(roleName, operationConfig.getRoles());
-    }
-
-    private boolean isRoleAViewer(final CaseInsensitiveString roleName){
-        return containsRole(roleName, viewConfig.getRoles());
-    }
-
-    private boolean containsRole(final CaseInsensitiveString roleName, List<AdminRole> roles){
-        for(AdminRole role : roles){
-            if (role.getName().equals(roleName)){
-                return true;
-            }
-        }
-        return false;
     }
 }

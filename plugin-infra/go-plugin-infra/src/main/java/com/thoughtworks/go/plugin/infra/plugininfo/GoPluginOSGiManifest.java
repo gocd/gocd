@@ -37,9 +37,9 @@ public class GoPluginOSGiManifest {
     public static final String ACTIVATOR_JAR_NAME = "go-plugin-activator.jar";
     private static final String CLASSPATH_PREFIX = String.format("%s/%s,%s", PLUGIN_DEPENDENCY_DIR, ACTIVATOR_JAR_NAME, BUNDLE_ROOT_DIR);
 
-    private GoPluginBundleDescriptor descriptor;
-    private File manifestLocation;
-    private File dependenciesDir;
+    private final GoPluginBundleDescriptor descriptor;
+    private final File manifestLocation;
+    private final File dependenciesDir;
 
     public GoPluginOSGiManifest(GoPluginBundleDescriptor descriptor) {
         this.descriptor = descriptor;

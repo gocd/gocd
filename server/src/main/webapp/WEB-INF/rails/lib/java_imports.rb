@@ -179,7 +179,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.AgentRuntimeStatus unless defined? AgentRuntimeStatus
   java_import com.thoughtworks.go.security.GoCipher unless defined? GoCipher
   java_import com.thoughtworks.go.util.command.UrlArgument unless defined? UrlArgument
-  java_import com.thoughtworks.go.presentation.TaskViewModel unless defined? TaskViewModel
   java_import com.thoughtworks.go.util.ProcessManager unless defined? ProcessManager
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor unless defined? GoPluginDescriptor
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor unless defined? GoPluginBundleDescriptor
@@ -210,7 +209,6 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore unless defined? RepositoryMetadataStore
   java_import com.thoughtworks.go.server.service.materials.commands.PackageDefinitionCreator unless defined? PackageDefinitionCreator
   java_import com.thoughtworks.go.util.Pair unless defined? Pair
-  java_import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel unless defined? MissingPluggableTaskViewModel
   java_import com.thoughtworks.go.config.pluggabletask.PluggableTask unless defined? PluggableTask
   java_import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore unless defined? PluggableTaskConfigStore
   java_import com.thoughtworks.go.server.service.support.toggle.Toggles unless defined? Toggles

@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class ParamReferenceCollectorFactory implements ParamHandlerFactory {
 
-    private HashSet<String> params = new HashSet<>();
+    private final Set<String> params = new HashSet<>();
 
     @Override
     public ParamHandler createHandler(Object resolvable, String fieldName, String stringToResolve) {

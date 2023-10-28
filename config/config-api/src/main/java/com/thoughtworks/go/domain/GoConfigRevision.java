@@ -31,12 +31,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GoConfigRevision {
+    @SuppressWarnings("RegExpEmptyAlternationBranch")
     private static final String DELIMITER_CHAR = "|";
     private static final String DELIMITER = "\\" + DELIMITER_CHAR;
     private static final String VALUE = "(([^" + DELIMITER_CHAR + "]|" + DELIMITER + DELIMITER + ")+)";
     private static final int GROUPS_IN_VALUE_MATCHER = 2; //the VALUE matcher has one subgroup per group 1 + 1 = 2
 
-    public static enum Fragment {
+    public enum Fragment {
         user, timestamp, schema_version, go_edition, go_version, md5;
 
         public String represent(String value) {

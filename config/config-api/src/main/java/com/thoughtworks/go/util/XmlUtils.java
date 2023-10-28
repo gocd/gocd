@@ -44,8 +44,8 @@ public class XmlUtils {
         xmlOutputer().output(element, outputStream);
     }
 
-    public static Document buildXmlDocument(InputStream inputStream, URL resource, String xsds) throws Exception {
-        return buildXmlDocument(inputStream, new ValidatingSaxBuilder(resource, xsds));
+    public static Document buildXmlDocument(InputStream inputStream, URL resource) throws Exception {
+        return buildXmlDocument(inputStream, new ValidatingSaxBuilder(resource));
     }
 
     public static Document buildXmlDocument(String xmlContent, URL resource) throws Exception {

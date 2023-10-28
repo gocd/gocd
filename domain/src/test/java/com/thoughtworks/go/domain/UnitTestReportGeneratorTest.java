@@ -29,11 +29,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.TestUtils.copyAndClose;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -256,9 +256,7 @@ public class UnitTestReportGeneratorTest {
         return new FileOutputStream(testFolder.getAbsolutePath() + File.separator + targetFile);
     }
 
-    private InputStream source(String filename) throws IOException {
-        return new ClassPathResource(Path.of("data", "test-results", filename).toString()).getInputStream();
+    private InputStream source(String filename) {
+        return Objects.requireNonNull(getClass().getResourceAsStream("/data/test-results/" +  filename));
     }
-
-
 }

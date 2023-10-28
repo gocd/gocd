@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config.exceptions;
+package com.thoughtworks.go.util;
 
-import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import static com.thoughtworks.go.util.ArtifactLogUtil.isConsoleOutput;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
-public class ElasticAgentsResourceUpdateException extends Exception {
-    public ElasticAgentsResourceUpdateException(List<String> elasticAgents) {
-        super(String.format("Can not update resources on Elastic Agents [%s]", StringUtils.join(elasticAgents, ", ")));
+public class ArtifactLogUtilTest {
+    @Test
+    public void shouldIdentifyConsoleLog() {
+        assertThat(isConsoleOutput("cruise-output/console.log"), is(true));
+    }
+
+    @Test
+    public void shouldNotIdentifyAnyOtherArtifactAsConsoleLog() {
+        assertThat(isConsoleOutput("artifact"), is(false));
     }
 }

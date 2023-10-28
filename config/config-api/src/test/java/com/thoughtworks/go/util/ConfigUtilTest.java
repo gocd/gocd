@@ -17,20 +17,19 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.domain.Task;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConfigUtilTest {
     @Test
     public void shouldGetAllTasks() {
-        ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry();
         registry.registerImplementer(Task.class, AntTask.class, ExecTask.class, NantTask.class, RakeTask.class, FetchTask.class, FetchPluggableArtifactTask.class);
 
         List<String> tasks = ConfigUtil.allTasks(registry);

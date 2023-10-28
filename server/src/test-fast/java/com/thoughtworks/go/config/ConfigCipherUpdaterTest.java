@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.DESCipherProvider;
@@ -45,8 +44,8 @@ import java.util.Date;
 import static com.thoughtworks.go.config.ConfigCipherUpdater.FLAWED_VALUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.FileUtils.*;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ConfigCipherUpdaterTest {
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
@@ -71,7 +70,7 @@ public class ConfigCipherUpdaterTest {
             }
         });
         configCache = new ConfigCache();
-        registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        registry = new ConfigElementImplementationRegistry();
         ConfigElementImplementationRegistrar registrar = new ConfigElementImplementationRegistrar(registry);
         registrar.initialize();
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
@@ -89,7 +88,7 @@ public class ConfigCipherUpdaterTest {
     }
 
     @Test
-    public void shouldNotMigrateAnythingIfCipherFileIsNotPresent_FreshInstalls() throws IOException {
+    public void shouldNotMigrateAnythingIfCipherFileIsNotPresent_FreshInstalls() {
         FileUtils.deleteQuietly(systemEnvironment.getDESCipherFile());
         FileUtils.deleteQuietly(systemEnvironment.getAESCipherFile());
         ReflectionUtil.setStaticField(DESCipherProvider.class, "cachedKey", null);

@@ -124,7 +124,7 @@ public class GoConfigGraphWalker {
         }
     }
 
-    public static interface Handler {
+    public interface Handler {
         void handle(Validatable validatable, ValidationContext ctx);
     }
 }

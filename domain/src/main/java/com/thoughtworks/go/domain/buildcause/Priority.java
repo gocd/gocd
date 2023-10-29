@@ -22,7 +22,7 @@ enum Priority {
 
     private final int priority;
 
-    private Priority(int priority) {
+    Priority(int priority) {
         this.priority = priority;
     }
 

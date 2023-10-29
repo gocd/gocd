@@ -17,5 +17,5 @@ package com.thoughtworks.go.config;
 
 /** Forces the update command to not overwrite other config changes that might have been made after it has read the config. Should be always used**/
 public interface NoOverwriteUpdateConfigCommand extends UpdateConfigCommand {
-    public String unmodifiedMd5();
+    String unmodifiedMd5();
 }

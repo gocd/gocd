@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain.materials;
  * Knows how to get a string representation of revision.
  */
 public interface Revision {
-    public String getRevision();
-    public String getRevisionUrl();
-    public boolean isRealRevision();
+    String getRevision();
+    String getRevisionUrl();
+    boolean isRealRevision();
 }

@@ -31,7 +31,7 @@ public interface JobType {
 
     void createRerunInstances(JobInstance oldJob, JobInstances jobInstances, SchedulingContext context, StageConfig stageConfig, final Clock clock, InstanceFactory instanceFactory);
 
-    static interface JobNameGenerator {
+    interface JobNameGenerator {
         String generateName(int counter);
     }
 }

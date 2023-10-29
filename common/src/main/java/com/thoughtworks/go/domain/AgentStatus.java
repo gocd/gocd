@@ -33,7 +33,7 @@ public enum AgentStatus implements Comparable<AgentStatus>, Serializable {
     private final AgentConfigStatus configStatus;
     private final AgentRuntimeStatus runtimeStatus;
 
-    private AgentStatus(String name, AgentConfigStatus configStatus, AgentRuntimeStatus runtimeStatus) {
+    AgentStatus(String name, AgentConfigStatus configStatus, AgentRuntimeStatus runtimeStatus) {
         this.name = name;
         this.configStatus = configStatus;
         this.runtimeStatus = runtimeStatus;

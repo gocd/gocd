@@ -160,7 +160,7 @@ public class ParamResolver {
         return new LeafAttributeSelectorPredicate();
     }
 
-    private static interface NodeSelectorPredicate {
+    private interface NodeSelectorPredicate {
         boolean shouldSelect(Field declaredField);
     }
 

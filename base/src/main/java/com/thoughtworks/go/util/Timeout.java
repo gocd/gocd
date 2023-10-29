@@ -34,7 +34,7 @@ public enum Timeout {
 
     private long timeout;
 
-    private Timeout(long timeout) {
+    Timeout(long timeout) {
         this.timeout = timeout;
     }
 

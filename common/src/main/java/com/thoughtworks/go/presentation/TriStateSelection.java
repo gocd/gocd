@@ -189,13 +189,13 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
         return comparator.compare(this.value,other.value);
     }
 
-    static interface Assigner<T,V> {
+    interface Assigner<T,V> {
         boolean shouldAssociate(V v, T t);
         String identifier(T t);
         boolean shouldEnable(V v, T t);
     }
 
-    public static enum Action {
+    public enum Action {
         add, remove, nochange
     }
 

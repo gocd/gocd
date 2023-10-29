@@ -467,7 +467,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    void shouldKeepOriginalStatusWhenAgentIsNotDenied() {
+    void shouldKeepOriginalStatusWhenAgentIsNotDisabled() {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo(agent));
 
@@ -476,7 +476,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    void shouldDenyAgentWhenAgentIsDeniedInConfigFile() {
+    void shouldDenyAgentWhenAgentIsDisabledInConfigFile() {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo());
 

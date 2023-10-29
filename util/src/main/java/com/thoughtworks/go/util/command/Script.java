@@ -21,7 +21,7 @@ public interface Script {
      * exitCode is what is returned from running the script
      * @param result
      */
-    public void setExitCode(int result);
-    public int getExitCode();
+    void setExitCode(int result);
+    int getExitCode();
 
 }

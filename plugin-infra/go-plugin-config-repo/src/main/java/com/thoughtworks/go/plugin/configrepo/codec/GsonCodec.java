@@ -22,10 +22,9 @@ import com.thoughtworks.go.plugin.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRTask;
 
 public class GsonCodec {
-    private Gson gson;
+    private final Gson gson;
 
-    public GsonCodec()
-    {
+    public GsonCodec() {
         this(new GsonBuilder());
     }
 

@@ -23,14 +23,14 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.buildcause.BuildCauseOutOfDateException;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
-import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import com.thoughtworks.go.helper.MaterialsMother;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.Test;
+
+import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class BuildCauseTest {
 
@@ -38,7 +38,7 @@ public class BuildCauseTest {
     public void shouldReturnTrimBuildCauseIfRevisionIsLongerThan12() {
         ModificationSummaries summaries1 = new ModificationSummaries();
         summaries1.visit(
-                new Modification(null, "comment1", null, null, "This could be a long Hg Revision Number"));
+            new Modification(null, "comment1", null, null, "This could be a long Hg Revision Number"));
         assertThat(summaries1.getModification(0).getRevision(), is("This could b..."));
     }
 
@@ -85,7 +85,7 @@ public class BuildCauseTest {
         MaterialConfig materialConfig = material.config();
 
         MaterialRevisions first = new MaterialRevisions(
-                new MaterialRevision(material, oneModifiedFile("revision1"))
+            new MaterialRevision(material, oneModifiedFile("revision1"))
         );
         BuildCause buildCause = BuildCause.createManualForced();
         buildCause.setMaterialRevisions(first);
@@ -93,7 +93,7 @@ public class BuildCauseTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug", "id"),"revision2"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug", "id"), "revision2"));
 
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
     }
@@ -104,25 +104,19 @@ public class BuildCauseTest {
         MaterialConfig materialConfig = material.config();
 
         MaterialRevisions first = new MaterialRevisions(
-                new MaterialRevision(material, oneModifiedFile("revision1"))
+            new MaterialRevision(material, oneModifiedFile("revision1"))
         );
-        BuildCause buildCause = BuildCause.createWithModifications(first,"");
+        BuildCause buildCause = BuildCause.createWithModifications(first, "");
         buildCause.setMaterialRevisions(first);
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug", "id"),"revision2"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug", "id"), "revision2"));
 
-        try {
-            buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
-        }
-        catch (BuildCauseOutOfDateException ex)
-        {
-            //good
-            return;
-        }
-        fail("should have thrown");
+
+        assertThatThrownBy(() -> buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig))
+            .isInstanceOf(BuildCauseOutOfDateException.class);
     }
 
     @Test
@@ -131,15 +125,15 @@ public class BuildCauseTest {
         MaterialConfig materialConfig = material.config();
 
         MaterialRevisions first = new MaterialRevisions(
-                new MaterialRevision(material, oneModifiedFile("revision1"))
+            new MaterialRevision(material, oneModifiedFile("revision1"))
         );
-        BuildCause buildCause = BuildCause.createWithModifications(first,"");
+        BuildCause buildCause = BuildCause.createWithModifications(first, "");
         buildCause.setMaterialRevisions(first);
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug", "id"),"revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug", "id"), "revision1"));
 
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
     }

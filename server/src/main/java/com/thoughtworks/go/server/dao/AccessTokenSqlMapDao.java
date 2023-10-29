@@ -37,9 +37,9 @@ import java.util.Map;
 
 @Component
 public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessTokenDao {
-    private SessionFactory sessionFactory;
-    private TransactionTemplate transactionTemplate;
-    private Clock clock;
+    private final SessionFactory sessionFactory;
+    private final TransactionTemplate transactionTemplate;
+    private final Clock clock;
 
     @Autowired
     public AccessTokenSqlMapDao(SessionFactory sessionFactory,
@@ -63,44 +63,44 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     @SuppressWarnings("unchecked")
     @Override
     public List<AccessToken> findAllTokensForUser(String username, AccessTokenFilter filter) {
-        return (List<AccessToken>) transactionTemplate.execute(transactionStatus ->
-        {
+        return (List<AccessToken>) transactionTemplate.execute(transactionStatus -> {
             Criteria criteria = sessionFactory
-                    .getCurrentSession()
-                    .createCriteria(AccessToken.class)
-                    .add(Restrictions.eq("username", username))
-                    .add(Restrictions.eq("deletedBecauseUserDeleted", false));
+                .getCurrentSession()
+                .createCriteria(AccessToken.class)
+                .add(Restrictions.eq("username", username))
+                .add(Restrictions.eq("deletedBecauseUserDeleted", false));
 
             filter.applyTo(criteria);
 
             return criteria
-                    .setCacheable(true)
-                    .list();
+                .setCacheable(true)
+                .list();
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<AccessToken> findAllTokens(AccessTokenFilter filter) {
-        return transactionTemplate.execute(status -> {
+        return (List<AccessToken>) transactionTemplate.execute(status -> {
             Criteria criteria = sessionFactory.getCurrentSession()
-                    .createCriteria(AccessToken.class);
+                .createCriteria(AccessToken.class);
 
             filter.applyTo(criteria);
 
             return criteria
-                    .setCacheable(true)
-                    .list();
+                .setCacheable(true)
+                .list();
         });
     }
 
     @Override
     public AccessToken findAccessTokenBySaltId(String saltId) {
         return (AccessToken) transactionTemplate.execute(transactionStatus ->
-                sessionFactory.getCurrentSession()
-                        .createCriteria(AccessToken.class)
-                        .add(Restrictions.eq("saltId", saltId))
-                        .add(Restrictions.eq("deletedBecauseUserDeleted", false))
-                        .setCacheable(true).uniqueResult());
+            sessionFactory.getCurrentSession()
+                .createCriteria(AccessToken.class)
+                .add(Restrictions.eq("saltId", saltId))
+                .add(Restrictions.eq("deletedBecauseUserDeleted", false))
+                .setCacheable(true).uniqueResult());
     }
 
     @Override
@@ -108,12 +108,12 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
         transactionTemplate.execute(status -> {
             Session currentSession = sessionFactory.getCurrentSession();
             usernames
-                    .stream()
-                    .flatMap(username -> findAllTokensForUser(username, AccessTokenFilter.all).stream())
-                    .forEach(accessToken -> {
-                        accessToken.revokeBecauseOfUserDelete(byWhom, clock.currentTimestamp());
-                        currentSession.saveOrUpdate(accessToken);
-                    });
+                .stream()
+                .flatMap(username -> findAllTokensForUser(username, AccessTokenFilter.all).stream())
+                .forEach(accessToken -> {
+                    accessToken.revokeBecauseOfUserDelete(byWhom, clock.currentTimestamp());
+                    currentSession.saveOrUpdate(accessToken);
+                });
             return Boolean.TRUE;
         });
     }
@@ -126,14 +126,14 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     @Override
     public AccessToken loadNotDeletedTokenForUser(long id, String username) {
         return (AccessToken) transactionTemplate.execute(transactionCallback ->
-                sessionFactory
-                        .getCurrentSession()
-                        .createCriteria(AccessToken.class)
-                        .add(Restrictions.eq("username", username))
-                        .add(Restrictions.eq("id", id))
-                        .add(Restrictions.eq("deletedBecauseUserDeleted", false))
-                        .setCacheable(true)
-                        .uniqueResult());
+            sessionFactory
+                .getCurrentSession()
+                .createCriteria(AccessToken.class)
+                .add(Restrictions.eq("username", username))
+                .add(Restrictions.eq("id", id))
+                .add(Restrictions.eq("deletedBecauseUserDeleted", false))
+                .setCacheable(true)
+                .uniqueResult());
 
     }
 

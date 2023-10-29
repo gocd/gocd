@@ -34,9 +34,9 @@ public class ParseDirectoryMessage {
         this.directory = destinationFolder;
         this.configurations = new ArrayList<>();
     }
-    public void addConfiguration(String name,String value,String encryptedValue)
-    {
-        configurations.add(new CRConfigurationProperty(name,value,encryptedValue));
+
+    public void addConfiguration(String name, String value, String encryptedValue) {
+        configurations.add(new CRConfigurationProperty(name, value, encryptedValue));
     }
 
     public String getDirectory() {

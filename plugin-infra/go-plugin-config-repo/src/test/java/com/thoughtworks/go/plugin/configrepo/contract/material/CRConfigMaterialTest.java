@@ -33,16 +33,16 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
     private final CRConfigMaterial invalidList;
 
     public CRConfigMaterialTest() {
-        named = new CRConfigMaterial("primary", null,null);
-        namedDest = new CRConfigMaterial("primary", "folder",null);
+        named = new CRConfigMaterial("primary", null, null);
+        namedDest = new CRConfigMaterial("primary", "folder", null);
         List<String> patterns = new ArrayList<>();
         patterns.add("externals");
         patterns.add("tools");
-        materialWithIgnores = new CRConfigMaterial("primary", "folder",new CRFilter(patterns,false));
+        materialWithIgnores = new CRConfigMaterial("primary", "folder", new CRFilter(patterns, false));
 
-        CRFilter badFilter = new CRFilter(patterns,false);
+        CRFilter badFilter = new CRFilter(patterns, false);
         badFilter.setIncludesNoCheck(patterns);
-        invalidList = new CRConfigMaterial("primary", "folder",badFilter);
+        invalidList = new CRConfigMaterial("primary", "folder", badFilter);
     }
 
     @Override
@@ -54,26 +54,24 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
 
     @Override
     public void addBadExamples(Map<String, CRConfigMaterial> examples) {
-        examples.put("invalidList",invalidList);
+        examples.put("invalidList", invalidList);
     }
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = named;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRConfigMaterial.TYPE_NAME));
     }
 
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = named;
         String json = gson.toJson(value);
 
-        CRConfigMaterial deserializedValue = (CRConfigMaterial)gson.fromJson(json,CRMaterial.class);
+        CRConfigMaterial deserializedValue = (CRConfigMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
 
 }

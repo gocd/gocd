@@ -94,25 +94,27 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfigs group = createEmpty();
         group.validate(null);
         assertThat(group.errors().on(BasicPipelineConfigs.GROUP),
-                is("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+            is("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
+
     @Test
     public void shouldErrorWhenAuthorizationIsDefinedInConfigRepo() {
         BasicPipelineConfigs group = new BasicPipelineConfigs(new RepoConfigOrigin());
         group.setGroup("gr");
 
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
-                Map.of(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
-                Map.of(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
-                Map.of(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+            Map.of(Authorization.NAME, "loser", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+            Map.of(Authorization.NAME, "boozer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+            Map.of(Authorization.NAME, "geezer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
 
         group.validate(null);
 
         assertThat(group.errors().on(BasicPipelineConfigs.NO_REMOTE_AUTHORIZATION),
-                is("Authorization can be defined only in configuration file"));
+            is("Authorization can be defined only in configuration file"));
     }
+
     @Test
     public void shouldNotErrorWhenNoAuthorizationIsDefined_AndInConfigRepo() {
         BasicPipelineConfigs group = new BasicPipelineConfigs(new RepoConfigOrigin());
@@ -122,16 +124,17 @@ public abstract class PipelineConfigsTestBase {
 
         assertThat(group.errors().isEmpty(), is(true));
     }
+
     @Test
     public void shouldNotErrorWhenAuthorizationIsDefinedLocally() {
         BasicPipelineConfigs group = new BasicPipelineConfigs(new FileConfigOrigin());
         group.setGroup("gr");
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
-                Map.of(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
-                Map.of(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
-                Map.of(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+            Map.of(Authorization.NAME, "loser", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+            Map.of(Authorization.NAME, "boozer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+            Map.of(Authorization.NAME, "geezer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
 
         group.validate(null);
 
@@ -179,14 +182,14 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
         assertThat("hasViewPermissionDefinedShouldReturnTrueIfAuthorizationIsDefined", group.hasViewPermissionDefined(),
-                is(true));
+            is(true));
     }
 
     @Test
     public void hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         assertThat("hasViewPermissionDefinedShouldReturnFalseIfAuthorizationIsNotDefined",
-                group.hasViewPermissionDefined(), is(false));
+            group.hasViewPermissionDefined(), is(false));
     }
 
     @Test
@@ -203,16 +206,17 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline0"));
 
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
-        group.add(1,p1);
+        group.add(1, p1);
 
-        assertThat(group.get(1),is(p1));
+        assertThat(group.get(1), is(p1));
     }
+
     @Test
     public void shouldRemovePipelineAtIndex() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline0"));
 
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
-        group.add(1,p1);
+        group.add(1, p1);
 
         group.remove(0);
 
@@ -226,11 +230,11 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfigs group = createWithPipeline(p0);
 
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1");
-        group.add(1,p1);
+        group.add(1, p1);
 
         group.remove(p0);
 
-        assertThat(group.get(0),is(p1));
+        assertThat(group.get(0), is(p1));
         assertThat(group.size(), is(1));
     }
 
@@ -238,7 +242,7 @@ public abstract class PipelineConfigsTestBase {
     public void shouldReturnIndexOfPipeline_When2Pipelines() {
         PipelineConfigs group = createWithPipelines(PipelineConfigMother.pipelineConfig("pipeline1"), PipelineConfigMother.pipelineConfig("pipeline2"));
         PipelineConfig pipelineConfig = group.findBy(new CaseInsensitiveString("pipeline2"));
-        assertThat(group.indexOf(pipelineConfig),is(1));
+        assertThat(group.indexOf(pipelineConfig), is(1));
     }
 
 
@@ -246,11 +250,11 @@ public abstract class PipelineConfigsTestBase {
     public void shouldUpdateAuthorization() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
-                Map.of(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
-                Map.of(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
-                Map.of(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+            Map.of(Authorization.NAME, "loser", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+            Map.of(Authorization.NAME, "boozer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+            Map.of(Authorization.NAME, "geezer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size(), is(2));
@@ -261,18 +265,18 @@ public abstract class PipelineConfigsTestBase {
 
         assertThat(authorization.getViewConfig().size(), is(3));
         assertThat(authorization.getViewConfig(), hasItems(new AdminUser(new CaseInsensitiveString("boozer")), new AdminUser(new CaseInsensitiveString("geezer")), new AdminRole(
-                new CaseInsensitiveString("gang_of_losers"))));
+            new CaseInsensitiveString("gang_of_losers"))));
     }
 
     @Test
     public void shouldReInitializeAuthorizationIfWeClearAllPermissions() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
-                Map.of(Authorization.NAME, "loser",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
-                Map.of(Authorization.NAME, "boozer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
-                Map.of(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+            Map.of(Authorization.NAME, "loser", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+            Map.of(Authorization.NAME, "boozer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+            Map.of(Authorization.NAME, "geezer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "gang_of_losers", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size(), is(2));
@@ -292,12 +296,12 @@ public abstract class PipelineConfigsTestBase {
     public void shouldIgnoreBlankUserOrRoleNames_whileSettingAttributes() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
-                Map.of(Authorization.NAME, "",          Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
-                Map.of(Authorization.NAME, " ",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
-                Map.of(Authorization.NAME, "geezer",         Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
-                Map.of(Authorization.NAME, "", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, ON, ON)),
-                Map.of(Authorization.NAME, " ", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, OFF, ON)),
-                Map.of(Authorization.NAME, "blinds",         Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
+            Map.of(Authorization.NAME, "", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(ON, DISABLED, DISABLED)),
+            Map.of(Authorization.NAME, " ", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, ON, ON)),
+            Map.of(Authorization.NAME, "geezer", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(DISABLED, OFF, ON)),
+            Map.of(Authorization.NAME, "", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(DISABLED, ON, ON)),
+            Map.of(Authorization.NAME, " ", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, OFF, ON)),
+            Map.of(Authorization.NAME, "blinds", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(ON, ON, OFF)))));
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getAdminsConfig().size(), is(1));
@@ -314,8 +318,8 @@ public abstract class PipelineConfigsTestBase {
     public void shouldSetViewPermissionByDefaultIfNameIsPresentAndPermissionsAreOff_whileSettingAttributes() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.setConfigAttributes(Map.of(BasicPipelineConfigs.AUTHORIZATION, List.of(
-                Map.of(Authorization.NAME, "user1", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)),
-                Map.of(Authorization.NAME, "role1", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)))));
+            Map.of(Authorization.NAME, "user1", Authorization.TYPE, USER.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)),
+            Map.of(Authorization.NAME, "role1", Authorization.TYPE, ROLE.toString(), Authorization.PRIVILEGES, privileges(OFF, OFF, OFF)))));
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getViewConfig().size(), is(2));
@@ -334,8 +338,7 @@ public abstract class PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldValidateGroupNameUniqueness()
-    {
+    public void shouldValidateGroupNameUniqueness() {
         Map<String, PipelineConfigs> nameToConfig = new HashMap<>();
         PipelineConfigs group1 = createEmpty();
         group1.setGroup("joe");
@@ -347,8 +350,7 @@ public abstract class PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldGetAllPipelinesList()
-    {
+    public void shouldGetAllPipelinesList() {
         PipelineConfig pipeline1 = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfig pipeline2 = PipelineConfigMother.pipelineConfig("pipeline2");
         PipelineConfigs group = createWithPipelines(pipeline1, pipeline2);
@@ -358,8 +360,8 @@ public abstract class PipelineConfigsTestBase {
 
     private List privileges(final Authorization.PrivilegeState admin, final Authorization.PrivilegeState operate, final Authorization.PrivilegeState view) {
         return List.of(Map.of(Authorization.PrivilegeType.ADMIN.toString(), admin.toString(),
-                Authorization.PrivilegeType.OPERATE.toString(), operate.toString(),
-                Authorization.PrivilegeType.VIEW.toString(), view.toString()));
+            Authorization.PrivilegeType.OPERATE.toString(), operate.toString(),
+            Authorization.PrivilegeType.VIEW.toString(), view.toString()));
     }
 
 }

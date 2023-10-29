@@ -29,12 +29,11 @@ public class CREnvironmentTest extends AbstractCRTest<CREnvironment> {
     private final CREnvironment invalidSameAgentTwice;
     private final CREnvironment invalidSamePipelineTwice;
 
-    public CREnvironmentTest()
-    {
+    public CREnvironmentTest() {
         empty = new CREnvironment("dev");
 
         devWithVariable = new CREnvironment("dev");
-        devWithVariable.addEnvironmentVariable("key1","value1");
+        devWithVariable.addEnvironmentVariable("key1", "value1");
 
         prodWithAgent = new CREnvironment("prod");
         prodWithAgent.addAgent("123-745");
@@ -43,8 +42,8 @@ public class CREnvironmentTest extends AbstractCRTest<CREnvironment> {
         uatWithPipeline.addPipeline("pipeline1");
 
         invalidSameEnvironmentVariableTwice = new CREnvironment("badenv");
-        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value1");
-        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value2");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key", "value1");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key", "value2");
 
         invalidSameAgentTwice = new CREnvironment("badenv2");
         invalidSameAgentTwice.addAgent("123");
@@ -58,16 +57,16 @@ public class CREnvironmentTest extends AbstractCRTest<CREnvironment> {
 
     @Override
     public void addGoodExamples(Map<String, CREnvironment> examples) {
-        examples.put("empty",empty);
-        examples.put("devWithVariable",devWithVariable);
-        examples.put("prodWithAgent",prodWithAgent);
-        examples.put("uatWithPipeline",uatWithPipeline);
+        examples.put("empty", empty);
+        examples.put("devWithVariable", devWithVariable);
+        examples.put("prodWithAgent", prodWithAgent);
+        examples.put("uatWithPipeline", uatWithPipeline);
     }
 
     @Override
     public void addBadExamples(Map<String, CREnvironment> examples) {
-        examples.put("invalidSameEnvironmentVariableTwice",invalidSameEnvironmentVariableTwice);
-        examples.put("invalidSameAgentTwice",invalidSameAgentTwice);
-        examples.put("invalidSamePipelineTwice",invalidSamePipelineTwice);
+        examples.put("invalidSameEnvironmentVariableTwice", invalidSameEnvironmentVariableTwice);
+        examples.put("invalidSameAgentTwice", invalidSameAgentTwice);
+        examples.put("invalidSamePipelineTwice", invalidSamePipelineTwice);
     }
 }

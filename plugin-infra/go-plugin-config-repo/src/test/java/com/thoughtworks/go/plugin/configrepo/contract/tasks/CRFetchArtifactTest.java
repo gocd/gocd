@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
 
@@ -34,8 +34,7 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
     private final CRFetchArtifactTask invalidFetchNoJob;
     private final CRFetchArtifactTask invalidFetchNoStage;
 
-    public CRFetchArtifactTest()
-    {
+    public CRFetchArtifactTest() {
         fetch = new CRFetchArtifactTask(null, null, null, "build", "buildjob", "bin", null, false);
         fetchFromPipe = new CRFetchArtifactTask(null, null, null, "build", "buildjob", "bin", null, false);
         fetchFromPipe.setPipeline("pipeline1");
@@ -50,73 +49,70 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
 
     @Override
     public void addGoodExamples(Map<String, CRFetchArtifactTask> examples) {
-        examples.put("fetch",fetch);
-        examples.put("fetchFromPipe",fetchFromPipe);
-        examples.put("fetchToDest",fetchToDest);
+        examples.put("fetch", fetch);
+        examples.put("fetchFromPipe", fetchFromPipe);
+        examples.put("fetchToDest", fetchToDest);
     }
 
     @Override
     public void addBadExamples(Map<String, CRFetchArtifactTask> examples) {
-        examples.put("invalidFetchNoSource",invalidFetchNoSource);
-        examples.put("invalidFetchNoJob",invalidFetchNoJob);
-        examples.put("invalidFetchNoStage",invalidFetchNoStage);
+        examples.put("invalidFetchNoSource", invalidFetchNoSource);
+        examples.put("invalidFetchNoJob", invalidFetchNoJob);
+        examples.put("invalidFetchNoStage", invalidFetchNoStage);
     }
 
     @Test
-    public void shouldHandlePolymorphismWhenDeserializingFetchTask()
-    {
+    public void shouldHandlePolymorphismWhenDeserializingFetchTask() {
         CRTask value = fetch;
         String json = gson.toJson(value);
 
-        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
+        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
 
     @Test
-    public void shouldDeserializeWhenDestinationIsNull()
-    {
+    public void shouldDeserializeWhenDestinationIsNull() {
         String json = "{\n" +
-                "              \"type\" : \"fetch\",\n" +
-                "              \"pipeline\" : \"pip\",\n" +
-                "              \"stage\" : \"build1\",\n" +
-                "              \"job\" : \"build\",\n" +
-                "              \"source\" : \"bin\",\n" +
-                "              \"run_if\" : \"passed\",\n" +
-                "              \"artifact_origin\" : \"gocd\"\n" +
-                "            }";
-        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
+            "              \"type\" : \"fetch\",\n" +
+            "              \"pipeline\" : \"pip\",\n" +
+            "              \"stage\" : \"build1\",\n" +
+            "              \"job\" : \"build\",\n" +
+            "              \"source\" : \"bin\",\n" +
+            "              \"run_if\" : \"passed\",\n" +
+            "              \"artifact_origin\" : \"gocd\"\n" +
+            "            }";
+        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipeline(),is("pip"));
-        assertThat(deserializedValue.getJob(),is("build"));
-        assertThat(deserializedValue.getStage(),is("build1"));
-        assertThat(deserializedValue.getSource(),is("bin"));
-        assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
+        assertThat(deserializedValue.getPipeline(), is("pip"));
+        assertThat(deserializedValue.getJob(), is("build"));
+        assertThat(deserializedValue.getStage(), is("build1"));
+        assertThat(deserializedValue.getSource(), is("bin"));
+        assertThat(deserializedValue.getRunIf(), is(CRRunIf.passed));
         assertNull(deserializedValue.getDestination());
-        assertThat(deserializedValue.sourceIsDirectory(),is(true));
+        assertThat(deserializedValue.sourceIsDirectory(), is(true));
         assertThat(deserializedValue.getArtifactOrigin(), is(CRAbstractFetchTask.ArtifactOrigin.gocd));
     }
 
     @Test
-    public void shouldDeserializeWhenArtifactOriginIsNull()
-    {
+    public void shouldDeserializeWhenArtifactOriginIsNull() {
         String json = "{\n" +
-                "              \"type\" : \"fetch\",\n" +
-                "              \"pipeline\" : \"pip\",\n" +
-                "              \"stage\" : \"build1\",\n" +
-                "              \"job\" : \"build\",\n" +
-                "              \"source\" : \"bin\",\n" +
-                "              \"run_if\" : \"passed\"\n" +
-                "            }";
-        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
+            "              \"type\" : \"fetch\",\n" +
+            "              \"pipeline\" : \"pip\",\n" +
+            "              \"stage\" : \"build1\",\n" +
+            "              \"job\" : \"build\",\n" +
+            "              \"source\" : \"bin\",\n" +
+            "              \"run_if\" : \"passed\"\n" +
+            "            }";
+        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask) gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipeline(),is("pip"));
-        assertThat(deserializedValue.getJob(),is("build"));
-        assertThat(deserializedValue.getStage(),is("build1"));
-        assertThat(deserializedValue.getSource(),is("bin"));
-        assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
+        assertThat(deserializedValue.getPipeline(), is("pip"));
+        assertThat(deserializedValue.getJob(), is("build"));
+        assertThat(deserializedValue.getStage(), is("build1"));
+        assertThat(deserializedValue.getSource(), is("bin"));
+        assertThat(deserializedValue.getRunIf(), is(CRRunIf.passed));
         assertNull(deserializedValue.getDestination());
-        assertThat(deserializedValue.sourceIsDirectory(),is(true));
+        assertThat(deserializedValue.sourceIsDirectory(), is(true));
         assertThat(deserializedValue.getArtifactOrigin(), is(CRAbstractFetchTask.ArtifactOrigin.gocd));
     }
 }

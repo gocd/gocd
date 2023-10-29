@@ -101,8 +101,8 @@ public class GoConfigServiceTest {
         instanceFactory = mock(InstanceFactory.class);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        goConfigService = new GoConfigService(goConfigDao, this.clock, new GoConfigMigration(new TimeProvider(),
-                registry), goCache, configRepo, registry,
+        goConfigService = new GoConfigService(goConfigDao, this.clock, new GoConfigMigration(new TimeProvider()
+        ), goCache, configRepo, registry,
                 instanceFactory, mock(CachedGoPartials.class));
     }
 

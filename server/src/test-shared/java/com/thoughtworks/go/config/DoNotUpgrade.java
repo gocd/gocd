@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.TimeProvider;
 
 public class DoNotUpgrade extends GoConfigMigration {
     public DoNotUpgrade() {
-        super(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        super(new TimeProvider());
     }
 
     @Override

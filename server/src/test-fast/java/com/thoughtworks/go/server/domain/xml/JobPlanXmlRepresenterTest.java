@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.DefaultJobPlan;
+import com.thoughtworks.go.domain.EnvironmentVariable;
+import com.thoughtworks.go.domain.EnvironmentVariables;
+import com.thoughtworks.go.domain.WaitingJobPlan;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.junit5.FileSource;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
 
@@ -38,7 +40,7 @@ public class JobPlanXmlRepresenterTest {
         variables.add(secureEnvVariable);
         jobPlan1.setVariables(variables);
 
-        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
+        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
 
         Document document = new JobPlanXmlRepresenter(List.of(new WaitingJobPlan(jobPlan1, "envName")))
             .toXml(context);

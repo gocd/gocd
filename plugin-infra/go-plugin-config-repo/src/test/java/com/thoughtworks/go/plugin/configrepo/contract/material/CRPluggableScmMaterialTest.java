@@ -36,11 +36,10 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
 
     private final CRPluggableScmMaterial invalidNoScmId;
 
-    public CRPluggableScmMaterialTest()
-    {
-        pluggableGit = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", null, false);
-        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", List.of("mydir"), false);
-        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", List.of("dir1", "dir2"), false);
+    public CRPluggableScmMaterialTest() {
+        pluggableGit = new CRPluggableScmMaterial("myPluggableGit", "someScmGitRepositoryId", "destinationDir", null, false);
+        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit", "someScmGitRepositoryId", "destinationDir", List.of("mydir"), false);
+        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit", "someScmGitRepositoryId", "destinationDir", List.of("dir1", "dir2"), false);
 
         simplePluggableGit = new CRPluggableScmMaterial();
         simplePluggableGit.setScmId("mygit-id");
@@ -54,40 +53,39 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
 
     @Override
     public void addGoodExamples(Map<String, CRPluggableScmMaterial> examples) {
-        examples.put("pluggableGit",pluggableGit);
-        examples.put("pluggableGitWith2Filters",pluggableGitWith2Filters);
-        examples.put("simplePluggableGit",simplePluggableGit);
-        examples.put("simpleNamedPluggableGit",simpleNamedPluggableGit);
-        examples.put("pluggableGitWithFilter",pluggableGitWithFilter);
+        examples.put("pluggableGit", pluggableGit);
+        examples.put("pluggableGitWith2Filters", pluggableGitWith2Filters);
+        examples.put("simplePluggableGit", simplePluggableGit);
+        examples.put("simpleNamedPluggableGit", simpleNamedPluggableGit);
+        examples.put("pluggableGitWithFilter", pluggableGitWithFilter);
     }
 
     @Override
     public void addBadExamples(Map<String, CRPluggableScmMaterial> examples) {
-        examples.put("invalidNoScmId",invalidNoScmId);
+        examples.put("invalidNoScmId", invalidNoScmId);
     }
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = pluggableGit;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRPluggableScmMaterial.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = pluggableGit;
         String json = gson.toJson(value);
 
-        CRPluggableScmMaterial deserializedValue = (CRPluggableScmMaterial)gson.fromJson(json,CRMaterial.class);
+        CRPluggableScmMaterial deserializedValue = (CRPluggableScmMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
 
     @Test
     public void isWhiteList_shouldBeTrueInPresenceOfIncludesFilter() {
         CRPluggableScmMaterial pluggableScmMaterial = new CRPluggableScmMaterial("myPluggableGit", "someScmGitRepositoryId",
-                "destinationDir", List.of("mydir"), true);
+            "destinationDir", List.of("mydir"), true);
 
         assertTrue(pluggableScmMaterial.isWhitelist());
     }

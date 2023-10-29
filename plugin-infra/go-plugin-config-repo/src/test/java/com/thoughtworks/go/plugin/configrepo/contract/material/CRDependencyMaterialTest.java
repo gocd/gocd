@@ -31,10 +31,9 @@ public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMateria
     private final CRDependencyMaterial invalidNoStage;
     private CRDependencyMaterial dependsOnPipeline;
 
-    public CRDependencyMaterialTest()
-    {
-        namedDependsOnPipeline = new CRDependencyMaterial("pipe2","pipeline2","build", false);
-        dependsOnPipeline = new CRDependencyMaterial("pipeline2","build", false);
+    public CRDependencyMaterialTest() {
+        namedDependsOnPipeline = new CRDependencyMaterial("pipe2", "pipeline2", "build", false);
+        dependsOnPipeline = new CRDependencyMaterial("pipeline2", "build", false);
 
         invalidNoPipeline = new CRDependencyMaterial();
         invalidNoPipeline.setStage("build");
@@ -45,34 +44,32 @@ public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMateria
 
     @Override
     public void addGoodExamples(Map<String, CRDependencyMaterial> examples) {
-        examples.put("dependsOnPipeline",dependsOnPipeline);
-        examples.put("namedDependsOnPipeline",namedDependsOnPipeline);
+        examples.put("dependsOnPipeline", dependsOnPipeline);
+        examples.put("namedDependsOnPipeline", namedDependsOnPipeline);
     }
 
     @Override
     public void addBadExamples(Map<String, CRDependencyMaterial> examples) {
-        examples.put("invalidNoPipeline",invalidNoPipeline);
-        examples.put("invalidNoStage",invalidNoStage);
+        examples.put("invalidNoPipeline", invalidNoPipeline);
+        examples.put("invalidNoStage", invalidNoStage);
     }
 
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = dependsOnPipeline;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRDependencyMaterial.TYPE_NAME));
     }
 
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = dependsOnPipeline;
         String json = gson.toJson(value);
 
-        CRDependencyMaterial deserializedValue = (CRDependencyMaterial)gson.fromJson(json,CRMaterial.class);
+        CRDependencyMaterial deserializedValue = (CRDependencyMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
 
 }

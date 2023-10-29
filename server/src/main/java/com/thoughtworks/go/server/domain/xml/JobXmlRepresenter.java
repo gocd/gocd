@@ -68,8 +68,4 @@ public class JobXmlRepresenter implements XmlRepresentable {
             .build();
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

@@ -15,24 +15,20 @@
  */
 package com.thoughtworks.go.util;
 
-import java.text.SimpleDateFormat;
-
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.context.MessageSourceResolvable;
+import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import static com.thoughtworks.go.util.DateUtils.formatISO8601;
 
 @Component
@@ -240,7 +236,7 @@ public class TimeConverter {
         return TimeConverter.convert(date);
     }
 
-    static interface ConvertableTime {
+    interface ConvertableTime {
         ConvertedTime getConvertedTime(long duration);
     }
 

@@ -22,30 +22,37 @@ import org.dom4j.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static org.apache.commons.lang3.StringUtils.endsWithAny;
+
 @Service
 public class XmlApiService {
 
     private final ArtifactsService artifactsService;
     private final JobInstanceService jobInstanceService;
-    private final StageService stageService;
     private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public XmlApiService(ArtifactsService artifactsService,
                          JobInstanceService jobInstanceService,
-                         StageService stageService,
                          SystemEnvironment systemEnvironment) {
         this.artifactsService = artifactsService;
         this.jobInstanceService = jobInstanceService;
-        this.stageService = stageService;
         this.systemEnvironment = systemEnvironment;
     }
 
     private XmlWriterContext ctxFor(String baseUrl) {
-        return new XmlWriterContext(baseUrl, artifactsService, jobInstanceService, stageService, systemEnvironment);
+        return new XmlWriterContext(baseUrl, artifactsService, jobInstanceService);
     }
 
     public Document write(XmlRepresentable representable, String baseUrl) {
+        checkBaseUrl(baseUrl);
         return representable.toXml(ctxFor(baseUrl));
+    }
+
+    private void checkBaseUrl(String baseUrl) {
+        String expectedContextPath = systemEnvironment.getWebappContextPath();
+        if (!endsWithAny(baseUrl.toLowerCase(), expectedContextPath, expectedContextPath + "/")) {
+            throw new IllegalArgumentException("The baseUrl must end with " + expectedContextPath);
+        }
     }
 }

@@ -23,5 +23,4 @@ import org.dom4j.Document;
 public interface XmlRepresentable {
     Document toXml(XmlWriterContext writerContext);
 
-    String httpUrl(String baseUrl);
 }

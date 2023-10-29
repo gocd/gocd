@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.transaction;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.springframework.transaction.TransactionStatus;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 class TransactionCacheAssertionUtil {
     private GoCache goCache;
@@ -52,7 +52,7 @@ class TransactionCacheAssertionUtil {
         assertThat(doInTxnWithCachePut(inTxn), is(nullValue()));
     }
 
-    public static interface DoInTxn {
-        public void invoke();
+    public interface DoInTxn {
+        void invoke();
     }
 }

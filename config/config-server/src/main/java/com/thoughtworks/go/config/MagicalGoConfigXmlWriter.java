@@ -56,12 +56,7 @@ public class MagicalGoConfigXmlWriter {
         Element root = new Element("cruise");
         Namespace xsiNamespace = Namespace.getNamespace("xsi", XML_NS);
         root.addNamespaceDeclaration(xsiNamespace);
-        registry.registerNamespacesInto(root);
         root.setAttribute("noNamespaceSchemaLocation", "cruise-config.xsd", xsiNamespace);
-        String xsds = registry.xsds();
-        if (!xsds.isEmpty()) {
-            root.setAttribute("schemaLocation", xsds, xsiNamespace);
-        }
         root.setAttribute("schemaVersion", Integer.toString(GoConstants.CONFIG_SCHEMA_VERSION));
         return new Document(root);
     }
@@ -103,7 +98,7 @@ public class MagicalGoConfigXmlWriter {
     public void verifyXsdValid(Document document) throws Exception {
         try (ByteArrayOutputStream buffer = new ByteArrayOutputStream(32 * 1024)) {
             XmlUtils.writeXml(document, buffer);
-            buildXmlDocument(buffer.toInputStream(), GoConfigSchema.getCurrentSchema(), registry.xsds());
+            buildXmlDocument(buffer.toInputStream(), GoConfigSchema.getCurrentSchema());
         }
     }
 

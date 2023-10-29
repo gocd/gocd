@@ -37,7 +37,7 @@ public class ConfigMigrator {
         } catch (IOException e1) {
         }
 
-        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider(), registry);
+        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider());
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
         String upgradedContent = upgrader.upgradeIfNecessary(content);
         try {
@@ -58,7 +58,7 @@ public class ConfigMigrator {
     }
 
     public static String migrate(String content, int fromVersion, int toVersion) {
-        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider());
         return upgrader.upgrade(content, fromVersion, toVersion);
     }
 

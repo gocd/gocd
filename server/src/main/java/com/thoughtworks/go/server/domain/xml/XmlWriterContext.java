@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.util.SystemEnvironment;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -31,24 +30,13 @@ public class XmlWriterContext {
     private final String baseUrl;
     private final ArtifactUrlReader artifactUrlReader;
     private final JobPlanLoader jobPlanLoader;
-    private final StageFinder stageFinder;
 
     public XmlWriterContext(String baseUrl,
                             ArtifactUrlReader artifactUrlReader,
-                            JobPlanLoader jobPlanLoader,
-                            StageFinder stageFinder,
-                            SystemEnvironment systemEnvironment) {
-        if (!endsWithAny(baseUrl.toLowerCase(), systemEnvironment.getWebappContextPath(), systemEnvironment.getWebappContextPath() + "/")) {
-            throw new IllegalArgumentException("The baseUrl must end with /go");
-        }
+                            JobPlanLoader jobPlanLoader) {
         this.baseUrl = stripEndSlashIfPresent(baseUrl);
         this.artifactUrlReader = artifactUrlReader;
         this.jobPlanLoader = jobPlanLoader;
-        this.stageFinder = stageFinder;
-    }
-
-    public String getBaseUrl() {
-        return baseUrl;
     }
 
     public String artifactBaseUrl(JobIdentifier identifier) {
@@ -65,10 +53,6 @@ public class XmlWriterContext {
 
     public JobPlan planFor(JobIdentifier jobId) {
         return jobPlanLoader.loadOriginalJobPlan(jobId);
-    }
-
-    public long stageIdForLocator(String locator) {
-        return stageFinder.findStageWithIdentifier(new StageIdentifier(locator)).getId();
     }
 
     public String relative(String path) {

@@ -27,36 +27,35 @@ import static org.hamcrest.Matchers.is;
 public class CRPackageMaterialTest extends AbstractCRTest<CRPackageMaterial> {
 
     private CRPackageMaterial packageMaterial = new CRPackageMaterial(null, "apt-package-plugin-id");
-    private CRPackageMaterial namedPackageMaterial = new CRPackageMaterial("myapt","apt-repo-id");
+    private CRPackageMaterial namedPackageMaterial = new CRPackageMaterial("myapt", "apt-repo-id");
 
     private CRPackageMaterial invalidPackageMaterialNoId = new CRPackageMaterial();
 
     @Override
     public void addGoodExamples(Map<String, CRPackageMaterial> examples) {
-        examples.put("packageMaterial",packageMaterial);
-        examples.put("namedPackageMaterial",namedPackageMaterial);
+        examples.put("packageMaterial", packageMaterial);
+        examples.put("namedPackageMaterial", namedPackageMaterial);
     }
 
     @Override
     public void addBadExamples(Map<String, CRPackageMaterial> examples) {
-        examples.put("invalidPackageMaterialNoId",invalidPackageMaterialNoId);
+        examples.put("invalidPackageMaterialNoId", invalidPackageMaterialNoId);
     }
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = packageMaterial;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRPackageMaterial.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = packageMaterial;
         String json = gson.toJson(value);
 
-        CRPackageMaterial deserializedValue = (CRPackageMaterial)gson.fromJson(json,CRMaterial.class);
+        CRPackageMaterial deserializedValue = (CRPackageMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
 }

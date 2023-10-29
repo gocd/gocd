@@ -27,47 +27,27 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
-import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.plugins.PluginExtensions;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.presentation.PluggableTaskViewModel;
-import com.thoughtworks.go.presentation.TaskViewModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
 
 @ExtendWith(MockitoExtension.class)
 public class ConfigElementImplementationRegistrarTest {
-    @Mock
-    private PluginExtensions pluginExtns;
 
     private ConfigElementImplementationRegistry registry;
-    private ConfigElementImplementationRegistrar registrar;
 
     @BeforeEach
     public void setUp() {
-        when(pluginExtns.configTagImplementations()).thenReturn(new ArrayList<>());
-
-        registry = new ConfigElementImplementationRegistry(pluginExtns);
-        registrar = new ConfigElementImplementationRegistrar(registry);
-
-        registrar.initialize();
+        registry = new ConfigElementImplementationRegistry();
+        new ConfigElementImplementationRegistrar(registry).initialize();
     }
 
     @Test
@@ -117,37 +97,4 @@ public class ConfigElementImplementationRegistrarTest {
 
         assertThat(registry.implementersOf(Admin.class), is(admin));
     }
-
-    @Test
-    public void shouldRegisterViewEnginesForAllTasks() {
-        assertReturnsAppropriateViewModelForInbuiltTasks(registry, new AntTask(), "ant");
-        assertReturnsAppropriateViewModelForInbuiltTasks(registry, new ExecTask(), "exec");
-        assertReturnsAppropriateViewModelForInbuiltTasks(registry, new FetchTask(), "fetch");
-        assertReturnsAppropriateViewModelForInbuiltTasks(registry, new RakeTask(), "rake");
-        assertReturnsAppropriateViewModelForInbuiltTasks(registry, new NantTask(), "nant");
-    }
-
-    @Test
-    public void shouldRegisterViewEngineForPluggableTask() {
-        TaskPreference taskPreference = mock(TaskPreference.class);
-        TaskView view = mock(TaskView.class);
-        when(taskPreference.getView()).thenReturn(view);
-        when(view.template()).thenReturn("plugin-template-value");
-        when(view.displayValue()).thenReturn("Plugin display value");
-        PluggableTaskConfigStore.store().setPreferenceFor("plugin1", taskPreference);
-
-        PluggableTask pluggableTask = new PluggableTask(new PluginConfiguration("plugin1", "2"), new Configuration());
-        PluggableViewModel<PluggableTask> pluggableTaskViewModel = registry.getViewModelFor(pluggableTask, "new");
-
-        assertEquals(PluggableTaskViewModel.class, pluggableTaskViewModel.getClass());
-        assertThat(pluggableTaskViewModel.getModel(), is(pluggableTask));
-    }
-
-    private void assertReturnsAppropriateViewModelForInbuiltTasks(ConfigElementImplementationRegistry registry, Task task, final String taskType) {
-        for (String actionName : new String[]{"new", "edit"}) {
-            PluggableViewModel viewModelFor = registry.getViewModelFor(task, actionName);
-            assertThat(viewModelFor, is(new TaskViewModel(task, String.format("admin/tasks/%s/%s", taskType, actionName))));
-        }
-    }
-
 }

@@ -30,46 +30,36 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public class PartialConfigHelper {
 
-    private MagicalGoConfigXmlWriter writer;
-    private File directory;
+    private final MagicalGoConfigXmlWriter writer;
+    private final File directory;
 
-    public PartialConfigHelper(MagicalGoConfigXmlWriter writer,File directory)
-    {
+    public PartialConfigHelper(MagicalGoConfigXmlWriter writer, File directory) {
         this.writer = writer;
         this.directory = directory;
     }
 
-    public File addFileWithPipeline(String relativePath, PipelineConfig pipelineConfig) throws Exception
-    {
+    public File addFileWithPipeline(String relativePath, PipelineConfig pipelineConfig) throws Exception {
         PartialConfig partialConfig = new PartialConfig();
-        partialConfig.getGroups().addPipeline(PipelineConfigs.DEFAULT_GROUP,pipelineConfig);
-        return this.addFileWithPartialConfig(relativePath,partialConfig);
+        partialConfig.getGroups().addPipeline(PipelineConfigs.DEFAULT_GROUP, pipelineConfig);
+        return this.addFileWithPartialConfig(relativePath, partialConfig);
     }
 
-    public File addFileWithPartialConfig(String relativePath, PartialConfig partialConfig) throws Exception
-    {
-        File dest = new File(directory,relativePath);
+    public File addFileWithPartialConfig(String relativePath, PartialConfig partialConfig) throws Exception {
+        File dest = new File(directory, relativePath);
         FileUtil.createParentFolderIfNotExist(dest);
 
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setGroup(partialConfig.getGroups());
         cruiseConfig.setEnvironments(partialConfig.getEnvironments());
 
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(dest);
+        try (FileOutputStream output = new FileOutputStream(dest)) {
             writer.write(cruiseConfig, output, true);
-        } finally {
-            if (output != null) {
-                output.close();
-            }
         }
         return dest;
     }
 
-    public File writeFileWithContent(String relativePath, String content) throws Exception
-    {
-        File dest = new File(directory,relativePath);
+    public File writeFileWithContent(String relativePath, String content) throws Exception {
+        File dest = new File(directory, relativePath);
         FileUtil.createParentFolderIfNotExist(dest);
 
         FileUtils.writeStringToFile(dest, content, UTF_8);
@@ -79,12 +69,12 @@ public class PartialConfigHelper {
     public File addFileWithPipelineGroup(String relativePath, PipelineConfigs group) throws Exception {
         PartialConfig partialConfig = new PartialConfig();
         partialConfig.getGroups().add(group);
-        return this.addFileWithPartialConfig(relativePath,partialConfig);
+        return this.addFileWithPartialConfig(relativePath, partialConfig);
     }
 
     public File addFileWithEnvironment(String relativePath, EnvironmentConfig env) throws Exception {
         PartialConfig partialConfig = new PartialConfig();
         partialConfig.getEnvironments().add(env);
-        return this.addFileWithPartialConfig(relativePath,partialConfig);
+        return this.addFileWithPartialConfig(relativePath, partialConfig);
     }
 }

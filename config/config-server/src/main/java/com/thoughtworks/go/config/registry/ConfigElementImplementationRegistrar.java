@@ -31,8 +31,6 @@ import com.thoughtworks.go.config.rules.Directive;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.plugins.presentation.BuiltinTaskViewModelFactory;
-import com.thoughtworks.go.plugins.presentation.PluggableTaskViewModelFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -69,14 +67,6 @@ public class ConfigElementImplementationRegistrar {
 
     private void registerBuiltinTasks() {
         registry.registerImplementer(Task.class, AntTask.class, NantTask.class, ExecTask.class, RakeTask.class, FetchTask.class, PluggableTask.class, FetchPluggableArtifactTask.class);
-        registry.registerView(AntTask.class, new BuiltinTaskViewModelFactory("ant"));
-        registry.registerView(NantTask.class, new BuiltinTaskViewModelFactory("nant"));
-        registry.registerView(ExecTask.class, new BuiltinTaskViewModelFactory("exec"));
-        registry.registerView(RakeTask.class, new BuiltinTaskViewModelFactory("rake"));
-        registry.registerView(FetchTaskAdapter.class, new BuiltinTaskViewModelFactory("fetch"));
-        registry.registerView(FetchTask.class, new BuiltinTaskViewModelFactory("fetch"));
-        registry.registerView(FetchPluggableArtifactTask.class, new BuiltinTaskViewModelFactory("fetch"));
-        registry.registerView(PluggableTask.class, new PluggableTaskViewModelFactory());
     }
 
     private void registerBuiltinArtifactTypes() {

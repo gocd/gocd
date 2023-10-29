@@ -16,11 +16,8 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.GoConfigSchema;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.input.JDOMParseException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -34,18 +31,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XmlUtilsTest {
 
-    private ConfigElementImplementationRegistry configElementImplementationRegistry;
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
-    }
-
     @Test
     public void shouldThrowExceptionWithTranslatedErrorMessage() {
         String xmlContent = "<foo name='invalid'/>";
         InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
-        assertThatThrownBy(() -> buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds()))
+        assertThatThrownBy(() -> buildXmlDocument(inputStream, GoConfigSchema.getCurrentSchema()))
                 .isInstanceOf(XsdValidationException.class);
     }
 
@@ -63,14 +53,6 @@ public class XmlUtilsTest {
                 .isInstanceOf(JDOMParseException.class)
                 .hasMessageContaining("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true");
     }
-
-    @Test
-    public void shouldDisableDocTypeDeclarationsWhenValidatingXmlDocumentsWithExternalXsds() {
-        assertThatThrownBy(() -> buildXmlDocument(new ByteArrayInputStream(xxeFileContent().getBytes()), GoConfigSchema.getCurrentSchema(), configElementImplementationRegistry.xsds()))
-                .isInstanceOf(JDOMParseException.class)
-                .hasMessageContaining("DOCTYPE is disallowed when the feature \"http://apache.org/xml/features/disallow-doctype-decl\" set to true");
-    }
-
 
     private String xxeFileContent() throws IOException {
         return FileUtils.readFileToString(new File(this.getClass().getResource("/data/xml-with-xxe.xml").getFile()), UTF_8);

@@ -35,9 +35,15 @@ public enum ModifiedAction {
     }
 
     public static ModifiedAction parseP4Action(String action) {
-        if ("add".equals(action))    { return ModifiedAction.added; }
-        if ("edit".equals(action))   { return ModifiedAction.modified; }
-        if ("delete".equals(action)) { return ModifiedAction.deleted; }
+        if ("add".equals(action)) {
+            return ModifiedAction.added;
+        }
+        if ("edit".equals(action)) {
+            return ModifiedAction.modified;
+        }
+        if ("delete".equals(action)) {
+            return ModifiedAction.deleted;
+        }
         return ModifiedAction.unknown;
     }
 

@@ -37,11 +37,11 @@ public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
     private final CRBuildTask antCompileTask;
     private final CRBuildTask antWithDirTask;
 
-    public BuildTaskTest(){
+    public BuildTaskTest() {
         rakeTask = CRBuildTask.rake();
-        rakeCompileFileTask = CRBuildTask.rake("Rakefile.rb","compile");
-        rakeCompileTask = CRBuildTask.rake(null,"compile");
-        rakeWithDirTask = CRBuildTask.rake(null,"build","src/tasks");
+        rakeCompileFileTask = CRBuildTask.rake("Rakefile.rb", "compile");
+        rakeCompileTask = CRBuildTask.rake(null, "compile");
+        rakeWithDirTask = CRBuildTask.rake(null, "build", "src/tasks");
 
         antTask = CRBuildTask.ant();
         antCompileFileTask = CRBuildTask.ant("mybuild.xml", "compile");
@@ -53,57 +53,54 @@ public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
 
     @Override
     public void addGoodExamples(Map<String, CRBuildTask> examples) {
-        examples.put("rakeTask",rakeTask);
-        examples.put("rakeCompileFileTask",rakeCompileFileTask);
-        examples.put("rakeCompileTask",rakeCompileTask);
-        examples.put("rakeWithDirTask",rakeWithDirTask);
+        examples.put("rakeTask", rakeTask);
+        examples.put("rakeCompileFileTask", rakeCompileFileTask);
+        examples.put("rakeCompileTask", rakeCompileTask);
+        examples.put("rakeWithDirTask", rakeWithDirTask);
 
-        examples.put("antTask",antTask);
-        examples.put("antCompileFileTask",antCompileFileTask);
-        examples.put("antCompileTask",antCompileTask);
-        examples.put("antWithDirTask",antWithDirTask);
+        examples.put("antTask", antTask);
+        examples.put("antCompileFileTask", antCompileFileTask);
+        examples.put("antCompileTask", antCompileTask);
+        examples.put("antWithDirTask", antWithDirTask);
     }
 
     @Override
     public void addBadExamples(Map<String, CRBuildTask> examples) {
-        examples.put("invalidTaskNoType",invalidTaskNoType);
+        examples.put("invalidTaskNoType", invalidTaskNoType);
     }
 
 
-
     @Test
-    public void shouldAppendTypeFieldWhenSerializingAntTask()
-    {
+    public void shouldAppendTypeFieldWhenSerializingAntTask() {
         CRTask value = antTask;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is("ant"));
     }
+
     @Test
-    public void shouldAppendTypeFieldWhenSerializingRakeTask()
-    {
+    public void shouldAppendTypeFieldWhenSerializingRakeTask() {
         CRTask value = rakeTask;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is("rake"));
     }
 
     @Test
-    public void shouldHandlePolymorphismWhenDeserializingAntTask()
-    {
+    public void shouldHandlePolymorphismWhenDeserializingAntTask() {
         CRTask value = antTask;
         String json = gson.toJson(value);
 
-        CRBuildTask deserializedValue = (CRBuildTask)gson.fromJson(json,CRTask.class);
+        CRBuildTask deserializedValue = (CRBuildTask) gson.fromJson(json, CRTask.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializingRakeTask()
-    {
+    public void shouldHandlePolymorphismWhenDeserializingRakeTask() {
         CRTask value = rakeTask;
         String json = gson.toJson(value);
 
-        CRBuildTask deserializedValue = (CRBuildTask)gson.fromJson(json,CRTask.class);
+        CRBuildTask deserializedValue = (CRBuildTask) gson.fromJson(json, CRTask.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+            deserializedValue, is(value));
     }
 }

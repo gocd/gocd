@@ -15,14 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -30,10 +30,10 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @ConfigCollection(Task.class)
 public class Tasks extends BaseCollection<Task> implements Validatable {
     public static final String TASK_OPTIONS = "taskOptions";
+    private static final int INCREMENT_INDEX = 1;
+    private static final int DECREMENT_INDEX = -1;
 
     private final ConfigErrors configErrors = new ConfigErrors();
-    private final int INCREMENT_INDEX = 1;
-    private final int DECREMENT_INDEX = -1;
 
     public Tasks() {
     }

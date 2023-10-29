@@ -38,15 +38,15 @@ GoConfigMigrator is responsible to migrate the config xml to the latest version,
 */
 @Component
 public class GoConfigMigrator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigMigrator.class);
     private final GoConfigMigration goConfigMigration;
     private final SystemEnvironment systemEnvironment;
-    private FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
-    private MagicalGoConfigXmlLoader loader;
-    private GoConfigFileReader goConfigFileReader;
-    private ConfigRepository configRepository;
-    private ServerHealthService serverHealthService;
-    private UpgradeFailedHandler upgradeFailedHandler;
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigMigrator.class.getName());
+    private final FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
+    private final MagicalGoConfigXmlLoader loader;
+    private final GoConfigFileReader goConfigFileReader;
+    private final ConfigRepository configRepository;
+    private final ServerHealthService serverHealthService;
+    private final UpgradeFailedHandler upgradeFailedHandler;
 
     @Autowired
     public GoConfigMigrator(GoConfigMigration goConfigMigration, SystemEnvironment systemEnvironment, ConfigCache configCache,
@@ -57,6 +57,7 @@ public class GoConfigMigrator {
                 new MagicalGoConfigXmlLoader(configCache, registry),
                 new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService,
                 e -> {
+                    //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     System.err.println(
                             "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
@@ -141,7 +142,7 @@ public class GoConfigMigrator {
         return new File(systemEnvironment.getCruiseConfigFile());
     }
 
-    public static interface UpgradeFailedHandler {
+    public interface UpgradeFailedHandler {
         void handle(Exception e);
     }
 }

@@ -99,15 +99,14 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateConfigContentAsAString() {
-        String newContent = new GoConfigMigration(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins())
+        String newContent = new GoConfigMigration(new TimeProvider())
                 .upgradeIfNecessary(ConfigFileFixture.VERSION_0);
         assertThat(newContent).contains("schemaVersion=\"" + GoConfigSchema.currentSchemaVersion() + "\"");
     }
 
     @Test
     public void shouldNotMigrateConfigContentAsAStringWhenAlreadyUpToDate() {
-        GoConfigMigration configMigration = new GoConfigMigration(new TimeProvider(),
-                ConfigElementImplementationRegistryMother.withNoPlugins());
+        GoConfigMigration configMigration = new GoConfigMigration(new TimeProvider());
         String newContent = configMigration.upgradeIfNecessary(ConfigFileFixture.VERSION_0);
         assertThat(newContent).isEqualTo(configMigration.upgradeIfNecessary(newContent));
     }

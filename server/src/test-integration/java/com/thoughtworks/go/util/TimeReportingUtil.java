@@ -48,7 +48,7 @@ public class TimeReportingUtil {
     public void begin() {
     }
 
-    public static interface TestAction {
-        public void perform() throws Exception;
+    public interface TestAction {
+        void perform() throws Exception;
     }
 }

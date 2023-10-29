@@ -39,8 +39,4 @@ public class PipelinesXmlRepresenter implements XmlRepresentable {
         return builder.build();
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

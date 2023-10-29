@@ -121,7 +121,7 @@ public class MagicalGoConfigXmlLoaderTest {
         new ConfigElementImplementationRegistrar(registry).initialize();
         xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, registry);
-        goConfigMigration = new GoConfigMigration(new TimeProvider(), registry);
+        goConfigMigration = new GoConfigMigration(new TimeProvider());
     }
 
     @AfterEach

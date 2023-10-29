@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.xmlunit.assertj.XmlAssert;
@@ -42,7 +41,7 @@ public class FeedEntriesRepresenterTest {
         StageFeedEntry entryTwo = passed();
         entryOne.getAuthors().add(new Author("bob", "bob@gocd.org"));
         entryTwo.getAuthors().add(new Author("joe <joe@gocd.org>", null));
-        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
+        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
         FeedEntriesRepresenter representable = new FeedEntriesRepresenter(pipelineName, new FeedEntries(entryOne, entryTwo));
 
         Document document = representable.toXml(context);
@@ -56,7 +55,7 @@ public class FeedEntriesRepresenterTest {
     @FileSource(files = "/feeds/stages-with-no-entries.xml")
     void shouldGenerateXmlWithoutEntryWhenEmpty(String expectedXML) {
         String pipelineName = "up42";
-        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
+        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
         FeedEntries feedEntries = mock(FeedEntries.class);
         when(feedEntries.lastUpdatedDate()).thenReturn(DateUtils.parseISO8601("2019-12-31T07:28:30+05:30"));
 

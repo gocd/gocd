@@ -26,10 +26,10 @@ public class ParamSubstitutionHandler implements ParamHandler {
 
     private StringBuilder result = new StringBuilder();
 
-    private ParamsConfig paramsConfig;
-    private Object resolvable;
-    private String fieldName;
-    private String stringToResolve;
+    private final ParamsConfig paramsConfig;
+    private final Object resolvable;
+    private final String fieldName;
+    private final String stringToResolve;
 
     @Override
     public String getResult() {

@@ -26,10 +26,10 @@ import java.util.Map;
 public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Validatable,
         ParamsAttributeAware, ConfigOriginTraceable {
 
-    public static final String DEFAULT_GROUP = "defaultGroup";
-    public static final String GROUP = "group";
-    public static final String AUTHORIZATION = "authorization";
-    public static final String NO_REMOTE_AUTHORIZATION = "no_remote_authorization";
+    String DEFAULT_GROUP = "defaultGroup";
+    String GROUP = "group";
+    String AUTHORIZATION = "authorization";
+    String NO_REMOTE_AUTHORIZATION = "no_remote_authorization";
 
     int size();
 

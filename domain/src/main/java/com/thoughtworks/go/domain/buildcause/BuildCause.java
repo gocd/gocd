@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Understands why a pipeline was triggered and what revisions it contains
@@ -110,7 +111,7 @@ public class BuildCause implements Serializable {
         return String.format("[%s: %s]", trigger.getDbName(), getBuildCauseMessage());
     }
 
-    public boolean materialsMatch(MaterialConfigs other){
+    public boolean materialsMatch(MaterialConfigs other) {
         try {
             assertMaterialsMatch(other);
         } catch (BuildCauseOutOfDateException e) {
@@ -124,28 +125,22 @@ public class BuildCause implements Serializable {
     }
 
     public List<DependencyMaterial> getDependencyMaterials() {
-       return this.getMaterialRevisions().getDependencyMaterials();
+        return this.getMaterialRevisions().getDependencyMaterials();
     }
 
-    public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig){
-        if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
-        {
+    public boolean pipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig) {
+        if (!pipelineConfig.isConfigOriginSameAsOneOfMaterials()) {
             return true;
         }
 
-        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) pipelineConfig.getOrigin();
 
         MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
         //TODO if revision in any of the pipelines match
         MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
 
         String revisionString = revision.getRevision().getRevision();
-        if(pipelineConfig.isConfigOriginFromRevision(revisionString))
-        {
-            return true;
-        }
-
-        return false;
+        return pipelineConfig.isConfigOriginFromRevision(revisionString);
     }
 
     public void assertMaterialsMatch(MaterialConfigs other) {
@@ -156,46 +151,44 @@ public class BuildCause implements Serializable {
             }
         }
     }
+
     public void assertPipelineConfigAndMaterialRevisionMatch(PipelineConfig pipelineConfig) {
-        if(!pipelineConfig.isConfigOriginSameAsOneOfMaterials())
-        {
+        if (!pipelineConfig.isConfigOriginSameAsOneOfMaterials()) {
             return;
         }
         // then config and code revision must both match
-        if(this.trigger.isForced() || this.hasDependencyMaterials())
-        {
+        if (this.trigger.isForced() || this.hasDependencyMaterials()) {
             // we should not check when manual trigger because of re-runs
             // and possibility to specify revisions to run with
             return;
         }
 
-        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin)pipelineConfig.getOrigin();
+        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) pipelineConfig.getOrigin();
 
         MaterialConfig configAndCodeMaterial = repoConfigOrigin.getMaterial();
         //TODO if revision in any of the pipelines match
         MaterialRevision revision = this.getMaterialRevisions().findRevisionForFingerPrint(configAndCodeMaterial.getFingerprint());
 
         String revisionString = revision.getRevision().getRevision();
-        if(pipelineConfig.isConfigOriginFromRevision(revisionString))
-        {
+        if (pipelineConfig.isConfigOriginFromRevision(revisionString)) {
             return;
         }
 
-        invalidRevision(repoConfigOrigin.getRevision(),revisionString);
+        invalidRevision(repoConfigOrigin.getRevision(), revisionString);
     }
 
-    private void invalidRevision(String configRevision,String codeRevision) {
+    private void invalidRevision(String configRevision, String codeRevision) {
         throw new BuildCauseOutOfDateException(
-                "Illegal build cause - pipeline configuration is from different revision than scm material. "
-                        + "Pipeline configuration revision: " + configRevision + " "
-                        + "while revision to schedule is : " + codeRevision + "");
+            "Illegal build cause - pipeline configuration is from different revision than scm material. "
+                + "Pipeline configuration revision: " + configRevision + " "
+                + "while revision to schedule is : " + codeRevision);
     }
 
     private void invalid(MaterialConfigs materialsFromConfig) {
         throw new BuildCauseOutOfDateException(
-                "Illegal build cause - it has different materials from the pipeline it is trying to trigger. "
+            "Illegal build cause - it has different materials from the pipeline it is trying to trigger. "
                 + "Materials for which modifications are available: " + materials() + " "
-                + "while pipeline is configured with: " + materialsFromConfig + "");
+                + "while pipeline is configured with: " + materialsFromConfig);
     }
 
     @Override
@@ -212,11 +205,7 @@ public class BuildCause implements Serializable {
         if (materialRevisions != null ? !materialRevisions.equals(that.materialRevisions) : that.materialRevisions != null) {
             return false;
         }
-        if (trigger != null ? !trigger.equals(that.trigger) : that.trigger != null) {
-            return false;
-        }
-
-        return true;
+        return trigger != null ? trigger.equals(that.trigger) : that.trigger == null;
     }
 
     @Override
@@ -227,7 +216,7 @@ public class BuildCause implements Serializable {
     }
 
     public boolean isSameAs(BuildCause buildCause) {
-        if (this.trigger.getDbName() != buildCause.trigger.getDbName()) {
+        if (!Objects.equals(this.trigger.getDbName(), buildCause.trigger.getDbName())) {
             return false;
         }
         return materialRevisions.isSameAs(buildCause.materialRevisions);
@@ -252,12 +241,13 @@ public class BuildCause implements Serializable {
     }
 
     public static BuildCause fromDbString(String text) {
-        if (text.equals(BuildTrigger.FORCED_BUILD_CAUSE)) {
-            return BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
-        } else if (text.equals(BuildTrigger.MODIFICATION_BUILD_CAUSE)) {
-            return createWithEmptyModifications();
-        } else if (text.equals(BuildTrigger.EXTERNAL_BUILD_CAUSE)) {
-            return createExternal();
+        switch (text) {
+            case BuildTrigger.FORCED_BUILD_CAUSE:
+                return BuildCause.createManualForced(MaterialRevisions.EMPTY, Username.ANONYMOUS);
+            case BuildTrigger.MODIFICATION_BUILD_CAUSE:
+                return createWithEmptyModifications();
+            case BuildTrigger.EXTERNAL_BUILD_CAUSE:
+                return createExternal();
         }
         return createWithEmptyModifications();
     }
@@ -279,7 +269,7 @@ public class BuildCause implements Serializable {
     }
 
     public static BuildCause createNeverRun() {
-            return NEVER_RUN;
+        return NEVER_RUN;
     }
 
     public String getApprover() {

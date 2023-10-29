@@ -17,37 +17,35 @@ package com.thoughtworks.go.domain;
 
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IpAddressTest {
 
     @Test
     public void shouldParseValidIpAddressString() {
-        assertThat(IpAddress.create("10.12.16.18").toString(), is("10.12.16.18"));
+        assertThat(IpAddress.create("10.12.16.18").toString()).isEqualTo("10.12.16.18");
     }
 
     @Test
     public void invalidIpAddress() {
-        assertThat(IpAddress.create("").toString(), is(""));
+        assertThat(IpAddress.create("").toString()).isEqualTo("");
     }
 
     @Test
     public void shouldAcceptLegalValuesForIpAddresses() {
-        assertThat(IpAddress.create("255.255.255.255").toString(), is("255.255.255.255"));
+        assertThat(IpAddress.create("255.255.255.255").toString()).isEqualTo("255.255.255.255");
     }
 
 
     @Test
     public void ipAddressComparator() {
-        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.3")), is(greaterThan(0)));
-        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20")), is(0));
-        assertThat(IpAddress.create("112.12.34.20").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
-        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("")), is(greaterThan(0)));
-        assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3")), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(IpAddress.create("").compareTo(IpAddress.create("")), is(org.hamcrest.Matchers.lessThan(0)));
-        assertThat(IpAddress.create("8:8:8:8:8:8:8:8").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.3"))).isGreaterThan(0);
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20"))).isEqualTo((0));
+        assertThat(IpAddress.create("112.12.34.20").compareTo(IpAddress.create("10.12.34.20"))).isGreaterThan(0);
+        assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create(""))).isGreaterThan(0);
+        assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3"))).isLessThan(0);
+        assertThat(IpAddress.create("").compareTo(IpAddress.create(""))).isEqualTo(0);
+        assertThat(IpAddress.create("8:8:8:8:8:8:8:8").compareTo(IpAddress.create("10.12.34.20"))).isGreaterThan(0);
     }
 
 }

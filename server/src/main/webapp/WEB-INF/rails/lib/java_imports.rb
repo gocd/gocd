@@ -160,14 +160,9 @@ module JavaImports
   java_import com.thoughtworks.go.config.Authorization unless defined? Authorization
   java_import com.thoughtworks.go.i18n.LocalizedMessage unless defined? LocalizedMessage
   java_import com.thoughtworks.go.config.PipelineTemplateConfig unless defined? PipelineTemplateConfig
-  java_import com.thoughtworks.go.server.domain.xml.StageXmlViewModel unless defined? StageXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.PipelineXmlViewModel unless defined? PipelineXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.JobXmlViewModel unless defined? JobXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.JobPlanXmlViewModel unless defined? JobPlanXmlViewModel
   java_import org.dom4j.io.OutputFormat unless defined? OutputFormat
   java_import org.dom4j.io.XMLWriter unless defined? XMLWriter
   java_import java.io.ByteArrayOutputStream unless defined? ByteArrayOutputStream
-  java_import com.thoughtworks.go.domain.StageFinder unless defined? StageFinder
   java_import com.thoughtworks.go.domain.DefaultJobPlan unless defined? DefaultJobPlan
   java_import com.thoughtworks.go.server.ui.JobInstancesModel unless defined? JobInstancesModel
   java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString
@@ -179,7 +174,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.AgentRuntimeStatus unless defined? AgentRuntimeStatus
   java_import com.thoughtworks.go.security.GoCipher unless defined? GoCipher
   java_import com.thoughtworks.go.util.command.UrlArgument unless defined? UrlArgument
-  java_import com.thoughtworks.go.presentation.TaskViewModel unless defined? TaskViewModel
   java_import com.thoughtworks.go.util.ProcessManager unless defined? ProcessManager
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor unless defined? GoPluginDescriptor
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor unless defined? GoPluginBundleDescriptor
@@ -210,7 +204,6 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore unless defined? RepositoryMetadataStore
   java_import com.thoughtworks.go.server.service.materials.commands.PackageDefinitionCreator unless defined? PackageDefinitionCreator
   java_import com.thoughtworks.go.util.Pair unless defined? Pair
-  java_import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel unless defined? MissingPluggableTaskViewModel
   java_import com.thoughtworks.go.config.pluggabletask.PluggableTask unless defined? PluggableTask
   java_import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore unless defined? PluggableTaskConfigStore
   java_import com.thoughtworks.go.server.service.support.toggle.Toggles unless defined? Toggles

@@ -40,8 +40,7 @@ public class GoConfigGraphWalkerTest {
     }
 
     @Test
-    public void walkedObject_shouldWalkMergePipelineConfigs()
-    {
+    public void walkedObject_shouldWalkMergePipelineConfigs() {
         assertThat(new GoConfigGraphWalker.WalkedObject(new MergePipelineConfigs(new BasicPipelineConfigs())).shouldWalk(), is(true));
     }
 
@@ -72,8 +71,7 @@ public class GoConfigGraphWalkerTest {
     }
 
     @Test
-    public void shouldWalkPipelineConfigsInBasicPipelineConfigs()
-    {
+    public void shouldWalkPipelineConfigsInBasicPipelineConfigs() {
         PipelineConfig pipe = mockPipelineConfig();
         BasicPipelineConfigs basicPipelines = new BasicPipelineConfigs(pipe);
         new GoConfigGraphWalker(basicPipelines).walk(Validatable::validate);
@@ -81,8 +79,7 @@ public class GoConfigGraphWalkerTest {
     }
 
     @Test
-    public void shouldWalkPipelineConfigsInMergePipelineConfigs()
-    {
+    public void shouldWalkPipelineConfigsInMergePipelineConfigs() {
         PipelineConfig pipe = mockPipelineConfig();
         MergePipelineConfigs mergePipelines = new MergePipelineConfigs(new BasicPipelineConfigs(pipe));
         new GoConfigGraphWalker(mergePipelines).walk(Validatable::validate);
@@ -105,7 +102,7 @@ public class GoConfigGraphWalkerTest {
         setField(packageMaterialConfig, "packageDefinition", packageDefinition);
 
         BasicCruiseConfig config = new BasicCruiseConfig();
-        PackageRepository packageRepository=mock(PackageRepository.class);
+        PackageRepository packageRepository = mock(PackageRepository.class);
         when(packageRepository.getPackages()).thenReturn(new Packages(packageDefinition));
         when(packageDefinition.getRepository()).thenReturn(packageRepository);
         when(packageRepository.doesPluginExist()).thenReturn(true);

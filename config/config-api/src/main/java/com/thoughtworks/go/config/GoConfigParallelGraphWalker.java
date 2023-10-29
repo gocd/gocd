@@ -105,7 +105,7 @@ public class GoConfigParallelGraphWalker {
         return null;
     }
 
-    public static interface Handler {
+    public interface Handler {
         void handle(Validatable rawConfig, Validatable configWithErrors);
     }
 }

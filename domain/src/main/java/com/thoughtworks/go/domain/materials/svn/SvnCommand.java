@@ -55,7 +55,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
 
 
     private final SvnLogXmlParser svnLogXmlParser;
-    private transient final static ThreadLocal<SAXBuilder> saxBuilderThreadLocal = new ThreadLocal<>();
+    private final static ThreadLocal<SAXBuilder> saxBuilderThreadLocal = new ThreadLocal<>();
 
     public SvnCommand(String materialFingerprint, String repositoryUrl) {
         this(materialFingerprint, repositoryUrl, null, null, false);

@@ -54,19 +54,9 @@ describe ApplicationController do
   end
 
   describe "services" do
-    it "should load go config service" do
+    it "should load go_config_service" do
       expect(Spring).to receive(:bean).with('goConfigService').and_return(mock_go_config_service = "MOCK GO CONFIG")
       expect(controller.go_config_service).to eq(mock_go_config_service)
-    end
-
-    it "should load pipeline stages feed service" do
-      expect(Spring).to receive(:bean).with('pipelineStagesFeedService').and_return(mock_feed_service = Object.new)
-      expect(controller.pipeline_stages_feed_service).to eq(mock_feed_service)
-    end
-
-    it "should load material service" do
-      expect(Spring).to receive(:bean).with('materialService').and_return(mock_material_service = Object.new)
-      expect(controller.material_service).to eq(mock_material_service)
     end
 
     it "should load pipeline_history_service" do
@@ -74,43 +64,13 @@ describe ApplicationController do
       expect(controller.pipeline_history_service).to eq(mock_phs)
     end
 
-    it "should load agent_service" do
-      expect(Spring).to receive(:bean).with('agentService').and_return(agent_service = Object.new)
-      expect(controller.agent_service).to eq(agent_service)
-    end
-
-    it "should load xml_api_service" do
-      expect(Spring).to receive(:bean).with('xmlApiService').and_return(xml_api_service = Object.new)
-      expect(controller.xml_api_service).to eq(xml_api_service)
-    end
-
-    it "should load pipeline_lock_service" do
-      expect(Spring).to receive(:bean).with('pipelineUnlockApiService').and_return(service = Object.new)
-      expect(controller.pipeline_unlock_api_service).to eq(service)
-    end
-
     it "should load schedule_service" do
       expect(Spring).to receive(:bean).with('scheduleService').and_return(service = Object.new)
       expect(controller.schedule_service).to eq(service)
     end
 
-    it "should load user_service" do
-      expect(Spring).to receive(:bean).with('userService').and_return(service = Object.new)
-      expect(controller.user_service).to eq(service)
-    end
-
     it "should load flash_message_service" do
       expect(controller.flash_message_service).to be_a(com.thoughtworks.go.server.web.FlashMessageService)
-    end
-
-    it "should load user_search_service" do
-      expect(Spring).to receive(:bean).with('userSearchService').and_return(service = Object.new)
-      expect(controller.user_search_service).to eq(service)
-    end
-
-    it "should load version_info_service" do
-      expect(Spring).to receive(:bean).with('versionInfoService').and_return(service = Object.new)
-      expect(controller.version_info_service).to eq(service)
     end
   end
 

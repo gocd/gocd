@@ -30,7 +30,6 @@ describe StagesController do
   before(:each) do
     controller.go_cache.clear
     @stage_service = double('stage service')
-    @material_service = double('material service')
     @job_presentation_service = double("job presentation service")
     @cruise_config = BasicCruiseConfig.new
     @go_config_service = double("go config service")
@@ -42,7 +41,6 @@ describe StagesController do
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@localized_result)
     allow(controller).to receive(:current_user).and_return(@user)
     allow(controller).to receive(:stage_service).and_return(@stage_service)
-    allow(controller).to receive(:material_service).and_return(@material_service)
     allow(controller).to receive(:job_presentation_service).and_return(@job_presentation_service)
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
     allow(controller).to receive(:system_environment).and_return(@system_environment)

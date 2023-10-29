@@ -71,8 +71,4 @@ public class PipelineXmlRepresenter implements XmlRepresentable {
         );
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

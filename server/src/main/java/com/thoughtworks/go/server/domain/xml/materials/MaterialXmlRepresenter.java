@@ -80,8 +80,4 @@ public abstract class MaterialXmlRepresenter implements XmlRepresentable {
         return new DOMDocument(rootElement);
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

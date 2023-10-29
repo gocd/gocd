@@ -49,8 +49,4 @@ public class StageXmlRepresenter implements XmlRepresentable {
                     .attr("href", ctx.jobXmlLink(job.getIdentifier()))))).build();
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

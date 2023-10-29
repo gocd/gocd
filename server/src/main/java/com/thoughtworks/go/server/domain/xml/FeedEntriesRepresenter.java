@@ -101,8 +101,4 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
             .attr("label", label));
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

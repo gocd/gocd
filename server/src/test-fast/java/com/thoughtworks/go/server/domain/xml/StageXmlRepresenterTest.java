@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.junit5.FileSource;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
 
@@ -35,7 +34,7 @@ public class StageXmlRepresenterTest {
         String pipelineName = "BulletinBoard";
         String stageName = "UnitTest";
         String jobName = "run-junit";
-        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
+        XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null);
         Stage stage = StageMother.cancelledStage(stageName, jobName);
         stage.getJobInstances().get(0).setIdentifier(new JobIdentifier(pipelineName, 1, null, stageName, "1", jobName));
         stage.getJobInstances().get(0).getTransitions().first()

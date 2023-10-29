@@ -64,8 +64,4 @@ public class JobPlanXmlRepresenter implements XmlRepresentable {
         }
     }
 
-    @Override
-    public String httpUrl(String baseUrl) {
-        return null;
-    }
 }

@@ -160,14 +160,9 @@ module JavaImports
   java_import com.thoughtworks.go.config.Authorization unless defined? Authorization
   java_import com.thoughtworks.go.i18n.LocalizedMessage unless defined? LocalizedMessage
   java_import com.thoughtworks.go.config.PipelineTemplateConfig unless defined? PipelineTemplateConfig
-  java_import com.thoughtworks.go.server.domain.xml.StageXmlViewModel unless defined? StageXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.PipelineXmlViewModel unless defined? PipelineXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.JobXmlViewModel unless defined? JobXmlViewModel
-  java_import com.thoughtworks.go.server.domain.xml.JobPlanXmlViewModel unless defined? JobPlanXmlViewModel
   java_import org.dom4j.io.OutputFormat unless defined? OutputFormat
   java_import org.dom4j.io.XMLWriter unless defined? XMLWriter
   java_import java.io.ByteArrayOutputStream unless defined? ByteArrayOutputStream
-  java_import com.thoughtworks.go.domain.StageFinder unless defined? StageFinder
   java_import com.thoughtworks.go.domain.DefaultJobPlan unless defined? DefaultJobPlan
   java_import com.thoughtworks.go.server.ui.JobInstancesModel unless defined? JobInstancesModel
   java_import com.thoughtworks.go.config.CaseInsensitiveString unless defined? CaseInsensitiveString

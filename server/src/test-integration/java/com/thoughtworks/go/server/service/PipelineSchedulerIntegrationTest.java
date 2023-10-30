@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.EnvironmentVariables;
 import com.thoughtworks.go.domain.Pipeline;
@@ -56,11 +55,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -70,6 +68,15 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/spring-all-servlet.xml",
 })
 public class PipelineSchedulerIntegrationTest {
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+
+    private static final String PIPELINE_NAME = "pipeline1";
+    private static final String DEV_STAGE = "dev";
+    private static final String FT_STAGE = "ft";
+
+    private static final String PIPELINE_MINGLE = "mingle";
+    private static final String PIPELINE_EVOLVE = "evolve";
+    public static SvnTestRepo testRepo;
 
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
@@ -83,14 +90,7 @@ public class PipelineSchedulerIntegrationTest {
     @Autowired private GoCache goCache;
     @Autowired private PipelinePauseService pipelinePauseService;
 
-    private static final String PIPELINE_NAME = "pipeline1";
-    private static final String DEV_STAGE = "dev";
-    private static final String FT_STAGE = "ft";
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    public Subversion repository;
-    public static SvnTestRepo testRepo;
-    private static final String PIPELINE_MINGLE = "mingle";
-    private static final String PIPELINE_EVOLVE = "evolve";
+
     private Username cruise;
 
     @BeforeAll
@@ -106,7 +106,7 @@ public class PipelineSchedulerIntegrationTest {
 
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
+        Subversion repository = new SvnCommand(null, testRepo.projectRepositoryUrl());
         configHelper.addPipeline(PIPELINE_MINGLE, DEV_STAGE, repository, "unit", "functional");
         configHelper.addStageToPipeline(PIPELINE_MINGLE, FT_STAGE);
 
@@ -133,7 +133,7 @@ public class PipelineSchedulerIntegrationTest {
         serverHealthService.update(ServerHealthState.failToScheduling(HealthStateType.general(HealthStateScope.forPipeline(PIPELINE_MINGLE)), PIPELINE_MINGLE, "should wait till cleared"));
         pipelineScheduler.manualProduceBuildCauseAndSave(PIPELINE_MINGLE, Username.ANONYMOUS, scheduleOptions, operationResult);
         assertThat(operationResult.message(), operationResult.canContinue(),is(true));
-        Assertions.waitUntil(Timeout.ONE_MINUTE, () -> serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).size() == 0);
+        Assertions.waitUntil(Timeout.ONE_MINUTE, () -> serverHealthService.filterByScope(HealthStateScope.forPipeline(PIPELINE_MINGLE)).isEmpty());
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(PIPELINE_MINGLE));
 
         EnvironmentVariables overriddenVariables = buildCause.getVariables();
@@ -150,6 +150,7 @@ public class PipelineSchedulerIntegrationTest {
         assertCurrentErrorLogNumberIs(PIPELINE_MINGLE, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertCurrentErrorLogNumberIs(String pipelineName, int number) {
         List<ServerHealthState> entries = serverHealthService.filterByScope(HealthStateScope.forPipeline(pipelineName));
         assertThat(entries.toString(), entries.size(), is(number));
@@ -170,14 +171,10 @@ public class PipelineSchedulerIntegrationTest {
     @Test
     public void shouldThrowExceptionIfOtherStageIsRunningInTheSamePipeline() throws Exception {
         Pipeline pipeline = makeCompletedPipeline();
-        StageConfig ftStage = goConfigService.stageConfigNamed(PIPELINE_MINGLE, FT_STAGE);
         scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE);
-        try {
-            scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE);
-            fail("Should throw exception if fails to re-run stage");
-        } catch (Exception ignored) {
-            assertThat(ignored.getMessage(), matches("Cannot schedule: Pipeline.+is still in progress"));
-        }
+
+        assertThatThrownBy(() -> scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE))
+                .hasMessageMatching("Cannot schedule: Pipeline.+is still in progress");
     }
 
     private Pipeline makeCompletedPipeline() throws Exception {

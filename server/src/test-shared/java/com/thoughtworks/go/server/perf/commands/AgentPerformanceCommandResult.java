@@ -20,6 +20,7 @@ import com.google.common.base.Strings;
 import java.util.List;
 import java.util.stream.Stream;
 
+@SuppressWarnings("UnusedReturnValue")
 public class AgentPerformanceCommandResult {
     private String name;
     private String status;

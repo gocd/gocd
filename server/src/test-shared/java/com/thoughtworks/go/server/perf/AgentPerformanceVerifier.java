@@ -43,6 +43,7 @@ import java.util.stream.IntStream;
  * Usage: add the following line as a test. Make sure that the service objects passed are autowired ones.
  * new AgentPerformanceVerifier(agentService, agentDao, envConfigService, goConfigService, 10).verify();
  */
+@SuppressWarnings("unused")
 public class AgentPerformanceVerifier {
     private static final Logger LOG = LoggerFactory.getLogger(AgentPerformanceVerifier.class);
     private static final int DEFAULT_NO_OF_THREADS_TO_USE = 5;
@@ -70,12 +71,10 @@ public class AgentPerformanceVerifier {
                 .limit(noOfThreadsToUse)
                 .forEach(val -> {
                     int nextInt = new Random().nextInt(val + 1);
-//                    UpdateAgentHostCommand updateAgentHostCmd = new UpdateAgentHostCommand(agentService);
                     UpdateAgentResourcesCommand updateAgentResourcesCmd = new UpdateAgentResourcesCommand(agentService);
                     UpdateAgentEnvironmentsCommand updateAgentEnvsCmd = new UpdateAgentEnvironmentsCommand(agentService);
                     UpdateAllAgentAttributesCommand updateAllAgentDetailsCmd = new UpdateAllAgentAttributesCommand(agentService);
                     DisableAgentCommand disableAgentCmd = new DisableAgentCommand(agentService);
-//                    BulkUpdateAgentCommand bulkUpdateAgentCmd = new BulkUpdateAgentCommand(agentService, environmentConfigService);
                     CreateEnvironmentCommand createEnvironmentCommand = new CreateEnvironmentCommand(goConfigService, "e" + val);
                     DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, "e" + nextInt);
 

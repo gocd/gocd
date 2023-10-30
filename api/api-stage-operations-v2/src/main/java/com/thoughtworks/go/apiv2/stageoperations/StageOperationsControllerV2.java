@@ -78,7 +78,7 @@ public class StageOperationsControllerV2 extends ApiController implements SparkS
         HttpOperationResult result = new HttpOperationResult();
 
         Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
-        if (!pipelineCounterValue.isPresent()) {
+        if (pipelineCounterValue.isEmpty()) {
             String errorMessage = String.format("Error while running [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
             LOGGER.error(errorMessage);
             throw haltBecauseOfReason(errorMessage);

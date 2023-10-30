@@ -38,7 +38,6 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
@@ -92,6 +91,11 @@ import static org.junit.jupiter.api.Assertions.*;
         "classpath:/spring-all-servlet.xml",
 })
 public class BuildCauseProducerServiceIntegrationTest {
+
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final String MINGLE_PIPELINE_NAME = "mingle";
+    private static final String GO_PIPELINE_NAME = "go";
+    private static final String GO_PIPELINE_UPSTREAM = "go-parent";
     private static final String STAGE_NAME = "dev";
 
     @Autowired
@@ -132,21 +136,17 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
-    public static SvnTestRepo svnRepository;
     private Pipeline latestPipeline;
 
-    private static final String MINGLE_PIPELINE_NAME = "mingle";
-    private static final String GO_PIPELINE_NAME = "go";
-    private static final String GO_PIPELINE_UPSTREAM = "go-parent";
+    private SvnTestRepo svnRepository;
+
     public DiskSpaceSimulator diskSpaceSimulator;
     private PipelineConfig goPipelineConfig;
     private MaterialRevisions svnMaterialRevs;
     private PipelineConfig mingleConfig;
     private HttpOperationResult result;
     private ScheduleOptions scheduleOptions;
-    private SvnMaterial svnMaterial;
     private ScheduleTestUtil u;
     private PipelineConfig manualTriggerPipeline;
     private SvnMaterial materialForManualTriggerPipeline;
@@ -155,7 +155,6 @@ public class BuildCauseProducerServiceIntegrationTest {
     @BeforeEach
     public void setup(@TempDir Path tempDir) throws Exception {
         diskSpaceSimulator = new DiskSpaceSimulator();
-        new HgTestRepo("testHgRepo", tempDir);
 
         svnRepository = new SvnTestRepo(tempDir);
 
@@ -170,7 +169,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         goPipelineConfig = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
 
         svnMaterialRevs = new MaterialRevisions();
-        svnMaterial = new SvnMaterial(repository);
+        SvnMaterial svnMaterial = new SvnMaterial(repository);
         svnMaterialRevs.addRevision(svnMaterial, svnMaterial.latestModification(null, new ServerSubprocessExecutionContext(goConfigService, new SystemEnvironment())));
 
         final MaterialRevisions materialRevisions = new MaterialRevisions();
@@ -209,7 +208,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     @Test
-    public void manualSchedulePipeline_canProduceShouldNotgetIntoCyclicLoopWithTriggerMonitor() throws Exception {
+    public void manualSchedulePipeline_canProduceShouldNotGetIntoCyclicLoopWithTriggerMonitor() {
         OperationResult operationResult = new ServerHealthStateOperationResult();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(), operationResult);
         scheduleHelper.waitForAnyScheduled(5);
@@ -270,7 +269,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldScheduleANewPipelineWhenManuallyTrigeredWithNoChanges() throws Exception {
+    public void shouldScheduleANewPipelineWhenManuallyTriggeredWithNoChanges() {
         final HashMap<String, String> revisions = new HashMap<>();
         final HashMap<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()),
@@ -290,7 +289,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldStopManualSchedulingIfDiskSpaceIsLessThanMinimum() throws Exception {
+    public void shouldStopManualSchedulingIfDiskSpaceIsLessThanMinimum() {
         diskSpaceSimulator.simulateDiskFull();
 
         final HashMap<String, String> revisions = new HashMap<>();
@@ -433,7 +432,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAutoSchedulePausedPipeline() throws Exception {
+    public void shouldNotAutoSchedulePausedPipeline() {
         ScheduleTestUtil u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
         HgMaterial hg = new HgMaterial("url", null);
         String[] hg_revs = {"h1", "h2"};
@@ -453,7 +452,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
 
     @Test
-    public void shouldNotTriggerMDUOfMaterialsForManualTriggerOfPipelineIfMDUOptionIsTurnedOFFInRequest() throws Exception {
+    public void shouldNotTriggerMDUOfMaterialsForManualTriggerOfPipelineIfMDUOptionIsTurnedOFFInRequest() {
         scheduleOptions.shouldPerformMDUBeforeScheduling(false);
         service.manualSchedulePipeline(username, manualTriggerPipeline.name(), scheduleOptions, result);
 
@@ -470,7 +469,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     @Test
-    public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() throws Exception {
+    public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() {
         ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id-2");
         repoConfig.getRules().add(new Allow("refer", "*", "*"));
         configHelper.addConfigRepo(repoConfig);
@@ -494,12 +493,12 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertMDUNotPendingForMaterial(remotePipeline, svn);
         assertMDUNotPendingForMaterial(remotePipeline, git);
         assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name()), is(true));
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(remotePipeline.name().toString());
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(remotePipeline.name().toString()));
         assertNull(buildCause);
     }
 
     @Test
-    public void shouldTriggerMDUOfMaterialsForManualTriggerOfPipelineIfMDUOptionIsTurnedONInRequest() throws Exception {
+    public void shouldTriggerMDUOfMaterialsForManualTriggerOfPipelineIfMDUOptionIsTurnedONInRequest() {
         scheduleOptions.shouldPerformMDUBeforeScheduling(true);
         service.manualSchedulePipeline(username, manualTriggerPipeline.name(), scheduleOptions, result);
 
@@ -508,7 +507,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertThat(result.isSuccess(), is(true));
         assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
         assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), is(true));
-        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name().toString());
+        BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(new CaseInsensitiveString(manualTriggerPipeline.name().toString()));
         assertNull(buildCause);
     }
 
@@ -521,8 +520,8 @@ public class BuildCauseProducerServiceIntegrationTest {
     }
 
     private void assertMDUPending(PipelineConfig remotePipeline, Material material, boolean pending) {
-        MaterialUpdateStatusListener materialUpdateStatusListener = ((ConcurrentMap<String, MaterialUpdateStatusListener>) ReflectionUtil.getField(materialUpdateStatusNotifier, "pending")).get(CaseInsensitiveString.str(remotePipeline.name()));
-        assertThat(materialUpdateStatusListener.isListeningFor(material), is(pending));
+        ConcurrentMap<String, MaterialUpdateStatusListener> pendingListeners = ReflectionUtil.getField(materialUpdateStatusNotifier, "pending");
+        assertThat(pendingListeners.get(CaseInsensitiveString.str(remotePipeline.name())).isListeningFor(material), is(pending));
     }
 
     private void verifyChanged(Material material, BuildCause bc, final boolean changed) {
@@ -530,6 +529,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertThat("material revision " + svn2MaterialRevision + " was marked as" + (changed ? " not" : "") + " changed", svn2MaterialRevision.isChanged(), is(changed));
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private MaterialRevisions runAndPassWith(SvnMaterial svn, final String checkinFile, final SvnTestRepo svnRepository) throws Exception {
         return runAndPassWith(svn, checkinFile, null, svnRepository);
     }

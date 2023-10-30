@@ -237,7 +237,7 @@ public class User extends PersistentObject {
 
     public void validateEmail() throws ValidationException {
         validate(Validator.lengthValidator(255), getEmail());
-        validate(Validator.EMAIL, getEmail());
+        validate(Validator.emailValidator(), getEmail());
     }
 
     public void validateLoginName() throws ValidationException {

@@ -46,6 +46,19 @@ class P4MaterialConfigTest {
     void shouldSetConfigAttributes() {
         P4MaterialConfig p4MaterialConfig = p4("", "");
 
+        p4MaterialConfig.setConfigAttributes(generateConfig());
+
+        assertThat(p4MaterialConfig.getServerAndPort()).isEqualTo("serverAndPort");
+        assertThat(p4MaterialConfig.getUserName()).isEqualTo("username");
+        assertThat(p4MaterialConfig.getView()).isEqualTo("some-view");
+        assertThat(p4MaterialConfig.getUseTickets()).isTrue();
+        assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(p4MaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
+        assertThat(p4MaterialConfig.isAutoUpdate()).isFalse();
+        assertThat(p4MaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
+    }
+
+    private static Map<String, String> generateConfig() {
         Map<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.SERVER_AND_PORT, "serverAndPort");
         map.put(P4MaterialConfig.USERNAME, "username");
@@ -56,17 +69,7 @@ class P4MaterialConfigTest {
         map.put(ScmMaterialConfig.AUTO_UPDATE, "false");
         map.put(ScmMaterialConfig.FILTER, "/root,/**/*.help");
         map.put(AbstractMaterialConfig.MATERIAL_NAME, "material-name");
-
-        p4MaterialConfig.setConfigAttributes(map);
-
-        assertThat(p4MaterialConfig.getServerAndPort()).isEqualTo("serverAndPort");
-        assertThat(p4MaterialConfig.getUserName()).isEqualTo("username");
-        assertThat(p4MaterialConfig.getView()).isEqualTo("some-view");
-        assertThat(p4MaterialConfig.getUseTickets()).isTrue();
-        assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
-        assertThat(p4MaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
-        assertThat(p4MaterialConfig.isAutoUpdate()).isFalse();
-        assertThat(p4MaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
+        return map;
     }
 
     @Test
@@ -105,7 +108,7 @@ class P4MaterialConfigTest {
         map.put(P4MaterialConfig.PASSWORD_CHANGED, "1");
 
         materialConfig.setConfigAttributes(map);
-        assertThat(ReflectionUtil.getField(materialConfig, "password")).isNull();
+        assertThat((String) ReflectionUtil.getField(materialConfig, "password")).isNull();
         assertThat(materialConfig.getPassword()).isEqualTo("secret");
         assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -114,7 +117,7 @@ class P4MaterialConfigTest {
         map.put(P4MaterialConfig.PASSWORD_CHANGED, "0");
         materialConfig.setConfigAttributes(map);
 
-        assertThat(ReflectionUtil.getField(materialConfig, "password")).isNull();
+        assertThat((String) ReflectionUtil.getField(materialConfig, "password")).isNull();
         assertThat(materialConfig.getPassword()).isEqualTo("secret");
         assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -136,7 +139,7 @@ class P4MaterialConfigTest {
         p4MaterialConfig.setConfigAttributes(map);
         assertThat(p4MaterialConfig.getUseTickets()).isTrue();
 
-        p4MaterialConfig.setConfigAttributes(new HashMap());
+        p4MaterialConfig.setConfigAttributes(new HashMap<>());
         assertThat(p4MaterialConfig.getUseTickets()).isFalse();
     }
 
@@ -179,6 +182,7 @@ class P4MaterialConfigTest {
         return validationContext;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertNoError(String port, String view, String expectedKeyForError) {
         P4MaterialConfig p4MaterialConfig = p4(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));

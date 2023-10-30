@@ -66,7 +66,7 @@ public class AssetsContextHandlerTest {
         assertThat(handler.getContextPath(), is("/go/assets"));
         assertThat(((HandlerWrapper) handler.getHandler()).getHandler() instanceof AssetsContextHandler.AssetsHandler, is(true));
         AssetsContextHandler.AssetsHandler assetsHandler = (AssetsContextHandler.AssetsHandler) ((HandlerWrapper) handler.getHandler()).getHandler();
-        ResourceHandler resourceHandler = (ResourceHandler) ReflectionUtil.getField(assetsHandler, "resourceHandler");
+        ResourceHandler resourceHandler = ReflectionUtil.getField(assetsHandler, "resourceHandler");
         assertThat(resourceHandler.getCacheControl(), is("max-age=31536000,public"));
         assertThat(resourceHandler.getResourceBase(), isSameFileAs(new File("WEB-INF/rails.root/public/assets").toPath().toAbsolutePath().toUri().toString()));
     }

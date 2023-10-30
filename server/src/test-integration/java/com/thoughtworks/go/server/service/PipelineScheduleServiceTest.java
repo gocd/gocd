@@ -441,6 +441,6 @@ public class PipelineScheduleServiceTest {
         dbHelper.passStage(completedMingleStage);
         assertThat(completedMingleStage.getJobInstances().first().getState(), is(JobState.Completed));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(pipelineConfig.name()));
-        return dbHelper.passPipeline(pipeline);
+        return dbHelper.passPipelineFirstStageOnly(pipeline);
     }
 }

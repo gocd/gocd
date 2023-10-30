@@ -132,11 +132,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         if (stageCounter != null ? !stageCounter.equals(that.stageCounter) : that.stageCounter != null) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
-            return false;
-        }
-
-        return true;
+        return stageName != null ? stageName.equals(that.stageName) : that.stageName == null;
     }
 
     @Override
@@ -175,37 +171,26 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return pipelineCounter;
     }
 
-    /**
-     * @deprecated only for iBatis
-     */
+    @Deprecated(since = "Only for iBatis")
     void setPipelineName(String pipelineName) {
         this.pipelineName = pipelineName;
     }
 
-    /**
-     * @deprecated only for iBatis
-     */
+    @Deprecated(since = "Only for iBatis")
     void setPipelineLabel(String pipelineLabel) {
         this.pipelineLabel = pipelineLabel;
     }
 
-    /**
-     * @deprecated only for iBatis
-     */
+    @Deprecated(since = "Only for iBatis")
     void setStageName(String stageName) {
         this.stageName = stageName;
     }
 
-    /**
-     * @deprecated only for iBatis
-     */
     void setStageCounter(String stageCounter) {
         this.stageCounter = stageCounter;
     }
 
-    /**
-     * @deprecated only for iBatis
-     */
+    @Deprecated(since = "Only for iBatis")
     void setPipelineCounter(Integer pipelineCounter) {
         this.pipelineCounter = pipelineCounter;
     }
@@ -225,9 +210,7 @@ public class StageIdentifier implements Serializable, LocatableEntity {
         return id;
     }
 
-    /**
-     * @deprecated only for iBatis
-     */
+    @Deprecated(since = "Only for iBatis")
     public void setId(Long id) {
         this.id = id;
     }

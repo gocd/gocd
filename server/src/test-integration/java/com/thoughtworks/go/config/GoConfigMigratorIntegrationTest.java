@@ -215,7 +215,7 @@ public class GoConfigMigratorIntegrationTest {
     @Test
     public void shouldMigrateApprovalsCorrectlyBug2112() throws Exception {
         File bjcruise = new File("../common/src/test/resources/data/bjcruise-cruise-config-1.0.xml");
-        assertThat(bjcruise.exists()).isTrue();
+        assertThat(bjcruise).exists();
         String xml = FileUtils.readFileToString(bjcruise, StandardCharsets.UTF_8);
 
         CruiseConfig cruiseConfig = loadConfigFileWithContent(xml);

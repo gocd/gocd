@@ -56,9 +56,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         schedule();
     }
 
-    /**
-     * @deprecated Only use for IBatis
-     */
+    @TestOnly // Only use for IBatis and tests
     public JobInstance() {
     }
 
@@ -83,15 +81,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         this.timeProvider = timeProvider;
     }
 
-    @Deprecated //this API is ONLY designed for ibatis.
     public void setState(JobState state) {
         this.state = state;
     }
 
-    /**
-     * @deprecated the JobInstance should not have a timeProvider.
-     * Please pass in the date and remove this method
-     */
     public void changeState(JobState newState) {
         changeState(newState, timeProvider.currentTime());
     }
@@ -325,7 +318,6 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return scheduledDate;
     }
 
-    @Deprecated //Only for iBatis and BuildInstanceMother.
     public void setScheduledDate(Date scheduledDate) {
         this.scheduledDate = scheduledDate;
     }
@@ -428,12 +420,7 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         if (state != instance.state) {
             return false;
         }
-        if (stateTransitions != null ? !stateTransitions.equals(
-                instance.stateTransitions) : instance.stateTransitions != null) {
-            return false;
-        }
-
-        return true;
+        return stateTransitions != null ? stateTransitions.equals(instance.stateTransitions) : instance.stateTransitions == null;
     }
 
     @Override

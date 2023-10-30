@@ -81,7 +81,7 @@ public class RestfulServiceTest {
     public void shouldShouldTranslateLatestPipelineLabel() {
         fixture.createdPipelineWithAllStagesPassed();
         Pipeline latestPipleine = fixture.createdPipelineWithAllStagesPassed();
-        final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipleine.getName(), JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
+        final JobIdentifier jobIdentifier1 = new JobIdentifier(latestPipleine.getName(), 1, JobIdentifier.LATEST, fixture.devStage, JobIdentifier.LATEST, PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
         JobIdentifier jobIdentifier = restfulService.findJob(jobIdentifier1.getPipelineName(), jobIdentifier1.getPipelineLabel(), jobIdentifier1.getStageName(), jobIdentifier1.getStageCounter(), jobIdentifier1.getBuildName());
         assertThat(jobIdentifier.getPipelineLabel(), is(latestPipleine.getLabel()));
     }

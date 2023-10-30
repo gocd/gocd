@@ -39,7 +39,7 @@ public class URLServiceTest {
 
     @AfterEach
     public void teardown() {
-        new SystemEnvironment().clearProperty("serviceUrl");
+        new SystemEnvironment().clearProperty(SystemEnvironment.SERVICE_URL);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class URLServiceTest {
 
     @Test
     public void shouldReturnServerUrlWithSubpath() {
-        new SystemEnvironment().setProperty("serviceUrl", BASE_URL + "/");
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, BASE_URL + "/");
         assertThat(new URLService().serverUrlFor("someSubPath/xyz"), is(BASE_URL + "/someSubPath/xyz"));
     }
 

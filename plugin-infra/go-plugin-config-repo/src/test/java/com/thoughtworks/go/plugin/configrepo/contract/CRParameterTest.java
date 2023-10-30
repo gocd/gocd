@@ -15,19 +15,19 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.util.TestUtils.contains;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 public class CRParameterTest extends AbstractCRTest<CRParameter> {
-    private CRParameter validParam1;
-    private CRParameter validParam2;
+    private final CRParameter validParam1;
+    private final CRParameter validParam2;
 
-    private CRParameter invalidNameNotSet;
-    private CRParameter invalidName;
+    private final CRParameter invalidNameNotSet;
+    private final CRParameter invalidName;
 
     public CRParameterTest() {
         validParam1 = new CRParameter("param1", null);
@@ -57,20 +57,20 @@ public class CRParameterTest extends AbstractCRTest<CRParameter> {
     }
 
     @Test
-    public void shouldAddAnErrorIfParameterNameIsBlank() throws Exception {
+    public void shouldAddAnErrorIfParameterNameIsBlank() {
         CRParameter crParameter = new CRParameter();
         ErrorCollection errorCollection = new ErrorCollection();
         crParameter.getErrors(errorCollection, "TEST");
 
-        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Invalid parameter name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(errorCollection.getErrorsAsText()).contains("Invalid parameter name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
-    public void shouldAddAnErrorIfParameterNameIsInvalid() throws Exception {
+    public void shouldAddAnErrorIfParameterNameIsInvalid() {
         CRParameter crParameter = new CRParameter("#$$%@", null);
         ErrorCollection errorCollection = new ErrorCollection();
         crParameter.getErrors(errorCollection, "TEST");
 
-        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Invalid parameter name '#$$%@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(errorCollection.getErrorsAsText()).contains("Invalid parameter name '#$$%@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 }

@@ -130,7 +130,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
     }
 
     @Tolerate
-    @Deprecated // use `getUsername()` instead
+    @Deprecated(since = "use `getUsername()` instead")
     public String getUserName() {
         return getUsername();
     }

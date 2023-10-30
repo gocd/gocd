@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.agent.testhelpers.FakeBuildRepositoryRemote;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -36,7 +37,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TempDirUtils;
-import com.thoughtworks.go.agent.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -46,9 +46,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.org.webcompere.systemstubs.jupiter.SystemStub;
-import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
-import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +61,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(SystemStubsExtension.class)
 public class BuildWorkArtifactUploadingTest {
     private static final String JOB_NAME = "one";
     private static final String STAGE_NAME = "first";
@@ -73,9 +69,6 @@ public class BuildWorkArtifactUploadingTest {
     private EnvironmentVariableContext environmentVariableContext;
     private SvnMaterial svnMaterial;
     private SvnTestRepo repo;
-
-    @SystemStub
-    private SystemProperties systemProperties;
 
     private File buildWorkingDirectory;
     @Mock
@@ -96,7 +89,6 @@ public class BuildWorkArtifactUploadingTest {
 
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         svnMaterial = new SvnMaterial(command);
-        systemProperties.set("serviceUrl", "some_random_place");
     }
     
     @Test
@@ -359,7 +351,6 @@ public class BuildWorkArtifactUploadingTest {
             try {
                 FileUtil.createFilesByPath(buildWorkingDirectory, files);
             } catch (IOException e) {
-                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }

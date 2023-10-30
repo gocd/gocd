@@ -123,7 +123,7 @@ class StageSqlMapDaoTest {
         StageIdentifier stageIdentifier = mock(StageIdentifier.class);
         String pipelineName = "some_pipeline_name";
         String stageName = "stage_name";
-        long pipelineId = 41l;
+        long pipelineId = 41L;
         when(stageIdentifier.getPipelineName()).thenReturn(pipelineName);
         when(stageIdentifier.getStageName()).thenReturn(stageName);
 

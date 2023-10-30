@@ -20,6 +20,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class ScheduleCheckMatcher {
@@ -32,7 +33,7 @@ public class ScheduleCheckMatcher {
             public boolean matchesSafely(String[] expected) {
                 this.expected = List.of(expected);
                 this.actual = listener.pipelines;
-                return actual.containsAll(this.expected);
+                return new HashSet<>(actual).containsAll(this.expected);
             }
 
             @Override

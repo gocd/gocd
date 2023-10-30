@@ -179,7 +179,7 @@ class BuildRepositoryRemoteImplTest {
     @Test
     void shouldUnderstandIfTestIsIgnored() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
-        jobId.setBuildId(12l);
+        jobId.setBuildId(12L);
         buildRepository.isIgnored(info, jobId);
         verify(repositoryService).isCancelledOrRescheduled(jobId.getBuildId());
     }
@@ -187,7 +187,7 @@ class BuildRepositoryRemoteImplTest {
     @Test
     void shouldThrowRemoteExceptionWhenIgnoreJobThrowsException() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
-        jobId.setBuildId(12l);
+        jobId.setBuildId(12L);
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         doThrow(runtimeException).when(repositoryService).isCancelledOrRescheduled(jobId.getBuildId());
         try {

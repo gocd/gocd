@@ -195,7 +195,7 @@ public class SvnCommandTest {
     @Test
     void shouldCheckoutToSpecificRevision() {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, revision(2));
-        assertThat(checkoutFolder.exists()).isTrue();
+        assertThat(checkoutFolder).exists();
         assertThat(checkoutFolder.listFiles().length).isNotEqualTo(0);
         assertAtRevision(2, "TestReport-Unit.xml");
     }
@@ -228,9 +228,9 @@ public class SvnCommandTest {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         File file = checkoutFolder.listFiles(DOT_SVN_IGNORING_FILTER)[0];
         file.delete();
-        assertThat(file.exists()).isFalse();
+        assertThat(file).doesNotExist();
         subversion.cleanupAndRevert(outputStreamConsumer, checkoutFolder);
-        assertThat(file.exists()).isTrue();
+        assertThat(file).exists();
     }
 
     @Test

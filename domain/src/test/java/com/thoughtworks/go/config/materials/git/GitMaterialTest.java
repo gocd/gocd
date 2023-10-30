@@ -58,7 +58,6 @@ import java.util.*;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
@@ -66,6 +65,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("HttpUrlsUsage")
 @ExtendWith(SystemStubsExtension.class)
 public class GitMaterialTest {
     public static final GitVersion GIT_VERSION_1_9 = GitVersion.parse("git version 1.9.0");
@@ -220,12 +220,12 @@ public class GitMaterialTest {
             InMemoryStreamConsumer output = inMemoryConsumer();
             git.updateTo(output, workingDir, new RevisionContext(GitTestRepo.REVISION_1, GitTestRepo.REVISION_0, 2), new TestSubprocessExecutionContext());
             assertThat(output.getStdOut()).contains("Start updating files at revision " + GitTestRepo.REVISION_1.getRevision());
-            assertThat(newFile.exists()).isFalse();
+            assertThat(newFile).doesNotExist();
 
             output = inMemoryConsumer();
             git.updateTo(output, workingDir, new RevisionContext(GitTestRepo.REVISION_2, GitTestRepo.REVISION_1, 2), new TestSubprocessExecutionContext());
             assertThat(output.getStdOut()).contains("Start updating files at revision " + GitTestRepo.REVISION_2.getRevision());
-            assertThat(newFile.exists()).isTrue();
+            assertThat(newFile).exists();
         }
 
         @Test
@@ -242,16 +242,16 @@ public class GitMaterialTest {
 
             outputStreamConsumer = inMemoryConsumer();
             gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
-            assertThat(new File(workingDir, "sub1")).isNotEqualTo(exists());
+            assertThat(new File(workingDir, "sub1")).doesNotExist();
         }
 
         @Test
-        void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws IOException {
+        void shouldDeleteAndReCheckoutDirectoryWhenUrlChanges() throws IOException {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldBeRemoved = new File(workingDir, "shouldBeRemoved");
             shouldBeRemoved.createNewFile();
-            assertThat(shouldBeRemoved.exists()).isTrue();
+            assertThat(shouldBeRemoved).exists();
 
             git = new GitMaterial(new GitTestRepo(tempDir).projectRepositoryUrl());
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
@@ -259,12 +259,12 @@ public class GitMaterialTest {
         }
 
         @Test
-        void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws IOException {
+        void shouldNotDeleteAndReCheckoutDirectoryWhenUrlSame() throws IOException {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
             FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
-            assertThat(shouldNotBeRemoved.exists()).isTrue();
+            assertThat(shouldNotBeRemoved).exists();
 
             git = new GitMaterial(repositoryUrl);
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
@@ -272,12 +272,12 @@ public class GitMaterialTest {
         }
 
         @Test
-        void shouldNotDeleteAndRecheckoutDirectoryWhenUrlsOnlyDifferInFileProtocol() throws IOException {
+        void shouldNotDeleteAndReCheckoutDirectoryWhenUrlsOnlyDifferInFileProtocol() throws IOException {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
             FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
-            assertThat(shouldNotBeRemoved.exists()).isTrue();
+            assertThat(shouldNotBeRemoved).exists();
 
             git = new GitMaterial(repositoryUrl.replace("file://", ""));
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
@@ -286,7 +286,7 @@ public class GitMaterialTest {
 
         /* This is to test the functionality of the private method isRepositoryChanged() */
         @Test
-        void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws IOException {
+        void shouldNotDeleteAndReCheckoutDirectoryWhenBranchIsBlank() throws IOException {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
             File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
@@ -294,7 +294,7 @@ public class GitMaterialTest {
 
             git = new GitMaterial(repositoryUrl, " ");
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
-            assertThat(shouldNotBeRemoved.exists()).as("Should not have deleted whole folder").isTrue();
+            assertThat(shouldNotBeRemoved).as("Should not have deleted whole folder").exists();
         }
 
         @Test
@@ -306,12 +306,12 @@ public class GitMaterialTest {
                 assertThatThrownBy(() -> git.latestModification(workingDir, new TestSubprocessExecutionContext()),
                     "Should have failed to check modifications since the file is locked and cannot be removed.")
                     .hasMessageContaining("Failed to delete directory: " + workingDir.getAbsolutePath());
-                assertThat(fileToBeLocked.exists()).isTrue();
+                assertThat(fileToBeLocked).exists();
             }
         }
 
         @Test
-        void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
+        void shouldDeleteAndReCheckoutDirectoryWhenBranchChanges() {
             git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl());
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
             InMemoryStreamConsumer output = inMemoryConsumer();
@@ -549,6 +549,7 @@ public class GitMaterialTest {
         assertThat(gitMaterial.getLongDescription()).isEqualTo("URL: http://url/, Branch: branch");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldGetAttributesWithSecureFields() {
         GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
@@ -560,6 +561,7 @@ public class GitMaterialTest {
         assertThat(configuration.get("branch")).isEqualTo(GitMaterialConfig.DEFAULT_BRANCH);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldGetAttributesWithoutSecureFields() {
         GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);

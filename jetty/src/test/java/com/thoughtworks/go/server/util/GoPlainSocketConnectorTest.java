@@ -52,7 +52,7 @@ public class GoPlainSocketConnectorTest {
     public void shouldCreateAServerConnectorWithConfiguredPortAndBuffersize() throws Exception {
         assertThat(connector.getPort(), is(1234));
         assertThat(connector.getHost(), is("foo"));
-        assertThat(connector.getIdleTimeout(), is(200l));
+        assertThat(connector.getIdleTimeout(), is(200L));
 
         assertThat(configuration.getOutputBufferSize(), is(100));
     }

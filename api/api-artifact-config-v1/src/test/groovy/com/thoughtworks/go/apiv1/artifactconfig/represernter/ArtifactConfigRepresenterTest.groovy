@@ -16,11 +16,7 @@
 package com.thoughtworks.go.apiv1.artifactconfig.represernter
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.ArtifactConfig
-import com.thoughtworks.go.config.ArtifactDirectory
-import com.thoughtworks.go.config.PurgeSettings
-import com.thoughtworks.go.config.PurgeStart
-import com.thoughtworks.go.config.PurgeUpto
+import com.thoughtworks.go.config.*
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -129,8 +125,8 @@ class ArtifactConfigRepresenterTest {
       ],
       "artifacts_dir" : "",
       "purge_settings": [
-        "purge_start_disk_space": new Double(20.0),
-        "purge_upto_disk_space" : new Double(10.0),
+        "purge_start_disk_space": Double.valueOf(20.0),
+        "purge_upto_disk_space" : Double.valueOf(10.0),
         "errors"                : [
           "purge_start_disk_space": ["purge-start-error"],
           "purge_upto_disk_space" : ["purge-upto-error"]

@@ -28,7 +28,7 @@ public class EmailValidator extends Validator<String> {
 
     @Override
     public ValidationBean validate(String address) {
-        if(StringUtils.isBlank(address)){
+        if (StringUtils.isBlank(address)) {
             return ValidationBean.valid();
         }
         if (address.matches(".*@" + HostnameValidator.HOSTNAME_PATTERN)) {

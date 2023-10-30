@@ -20,10 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRApprovalTest extends AbstractCRTest<CRApproval> {
 
@@ -44,36 +41,36 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
 
     @Override
     public void addGoodExamples(Map<String, CRApproval> examples) {
-        examples.put("manual",manual);
-        examples.put("success",success);
-        examples.put("manualWithAuth",manualWithAuth);
+        examples.put("manual", manual);
+        examples.put("success", success);
+        examples.put("manualWithAuth", manualWithAuth);
     }
 
     @Override
     public void addBadExamples(Map<String, CRApproval> examples) {
-        examples.put("invalidBadType",badType);
+        examples.put("invalidBadType", badType);
     }
 
 
     @Test
     public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
-                "    \"type\": \"manual\",\n" +
-                "      \"roles\": [\n" +
-                "\n" +
-                "      ],\n" +
-                "      \"users\": [\n" +
-                "\n\"joe\"" +
-                "      ]\n" +
-                "  }";
-        CRApproval deserializedValue = gson.fromJson(json,CRApproval.class);
+            "    \"type\": \"manual\",\n" +
+            "      \"roles\": [\n" +
+            "\n" +
+            "      ],\n" +
+            "      \"users\": [\n" +
+            "\n\"joe\"" +
+            "      ]\n" +
+            "  }";
+        CRApproval deserializedValue = gson.fromJson(json, CRApproval.class);
 
-        assertThat(deserializedValue.getType(),is(CRApprovalCondition.manual));
-        assertThat(deserializedValue.getUsers().isEmpty(),is(false));
-        assertThat(deserializedValue.getRoles().isEmpty(),is(true));
+        assertThat(deserializedValue.getType()).isEqualTo(CRApprovalCondition.manual);
+        assertThat(deserializedValue.getUsers()).isNotEmpty();
+        assertThat(deserializedValue.getRoles()).isEmpty();
 
         ErrorCollection errors = deserializedValue.getErrors();
-        assertTrue(errors.isEmpty());
+        assertThat(errors.isEmpty()).isTrue();
     }
 
 
@@ -82,11 +79,11 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
         CRApproval a = new CRApproval();
 
         ErrorCollection errors = new ErrorCollection();
-        a.getErrors(errors,"Pipeline abc");
+        a.getErrors(errors, "Pipeline abc");
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError,contains("Pipeline abc; Approval"));
-        assertThat(fullError,contains("Missing field 'type'."));
+        assertThat(fullError).contains("Pipeline abc; Approval");
+        assertThat(fullError).contains("Missing field 'type'.");
     }
 }

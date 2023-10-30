@@ -47,6 +47,7 @@ import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
 
 import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -69,7 +70,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
   }
 
   @Nested
-  class RerunFailedJobs {
+  class RerunBadJobs {
     @Nested
     class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
 
@@ -98,13 +99,13 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       @Test
-      void 'reruns failed-jobs for a stage'() {
+      void 'reruns bad-jobs for a stage'() {
         Stage stage = mock(Stage)
         String expectedResponseBody = "Request to rerun job(s) is accepted"
 
         when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
         when(scheduleService.rerunFailedJobs(any() as Stage, any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
-          HttpOperationResult operationResult = invocation.getArguments().last()
+          HttpOperationResult operationResult = invocation.getArguments().last() as HttpOperationResult
           operationResult.accepted(expectedResponseBody, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
           return stage
         })
@@ -196,7 +197,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(this.stage)
         when(scheduleService.rerunJobs(eq(this.stage), eq(jobs), any() as HttpOperationResult))
           .then({ InvocationOnMock invocation ->
-          HttpOperationResult result = invocation.getArguments().last()
+          HttpOperationResult result = invocation.getArguments().last() as HttpOperationResult
           result.accepted(expectedMessage, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
           return this.stage
         })
@@ -435,9 +436,9 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
         jobInstance.setState(JobState.Assigned)
         jobInstance.setResult(JobResult.Unknown)
         jobInstance.setAgentUuid("uuid")
-        jobInstance.setScheduledDate(new Date(2018, 12, 21, 12, 30))
+        jobInstance.setScheduledDate(LocalDateTime.of(2018, 12, 21, 12, 30).toDate())
         jobInstance.setOriginalJobId(1)
-        jobInstance.setTransitions(new JobStateTransitions(new JobStateTransition(JobState.Scheduled, new Date(2018, 12, 21, 12, 45)),
+        jobInstance.setTransitions(new JobStateTransitions(new JobStateTransition(JobState.Scheduled, LocalDateTime.of(2018, 12, 21, 12, 45).toDate()),
           new JobStateTransition(JobState.Assigned, null)))
 
         return jobInstance
@@ -611,7 +612,7 @@ class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerT
       }
 
       def getStageModels() {
-        def jobHistoryItem = new JobHistoryItem("job", JobState.Completed, JobResult.Passed, new Date(2018, 12, 22, 11, 10))
+        def jobHistoryItem = new JobHistoryItem("job", JobState.Completed, JobResult.Passed, LocalDateTime.of(2018, 12, 22, 11, 10).toDate())
         jobHistoryItem.setId(34)
         def jobHistory = new JobHistory()
         jobHistory.add(jobHistoryItem)

@@ -512,7 +512,7 @@ public class MaterialUpdateServiceTest {
         } catch (RuntimeException e) {
             // should re-throw exception
         }
-        Map<Material, Date> inProgress = (Map<Material, Date>) ReflectionUtil.getField(service, "inProgress");
+        Map<Material, Date> inProgress = ReflectionUtil.getField(service, "inProgress");
         assertThat(inProgress.containsKey(svnMaterial)).isFalse();
     }
 

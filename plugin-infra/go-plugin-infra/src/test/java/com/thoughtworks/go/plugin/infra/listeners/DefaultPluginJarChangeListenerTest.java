@@ -87,14 +87,14 @@ class DefaultPluginJarChangeListenerTest {
 
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
-        assertThat(expectedBundleDirectory.exists()).isTrue();
+        assertThat(expectedBundleDirectory).exists();
         verify(registry).getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME);
         verify(registry).loadPlugin(descriptor);
         verify(osgiManifestGenerator).updateManifestOf(descriptor);
         verify(pluginLoader).loadPlugin(descriptor);
         verifyNoMoreInteractions(osgiManifestGenerator);
         verifyNoMoreInteractions(registry);
-        assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar").exists()).isTrue();
+        assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar")).exists();
     }
 
     @Test
@@ -117,7 +117,7 @@ class DefaultPluginJarChangeListenerTest {
 
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
-        assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar").exists()).isTrue();
+        assertThat(new File(expectedBundleDirectory, "lib/go-plugin-activator.jar")).exists();
         assertThat(FileUtils.readFileToString(activatorFileLocation, UTF_8)).isNotEqualTo("SOME-DATA");
     }
 
@@ -154,7 +154,7 @@ class DefaultPluginJarChangeListenerTest {
 
         spy.pluginJarUpdated(newBundleOrPluginJarFile);
 
-        assertThat(oldBundleOrPluginJarFile.extractionLocation().exists()).isFalse();
+        assertThat(oldBundleOrPluginJarFile.extractionLocation()).doesNotExist();
         verify(registry, atLeastOnce()).getPluginByIdOrFileName(pluginId, newBundleJarFile.getName());
         verify(registry).unloadPlugin(newBundleDescriptor);
         verify(registry).loadPlugin(newBundleDescriptor);
@@ -188,7 +188,7 @@ class DefaultPluginJarChangeListenerTest {
 
         verify(registry).unloadPlugin(descriptorOfThePluginBundleWhichWillBeRemoved);
         verify(pluginLoader).unloadPlugin(descriptorOfThePluginBundleWhichWillBeRemoved);
-        assertThat(removedBundleDirectory.exists()).isFalse();
+        assertThat(removedBundleDirectory).doesNotExist();
     }
 
     @Test
@@ -214,7 +214,7 @@ class DefaultPluginJarChangeListenerTest {
 
         listener.pluginJarAdded(new BundleOrPluginFileDetails(pluginJarFile, true, pluginWorkDir));
 
-        assertThat(expectedBundleDirectory.exists()).isTrue();
+        assertThat(expectedBundleDirectory).exists();
         verify(registry).loadPlugin(descriptorForInvalidPlugin);
         verifyNoMoreInteractions(osgiManifestGenerator);
     }
@@ -256,8 +256,8 @@ class DefaultPluginJarChangeListenerTest {
 
         spy.pluginJarUpdated(new BundleOrPluginFileDetails(pluginFile, true, pluginWorkDir));
 
-        assertThat(expectedBundleDirectoryForInvalidPlugin.exists()).isTrue();
-        assertThat(bundleDirectoryForOldPlugin.exists()).isFalse();
+        assertThat(expectedBundleDirectoryForInvalidPlugin).exists();
+        assertThat(bundleDirectoryForOldPlugin).doesNotExist();
         verify(registry).unloadPlugin(descriptorForInvalidPlugin);
         verify(pluginLoader).unloadPlugin(oldBundleDescriptor);
         verify(registry).loadPlugin(descriptorForInvalidPlugin);

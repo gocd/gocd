@@ -94,7 +94,7 @@ public class GoServerTest {
         GoServer goServer = new GoServer();
 
         goServer.startServer();
-        AppServer appServer = (AppServer) com.thoughtworks.go.util.ReflectionUtil.getField(goServer, "server");
+        AppServer appServer = com.thoughtworks.go.util.ReflectionUtil.getField(goServer, "server");
         assertThat(appServer instanceof AppServerStub, is(true));
         AppServerStub appServerStub = (AppServerStub) appServer;
 

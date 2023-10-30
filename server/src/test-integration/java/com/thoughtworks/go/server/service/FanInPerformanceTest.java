@@ -116,7 +116,7 @@ public class FanInPerformanceTest {
         long start = System.currentTimeMillis();
         MaterialRevisions finalRevisions = getRevisionsBasedOnDependencies(currentConfig.name(), configHelper.currentConfig(), given);
         long timeTaken = (System.currentTimeMillis() - start) / 1000;
-        assertThat(String.format("Fan-in took %ds. Should have finished in 10s.", timeTaken), timeTaken, Matchers.lessThan(10l));
+        assertThat(String.format("Fan-in took %ds. Should have finished in 10s.", timeTaken), timeTaken, Matchers.lessThan(10L));
 
         assertThat(finalRevisions, is(given));
     }

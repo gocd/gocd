@@ -146,8 +146,8 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         P4Material p4Material = p4Fixture.material("//depot/... //cws/...   \n  -//depot/lib/... //cws/release1/...");
         updateMaterial(p4Material, new StringRevision("2"));
 
-        assertThat(new File(clientFolder, "release1").exists()).isFalse();
-        assertThat(new File(clientFolder, "release1/junit.jar").exists()).isFalse();
+        assertThat(new File(clientFolder, "release1")).doesNotExist();
+        assertThat(new File(clientFolder, "release1/junit.jar")).doesNotExist();
     }
 
     @Test
@@ -156,7 +156,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         updateMaterial(p4Material, new StringRevision("2"));
 
         File file = new File(clientFolder, "junit.war");
-        assertThat(file.exists()).isTrue();
+        assertThat(file).exists();
     }
 
     @Test
@@ -164,7 +164,7 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         P4Material p4Material = p4Fixture.material("//depot/lib/%%1.%%2 //cws/%%2.%%1");
         updateMaterial(p4Material, new StringRevision("2"));
         File file = new File(clientFolder, "jar.junit");
-        assertThat(file.exists()).isTrue();
+        assertThat(file).exists();
     }
 
     @Test
@@ -176,8 +176,8 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         File folderNet = new File(clientFolder, "build/net");
         updateMaterial(p4Material, new StringRevision("2"));
 
-        assertThat(folderNet.exists()).isFalse();
-        assertThat(file.exists()).isTrue();
+        assertThat(folderNet).doesNotExist();
+        assertThat(file).exists();
     }
 
     @Test
@@ -188,8 +188,8 @@ public abstract class P4MaterialTestBase extends PerforceFixture {
         File file = new File(clientFolder, "build/junit.jar");
         File folderNet = new File(clientFolder, "build/net");
         updateMaterial(p4Material, new StringRevision("2"));
-        assertThat(folderNet.exists()).isTrue();
-        assertThat(file.exists()).isTrue();
+        assertThat(folderNet).exists();
+        assertThat(file).exists();
     }
 
     @Test

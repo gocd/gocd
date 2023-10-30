@@ -36,7 +36,7 @@ public final class NullStage extends Stage {
             nullBuilds.add(new NullJobInstance(CaseInsensitiveString.str(plan.name())));
         }
         NullStage nullStage = new NullStage(CaseInsensitiveString.str(stageConfig.name()), nullBuilds);
-        nullStage.setPipelineId(10l);
+        nullStage.setPipelineId(10L);
         return nullStage;
     }
 

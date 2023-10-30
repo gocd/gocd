@@ -341,9 +341,7 @@ public class PipelineInstanceModel implements PipelineInfo {
         return String.format("%s: %s", latestStage.getState(), latestStage.getName());
     }
 
-    /**
-     * @deprecated use the other construction methods
-     */
+    @Deprecated(since = "use the other construction methods")
     public static PipelineInstanceModel createEmptyModel() {
         return new PipelineInstanceModel();
     }

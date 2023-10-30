@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TempDirUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
@@ -58,19 +57,17 @@ public class EnvironmentVariableContextTest {
     @SystemStub
     private SystemProperties systemProperties;
 
-    private String pipelineName = "pipeline-name";
-    private String pipelineLabel = "pipeline-label";
-    private String stageName = "stage-name";
-    private String stageCounter = "stage-counter";
-    private String jobName = "build-name";
+    private final String pipelineName = "pipeline-name";
+    private final String pipelineLabel = "pipeline-label";
+    private final String stageName = "stage-name";
+    private final String stageCounter = "stage-counter";
+    private final String jobName = "build-name";
 
     @Test
     void shouldPopulateEnvironmentForServerUrl() {
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
-
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
+        context.setProperty("GO_SERVER_URL", "some_random_place", false);
         jobIdentifier().populateEnvironmentVariables(context);
 
         assertThat(context.getProperty("GO_SERVER_URL")).isEqualTo("some_random_place");
@@ -80,7 +77,6 @@ public class EnvironmentVariableContextTest {
     void shouldPopulateEnvironmentForJobIdentifier() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
         assertThat(context.getProperty("GO_PIPELINE_NAME")).isEqualTo(pipelineName);
@@ -100,7 +96,6 @@ public class EnvironmentVariableContextTest {
 
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
         materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
@@ -119,7 +114,6 @@ public class EnvironmentVariableContextTest {
 
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
         materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
@@ -135,7 +129,6 @@ public class EnvironmentVariableContextTest {
 
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
         materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
@@ -152,7 +145,6 @@ public class EnvironmentVariableContextTest {
 
         EnvironmentVariableContext context = new EnvironmentVariableContext();
 
-        context.setProperty("GO_SERVER_URL", SystemEnvironment.getProperty("serviceUrl"), false);
         jobIdentifier().populateEnvironmentVariables(context);
 
         materialRevisions.populateEnvironmentVariables(context, TempDirUtils.createRandomDirectoryIn(tempDir).toFile());
@@ -274,12 +266,10 @@ public class EnvironmentVariableContextTest {
 
         DependencyMaterialRevision revision = DependencyMaterialRevision.create(pipelineName, pipelineCounter,
                 pipelineLabel, stageName, stageCounter);
-        MaterialRevision materialRevision = revision.convert(material, new Date());
-        return materialRevision;
+        return revision.convert(material, new Date());
     }
 
     private JobIdentifier jobIdentifier() {
-        JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, 1, pipelineLabel, stageName, stageCounter, jobName, 1L);
-        return jobIdentifier;
+        return new JobIdentifier(pipelineName, 1, pipelineLabel, stageName, stageCounter, jobName, 1L);
     }
 }

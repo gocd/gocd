@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.Objects;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher.PLUGGABLE_ARTIFACT_METADATA_FOLDER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -103,7 +104,7 @@ public class FetchTaskBuilder implements TaskBuilder<AbstractFetchTask> {
         PathFromAncestor pipelineNamePathFromAncestor = task.getPipelineNamePathFromAncestor();
         if (pipelineNamePathFromAncestor == null
                 || CaseInsensitiveString.isBlank(pipelineNamePathFromAncestor.getPath())
-                || CaseInsensitiveString.areEqual(new CaseInsensitiveString(currentPipeline.getName()), pipelineNamePathFromAncestor.getPath())) {
+                || Objects.equals(new CaseInsensitiveString(currentPipeline.getName()), pipelineNamePathFromAncestor.getPath())) {
             task.setPipelineName(new CaseInsensitiveString(currentPipeline.getName()));
 
             String stageCounter = JobIdentifier.LATEST;

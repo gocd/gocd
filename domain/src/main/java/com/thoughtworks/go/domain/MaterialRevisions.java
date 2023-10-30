@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.Serializable;
@@ -32,7 +33,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 // Understands multiple materials each with their own revision
 public class MaterialRevisions implements Serializable, Iterable<MaterialRevision> {
     public static final MaterialRevisions EMPTY = new MaterialRevisions();
-    private List<MaterialRevision> revisions = new ArrayList<>();
+    private final List<MaterialRevision> revisions = new ArrayList<>();
 
     public MaterialRevisions(MaterialRevision... revisions) {
         this.revisions.addAll(Arrays.asList(revisions));
@@ -120,11 +121,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
 
         MaterialRevisions revisions1 = (MaterialRevisions) o;
 
-        if (!revisions.equals(revisions1.revisions)) {
-            return false;
-        }
-
-        return true;
+        return revisions.equals(revisions1.revisions);
     }
 
     @Override
@@ -132,9 +129,6 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         return revisions.hashCode();
     }
 
-    /**
-     * @deprecated Very very evil - TODO: get rid of this as part of #2055
-     */
     public Materials getMaterials() {
         Materials materials = new Materials();
         for (MaterialRevision revision : revisions) {
@@ -148,7 +142,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         StringBuilder builder = new StringBuilder();
         builder.append("MaterialRevision[\n");
         for (MaterialRevision revision : revisions) {
-            builder.append("\t" + revision);
+            builder.append("\t").append(revision);
             builder.append("\n");
         }
         builder.append("]");
@@ -209,7 +203,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     }
 
     @Override
-    public Iterator<MaterialRevision> iterator() {
+    public @NotNull Iterator<MaterialRevision> iterator() {
         return revisions.iterator();
     }
 
@@ -332,15 +326,6 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
             }
         }
         return new Modifications();
-    }
-
-    public boolean containsModificationFor(Material material) {
-        for (MaterialRevision materialRevision : this) {
-            if (material.equals(materialRevision.getMaterial())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public boolean containsModificationForFingerprint(Material material) {

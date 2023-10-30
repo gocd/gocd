@@ -80,7 +80,6 @@ public class ChangeMaterialsTest {
     private HgTestRepo hgTestRepo;
 
     private Username username;
-    private StubScheduleCheckCompletedListener listener;
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -96,8 +95,7 @@ public class ChangeMaterialsTest {
         cruiseConfig.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo.materialConfig(), "foo");
         mingle = cruiseConfig.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
         pipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);
-        listener = new StubScheduleCheckCompletedListener();
-        topic.addListener(listener);
+        topic.addListener(new StubScheduleCheckCompletedListener());
     }
 
     @AfterEach

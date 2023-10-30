@@ -30,8 +30,8 @@ public class FakeGoServerExtension implements BeforeEachCallback {
     private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(FakeGoServerExtension.class);
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
-        context.getRequiredTestInstances().getAllInstances() //
+    public void beforeEach(ExtensionContext context) {
+        context.getRequiredTestInstances().getAllInstances()
                 .forEach(instance -> injectInstanceFields(context, instance));
     }
 

@@ -109,7 +109,7 @@ public class HgMaterialTest {
 
             String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().originalArgument(), null).workingRepositoryUrl().outputAsString();
             assertThat(workingUrl).isEqualTo(hgTestRepo2.projectRepositoryUrl());
-            assertThat(testFile.exists()).isFalse();
+            assertThat(testFile).doesNotExist();
         }
 
         @Test
@@ -124,7 +124,7 @@ public class HgMaterialTest {
 
             String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.originalArgument(), null).workingRepositoryUrl().outputAsString();
             assertThat(workingUrl).isEqualTo(hgTestRepo.projectRepositoryUrl());
-            assertThat(testFile.exists()).isTrue();
+            assertThat(testFile).exists();
         }
 
         @Test
@@ -140,7 +140,7 @@ public class HgMaterialTest {
         void shouldNotAppendDestinationDirectoryWhileFetchingModifications() {
             hgMaterial.setFolder("dest");
             hgMaterial.modificationsSince(workingFolder, new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
-            assertThat(new File(workingFolder, "dest").exists()).isFalse();
+            assertThat(new File(workingFolder, "dest")).doesNotExist();
         }
 
         @Test
@@ -175,7 +175,7 @@ public class HgMaterialTest {
             hgMaterial.setFolder("dest");
             updateMaterial(hgMaterial, new StringRevision("0"));
             File end2endFolder = new File(workingFolder, "dest/end2end");
-            assertThat(end2endFolder.exists()).isTrue();
+            assertThat(end2endFolder).exists();
         }
 
         @Test
@@ -190,7 +190,7 @@ public class HgMaterialTest {
             File testFile = createNewFileInWorkingFolder();
             hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-            assertThat(testFile.exists()).isFalse();
+            assertThat(testFile).doesNotExist();
         }
 
         @Test

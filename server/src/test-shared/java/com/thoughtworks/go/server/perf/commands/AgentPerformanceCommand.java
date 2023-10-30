@@ -30,9 +30,9 @@ import static java.util.stream.StreamSupport.stream;
 
 public abstract class AgentPerformanceCommand implements Callable<Optional<String>> {
     public static final LinkedBlockingQueue<AgentPerformanceCommand> queue = new LinkedBlockingQueue<>();
-    private Logger LOG = LoggerFactory.getLogger(AgentPerformanceCommand.class);
-    private AgentPerformanceCommandResult result = new AgentPerformanceCommandResult().setName(getName());
-    private Heartbeat heartbeat = new Heartbeat();
+    private static final Logger LOG = LoggerFactory.getLogger(AgentPerformanceCommand.class);
+    private final AgentPerformanceCommandResult result = new AgentPerformanceCommandResult().setName(getName());
+    private final Heartbeat heartbeat = new Heartbeat();
     AgentService agentService;
 
     String getName() {
@@ -61,7 +61,7 @@ public abstract class AgentPerformanceCommand implements Callable<Optional<Strin
         AgentInstances registeredAgents = agentService.findRegisteredAgents();
         LOG.debug("Registered Agent Instances size: {}",registeredAgents.size());
         Optional<AgentInstance> anyAgentInstance = stream(registeredAgents.spliterator(), false).findAny();
-        if (!anyAgentInstance.isPresent()) LOG.debug("Returning empty agent instance: {} by {}", anyAgentInstance, this.getName());
+        if (anyAgentInstance.isEmpty()) LOG.debug("Returning empty agent instance: {} by {}", anyAgentInstance, this.getName());
         return anyAgentInstance;
     }
 

@@ -184,9 +184,6 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
     }
 
-    /**
-     * @deprecated Breaks encapsulation really badly. But we need it for IBatis :-(
-     */
     @Override
     public String getUrl() {
         return url.originalArgument();

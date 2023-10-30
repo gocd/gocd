@@ -77,7 +77,7 @@ class SvnMaterialConfigTest {
         map.put(SvnMaterialConfig.PASSWORD_CHANGED, "1");
 
         svnMaterial.setConfigAttributes(map);
-        assertThat(ReflectionUtil.getField(svnMaterial, "password")).isNull();
+        assertThat((String) ReflectionUtil.getField(svnMaterial, "password")).isNull();
         assertThat(svnMaterial.getPassword()).isEqualTo("secret");
         assertThat(svnMaterial.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -86,7 +86,7 @@ class SvnMaterialConfigTest {
         map.put(SvnMaterialConfig.PASSWORD_CHANGED, "0");
         svnMaterial.setConfigAttributes(map);
 
-        assertThat(ReflectionUtil.getField(svnMaterial, "password")).isNull();
+        assertThat((String) ReflectionUtil.getField(svnMaterial, "password")).isNull();
         assertThat(svnMaterial.getPassword()).isEqualTo("secret");
         assertThat(svnMaterial.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 

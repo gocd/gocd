@@ -77,9 +77,11 @@ class BuildWorkTest {
     static final String PIPELINE_NAME = "pipeline1";
     private static final String PIPELINE_LABEL = "100";
     private static final String STAGE_NAME = "mingle";
+    private static final int STAGE_COUNTER = 100;
     private static final String JOB_PLAN_NAME = "run-ant";
-    private BuildWork buildWork;
-    private AgentIdentifier agentIdentifier;
+
+    private static final String SERVER_URL = "somewhere-does-not-matter";
+    private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier(PIPELINE_NAME, -3, PIPELINE_LABEL, STAGE_NAME, String.valueOf(STAGE_COUNTER), JOB_PLAN_NAME, 1L);
 
     private static final String NANT = "<job name=\"" + JOB_PLAN_NAME + "\">\n"
             + "  <tasks>\n"
@@ -191,23 +193,9 @@ class BuildWorkTest {
             + "  </tasks>\n"
             + "</job>";
 
-    private EnvironmentVariableContext environmentVariableContext;
-    private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
-    private GoArtifactsManipulatorStub artifactManipulator;
     private static final BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
-            new RakeTaskBuilder(), new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(),
-            new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
-    @Mock
-    private static UpstreamPipelineResolver resolver;
-    @Mock
-    private PackageRepositoryExtension packageRepositoryExtension;
-    @Mock
-    private SCMExtension scmExtension;
-    @Mock
-    private TaskExtension taskExtension;
-    @Mock
-    private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
-
+        new RakeTaskBuilder(), new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(),
+        new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     private static String willUpload(String file) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
                 + "   <artifacts>\n"
@@ -252,16 +240,31 @@ class BuildWorkTest {
 
     }
 
-    private static final int STAGE_COUNTER = 100;
-    private static final String SERVER_URL = "somewhere-does-not-matter";
-    private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier(PIPELINE_NAME, -3, PIPELINE_LABEL, STAGE_NAME, String.valueOf(STAGE_COUNTER), JOB_PLAN_NAME, 1L);
+    private BuildWork buildWork;
+    private AgentIdentifier agentIdentifier;
+    private EnvironmentVariableContext environmentVariableContext;
+    private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
+    private GoArtifactsManipulatorStub artifactManipulator;
+
+    @Mock
+    private static UpstreamPipelineResolver resolver;
+
+    @Mock
+    private PackageRepositoryExtension packageRepositoryExtension;
+    @Mock
+    private SCMExtension scmExtension;
+    @Mock
+    private TaskExtension taskExtension;
+    @Mock
+    private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
+
 
     @BeforeEach
     void setUp() {
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
-        new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, SERVER_URL);
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
     }
 
@@ -318,8 +321,8 @@ class BuildWorkTest {
                 .printedExcRunIfInfo("echo", "run when status is any", "failed")
                 .doesNotContain("run when status is passed")
                 .doesNotContain("run when status is cancelled")
-                .doesNotContainExcRunIfInfo("echo", "run when status is passed", "failed")
-                .doesNotContainExcRunIfInfo("echo", "run when status is cancelled", "failed");
+                .doesNotContainExcRunIfInfo("echo", "run when status is passed")
+                .doesNotContainExcRunIfInfo("echo", "run when status is cancelled");
     }
 
     @Test
@@ -543,7 +546,7 @@ class BuildWorkTest {
         if (workingDir.exists()) {
             FileUtils.deleteDirectory(workingDir);
         }
-        assertThat(workingDir.exists()).isFalse();
+        assertThat(workingDir).doesNotExist();
         buildWork = getWork(WILL_PASS, pipelineName);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
@@ -551,7 +554,7 @@ class BuildWorkTest {
         assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory");
 
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingDir.exists()).isTrue();
+        assertThat(workingDir).exists();
         FileUtils.deleteDirectory(workingDir);
     }
 
@@ -562,7 +565,7 @@ class BuildWorkTest {
         if (workingDir.exists()) {
             FileUtils.deleteDirectory(workingDir);
         }
-        assertThat(workingDir.exists()).isFalse();
+        assertThat(workingDir).doesNotExist();
         buildWork = getWork(WILL_PASS, pipelineName, true, true);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
@@ -570,7 +573,7 @@ class BuildWorkTest {
         assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory");
 
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingDir.exists()).isTrue();
+        assertThat(workingDir).exists();
     }
 
     @Test
@@ -580,14 +583,14 @@ class BuildWorkTest {
         if (workingDir.exists()) {
             FileUtils.deleteDirectory(workingDir);
         }
-        assertThat(workingDir.exists()).isFalse();
+        assertThat(workingDir).doesNotExist();
         buildWork = getWork(WILL_PASS, pipelineName, false, false);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
         assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingDir.getAbsolutePath() + "\" is noa directory");
         assertThat(buildRepository.results.contains(Passed)).isTrue();
-        assertThat(workingDir.exists()).isTrue();
+        assertThat(workingDir).exists();
     }
 
     @Test
@@ -624,7 +627,7 @@ class BuildWorkTest {
         assertSoftly(softly -> {
             softly.assertThat(artifactManipulator.consoleOut()).contains("Cleaning working directory \"" + workingDir.getAbsolutePath());
             softly.assertThat(buildRepository.results).containsOnly(Passed);
-            softly.assertThat(workingDir.exists()).isTrue();
+            softly.assertThat(workingDir).exists();
             softly.assertThat(workingDir.listFiles()).isEmpty();
         });
     }

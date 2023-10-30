@@ -42,7 +42,7 @@ public class JettyResponseTest {
 
     @Test
     public void shouldGetResponseContentCount() {
-        when(response.getContentCount()).thenReturn(2000l);
-        assertThat(jettyResponse.getContentCount(), is(2000l));
+        when(response.getContentCount()).thenReturn(2000L);
+        assertThat(jettyResponse.getContentCount(), is(2000L));
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.notification;
 
+import org.jetbrains.annotations.TestOnly;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -65,7 +66,7 @@ public class NotificationPluginRegistry {
         return pluginInterests;
     }
 
-    @Deprecated
+    @TestOnly
     public void clear() {
         notificationNameToPluginsInterestedMap.clear();
     }

@@ -87,7 +87,7 @@ public class P4TestRepo extends TestRepo {
 
     @Override
     public void tearDown() {
-        Process process = (Process) ReflectionUtil.getField(p4dProcess, "process");
+        Process process = ReflectionUtil.getField(p4dProcess, "process");
         process.destroy();
         try {
             process.waitFor(5, TimeUnit.SECONDS);

@@ -35,7 +35,7 @@ public class PipelineScheduleQueueMatcher {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText(String.format("Expect number of scheduled pipelines to be at least %s", expectedCount));
+                description.appendText(String.format("Expect number of scheduled pipelines to be at least %s but got %s", expectedCount, actualCount));
             }
         };
     }

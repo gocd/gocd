@@ -80,16 +80,12 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return string == null || string.isBlank();
     }
 
-    public static boolean areEqual(CaseInsensitiveString one, CaseInsensitiveString other) {
-        return one == null ? other == null : one.equals(other);
-    }
-
     public String toUpper() {
         return name.toUpperCase();
     }
 
     public static String str(CaseInsensitiveString str) {
-        return str == null ? null : str.name;
+        return str == null ? null : str.toString();
     }
 
     public static List<CaseInsensitiveString> list(List<String> strings) {

@@ -77,7 +77,7 @@ class HgMaterialConfigTest {
         map.put(HgMaterialConfig.PASSWORD_CHANGED, "1");
 
         hgMaterialConfig.setConfigAttributes(map);
-        assertThat(ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
+        assertThat((String) ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
         assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
         assertThat(hgMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -86,7 +86,7 @@ class HgMaterialConfigTest {
         map.put(HgMaterialConfig.PASSWORD_CHANGED, "0");
         hgMaterialConfig.setConfigAttributes(map);
 
-        assertThat(ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
+        assertThat((String) ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
         assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
         assertThat(hgMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -149,6 +149,7 @@ class HgMaterialConfigTest {
         assertThat(config.getUrl()).isNull();
     }
 
+    @SuppressWarnings("HttpUrlsUsage")
     @Nested
     class Equals {
         @Test
@@ -194,6 +195,7 @@ class HgMaterialConfigTest {
         }
     }
 
+    @SuppressWarnings("HttpUrlsUsage")
     @Nested
     class validate {
         @Test
@@ -307,6 +309,7 @@ class HgMaterialConfigTest {
         }
     }
 
+    @SuppressWarnings("HttpUrlsUsage")
     @Nested
     class ValidateTree {
         @Test

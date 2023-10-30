@@ -95,7 +95,7 @@ public class ArtifactsDiskCleanerTest {
                 sem.release();
             }
         };
-        Thread cleaner = (Thread) ReflectionUtil.getField(artifactsDiskCleaner, "cleaner");
+        Thread cleaner = ReflectionUtil.getField(artifactsDiskCleaner, "cleaner");
         while (!cleaner.getState().equals(Thread.State.WAITING)) {
             Thread.sleep(5);
         }

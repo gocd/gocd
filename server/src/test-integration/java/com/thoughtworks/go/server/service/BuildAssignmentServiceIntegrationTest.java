@@ -750,12 +750,12 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onConfigChange(cruiseConfig);
         buildAssignmentService.onTimer();
 
-        List<JobPlan> plans = (List<JobPlan>) ReflectionUtil.getField(buildAssignmentService, "jobPlans");
+        List<JobPlan> plans = ReflectionUtil.getField(buildAssignmentService, "jobPlans");
         assertThat(plans.isEmpty(), is(false));
         assertThat(plans.size(), is(2));
 
         configHelper.writeConfigFile(oldConfig);
-        plans = (List<JobPlan>) ReflectionUtil.getField(buildAssignmentService, "jobPlans");
+        plans = ReflectionUtil.getField(buildAssignmentService, "jobPlans");
         assertThat("Actual size is " + plans.size(), plans.isEmpty(), is(true));
     }
 

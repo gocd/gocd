@@ -111,7 +111,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     @Test
     public void shouldSetUpEnvironmentContextCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, "some_random_place");
         Materials materials = new Materials(svnMaterial);
         EnvironmentVariableContext environmentVariableContext = doWorkWithMaterials(materials);
         assertThat(environmentVariableContext.getProperty("GO_REVISION"), is("3"));
@@ -143,7 +143,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
         @Test
         public void shouldSetUpP4ClientEnvironmentVariableEnvironmentContextCorrectly() {
-            new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+            new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, "some_random_place");
             BuildWork work = getBuildWorkWithP4MaterialRevision(p4Material);
             EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
@@ -227,8 +227,6 @@ public class BuildWorkEnvironmentVariablesTest {
         BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8);
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
-
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),
                 new GoArtifactsManipulatorStub(), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), packageRepositoryExtension, scmExtension, taskExtension, null, null));
@@ -251,7 +249,7 @@ public class BuildWorkEnvironmentVariablesTest {
         BuildAssignment buildAssigment = createAssignment(null);
         BuildWork work = new BuildWork(buildAssigment, StandardCharsets.UTF_8);
         GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub();
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, "some_random_place");
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, new FakeBuildRepositoryRemote(),

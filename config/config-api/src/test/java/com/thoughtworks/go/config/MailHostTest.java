@@ -35,7 +35,7 @@ public class MailHostTest {
 
         MailHost mailHost = new MailHost("hostname", 42, "username", "password", null, true, true, "from", "mail@admin.com", mockGoCipher);
 
-        assertThat(ReflectionUtil.getField(mailHost, "password")).isEqualTo("password");
+        assertThat((String) ReflectionUtil.getField(mailHost, "password")).isEqualTo("password");
         assertThat(mailHost.getEncryptedPassword()).isEqualTo("encrypted");
     }
 
@@ -52,7 +52,7 @@ public class MailHostTest {
     }
 
     @Test
-    public void shouldReturnTrueIfTwoMailhostsHaveDifferentPasswords() {
+    public void shouldReturnTrueIfTwoMailHostsHaveDifferentPasswords() {
         MailHost mailHost1 = new MailHost("blah", 42, "blah", "password-1", true, true, "from", "to");
         MailHost mailHost2 = new MailHost("blah", 42, "blah", "password-2", true, true, "from", "to");
         MailHost mailHost3 = new MailHost("blah", 42, "blah", "password-2", false, true, "from", "to");

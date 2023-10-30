@@ -44,7 +44,7 @@ public class JobRunnerTest {
         work = mock(Work.class);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
 
-        new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, SERVER_URL);
         resolver = mock(UpstreamPipelineResolver.class);
     }
 

@@ -96,7 +96,7 @@ public class ScheduleServiceSecurityTest {
         configHelper.setOperatePermissionForGroup("defaultGroup", "jez");
         Username jez = new Username(new CaseInsensitiveString("jez"));
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(-23l, jez, operationResult);
+        Stage resultStage = scheduleService.cancelAndTriggerRelevantStages(-23L, jez, operationResult);
 
         assertThat(resultStage, is(nullValue()));
         assertThat(operationResult.isSuccessful(), is(false));

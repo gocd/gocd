@@ -76,7 +76,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         P4Client p4Client = p4Material.p4(workingDir, new InMemoryStreamConsumer(), false);
 
         assertThat(p4Client).isNotNull();
-        String client = (String) ReflectionUtil.getField(p4Client, "p4ClientName");
+        String client = ReflectionUtil.getField(p4Client, "p4ClientName");
         assertThat(client).isEqualTo(p4Material.clientName(workingDir));
     }
 
@@ -97,7 +97,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
+    void shouldReturnEqualsEvenIfPasswordsAreDifferent() {
         P4Material material = MaterialsMother.p4Material();
         material.setPassword("password");
 
@@ -124,7 +124,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
+    void shouldCopyOverPasswordWhenConvertingToConfig() {
         P4Material material = new P4Material("blah.com", "view");
         material.setPassword("password");
 

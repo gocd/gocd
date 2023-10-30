@@ -73,7 +73,7 @@ public class JobStatusListenerIntegrationTest {
     private static final String UUID = "AGENT1";
     private Pipeline savedPipeline;
 
-    JobIdentifier jobIdentifier = new JobIdentifier(PIPELINE_NAME, "1", STAGE_NAME, "1", JOB_NAME);
+    JobIdentifier jobIdentifier = new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME);
     private static final AgentIdentifier AGENT1 = new AgentIdentifier(UUID, "IPADDRESS", UUID);
     private JobStatusListener listener;
     private StageStatusTopic stageStatusTopic;

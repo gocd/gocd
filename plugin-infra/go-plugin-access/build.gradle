@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+plugins {
+  id 'groovy'
+}
+
 description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
 dependencies {
@@ -34,6 +38,7 @@ dependencies {
   implementation project.deps.springContext
   compileOnly project.deps.jetBrainsAnnotations
 
+  testImplementation localGroovy()
   testImplementation project.deps.jsonUnit
   testImplementation project(path: ':test:test-utils', configuration: 'runtimeElements')
   testImplementation project(path: ':domain', configuration: 'testOutput')

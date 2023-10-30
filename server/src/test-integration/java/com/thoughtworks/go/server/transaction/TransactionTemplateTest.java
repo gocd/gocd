@@ -52,11 +52,11 @@ public class TransactionTemplateTest {
     public void setUp() {
         txnCommitted = false;
         txnCompleted = false;
-        transactionTemplate = (org.springframework.transaction.support.TransactionTemplate) ReflectionUtil.getField(goTransactionTemplate, "transactionTemplate");
+        transactionTemplate = ReflectionUtil.getField(goTransactionTemplate, "transactionTemplate");
     }
 
     @Test
-    public void shouldBubbleRuntimeExceptionToActualTransactionTemplateForCallback() throws Exception {
+    public void shouldBubbleRuntimeExceptionToActualTransactionTemplateForCallback() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
         try {
             template.executeWithExceptionHandling(new TransactionCallback() {
@@ -74,7 +74,7 @@ public class TransactionTemplateTest {
     }
 
     @Test
-    public void shouldBubbleRuntimeExceptionToActualTransactionTemplateForCallbackWithoutReturnValue() throws Exception {
+    public void shouldBubbleRuntimeExceptionToActualTransactionTemplateForCallbackWithoutReturnValue() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
         try {
             template.executeWithExceptionHandling(new TransactionCallbackWithoutResult() {
@@ -96,7 +96,7 @@ public class TransactionTemplateTest {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
         String returnVal = (String) template.executeWithExceptionHandling(new TransactionCallback() {
-            @Override public Object doInTransaction(TransactionStatus status) throws Exception {
+            @Override public Object doInTransaction(TransactionStatus status) {
                 registerSynchronization();
                 return "foo";
             }
@@ -111,7 +111,7 @@ public class TransactionTemplateTest {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
         Object returnVal = template.executeWithExceptionHandling(new TransactionCallbackWithoutResult() {
-            @Override public void doInTransactionWithoutResult(TransactionStatus status) throws Exception {
+            @Override public void doInTransactionWithoutResult(TransactionStatus status) {
                 registerSynchronization();
             }
         });
@@ -121,10 +121,10 @@ public class TransactionTemplateTest {
     }
 
     @Test
-    public void shouldExecuteTransactionCallback() throws Exception {
+    public void shouldExecuteTransactionCallback() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
-        String returnVal = (String) template.execute((org.springframework.transaction.support.TransactionCallback) status -> {
+        String returnVal = template.execute(status -> {
             registerSynchronization();
             return "foo";
         });
@@ -141,7 +141,7 @@ public class TransactionTemplateTest {
         final boolean[] inTransactionInAfterCommit = new boolean[] {true};
         final boolean[] inTransactionInAfterComplete = new boolean[] {true};
 
-        String returnVal = (String) template.execute((org.springframework.transaction.support.TransactionCallback) status -> {
+        String returnVal = template.execute(status -> {
             setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 0);
             return "foo";
         });
@@ -169,7 +169,7 @@ public class TransactionTemplateTest {
                     afterCommitHappened[0] = true;
                 }
             });
-            return template.execute((org.springframework.transaction.support.TransactionCallback) status -> {
+            return template.execute(status -> {
                 transactionWasActiveInTransaction[0] = transactionSynchronizationManager.isTransactionBodyExecuting();
                 return "foo";
             });
@@ -221,14 +221,14 @@ public class TransactionTemplateTest {
         assertThat(returnVal, is("foo"));
         assertThat(afterCommitHappened[0], is(false));//because no transaction happened
 
-        returnVal = (String) template.transactionSurrounding(() -> template.execute((org.springframework.transaction.support.TransactionCallback) status -> "bar"));
+        returnVal = (String) template.transactionSurrounding(() -> template.execute(status -> "bar"));
 
         assertThat(returnVal, is("bar"));
         assertThat(afterCommitHappened[0], is(false));//because it registered no synchronization
     }
 
     @Test
-    public void shouldPropagateExceptionsOutOfTransactionSurrounding() throws IOException {
+    public void shouldPropagateExceptionsOutOfTransactionSurrounding() {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
 
         final boolean[] afterCommitHappened = new boolean[1];
@@ -258,8 +258,6 @@ public class TransactionTemplateTest {
 
         final int[] numberOfTimesAfterCommitHappened = new int[1];
 
-        numberOfTimesAfterCommitHappened[0] = 0;
-
         String returnVal = (String) template.transactionSurrounding(() -> {
             transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
@@ -267,7 +265,7 @@ public class TransactionTemplateTest {
                     numberOfTimesAfterCommitHappened[0]++;
                 }
             });
-            return template.execute((org.springframework.transaction.support.TransactionCallback) status -> goTransactionTemplate.execute((org.springframework.transaction.support.TransactionCallback) status1 -> "foo"));
+            return template.execute(status -> goTransactionTemplate.execute(status1 -> "foo"));
         });
 
         assertThat(returnVal, is("foo"));
@@ -281,9 +279,9 @@ public class TransactionTemplateTest {
         String returnVal = null;
         try {
             returnVal = (String) template.transactionSurrounding(() -> {
-                template.execute((org.springframework.transaction.support.TransactionCallback) status -> "foo");
+                template.execute(status -> "foo");
 
-                return template.execute((org.springframework.transaction.support.TransactionCallback) status -> "bar");
+                return template.execute(status -> "bar");
             });
             fail("should not have allowed multiple top-level transactions");//this can cause assumptions of registered-synchronization to become invalid -jj
         } catch (RuntimeException e) {
@@ -305,9 +303,7 @@ public class TransactionTemplateTest {
 
         final int[] numberOfTimesSynchronizationWasCalled = new int[1];
 
-        numberOfTimesSynchronizationWasCalled[0] = 0;
-
-        String returnVal = (String) template.execute((org.springframework.transaction.support.TransactionCallback) status -> template.transactionSurrounding(() -> {
+        String returnVal = (String) template.execute(status -> template.transactionSurrounding(() -> {
             transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCommit() {
@@ -315,14 +311,14 @@ public class TransactionTemplateTest {
                 }
             });
 
-            template.execute((org.springframework.transaction.support.TransactionCallback) status12 -> {
+            template.execute(status12 -> {
                 firstNestedTransactionHappened[0] = true;
                 return "foo";
             });
 
             firstNestedTransactionCalledTransactionSynchronization[0] = numberOfTimesSynchronizationWasCalled[0] > 0;
 
-            Object ret = template.execute((org.springframework.transaction.support.TransactionCallback) status1 -> {
+            Object ret = template.execute(status1 -> {
                 secondNestedTransactionHappened[0] = true;
                 return "bar";
             });
@@ -350,16 +346,16 @@ public class TransactionTemplateTest {
         final boolean[] inTransactionInAfterCommit = new boolean[] {true, true, true, true};
         final boolean[] inTransactionInAfterComplete = new boolean[] {true, true, true, true};
 
-        String returnVal = (String) template.execute((org.springframework.transaction.support.TransactionCallback) status -> {
+        String returnVal = (String) template.execute(status -> {
             setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 0);
-            return template.execute((org.springframework.transaction.support.TransactionCallback) status12 -> {
+            return template.execute(status12 -> {
                 setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 1);
                 try {
                     return template.executeWithExceptionHandling(new TransactionCallback() {
                         @Override
-                        public Object doInTransaction(TransactionStatus status12) throws Exception {
+                        public Object doInTransaction(TransactionStatus status12) {
                             setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 2);
-                            return template.execute((org.springframework.transaction.support.TransactionCallback) status1 -> {
+                            return template.execute(status1 -> {
                                 setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 3);
                                 return "baz";
                             });
@@ -402,7 +398,7 @@ public class TransactionTemplateTest {
         final boolean[] inTransactionInAfterComplete = new boolean[] {true};
 
         String returnVal = (String) template.executeWithExceptionHandling(new TransactionCallback() {
-            @Override public Object doInTransaction(TransactionStatus status) throws Exception {
+            @Override public Object doInTransaction(TransactionStatus status) {
                 setTxnBodyActiveFlag(inTransactionInBody, inTransactionInAfterCommit, inTransactionInAfterComplete, 0);
                 return "foo";
             }
@@ -418,7 +414,7 @@ public class TransactionTemplateTest {
     public void shouldNotFailWhenNoTransactionStarted() throws InterruptedException {
         final boolean[] transactionBodyIn = new boolean[] {true};
 
-        Thread thd = new Thread(() -> transactionBodyIn[0] = goTransactionTemplate.isTransactionBodyExecuting());
+        Thread thd = new Thread(() -> transactionBodyIn[0] = TransactionTemplate.isTransactionBodyExecuting());
         thd.start();
         thd.join();
 

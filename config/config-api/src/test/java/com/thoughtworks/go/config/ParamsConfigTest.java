@@ -24,17 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ParamsConfigTest {
 
     private ParamsConfig paramsConfig;
-    private ValidationContext context = mock(ValidationContext.class);
+    private final ValidationContext context = mock(ValidationContext.class);
 
     @BeforeEach
     public void setUp() {
@@ -44,7 +42,7 @@ public class ParamsConfigTest {
     @Test
     public void shouldPopulateParamFromMapIgnoringEmptyPairs() {
         paramsConfig = new ParamsConfig();
-        List<Map> paramsMap = new ArrayList<>();
+        List<Map<String, String>> paramsMap = new ArrayList<>();
 
         paramsMap.add(createParamMap("param-name", "param-value"));
         paramsMap.add(createParamMap("", ""));
@@ -52,8 +50,8 @@ public class ParamsConfigTest {
 
         paramsConfig.setConfigAttributes(paramsMap);
 
-        assertThat(paramsConfig.size(), is(2));
-        assertThat(paramsConfig.getParamNamed("param-name").getValue(), is("param-value"));
+        assertThat(paramsConfig.size()).isEqualTo((2));
+        assertThat(paramsConfig.getParamNamed("param-name").getValue()).isEqualTo(("param-value"));
     }
 
     @Test
@@ -64,22 +62,20 @@ public class ParamsConfigTest {
         ParamConfig two = new ParamConfig("other", "other-value");
         paramsConfig.add(two);
 
-        assertThat(paramsConfig.getIndex("other"), is(1));
-        assertThat(paramsConfig.getIndex("name"), is(0));
+        assertThat(paramsConfig.getIndex("other")).isEqualTo((1));
+        assertThat(paramsConfig.getIndex("name")).isEqualTo((0));
     }
 
     @Test
     public void getIndex_shouldThrowExceptionIfNameNotFound() {
-        try {
-            new ParamsConfig().getIndex(null);
-            fail("should throw exception if param not found");
-        } catch (IllegalArgumentException e) {
-            // ok
-        }
+
+        assertThatThrownBy(() -> new ParamsConfig().getIndex("foo"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("param 'foo' not found");
     }
 
-    private Map createParamMap(final String name, final String value) {
-        Map map = new HashMap();
+    private Map<String, String> createParamMap(final String name, final String value) {
+        Map<String, String> map = new HashMap<>();
         map.put(ParamConfig.NAME, name);
         map.put(ParamConfig.VALUE, value);
         return map;
@@ -95,10 +91,10 @@ public class ParamsConfigTest {
 
         paramsConfig.validate(context);
 
-        assertThat(one.errors().isEmpty(), is(false));
-        assertThat(one.errors().firstError(), contains("Param name 'name' is not unique for pipeline 'some-pipeline'."));
-        assertThat(two.errors().isEmpty(), is(false));
-        assertThat(two.errors().firstError(), contains("Param name 'name' is not unique for pipeline 'some-pipeline'."));
+        assertThat(one.errors().isEmpty()).isEqualTo((false));
+        assertThat(one.errors().firstError()).contains("Param name 'name' is not unique for pipeline 'some-pipeline'.");
+        assertThat(two.errors().isEmpty()).isEqualTo((false));
+        assertThat(two.errors().firstError()).contains("Param name 'name' is not unique for pipeline 'some-pipeline'.");
     }
 
     @Test
@@ -109,8 +105,8 @@ public class ParamsConfigTest {
 
         paramsConfig.validate(context);
 
-        assertThat(empty.errors().isEmpty(), is(false));
-        assertThat(empty.errors().firstError(), contains("Parameter cannot have an empty name for pipeline 'some-pipeline'."));
+        assertThat(empty.errors().isEmpty()).isEqualTo((false));
+        assertThat(empty.errors().firstError()).contains("Parameter cannot have an empty name for pipeline 'some-pipeline'.");
     }
 
 }

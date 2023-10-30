@@ -28,8 +28,9 @@ import static com.thoughtworks.go.util.TriState.UNSET;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 
+@SuppressWarnings("unused") // Optional for use by AgentPerformanceVerifier
 public class BulkUpdateAgentCommand extends AgentPerformanceCommand {
-    private EnvironmentConfigService envConfigService;
+    private final EnvironmentConfigService envConfigService;
 
     public BulkUpdateAgentCommand(AgentService agentService, EnvironmentConfigService envConfigService) {
         this.envConfigService = envConfigService;

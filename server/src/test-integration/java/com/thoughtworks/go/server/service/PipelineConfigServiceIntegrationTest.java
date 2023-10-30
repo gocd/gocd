@@ -58,11 +58,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -71,7 +67,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-
 public class PipelineConfigServiceIntegrationTest {
     static {
         new SystemEnvironment().setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, "false");
@@ -105,7 +100,7 @@ public class PipelineConfigServiceIntegrationTest {
     private Username user;
     private String headCommitBeforeUpdate;
     private HttpLocalizedOperationResult result;
-    private String groupName = "jumbo";
+    private final String groupName = "jumbo";
     private ConfigRepoConfig repoConfig1;
     private PartialConfig partialConfig;
     private String remoteDownstreamPipelineName;
@@ -146,10 +141,10 @@ public class PipelineConfigServiceIntegrationTest {
     @AfterEach
     public void tearDown() throws Exception {
         for (PartialConfig partial : cachedGoPartials.lastValidPartials()) {
-            assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));
+            assertThat(ErrorCollector.getAllErrors(partial)).isEmpty();
         }
         for (PartialConfig partial : cachedGoPartials.lastKnownPartials()) {
-            assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));
+            assertThat(ErrorCollector.getAllErrors(partial)).isEmpty();
         }
         cachedGoPartials.clear();
         configHelper.onTearDown();
@@ -162,15 +157,15 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
         pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(goConfigDao.loadConfigHolder()).isNotEqualTo(goConfigHolderBeforeUpdate);
         PipelineConfig savedPipelineConfig = goConfigDao.loadForEditing().getPipelineConfigByName(pipelineConfig.name());
-        assertThat(savedPipelineConfig, is(pipelineConfig));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(not(headCommitBeforeUpdate)));
-        assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
-        assertThat(configRepository.getCurrentRevision().getMd5(), is(not(goConfigHolderBeforeUpdate.config.getMd5())));
-        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().config.getMd5()));
-        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().configForEdit.getMd5()));
+        assertThat(savedPipelineConfig).isEqualTo(pipelineConfig);
+        assertThat(configRepository.getCurrentRevCommit().name()).isNotEqualTo(headCommitBeforeUpdate);
+        assertThat(configRepository.getCurrentRevision().getUsername()).isEqualTo(user.getDisplayName());
+        assertThat(configRepository.getCurrentRevision().getMd5()).isNotEqualTo(goConfigHolderBeforeUpdate.config.getMd5());
+        assertThat(configRepository.getCurrentRevision().getMd5()).isEqualTo(goConfigDao.loadConfigHolder().config.getMd5());
+        assertThat(configRepository.getCurrentRevision().getMd5()).isEqualTo(goConfigDao.loadConfigHolder().configForEdit.getMd5());
     }
 
     @Test
@@ -179,12 +174,12 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         pipelineConfigService.createPipelineConfig(user, downstream, result, "does-not-exist");
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(goConfigDao.loadConfigHolder()).isNotEqualTo(goConfigHolderBeforeUpdate);
         PipelineConfig savedPipelineConfig = goConfigDao.loadForEditing().getPipelineConfigByName(downstream.name());
-        assertThat(savedPipelineConfig, is(downstream));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(not(headCommitBeforeUpdate)));
-        assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
+        assertThat(savedPipelineConfig).isEqualTo(downstream);
+        assertThat(configRepository.getCurrentRevCommit().name()).isNotEqualTo(headCommitBeforeUpdate);
+        assertThat(configRepository.getCurrentRevision().getUsername()).isEqualTo(user.getDisplayName());
     }
 
     @Test
@@ -193,14 +188,14 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
         pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, groupName.toUpperCase());
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(goConfigDao.loadConfigHolder()).isNotEqualTo(goConfigHolderBeforeUpdate);
         PipelineConfig savedPipelineConfig = goConfigDao.loadForEditing().getPipelineConfigByName(pipelineConfig.name());
-        assertThat(savedPipelineConfig, is(pipelineConfig));
+        assertThat(savedPipelineConfig).isEqualTo(pipelineConfig);
 
         CruiseConfig configForEdit = goConfigDao.loadConfigHolder().configForEdit;
 
-        assertThat(configForEdit.findGroup(groupName), is(configForEdit.findGroup(groupName.toUpperCase())));
+        assertThat(configForEdit.findGroup(groupName)).isEqualTo(configForEdit.findGroup(groupName.toUpperCase()));
     }
 
     @Test
@@ -219,8 +214,8 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig downstream = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream", new DependencyMaterialConfig(pipelineConfig.name(), new CaseInsensitiveString("stage")));
         pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertTrue(downstream.materialConfigs().first().errors().isEmpty());
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(downstream.materialConfigs().first().errors()).isEmpty();
     }
 
     @Test
@@ -239,8 +234,8 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertTrue(downstream.materialConfigs().first().errors().isEmpty());
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(downstream.materialConfigs().first().errors()).isEmpty();
     }
 
     @Test
@@ -262,8 +257,8 @@ public class PipelineConfigServiceIntegrationTest {
         downstream.getStage(stage).getJobs().first().addTask(new FetchTask(pipelineConfig.name(), stage, job, "src", "dest"));
         pipelineConfigService.createPipelineConfig(user, downstream, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertTrue(downstream.materialConfigs().first().errors().isEmpty());
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(downstream.materialConfigs().first().errors()).isEmpty();
     }
 
     @Test
@@ -272,12 +267,12 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipelineBeingCreated = GoConfigMother.createPipelineConfigWithMaterialConfig(pipelineConfig.name().toLower(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         pipelineConfigService.createPipelineConfig(user, pipelineBeingCreated, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertFalse(pipelineBeingCreated.errors().isEmpty());
-        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME), is(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", pipelineConfig.name())));
-        assertThat(goConfigDao.loadConfigHolder(), is(goConfigHolderBeforeUpdate));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(pipelineBeingCreated.errors()).isNotEmpty();
+        assertThat(pipelineBeingCreated.errors().on(PipelineConfig.NAME)).isEqualTo(String.format("You have defined multiple pipelines named '%s'. Pipeline names must be unique. Source(s): [cruise-config.xml]", pipelineConfig.name()));
+        assertThat(goConfigDao.loadConfigHolder()).isEqualTo(goConfigHolderBeforeUpdate);
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
     }
 
     @Test
@@ -286,16 +281,16 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipelineBeingCreated = GoConfigMother.createPipelineConfigWithMaterialConfig(pipelineConfig.name().toLower(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         pipelineConfigService.createPipelineConfig(user, pipelineBeingCreated, result, "%$-with-invalid-characters");
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertFalse(pipelineBeingCreated.errors().isEmpty());
-        assertThat(pipelineBeingCreated.errors().on(PipelineConfigs.GROUP), contains("Invalid group name '%$-with-invalid-characters'"));
-        assertThat(goConfigDao.loadConfigHolder(), is(goConfigHolderBeforeUpdate));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(pipelineBeingCreated.errors()).isNotEmpty();
+        assertThat(pipelineBeingCreated.errors().on(PipelineConfigs.GROUP)).contains("Invalid group name '%$-with-invalid-characters'");
+        assertThat(goConfigDao.loadConfigHolder()).isEqualTo(goConfigHolderBeforeUpdate);
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrors() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrors() {
         ExecTask execTask = new ExecTask("ls", "-al", "#{foo}");
         FetchTask fetchTask = new FetchTask(pipelineConfig.name(), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "srcfile", "/usr/dest");
 
@@ -311,14 +306,14 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
         String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipeline.name());
-        assertThat(fetchTask.errors().on("dest"), is(expectedError));
+        assertThat(fetchTask.errors().on("dest")).isEqualTo(expectedError);
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnEnvironmentVariables() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnEnvironmentVariables() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         pipeline.addEnvironmentVariable("", "PipelineEnvVar");
 
@@ -339,41 +334,41 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(pipeline.getVariables().get(0).errors().firstError(), is(String.format("Environment Variable cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name())));
-        assertThat(stageVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for stage 'stage'.", pipeline.name())));
-        assertThat(jobVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for job 'job'.", pipeline.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(pipeline.getVariables().get(0).errors().firstError()).isEqualTo("Environment Variable cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name());
+        assertThat(stageVar.errors().firstError()).isEqualTo("Environment Variable cannot have an empty name for stage 'stage'.", pipeline.name());
+        assertThat(jobVar.errors().firstError()).isEqualTo("Environment Variable cannot have an empty name for job 'job'.", pipeline.name());
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnParameters() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnParameters() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         ParamConfig param = new ParamConfig("", "Foo");
         pipeline.addParam(param);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(param.errors().firstError(), is(String.format("Parameter cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(param.errors().firstError()).isEqualTo(String.format("Parameter cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name()));
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTrackingTool() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTrackingTool() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         TrackingTool trackingTool = new TrackingTool();
         pipeline.setTrackingTool(trackingTool);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(trackingTool.errors().firstError(), is(String.format("Regex should be populated", pipeline.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(trackingTool.errors().firstError()).isEqualTo("Regex should be populated");
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnArtifactPlans() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnArtifactPlans() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
@@ -383,22 +378,22 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(buildArtifactConfig.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(buildArtifactConfig.errors().firstError()).isEqualTo("Job 'job' has an artifact with an empty source");
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTimer() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTimer() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         TimerConfig timer = new TimerConfig(null, true);
         pipeline.setTimer(timer);
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(timer.errors().firstError(), is("Timer Spec can not be null."));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(timer.errors().firstError()).isEqualTo("Timer Spec can not be null.");
     }
 
     @Test
@@ -409,9 +404,9 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(stageConfig.getApproval().getAuthConfig().errors().firstError(), is("Role \"non-existent-role\" does not exist."));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(stageConfig.getApproval().getAuthConfig().errors().firstError()).isEqualTo("Role \"non-existent-role\" does not exist.");
     }
 
     @Test
@@ -424,26 +419,26 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(stageConfig.getApproval().errors().firstError(), is("You have defined approval type as 'not-success-or-manual'. Approval can only be of the type 'manual' or 'success'."));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(stageConfig.getApproval().errors().firstError()).isEqualTo("You have defined approval type as 'not-success-or-manual'. Approval can only be of the type 'manual' or 'success'.");
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTabs() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTabs() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
         jobConfig.addTab("", "/foo");
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(jobConfig.getTabs().first().errors().firstError(), is(String.format("Tab name '' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", pipeline.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(jobConfig.getTabs().first().errors().firstError()).isEqualTo("Tab name '' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedFromTemplateHasErrors() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedFromTemplateHasErrors() {
         JobConfigs jobConfigs = new JobConfigs();
         JobConfig job = new JobConfig(new CaseInsensitiveString("Job"));
         job.addTask(new AntTask());
@@ -461,13 +456,13 @@ public class PipelineConfigServiceIntegrationTest {
         pipeline.addMaterialConfig(material);
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(material.errors().firstError(), is(String.format("Pipeline with name 'Invalid-pipeline' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)", pipeline.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(material.errors().firstError()).isEqualTo("Pipeline with name 'Invalid-pipeline' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)");
     }
 
     @Test
-    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingUpdatedHasErrors() throws GitAPIException {
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingUpdatedHasErrors() {
         ExecTask execTask = new ExecTask("ls", "-al", "#{foo}");
         FetchTask fetchTask = new FetchTask(pipelineConfig.name(), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "srcfile", "/usr/dest");
         JobConfig job = new JobConfig("default-job");
@@ -482,10 +477,10 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
         String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipelineConfig.name());
-        assertThat(fetchTask.errors().on("dest"), is(expectedError));
+        assertThat(fetchTask.errors().on("dest")).isEqualTo(expectedError);
     }
 
     @Test
@@ -499,14 +494,14 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
-        assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(goConfigDao.loadConfigHolder()).isNotEqualTo(goConfigHolderBeforeUpdate);
         StageConfig newlyAddedStage = goConfigDao.loadForEditing().getPipelineConfigByName(pipelineConfig.name()).getStage(new CaseInsensitiveString("additional_stage"));
-        assertThat(newlyAddedStage, is(not(nullValue())));
-        assertThat(newlyAddedStage.getJobs().isEmpty(), is(false));
-        assertThat(newlyAddedStage.getJobs().first().name().toString(), is("addtn_job"));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(not(headCommitBeforeUpdate)));
-        assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
+        assertThat(newlyAddedStage).isNotNull();
+        assertThat(newlyAddedStage.getJobs().isEmpty()).isEqualTo(false);
+        assertThat(newlyAddedStage.getJobs().first().name().toString()).isEqualTo("addtn_job");
+        assertThat(configRepository.getCurrentRevCommit().name()).isNotEqualTo(headCommitBeforeUpdate);
+        assertThat(configRepository.getCurrentRevision().getUsername()).isEqualTo(user.getDisplayName());
     }
 
     @Test
@@ -517,12 +512,12 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.setLabelTemplate("LABEL");
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), contains("Invalid label"));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
-        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE)).contains("Invalid label");
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
+        assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
+        assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
     }
 
     @Test
@@ -536,11 +531,11 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.setTemplateName(templateName);
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.toString(), result.toString().contains("Parameter 'SOME_PARAM' is not defined"), is(true));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
-        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.toString().contains("Parameter 'SOME_PARAM' is not defined")).isTrue();
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
+        assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
+        assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
     }
 
     @Test
@@ -555,12 +550,12 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.addStageWithoutValidityAssertion(StageConfigMother.stageConfig("local-stage"));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(pipelineConfig.errors().on("stages"), is(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName)));
-        assertThat(pipelineConfig.errors().on("template"), is(String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", templateName, pipelineConfig.name())));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
-        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(pipelineConfig.errors().on("stages")).isEqualTo(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName));
+        assertThat(pipelineConfig.errors().on("template")).isEqualTo(String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", templateName, pipelineConfig.name()));
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
+        assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
+        assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
     }
 
     @Test
@@ -571,12 +566,12 @@ public class PipelineConfigServiceIntegrationTest {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
         pipelineConfigService.updatePipelineConfig(new Username(new CaseInsensitiveString("unauthorized_user")), pipelineConfig, groupName, null, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.toString(), result.httpCode(), is(403));
-        assertThat(result.toString(), result.message().equals("User 'unauthorized_user' does not have permission to edit pipeline with name '" + pipelineConfig.name() + "'"), is(true));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolderBeforeUpdate.configForEdit));
-        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolderBeforeUpdate.config));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(result.message().equals("User 'unauthorized_user' does not have permission to edit pipeline with name '" + pipelineConfig.name() + "'")).isTrue();
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
+        assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolderBeforeUpdate.configForEdit);
+        assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolderBeforeUpdate.config);
     }
 
     @Test
@@ -590,12 +585,12 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.materialConfigs().add(scmMaterialConfig);
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when a pipeline has multiple SCM materials."));
-        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scmid]."));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
-        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER)).isEqualTo("Destination directory is required when a pipeline has multiple SCM materials.");
+        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID)).isEqualTo("Could not find plugin for scm-id: [scmid].");
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
+        assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
+        assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
     }
 
     @Test
@@ -608,49 +603,49 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.materialConfigs().add(packageMaterialConfig);
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name()));
 
-        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find repository for given package id:[packageid]"));
-        assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
-        assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
+        assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID)).isEqualTo("Could not find repository for given package id:[packageid]");
+        assertThat(configRepository.getCurrentRevCommit().name()).isEqualTo(headCommitBeforeUpdate);
+        assertThat(goConfigDao.loadConfigHolder().configForEdit).isEqualTo(goConfigHolder.configForEdit);
+        assertThat(goConfigDao.loadConfigHolder().config).isEqualTo(goConfigHolder.config);
     }
 
     @Test
-    public void shouldDeletePipelineConfig() throws Exception {
+    public void shouldDeletePipelineConfig() {
         PipelineConfig pipeline = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "stage");
         goConfigService.addPipeline(pipeline, "default");
-        assertTrue(goConfigService.hasPipelineNamed(pipeline.name()));
+        assertThat(goConfigService.hasPipelineNamed(pipeline.name())).isTrue();
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         pipelineConfigService.deletePipelineConfig(user, pipeline, result);
 
-        assertTrue(result.isSuccessful());
+        assertThat(result.isSuccessful()).isTrue();
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
-        assertThat(pipelineCountBefore - pipelineCountAfter, is(1));
-        assertFalse(goConfigService.hasPipelineNamed(pipeline.name()));
+        assertThat(pipelineCountBefore - pipelineCountAfter).isEqualTo(1);
+        assertThat(goConfigService.hasPipelineNamed(pipeline.name())).isFalse();
     }
 
     @Test
-    public void shouldNotDeleteThePipelineForUnauthorizedUsers() throws Exception {
+    public void shouldNotDeleteThePipelineForUnauthorizedUsers() {
         goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
-        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name())).isTrue();
 
         CaseInsensitiveString userName = new CaseInsensitiveString("unauthorized-user");
         pipelineConfigService.deletePipelineConfig(new Username(userName), pipelineConfig, result);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result.message(), is(EntityType.Pipeline.forbiddenToDelete(pipelineConfig.name(), userName)));
-        assertThat(result.httpCode(), is(403));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(EntityType.Pipeline.forbiddenToDelete(pipelineConfig.name(), userName));
+        assertThat(result.httpCode()).isEqualTo(403);
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
-        assertThat(pipelineCountAfter, is(pipelineCountBefore));
-        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+        assertThat(pipelineCountAfter).isEqualTo(pipelineCountBefore);
+        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name())).isTrue();
     }
 
     @Test
-    public void shouldNotDeletePipelineConfigWhenItIsUsedInAnEnvironment() throws Exception {
+    public void shouldNotDeletePipelineConfigWhenItIsUsedInAnEnvironment() {
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("Dev"));
         PipelineConfig pipeline = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "stage");
         goConfigService.addPipeline(pipeline, "default");
@@ -658,34 +653,34 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.addEnvironment(env);
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
-        assertTrue(goConfigService.hasPipelineNamed(pipeline.name()));
+        assertThat(goConfigService.hasPipelineNamed(pipeline.name())).isTrue();
 
         pipelineConfigService.deletePipelineConfig(user, pipeline, result);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result.message(), is("Cannot delete pipeline '" + pipeline.name() + "' as it is present in environment '" + env.name() + "'."));
-        assertThat(result.httpCode(), is(422));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("Cannot delete pipeline '" + pipeline.name() + "' as it is present in environment '" + env.name() + "'.");
+        assertThat(result.httpCode()).isEqualTo(422);
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
-        assertThat(pipelineCountAfter, is(pipelineCountBefore));
-        assertTrue(goConfigService.hasPipelineNamed(pipeline.name()));
+        assertThat(pipelineCountAfter).isEqualTo(pipelineCountBefore);
+        assertThat(goConfigService.hasPipelineNamed(pipeline.name())).isTrue();
     }
 
     @Test
-    public void shouldNotDeletePipelineConfigWhenItHasDownstreamDependencies() throws Exception {
+    public void shouldNotDeletePipelineConfigWhenItHasDownstreamDependencies() {
         PipelineConfig dependency = GoConfigMother.createPipelineConfigWithMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         goConfigService.addPipeline(dependency, groupName);
 
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
-        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name())).isTrue();
 
         pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result.message(), is("Cannot delete pipeline '" + pipelineConfig.name() + "' as pipeline '" + dependency.name() + " (" + dependency.getOriginDisplayName() + ")' depends on it"));
-        assertThat(result.httpCode(), is(422));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("Cannot delete pipeline '" + pipelineConfig.name() + "' as pipeline '" + dependency.name() + " (" + dependency.getOriginDisplayName() + ")' depends on it");
+        assertThat(result.httpCode()).isEqualTo(422);
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
-        assertThat(pipelineCountAfter, is(pipelineCountBefore));
-        assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
+        assertThat(pipelineCountAfter).isEqualTo(pipelineCountBefore);
+        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name())).isTrue();
     }
 
     @Test
@@ -697,21 +692,18 @@ public class PipelineConfigServiceIntegrationTest {
         PipelineConfig pipelineConfig1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         String digest = entityHashingService.hashForEntity(pipelineConfig1, "group");
         EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<>() {
-            @Override
-            public void onConfigChange(CruiseConfig newCruiseConfig) {
-            }
 
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 listenerInvoked[0] = true;
-                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+                assertThat(pipelineConfig.first()).isEqualTo(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first());
             }
         };
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
         pipelineConfigService.updatePipelineConfig(user, pipeline, "group", digest, new DefaultLocalizedOperationResult());
-        assertThat(listenerInvoked[0], is(true));
+        assertThat(listenerInvoked[0]).isTrue();
     }
 
     @Test
@@ -722,21 +714,18 @@ public class PipelineConfigServiceIntegrationTest {
         setupPipelineWithTemplate(pipelineName, templateName);
 
         EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<>() {
-            @Override
-            public void onConfigChange(CruiseConfig newCruiseConfig) {
-            }
 
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 listenerInvoked[0] = true;
-                assertThat(pipelineConfig.first(), is(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first()));
+                assertThat(pipelineConfig.first()).isEqualTo(goConfigService.cruiseConfig().getTemplateByName(new CaseInsensitiveString(templateName)).first());
             }
         };
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(UUID.randomUUID().toString(), templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
         pipelineConfigService.createPipelineConfig(user, pipeline, new DefaultLocalizedOperationResult(), "group1");
-        assertThat(listenerInvoked[0], is(true));
+        assertThat(listenerInvoked[0]).isTrue();
     }
 
     private void setupPipelineWithTemplate(final String pipelineName, final String templateName) {
@@ -750,262 +739,262 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldValidateMergedConfigForConfigChanges() throws Exception {
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+    public void shouldValidateMergedConfigForConfigChanges() {
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName))).isTrue();
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(pipelineConfig.errors().on("base"), is(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r1)", pipelineConfig.name())));
-        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(pipelineConfig.errors().on("base")).isEqualTo(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r1)", pipelineConfig.name()));
+        assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name()));
     }
 
     @Test
-    public void shouldFallbackToValidPartialsForConfigChanges() throws Exception {
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+    public void shouldFallbackToValidPartialsForConfigChanges() {
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName))).isTrue();
 
         String remoteInvalidPipeline = "remote_invalid_pipeline";
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial(remoteInvalidPipeline, new RepoConfigOrigin(repoConfig1, "repo1_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, invalidPartial);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline))).isEqualTo(false);
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName))).isTrue();
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().getJobs().first().addTask(new ExecTask("executable", new Arguments(new Argument("foo")), "working"));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
-        assertThat(currentConfig.getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
+        assertThat(currentConfig.getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName))).isTrue();
+        assertThat(currentConfig.getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline))).isEqualTo(false);
     }
 
     @Test
-    public void shouldSaveWhenKnownPartialListIsTheSameAsValidPartialsAndValidationPassesForConfigChanges() throws Exception {
+    public void shouldSaveWhenKnownPartialListIsTheSameAsValidPartialsAndValidationPassesForConfigChanges() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = goConfigService.getCurrentConfig().getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
-        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
+        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("key", "value"))));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getVariables().contains(new EnvironmentVariableConfig("key", "value")), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getVariables().contains(new EnvironmentVariableConfig("key", "value"))).isTrue();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
     }
 
     @Test
-    public void shouldNotSaveWhenKnownPartialsListIsTheSameAsValidPartialsAndPipelineValidationFailsForConfigChanges() throws Exception {
+    public void shouldNotSaveWhenKnownPartialsListIsTheSameAsValidPartialsAndPipelineValidationFailsForConfigChanges() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = goConfigService.getCurrentConfig().getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
-        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
+        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name()));
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(cachedGoPartials.lastValidPartials().contains(partialConfig), is(true));
-        assertThat(cachedGoPartials.lastKnownPartials().contains(partialConfig), is(true));
-        assertThat(cachedGoPartials.lastKnownPartials().equals(cachedGoPartials.lastValidPartials()), is(true));
-        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(new CaseInsensitiveString("stage")));
-        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(new CaseInsensitiveString("stage")));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(cachedGoPartials.lastValidPartials().contains(partialConfig)).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().contains(partialConfig)).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().equals(cachedGoPartials.lastValidPartials())).isTrue();
+        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
     }
 
     @Test
-    public void shouldSaveWhenKnownNotEqualsValidPartialsAndPipelineValidationPassesWhenValidPartialsAreMergedToMain() throws Exception {
+    public void shouldSaveWhenKnownNotEqualsValidPartialsAndPipelineValidationPassesWhenValidPartialsAreMergedToMain() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         partialConfig = PartialConfigMother.invalidPartial(remoteDownstreamPipeline.name().toString(), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url at revision repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url at revision repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("key", "value"))));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
         currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getVariables().contains(new EnvironmentVariableConfig("key", "value")), is(true));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getVariables().contains(new EnvironmentVariableConfig("key", "value"))).isTrue();
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
 
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url at revision repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url at revision repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
     }
 
     @Test
-    public void shouldSaveWhenKnownNotEqualsValidPartialsAndPipelineValidationFailsWithValidPartialsButPassesWhenKnownPartialsAreMergedToMain() throws Exception {
+    public void shouldSaveWhenKnownNotEqualsValidPartialsAndPipelineValidationFailsWithValidPartialsButPassesWhenKnownPartialsAreMergedToMain() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
-        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name())));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
         currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(cachedGoPartials.lastValidPartials().contains(partialConfig), is(true));
-        assertThat(cachedGoPartials.lastKnownPartials().contains(partialConfig), is(true));
-        assertThat(cachedGoPartials.lastKnownPartials().equals(cachedGoPartials.lastValidPartials()), is(true));
-        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(upstreamStageRenamed));
-        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(upstreamStageRenamed));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(cachedGoPartials.lastValidPartials().contains(partialConfig)).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().contains(partialConfig)).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().equals(cachedGoPartials.lastValidPartials())).isTrue();
+        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName()).isEqualTo(upstreamStageRenamed);
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name()).isEqualTo(upstreamStageRenamed);
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
     }
 
     @Test
-    public void shouldPerformFullValidationNotJustEntitySpecificIfMergingKnownPartialsAsOtherAspectsOfAKnownPartialMightBeInvalid() throws Exception {
+    public void shouldPerformFullValidationNotJustEntitySpecificIfMergingKnownPartialsAsOtherAspectsOfAKnownPartialMightBeInvalid() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
         String independentRemotePipeline = "independent-pipeline";
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(independentRemotePipeline)), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(independentRemotePipeline))).isTrue();
 
         //introduce an invalid change in the independent partial
         PartialConfig invalidIndependentPartial = PartialConfigMother.invalidPartial(independentRemotePipeline, new RepoConfigOrigin(repoConfig2, "repo2_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig2, invalidIndependentPartial);
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
-        assertThat(((RepoConfigOrigin) goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url2 at revision repo2_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo2_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo2_r2");
+        assertThat(((RepoConfigOrigin) goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision()).isEqualTo("repo2_r1");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1))).isEmpty();
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url2 at revision repo2_r2");
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
-        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name())));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url2 at revision repo2_r2"));
+        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url2 at revision repo2_r2");
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. " +
                 "Error(s): [Merged update operation failed on VALID 2 partials. Falling back to using LAST KNOWN 2 partials. " +
                 "Exception message was: [Validation failed. Stage with name 'stage' does not exist on pipeline '%s', " +
                 "it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r1)]" +
                 System.lineSeparator() +
                 "Merged config update operation failed using fallback LAST KNOWN 2 partials. " +
                 "Exception message was: Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods " +
-                "(however, it cannot start with a period). The maximum allowed length is 255 characters.\n]. Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name())));
-        assertThat(ErrorCollector.getAllErrors(pipelineConfig).isEmpty(), is(true));
+                "(however, it cannot start with a period). The maximum allowed length is 255 characters.\n]. Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name()));
+        assertThat(ErrorCollector.getAllErrors(pipelineConfig)).isEmpty();
         currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(cachedGoPartials.lastKnownPartials().equals(cachedGoPartials.lastValidPartials()), is(false));
-        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(new CaseInsensitiveString("stage")));
-        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(new CaseInsensitiveString("stage")));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name())));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url2 at revision repo2_r2"));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(cachedGoPartials.lastKnownPartials().equals(cachedGoPartials.lastValidPartials())).isEqualTo(false);
+        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision()).isEqualTo("repo2_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo2_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo2_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.\n- For Config Repo: url2 at revision repo2_r2");
     }
 
     @Test
-    public void shouldNotSaveWhenKnownNotEqualsValidPartialsAndPipelineValidationFailsWithValidPartialsAsWellAsKnownPartialsMergedToMain() throws Exception {
+    public void shouldNotSaveWhenKnownNotEqualsValidPartialsAndPipelineValidationFailsWithValidPartialsAsWellAsKnownPartialsMergedToMain() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
         partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
-        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name())));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
+        assertThat(result.isSuccessful()).isEqualTo(false);
+        assertThat(result.message()).isEqualTo(String.format("Validations failed for pipeline '%s'. " +
                 "Error(s): [Merged update operation failed on VALID 2 partials. Falling back to using LAST KNOWN 2 partials. " +
                 "Exception message was: [Validation failed. Stage with name 'stage' does not exist on pipeline '%s', " +
                 "it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r1)]" +
@@ -1013,40 +1002,40 @@ public class PipelineConfigServiceIntegrationTest {
                 "Merged config update operation failed using fallback LAST KNOWN 2 partials. " +
                 "Exception message was: Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline " +
                 "'%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n]. " +
-                "Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name(), pipelineConfig.name())));
+                "Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name(), pipelineConfig.name()));
         currentConfig = goConfigService.getCurrentConfig();
-        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(new CaseInsensitiveString("stage")));
-        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(new CaseInsensitiveString("stage")));
-        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name())));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+        assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name()).isEqualTo(new CaseInsensitiveString("stage"));
+        assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin()).getRevision()).isEqualTo("repo1_r1");
+        assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getRevision()).isEqualTo("repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at revision repo1_r2)\n- For Config Repo: url at revision repo1_r2", pipelineConfig.name()));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2))).isEmpty();
     }
 
     @Test
     public void shouldUpdateMergedConfigForEditUponSaveOfEntitiesDefinedInMainXmlUsingAPIs() {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
-        assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName), is(not(nullValue())));
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(false));
-        assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName)).isNotNull();
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isEqualTo(false);
+        assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(List.of(new EnvironmentVariableConfig("key", "value"))));
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName), is(not(nullValue())));
-        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
-        assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(false));
-        assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName)).isNotNull();
+        assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isEqualTo(false);
+        assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name())).isTrue();
     }
 
     @Test
@@ -1056,14 +1045,14 @@ public class PipelineConfigServiceIntegrationTest {
         jobConfig.addTask(new AntTask());
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(jobConfig)));
 
-        assertFalse(goConfigService.groups().hasGroup("updated_group"));
+        assertThat(goConfigService.groups().hasGroup("updated_group")).isFalse();
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "updated_group", digest, result);
 
-        assertThat(result.toString(), result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
 
-        assertTrue(goConfigService.groups().hasGroup("updated_group"));
-        assertThat(goConfigService.findGroupNameByPipeline(pipelineConfig.name()), is("updated_group"));
+        assertThat(goConfigService.groups().hasGroup("updated_group")).isTrue();
+        assertThat(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).isEqualTo("updated_group");
     }
 
     @Test
@@ -1075,8 +1064,8 @@ public class PipelineConfigServiceIntegrationTest {
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "invalid-name!@$", digest, result);
 
-        assertThat(result.httpCode(), is(500));
-        assertThat(result.message(), is("Save failed. failed to save : Name is invalid. \"invalid-name!@$\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));
+        assertThat(result.httpCode()).isEqualTo(500);
+        assertThat(result.message()).isEqualTo("Save failed. failed to save : Name is invalid. \"invalid-name!@$\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
     }
 
     private void saveTemplateWithParamToConfig(CaseInsensitiveString templateName) throws Exception {
@@ -1104,6 +1093,7 @@ public class PipelineConfigServiceIntegrationTest {
         new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, buffer, false);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private ConfigRepoConfig createConfigRepoWithDefaultRules(GitMaterialConfig materialConfig, String plugin, String id) {
         ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, plugin, id);
         config.getRules().add(new Allow("refer", "*", "*"));

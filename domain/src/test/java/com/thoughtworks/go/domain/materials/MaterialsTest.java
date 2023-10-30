@@ -252,7 +252,7 @@ public class MaterialsTest {
 
         materials.cleanUp(temporaryFolder.toFile(), mock(ConsoleOutputStreamConsumer.class));
 
-        assertThat(junkFolder.exists()).isFalse();
+        assertThat(junkFolder).doesNotExist();
     }
 
     @Test
@@ -264,7 +264,7 @@ public class MaterialsTest {
 
         materials.cleanUp(temporaryFolder.toFile(), mock(ConsoleOutputStreamConsumer.class));
 
-        assertThat(junkFolder.exists()).isTrue();
+        assertThat(junkFolder).exists();
     }
 
 }

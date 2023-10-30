@@ -107,9 +107,9 @@ class AgentViewModelTest {
         private void isSortedByUsableSpace(AgentsViewModel list) {
             for (int i = 0; i < list.size() - 1; i++) {
                 DiskSpace first = list.get(i).freeDiskSpace();
-                Long firstSpace = (Long) ReflectionUtil.getField(first, "space");
+                Long firstSpace = ReflectionUtil.getField(first, "space");
                 DiskSpace second = list.get(i + 1).freeDiskSpace();
-                Long secondSpace = (Long) ReflectionUtil.getField(second, "space");
+                Long secondSpace = ReflectionUtil.getField(second, "space");
                 if (firstSpace > secondSpace) {
                     throw new RuntimeException("The list is not sorted!");
                 }

@@ -698,7 +698,7 @@ public class AgentServiceIntegrationTest {
 
             AgentService agentService = new AgentService(new SystemEnvironment(), agentDao, new UuidGenerator(),
                     serverHealthService, agentStatusChangeNotifier());
-            AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
+            AgentInstances agentInstances = ReflectionUtil.getField(agentService, "agentInstances");
             agentInstances.add(instance);
 
             AgentInstances agents = agentService.findRegisteredAgents();
@@ -718,7 +718,7 @@ public class AgentServiceIntegrationTest {
 
             EmailSender mailSender = mock(EmailSender.class);
             AgentService agentService = new AgentService(new SystemEnvironment(), agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier());
-            AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
+            AgentInstances agentInstances = ReflectionUtil.getField(agentService, "agentInstances");
             agentInstances.add(idleAgentInstance);
 
             AgentInstances agents = agentService.findRegisteredAgents();

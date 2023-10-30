@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.presentation.pipelinehistory;
 
-import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.PipelineIdentifier;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 
 public class EmptyPipelineInstanceModelTest {
@@ -49,6 +49,6 @@ public class EmptyPipelineInstanceModelTest {
 
     @Test
     public void shouldHaveNegetivePipelineId() {
-        assertThat(instanceModel.getId(), is(-1l));
+        assertThat(instanceModel.getId(), is(-1L));
     }
 }

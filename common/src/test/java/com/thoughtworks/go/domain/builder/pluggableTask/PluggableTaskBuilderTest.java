@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.task.*;
-import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -113,8 +112,7 @@ public class PluggableTaskBuilderTest {
             }
 
             @Override
-            protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher,
-                                                            EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
+            protected TaskExecutionContext buildTaskContext(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, Charset consoleLogCharset) {
                 return taskExecutionContext;
             }
         };
@@ -129,7 +127,7 @@ public class PluggableTaskBuilderTest {
         verify(task).executor();
         verify(taskExecutor).execute(executorTaskConfig, taskExecutionContext);
 
-        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNotNull();
+        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNotNull();
     }
 
     @Test
@@ -271,10 +269,10 @@ public class PluggableTaskBuilderTest {
     public void shouldRegisterTaskConfigDuringExecutionAndUnregisterOnSuccessfulCompletion() {
         final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
         taskExtension = mock(TaskExtension.class);
-        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
+        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any())).thenReturn(ExecutionResult.success("yay"));
 
         builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8);
-        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 
     @Test
@@ -282,11 +280,11 @@ public class PluggableTaskBuilderTest {
         final PluggableTaskBuilder builder = spy(new PluggableTaskBuilder(runIfConfigs, cancelBuilder, pluggableTask, "", ""));
 
         taskExtension = mock(TaskExtension.class);
-        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
+        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any())).thenReturn(ExecutionResult.failure("oh no"));
 
         assertThatThrownBy(() -> builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
             .hasMessage("oh no");
-        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 
     @Test
@@ -295,9 +293,9 @@ public class PluggableTaskBuilderTest {
 
         taskExtension = mock(TaskExtension.class);
 
-        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
+        when(taskExtension.execute(eq(TEST_PLUGIN_ID), any())).thenThrow(new RuntimeException("something"));
         assertThatThrownBy(() -> builder.build(goPublisher, variableContext, taskExtension, null, null, UTF_8))
             .hasMessage("something");
-        assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
+        assertThat((TaskExecutionContext) ReflectionUtil.getStaticField(JobConsoleLogger.class, "context")).isNull();
     }
 }

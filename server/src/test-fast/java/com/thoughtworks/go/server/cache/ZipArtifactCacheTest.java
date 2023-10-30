@@ -20,24 +20,21 @@ import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.web.ArtifactFolder;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
-import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ZipArtifactCacheTest {
-    private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier("pipeline-name", "label-111", "stage-name", 1, "job-name", 666L);
+    private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier("pipeline-name", 1, "label-111", "stage-name", "1", "job-name", 666L);
     private static final String JOB_FOLDERS = "pipelines/pipeline-name/label-111/stage-name/1/job-name/666";
 
     private ZipArtifactCache zipArtifactCache;
@@ -63,21 +60,22 @@ public class ZipArtifactCacheTest {
     public void shouldKnowWhenCacheAlreadyCreated() throws Exception {
         zipArtifactCache.createCachedFile(artifactFolder);
 
-        assertThat(zipArtifactCache, cacheCreated(artifactFolder));
-        assertThat(zipArtifactCache.cachedFile(artifactFolder).getName(), is("dir.zip"));
+        assertThat(zipArtifactCache)
+            .satisfies(cache -> assertThat(cache.cacheCreated(artifactFolder)).isTrue())
+            .satisfies(cache -> assertThat(cache.cachedFile(artifactFolder).getName()).isEqualTo("dir.zip"));
     }
 
     @Test
     public void shouldCreateCacheWhenNotYetCreated() throws Exception {
         waitForCacheCreated();
-        assertThat(zipArtifactCache, cacheCreated(artifactFolder));
-        File zipFile = zipArtifactCache.cachedFile(artifactFolder);
-        assertThat(zipFile.getAbsolutePath().replaceAll("\\\\", "/"), endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
+        assertThat(zipArtifactCache)
+            .satisfies(cache -> assertThat(cache.cacheCreated(artifactFolder)).isTrue())
+            .satisfies(cache -> assertThat(cache.cachedFile(artifactFolder).getAbsolutePath().replaceAll("\\\\", "/")).endsWith("cache/artifacts/" + JOB_FOLDERS + "/dir.zip"));
     }
 
     @Test
     public void shouldOnlyCreateCacheOnce() throws Exception {
-        ArrayList<FileCheckerThread> threads = new ArrayList<>();
+        List<FileCheckerThread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             threads.add(new FileCheckerThread());
         }
@@ -92,8 +90,8 @@ public class ZipArtifactCacheTest {
         }
 
         for (FileCheckerThread thread : threads) {
-            assertThat(thread.isDone(), is(true));
-            assertThat(thread.artifact.replaceAll("\\\\", "/"), endsWith(JOB_FOLDERS + "/dir.zip"));
+            assertThat(thread.isDone()).isTrue();
+            assertThat(thread.artifact.replaceAll("\\\\", "/")).endsWith(JOB_FOLDERS + "/dir.zip");
         }
     }
 
@@ -104,9 +102,9 @@ public class ZipArtifactCacheTest {
         TestFileUtil.createTestFile(cacheDir, "dir.zip.tmp");
 
         waitForCacheCreated();
-        assertThat(new File(cacheDir, "dir.zip.tmp"), not(exists()));
+        assertThat(new File(cacheDir, "dir.zip.tmp")).doesNotExist();
         new ZipUtil().unzip(new File(cacheDir, "dir.zip"), cacheDir);
-        assertThat(new File(cacheDir, "dir/file1"), exists());
+        assertThat(new File(cacheDir, "dir/file1")).exists();
     }
 
     private void waitForCacheCreated() throws Exception {
@@ -135,27 +133,8 @@ public class ZipArtifactCacheTest {
                 }
                 artifact = zipArtifactCache.cachedFile(artifactFolder).getAbsolutePath();
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    private TypeSafeMatcher<ZipArtifactCache> cacheCreated(final ArtifactFolder artifactFolder) {
-        return new TypeSafeMatcher<>() {
-            @Override
-            public boolean matchesSafely(ZipArtifactCache item) {
-                try {
-                    return item.cacheCreated(artifactFolder);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("cacheCreated from " + artifactFolder);
-            }
-        };
     }
 }

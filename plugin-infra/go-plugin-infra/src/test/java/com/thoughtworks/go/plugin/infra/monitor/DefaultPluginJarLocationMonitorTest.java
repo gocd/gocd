@@ -76,7 +76,7 @@ class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocati
     void shouldCreatePluginDirectoryIfItDoesNotExist() {
         bundledPluginDir.delete();
         new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
-        assertThat(bundledPluginDir.exists()).isTrue();
+        assertThat(bundledPluginDir).exists();
     }
 
     @Test

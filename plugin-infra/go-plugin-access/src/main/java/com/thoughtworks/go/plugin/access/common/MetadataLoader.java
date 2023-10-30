@@ -35,7 +35,7 @@ public abstract class MetadataLoader<T extends PluginInfo> implements PluginChan
 
     @Override
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
-        if(extension.canHandlePlugin(pluginDescriptor.id())) {
+        if (extension.canHandlePlugin(pluginDescriptor.id())) {
             metadataStore.setPluginInfo(builder.pluginInfoFor(pluginDescriptor));
         }
     }

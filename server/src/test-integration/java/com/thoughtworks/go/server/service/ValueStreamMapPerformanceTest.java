@@ -138,7 +138,7 @@ public class ValueStreamMapPerformanceTest {
         DefaultLocalizedOperationResult result = new DefaultLocalizedOperationResult();
         ValueStreamMapPresentationModel presentationModel = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("current"), 1, Username.ANONYMOUS, result);
         long timeTaken = (System.currentTimeMillis() - start) / 1000;
-        assertThat(String.format("VSM took %ds. Should have been generated in 30s.", timeTaken), timeTaken, Matchers.lessThan(30l));
+        assertThat(String.format("VSM took %ds. Should have been generated in 30s.", timeTaken), timeTaken, Matchers.lessThan(30L));
 
         assertThat(result.isSuccessful(), is(true));
         assertThat(presentationModel.getNodesAtEachLevel().size(), is(14));

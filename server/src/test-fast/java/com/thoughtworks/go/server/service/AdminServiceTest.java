@@ -23,15 +23,14 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AdminServiceTest {
     private GoConfigService goConfigService;
     private AdminService adminService;
-    private String fileLocation = "file location";
 
     @BeforeEach
     public void setup() throws Exception {
@@ -41,11 +40,12 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void shouldGenerateConfigurationJson() throws Exception {
+    public void shouldGenerateConfigurationJson() {
         GoConfigService.XmlPartialSaver fileSaver = mock(GoConfigService.XmlPartialSaver.class);
         when(fileSaver.asXml()).thenReturn("xml content");
         when(fileSaver.getMd5()).thenReturn("md5 value");
         when(goConfigService.fileSaver(false)).thenReturn(fileSaver);
+        String fileLocation = "file location";
         when(goConfigService.fileLocation()).thenReturn(fileLocation);
 
         final Map<String, Object> json = adminService.configurationJsonForSourceXml();
@@ -57,8 +57,8 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void shouldUpdateConfig() throws Exception {
-        HashMap attributes = new HashMap();
+    public void shouldUpdateConfig() {
+        Map<String, String>attributes = new HashMap<>();
         String content = "config_xml";
         attributes.put("content", content);
         String md5 = "config_md5";
@@ -77,8 +77,8 @@ public class AdminServiceTest {
 
 
     @Test
-    public void shouldReturnInvalidIfConfigIsNotSaved() throws Exception {
-        HashMap attributes = new HashMap();
+    public void shouldReturnInvalidIfConfigIsNotSaved() {
+        Map<String, String>attributes = new HashMap<>();
         String content = "invalid_config_xml";
         attributes.put("content", content);
         String md5 = "config_md5";

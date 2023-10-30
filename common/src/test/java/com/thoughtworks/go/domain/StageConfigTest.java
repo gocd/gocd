@@ -26,12 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class StageConfigTest {
@@ -42,21 +37,21 @@ public class StageConfigTest {
         config.setConfigAttributes(Map.of(StageConfig.NAME, "foo_bar"));
         config.setConfigAttributes(Map.of(StageConfig.FETCH_MATERIALS, "0"));
         config.setConfigAttributes(Map.of(StageConfig.CLEAN_WORKING_DIR, "1"));
-        assertThat(config.name(), is(new CaseInsensitiveString("foo_bar")));
-        assertThat(config.isFetchMaterials(), is(false));
-        assertThat(config.isCleanWorkingDir(), is(true));
+        assertThat(config.name()).isEqualTo(new CaseInsensitiveString("foo_bar"));
+        assertThat(config.isFetchMaterials()).isFalse();
+        assertThat(config.isCleanWorkingDir()).isTrue();
     }
 
     @Test
     public void shouldSetArtifactCleanupOptOutAttribute() {
         StageConfig config = new StageConfig();
-        assertThat(config.isArtifactCleanupProhibited(), is(false));
+        assertThat(config.isArtifactCleanupProhibited()).isFalse();
         config.setConfigAttributes(Map.of(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "1"));
-        assertThat(config.isArtifactCleanupProhibited(), is(true));
+        assertThat(config.isArtifactCleanupProhibited()).isTrue();
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.isArtifactCleanupProhibited(), is(true));
+        assertThat(config.isArtifactCleanupProhibited()).isTrue();
         config.setConfigAttributes(Map.of(StageConfig.ARTIFACT_CLEANUP_PROHIBITED, "0"));
-        assertThat(config.isArtifactCleanupProhibited(), is(false));
+        assertThat(config.isArtifactCleanupProhibited()).isFalse();
     }
 
     @Test
@@ -78,7 +73,7 @@ public class StageConfigTest {
 
         config.setConfigAttributes(map);
 
-        assertThat(config.getApproval().getAuthConfig().isEmpty(), is(true));
+        assertThat(config.getApproval().getAuthConfig().isEmpty()).isTrue();
     }
 
     @Test
@@ -95,9 +90,9 @@ public class StageConfigTest {
 
         config.setConfigAttributes(map);
 
-        assertThat(config.getOperateUsers().size(), is(2));
-        assertThat(config.getOperateUsers(), hasItem(new AdminUser(new CaseInsensitiveString("user1"))));
-        assertThat(config.getOperateUsers(), hasItem(new AdminUser(new CaseInsensitiveString("user2"))));
+        assertThat(config.getOperateUsers()).hasSize(2);
+        assertThat(config.getOperateUsers()).contains(new AdminUser(new CaseInsensitiveString("user1")));
+        assertThat(config.getOperateUsers()).contains(new AdminUser(new CaseInsensitiveString("user2")));
     }
 
     @Test
@@ -114,9 +109,9 @@ public class StageConfigTest {
 
         config.setConfigAttributes(map);
 
-        assertThat(config.getOperateRoles().size(), is(2));
-        assertThat(config.getOperateRoles(), hasItem(new AdminRole(new CaseInsensitiveString("role1"))));
-        assertThat(config.getOperateRoles(), hasItem(new AdminRole(new CaseInsensitiveString("role2"))));
+        assertThat(config.getOperateRoles().size()).isEqualTo(2);
+        assertThat(config.getOperateRoles()).contains(new AdminRole(new CaseInsensitiveString("role1")));
+        assertThat(config.getOperateRoles()).contains(new AdminRole(new CaseInsensitiveString("role2")));
     }
 
     private Map<String, String> nameMap(final String name) {
@@ -143,14 +138,14 @@ public class StageConfigTest {
     public void shouldSetApprovalFromConfigAttrs() {
         StageConfig config = new StageConfig();
         config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.MANUAL)));
-        assertThat(config.getApproval().getType(), is(Approval.MANUAL));
+        assertThat(config.getApproval().getType()).isEqualTo(Approval.MANUAL);
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.getApproval().getType(), is(Approval.MANUAL));
+        assertThat(config.getApproval().getType()).isEqualTo(Approval.MANUAL);
 
         config.setConfigAttributes(Map.of(StageConfig.APPROVAL, Map.of(Approval.TYPE, Approval.SUCCESS)));
-        assertThat(config.getApproval().getType(), is(Approval.SUCCESS));
+        assertThat(config.getApproval().getType()).isEqualTo(Approval.SUCCESS);
         config.setConfigAttributes(new HashMap<>());
-        assertThat(config.getApproval().getType(), is(Approval.SUCCESS));
+        assertThat(config.getApproval().getType()).isEqualTo(Approval.SUCCESS);
     }
 
     @Test
@@ -158,8 +153,8 @@ public class StageConfigTest {
         StageConfig config = new StageConfig();
         Map<String, List<Map<String, String>>> stageAttrs = Map.of(StageConfig.JOBS, List.of(Map.of(JobConfig.NAME, "con-job"), Map.of(JobConfig.NAME, "boring-job")));
         config.setConfigAttributes(stageAttrs);
-        assertThat(config.getJobs().get(0).name(), is(new CaseInsensitiveString("con-job")));
-        assertThat(config.getJobs().get(1).name(), is(new CaseInsensitiveString("boring-job")));
+        assertThat(config.getJobs().get(0).name()).isEqualTo(new CaseInsensitiveString("con-job"));
+        assertThat(config.getJobs().get(1).name()).isEqualTo(new CaseInsensitiveString("boring-job"));
     }
 
     @Test
@@ -173,7 +168,7 @@ public class StageConfigTest {
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-name"), jobs);
 
         JobConfig found = stage.jobConfigByInstanceName("job-for-all-agents-" + RunOnAllAgentsJobTypeConfig.MARKER + "-1", true);
-        assertThat(found, is(allAgentsJob));
+        assertThat(found).isEqualTo(allAgentsJob);
     }
 
     @Test
@@ -190,7 +185,7 @@ public class StageConfigTest {
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stage-name"), jobs);
 
         JobConfig found = stage.jobConfigByInstanceName(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("job-for-all-agents", 1), true);
-        assertThat(found, is(allAgentsJob));
+        assertThat(found).isEqualTo(allAgentsJob);
     }
 
     @Test
@@ -198,8 +193,8 @@ public class StageConfigTest {
         StageConfig stageWithTests = StageConfigMother.stageConfigWithArtifact("stage1", "job1", ArtifactType.test);
 
         StageConfig stageWithoutTests = StageConfigMother.stageConfigWithArtifact("stage2", "job2", ArtifactType.build);
-        assertThat(stageWithTests.hasTests(), is(true));
-        assertThat(stageWithoutTests.hasTests(), is(false));
+        assertThat(stageWithTests.hasTests()).isTrue();
+        assertThat(stageWithoutTests.hasTests()).isFalse();
     }
 
     @Test
@@ -217,15 +212,15 @@ public class StageConfigTest {
         stageConfig.getJobs().addJobWithoutValidityAssertion(new JobConfig(new CaseInsensitiveString("con-job"), new ResourceConfigs(), new ArtifactTypeConfigs(), new Tasks(new ExecTask("ls", "-la", "foo"))));
 
         List<ConfigErrors> allErrors = config.validateAfterPreprocess();
-        assertThat(allErrors.size(), is(4));
-        assertThat(allErrors.get(0).on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
-        assertThat(allErrors.get(1).on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
-        assertThat(allErrors.get(2).on(StageConfig.NAME), is("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
-        assertThat(allErrors.get(3).on(JobConfig.NAME), is("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters."));
-        assertThat(stageConfig.getJobs().get(0).errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
-        assertThat(stageConfig.getJobs().get(1).errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
-        assertThat(newlyAddedStage.errors().on(StageConfig.NAME), is("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
-        assertThat(newJob.errors().on(JobConfig.NAME), is("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters."));
+        assertThat(allErrors).hasSize(4);
+        assertThat(allErrors.get(0).on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(allErrors.get(1).on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(allErrors.get(2).on(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(allErrors.get(3).on(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
+        assertThat(stageConfig.getJobs().get(0).errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(stageConfig.getJobs().get(1).errors().on(JobConfig.NAME)).isEqualTo("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique.");
+        assertThat(newlyAddedStage.errors().on(StageConfig.NAME)).isEqualTo("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(newJob.errors().on(JobConfig.NAME)).isEqualTo("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters.");
     }
 
     @Test
@@ -234,21 +229,21 @@ public class StageConfigTest {
         StageConfigMother.addApprovalWithUsers(stage, "user1", "user2");
         StageConfigMother.addApprovalWithRoles(stage, "role1", "role2");
 
-        assertThat(stage.getOperateUsers(), is(List.of(new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))));
-        assertThat(stage.getOperateRoles(), is(List.of(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")))));
+        assertThat(stage.getOperateUsers()).isEqualTo(List.of(new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2"))));
+        assertThat(stage.getOperateRoles()).isEqualTo(List.of(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2"))));
     }
 
     @Test
     public void shouldFailValidationWhenNameIsBlank() {
         StageConfig stageConfig = new StageConfig();
         stageConfig.validate(null);
-        assertThat(stageConfig.errors().on(StageConfig.NAME), contains("Invalid stage name 'null'"));
+        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'null'");
         stageConfig.setName(null);
         stageConfig.validate(null);
-        assertThat(stageConfig.errors().on(StageConfig.NAME), contains("Invalid stage name 'null'"));
+        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'null'");
         stageConfig.setName(new CaseInsensitiveString(""));
         stageConfig.validate(null);
-        assertThat(stageConfig.errors().on(StageConfig.NAME), contains("Invalid stage name 'null'"));
+        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'null'");
     }
 
     @Test
@@ -261,11 +256,11 @@ public class StageConfigTest {
 
         stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
 
-        assertThat(stageConfig.errors().on(StageConfig.NAME), contains("Invalid stage name 'stage$'"));
+        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
         ArgumentCaptor<PipelineConfigSaveValidationContext> captor = ArgumentCaptor.forClass(PipelineConfigSaveValidationContext.class);
         verify(jobConfigs).validateTree(captor.capture());
         PipelineConfigSaveValidationContext childContext = captor.getValue();
-        assertThat(childContext.getParent(), is(stageConfig));
+        assertThat(childContext.getParent()).isEqualTo(stageConfig);
         verify(approval).validateTree(childContext);
         verify(variables).validateTree(childContext);
     }
@@ -283,7 +278,7 @@ public class StageConfigTest {
         pipelineConfig.setTemplateName(new CaseInsensitiveString("template"));
         stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig));
 
-        assertThat(stageConfig.errors().on(StageConfig.NAME), contains("Invalid stage name 'stage$'"));
+        assertThat(stageConfig.errors().on(StageConfig.NAME)).contains("Invalid stage name 'stage$'");
     }
 
     @Test
@@ -300,7 +295,7 @@ public class StageConfigTest {
         stageConfig.setApproval(approval);
 
         boolean isValid = stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
-        assertTrue(isValid);
+        assertThat(isValid).isTrue();
 
         verify(jobConfigs).validateTree(any(PipelineConfigSaveValidationContext.class));
         verify(variables).validateTree(any(PipelineConfigSaveValidationContext.class));
@@ -321,7 +316,7 @@ public class StageConfigTest {
         stageConfig.setApproval(approval);
 
         boolean isValid = stageConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), stageConfig));
-        assertFalse(isValid);
+        assertThat(isValid).isFalse();
 
         verify(jobConfigs).validateTree(any(PipelineConfigSaveValidationContext.class));
         verify(variables).validateTree(any(PipelineConfigSaveValidationContext.class));

@@ -16,43 +16,40 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 public class EmailValidatorTest {
 
     @Test
-    public void shouldCheckValidationForEmailAddress() throws Exception {
+    public void shouldCheckValidationForEmailAddress() {
         assertThat(validate("some@here.com"), Matchers.is(ValidationBean.valid()));
     }
 
     @Test
-    public void shouldReturnInvalidForInvalidEmailAddress() throws Exception {
+    public void shouldReturnInvalidForInvalidEmailAddress() {
         assertThat(validate("invalid").isValid(), is(false));
     }
 
     @Test
-    public void shouldExplainThatEmailAddressIsInvalid() throws Exception {
+    public void shouldExplainThatEmailAddressIsInvalid() {
         assertThat(validate("invalid").getError(), containsString(EmailValidator.EMAIL_ERROR_MESSAGE));
     }
 
     @Test
-    public void shouldThrowExceptionWhenEmailIsInvalid() throws Exception {
-        try {
-            Validator.EMAIL.assertValid("dklaf;jds;l");
-            fail("Expected to throw exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString(EmailValidator.EMAIL_ERROR_MESSAGE));
-        }
+    public void shouldThrowExceptionWhenEmailIsInvalid() {
+        assertThatThrownBy(() -> new EmailValidator().assertValid("dklaf;jds;l"))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining(EmailValidator.EMAIL_ERROR_MESSAGE);
     }
 
     private ValidationBean validate(String address) {
-        return Validator.EMAIL.validate(address);
+        return new EmailValidator().validate(address);
     }
 
 }

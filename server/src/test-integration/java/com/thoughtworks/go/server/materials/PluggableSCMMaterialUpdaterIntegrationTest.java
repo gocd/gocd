@@ -163,7 +163,7 @@ public class PluggableSCMMaterialUpdaterIntegrationTest {
     }
 
     private void mockSCMExtensionInPoller() {
-        Map<Class, MaterialPoller> materialPollerMap = (Map<Class, MaterialPoller>) ReflectionUtil.getField(materialService, "materialPollerMap");
+        Map<Class, MaterialPoller> materialPollerMap = ReflectionUtil.getField(materialService, "materialPollerMap");
         materialPollerMap.put(PluggableSCMMaterial.class, new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate));
         ReflectionUtil.setField(materialService, "materialPollerMap", materialPollerMap);
     }

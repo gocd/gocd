@@ -117,7 +117,7 @@ public class SvnMaterialTest {
 
         updateMaterial(svnMaterial, revision, workingCopy);
 
-        assertThat(workingCopy.exists()).isFalse();
+        assertThat(workingCopy).doesNotExist();
         verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
@@ -132,7 +132,7 @@ public class SvnMaterialTest {
         when(subversion.workingRepositoryUrl(workingCopy)).thenReturn("new url");
 
         updateMaterial(svnMaterial, revision, workingCopy);
-        assertThat(workingCopy.exists()).isFalse();
+        assertThat(workingCopy).doesNotExist();
         verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 

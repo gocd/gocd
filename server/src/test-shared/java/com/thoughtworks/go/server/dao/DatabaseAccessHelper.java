@@ -51,7 +51,6 @@ import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -70,52 +69,26 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+@SuppressWarnings("TestOnlyProblems") // Workaround for IntelliJ thinking this place is production rather than test code
 @Component
 public class DatabaseAccessHelper extends HibernateDaoSupport {
-    private IDatabaseTester databaseTester;
-    private StageDao stageDao;
-    private PipelineSqlMapDao pipelineDao;
-    private JobInstanceDao jobInstanceDao;
-    private AgentDao agentDao;
-    private PipelineTimeline pipelineTimeline;
-    private TransactionTemplate transactionTemplate;
-
     public static final String AGENT_UUID = "123456789-123";
-    private DataSource dataSource;
-    private SqlSessionFactory sqlMapClient;
-    private MaterialRepository materialRepository;
-    private GoCache goCache;
-    private PipelineService pipelineService;
-    private String md5 = "md5-test";
-    private InstanceFactory instanceFactory;
-    private JobAgentMetadataDao jobAgentMetadataDao;
+    private static final String MD5 = "md5-test";
+    private final DataSource dataSource;
+    private final SqlSessionFactory sqlMapClient;
+    private final PipelineTimeline pipelineTimeline;
+    private final TransactionTemplate transactionTemplate;
+    private final PipelineService pipelineService;
+    private IDatabaseTester databaseTester;
+    private final StageDao stageDao;
+    private final PipelineSqlMapDao pipelineDao;
+    private final JobInstanceDao jobInstanceDao;
+    private final AgentDao agentDao;
 
-    @Deprecated // Should not be creating a new spring context for every test
-    public DatabaseAccessHelper() throws AmbiguousTableNameException {
-        ClassPathXmlApplicationContext context = createDataContext();
-        dataSource = (DataSource) context.getBean("dataSource");
-        initialize(dataSource);
-    }
-
-    private ClassPathXmlApplicationContext createDataContext() {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath*:WEB-INF/applicationContext-dataLocalAccess.xml");
-        this.stageDao = (StageSqlMapDao) context.getBean("stageDao");
-        this.jobInstanceDao = (JobInstanceDao) context.getBean("buildInstanceDao");
-        this.pipelineDao = (PipelineSqlMapDao) context.getBean("pipelineDao");
-        this.agentDao = (AgentDao) context.getBean("agentDao");
-        this.materialRepository = (MaterialRepository) context.getBean("materialRepository");
-        this.goCache = (GoCache) context.getBean("goCache");
-        this.instanceFactory = (InstanceFactory) context.getBean("instanceFactory");
-        this.jobAgentMetadataDao = (JobAgentMetadataDao) context.getBean("jobAgentMetadataDao");
-        setSessionFactory((SessionFactory) context.getBean("sessionFactory"));
-        return context;
-    }
-
-    @Deprecated //use Autowired version
-    public DatabaseAccessHelper(DataSource dataSource) throws AmbiguousTableNameException {
-        this.dataSource = dataSource;
-        initialize(dataSource);
-    }
+    private final MaterialRepository materialRepository;
+    private final GoCache goCache;
+    private final InstanceFactory instanceFactory;
+    private final JobAgentMetadataDao jobAgentMetadataDao;
 
     @Autowired
     public DatabaseAccessHelper(DataSource dataSource,
@@ -237,21 +210,19 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         final String[] defaultBuildPlanNames = {"functional", "unit"};
         jobConfigNames = jobConfigNames.length == 0 ? defaultBuildPlanNames : jobConfigNames;
         StageConfig stageConfig = StageConfigMother.stageConfig(stageName,
-                BuildPlanMother.withBuildPlans(jobConfigNames));
+            BuildPlanMother.withBuildPlans(jobConfigNames));
         MaterialConfigs materialConfigs = MaterialConfigsMother.multipleMaterialConfigs();
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig);
-        return pipelineConfig;
+        return new PipelineConfig(new CaseInsensitiveString(pipelineName), materialConfigs, stageConfig);
     }
 
     private Pipeline scheduleWithFileChanges(PipelineConfig pipelineConfig) {
         BuildCause buildCause = BuildCause.createWithModifications(modifyOneFile(pipelineConfig), "");
         saveRevs(buildCause.getMaterialRevisions());
         return instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(
-                GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
     }
 
-    @Deprecated // Only actually passes the first stage. Use newPipelineWithAllStagesPassed instead
-    public Pipeline passPipeline(Pipeline pipeline) {
+    public Pipeline passPipelineFirstStageOnly(Pipeline pipeline) {
         for (Stage stage : pipeline.getStages()) {
             passStage(stage);
         }
@@ -266,9 +237,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline newPipelineWithFirstStagePassed(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
-                BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
+            new DefaultSchedulingContext(
+                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
         saveMaterialsWIthPassedStages(pipeline);
         return pipeline;
     }
@@ -281,8 +252,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     public Pipeline newPipelineWithFirstStageFailed(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config, BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()),
                 ModificationsMother.currentRevision()), Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            new DefaultSchedulingContext(
+                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
         savePipelineWithStagesAndMaterials(pipeline);
         failStage(pipeline.getFirstStage());
         return pipeline;
@@ -290,9 +261,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline newPipelineWithFirstStageScheduled(PipelineConfig config) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
-                BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
-                new DefaultSchedulingContext(
-                        GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
+            new DefaultSchedulingContext(
+                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
         savePipelineWithStagesAndMaterials(pipeline);
         return pipeline;
     }
@@ -304,7 +275,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
                 continue;
             }
             Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext(
-                    GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                GoConstants.DEFAULT_APPROVED_BY), MD5, new TimeProvider());
             stageDao.saveWithJobs(pipeline, instance);
             passStage(instance);
         }
@@ -334,7 +305,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Stage scheduleStage(Pipeline pipeline, StageConfig stageConfig, int order) {
-        Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("cruise"), md5, new TimeProvider());
+        Stage instance = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("cruise"), MD5, new TimeProvider());
         return saveStage(pipeline, instance, order);
     }
 
@@ -413,17 +384,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         jobInstanceDao.updateAssignedInfo(jobInstance);
     }
 
-    public void onefailAndOnePassedBuildInstances(Stage instance) {
-        final JobInstance first = instance.getJobInstances().get(0);
-        final JobInstance second = instance.getJobInstances().get(1);
-        first.completing(Failed);
-        second.completing(Failed);
-        first.completed(new Date());
-        second.completed(new Date());
-        jobInstanceDao.updateStateAndResult(first);
-        jobInstanceDao.updateStateAndResult(second);
-    }
-
     public void failJob(Stage stage, JobInstance instance) {
         instance.completing(Failed);
         instance.completed(new Date());
@@ -485,14 +445,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public void execute(String sql, Connection connection) throws SQLException {
-        Statement stmt = null;
-        try {
-            stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
+            //noinspection SqlSourceToSinkFlow
             stmt.execute(sql);
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
     }
 
@@ -513,12 +468,12 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock) {
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy), md5, clock);
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy), MD5, clock);
         return scheduleJobInstancesAndSavePipeline(pipeline);
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock, Map<String, ElasticProfile> profiles, Map<String, ClusterProfile> clusterProfiles) {
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy, new Agents(), profiles, clusterProfiles), md5, clock);
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy, new Agents(), profiles, clusterProfiles), MD5, clock);
         return scheduleJobInstancesAndSavePipeline(pipeline);
     }
 
@@ -526,9 +481,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
         DefaultSchedulingContext defaultSchedulingContext = new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY);
         Stages stages = new Stages();
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, defaultSchedulingContext, md5, new TimeProvider());
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, defaultSchedulingContext, MD5, new TimeProvider());
         for (StageConfig stageConfig : pipelineConfig) {
-            stages.add(instanceFactory.createStageInstance(stageConfig, defaultSchedulingContext, md5, new TimeProvider()));
+            stages.add(instanceFactory.createStageInstance(stageConfig, defaultSchedulingContext, MD5, new TimeProvider()));
         }
         pipeline.setStages(stages);
         return scheduleJobInstancesAndSavePipeline(pipeline);
@@ -566,8 +521,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return revision;
     }
 
-    public void addAgent(Agent agent){
-        if(agent != null){
+    public void addAgent(Agent agent) {
+        if (agent != null) {
             agentDao.saveOrUpdate(agent);
         }
     }
@@ -578,8 +533,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline checkinRevisionsToBuild(ManualBuild build, PipelineConfig pipelineConfig, List<MaterialRevision> revisions) {
         return pipelineService.save(
-                instanceFactory.createPipelineInstance(pipelineConfig, build.onModifications(new MaterialRevisions(revisions), false, null), new DefaultSchedulingContext(), "md5-test",
-                        new TimeProvider()));
+            instanceFactory.createPipelineInstance(pipelineConfig, build.onModifications(new MaterialRevisions(revisions), false, null), new DefaultSchedulingContext(), "md5-test",
+                new TimeProvider()));
     }
 
     public List<MaterialRevision> addDependencyRevisionModification(List<MaterialRevision> materialRevisions, DependencyMaterial dependencyMaterial, Pipeline... upstreams) {
@@ -588,9 +543,9 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         List<Modification> modifications = new ArrayList<>();
         for (Pipeline upstream : upstreams) {
             modifications.add(new Modification(new Date(),
-                    DependencyMaterialRevision.create(CaseInsensitiveString.str(dependencyMaterial.getPipelineName()), upstream.getCounter(), label, stageName, upstream.findStage(stageName
-                    ).getCounter()).getRevision(),
-                    label, upstream.getId()));
+                DependencyMaterialRevision.create(CaseInsensitiveString.str(dependencyMaterial.getPipelineName()), upstream.getCounter(), label, stageName, upstream.findStage(stageName
+                ).getCounter()).getRevision(),
+                label, upstream.getId()));
         }
         MaterialRevision depRev = addRevisionsWithModifications(dependencyMaterial, modifications.toArray(new Modification[0]));
         materialRevisions.add(depRev);

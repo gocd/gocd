@@ -77,7 +77,7 @@ class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJ
     void shouldCreateExternalPluginDirectoryIfItDoesNotExist() {
         pluginExternalDir.delete();
         new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
-        assertThat(pluginExternalDir.exists()).isTrue();
+        assertThat(pluginExternalDir).exists();
     }
 
     @Test

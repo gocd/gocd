@@ -39,7 +39,6 @@ import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -181,7 +180,6 @@ public class BuildAssignmentTest {
 
     @Test
     void shouldSetUpGoGeneratedEnvironmentContextCorrectly() throws Exception {
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
         BuildAssignment buildAssigment = createAssignment(null);
         EnvironmentVariableContext environmentVariableContext = buildAssigment.initialEnvironmentVariableContext();
         assertThat(environmentVariableContext.getProperty("GO_REVISION")).isEqualTo("3");

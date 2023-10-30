@@ -22,7 +22,7 @@ import java.util.List;
 import static java.lang.String.format;
 
 public class FileHelper {
-    private File rootDir;
+    private final File rootDir;
 
     public FileHelper(final File rootDir) {
         this.rootDir = rootDir;

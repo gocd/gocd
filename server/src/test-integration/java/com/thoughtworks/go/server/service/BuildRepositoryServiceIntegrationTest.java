@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
@@ -67,6 +66,13 @@ import static org.junit.jupiter.api.Assertions.fail;
         "classpath:/spring-all-servlet.xml",
 })
 public class BuildRepositoryServiceIntegrationTest {
+    private static final GoConfigFileHelper config = new GoConfigFileHelper();
+    private static final String HOSTNAME = "10.18.0.1";
+    private static final String PIPELINE_NAME = "mingle";
+    private static final String DEV_STAGE = "dev";
+    private static final String FT_STAGE = "ft";
+    private static final String MD5 = "md5-test";
+
     @Autowired
     private BuildRepositoryService buildRepositoryService;
     @Autowired
@@ -102,16 +108,10 @@ public class BuildRepositoryServiceIntegrationTest {
     @Autowired
     private AgentService agentService;
 
-    private static GoConfigFileHelper config = new GoConfigFileHelper();
     private PipelineConfig mingle;
-    private static final String DEV_STAGE = "dev";
-    private static final String FT_STAGE = "ft";
     private Pipeline pipeline;
     private TestRepo svnTestRepo;
-    private static final String PIPELINE_NAME = "mingle";
-    public Subversion svnRepo;
-    private static final String HOSTNAME = "10.18.0.1";
-    private final String md5 = "md5-test";
+    private Subversion svnRepo;
 
 
     @BeforeEach
@@ -155,7 +155,7 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotTriggerPipelineWhenCurrentStageFailed() throws Exception {
+    public void shouldNotTriggerPipelineWhenCurrentStageNotSuccessful() throws Exception {
         PipelineConfig product = config.addPipeline("product", "dev", svnRepo, "build");
         config.setDependencyOn(product, PIPELINE_NAME, DEV_STAGE);
 
@@ -166,7 +166,7 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotSkipBuildingStateWhenTransitionFromPreparingToCompleting() throws Exception {
+    public void shouldNotSkipBuildingStateWhenTransitionFromPreparingToCompleting() {
         //Bug Fix for #1630
         PipelineConfig pipelineConfig = config.addPipeline("product", "dev", svnRepo, "build");
         Pipeline pipelineInPreparingState = PipelineMother.preparing(pipelineConfig);
@@ -220,7 +220,7 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotUpdateIgnoredBuildResult() throws Exception {
+    public void shouldNotUpdateIgnoredBuildResult() {
         Stage stage = dbHelper.saveBuildingStage("studios", "dev");
         JobInstance job = stage.getJobInstances().get(0);
         scheduleService.rescheduleJob(job);
@@ -323,7 +323,7 @@ public class BuildRepositoryServiceIntegrationTest {
     @Test
     public void shouldTriggerCurrentStageInNextEligiblePipelineIfPrevStageIsAutoApproval() throws Exception {
         Stage oldFtStage = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
-        Pipeline newPipeline = createPipelineWithFirstStageCompleted(mingle);
+        createPipelineWithFirstStageCompleted(mingle);
         completeStageAndTrigger(oldFtStage);
         Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         assertThat(mostRecent.getPipelineId(), is(oldFtStage.getPipelineId() + 1));
@@ -333,11 +333,12 @@ public class BuildRepositoryServiceIntegrationTest {
     public void shouldNotTriggerCurrentStageInAnyNewerPipelineIfCurrentStageIsManualApproval() throws Exception {
         config.configureStageAsManualApproval(PIPELINE_NAME, FT_STAGE);
         Stage oldFtStage = createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
-        Pipeline newPipeline = createPipelineWithFirstStageCompleted(mingle);
+        createPipelineWithFirstStageCompleted(mingle);
         Stage mostRecent = stageDao.mostRecentWithBuilds(PIPELINE_NAME, mingle.findBy(new CaseInsensitiveString(FT_STAGE)));
         assertThat(mostRecent.getId(), is(oldFtStage.getId()));
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private JobInstance completeStageAndTrigger(Stage oldFtStage) throws Exception {
         JobInstance job = oldFtStage.getJobInstances().first();
         buildRepositoryService.completing(job.getIdentifier(), JobResult.Passed, AGENT_UUID);
@@ -346,7 +347,7 @@ public class BuildRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCancelAllJobs() throws Exception {
+    public void shouldCancelAllJobs() {
         mingle = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl(PIPELINE_NAME, DEV_STAGE,
                 svnTestRepo.projectRepositoryUrl());
         StageConfig devStage = mingle.get(0);
@@ -391,6 +392,7 @@ public class BuildRepositoryServiceIntegrationTest {
         buildRepositoryService.completing(jobInstance.getIdentifier(), JobResult.Passed, AGENT_UUID);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private Pipeline createPipelineWithFirstStageCompleted(PipelineConfig pipeline) throws Exception {
         Stage firstStage = createPipelineWithFirstStageBuilding(pipeline).getFirstStage();
         reportJobCompleting(firstStage.getJobInstances().first());
@@ -398,7 +400,7 @@ public class BuildRepositoryServiceIntegrationTest {
         return pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(pipeline.name()));
     }
 
-    private Pipeline createPipelineWithFirstStageBuilding(PipelineConfig pipeline) throws StageAlreadyBuildingException {
+    private Pipeline createPipelineWithFirstStageBuilding(PipelineConfig pipeline) {
         Pipeline scheduledPipeline = schedulePipeline(pipeline);
         dbHelper.saveBuildingStage(scheduledPipeline.getFirstStage());
 
@@ -413,15 +415,16 @@ public class BuildRepositoryServiceIntegrationTest {
             }
             materialRepository.save(materialRevisions);
             Pipeline scheduledPipeline = instanceFactory.createPipelineInstance(pipeline, BuildCause.createManualForced(materialRevisions, Username.ANONYMOUS),
-                    new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+                    new DefaultSchedulingContext(DEFAULT_APPROVED_BY), MD5, new TimeProvider());
             pipelineService.save(scheduledPipeline);
             return scheduledPipeline;
         });
     }
 
-    private Stage createNewPipelineWithFirstStageFailed() throws Exception {
+    @SuppressWarnings("UnusedReturnValue")
+    private Stage createNewPipelineWithFirstStageFailed() {
         return transactionTemplate.execute(status -> {
-            Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
+            Pipeline forcedPipeline = instanceFactory.createPipelineInstance(mingle, modifySomeFiles(mingle), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), MD5, new TimeProvider());
             materialRepository.save(forcedPipeline.getBuildCause().getMaterialRevisions());
             pipelineService.save(forcedPipeline);
             Stage stage = forcedPipeline.getFirstStage();
@@ -430,7 +433,7 @@ public class BuildRepositoryServiceIntegrationTest {
         });
     }
 
-    private Stage createNewPipelineWithFirstStagePassed() throws Exception {
+    private Stage createNewPipelineWithFirstStagePassed() {
         Pipeline forcedPipeline = schedulePipeline(mingle);
         dbHelper.passStage(forcedPipeline.getFirstStage());
         return forcedPipeline.getFirstStage();

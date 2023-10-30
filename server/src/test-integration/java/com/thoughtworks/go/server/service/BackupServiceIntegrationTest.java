@@ -66,10 +66,10 @@ import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
@@ -401,7 +401,7 @@ public class BackupServiceIntegrationTest {
         DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
         DateTime backupTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
 
-        ServerBackup runningBackup = (ServerBackup) ReflectionUtil.getField(backupService, "runningBackup");
+        ServerBackup runningBackup = ReflectionUtil.getField(backupService, "runningBackup");
         assertThat(new DateTime(runningBackup.getTime()), is(backupTime));
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
@@ -444,7 +444,7 @@ public class BackupServiceIntegrationTest {
         backupThd.start();
         waitForBackupToStart.acquire();
         String backupStartedBy = backupService.backupStartedBy().get();
-        ServerBackup runningBackup = (ServerBackup) ReflectionUtil.getField(backupService, "runningBackup");
+        ServerBackup runningBackup = ReflectionUtil.getField(backupService, "runningBackup");
 
         assertThat(runningBackup.getUsername(), is(backupStartedBy));
         waitForAssertionToCompleteWhileBackupIsOn.release();

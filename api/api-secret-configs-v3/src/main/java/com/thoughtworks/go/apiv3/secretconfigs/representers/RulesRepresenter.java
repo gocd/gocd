@@ -66,7 +66,7 @@ public class RulesRepresenter {
 
         Optional<DirectiveType> directiveType = fromString(directive);
 
-        if (!directiveType.isPresent()) {
+        if (directiveType.isEmpty()) {
             return new Unknown(directive, action, type, resource);
         }
 

@@ -111,10 +111,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     /* Needed by rails! */
 
-    /**
-     * @deprecated "Use `getUserName` instead"
-     */
-    @Deprecated
+    @Deprecated(since = "Use `getUserName` instead")
     public String getUsername() {
         return getUserName();
     }

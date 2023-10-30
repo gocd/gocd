@@ -23,7 +23,6 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +52,7 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
 
     @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
-        String className = SystemEnvironment.getProperty("WORKCREATOR", DefaultWorkCreator.class.getCanonicalName());
-        Class<? extends WorkCreator> aClass = null;
-        try {
-            aClass = (Class<? extends WorkCreator>) Class.forName(className);
-            return aClass.getDeclaredConstructor().newInstance().work(runtimeInfo.getIdentifier());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        return new DefaultWorkCreator().work(runtimeInfo.getIdentifier());
     }
 
     @Override

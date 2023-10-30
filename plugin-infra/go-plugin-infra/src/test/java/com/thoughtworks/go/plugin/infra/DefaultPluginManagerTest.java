@@ -85,7 +85,7 @@ class DefaultPluginManagerTest {
 
         new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader).startInfrastructure(true);
 
-        assertThat(bundleDir.exists()).isFalse();
+        assertThat(bundleDir).doesNotExist();
     }
 
     @Test

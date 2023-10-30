@@ -66,7 +66,7 @@ public class EnvironmentVariableRepresenter {
         Optional<String> optValue = jsonReader.optString("value");
         Optional<String> optEncValue = jsonReader.optString("encrypted_value");
 
-        if (!optValue.isPresent() && !optEncValue.isPresent()) {
+        if (optValue.isEmpty() && optEncValue.isEmpty()) {
             HaltApiResponses.haltBecauseOfReason("Environment variable must contain either 'value' or 'encrypted_value'");
         }
 

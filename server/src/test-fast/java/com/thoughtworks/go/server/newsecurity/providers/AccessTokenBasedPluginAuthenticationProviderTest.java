@@ -45,7 +45,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AccessTokenBasedPluginAuthenticationProviderTest {
     private final String pluginId = "pluginId";
-    private final String authConfigId = "auth-config-id";
 
     @Mock
     private AuthorizationExtensionCacheService authorizationService;
@@ -72,6 +71,7 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
         provider = new AccessTokenBasedPluginAuthenticationProvider(authorizationService, authorityGranter, goConfigService, pluginRoleService, userService, clock);
         provider.setStore(store);
 
+        String authConfigId = "auth-config-id";
         authConfig.setId(authConfigId);
     }
 

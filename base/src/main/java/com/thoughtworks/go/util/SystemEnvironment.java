@@ -314,20 +314,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return new File(getConfigDir(), get(JETTY_XML_FILE_NAME));
     }
 
-    /**
-     * @deprecated use <code>new SystemEnvironment().getXXXXX()</code> instead.
-     */
-    public static String getProperty(String property, String defaultValue) {
-        return new SystemEnvironment().getPropertyImpl(property, defaultValue);
-    }
-
-    /**
-     * @deprecated use <code>new SystemEnvironment().getXXXXX()</code> instead.
-     */
-    public static String getProperty(String property) {
-        return new SystemEnvironment().getPropertyImpl(property);
-    }
-
     private String getPropertyImpl(String property, String defaultValue) {
         return System.getProperty(property, defaultValue);
     }

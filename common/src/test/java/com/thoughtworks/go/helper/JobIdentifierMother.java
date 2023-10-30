@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.StageIdentifier;
 public class JobIdentifierMother {
 
     public static JobIdentifier anyBuildIdentifier() {
-        return new JobIdentifier("pipelineName", "lastgood", "stageName", "LATEST", "buildName", 1L);
+        return new JobIdentifier("pipelineName", 1, "lastgood", "stageName", "LATEST", "buildName", 1L);
     }
 
     public static JobIdentifier jobIdentifier(String pipelineName, Integer pipelineCounter, String stageName, String stageCounter, String jobName) {
@@ -29,6 +29,6 @@ public class JobIdentifierMother {
     }
 
     public static JobIdentifier jobIdentifier(String pipelineName) {
-        return new JobIdentifier(pipelineName, "lastgood", "stageName", "LATEST", "buildName", 1L);
+        return new JobIdentifier(pipelineName, 1, "lastgood", "stageName", "LATEST", "buildName", 1L);
     }
 }

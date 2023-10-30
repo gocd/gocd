@@ -273,13 +273,13 @@ public class ArtifactsServiceTest {
         Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
         artifactsService.purgeArtifactsForStage(stage);
 
-        assertThat(jobDir.exists()).isTrue();
-        assertThat(aFile.exists()).isFalse();
-        assertThat(anotherFile.exists()).isFalse();
-        assertThat(aDirectory.exists()).isFalse();
+        assertThat(jobDir).exists();
+        assertThat(aFile).doesNotExist();
+        assertThat(anotherFile).doesNotExist();
+        assertThat(aDirectory).doesNotExist();
 
-        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists()).isTrue();
-        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists()).isTrue();
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/console.log")).exists();
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum")).exists();
 
         verify(stageService).markArtifactsDeletedFor(stage);
     }
@@ -308,12 +308,12 @@ public class ArtifactsServiceTest {
         Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
         artifactsService.purgeArtifactsForStage(stage);
 
-        assertThat(jobDir.exists()).isTrue();
-        assertThat(aFile.exists()).isFalse();
-        assertThat(anotherFile.exists()).isFalse();
-        assertThat(aDirectory.exists()).isFalse();
+        assertThat(jobDir).exists();
+        assertThat(aFile).doesNotExist();
+        assertThat(anotherFile).doesNotExist();
+        assertThat(aDirectory).doesNotExist();
 
-        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/pluggable-artifact-metadata/cd.go.artifact.docker.json").exists()).isTrue();
+        assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/pluggable-artifact-metadata/cd.go.artifact.docker.json")).exists();
 
         verify(stageService).markArtifactsDeletedFor(stage);
     }
@@ -336,15 +336,15 @@ public class ArtifactsServiceTest {
 
         artifactsService.purgeArtifactsForStage(stage);
 
-        assertThat(job1Dir.exists()).isTrue();
+        assertThat(job1Dir).exists();
         assertThat(job1Dir.listFiles().length).isEqualTo(0);
-        assertThat(job2Dir.exists()).isTrue();
+        assertThat(job2Dir).exists();
         assertThat(job2Dir.listFiles().length).isEqualTo(0);
-        assertThat(job1DirFromADifferentStageRun.exists()).isTrue();
+        assertThat(job1DirFromADifferentStageRun).exists();
         assertThat(job1DirFromADifferentStageRun.listFiles().length).isEqualTo(1);
-        assertThat(job1CacheDir.exists()).isFalse();
-        assertThat(job2CacheDir.exists()).isFalse();
-        assertThat(job1CacheDirFromADifferentStageRun.exists()).isTrue();
+        assertThat(job1CacheDir).doesNotExist();
+        assertThat(job2CacheDir).doesNotExist();
+        assertThat(job1CacheDirFromADifferentStageRun).exists();
     }
 
     private File createJobArtifactFolder(final String path) throws IOException {

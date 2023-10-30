@@ -359,7 +359,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     public void shouldUpdateFileAttributesIfFileContentsHaveNotChanged() throws Exception {//so that it doesn't have to do the file content checksum computation next time
         assertThat(dataSource.reloadIfModified().load(), not(nullValue()));
 
-        GoFileConfigDataSource.ReloadIfModified reloadStrategy = (GoFileConfigDataSource.ReloadIfModified) ReflectionUtil.getField(dataSource, "reloadStrategy");
+        GoFileConfigDataSource.ReloadIfModified reloadStrategy = ReflectionUtil.getField(dataSource, "reloadStrategy");
 
         ReflectionUtil.setField(reloadStrategy, "lastModified", -1);
         ReflectionUtil.setField(reloadStrategy, "prevSize", -1);

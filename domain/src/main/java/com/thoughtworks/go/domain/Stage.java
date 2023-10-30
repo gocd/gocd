@@ -405,10 +405,7 @@ public class Stage extends PersistentObject {
         return jobInstances.filterByResult(results);
     }
 
-    @Deprecated
-    /**
-     * for ibatis only
-     */
+    @TestOnly // for ibatis and tests only
     public void setCompletedByTransitionId(Long completedByTransitionId) {
         this.completedByTransitionId = completedByTransitionId;
     }

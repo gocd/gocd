@@ -129,7 +129,7 @@ public class StageSqlMapDaoIntegrationTest {
         stage.setCompletedByTransitionId(10L);
         updateResultInTransaction(stage, StageResult.Passed);
         Stage reloaded = stageDao.stageById(stage.getId());
-        assertThat(reloaded.getCompletedByTransitionId()).isGreaterThan(0l);
+        assertThat(reloaded.getCompletedByTransitionId()).isGreaterThan(0L);
     }
 
     @Test

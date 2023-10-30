@@ -28,7 +28,6 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
@@ -60,7 +59,7 @@ public class DefaultWorkCreator implements WorkCreator {
     }
 
     private static File tempFolder() {
-        File tmpdir = new File(SystemEnvironment.getProperty("java.io.tmpdir"), "goServerStub");
+        File tmpdir = new File(System.getProperty("java.io.tmpdir"), "goServerStub");
         tmpdir.deleteOnExit();
         final File dir = new File(tmpdir, "testdir");
         if (dir.exists() && dir.isDirectory()) {
@@ -103,6 +102,6 @@ public class DefaultWorkCreator implements WorkCreator {
 
     private JobPlan toPlan(final CruiseConfig config) {
         JobConfig plan = config.jobConfigByName(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, true);
-        return JobInstanceMother.createJobPlan(plan, new JobIdentifier(PIPELINE_NAME, PIPELINE_LABEL, STAGE_NAME, "1", JOB_PLAN_NAME), new DefaultSchedulingContext());
+        return JobInstanceMother.createJobPlan(plan, new JobIdentifier(PIPELINE_NAME, 1, PIPELINE_LABEL, STAGE_NAME, "1", JOB_PLAN_NAME), new DefaultSchedulingContext());
     }
 }

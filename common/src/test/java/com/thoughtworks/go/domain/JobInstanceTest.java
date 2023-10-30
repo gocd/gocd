@@ -73,7 +73,7 @@ public class JobInstanceTest {
     }
 
     @Test
-    public void shouldGetDisplayStatusFailedIfStateIsCompletedAndResultIsFailed() {
+    public void shouldGetDisplayStatusFailedIfStateIsCompletedButBadResult() {
         JobInstance job = JobInstanceMother.completed("test", JobResult.Failed);
         assertThat(job.displayStatusWithResult(), is("failed"));
     }
@@ -145,7 +145,7 @@ public class JobInstanceTest {
         final JobStateTransition completedState = new JobStateTransition(JobState.Completing, new Date());
         assertThat(instance.getTransitions(), hasItem(scheduledState));
         assertThat(instance.getTransitions(), hasItem(completedState));
-        assertThat(instance.getTransitions().first(), not(isTransitionWithState(JobState.Preparing)));
+        assertThat(instance.getTransitions().first(), not(new JobStateTransitionMatcher(JobState.Preparing)));
     }
 
     @Test
@@ -156,7 +156,7 @@ public class JobInstanceTest {
 
         assertThat(instance.getTransitions(), hasItem(scheduledState));
         assertThat(instance.getTransitions(), iterableWithSize(1));
-        assertThat(instance.getTransitions().first(), not(isTransitionWithState(JobState.Preparing)));
+        assertThat(instance.getTransitions().first(), not(new JobStateTransitionMatcher(JobState.Preparing)));
     }
 
     @Test
@@ -167,10 +167,6 @@ public class JobInstanceTest {
             new JobStateTransition(JobState.Building, date));
         instance.setTransitions(transitions);
         assertThat(instance.getStartedDateFor(JobState.Building), is(date));
-    }
-
-    private static JobStateTransitionMatcher isTransitionWithState(final JobState expectedState) {
-        return new JobStateTransitionMatcher(expectedState);
     }
 
     @Test
@@ -225,7 +221,7 @@ public class JobInstanceTest {
     public void shouldConsiderJobARerunWhenHasOriginalId() {
         JobInstance instance = new JobInstance();
         assertThat(instance.isCopy(), is(false));
-        instance.setOriginalJobId(10l);
+        instance.setOriginalJobId(10L);
         assertThat(instance.isCopy(), is(true));
     }
 

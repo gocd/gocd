@@ -35,8 +35,8 @@ import java.util.List;
 class ScmMaterialUpdater implements MaterialUpdater {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScmMaterialUpdater.class);
 
-    private MaterialRepository materialRepository;
-    private LegacyMaterialChecker materialChecker;
+    private final MaterialRepository materialRepository;
+    private final LegacyMaterialChecker materialChecker;
     private final SubprocessExecutionContext subprocessExecutionContext;
     private final MaterialService materialService;
 

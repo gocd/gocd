@@ -77,8 +77,8 @@ public class AgentPluginsInitializerIntegrationTest {
 
         agentPluginsInitializer.onApplicationEvent(null);
 
-        assertThat(existingBundledPlugin.exists()).isFalse();
-        assertThat(new File(directoryForUnzippedPlugins, "bundled/new-plugin-1.jar").exists()).isTrue();
+        assertThat(existingBundledPlugin).doesNotExist();
+        assertThat(new File(directoryForUnzippedPlugins, "bundled/new-plugin-1.jar")).exists();
     }
 
     @Test
@@ -90,7 +90,7 @@ public class AgentPluginsInitializerIntegrationTest {
 
         agentPluginsInitializer.onApplicationEvent(null);
 
-        assertThat(bundledPlugin.exists()).isTrue();
+        assertThat(bundledPlugin).exists();
         assertThat(FileUtils.readFileToString(bundledPlugin, UTF_8)).isEqualTo("SOME-NEW-CONTENT");
     }
 
@@ -103,8 +103,8 @@ public class AgentPluginsInitializerIntegrationTest {
 
         agentPluginsInitializer.onApplicationEvent(null);
 
-        assertThat(existingExternalPlugin.exists()).isFalse();
-        assertThat(new File(directoryForUnzippedPlugins, "external/new-plugin-1.jar").exists()).isTrue();
+        assertThat(existingExternalPlugin).doesNotExist();
+        assertThat(new File(directoryForUnzippedPlugins, "external/new-plugin-1.jar")).exists();
     }
 
     @Test
@@ -116,7 +116,7 @@ public class AgentPluginsInitializerIntegrationTest {
 
         agentPluginsInitializer.onApplicationEvent(null);
 
-        assertThat(externalPlugin.exists()).isTrue();
+        assertThat(externalPlugin).exists();
         assertThat(FileUtils.readFileToString(externalPlugin, UTF_8)).isEqualTo("SOME-NEW-CONTENT");
     }
 
@@ -129,7 +129,7 @@ public class AgentPluginsInitializerIntegrationTest {
 
         agentPluginsInitializer.onApplicationEvent(null);
 
-        assertThat(existingExternalPlugin.exists()).isFalse();
+        assertThat(existingExternalPlugin).doesNotExist();
     }
 
     private File setupUnzippedPluginsDirectoryStructure() throws IOException {

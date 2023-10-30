@@ -186,7 +186,7 @@ public class JobInstanceServiceIntegrationTest {
         Stage stage = instanceFactory.createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), "md5-test", new TimeProvider());
 
         for (JobInstance instance : stage.getJobInstances()) {
-            instance.setIdentifier(new JobIdentifier("cruise", "1", "dev", "1", instance.getName()));
+            instance.setIdentifier(new JobIdentifier("cruise", 1, "1", "dev", "1", instance.getName()));
         }
 
         jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
@@ -208,7 +208,7 @@ public class JobInstanceServiceIntegrationTest {
         Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
 
         for (JobInstance instance : stage.getJobInstances()) {
-            instance.setIdentifier(new JobIdentifier("cruise", "1", "dev", "1", instance.getName()));
+            instance.setIdentifier(new JobIdentifier("cruise", 1, "1", "dev", "1", instance.getName()));
         }
 
         jobStatusCache.jobStatusChanged(stage.getJobInstances().first());
@@ -229,7 +229,7 @@ public class JobInstanceServiceIntegrationTest {
         Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
 
         for (JobInstance instance : stage.getJobInstances()) {
-            instance.setIdentifier(new JobIdentifier("cruise", "1", "dev", "1", instance.getName()));
+            instance.setIdentifier(new JobIdentifier("cruise", 1, "1", "dev", "1", instance.getName()));
         }
 
         jobStatusCache.jobStatusChanged(stage.getJobInstances().first());

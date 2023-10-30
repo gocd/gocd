@@ -17,17 +17,16 @@ package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
+@SuppressWarnings("TestOnlyProblems") // Workaround for IntelliJ thinking this place is production rather than test code
 public class VSMTestHelper {
 
     public static void assertThatLevelHasNodes(List<Node> nodesAtLevel, int numberOfDummyNodes, CaseInsensitiveString... nodeIds) {
@@ -58,7 +57,7 @@ public class VSMTestHelper {
         assertThat(parentIdsOf(node), hasItems(parents));
     }
 
-    public static void assertDepth(ValueStreamMapPresentationModel graph, CaseInsensitiveString nodeId, int expectedDepth){
+    public static void assertDepth(ValueStreamMapPresentationModel graph, CaseInsensitiveString nodeId, int expectedDepth) {
         assertThat(graph.findNode(nodeId).getDepth(), is(expectedDepth));
     }
 
@@ -98,7 +97,7 @@ public class VSMTestHelper {
     }
 
     public static void assertSCMNodeHasMaterialRevisions(ValueStreamMapPresentationModel graph, CaseInsensitiveString nodeId, MaterialRevision... expectedMaterialRevisions) {
-        SCMDependencyNode node = (SCMDependencyNode)graph.findNode(nodeId);
+        SCMDependencyNode node = (SCMDependencyNode) graph.findNode(nodeId);
         List<MaterialRevision> materialRevisions = node.getMaterialRevisions();
         assertThat(materialRevisions.toString(), materialRevisions.size(), is(expectedMaterialRevisions.length));
         assertThat(materialRevisions, hasItems(expectedMaterialRevisions));
@@ -130,7 +129,7 @@ public class VSMTestHelper {
         List<Revision> revisions = node.revisions();
         assertThat(revisions.size(), is(pipelineCounters.length));
         for (Integer pipelineCounter : pipelineCounters) {
-            assertThat(String.format("Pipeline %s does not have pipeline counter %s",pipelineName, pipelineCounter),revisions.contains(new PipelineRevision(pipelineName, pipelineCounter, pipelineCounter.toString())), is(true));
+            assertThat(String.format("Pipeline %s does not have pipeline counter %s", pipelineName, pipelineCounter), revisions.contains(new PipelineRevision(pipelineName, pipelineCounter, pipelineCounter.toString())), is(true));
 
         }
     }
@@ -144,17 +143,12 @@ public class VSMTestHelper {
     }
 
     public static PipelineRevision getPipelineRevision(Node p1_node, int pipelineCounter) {
-        for (Revision revision : p1_node.revisions() ) {
+        for (Revision revision : p1_node.revisions()) {
             PipelineRevision pipelineRevision = (PipelineRevision) revision;
-            if(pipelineCounter == pipelineRevision.getCounter()) {
+            if (pipelineCounter == pipelineRevision.getCounter()) {
                 return pipelineRevision;
             }
         }
         throw new RuntimeException(String.format("VSM node of %s does not have revision %s", p1_node.getName(), pipelineCounter));
     }
-
-    public static SCMRevision scmRevision(String revision, Date dateTime) {
-            return new SCMRevision(new Modification("user","comment","email", dateTime, revision));
-        }
-
 }

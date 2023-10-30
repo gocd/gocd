@@ -88,7 +88,7 @@ public class SvnRemoteRepository {
 
     public void stop() throws Exception {
         if (processWrapper != null) {
-            Process process = (Process) ReflectionUtil.getField(processWrapper, "process");
+            Process process = ReflectionUtil.getField(processWrapper, "process");
             process.descendants().forEach(ProcessHandle::destroy);
             process.destroy();
             processWrapper.waitForExit();

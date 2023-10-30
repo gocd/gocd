@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
         "classpath:/spring-all-servlet.xml",
 })
 public class ConfigMaterialUpdateListenerIntegrationTest {
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @Autowired
     private GoConfigDao goConfigDao;
@@ -82,21 +83,15 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Autowired
     private CachedGoConfig cachedGoConfig;
 
-    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
-
-    public DiskSpaceSimulator diskSpaceSimulator;
-
     private MaterialConfig materialConfig;
 
     private HgTestRepo hgRepo;
     private HgMaterial material;
-    private MagicalGoConfigXmlWriter xmlWriter;
 
     private ConfigTestRepo configTestRepo;
 
     @BeforeEach
     public void setup(@TempDir Path tempDir) throws Exception {
-        diskSpaceSimulator = new DiskSpaceSimulator();
         hgRepo = new HgTestRepo("testHgRepo", tempDir);
 
         dbHelper.onSetUp();
@@ -117,15 +112,13 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
-        configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
+        configTestRepo = new ConfigTestRepo(hgRepo, new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()));
         this.material = configTestRepo.getMaterial();
     }
 
 
     @AfterEach
     public void teardown() throws Exception {
-        diskSpaceSimulator.onTearDown();
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }

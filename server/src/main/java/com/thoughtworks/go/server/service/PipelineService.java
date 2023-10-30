@@ -15,14 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -39,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
@@ -108,9 +103,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         pipelineDao.insertOrUpdatePipelineCounter(pipeline, lastCount, pipeline.getCounter());
     }
 
-    /**
-     * @deprecated this is evil and should be removed
-     */
+    @Deprecated(since = "this is evil and should be removed")
     public Pipeline wrapBuildDetails(JobInstance job) {
         Stage stageForBuild = stageService.getStageByBuild(job.getId());
         stageForBuild.setJobInstances(new JobInstances(job));
@@ -158,7 +151,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         }
         for (MaterialRevision materialRevision : actualRevisions) {
             Material material = materialRevision.getMaterial();
-            if (currentPipelineHasMaterial(configQueueEntry, material) && !alreadyAdded(newRevisions, material)) {
+            if (currentPipelineHasMaterial(configQueueEntry, material) && notAdded(newRevisions, material)) {
                 List<PipelineConfig> paths = removePathHead(configQueueEntry);
                 if (!paths.isEmpty()) {
                     MaterialRevision revision = getRevisionFor(paths, dmr, material);
@@ -192,14 +185,14 @@ public class PipelineService implements UpstreamPipelineResolver {
 
     private void copyMissingRevisions(MaterialRevisions srcRevisions, MaterialRevisions destRevisions) {
         for (MaterialRevision actualRevision : srcRevisions) {
-            if (!alreadyAdded(destRevisions, actualRevision.getMaterial())) {
+            if (notAdded(destRevisions, actualRevision.getMaterial())) {
                 destRevisions.addRevision(actualRevision);
             }
         }
     }
 
-    private boolean alreadyAdded(MaterialRevisions newRevisions, Material material) {
-        return newRevisions.containsModificationForFingerprint(material);
+    private boolean notAdded(MaterialRevisions newRevisions, Material material) {
+        return !newRevisions.containsModificationForFingerprint(material);
     }
 
     private MaterialRevisions restoreOriginalOrder(MaterialRevisions actualRevisions, MaterialRevisions computedRevisions) {
@@ -219,54 +212,6 @@ public class PipelineService implements UpstreamPipelineResolver {
         final MaterialRevisions computedRevisions = fanInGraph.computeRevisions(actualRevisions, pipelineTimeline);
         fillUpNonOverridableRevisions(actualRevisions, computedRevisions);
         return restoreOriginalMaterialConfigAndMaterialOrderUsingFingerprint(actualRevisions, computedRevisions);
-    }
-
-    // This is for debugging purposes
-    public String getRevisionsBasedOnDependenciesForDebug(CaseInsensitiveString pipelineName, final Integer targetIterationCount) {
-        CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-        FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
-        final String[] iterationData = {null};
-        fanInGraph.setFanInEventListener((iterationCount, dependencyFanInNodes) -> {
-            if (iterationCount == targetIterationCount) {
-                iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(dependencyFanInNodes);
-            }
-        });
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(pipelineName);
-        Materials materials = materialConfigConverter.toMaterials(pipelineConfig.materialConfigs());
-        MaterialRevisions actualRevisions = new MaterialRevisions();
-        for (Material material : materials) {
-            actualRevisions.addAll(materialRepository.findLatestModification(material));
-        }
-        MaterialRevisions materialRevisions = fanInGraph.computeRevisions(actualRevisions, pipelineTimeline);
-        if (iterationData[0] == null) {
-            iterationData[0] = new GsonBuilder().setExclusionStrategies(getGsonExclusionStrategy()).create().toJson(materialRevisions);
-        }
-        return iterationData[0];
-    }
-
-    private ExclusionStrategy getGsonExclusionStrategy() {
-        return new ExclusionStrategy() {
-            @Override
-            public boolean shouldSkipField(FieldAttributes f) {
-                return f.getName().equals("materialConfig") || f.getName().equals("parents") || f.getName().equals("children");
-            }
-
-            @Override
-            public boolean shouldSkipClass(Class<?> clazz) {
-                return false;
-            }
-        };
-    }
-
-    //This whole method is repeated for reporting and it does not use actual revisions for determining final revisions
-    //Used in rails view
-    //Do not delete
-    //Ramraj ge salute
-    //Srikant & Sachin
-    @Deprecated
-    public Collection<MaterialRevision> getRevisionsBasedOnDependenciesForReporting(CruiseConfig cruiseConfig, CaseInsensitiveString pipelineName) {
-        FanInGraph fanInGraph = new FanInGraph(cruiseConfig, pipelineName, materialRepository, pipelineDao, systemEnvironment, materialConfigConverter);
-        return fanInGraph.computeRevisionsForReporting(pipelineName, pipelineTimeline);
     }
 
     private void fillUpNonOverridableRevisions(MaterialRevisions actualRevisions, MaterialRevisions computedRevisions) {

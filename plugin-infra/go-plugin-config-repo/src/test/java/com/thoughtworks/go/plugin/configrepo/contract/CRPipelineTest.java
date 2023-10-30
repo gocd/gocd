@@ -20,15 +20,12 @@ import com.thoughtworks.go.plugin.configrepo.contract.material.CRDependencyMater
 import com.thoughtworks.go.plugin.configrepo.contract.material.CRGitMaterial;
 import com.thoughtworks.go.plugin.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRBuildTask;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
@@ -98,9 +95,9 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError, contains("pipe4.json; Pipeline pipe4"));
-        assertThat(fullError, contains("Missing field 'group'."));
-        assertThat(fullError, contains("Pipeline has no stages."));
+        assertThat(fullError).contains("pipe4.json; Pipeline pipe4");
+        assertThat(fullError).contains("Missing field 'group'.");
+        assertThat(fullError).contains("Pipeline has no stages.");
     }
 
     @Test
@@ -118,8 +115,8 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError, contains("Pipeline pipe4; Git material"));
-        assertThat(fullError, contains("Missing field 'url'."));
+        assertThat(fullError).contains("Pipeline pipe4; Git material");
+        assertThat(fullError).contains("Missing field 'url'.");
     }
 
     @Test
@@ -140,8 +137,8 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError, contains("Pipeline pipe4; Git material"));
-        assertThat(fullError, contains("Material must have destination directory when there are many SCM materials"));
+        assertThat(fullError).contains("Pipeline pipe4; Git material");
+        assertThat(fullError).contains("Material must have destination directory when there are many SCM materials");
     }
 
     @Test
@@ -161,13 +158,13 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError, contains("Pipeline pipe4; Stage (bla)"));
-        assertThat(fullError, contains("Stage has no jobs"));
-        assertThat(fullError, contains("Environment variable key defined more than once"));
+        assertThat(fullError).contains("Pipeline pipe4; Stage (bla)");
+        assertThat(fullError).contains("Stage has no jobs");
+        assertThat(fullError).contains("Environment variable key defined more than once");
     }
 
     @Test
-    public void shouldAddAnErrorWhenBothTemplateAndStagesAreDefined() throws Exception {
+    public void shouldAddAnErrorWhenBothTemplateAndStagesAreDefined() {
         CRPipeline crPipeline = new CRPipeline("p1", "g1");
         crPipeline.addMaterial(veryCustomGit);
         crPipeline.addStage(buildStage);
@@ -176,23 +173,23 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         crPipeline.getErrors(errorCollection, "TEST");
 
-        MatcherAssert.assertThat(errorCollection.getErrorCount(), is(1));
-        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Pipeline has to either define stages or template. Not both."));
+        assertThat(errorCollection.getErrorCount()).isEqualTo(1);
+        assertThat(errorCollection.getErrorsAsText()).contains("Pipeline has to either define stages or template. Not both.");
     }
 
     @Test
-    public void shouldAddAnErrorIfNeitherTemplateOrStagesAreDefined() throws Exception {
+    public void shouldAddAnErrorIfNeitherTemplateOrStagesAreDefined() {
         ErrorCollection errorCollection = new ErrorCollection();
         CRPipeline crPipeline = new CRPipeline("p1", "g1");
         crPipeline.setLockBehavior(PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
         crPipeline.addMaterial(veryCustomGit);
         crPipeline.getErrors(errorCollection, "TEST");
 
-        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Pipeline has to define stages or template."));
+        assertThat(errorCollection.getErrorsAsText()).contains("Pipeline has to define stages or template.");
     }
 
     @Test
-    public void shouldAddAnErrorForDuplicateParameterNames() throws Exception {
+    public void shouldAddAnErrorForDuplicateParameterNames() {
         CRPipeline crPipeline = new CRPipeline("p1", "g1");
         crPipeline.setLockBehavior(PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
         crPipeline.addParameter(new CRParameter("param1", "value1"));
@@ -202,11 +199,11 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         crPipeline.getErrors(errors, "TEST");
 
-        MatcherAssert.assertThat(errors.getErrorsAsText(), contains("Param name 'param1' is not unique."));
+        assertThat(errors.getErrorsAsText()).contains("Param name 'param1' is not unique.");
     }
 
     @Test
-    public void shouldAddAnErrorForDuplicateEnvironmentVariables() throws Exception {
+    public void shouldAddAnErrorForDuplicateEnvironmentVariables() {
         CRPipeline crPipeline = new CRPipeline("p1", "g1");
         crPipeline.setLockBehavior(PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
         crPipeline.addMaterial(veryCustomGit);
@@ -216,7 +213,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
         crPipeline.getErrors(errors, "TEST");
 
-        MatcherAssert.assertThat(errors.getErrorsAsText(), contains("Environment variable env1 defined more than once"));
+        assertThat(errors.getErrorsAsText()).contains("Environment variable env1 defined more than once");
     }
 
     @Override
@@ -241,12 +238,12 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         CRPipeline deserializedValue = gson.fromJson(json, CRPipeline.class);
 
         CRMaterial git = deserializedValue.getMaterialByName("gitMaterial1");
-        assertThat(git instanceof CRGitMaterial, is(true));
-        assertThat(((CRGitMaterial) git).getBranch(), is("feature12"));
+        assertThat(git).isInstanceOf(CRGitMaterial.class);
+        assertThat(((CRGitMaterial) git).getBranch()).isEqualTo("feature12");
     }
 
     @Test
-    public void shouldAddAnErrorIfLockBehaviorValueIsInvalid() throws Exception {
+    public void shouldAddAnErrorIfLockBehaviorValueIsInvalid() {
         CRPipeline validPipelineWithInvalidLockBehaviorOnly = new CRPipeline("p1", "g1");
         validPipelineWithInvalidLockBehaviorOnly.addMaterial(veryCustomGit);
         validPipelineWithInvalidLockBehaviorOnly.addStage(buildStage);
@@ -256,7 +253,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         validPipelineWithInvalidLockBehaviorOnly.getErrors(errorCollection, "TEST");
 
         String expectedMessage = "Lock behavior has an invalid value (INVALID_LOCK_VALUE). Valid values are:";
-        MatcherAssert.assertThat(errorCollection.getErrorCount(), is(1));
-        MatcherAssert.assertThat(errorCollection.getOrCreateErrorList(validPipelineWithInvalidLockBehaviorOnly.getLocation("TEST")).get(0), contains(expectedMessage));
+        assertThat(errorCollection.getErrorCount()).isEqualTo(1);
+        assertThat(errorCollection.getOrCreateErrorList(validPipelineWithInvalidLockBehaviorOnly.getLocation("TEST")).get(0)).contains(expectedMessage);
     }
 }

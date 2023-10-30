@@ -162,7 +162,7 @@ public class JobInstanceServiceTest {
             }
         });
 
-        verify(jobInstanceDao).save(1l, job);
+        verify(jobInstanceDao).save(1L, job);
         verify(listener1).jobStatusChanged(job);
         verify(listener2).jobStatusChanged(job);
     }
@@ -186,7 +186,7 @@ public class JobInstanceServiceTest {
             }
         });
 
-        verify(jobInstanceDao).save(1l, job);
+        verify(jobInstanceDao).save(1L, job);
         verify(passingListener).jobStatusChanged(job);
     }
 
@@ -354,11 +354,11 @@ public class JobInstanceServiceTest {
             resolver,
             null, goConfigService, null, serverHealthService);
         DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
-        when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
-        JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
-        when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7l));
+        when(jobInstanceDao.loadPlan(7L)).thenReturn(expectedPlan);
+        JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10L);
+        when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7L));
         assertThat(jobService.loadOriginalJobPlan(givenId), sameInstance(expectedPlan));
-        verify(jobInstanceDao).loadPlan(7l);
+        verify(jobInstanceDao).loadPlan(7L);
     }
 
     @Test

@@ -36,7 +36,7 @@ import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
@@ -94,7 +94,7 @@ class TfsMaterialConfigTest {
         tfsMaterialConfig.setConfigAttributes(map);
 
         tfsMaterialConfig.setConfigAttributes(map);
-        assertThat(ReflectionUtil.getField(tfsMaterialConfig, "password")).isNull();
+        assertThat((String)ReflectionUtil.getField(tfsMaterialConfig, "password")).isNull();
         assertThat(tfsMaterialConfig.getPassword()).isEqualTo("secret");
         assertThat(tfsMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -103,7 +103,7 @@ class TfsMaterialConfigTest {
         map.put(TfsMaterialConfig.PASSWORD_CHANGED, "0");
         tfsMaterialConfig.setConfigAttributes(map);
 
-        assertThat(ReflectionUtil.getField(tfsMaterialConfig, "password")).isNull();
+        assertThat((String)ReflectionUtil.getField(tfsMaterialConfig, "password")).isNull();
         assertThat(tfsMaterialConfig.getPassword()).isEqualTo("secret");
         assertThat(tfsMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
@@ -227,12 +227,10 @@ class TfsMaterialConfigTest {
         when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
         TfsMaterialConfig materialConfig = tfs(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
         ReflectionUtil.setField(materialConfig, "encryptedPassword", fakeCipherText);
-        try {
-            materialConfig.getPassword();
-            fail("Should have thrown up");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Could not decrypt the password to get the real password");
-        }
+
+        assertThatThrownBy(materialConfig::getPassword)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("Could not decrypt the password to get the real password");
     }
 
     @Test

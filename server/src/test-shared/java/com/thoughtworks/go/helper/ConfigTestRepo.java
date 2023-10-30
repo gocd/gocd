@@ -31,8 +31,8 @@ import java.util.List;
 public class ConfigTestRepo {
     private final File baseDir;
     private final HgMaterial material;
-    private PartialConfigHelper partialConfigHelper;
-    private HgTestRepo repo;
+    private final PartialConfigHelper partialConfigHelper;
+    private final HgTestRepo repo;
 
     public ConfigTestRepo(HgTestRepo repo, MagicalGoConfigXmlWriter xmlWriter) throws IOException {
         this.repo = repo;

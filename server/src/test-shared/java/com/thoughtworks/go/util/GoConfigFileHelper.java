@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -57,6 +56,8 @@ import static org.mockito.Mockito.mock;
 /**
  * Understands how to edit the cruise config file for testing
  */
+@SuppressWarnings({"TestOnlyProblems", "UnusedReturnValue"})
+// Workaround for IntelliJ thinking this place is production rather than test code
 public class GoConfigFileHelper {
 
     private static final GoConfigCloner CLONER = new GoConfigCloner();
@@ -64,7 +65,7 @@ public class GoConfigFileHelper {
     private final String originalXml;
 
     private final GoConfigMother goConfigMother = new GoConfigMother();
-    private File passwordFile = null;
+
     private GoConfigDao goConfigDao;
     private CachedGoConfig cachedGoConfig;
     private SystemEnvironment sysEnv;
@@ -169,15 +170,6 @@ public class GoConfigFileHelper {
         }
     }
 
-    public static String loadAndMigrate(String originalContent) {
-        GoConfigFileHelper helper = new GoConfigFileHelper(originalContent);
-        try {
-            return FileUtils.readFileToString(helper.getConfigFile(), UTF_8);
-        } catch (IOException e) {
-            throw bomb(e);
-        }
-    }
-
     public static EnvironmentVariablesConfig env(String name, String value) {
         return EnvironmentVariablesConfigMother.env(name, value);
     }
@@ -267,7 +259,6 @@ public class GoConfigFileHelper {
     }
 
     public void initializeConfigFile() throws IOException {
-        FileUtils.deleteQuietly(passwordFile);
         writeXmlToConfigFile(ConfigMigrator.migrate(originalXml));
     }
 
@@ -501,17 +492,8 @@ public class GoConfigFileHelper {
         return groups;
     }
 
-    public StageConfig addJob(String pipelineName, String stageName, String jobName) {
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(jobName), new ResourceConfigs(), new ArtifactTypeConfigs());
-        return addJobToStage(pipelineName, stageName, jobConfig);
-    }
-
-    public StageConfig addJobToStage(String pipelineName, String stageName, JobConfig jobConfig) {
-        return pushJobIntoStage(pipelineName, stageName, jobConfig, false);
-    }
-
     public void replaceAllJobsInStage(String pipelineName, String stageName, JobConfig jobConfig) {
-        pushJobIntoStage(pipelineName, stageName, jobConfig, true);
+        pushJobIntoStage(pipelineName, stageName, jobConfig);
     }
 
     public PipelineConfig addPipelineWithInvalidMaterial(String pipelineName, String stageName) {
@@ -521,10 +503,6 @@ public class GoConfigFileHelper {
         cruiseConfig.addPipeline(DEFAULT_GROUP, pipelineConfig);
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
-    }
-
-    public File getConfigFile() {
-        return configFile;
     }
 
     public CruiseConfig load() {
@@ -580,23 +558,8 @@ public class GoConfigFileHelper {
         addSecurity(new SecurityConfig());
     }
 
-    public File addSecurityWithPasswordFile() throws IOException {
-        final SecurityAuthConfig authConfig = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile",
-                create("PasswordFilePath", false, addPasswordFile().getAbsolutePath())
-        );
-        SecurityConfig securityConfig = new SecurityConfig(new AdminsConfig());
-        securityConfig.securityAuthConfigs().add(authConfig);
-        addSecurity(securityConfig);
-        return passwordFile;
-    }
-
     public void enableSecurity() {
         addSecurityAuthConfig(new SecurityAuthConfig(UUID.randomUUID().toString(), "plugin_id"));
-    }
-
-    @Deprecated
-    public File turnOnSecurity() throws IOException {
-        return addSecurityWithPasswordFile();
     }
 
     public void addSecurityWithAdminConfig() {
@@ -945,13 +908,11 @@ public class GoConfigFileHelper {
         return addPipeline(pipelineName, stageName, svnMaterialConfig, buildNames);
     }
 
-    private StageConfig pushJobIntoStage(String pipelineName, String stageName, JobConfig jobConfig, boolean clearExistingJobs) {
+    private StageConfig pushJobIntoStage(String pipelineName, String stageName, JobConfig jobConfig) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
-        if (clearExistingJobs) {
-            stageConfig.allBuildPlans().clear();
-        }
+        stageConfig.allBuildPlans().clear();
         stageConfig.allBuildPlans().add(jobConfig);
         writeConfigFile(cruiseConfig);
         return stageConfig;
@@ -963,15 +924,6 @@ public class GoConfigFileHelper {
 
     private MaterialConfigs invalidRepositoryMaterialConfigs() {
         return new MaterialConfigs(invalidSvnMaterialConfig());
-    }
-
-    private File addPasswordFile() throws IOException {
-        passwordFile = TestFileUtil.createTempFile("password.properties");
-        passwordFile.deleteOnExit();
-        final String nonAdmin = "jez=ThmbShxAtJepX80c2JY1FzOEmUk=\n"; //in plain text: badger
-        final String admin1 = "admin1=W6ph5Mm5Pz8GgiULbPgzG37mj9g=\n"; //in plain text: password
-        FileUtils.writeStringToFile(passwordFile, nonAdmin + admin1, UTF_8);
-        return passwordFile;
     }
 
     private PipelineConfig addMaterialConfigForPipeline(String pipelinename, MaterialConfig... materialConfigs) {

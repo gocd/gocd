@@ -120,7 +120,7 @@ public class LockfileTest {
     }
 
     @Test
-    public void shouldNotDeleteLockFileIfTryLockHasFailed() throws IOException {
+    public void shouldNotDeleteLockFileIfTryLockDidntWork() throws IOException {
         FileUtils.touch(LOCK_FILE);
         Lockfile lockfile = new Lockfile(LOCK_FILE);
         assertThat(lockfile.tryLock(), is(false));

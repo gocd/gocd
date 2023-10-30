@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.matchers;
 
-import com.thoughtworks.go.util.GoConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -48,143 +47,12 @@ public class ConsoleOutMatcher {
         };
     }
 
-    public static TypeSafeMatcher<String> printedPreparingInfo(final Object jobIdentifer) {
+    public static <T> TypeSafeMatcher<List<T>> containsResult(final T jobResult) {
         return new TypeSafeMatcher<>() {
-            private String consoleOut;
-            public String stdout;
+            private List<?> results;
 
             @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                stdout = format("Start to prepare %s", jobIdentifer.toString());
-                return StringUtils.contains(consoleOut, stdout);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedBuildingInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<>() {
-            private String consoleOut;
-            public String stdout;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                stdout = format("Start to build %s", jobIdentifer.toString());
-                return StringUtils.contains(consoleOut, stdout);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedUploadingInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<>() {
-            private String consoleOut;
-            public String stdout;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                stdout = format("Start to upload %s", jobIdentifer.toString());
-                return StringUtils.contains(consoleOut, stdout);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]" + " but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedJobCompletedInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<>() {
-            private String consoleOut;
-            public String stdout;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                stdout = format("Job completed %s", jobIdentifer.toString());
-                return StringUtils.contains(consoleOut, stdout);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]"
-                    + " but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedJobCanceledInfo(final Object jobIdentifer) {
-        return new TypeSafeMatcher<>() {
-            private String consoleOut;
-            public String stdout;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                stdout = format("Job is canceled %s", jobIdentifer.toString());
-                return StringUtils.contains(consoleOut, stdout);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected console to contain [" + stdout + "]"
-                    + " but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedBuildFailed() {
-        return new TypeSafeMatcher<>() {
-            private String consoleOut;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                return StringUtils.contains(consoleOut.toLowerCase(), "build failed");
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("expected console to contain [build failed] but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<List> containsState(final Object jobState) {
-        return new TypeSafeMatcher<>() {
-            private List states;
-
-            @Override
-            public boolean matchesSafely(List states) {
-                this.states = states;
-                return states.contains(jobState);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + jobState + "] but was " + states);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<List> containsResult(final Object jobResult) {
-        return new TypeSafeMatcher<>() {
-            private List results;
-
-            @Override
-            public boolean matchesSafely(List states) {
+            public boolean matchesSafely(List<T> states) {
                 this.results = states;
                 return states.contains(jobResult);
             }
@@ -192,25 +60,6 @@ public class ConsoleOutMatcher {
             @Override
             public void describeTo(Description description) {
                 description.appendText("Expected console to contain [" + jobResult + "] but was " + results);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedUploadingFailure(final File file) {
-        return new TypeSafeMatcher<>() {
-            public String consoleOut;
-            public String message;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                this.message = "Failed to upload " + file.getAbsolutePath();
-                return StringUtils.contains(consoleOut.toLowerCase(), message.toLowerCase());
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
             }
         };
     }
@@ -225,75 +74,6 @@ public class ConsoleOutMatcher {
                 this.consoleOut = consoleOut;
                 this.message = "The rule [" + rule + "] cannot match any resource under [" + root + "]";
 
-                return StringUtils.contains(consoleOut, message);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedExcRunIfInfo(final String command, final String status) {
-        return printedExcRunIfInfo(command, "", status);
-
-    }
-
-    public static TypeSafeMatcher<String> printedExcRunIfInfo(final String command, final String args,
-                                                              final String status) {
-        return new TypeSafeMatcher<>() {
-            public String consoleOut;
-            public String message;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                if (StringUtils.isEmpty(args)) {
-                    this.message = format("[%s] Current job status: %s", GoConstants.PRODUCT_NAME, status);
-                    this.message = format("[%s] Task: %s", GoConstants.PRODUCT_NAME, command);
-                } else {
-                    this.message = format("[%s] Current job status: %s", GoConstants.PRODUCT_NAME, status);
-                    this.message = format("[%s] Task: %s %s", GoConstants.PRODUCT_NAME, command, args);
-                }
-                return StringUtils.contains(consoleOut, message);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedAppsMissingInfoOnUnix(final String app) {
-        return new TypeSafeMatcher<>() {
-            public String consoleOut;
-            public String message;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                message = format("Please make sure [%s] can be executed on this agent", app);
-                return StringUtils.contains(consoleOut, message);
-            }
-
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected console to contain [" + message + "] but was " + consoleOut);
-            }
-        };
-    }
-
-    public static TypeSafeMatcher<String> printedAppsMissingInfoOnWindows(final String app) {
-        return new TypeSafeMatcher<>() {
-            public String consoleOut;
-            public String message;
-
-            @Override
-            public boolean matchesSafely(String consoleOut) {
-                this.consoleOut = consoleOut;
-                message = format("'%s' is not recognized as an internal or external command", app);
                 return StringUtils.contains(consoleOut, message);
             }
 

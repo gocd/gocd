@@ -19,13 +19,11 @@ import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import org.junit.jupiter.api.AfterEach;
@@ -60,16 +58,13 @@ public class UpdateAgentStatusTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
     @Autowired
-    private ConfigRepository configRepo;
-    @Autowired
     private TransactionTemplate transactionTemplate;
 
     @Autowired
     private MaterialRepository materialRepository;
 
     private PipelineWithTwoStages preCondition;
-    private String agentId = "uuid";
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     @BeforeEach
     public void setUp(@TempDir Path tempDir) throws Exception {
@@ -79,7 +74,7 @@ public class UpdateAgentStatusTest {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, tempDir);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
-        agentService.saveOrUpdate(new Agent(agentId, "CCEDev01", "10.81.2.1", "cookie"));
+        agentService.saveOrUpdate(new Agent("uuid", "CCEDev01", "10.81.2.1", "cookie"));
     }
 
     @AfterEach
@@ -88,7 +83,7 @@ public class UpdateAgentStatusTest {
     }
 
     @Test
-    public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() throws Exception {
+    public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() {
         String oldIp = agentService.getAgentByUUID("uuid").getIpaddress();
         assertThat(oldIp, is("10.81.2.1"));
 
@@ -103,7 +98,7 @@ public class UpdateAgentStatusTest {
     }
 
     @Test
-    public void shouldUpdateAgentWorkingDirWhenItChanges() throws Exception {
+    public void shouldUpdateAgentWorkingDirWhenItChanges() {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
@@ -116,7 +111,7 @@ public class UpdateAgentStatusTest {
 
 
     @Test
-    public void shouldLogWarningWhenIPAddressChanges() throws Exception {
+    public void shouldLogWarningWhenIPAddressChanges() {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
@@ -127,10 +122,6 @@ public class UpdateAgentStatusTest {
             assertThat(logging.getLog(),
                     containsString("Agent with UUID [uuid] changed IP Address from [10.81.2.1] to [10.18.3.95]"));
         }
-    }
-
-    public JobIdentifier jobIdentifier(long id) {
-        return new JobIdentifier("", "", "", "1", "", id);
     }
 }
 

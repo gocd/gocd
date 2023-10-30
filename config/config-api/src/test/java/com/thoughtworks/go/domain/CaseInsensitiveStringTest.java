@@ -19,13 +19,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class CaseInsensitiveStringTest {
 
@@ -48,7 +43,7 @@ public class CaseInsensitiveStringTest {
     @Test
     public void shouldClone() throws Exception {
         CaseInsensitiveString foo = new CaseInsensitiveString("foo");
-        CaseInsensitiveString fooClone = (CaseInsensitiveString) ReflectionUtil.invoke(foo, "clone");
+        CaseInsensitiveString fooClone = ReflectionUtil.invoke(foo, "clone");
         assertThat(foo, is(fooClone));
         assertThat(foo, not(sameInstance(fooClone)));
     }

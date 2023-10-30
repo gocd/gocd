@@ -45,40 +45,24 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         this(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), jobInstance.getName(), jobInstance.getId());
     }
 
-    public JobIdentifier(StageIdentifier stageIdentifier, JobInstance job) {
-        this(stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getPipelineLabel(), stageIdentifier.getStageName(),
-                stageIdentifier.getStageCounter(), job.getName(), job.getId());
+    public JobIdentifier(StageIdentifier stage, JobInstance job) {
+        this(stage.getPipelineName(), stage.getPipelineCounter(), stage.getPipelineLabel(), stage.getStageName(), stage.getStageCounter(), job.getName(), job.getId());
     }
 
     public JobIdentifier(StageIdentifier stage, String jobName) {
-        this(stage.getPipelineName(), stage.getPipelineCounter(), stage.getPipelineLabel(), stage.getStageName(),
-                stage.getStageCounter(), jobName, 0L);
+        this(stage.getPipelineName(), stage.getPipelineCounter(), stage.getPipelineLabel(), stage.getStageName(), stage.getStageCounter(), jobName, 0L);
     }
 
     public JobIdentifier(StageIdentifier stage, String jobName, Long jobId) {
-        this(stage.getPipelineName(), stage.getPipelineCounter(), stage.getPipelineLabel(), stage.getStageName(),
-                stage.getStageCounter(), jobName, jobId);
+        this(stage.getPipelineName(), stage.getPipelineCounter(), stage.getPipelineLabel(), stage.getStageName(), stage.getStageCounter(), jobName, jobId);
     }
 
     public JobIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, String stageCounter, String jobName) {
         this(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, jobName, -1L);
     }
 
-    public static JobIdentifier invalidIdentifier(String pipelineName, String pipelineLabel, String stageName,
-                                                  String stageCounter, String buildName) {
-        return new JobIdentifier(pipelineName, pipelineLabel, stageName, stageCounter, buildName, null);
-    }
-
-    @Deprecated // should use pipeline counter
-    public JobIdentifier(String pipelineName, String pipelineLabel, String stageName,
-                         String counter, String buildName) {
-        this(pipelineName, pipelineLabel, stageName, counter, buildName, 0L);
-    }
-
-    @Deprecated // should use pipeline counter
-    public JobIdentifier(String pipelineName, String pipelineLabel, String stageName, int stageCounter, String buildName, Long buildId) {
-        this(pipelineName, pipelineLabel, stageName, String.valueOf(stageCounter), buildName, buildId);
+    public static JobIdentifier invalidIdentifier(String pipelineName, String pipelineLabel, String stageName, String stageCounter, String buildName) {
+        return new JobIdentifier(pipelineName, null, pipelineLabel, stageName, stageCounter, buildName, null);
     }
 
     public JobIdentifier(String pipelineName, Integer pipelineCounter, String pipelineLabel, String stageName, String stageCounter, String buildName, Long buildId) {
@@ -93,12 +77,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
 
     /*this constructor is for ibatis*/
     public JobIdentifier() {
-    }
-
-    @Deprecated // should use pipeline counter
-    public JobIdentifier(String pipelineName, String pipelineLabel, String stageName, String stageCounter, String buildName, Long buildId) {
-        this(pipelineName, null, pipelineLabel, stageName, stageCounter, buildName, buildId);
-        this.buildId = buildId;
     }
 
     public void setPipelineName(String pipelineName) {
@@ -188,11 +166,7 @@ public class JobIdentifier implements Serializable, LocatableEntity {
         if (stageCounter != null ? !stageCounter.equals(that.stageCounter) : that.stageCounter != null) {
             return false;
         }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
-            return false;
-        }
-
-        return true;
+        return stageName != null ? stageName.equals(that.stageName) : that.stageName == null;
     }
 
     @Override
@@ -231,10 +205,6 @@ public class JobIdentifier implements Serializable, LocatableEntity {
             filePath = filePath.substring(1);
         }
         return UrlUtil.encodeInUtf8(String.format("%s/%s/%s", stageLocator(), buildName, filePath));
-    }
-
-    public boolean needTranslateJob() {
-        return buildId == null || buildId <= 0L;
     }
 
     public StageIdentifier getStageIdentifier() {

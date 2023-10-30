@@ -75,19 +75,19 @@ public class ArtifactsControllerTest {
     public void shouldUpdateLastConsoleActivityOnConsoleLogPut() throws Exception {
         String content = "Testing:";
         request.setContent(content.getBytes());
-        JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103l);
-        when(restfulService.findJob("pipeline", "10", "stage", "2", "build", 103l)).thenReturn(jobIdentifier);
+        JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103L);
+        when(restfulService.findJob("pipeline", "10", "stage", "2", "build", 103L)).thenReturn(jobIdentifier);
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
         when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
-        assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
+        assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103L, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }
 
     @Test
     public void testConsoleOutShouldReturnErrorWhenJobHasBeenCompletedAndLogsNotFound() {
-        JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103l);
+        JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103L);
         when(restfulService.findJob("pipeline", "10", "stage", "2", "build")).thenReturn(jobIdentifier);
 
         when(jobInstanceDao.isJobCompleted(jobIdentifier)).thenReturn(true);
@@ -103,8 +103,8 @@ public class ArtifactsControllerTest {
     @Test
     public void shouldReturnHttpErrorCodeWhenChecksumFileSaveFails() throws Exception {
         File artifactFile = new File("junk");
-        JobIdentifier jobIdentifier = new JobIdentifier("pipeline-1", 1, "1", "stage-1", "2", "job-1", 122l);
-        when(restfulService.findJob("pipeline-1", "1", "stage-1", "2", "job-1", 122l)).thenReturn(jobIdentifier);
+        JobIdentifier jobIdentifier = new JobIdentifier("pipeline-1", 1, "1", "stage-1", "2", "job-1", 122L);
+        when(restfulService.findJob("pipeline-1", "1", "stage-1", "2", "job-1", 122L)).thenReturn(jobIdentifier);
         when(artifactService.findArtifact(any(JobIdentifier.class), eq("some-path"))).thenReturn(artifactFile);
         when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1))).thenReturn(true);
         when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class))).thenReturn(false);

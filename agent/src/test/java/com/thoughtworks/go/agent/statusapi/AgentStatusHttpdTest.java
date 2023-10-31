@@ -16,7 +16,6 @@
 package com.thoughtworks.go.agent.statusapi;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +36,7 @@ class AgentStatusHttpdTest {
     private AgentHealthHolder agentHealthHolder;
     @Mock
     private SystemEnvironment systemEnvironment;
-    @Mock
-    private NanoHTTPD.IHTTPSession session;
+
     private AgentStatusHttpd agentStatusHttpd;
 
     @BeforeEach

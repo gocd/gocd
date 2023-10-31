@@ -613,11 +613,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public String getAgentStatusHostname() {
-        if (isBlank(AGENT_STATUS_API_BIND_HOST.getValue())) {
-            return null;
-        } else {
-            return AGENT_STATUS_API_BIND_HOST.getValue();
-        }
+        return AGENT_STATUS_API_BIND_HOST.getValue();
     }
 
     public int getAgentStatusPort() {

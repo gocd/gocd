@@ -21,8 +21,6 @@ import {loaders} from "./loaders";
 import {plugins} from "./plugins";
 import {ConfigOptions, getEntries, getModules} from "./variables";
 
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-
 function getConfigOptions(argv: any, env: any): ConfigOptions {
   const assetsDir              = path.join(__dirname, "..");
   const railsRoot              = path.join(assetsDir, "..");
@@ -46,7 +44,7 @@ function getConfigOptions(argv: any, env: any): ConfigOptions {
   };
 }
 
-function getOptimization(configOptions: ConfigOptions): webpack.Options.Optimization {
+function getOptimization(configOptions: ConfigOptions): any {
   return configOptions.production ? {
     splitChunks: {
       cacheGroups: {
@@ -77,9 +75,12 @@ function configuration(env: any, argv: any): webpack.Configuration {
     output: {
       path: configOptions.outputDir,
       publicPath: "/go/assets/webpack/",
-      filename: configOptions.production ? "[name]-[chunkhash].js" : "[name].js"
+      filename: configOptions.production ? "[name]-[contenthash].js" : "[name].js"
     },
-    cache: true,
+    cache: {
+      type: 'filesystem',
+      cacheDirectory: path.join(configOptions.cacheDir, "webpack-cache"),
+    },
     bail: !argv.watch,
     devtool: configOptions.production ? "source-map" : "eval-source-map",
     optimization,
@@ -93,7 +94,4 @@ function configuration(env: any, argv: any): webpack.Configuration {
     plugins: plugins(configOptions),
   };
 }
-
-const smp = new SpeedMeasurePlugin();
-
-export default smp.wrap(configuration);
+export default configuration;

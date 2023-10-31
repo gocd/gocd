@@ -47,7 +47,7 @@ export class LicensePlugins {
       const filenames: string[] = [];
       compiler.hooks.emit.tapAsync("LicensePlugin", (compilation, callback) => {
         compilation.chunks.forEach((chunk) => {
-          chunk.modulesIterable.forEach((chunkModule: any) => {
+          chunk.getModules().forEach((chunkModule: any) => {
             filenames.push(chunkModule.resource || (chunkModule.rootModule && chunkModule.rootModule.resource));
             if (Array.isArray(chunkModule.fileDependencies)) {
               chunkModule.fileDependencies.forEach((e: string) => {
@@ -56,16 +56,6 @@ export class LicensePlugins {
             }
           });
         });
-        compilation.modules
-          .filter((module) => module.resource && /\.(scss|sass)$/.test(module.resource))
-          .forEach((module) => {
-            filenames.push(module.resource);
-            if (module.buildInfo.fileDependencies) {
-              module.buildInfo.fileDependencies.forEach((e: string) => {
-                filenames.push(e);
-              });
-            }
-          });
         callback();
 
         const licenseReport = _.chain(filenames)

@@ -30,7 +30,9 @@ dependencies {
   implementation project.deps.jettyJmx
   implementation project.deps.jettyServlets
   implementation project.deps.jettyUtil
-  implementation project.deps.jettyDeploy
+  implementation(project.deps.jettyDeploy) {
+    exclude(module: 'awaitility') // See https://github.com/jetty/jetty.project/issues/10812
+  }
   implementation(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')
   }

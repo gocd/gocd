@@ -59,7 +59,6 @@ dependencies {
   }
   implementation project.deps.jakartaAnnotation
   implementation project.deps.commonsConfiguration
-  implementation project.deps.nanohttpd
   implementation project.deps.oshi
   compileOnly project.deps.jetBrainsAnnotations
 
@@ -165,7 +164,6 @@ task verifyJar(type: VerifyJarTask) {
       "joda-time-${project.versions.jodaTime}.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
-      "nanohttpd-${project.versions.nanohttpd}.jar",
       "objenesis-${project.versions.objenesis}.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "oshi-core-java11-${project.versions.oshi}.jar",

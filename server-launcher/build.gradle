@@ -61,7 +61,9 @@ dependencies {
   packagingInLibDir project.deps.jettyJmx
   packagingInLibDir project.deps.jettyServlets
   packagingInLibDir project.deps.jettyUtil
-  packagingInLibDir project.deps.jettyDeploy
+  packagingInLibDir(project.deps.jettyDeploy) {
+    exclude(module: 'awaitility') // See https://github.com/jetty/jetty.project/issues/10812
+  }
   packagingInLibDir(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')
   }

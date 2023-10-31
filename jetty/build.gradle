@@ -27,12 +27,16 @@ dependencies {
   compileOnly project.deps.jettyJmx
   compileOnly project.deps.jettyServlets
   compileOnly project.deps.jettyUtil
-  compileOnly project.deps.jettyDeploy
+  compileOnly(project.deps.jettyDeploy) {
+    exclude(module: 'awaitility') // See https://github.com/jetty/jetty.project/issues/10812
+  }
   compileOnly(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')
   }
 
-  testImplementation project.deps.jettyDeploy
+  testImplementation(project.deps.jettyDeploy) {
+    exclude(module: 'awaitility') // See https://github.com/jetty/jetty.project/issues/10812
+  }
   testImplementation project.deps.jettyJmx
   testImplementation(project.deps.jettyWebsocket) {
     exclude(module: 'jetty-annotations')

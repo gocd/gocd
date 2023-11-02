@@ -43,14 +43,14 @@ import static java.lang.Double.parseDouble;
 public class DefaultPluginManager implements PluginManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPluginManager.class);
     private final DefaultPluginJarLocationMonitor monitor;
-    private DefaultPluginRegistry registry;
+    private final DefaultPluginRegistry registry;
     private final DefaultPluginJarChangeListener defaultPluginJarChangeListener;
-    private SystemEnvironment systemEnvironment;
-    private PluginLoader pluginLoader;
-    private File bundleLocation;
-    private GoPluginOSGiFramework goPluginOSGiFramework;
+    private final SystemEnvironment systemEnvironment;
+    private final PluginLoader pluginLoader;
+    private final File bundleLocation;
+    private final GoPluginOSGiFramework goPluginOSGiFramework;
     private final Map<PluginDescriptor, Set<String>> initializedPluginsWithTheirExtensionTypes = new HashMap<>();
-    private PluginRequestProcessorRegistry requestProcessRegistry;
+    private final PluginRequestProcessorRegistry requestProcessRegistry;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
@@ -62,8 +62,8 @@ public class DefaultPluginManager implements PluginManager {
         this.requestProcessRegistry = requestProcessRegistry;
         this.systemEnvironment = systemEnvironment;
         this.pluginLoader = pluginLoader;
-        bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
+        this.bundleLocation = bundlePath();
     }
 
     @Override

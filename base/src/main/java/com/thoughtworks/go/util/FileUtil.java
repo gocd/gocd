@@ -72,6 +72,7 @@ public class FileUtil {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void createParentFolderIfNotExist(File file) {
         File parentFile = file.getParentFile();
         if (parentFile != null && !parentFile.exists()) {
@@ -101,13 +102,13 @@ public class FileUtil {
         return false;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void createFilesByPath(File baseDir, String... files) throws IOException {
         for (String file : files) {
+            File file1 = new File(baseDir, file);
             if (file.endsWith("/")) {
-                File file1 = new File(baseDir, file);
                 file1.mkdirs();
             } else {
-                File file1 = new File(baseDir, file);
                 file1.getParentFile().mkdirs();
                 file1.createNewFile();
             }

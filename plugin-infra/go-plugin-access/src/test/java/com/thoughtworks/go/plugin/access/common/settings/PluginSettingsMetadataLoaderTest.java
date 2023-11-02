@@ -35,9 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,7 +76,7 @@ public class PluginSettingsMetadataLoaderTest {
     }
 
     @Test
-    public void shouldFetchPluginSettingsMetadataForPluginBasedOnPluginId() throws Exception {
+    public void shouldFetchPluginSettingsMetadataForPluginBasedOnPluginId() {
         List<AbstractExtension> everyExtensionExceptTask = List.of(packageRepositoryExtension, scmExtension, notificationExtension, configRepoExtension);
 
         for (GoPluginExtension extension : everyExtensionExceptTask) {
@@ -94,7 +93,7 @@ public class PluginSettingsMetadataLoaderTest {
     }
 
     @Test
-    public void shouldNotFetchPluginSettingsMetadataForTaskPlugin() throws Exception {
+    public void shouldNotFetchPluginSettingsMetadataForTaskPlugin() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
@@ -105,7 +104,7 @@ public class PluginSettingsMetadataLoaderTest {
 
         verify(taskExtension, never()).getPluginSettingsConfiguration(pluginDescriptor.id());
         verify(taskExtension, never()).getPluginSettingsView(pluginDescriptor.id());
-        assertThat(PluginSettingsMetadataStore.getInstance().configuration(pluginDescriptor.id()), is(nullValue()));
+        assertThat(PluginSettingsMetadataStore.getInstance().configuration(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -118,7 +117,7 @@ public class PluginSettingsMetadataLoaderTest {
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
-        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id()), is(false));
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id())).isFalse();
     }
 
     @Test
@@ -128,122 +127,120 @@ public class PluginSettingsMetadataLoaderTest {
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
-        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id()), is(false));
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id())).isFalse();
     }
 
     @Test
-    public void shouldRegisterAsPluginFrameworkStartListener() throws Exception {
+    public void shouldRegisterAsPluginFrameworkStartListener() {
         verify(pluginManager).addPluginChangeListener(metadataLoader);
     }
 
     @Test
-    public void shouldRemoveMetadataOnPluginUnLoadedCallback() throws Exception {
+    public void shouldRemoveMetadataOnPluginUnLoadedCallback() {
         GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("plugin-id").isBundledPlugin(true).build();
         PluginSettingsMetadataStore.getInstance().addMetadataFor(pluginDescriptor.id(), PluginConstants.NOTIFICATION_EXTENSION, new PluginSettingsConfiguration(), "template");
 
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id()), is(false));
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id())).isFalse();
     }
 
     @Test
-    public void shouldFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings() throws Exception {
+    public void shouldFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
+        String pluginId = "plugin-id";
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
-        setupSettingsResponses(notificationExtension, pluginID, configuration, "view");
-        setupSettingsResponses(packageRepositoryExtension, pluginID, configuration, "view");
+        setupSettingsResponses(notificationExtension, pluginId, configuration, "view");
+        setupSettingsResponses(packageRepositoryExtension, pluginId, configuration, "view");
 
-        try {
-            metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
-            fail("Should have failed since multiple extensions support plugin settings.");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Plugin with ID: plugin-id has more than one extension which supports plugin settings"));
-            assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id()), is(false));
-        }
+        assertThatThrownBy(() -> metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Plugin with ID: plugin-id has more than one extension which supports plugin settings");
+
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginDescriptor.id())).isFalse();
     }
 
     @Test
-    public void shouldNotFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings_BUT_OnlyOneIsValid() throws Exception {
+    public void shouldNotFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings_BUT_OnlyOneIsValid() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
+        String pluginId = "plugin-id";
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
-        setupSettingsResponses(notificationExtension, pluginID, configuration, null);
-        setupSettingsResponses(packageRepositoryExtension, pluginID, configuration, "view");
+        setupSettingsResponses(notificationExtension, pluginId, configuration, null);
+        setupSettingsResponses(packageRepositoryExtension, pluginId, configuration, "view");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
-        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginID), is(true));
-        assertThat(PluginSettingsMetadataStore.getInstance().configuration(pluginID), is(configuration));
-        assertThat(PluginSettingsMetadataStore.getInstance().template(pluginID), is("view"));
-        assertThat(PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginID), is(PluginConstants.PACKAGE_MATERIAL_EXTENSION));
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginId)).isTrue();
+        assertThat(PluginSettingsMetadataStore.getInstance().configuration(pluginId)).isEqualTo(configuration);
+        assertThat(PluginSettingsMetadataStore.getInstance().template(pluginId)).isEqualTo("view");
+        assertThat(PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(pluginId)).isEqualTo(PluginConstants.PACKAGE_MATERIAL_EXTENSION);
     }
 
     @Test
-    public void shouldNotFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings_BUT_NoneIsValid() throws Exception {
+    public void shouldNotFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings_BUT_NoneIsValid() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
+        String pluginId = "plugin-id";
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
-        setupSettingsResponses(notificationExtension, pluginID, configuration, null);
-        setupSettingsResponses(packageRepositoryExtension, pluginID, null, "view");
+        setupSettingsResponses(notificationExtension, pluginId, configuration, null);
+        setupSettingsResponses(packageRepositoryExtension, pluginId, null, "view");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
-        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginID), is(false));
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginId)).isFalse();
     }
 
     @Test
-    public void shouldNotFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings_BUT_OneIsValidAndOtherThrowsException() throws Exception {
+    public void shouldNotFailWhenAPluginWithMultipleExtensionsHasMoreThanOneExtensionRespondingWithSettings_BUT_OneIsValidAndOtherThrowsException() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        String pluginID = "plugin-id";
-        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginID).build();
+        String pluginId = "plugin-id";
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id(pluginId).build();
 
-        setupSettingsResponses(notificationExtension, pluginID, configuration, "view");
+        setupSettingsResponses(notificationExtension, pluginId, configuration, "view");
 
-        when(packageRepositoryExtension.canHandlePlugin(pluginID)).thenReturn(false);
+        when(packageRepositoryExtension.canHandlePlugin(pluginId)).thenReturn(false);
 
-        when(scmExtension.canHandlePlugin(pluginID)).thenReturn(true);
-        when(scmExtension.getPluginSettingsConfiguration(pluginID)).thenThrow(new RuntimeException("Ouch!"));
-        when(scmExtension.getPluginSettingsView(pluginID)).thenReturn("view");
+        when(scmExtension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(scmExtension.getPluginSettingsConfiguration(pluginId)).thenThrow(new RuntimeException("Ouch!"));
+        when(scmExtension.getPluginSettingsView(pluginId)).thenReturn("view");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
-        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginID), is(true));
-        verify(packageRepositoryExtension, never()).getPluginSettingsConfiguration(pluginID);
-        verify(packageRepositoryExtension, never()).getPluginSettingsView(pluginID);
+        assertThat(PluginSettingsMetadataStore.getInstance().hasPlugin(pluginId)).isTrue();
+        verify(packageRepositoryExtension, never()).getPluginSettingsConfiguration(pluginId);
+        verify(packageRepositoryExtension, never()).getPluginSettingsView(pluginId);
     }
 
     @Test
-    public void shouldReturnNullForExtensionWhichCanHandleSettingsIfPluginDoesNotExist() throws Exception {
-        assertThat(PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings("INVALID-PLUGIN"), is(nullValue()));
-        assertThat(PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings(""), is(nullValue()));
+    public void shouldReturnNullForExtensionWhichCanHandleSettingsIfPluginDoesNotExist() {
+        assertThat(PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings("INVALID-PLUGIN")).isNull();
+        assertThat(PluginSettingsMetadataStore.getInstance().extensionWhichCanHandleSettings("")).isNull();
     }
 
     private void verifyMetadataForPlugin(String pluginId) {
         PluginSettingsConfiguration configurationInStore = PluginSettingsMetadataStore.getInstance().configuration(pluginId);
-        assertThat(configurationInStore.size(), is(1));
+        assertThat(configurationInStore).isNotNull().satisfies(s -> assertThat(s.size()).isEqualTo(1));
         PluginSettingsProperty scmConfiguration = (PluginSettingsProperty) configurationInStore.get("k1");
-        assertThat(scmConfiguration.getKey(), is("k1"));
-        assertThat(scmConfiguration.getOption(Property.REQUIRED), is(true));
-        assertThat(scmConfiguration.getOption(Property.SECURE), is(false));
+        assertThat(scmConfiguration.getKey()).isEqualTo("k1");
+        assertThat(scmConfiguration.getOption(Property.REQUIRED)).isTrue();
+        assertThat(scmConfiguration.getOption(Property.SECURE)).isFalse();
         String template = PluginSettingsMetadataStore.getInstance().template(pluginId);
-        assertThat(template, is("template"));
+        assertThat(template).isEqualTo("template");
     }
 
-    private void setupSettingsResponses(GoPluginExtension extension, String pluginID, PluginSettingsConfiguration configuration, String viewTemplate) {
-        when(extension.canHandlePlugin(pluginID)).thenReturn(true);
-        when(extension.getPluginSettingsConfiguration(pluginID)).thenReturn(configuration);
-        when(extension.getPluginSettingsView(pluginID)).thenReturn(viewTemplate);
+    private void setupSettingsResponses(GoPluginExtension extension, String pluginId, PluginSettingsConfiguration configuration, String viewTemplate) {
+        when(extension.canHandlePlugin(pluginId)).thenReturn(true);
+        when(extension.getPluginSettingsConfiguration(pluginId)).thenReturn(configuration);
+        when(extension.getPluginSettingsView(pluginId)).thenReturn(viewTemplate);
     }
 }

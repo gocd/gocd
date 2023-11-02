@@ -28,15 +28,12 @@ import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
 import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.*;
 import static java.util.stream.Collectors.toCollection;
@@ -45,10 +42,9 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
 public class DefaultPluginInfoFinder {
-    private Map<String, MetadataStore> builders = new LinkedHashMap<>();
+    private final Map<String, MetadataStore<? extends PluginInfo>> builders = new LinkedHashMap<>();
 
-    @Autowired
-    public DefaultPluginInfoFinder(PluginManager pluginManager) {
+    public DefaultPluginInfoFinder() {
         builders.put(PACKAGE_MATERIAL_EXTENSION, PackageMaterialMetadataStore.instance());
         builders.put(PLUGGABLE_TASK_EXTENSION, PluggableTaskMetadataStore.instance());
         builders.put(SCM_EXTENSION, NewSCMMetadataStore.instance());
@@ -77,12 +73,12 @@ public class DefaultPluginInfoFinder {
     public Collection<CombinedPluginInfo> allPluginInfos(String type) {
         if (isBlank(type)) {
             return builders.values().stream()
-                    .map((Function<MetadataStore, Collection<? extends PluginInfo>>) MetadataStore::allPluginInfos)
-                    .flatMap((Function<Collection<? extends PluginInfo>, Stream<? extends PluginInfo>>) Collection::stream)
+                    .map(MetadataStore::allPluginInfos)
+                    .flatMap(Collection::stream)
                     .collect(Collectors.groupingBy(pluginID(), toCollection(CombinedPluginInfo::new)))
                     .values();
         } else if (builders.containsKey(type)) {
-            Collection<PluginInfo> pluginInfosForType = builders.get(type).allPluginInfos();
+            Collection<? extends PluginInfo> pluginInfosForType = builders.get(type).allPluginInfos();
             return pluginInfosForType.stream()
                     .map(CombinedPluginInfo::new).collect(toList());
         } else {

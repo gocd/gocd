@@ -53,7 +53,7 @@ class AgentStatusHttpdTest {
 
     private AgentStatusHttpd agentStatusHttpd;
 
-    private String hostName = "0.0.0.0";
+    private String hostName = "localhost";
     private int port = 8093;
 
     @BeforeEach
@@ -169,7 +169,7 @@ class AgentStatusHttpdTest {
             throw new RuntimeException("Unable to start the server for the test as a pre-requisite", e);
         }
     }
-    
+
     private static String responseBody(HttpEntity httpEntity) throws IOException {
         return EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
     }

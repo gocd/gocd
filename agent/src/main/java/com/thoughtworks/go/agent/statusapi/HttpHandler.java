@@ -15,17 +15,41 @@
  */
 package com.thoughtworks.go.agent.statusapi;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
+import com.sun.net.httpserver.HttpExchange;
+import com.thoughtworks.go.util.Pair;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
 
-abstract class HttpHandler {
-    NanoHTTPD.Response process() {
-        if (isPassed()) {
-            return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/plain; charset=utf-8", "OK!");
-        } else {
-            return NanoHTTPD.newFixedLengthResponse(Status.SERVICE_UNAVAILABLE, "text/plain; charset=utf-8", "Bad!");
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+
+@FunctionalInterface
+interface HttpHandler extends com.sun.net.httpserver.HttpHandler {
+
+    Pair<Integer, String> response();
+
+    @Override
+    default void handle(HttpExchange exchange) throws IOException {
+        writeResponse(exchange, isAllowed(exchange.getRequestMethod())
+            ? response()
+            : Pair.pair(HttpStatus.SC_METHOD_NOT_ALLOWED, "This method is not allowed. Please use GET or HEAD.")
+        );
+    }
+
+    private static boolean isAllowed(String requestMethod) {
+        return Set.of("GET", "PUT").contains(requestMethod.toUpperCase());
+    }
+
+    private void writeResponse(HttpExchange exchange, Pair<Integer, String> response) throws IOException {
+        byte[] rawResponse = response.last().getBytes(StandardCharsets.UTF_8);
+        exchange.getResponseHeaders().set(HttpHeaders.CONTENT_TYPE, "text/plain; charset=utf-8");
+        exchange.sendResponseHeaders(response.first(), rawResponse.length);
+
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(rawResponse);
         }
     }
 
-    protected abstract boolean isPassed();
 }

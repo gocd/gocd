@@ -19,23 +19,6 @@
 
   <suppress>
     <notes><![CDATA[
-    https://nvd.nist.gov/vuln/detail/CVE-2020-13697 as described only affects usage of "Nanolets" which is packaged
-    separately and which is not used within GoCD.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
-    <cve>CVE-2020-13697</cve>
-  </suppress>
-  <suppress>
-    <notes><![CDATA[
-    GoCD use of NanoHttpd is only in AgentStatusHttpd which only supports GET requests for status, so does not parse
-    body content to make it vulnerable to CVE-2022-21230.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.nanohttpd/nanohttpd@.*$</packageUrl>
-    <cve>CVE-2022-21230</cve>
-  </suppress>
-
-  <suppress>
-    <notes><![CDATA[
     GoCD does not use Spring's ServiceExporter in a vulnerable way, as described in https://nvd.nist.gov/vuln/detail/CVE-2016-1000027
     https://github.com/spring-projects/spring-framework/issues/24434 and https://blog.gypsyengineer.com/en/security/detecting-dangerous-spring-exporters-with-codeql.html
     ]]></notes>
@@ -275,7 +258,7 @@
     <notes><![CDATA[
     Suppress false positive from the JSON Config repo plugin at plugins-{version}.zip/gocd-json-config-plugin.jar. This plugin is being mis-identified as the json-c project which is completely different.
     Not sure if/how this can be fixed upstream in OWASP Dependency Check as in our case it's being reported against a SHA for the plugin jar itself which
-    does not have a Maven identifier.  
+    does not have a Maven identifier.
     ]]></notes>
     <cpe>cpe:/a:json-c:json-c</cpe>
   </suppress>
@@ -284,7 +267,7 @@
     <notes><![CDATA[
     Suppress false positive from Apache Mina, as used by the LDAP Authentication plugin. The plugin does not use the SFTP/SSHD parts of Mina,
     only that needed for talking to an LDAP server so does not appear to be affected by https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2023-35887
-    which should really only be recorded against mini-sshd, not mina-core.  
+    which should really only be recorded against mini-sshd, not mina-core.
     ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.mina/mina\-core@2\.0\..*$</packageUrl>
     <cve>CVE-2023-35887</cve>

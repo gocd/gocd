@@ -23,41 +23,24 @@ import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(ClearSingleton.class)
 public class DefaultPluginInfoFinderTest {
-    @Mock
-    private PluginManager pluginManager;
-
-    private DefaultPluginInfoFinder finder;
-    private PluggableTaskMetadataStore taskMetadataStore;
-    private NotificationMetadataStore notificationMetadataStore;
-    private SecretsMetadataStore secretsMetadataStore;
+    private final DefaultPluginInfoFinder finder = new DefaultPluginInfoFinder();
+    private final PluggableTaskMetadataStore taskMetadataStore = PluggableTaskMetadataStore.instance();
+    private final NotificationMetadataStore notificationMetadataStore = NotificationMetadataStore.instance();
+    private final SecretsMetadataStore secretsMetadataStore = SecretsMetadataStore.instance();
     private final String SECRET_PLUGIN_ID = "secret-plugin-id";
-
-    @BeforeEach
-    public void setUp() throws Exception {
-        taskMetadataStore = PluggableTaskMetadataStore.instance();
-        notificationMetadataStore = NotificationMetadataStore.instance();
-        secretsMetadataStore = SecretsMetadataStore.instance();
-
-        finder = new DefaultPluginInfoFinder(pluginManager);
-    }
 
     @Test
     public void shouldCombineMultipleExtensionsInASinglePluginIntoOne() {
@@ -68,12 +51,12 @@ public class DefaultPluginInfoFinderTest {
 
         Collection<CombinedPluginInfo> allPluginInfos = finder.allPluginInfos(null);
 
-        assertThat(allPluginInfos.size(), is(4));
-        assertThat(allPluginInfos, containsInAnyOrder(
-                combinedPluginInfo(taskPluginInfo("plugin-1"), notificationPluginInfo("plugin-1")),
-                combinedPluginInfo(taskPluginInfo("plugin-2")),
-                combinedPluginInfo(notificationPluginInfo("plugin-3")),
-                combinedPluginInfo(secretsPluginInfo(SECRET_PLUGIN_ID))));
+        assertThat(allPluginInfos).containsExactlyInAnyOrder(
+            combinedPluginInfo(taskPluginInfo("plugin-1"), notificationPluginInfo("plugin-1")),
+            combinedPluginInfo(taskPluginInfo("plugin-2")),
+            combinedPluginInfo(notificationPluginInfo("plugin-3")),
+            combinedPluginInfo(secretsPluginInfo(SECRET_PLUGIN_ID))
+        );
     }
 
     @Test
@@ -85,13 +68,13 @@ public class DefaultPluginInfoFinderTest {
 
         Collection<CombinedPluginInfo> allTaskPluginInfos = finder.allPluginInfos(PluginConstants.PLUGGABLE_TASK_EXTENSION);
 
-        assertThat(allTaskPluginInfos.size(), is(2));
-        assertThat(allTaskPluginInfos, containsInAnyOrder(
-                combinedPluginInfo(taskPluginInfo("plugin-1")),
-                combinedPluginInfo(taskPluginInfo("plugin-2"))));
+        assertThat(allTaskPluginInfos).containsExactlyInAnyOrder(
+            combinedPluginInfo(taskPluginInfo("plugin-1")),
+            combinedPluginInfo(taskPluginInfo("plugin-2"))
+        );
 
         Collection<CombinedPluginInfo> allSCMPluginInfos = finder.allPluginInfos(PluginConstants.SCM_EXTENSION);
-        assertThat(allSCMPluginInfos, is(emptyList()));
+        assertThat(allSCMPluginInfos).isEmpty();
     }
 
     @Test
@@ -101,9 +84,9 @@ public class DefaultPluginInfoFinderTest {
         notificationMetadataStore.setPluginInfo(notificationPluginInfo("plugin-1"));
         notificationMetadataStore.setPluginInfo(notificationPluginInfo("plugin-3"));
 
-        assertThat(finder.pluginInfoFor("plugin-1"), is(combinedPluginInfo(taskPluginInfo("plugin-1"), notificationPluginInfo("plugin-1"))));
-        assertThat(finder.pluginInfoFor("plugin-2"), is(combinedPluginInfo(taskPluginInfo("plugin-2"))));
-        assertThat(finder.pluginInfoFor("plugin-NON-EXISTENT"), is(nullValue()));
+        assertThat(finder.pluginInfoFor("plugin-1")).isEqualTo(combinedPluginInfo(taskPluginInfo("plugin-1"), notificationPluginInfo("plugin-1")));
+        assertThat(finder.pluginInfoFor("plugin-2")).isEqualTo(combinedPluginInfo(taskPluginInfo("plugin-2")));
+        assertThat(finder.pluginInfoFor("plugin-NON-EXISTENT")).isNull();
     }
 
     @Test
@@ -111,8 +94,8 @@ public class DefaultPluginInfoFinderTest {
         SecretsPluginInfo pluginInfo = secretsPluginInfo(SECRET_PLUGIN_ID);
         secretsMetadataStore.setPluginInfo(pluginInfo);
 
-        assertThat(finder.pluginInfoFor(SECRET_PLUGIN_ID), is(new CombinedPluginInfo(pluginInfo)));
-        assertThat(finder.pluginInfoFor("non-existent-plugin-id"), is(nullValue()));
+        assertThat(finder.pluginInfoFor(SECRET_PLUGIN_ID)).isEqualTo(new CombinedPluginInfo(pluginInfo));
+        assertThat(finder.pluginInfoFor("non-existent-plugin-id")).isNull();
     }
 
     private PluggableInstanceSettings settings(String someConfigurationSettingKeyName) {
@@ -121,8 +104,9 @@ public class DefaultPluginInfoFinderTest {
         return new PluggableInstanceSettings(List.of(configuration));
     }
 
-    private SecretsPluginInfo secretsPluginInfo(String pluginID) {
-        return new SecretsPluginInfo(getDescriptor(pluginID), settings("key"), null);
+    @SuppressWarnings("SameParameterValue")
+    private SecretsPluginInfo secretsPluginInfo(String pluginId) {
+        return new SecretsPluginInfo(getDescriptor(pluginId), settings("key"), null);
     }
 
 

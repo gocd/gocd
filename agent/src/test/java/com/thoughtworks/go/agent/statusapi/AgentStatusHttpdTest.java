@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,10 +92,10 @@ class AgentStatusHttpdTest {
 
     @Test
     void shouldNotInitializeServerIfSettingIsTurnedOff() throws Exception {
-        when(systemEnvironment.getAgentStatusEnabled()).thenReturn(true);
+        when(systemEnvironment.getAgentStatusEnabled()).thenReturn(false);
         AgentStatusHttpd spy = spy(agentStatusHttpd);
-        doThrow(new RuntimeException("This is not expected to be invoked")).when(spy).start();
         spy.init();
+        verify(spy, never()).start();
     }
 
     @Test
@@ -111,10 +111,6 @@ class AgentStatusHttpdTest {
         when(systemEnvironment.getAgentStatusEnabled()).thenReturn(true);
         AgentStatusHttpd spy = spy(agentStatusHttpd);
         doThrow(new RuntimeException("Server had a problem starting up!")).when(spy).start();
-        try {
-            spy.init();
-        } catch (Exception e) {
-            fail("Did not expect exception!");
-        }
+        assertThatCode(spy::init).doesNotThrowAnyException();
     }
 }

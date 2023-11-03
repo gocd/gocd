@@ -195,20 +195,11 @@ class AgentStatusHttpdTest {
     }
 
     private void processHttpRequest(HttpUriRequest httpRequest, HttpResponseConsumer consumer) {
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(httpRequest);
+        try (CloseableHttpClient httpclient = HttpClients.createDefault(); CloseableHttpResponse response = httpclient.execute(httpRequest)) {
             HttpEntity entity = response.getEntity();
             consumer.accept(response, entity);
         } catch (Exception e) {
             throw new RuntimeException("Unable to retrieve the http response", e);
-        } finally {
-            try {
-                if (response != null) response.close();
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to close the response", e);
-            }
         }
     }
 

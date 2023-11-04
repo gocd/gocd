@@ -26,12 +26,3 @@ updates:
   open-pull-requests-limit: 99
   allow:
     - dependency-type: all
-- package-ecosystem: bundler
-  directory: "/scripts"
-  commit-message:
-    prefix: dev-scripts
-  schedule:
-    interval: weekly
-    day: friday
-  allow:
-    - dependency-type: all

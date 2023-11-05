@@ -25,7 +25,7 @@ import org.gradle.internal.jvm.Jvm
 
 task pathingJar(type: Jar) {
   archiveClassifier = 'pathing'
-  dependsOn(project.railsTasksDefaultDependsOn)
+  dependsOn(project.railsClasspath, project.configurations.compileClasspath)
 
   doFirst {
     manifest {

@@ -271,7 +271,7 @@ dependencies {
     implementation project.deps.commonsFileUpload
   }
   implementation project.deps.aspectj
-  implementation files('lib/urlrewritefilter-4.0.5-SNAPSHOT.jar')
+  implementation project.deps.urlrewrite
 
   implementation project.deps.freemarker
   implementation project.deps.guava

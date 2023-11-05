@@ -632,15 +632,25 @@ task allDependencies {
   description = "Print dependency tree of all projects"
 }
 
-task compileAll { compileAllTask ->
-  group LifecycleBasePlugin.BUILD_GROUP
+private allCompileTasks(Closure<Boolean> include = { t -> true }) {
   allprojects.collect { Project prj ->
-    compileAll.dependsOn(prj.getTasks().withType(JavaCompile))
-    compileAll.dependsOn(prj.getTasks().withType(GroovyCompile))
+    prj.afterEvaluate {
+      compileAll.dependsOn(prj.getTasks().withType(JavaCompile).findAll(include))
+      compileAll.dependsOn(prj.getTasks().withType(GroovyCompile).findAll(include))
+    }
   }
 }
 
-task prepare(dependsOn: compileAll)
+
+task compileAll { compileAllTask ->
+  group LifecycleBasePlugin.BUILD_GROUP
+  allCompileTasks()
+}
+
+task prepare {
+  group LifecycleBasePlugin.BUILD_GROUP
+  allCompileTasks { Task task -> !task.name.toLowerCase().contains('test') && !task.project.path.toLowerCase().contains('test') }
+}
 
 task sparkTest { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP

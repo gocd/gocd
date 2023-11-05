@@ -34,8 +34,7 @@ class ExecuteUnderRailsTask extends JavaExec {
 
   ExecuteUnderRailsTask() {
     super()
-    dependsOn(project.railsTasksDefaultDependsOn)
-    dependsOn(':server:pathingJar')
+    dependsOn(':server:initializeRailsGems', ':server:cleanDb', ':server:createJRubyBinstubs', ':server:pathingJar')
 
     originalEnv = new LinkedHashMap<String, Object>(environment)
     workingDir = project.railsRoot

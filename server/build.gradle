@@ -170,17 +170,6 @@ project.ext.railsSystemProperties = [
   'jdk.net.URLClassPath.disableClassPathURLCheck': true
 ]
 
-project.ext.railsTasksDefaultDependsOn = [
-  ':server:initializeRailsGems',
-  ':server:cleanDb',
-  ':server:createJRubyBinstubs',
-  project.sourceSets.main.runtimeClasspath,
-  project.sourceSets.test.runtimeClasspath,
-  project.configurations.spark,
-  project.sourceSets.sharedTest.runtimeClasspath,
-  project.sourceSets.fastUnitTest.runtimeClasspath
-]
-
 project.ext.jrubyexec = { Closure<JavaExecSpec> cl ->
   try {
     project.javaexec { JavaExecSpec javaExecSpec ->
@@ -282,7 +271,7 @@ dependencies {
     implementation project.deps.commonsFileUpload
   }
   implementation project.deps.aspectj
-  implementation project.deps.urlrewrite
+  implementation files('lib/urlrewritefilter-4.0.5-SNAPSHOT.jar')
 
   implementation project.deps.freemarker
   implementation project.deps.guava

@@ -1911,10 +1911,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/license-checker@npm:^25.0.5":
-  version: 25.0.5
-  resolution: "@types/license-checker@npm:25.0.5"
-  checksum: 1e171a2bb788fda8f03c67467578c63896d5e0884cddc7f8ec732300a83dbb1393bfbec53c17da7a41f51f3cebcbba87c9028a4d41c93ef57632ced633379300
+"@types/license-checker@npm:^25.0.6":
+  version: 25.0.6
+  resolution: "@types/license-checker@npm:25.0.6"
+  checksum: 9446f2ed96dae685b9a0e018a5b5bf12ffba4aa59aaa4383f18158a9614f2f129612e6655b4419add12d388c5ee5cb2795e4bfbefecaafd1b4d5d701b7c06173
   languageName: node
   linkType: hard
 
@@ -5804,7 +5804,7 @@ __metadata:
     "@types/jasmine": "npm:^5.1.1"
     "@types/jasmine-ajax": "npm:^3.3.4"
     "@types/jquery": "npm:^3.5.26"
-    "@types/license-checker": "npm:^25.0.5"
+    "@types/license-checker": "npm:^25.0.6"
     "@types/lodash": "npm:^4.14.200"
     "@types/mini-css-extract-plugin": "npm:^1.4.3"
     "@types/mithril": "npm:2.2.4"

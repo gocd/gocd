@@ -2049,12 +2049,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/underscore.string@npm:^0.0.40":
-  version: 0.0.40
-  resolution: "@types/underscore.string@npm:0.0.40"
+"@types/underscore.string@npm:^0.0.41":
+  version: 0.0.41
+  resolution: "@types/underscore.string@npm:0.0.41"
   dependencies:
     "@types/underscore": "npm:*"
-  checksum: e740678ee590d6edfa091f1b96afa901cd720a925fbb9aa3676a0c7b6707ded47ca4b5f8b9cd26cb674e845aa7a11e57bb3f416a54ebaaca9782d65ccf313f36
+  checksum: 2ff18e86dfb0e45893547bf242c83cb19ba70a72dca110a4a22a23e83dff35012586f1fe6c0b3a3c29de35f0397d6872354786c97035a40cde425a7ae868f5af
   languageName: node
   linkType: hard
 
@@ -5821,7 +5821,7 @@ __metadata:
     "@types/optimize-css-assets-webpack-plugin": "npm:^5.0.8"
     "@types/prismjs": "npm:^1.26.3"
     "@types/shell-quote": "npm:^1.7.4"
-    "@types/underscore.string": "npm:^0.0.40"
+    "@types/underscore.string": "npm:^0.0.41"
     "@types/url-parse": "npm:^1.4.11"
     "@types/uuid": "npm:^9.0.7"
     "@types/webpack": "npm:^4.41.35"

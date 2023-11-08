@@ -67,7 +67,7 @@
     "@types/node": "^20.8.10",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.8",
     "@types/prismjs": "^1.26.3",
-    "@types/shell-quote": "^1.7.3",
+    "@types/shell-quote": "^1.7.4",
     "@types/underscore.string": "^0.0.40",
     "@types/url-parse": "^1.4.10",
     "@types/uuid": "^9.0.6",

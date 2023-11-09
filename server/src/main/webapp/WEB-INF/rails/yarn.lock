@@ -1094,14 +1094,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-react-display-name@npm:^7.22.5":
-  version: 7.22.5
-  resolution: "@babel/plugin-transform-react-display-name@npm:7.22.5"
+"@babel/plugin-transform-react-display-name@npm:^7.23.3":
+  version: 7.23.3
+  resolution: "@babel/plugin-transform-react-display-name@npm:7.23.3"
   dependencies:
     "@babel/helper-plugin-utils": "npm:^7.22.5"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: a12bfd1e4e93055efca3ace3c34722571bda59d9740dca364d225d9c6e3ca874f134694d21715c42cc63d79efd46db9665bd4a022998767f9245f1e29d5d204d
+  checksum: 7f86964e8434d3ddbd3c81d2690c9b66dbf1cd8bd9512e2e24500e9fa8cf378bc52c0853270b3b82143aba5965aec04721df7abdb768f952b44f5c6e0b198779
   languageName: node
   linkType: hard
 
@@ -1131,15 +1131,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-react-pure-annotations@npm:^7.22.5":
-  version: 7.22.5
-  resolution: "@babel/plugin-transform-react-pure-annotations@npm:7.22.5"
+"@babel/plugin-transform-react-pure-annotations@npm:^7.23.3":
+  version: 7.23.3
+  resolution: "@babel/plugin-transform-react-pure-annotations@npm:7.23.3"
   dependencies:
     "@babel/helper-annotate-as-pure": "npm:^7.22.5"
     "@babel/helper-plugin-utils": "npm:^7.22.5"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 092021c4f404e267002099ec20b3f12dd730cb90b0d83c5feed3dc00dbe43b9c42c795a18e7c6c7d7bddea20c7dd56221b146aec81b37f2e7eb5137331c61120
+  checksum: 9ea3698b1d422561d93c0187ac1ed8f2367e4250b10e259785ead5aa643c265830fd0f4cf5087a5bedbc4007444c06da2f2006686613220acf0949895f453666
   languageName: node
   linkType: hard
 
@@ -1372,19 +1372,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-react@npm:^7.22.15":
-  version: 7.22.15
-  resolution: "@babel/preset-react@npm:7.22.15"
+"@babel/preset-react@npm:^7.23.3":
+  version: 7.23.3
+  resolution: "@babel/preset-react@npm:7.23.3"
   dependencies:
     "@babel/helper-plugin-utils": "npm:^7.22.5"
     "@babel/helper-validator-option": "npm:^7.22.15"
-    "@babel/plugin-transform-react-display-name": "npm:^7.22.5"
+    "@babel/plugin-transform-react-display-name": "npm:^7.23.3"
     "@babel/plugin-transform-react-jsx": "npm:^7.22.15"
     "@babel/plugin-transform-react-jsx-development": "npm:^7.22.5"
-    "@babel/plugin-transform-react-pure-annotations": "npm:^7.22.5"
+    "@babel/plugin-transform-react-pure-annotations": "npm:^7.23.3"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: f9296e45346c3b6ab8296952edde5f1774cc9fdbdbefbc76047278fc3e889d3e15740f038ce017aca562d89f32fcbb6c11783d464fc6ae3066433178fa58513c
+  checksum: ef6aef131b2f36e2883e9da0d832903643cb3c9ad4f32e04fb3eecae59e4221d583139e8d8f973e25c28d15aafa6b3e60fe9f25c5fd09abd3e2df03b8637bdd2
   languageName: node
   linkType: hard
 
@@ -5873,7 +5873,7 @@ __metadata:
     "@babel/core": "npm:^7.23.3"
     "@babel/eslint-parser": "npm:^7.23.3"
     "@babel/preset-env": "npm:^7.23.3"
-    "@babel/preset-react": "npm:^7.22.15"
+    "@babel/preset-react": "npm:^7.23.3"
     "@fortawesome/fontawesome-free": "npm:^6.4.2"
     "@shopify/draggable": "npm:1.0.0-beta.12"
     "@types/awesomplete": "npm:^1.1.14"

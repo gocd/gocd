@@ -272,8 +272,9 @@ public class GitCommand extends SCMCommand {
             if (result == 0) {
                 break;
             }
-            log(outputStreamConsumer, "Fetch attempt %d of %d failed. Retrying...", attempt + 1, MAX_RETRIES);
+            log(outputStreamConsumer, "Fetch attempt %d of %d failed", attempt + 1, MAX_RETRIES);
             if (attempt < MAX_RETRIES - 1) {
+                log(outputStreamConsumer, "Waiting %d seconds before retrying", RETRY_SLEEP / 1000);
                 try {
                     Thread.sleep(RETRY_SLEEP);
                 } catch (InterruptedException e) {

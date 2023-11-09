@@ -53,6 +53,9 @@ public class GitCommand extends SCMCommand {
     private static final Pattern GIT_SUBMODULE_URL_PATTERN = Pattern.compile("^submodule\\.(.+)\\.url (.+)$");
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
+    private static final int MAX_RETRIES = 3;
+    private static final int RETRY_SLEEP = 5000;
+
     private final File workingDir;
     private final List<SecretString> secrets;
     private final String branch;
@@ -264,9 +267,22 @@ public class GitCommand extends SCMCommand {
         log(outputStreamConsumer, "Fetching changes");
         CommandLine gitFetch = gitWd().withArgs("fetch", "origin", "--prune", "--recurse-submodules=no");
 
-        int result = run(gitFetch, outputStreamConsumer);
-        if (result != 0) {
-            throw new RuntimeException(format("git fetch failed for [%s]", this.workingRepositoryUrl()));
+        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            int result = run(gitFetch, outputStreamConsumer);
+            if (result == 0) {
+                break;
+            }
+            log(outputStreamConsumer, "Fetch attempt %d of %d failed. Retrying...", attempt + 1, MAX_RETRIES);
+            if (attempt < MAX_RETRIES - 1) {
+                try {
+                    Thread.sleep(RETRY_SLEEP);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(format("git fetch interrupted for [%s]", this.workingRepositoryUrl()));
+                }
+            } else {
+                throw new RuntimeException(format("git fetch failed for [%s]", this.workingRepositoryUrl()));
+            }
         }
         gc(outputStreamConsumer);
     }

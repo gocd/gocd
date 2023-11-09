@@ -69,9 +69,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.22.15":
-  version: 7.22.15
-  resolution: "@babel/eslint-parser@npm:7.22.15"
+"@babel/eslint-parser@npm:^7.23.3":
+  version: 7.23.3
+  resolution: "@babel/eslint-parser@npm:7.23.3"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
@@ -79,7 +79,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0
-  checksum: daaac4a15125d139f1036015ab282a3742ee5cec3d1c281696a4960bdbc96664c15edd4c6ce2dcf3c24f7521ef9a1b7ad170a741b19a75c33e92df4b9924797a
+  checksum: bc487f67aac64f1f8b351b8ec5e83bd1de5770e2e39c648d4df486e4079110f8594ef5b60b6e8379a9bb944dbbe5d96295f04fa47ef17901186568875b804b99
   languageName: node
   linkType: hard
 
@@ -5836,7 +5836,7 @@ __metadata:
   resolution: "gocd-server-ui@workspace:."
   dependencies:
     "@babel/core": "npm:^7.23.2"
-    "@babel/eslint-parser": "npm:^7.22.15"
+    "@babel/eslint-parser": "npm:^7.23.3"
     "@babel/preset-env": "npm:^7.23.3"
     "@babel/preset-react": "npm:^7.22.15"
     "@fortawesome/fontawesome-free": "npm:^6.4.2"

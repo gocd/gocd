@@ -5942,7 +5942,7 @@ __metadata:
     mockdate: "npm:^3.0.5"
     moment: "npm:^2.29.4"
     moment-duration-format: "npm:^2.3.2"
-    normalize-scss: "npm:^7.0.1"
+    normalize-scss: "npm:^8.0.0"
     opensans: "file:vendor/assets/fonts/opensans"
     optimize-css-assets-webpack-plugin: "npm:^6.0.1"
     prismjs: "npm:^1.29.0"
@@ -8355,10 +8355,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"normalize-scss@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "normalize-scss@npm:7.0.1"
-  checksum: 967a7babd774b6749d91cd396f876c42bb8d757ea9b8ceb0eab6d0a35e9423938371906906365a8914eb5d246aebf3417709a017ceb499a1e3e639e6027f12d7
+"normalize-scss@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "normalize-scss@npm:8.0.0"
+  checksum: 6bc94bd78b2c4a0fd28174ec9b3a3f9b53b3403086cdfab6da7e098f69181603f3d280909d57755cee1990f06df24d5a5e2bfcbad8c218389ff1ac1caf1f7589
   languageName: node
   linkType: hard
 

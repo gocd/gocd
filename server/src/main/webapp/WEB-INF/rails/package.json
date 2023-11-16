@@ -131,5 +131,5 @@
     "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3",
     "jasmine-browser-runner@^2.3.0": "patch:jasmine-browser-runner@npm%3A2.3.0#./.yarn/patches/jasmine-browser-runner-npm-2.3.0-40f5d8899b.patch"
   },
-  "packageManager": "yarn@4.0.1"
+  "packageManager": "yarn@4.0.2"
 }

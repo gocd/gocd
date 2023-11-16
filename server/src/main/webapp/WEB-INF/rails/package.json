@@ -56,7 +56,7 @@
     "@babel/preset-react": "^7.23.3",
     "@types/awesomplete": "^1.1.14",
     "@types/fs-extra": "^11.0.4",
-    "@types/html-webpack-plugin": "^3.2.8",
+    "@types/html-webpack-plugin": "^3.2.9",
     "@types/jasmine": "^5.1.2",
     "@types/jasmine-ajax": "^3.3.5",
     "@types/jquery": "^3.5.27",
@@ -64,14 +64,14 @@
     "@types/lodash": "^4.14.201",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.2.4",
-    "@types/node": "^20.9.0",
+    "@types/node": "^20.9.1",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.8",
     "@types/prismjs": "^1.26.3",
     "@types/shell-quote": "^1.7.4",
     "@types/underscore.string": "^0.0.41",
     "@types/url-parse": "^1.4.11",
     "@types/uuid": "^9.0.7",
-    "@types/webpack": "^4.41.35",
+    "@types/webpack": "^4.41.36",
     "add-matchers": "^0.6.2",
     "babel-loader": "^8.3.0",
     "cache-loader": "^4.1.0",
@@ -131,5 +131,5 @@
     "webpack@npm:4.47.0/terser-webpack-plugin": "^4.2.3",
     "jasmine-browser-runner@^2.3.0": "patch:jasmine-browser-runner@npm%3A2.3.0#./.yarn/patches/jasmine-browser-runner-npm-2.3.0-40f5d8899b.patch"
   },
-  "packageManager": "yarn@4.0.1"
+  "packageManager": "yarn@4.0.2"
 }

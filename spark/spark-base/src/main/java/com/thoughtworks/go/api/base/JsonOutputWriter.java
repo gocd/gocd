@@ -87,6 +87,7 @@ public class JsonOutputWriter {
         }
     }
 
+    @SuppressWarnings("resource")
     private static class JsonOutputWriterUsingJackson implements OutputWriter {
 
         private final RequestContext requestContext;
@@ -108,7 +109,7 @@ public class JsonOutputWriter {
         }
 
         @Override
-        public OutputWriter add(String key, Enum value) {
+        public OutputWriter add(String key, Enum<?> value) {
             return add(key, value != null ? value.name() : null);
         }
 
@@ -331,9 +332,9 @@ public class JsonOutputWriter {
             }
         }
 
-        public class JsonOutputChildWriter {
-            private String key;
-            private JsonOutputWriterUsingJackson parentWriter;
+        public static class JsonOutputChildWriter {
+            private final String key;
+            private final JsonOutputWriterUsingJackson parentWriter;
 
             JsonOutputChildWriter(String key, JsonOutputWriterUsingJackson parentWriter) {
                 this.key = key;
@@ -351,7 +352,7 @@ public class JsonOutputWriter {
         }
 
 
-        public class JsonOutputListWriter implements OutputListWriter {
+        public static class JsonOutputListWriter implements OutputListWriter {
             private final JsonOutputWriterUsingJackson parentWriter;
 
             JsonOutputListWriter(JsonOutputWriterUsingJackson parentWriter) {
@@ -392,7 +393,7 @@ public class JsonOutputWriter {
 
 
         public class JsonOutputLinkWriter implements OutputLinkWriter {
-            private OutputWriter parentWriter;
+            private final OutputWriter parentWriter;
 
             JsonOutputLinkWriter(OutputWriter parentWriter) {
                 this.parentWriter = parentWriter;

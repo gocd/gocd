@@ -23,10 +23,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.function.Consumer;
 
+@SuppressWarnings("UnusedReturnValue")
 public interface OutputWriter extends Closeable {
     OutputWriter add(String key, String value);
 
-    OutputWriter add(String key, Enum value);
+    OutputWriter add(String key, Enum<?> value);
 
     OutputWriter add(String key, Double value);
 

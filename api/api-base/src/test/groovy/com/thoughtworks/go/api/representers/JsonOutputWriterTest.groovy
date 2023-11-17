@@ -26,7 +26,7 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 import static org.assertj.core.api.Assertions.assertThat
-import static org.assertj.core.api.Assertions.fail
+import static org.assertj.core.api.Assertions.assertThatThrownBy
 
 class JsonOutputWriterTest {
   @Test
@@ -275,19 +275,13 @@ class JsonOutputWriterTest {
   def assertInvalidJSONOutput(Closure closure) {
     def result = new StringWriter()
 
-    try {
-      closure.call(result)
-      fail("This should have failed!")
-    } catch (RuntimeException ignored) {
+    assertThatThrownBy { closure.call(result) }
+      .isInstanceOf(RuntimeException.class)
+      .hasMessageContaining("THROWS!")
 
-      try {
-        OBJECT_MAPPER.readValue(result.toString(), Object.class)
-        fail("This should have been an invalid JSON: " + result.toString())
-      } catch (JsonParseException | JsonMappingException e) {
-        assertThat(e.getMessage()).contains("Failed due to an exception.")
-      }
-
-    }
+    assertThatThrownBy { OBJECT_MAPPER.readValue(result.toString(), Object.class) }
+      .isInstanceOfAny(JsonParseException.class, JsonMappingException.class)
+      .hasMessageContaining("Failed due to an exception.")
   }
 
   def OBJECT_MAPPER = new ObjectMapper()

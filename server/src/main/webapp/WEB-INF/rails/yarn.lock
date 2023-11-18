@@ -1765,10 +1765,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/awesomplete@npm:^1.1.14":
-  version: 1.1.14
-  resolution: "@types/awesomplete@npm:1.1.14"
-  checksum: baf96d9c838ec6c76887d11e5c8c30cc56697bc3a52e99a6790b1a46e5cc9fe96ce9e30e4cefd0b8924eb341dd065f6f569105bd82766aa9e4ba66e4c6833438
+"@types/awesomplete@npm:^1.1.15":
+  version: 1.1.15
+  resolution: "@types/awesomplete@npm:1.1.15"
+  checksum: 6ae41468ceb8a9f2358c85321049877edbb0fda4b49606c665565c2f74e8978e46bd39a39de8b7f56039c0f1fdd1febc0c7f5aacf88b49c3ecc2821fdbb459d9
   languageName: node
   linkType: hard
 
@@ -5810,7 +5810,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.23.3"
     "@fortawesome/fontawesome-free": "npm:^6.4.2"
     "@shopify/draggable": "npm:1.0.0-beta.12"
-    "@types/awesomplete": "npm:^1.1.14"
+    "@types/awesomplete": "npm:^1.1.15"
     "@types/fs-extra": "npm:^11.0.4"
     "@types/html-webpack-plugin": "npm:^3.2.9"
     "@types/jasmine": "npm:^5.1.2"

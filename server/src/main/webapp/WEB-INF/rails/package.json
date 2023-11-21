@@ -59,7 +59,7 @@
     "@types/html-webpack-plugin": "^3.2.9",
     "@types/jasmine": "^5.1.2",
     "@types/jasmine-ajax": "^3.3.5",
-    "@types/jquery": "^3.5.27",
+    "@types/jquery": "^3.5.28",
     "@types/license-checker": "^25.0.6",
     "@types/lodash": "^4.14.202",
     "@types/mini-css-extract-plugin": "^1.4.3",

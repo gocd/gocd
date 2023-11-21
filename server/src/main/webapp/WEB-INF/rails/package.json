@@ -64,7 +64,7 @@
     "@types/lodash": "^4.14.201",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/mithril": "2.2.4",
-    "@types/node": "^20.9.2",
+    "@types/node": "^20.9.3",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.8",
     "@types/prismjs": "^1.26.3",
     "@types/shell-quote": "^1.7.4",

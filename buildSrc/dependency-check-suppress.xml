@@ -234,17 +234,7 @@
     <cve>CVE-2022-42920</cve>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-    Suppress what seems to be a false positive asserting that SaxReaders can be used configured incorrectly for
-    denying XXE with Dom4j: https://nvd.nist.gov/vuln/detail/CVE-2023-45960 and https://github.com/dom4j/dom4j/issues/171
-    GoCD manually overrides the entity resolve so should not be affected by this in any case.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.dom4j/dom4j@.*$</packageUrl>
-    <cve>CVE-2023-45960</cve>
-  </suppress>
-
-  <suppress until="2023-12-01Z">
+  <suppress until="2024-01-01Z">
     <notes><![CDATA[
     Time-limited suppression of issues from nokogiri-java via embedded neko-htmlunit-2.63.0.jar pending https://github.com/sparklemotion/nokogiri/issues/2565
     and corresponding release of nokogiri. We are probably not affected, but there is no mitigation we can apply right now either. Needs upgrade to neko-htmlunit 3.0.0+.

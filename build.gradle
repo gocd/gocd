@@ -164,6 +164,12 @@ dependencyCheck {
     apiKey = System.getenv().getOrDefault("NVD_API_KEY", "")
   }
 
+  if (System.getenv().containsKey("GO_SERVER_URL")) {
+    data {
+      directory = "${rootProject.layout.buildDirectory.get()}/dependency-check-data"
+    }
+  }
+
   analyzers {
     bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
     nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894

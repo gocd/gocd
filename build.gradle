@@ -157,29 +157,19 @@ project.ext.packaging = [
 
 dependencyCheck {
   failBuildOnCVSS = 1
-  cve {
-    def baseUrl
+  skipConfigurations = ['pmd']
+  suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
 
-    if (System.getenv().containsKey("GO_SERVER_URL")) {
-      baseUrl = "https://nexus.gocd.io/repository/nvd-nist"
-    } else {
-      baseUrl = "https://nvd.nist.gov/feeds"
-    }
-
-    urlModified = "${baseUrl}/json/cve/1.1/nvdcve-1.1-modified.json.gz"
-    urlBase = "${baseUrl}/json/cve/1.1/nvdcve-1.1-%d.json.gz"
+  nvd {
+    apiKey = System.getenv().getOrDefault("NVD_API_KEY", "")
   }
 
   analyzers {
     bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
     nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
     assemblyEnabled = false
-    retirejs {
-      filterNonVulnerable = true
-    }
+    retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
   }
-  skipConfigurations = ['pmd']
-  suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
 }
 
 allprojects {

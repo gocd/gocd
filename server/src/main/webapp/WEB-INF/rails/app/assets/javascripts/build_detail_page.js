@@ -150,7 +150,7 @@
       $(".content_wrapper_outer").toggleClass("full-screen");
       $(window).trigger($.Event("resetPinOnScroll"), [{
         calcRequiredScroll: function () {
-          return $(".console-area").offset().top - $("#header").outerHeight(true) - $(".page_header").outerHeight(true);
+          return $(".console-area").offset().top - $(".page_header").outerHeight(true);
         }
       }]);
     });

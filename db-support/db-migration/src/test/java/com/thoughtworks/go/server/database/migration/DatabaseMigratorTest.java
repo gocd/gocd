@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.database.migration;
 
-import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.exception.LiquibaseException;
@@ -36,7 +35,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,7 +61,7 @@ class DatabaseMigratorTest {
         try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class); Connection connection = dummyH2Connection()) {
             migrator.migrate(connection);
 
-            verify(liquibase).update(assertArg(Contexts::isEmpty));
+            verify(liquibase).update();
             migration.verify(() -> DataMigrationRunner.run(connection));
         }
     }
@@ -72,7 +70,7 @@ class DatabaseMigratorTest {
     public void shouldRaiseWrappedLockExceptionWhenDatabaseLocked() throws Exception {
 
         try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class); Connection connection = dummyH2Connection()) {
-            doThrow(new LockException("Database locked")).when(liquibase).update(assertArg(Contexts::isEmpty));
+            doThrow(new LockException("Database locked")).when(liquibase).update();
 
             assertThatThrownBy(() -> migrator.migrate(connection))
                 .isExactlyInstanceOf(SQLException.class)
@@ -88,7 +86,7 @@ class DatabaseMigratorTest {
     public void shouldRaiseWrappedExceptionForOtherErrors() throws Exception {
 
         try (MockedStatic<DataMigrationRunner> migration = mockStatic(DataMigrationRunner.class); Connection connection = dummyH2Connection()) {
-            doThrow(new LiquibaseException("Liquibase error")).when(liquibase).update(assertArg(Contexts::isEmpty));
+            doThrow(new LiquibaseException("Liquibase error")).when(liquibase).update();
 
             assertThatThrownBy(() -> migrator.migrate(connection))
                 .isExactlyInstanceOf(SQLException.class)

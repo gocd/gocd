@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.database.migration;
 
-import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.Scope;
+import liquibase.UpdateSummaryOutputEnum;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -56,7 +56,7 @@ public class DatabaseMigrator {
             disableLiquibaseConsoleLogging();
 
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            newLiquibaseFor(database).update(new Contexts());
+            newLiquibaseFor(database).update();
 
             System.err.println("INFO: Database upgrade completed successfully.");
             log.info("Database upgrade completed successfully.");
@@ -78,7 +78,9 @@ public class DatabaseMigrator {
     }
 
     Liquibase newLiquibaseFor(Database database) {
-        return new Liquibase("db-migration-scripts/liquibase.xml", new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
+        Liquibase liquibase = new Liquibase("db-migration-scripts/liquibase.xml", new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
+        liquibase.setShowSummaryOutput(UpdateSummaryOutputEnum.LOG);
+        return liquibase;
     }
 
     private static void disableLiquibaseConsoleLogging() {

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.database.migration;
 
 import liquibase.Liquibase;
+import liquibase.UpdateSummaryOutputEnum;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
@@ -102,6 +103,7 @@ public class LiquibaseMigrationTest {
         Connection connection = dataSource.getConnection();
         Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
         Liquibase liquibase = new Liquibase("db-migration-scripts/" + migration, new ClassLoaderResourceAccessor(getClass().getClassLoader()), database);
+        liquibase.setShowSummaryOutput(UpdateSummaryOutputEnum.LOG);
         liquibase.update();
     }
 

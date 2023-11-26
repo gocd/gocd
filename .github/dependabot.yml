@@ -15,6 +15,16 @@ updates:
     interval: weekly
     day: friday
   open-pull-requests-limit: 99
+  groups:
+    babel:
+      patterns: ["@babel/*"]
+    jasmine:
+      patterns: ["jasmine*", "@types/jasmine*"]
+    webpack:
+      patterns: ["webpack*", "@types/webpack*", "*-loader", "*-webpack-plugin", "*mini-css-extract-plugin"]
+      exclude-patterns: ["karma-*-loader"]
+    types:
+      patterns: ["@types/*"]
 - package-ecosystem: bundler
   directory: "/server/src/main/webapp/WEB-INF/rails"
   commit-message:
@@ -26,3 +36,10 @@ updates:
   open-pull-requests-limit: 99
   allow:
     - dependency-type: all
+  groups:
+    mail:
+      patterns: ["mail", "net-*"]
+    rspec:
+      patterns: ["rspec*"]
+    sass:
+      patterns: ["sass*"]

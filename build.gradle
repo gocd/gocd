@@ -20,6 +20,7 @@ import com.github.jk1.license.render.JsonReportRenderer
 import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.AdoptiumVersion
 import com.thoughtworks.go.build.InstallerType
+import de.undercouch.gradle.tasks.download.Download
 import nl.javadude.gradle.plugins.license.License
 import org.apache.tools.ant.filters.FixCrLfFilter
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
@@ -154,29 +155,6 @@ project.ext.packaging = [
     build  : 9
   )
 ]
-
-dependencyCheck {
-  failBuildOnCVSS = 1
-  skipConfigurations = ['pmd']
-  suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
-
-  nvd {
-    apiKey = System.getenv().getOrDefault("NVD_API_KEY", "")
-  }
-
-  if (System.getenv().containsKey("GO_SERVER_URL")) {
-    data {
-      directory = "${rootProject.layout.buildDirectory.get()}/dependency-check-data"
-    }
-  }
-
-  analyzers {
-    bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
-    nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
-    assemblyEnabled = false
-    retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
-  }
-}
 
 allprojects {
   apply plugin: 'idea'
@@ -713,6 +691,78 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
     .collect(Collectors.toList())
 }
 
+dependencyCheck {
+  failBuildOnCVSS = 1
+  skipConfigurations = ['pmd']
+  suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
+
+  nvd {
+    apiKey = System.getenv("NVD_API_KEY") ?: ""
+  }
+
+  analyzers {
+    bundleAuditEnabled = false // Currently there is a separate bundle audit security check job independent of Gradle
+    nodeAudit.yarnEnabled = false // Doesn't work correctly with Yarn 3+ https://github.com/jeremylong/DependencyCheck/issues/4894
+    assemblyEnabled = false
+    retirejs.filterNonVulnerable = true // Reduces effort/memory processing retirejs results
+  }
+}
+
+if (System.getenv().containsKey("GO_SERVER_URL")) {
+  dependencyCheck {
+    data {
+      directory = "${layout.buildDirectory.get()}/dependency-check-data"
+    }
+  }
+
+  tasks.register('downloadDependencyCheckCache', Download) {
+    src 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
+    dest layout.buildDirectory.file('dependency-check-data.zip')
+    onlyIfModified true
+  }
+
+  tasks.register('unzipDependencyCheckCache', Copy) {
+    dependsOn downloadDependencyCheckCache
+    from zipTree(downloadDependencyCheckCache.dest)
+    into layout.buildDirectory.dir("dependency-check-data")
+    def copyDetails = []
+    eachFile { copyDetails << it }
+    doLast {
+      copyDetails.each { FileCopyDetails details ->
+        def target = new File(destinationDir, details.path)
+        if (target.exists()) { target.setLastModified(details.lastModified) }
+      }
+    }
+  }
+
+  dependencyCheckUpdate.dependsOn unzipDependencyCheckCache
+  dependencyCheckAnalyze.dependsOn unzipDependencyCheckCache
+  dependencyCheckAggregate.dependsOn unzipDependencyCheckCache
+
+  tasks.register('uploadDependencyCheckCache', Zip) {
+    mustRunAfter dependencyCheckUpdate, dependencyCheckAnalyze, dependencyCheckAggregate
+
+    from layout.buildDirectory.file("dependency-check-data")
+    archiveFileName = "dependency-check-data-updated.zip"
+    destinationDirectory = layout.buildDirectory
+
+    doLast {
+      project.exec {
+        workingDir = projectDir
+        commandLine = [
+          "curl",
+          "-u", "${System.getenv("NEXUS_CACHE_USERNAME")}:${System.getenv("NEXUS_CACHE_PASSWORD")}",
+          "--include",
+          "--upload-file", uploadDependencyCheckCache.archiveFile.get(), 'https://nexus.gocd.io/repository/cache/dependency-check-data.zip'
+        ]
+        standardOutput = System.out
+        errorOutput = System.err
+        ignoreExitValue = true
+      }
+    }
+  }
+}
+
 task newSPA {
   description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
 
@@ -1239,7 +1289,7 @@ task upgradeApi {
           .replace(oldControllerClassSuffix, newControllerClassSuffix)
           .replaceAll("ApiVersion\\.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
       }
-      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.UNIX)
+      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance("unix"))
 
       eachFile { FileCopyDetails fcd ->
         List<String> segments = fcd.relativePath.segments

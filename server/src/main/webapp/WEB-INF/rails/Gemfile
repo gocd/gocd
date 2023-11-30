@@ -14,6 +14,7 @@ platforms :jruby do
     # See https://github.com/sass/sassc-ruby/pull/233
     gem 'sassc', github: 'sass/sassc-ruby', ref: 'refs/pull/233/head'
     gem 'sassc-embedded'
+    gem 'google-protobuf', '< 3.25.0'
 
     gem 'js-routes'
     gem 'ts_routes'

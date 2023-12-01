@@ -88,6 +88,7 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     google-protobuf (3.24.4-java)
+    google-protobuf (3.24.4-x86_64-linux)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     js-routes (1.4.14)
@@ -114,7 +115,8 @@ GEM
       timeout
     net-smtp (0.4.0)
       net-protocol
-    nio4r (2.7.0)
+    nio4r (2.6.1)
+    nio4r (2.6.1-java)
     nokogiri (1.15.5-java)
       racc (~> 1.4)
     nokogiri (1.15.5-x86_64-linux)

@@ -209,7 +209,7 @@ enum SpdxLicense {
   MS_RL("MS-RL", "Microsoft Reciprocal License"),
   MIROS("MirOS", "MirOS Licence"),
   MITNFA("MITNFA", "MIT +no-false-attribs license"),
-  MIT("MIT", "MIT License", "The MIT License (MIT)", "Bouncy Castle Licence", "MIT*", "(MIT OR GPL-2.0)"),
+  MIT("MIT", "MIT License", "The MIT License (MIT)", "Bouncy Castle Licence", "MIT*", "(MIT OR GPL-2.0)", "MIT AND (BSD-2-Clause OR GPL-2.0-or-later)"),
   MOTOSOTO("Motosoto", "Motosoto License"),
   MPL_1_0("MPL-1.0", "Mozilla Public License 1.0", "MPL 1.0"),
   MPL_1_1("MPL-1.1", "Mozilla Public License 1.1", "MPL 1.1"),

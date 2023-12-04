@@ -1167,3 +1167,27 @@
 @ex@ 24843 1686582871
 @nx@ 8 1686582873 @56@ 0 0 0 0 0 @10000@ @@ @@ @@ @@ 
 @ex@ 24841 1686582873
+@nx@ 7 1701679720 @57@ 0 0 0 0 0 @10000@ @p4repoWindows@ @@ @@ @@ 
+@ex@ 34961 1701679720
+@pv@ 1 @db.upgrades@ 50 @InstallationRunning2023.2@ 0 0 0 @@ 
+@pv@ 1 @db.upgrades@ 51 @InitializeTraitsDepot@ 0 0 0 @@ 
+@ex@ 34961 1701679720
+@nx@ 6 1701679720 @57@ 50 0 0 0 0 @InstallationRunning2023.2@ @@ @@ @@ @@ 
+@rv@ 1 @db.upgrades@ 50 @InstallationRunning2023.2@ 2 1701679720 0 @@ 
+@ex@ 34963 1701679720
+@rv@ 1 @db.upgrades@ 50 @InstallationRunning2023.2@ 3 1701679720 1701679720 @@ 
+@ex@ 34963 1701679720
+@rv@ 1 @db.counters@ @upgrade@ @51@ 
+@ex@ 34963 1701679720
+@nx@ 6 1701679720 @57@ 51 0 0 0 0 @InitializeTraitsDepot@ @@ @@ @@ @@ 
+@rv@ 1 @db.upgrades@ 51 @InitializeTraitsDepot@ 2 1701679720 0 @@ 
+@ex@ 34963 1701679720
+@pv@ 2 @db.depot@ @.p4-traits@ 9 @@ @.p4-traits/...@ @@ 
+@pv@ 8 @db.domain@ @.p4-traits@ 100 @@ @@ @@ @@ @@ 1701679720 1701679720 0 @Helix Core Traits depot.@ @@ @@ 0 
+@ex@ 34963 1701679720
+@rv@ 1 @db.upgrades@ 51 @InitializeTraitsDepot@ 3 1701679720 1701679720 @@ 
+@ex@ 34963 1701679720
+@rv@ 1 @db.counters@ @upgrade@ @52@ 
+@ex@ 34963 1701679720
+@nx@ 8 1701679722 @57@ 0 0 0 0 0 @10000@ @@ @@ @@ @@ 
+@ex@ 34961 1701679722

@@ -15,62 +15,21 @@
  */
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
-import com.thoughtworks.go.plugin.infra.PluginChangeListener;
+import com.thoughtworks.go.plugin.access.common.MetadataLoader;
+import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static java.lang.String.format;
-
-@Deprecated
 @Component
-public class PackageMaterialMetadataLoader implements PluginChangeListener {
-
-    private RepositoryMetadataStore repositoryMetadataStore = RepositoryMetadataStore.getInstance();
-    private PackageMetadataStore packageMetadataStore = PackageMetadataStore.getInstance();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PackageMaterialMetadataLoader.class);
-
-    PackageRepositoryExtension packageRepositoryExtension;
-
+public class PackageMaterialMetadataLoader extends MetadataLoader<PackageMaterialPluginInfo> {
     @Autowired
-    public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension) {
-        this.packageRepositoryExtension = packageRepositoryExtension;
-        pluginManager.addPluginChangeListener(this);
+    public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageMaterialPluginInfoBuilder builder, PackageRepositoryExtension extension) {
+        this(pluginManager, PackageMaterialMetadataStore.instance(), builder, extension);
     }
 
-    void fetchRepositoryAndPackageMetaData(GoPluginDescriptor pluginDescriptor) {
-        try {
-            RepositoryConfiguration repositoryConfiguration = packageRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id());
-            com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = packageRepositoryExtension.getPackageConfiguration(pluginDescriptor.id());
-            if (repositoryConfiguration == null) {
-                throw new RuntimeException(format("Plugin[%s] returned null repository configuration", pluginDescriptor.id()));
-            }
-            if (packageConfiguration == null) {
-                throw new RuntimeException(format("Plugin[%s] returned null package configuration", pluginDescriptor.id()));
-            }
-            repositoryMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(repositoryConfiguration));
-            packageMetadataStore.addMetadataFor(pluginDescriptor.id(), new PackageConfigurations(packageConfiguration));
-        } catch (GoPluginFrameworkException e) {
-            LOGGER.error("Failed to fetch package metadata for plugin : {}", pluginDescriptor.id(), e);
-        }
+    protected PackageMaterialMetadataLoader(PluginManager pluginManager, PackageMaterialMetadataStore metadataStore, PackageMaterialPluginInfoBuilder builder, PackageRepositoryExtension extension) {
+        super(pluginManager, builder, metadataStore, extension);
     }
 
-    @Override
-    public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())) {
-            fetchRepositoryAndPackageMetaData(pluginDescriptor);
-        }
-    }
-
-    @Override
-    public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-        repositoryMetadataStore.removeMetadata(pluginDescriptor.id());
-        packageMetadataStore.removeMetadata(pluginDescriptor.id());
-    }
 }

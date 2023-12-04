@@ -107,6 +107,8 @@ class DependencySuggestionProvider extends SuggestionProvider {
 }
 
 export class DependencyFields extends MithrilComponent<Attrs, State> {
+  private static readonly EMPTY_ID = "";
+
   oninit(vnode: m.Vnode<Attrs, State>) {
     if (vnode.attrs.disabled) {
       return;
@@ -114,9 +116,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
 
     const mat             = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
     const cache           = vnode.attrs.cache;
-    const EMPTY: Option[] = [{id: "", text: "-"}];
-    vnode.state.stages    = Stream(EMPTY);
-
+    const EMPTY: Option[] = [{id: DependencyFields.EMPTY_ID, text: "-"}];
     vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache, vnode.attrs.parentPipelineName);
     vnode.state.stages   = () => mat.pipeline() ? EMPTY.concat(cache.stages(mat.pipeline())) : [];
   }
@@ -130,7 +130,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
                    required={true} readonly={true}/>,
         <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true}
                      readonly={true}>
-          <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
+          <SelectFieldOptions selected={mat.stage() || DependencyFields.EMPTY_ID} items={vnode.state.stages()}/>
         </SelectField>,
       ];
     }
@@ -138,10 +138,10 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     return [
       <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")}
                          readonly={vnode.attrs.readonly} autoEvaluate={!vnode.attrs.readonly}
-                         aut required={true} maxItems={25} provider={vnode.state.provider}/>,
+                         required={true} maxItems={25} provider={vnode.state.provider}/>,
       <SelectField label="Upstream Stage" readonly={vnode.attrs.readonly}
                    property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
-        <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
+        <SelectFieldOptions selected={mat.stage() || DependencyFields.EMPTY_ID} items={vnode.state.stages()}/>
       </SelectField>,
       this.advanced(mat, vnode.attrs)
     ];

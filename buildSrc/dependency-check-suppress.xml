@@ -177,6 +177,14 @@
 
   <suppress>
     <notes><![CDATA[
+    Suppress false positive for jruby-rack, which is not the same as the Ruby Rack impl. See https://github.com/jeremylong/DependencyCheck/issues/6242
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.jruby\.rack/jruby\-rack@.*$</packageUrl>
+    <cpe>cpe:/a:rack_project:rack</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
     GoCD does not seem to be vulnerable to these issues as it does not use Angular in a vulnerable way.
     (no use of, or ability to use `.merge()`, `.sanitize()`, `.copy()`, `$resource` service, set `xlink:href`,
     no use of `<select>` elements, no use of `usemap` attribute, not a Firefox add-on, and don't care about Internet Explorer)

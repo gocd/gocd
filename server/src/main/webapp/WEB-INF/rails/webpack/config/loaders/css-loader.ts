@@ -52,7 +52,8 @@ export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.R
       {
         loader: "sass-loader", // compiles Sass to CSS, defaults to Dart Sass
         options: {
-          sourceMap: true
+          sourceMap: true,
+          implementation: require('sass-embedded'),
         }
       }
     ]

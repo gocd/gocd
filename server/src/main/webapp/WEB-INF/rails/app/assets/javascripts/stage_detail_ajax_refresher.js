@@ -42,7 +42,7 @@ function StageDetailAjaxRefresher(url, redirectUrl, after_callback_map) {
     dataFetcher: function () {
       return $("stage-history-page")? {"stage-history-page": $("stage-history-page").value} : {};
     },
-    manipulateReplacement: function (receiver_id, replaceElement, replacementOptions) {
+    manipulateReplacement: function (receiver_id, replaceElement) {
       if (receiver_id === 'jobs_grid') {
         registerAgentSelectorsUnder(replaceElement);
         oldCheckboxes = $$('.job_selector');

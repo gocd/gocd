@@ -70,7 +70,7 @@ function AjaxRefresher(url, redirectUrl, options) {
       if (noBeforeCallback || options.beforeRefresh(key, value)) {
         if (hasManipulateReplacement) {
           tempDom.html(html_content);
-          options.manipulateReplacement(key, tempDom.get(0), value);
+          options.manipulateReplacement(key, tempDom.get(0));
           _updateWithTempDom(key);
         } else {
           receiver(key).html(html_content);

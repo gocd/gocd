@@ -109,14 +109,11 @@ describe("ajax_refresher", function () {
   });
 
   it("test_calls_manipulate_replacement_before_replacement", function () {
-    var before_elem_id, before_dom_inner_html, actual_dom_inner_html, before_parent_id, before_index, before_type;
-    var refresher = new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, manipulateReplacement: function (elem_id, dom, value) {
+    var before_elem_id, before_dom_inner_html, actual_dom_inner_html;
+    var refresher = new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, manipulateReplacement: function (elem_id, dom) {
       before_elem_id = elem_id;
       before_dom_inner_html = dom.innerHTML;
       actual_dom_inner_html = $('elem_id').innerHTML;
-      before_parent_id = value['parent_id'];
-      before_index = value['index'];
-      before_type = value['type'];
     }});
     refresher.stopRefresh();
     refresher.restartRefresh();
@@ -125,13 +122,10 @@ describe("ajax_refresher", function () {
     assertEquals("must use the correct dom id", 'elem_id', before_elem_id);
     assertContains("must use the correct replacment dom", 'new_content', before_dom_inner_html);
     assertEquals("must not have replaced old dom when before called", 'im_old_content', actual_dom_inner_html);
-    assertEquals("must get the parent id from json", 'daddy', before_parent_id);
-    assertEquals("must get the index from json", 1, before_index);
-    assertEquals("must get the type from json", 'type', before_type);
   });
 
   it("test_uses_dom_manipulated_by_manipulate_replacement_as_replacement", function () {
-    var refresher = new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, manipulateReplacement: function (elem_id, dom, value) {
+    var refresher = new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, manipulateReplacement: function (elem_id, dom) {
       jQuery(dom).find('#foo_bar_baz').click(function () {
         this.innerHTML = "on click honored";
       });
@@ -153,8 +147,8 @@ describe("ajax_refresher", function () {
         call_seq.push({call: "before_refresh", replacement: value, elem_id: elem_id});
         return true;
       },
-      manipulateReplacement: function (elem_id, dom, value) {
-        call_seq.push({call: "manipulate_replacement", replacement: value, elem_id: elem_id, dom: dom});
+      manipulateReplacement: function (elem_id, dom) {
+        call_seq.push({call: "manipulate_replacement", elem_id: elem_id, dom: dom});
       }
     });
     refresher.stopRefresh();
@@ -169,7 +163,6 @@ describe("ajax_refresher", function () {
 
     assertEquals("manipulate_replacement should be called after before_refresh", call_seq[1].call, "manipulate_replacement");
     assertEquals("manipulate_replacement should get dom id", call_seq[1].elem_id, "elem_id");
-    assertEquals("manipulate_replacement should get replacement object", call_seq[1].replacement.parent_id, "daddy");
     assertNotNull("manipulate_replacement should get replacement object", call_seq[1].dom);
   });
 
@@ -179,7 +172,7 @@ describe("ajax_refresher", function () {
       beforeRefresh: function (elem_id, value) {
         return false;
       },
-      manipulateReplacement: function (elem_id, dom, value) {
+      manipulateReplacement: function (elem_id, dom) {
         called_manipulate_replacement = true;
       }
     });

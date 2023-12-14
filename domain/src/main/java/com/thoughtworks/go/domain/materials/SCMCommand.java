@@ -53,7 +53,7 @@ public abstract class SCMCommand {
         int code = 0;
         for (int retryCount = 0; retryCount < retries; retryCount++) {
             code = run(commandLine, outputStreamConsumer, input);
-            if (0 == code) {
+            if (code == 0) {
                 break;
             }
             log(outputStreamConsumer, "Run attempt %d of %d failed", retryCount + 1, retries);
@@ -86,7 +86,7 @@ public abstract class SCMCommand {
         // My un-amusement is "effectively final" 😒.
         for (CommandLine cmd : commands) {
             code = run(cmd, console);
-            if (0 != code) {
+            if (code != 0) {
                 break;
             }
         }
@@ -110,7 +110,7 @@ public abstract class SCMCommand {
         // My un-amusement is "effectively final" 😒.
         for (CommandLine cmd : commands) {
             code = runWithRetries(cmd, console, retries);
-            if (0 != code) {
+            if (code != 0) {
                 break;
             }
         }

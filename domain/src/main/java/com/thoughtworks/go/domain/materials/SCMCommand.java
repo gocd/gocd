@@ -81,6 +81,7 @@ public abstract class SCMCommand {
             for (CommandLine cmd : commands) {
                 code = run(cmd, console);
                 if (0 != code) {
+                    retryCount++;
                     break;
                 }
             }

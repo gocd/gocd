@@ -111,7 +111,8 @@ public class GitCommand extends SCMCommand {
         final String abbrevBranch = localBranch();
         final String fullLocalRef = abbrevBranch.startsWith("refs/") ? abbrevBranch : REFS_HEADS + abbrevBranch;
 
-        return runCascade(outputStreamConsumer,
+        return runCascadeWithRetries(outputStreamConsumer,
+                MAX_RETRIES,
                 gitClone,
                 git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
                 git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),
@@ -146,7 +147,8 @@ public class GitCommand extends SCMCommand {
             return run(gitClone, outputStreamConsumer);
         }
 
-        return runCascade(outputStreamConsumer,
+        return runCascadeWithRetries(outputStreamConsumer,
+                MAX_RETRIES,
                 gitClone,
                 git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
                 git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),

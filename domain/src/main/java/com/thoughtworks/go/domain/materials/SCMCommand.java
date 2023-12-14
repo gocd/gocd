@@ -65,4 +65,30 @@ public abstract class SCMCommand {
 
         return code;
     }
+
+    /**
+     * Conveniently runs commands sequentially on a given console, retrying on failure.
+     * @param console collects console output
+     * @param retries number of times to retry
+     * @param commands the set of sequential commands
+     * @return the exit status of the last executed command
+     */
+    protected int runCascadeWithRetries(ConsoleOutputStreamConsumer console, int retries, CommandLine... commands) {
+        int code = 0;
+        int retryCount = 0;
+
+        while (retryCount < retries) {
+            for (CommandLine cmd : commands) {
+                code = run(cmd, console);
+                if (0 != code) {
+                    break;
+                }
+            }
+            if (0 == code) {
+                break;
+            }
+        }
+
+        return code;
+    }
 }

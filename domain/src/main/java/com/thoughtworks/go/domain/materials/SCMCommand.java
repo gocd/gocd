@@ -75,21 +75,12 @@ public abstract class SCMCommand {
      */
     protected int runCascadeWithRetries(ConsoleOutputStreamConsumer console, int retries, CommandLine... commands) {
         int code = 0;
-        int retryCount = 0;
-
-        while (retryCount < retries) {
-            for (CommandLine cmd : commands) {
-                code = run(cmd, console);
-                if (0 != code) {
-                    retryCount++;
-                    break;
-                }
-            }
+        for (int retryCount = 0; retryCount < retries; retryCount++) {
+            code = runCascade(console, commands);
             if (0 == code) {
                 break;
             }
         }
-
         return code;
     }
 }

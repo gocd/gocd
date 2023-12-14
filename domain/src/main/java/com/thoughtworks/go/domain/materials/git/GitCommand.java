@@ -54,7 +54,6 @@ public class GitCommand extends SCMCommand {
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
     private static final int MAX_RETRIES = 3;
-    private static final int RETRY_SLEEP = 5000;
 
     private final File workingDir;
     private final List<SecretString> secrets;

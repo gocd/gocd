@@ -15,6 +15,11 @@
  */
 package com.thoughtworks.go.domain.materials;
 
+import static java.lang.String.format;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -24,6 +29,8 @@ import com.thoughtworks.go.util.command.ConsoleResult;
  * @understands: SCMCommand
  */
 public abstract class SCMCommand {
+    private static final int RETRY_SLEEP = 5000;
+    private static final Logger LOG = LoggerFactory.getLogger(SCMCommand.class);
     protected String materialFingerprint;
 
     public SCMCommand(String materialFingerprint) {
@@ -40,6 +47,27 @@ public abstract class SCMCommand {
 
     protected int run(CommandLine commandLine, ConsoleOutputStreamConsumer outputStreamConsumer, String... input) {
         return commandLine.run(outputStreamConsumer, new MaterialFingerprintTag(materialFingerprint), input);
+    }
+
+    protected int runWithRetries(CommandLine commandLine, ConsoleOutputStreamConsumer outputStreamConsumer, int retries, String... input) {
+        int code = 0;
+        for (int retryCount = 0; retryCount < retries; retryCount++) {
+            code = run(commandLine, outputStreamConsumer, input);
+            if (0 == code) {
+                break;
+            }
+            log(outputStreamConsumer, "Run attempt %d of %d failed", retryCount + 1, retries);
+            if (retryCount < retries - 1) {
+                log(outputStreamConsumer, "Waiting %d seconds before retrying", RETRY_SLEEP / 1000);
+                try {
+                    Thread.sleep(RETRY_SLEEP);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(format("run interrupted after %d attempts", retries));
+                }
+            }
+        }
+        return code;
     }
 
     /**
@@ -75,12 +103,23 @@ public abstract class SCMCommand {
      */
     protected int runCascadeWithRetries(ConsoleOutputStreamConsumer console, int retries, CommandLine... commands) {
         int code = 0;
-        for (int retryCount = 0; retryCount < retries; retryCount++) {
-            code = runCascade(console, commands);
-            if (0 == code) {
+
+        // Doing this via streams is awkward; it's hard to *both* collect the return code
+        // *AND* exit iteration early. Curse Java for only giving us fake closures!
+        //
+        // My un-amusement is "effectively final" 😒.
+        for (CommandLine cmd : commands) {
+            code = runWithRetries(cmd, console, retries);
+            if (0 != code) {
                 break;
             }
         }
+
         return code;
+    }
+
+    private void log(ConsoleOutputStreamConsumer outputStreamConsumer, String message, Object... args) {
+        LOG.debug(format(message, args));
+        outputStreamConsumer.stdOutput(format("[SCMCMD] " + message, args));
     }
 }

@@ -105,7 +105,7 @@ public class GitCommand extends SCMCommand {
                 withArg(workingDir.getAbsolutePath());
 
         if (!hasRefSpec()) {
-            return run(gitClone, outputStreamConsumer);
+            return runWithRetries(gitClone, outputStreamConsumer, MAX_RETRIES);
         }
 
         final String abbrevBranch = localBranch();
@@ -144,7 +144,7 @@ public class GitCommand extends SCMCommand {
                 withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
 
         if (!hasRefSpec()) {
-            return run(gitClone, outputStreamConsumer);
+            return runWithRetries(gitClone, outputStreamConsumer, MAX_RETRIES);
         }
 
         return runCascadeWithRetries(outputStreamConsumer,
@@ -269,23 +269,9 @@ public class GitCommand extends SCMCommand {
         log(outputStreamConsumer, "Fetching changes");
         CommandLine gitFetch = gitWd().withArgs("fetch", "origin", "--prune", "--recurse-submodules=no");
 
-        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
-            int result = run(gitFetch, outputStreamConsumer);
-            if (result == 0) {
-                break;
-            }
-            log(outputStreamConsumer, "Fetch attempt %d of %d failed", attempt + 1, MAX_RETRIES);
-            if (attempt < MAX_RETRIES - 1) {
-                log(outputStreamConsumer, "Waiting %d seconds before retrying", RETRY_SLEEP / 1000);
-                try {
-                    Thread.sleep(RETRY_SLEEP);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException(format("git fetch interrupted for [%s]", this.workingRepositoryUrl()));
-                }
-            } else {
-                throw new RuntimeException(format("git fetch failed for [%s]", this.workingRepositoryUrl()));
-            }
+        int result = runWithRetries(gitFetch, outputStreamConsumer, MAX_RETRIES);
+        if (result != 0) {
+            throw new RuntimeException(format("git fetch failed for [%s]", this.workingRepositoryUrl()));
         }
         gc(outputStreamConsumer);
     }
@@ -299,7 +285,7 @@ public class GitCommand extends SCMCommand {
                 .withArgs("fetch", "origin")
                 .withArg(format("--depth=%d", depth));
 
-        int result = run(gitFetch, outputStreamConsumer);
+        int result = runWithRetries(gitFetch, outputStreamConsumer, MAX_RETRIES);
         if (result != 0) {
             throw new RuntimeException(format("Unshallow repository failed for [%s]", this.workingRepositoryUrl()));
         }

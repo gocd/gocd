@@ -14,157 +14,52 @@
  * limitations under the License.
  */
 
-/**
- * Modalbox.css
- *
- * This is a combination of the original modal box plugin and our pattern overrides.
-**/
-.ui-widget-overlay,
-#MB_overlay {
-  background-color: #878489 !important;
-  border: 0;
-  height: 100%;
-  left: 0;
-  margin: auto;
-  opacity: 0.85;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 9999;
-}
+$overlay-header-bg: #33374f;
+$overlay-border-color: #ccc;
+$overlay-border-radius: 3px;
 
-.ui-widget-overlay,
-#MB_overlay[id] {
-  position: fixed;
-}
-
-#MB_window {
+.overlay {
   border: 0 solid;
+  padding: 0;
   position: absolute;
   text-align: left;
   top: 10%;
   z-index: 10000;
+  width: 100%;
+  max-height: 500px;
+  border-radius: $overlay-border-radius;
+
+  .overlay-header {
+    background: $overlay-header-bg;
+    padding: 15px 20px;
+    border-radius: $overlay-border-radius $overlay-border-radius 0 0;
+
+    span {
+      font-size: 16.5px;
+      margin: 0;
+      color: #fff;
+      font-weight: 500;
+      max-width: calc(100% - 25px);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .overlay-close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    background: transparent;
+    border: 0;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .close-icon {
+    @include icon-before($type: xmark);
+  }
 }
 
-#MB_window[id] {
-  position: fixed !important;
-}
-
-#MB_frame_content {
-  background-color: #fff;
-  border: 2px solid #333;
-  box-shadow: 0 0 15px #000;
-  -moz-box-shadow: 0 0 15px #000;
-  -webkit-box-shadow: 0 0 15px #000;
-  position: relative;
-}
-
-#MB_header {
-  background: #333 image_url("g9/backgrounds/bg_glass_gradient.png") repeat-x center center;
-  margin: 0;
-  padding: 0;
-}
-
-#MB_content {
-  overflow: visible !important; /* move all overflow auto to the inner content div */
-}
-
-#MB_content #body_content {
-  padding-top: 0 !important;
-}
-
-#MB_caption {
-  color: #fff;
-  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  margin: 0;
-  padding: 10px;
-  text-align: left;
-}
-
-#MB_close {
-  background-image: image_url("g9/icons/sprite_modal_close.png");
-  background-position: 0 -30px;
-  display: block;
-  font-size: 1px;
-  font-weight: bold;
-  height: 23px;
-  padding: 0;
-  position: absolute;
-  right: 9px;
-  text-decoration: none;
-  text-indent: -3000px;
-  top: 9px;
-  width: 23px;
-  zoom: 1;
-}
-
-#MB_close:hover {
-  background-position: 0 0;
-}
-
-#MB_loading {
-  background: transparent image_url("g9/icons/spinny_white_16.gif") 50% 0 no-repeat;
-  text-indent: -10000px;
-  padding: 1.5em;
-}
-
-/* Color scheme */
-#MB_window {
-
-}
-
-#MB_frame {
-}
-
-/* Alert message */
-.MB_alert {
-  margin: 10px 0;
-  text-align: center;
-}
-
-#MB_content .sub_tabs_container {
-  border-radius: 0;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  margin-bottom: 0 !important;
-}
-
-#MB_content .sub_tab_container,
-#MB_content .form_content {
-  height: 360px;
-  overflow: auto;
-  padding: 15px;
-}
-
-#MB_content .content_wrapper_inner {
-  max-height: 400px;
-}
-
-#MB_content .content_wrapper_outer .content_wrapper_inner {
-  margin: 0;
-  border-bottom: 0 none;
-  padding: 0;
-}
-
-/* action row and buttons */
-#MB_content .actions {
-  background: #eeeee9 image_url("g9/backgrounds/overlay_modal_action_row.png") repeat-x;
-  border-radius: 0;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  border-top: 1px solid #ccc;
-  bottom: 0;
-  box-shadow: none;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  margin: 0;
-  padding: 12px 0 11px 0;
-  text-align: left;
-}
-
-/* janky way to add margin on the close button */
-#MB_content .actions button {
-  margin-left: 10px;
-}

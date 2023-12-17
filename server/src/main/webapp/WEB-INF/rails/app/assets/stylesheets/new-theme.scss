@@ -135,15 +135,6 @@ h4 {
   margin-top: 10px;
 }
 
-#MB_content .actions {
-  background-image: none;
-  border: 0;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
 // pipelines
 
 #pipelines #body_content {
@@ -754,32 +745,6 @@ button.submit {
   margin: 0 0 20px 0;
 }
 
-// modal
-
-#MB_caption {
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-#MB_frame_content {
-  background-color: #fff;
-  border: 0;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 31%);
-  position: relative;
-}
-
-#MB_content .sub_tabs_container {
-  margin: 5px 15px 0;
-}
-
-#MB_content .sub_tab_container,
-#MB_content .form_content {
-  height: 369px;
-  overflow: auto;
-  padding: 15px;
-}
-
 // forms
 
 input[type="text"],
@@ -1166,43 +1131,6 @@ a:visited#link-to-this-page {
   background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%) !important;
 }
 
-#MB_window {
-  border-radius: 3px;
-  overflow: visible;
-
-  @include clearfix;
-
-  .page-wrap {
-    &::before {
-      height: 0;
-    }
-  }
-}
-
-#MB_content {
-  overflow: visible !important;
-  padding-bottom: 51px;
-  box-sizing: border-box;
-
-  .flash {
-    position: static;
-  }
-
-  .task.fieldset {
-    padding: 1.25em 0;
-  }
-}
-
-#MB_content .sub_tab_container,
-#MB_content .form_content {
-  padding: 15px 20px;
-}
-
-#MB_header {
-  border-bottom: 2px solid #ccc;
-  background: $modal-header-bg;
-}
-
 #tab-content-of-source-xml {
   .heading h2 {
     display: inline;
@@ -1296,10 +1224,6 @@ a:visited.help {
   .messaging_wrapper & {
     position: static;
   }
-}
-
-#MB_caption {
-  color: #333;
 }
 
 .fieldset .form_item {
@@ -1884,60 +1808,6 @@ ul.entity_title {
 
 .status.details a {
   text-decoration: underline;
-}
-
-#MB_window {
-  border-radius: 3px;
-
-  &:not(.small) {
-    @media screen and (min-width: 40em) {
-      width: 90% !important;
-      max-width: 75rem !important;
-    }
-  }
-
-  #MB_frame {
-    border-radius: 3px;
-  }
-
-  #MB_frame_right {
-    border-radius: 3px;
-  }
-
-  #MB_frame_content {
-    border-radius: 3px;
-  }
-
-  #MB_header {
-    padding: 13px 10px;
-    border-radius: 3px;
-    background: #e0dfdf;
-  }
-
-  #MB_caption {
-    font-weight: 600;
-    font-size: 18px;
-    font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-    margin: 5px 0 5px 15px;
-    padding: 0;
-  }
-
-  #MB_close {
-    text-indent: 0;
-    color: #8a8a8a;
-    font-weight: normal;
-    top: 11px;
-    right: 17px;
-
-    &::before {
-      font-size: 32px;
-      content: "×";
-      width: 25px;
-      height: 25px;
-    }
-
-    background: none;
-  }
 }
 
 .artifact {

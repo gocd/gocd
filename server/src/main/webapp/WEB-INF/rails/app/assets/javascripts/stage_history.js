@@ -49,5 +49,30 @@ var StageHistory = function() {
     }));
   };
 
+  init.prototype.bindConfigChangeModal = function(modalId, contentSelector) {
+    jQuery(".stage_history .config_change a").click(function(event) {
+      event.preventDefault();
+      AjaxRefreshers.disableAjax();
+      const url = jQuery(this).attr("href");
+      jQuery.ajax({
+        url: url,
+        success: function(data) {
+          jQuery(contentSelector).html(jQuery(data).find("#body_content").html());
+          document.getElementById(modalId).showModal();
+        },
+        error: function(response, textStatus) {
+          jQuery(contentSelector).html(`<div class="callout">There was an error loading changes (${response.status} ${textStatus})</div>`);
+          document.getElementById(modalId).showModal();
+        }
+      });
+    });
+
+    jQuery("#modal-close").click(function(event) {
+      event.preventDefault();
+      document.getElementById(modalId).close();
+      AjaxRefreshers.enableAjax();
+    });
+  };
+
   return new init();
 }();

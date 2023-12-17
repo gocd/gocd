@@ -11,12 +11,12 @@
 <script type="text/javascript">
     pageResizer();
     function pageResizer() {
-        var $pagenotfound = $j('.pagenotfound');
-        $pagenotfound.parent( ".content_wrapper_inner").height($j(window).height() - 160).css({'padding':0});
+        var $pagenotfound = $('.pagenotfound');
+        $pagenotfound.parent( ".content_wrapper_inner").height($(window).height() - 160).css({'padding':0});
         $pagenotfound.parents("#body_content").css({paddingTop:46});
 
     }
-    $j(window).resize(function() {
+    $(window).resize(function() {
         pageResizer();
     });
 </script>

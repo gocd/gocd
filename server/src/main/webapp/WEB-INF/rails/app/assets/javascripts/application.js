@@ -27,12 +27,11 @@
 // Many things depend on jquery (incl direct code, jquery-ui and bootstrap)
 //= require "lib/jquery-3.7.1.js"
 //= require "lib/jquery-pinOnScroll.js"
-//= require "lib/jquery_no_conflict.js"
 
 // Used by Rails build/job detail page job history dropdown (data-toggle='dropdown' and .dropdown-menu)
 //= require "lib/bootstrap-dropdown-2.3.2.js"
 
-// used by Rails value_stream_map_renderer (look for $j(.*).draggable etc)
+// used by Rails value_stream_map_renderer (look for $(.*).draggable etc)
 //= require "lib/jquery-ui-1.13.2.js"
 
 // Used by Rails job details page via timer_observer

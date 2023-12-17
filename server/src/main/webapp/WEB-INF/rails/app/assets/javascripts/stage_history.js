@@ -17,7 +17,7 @@ var StageHistory = function() {
   function _bindHistoryLink(id, url, page_num) {
     var elem = jQuery(id).get(0);
     if (!elem) return;        
-    var element = $j(elem);
+    var element = $(elem);
     element.unbind();
     element.click(function() {
       changePage(url, page_num);

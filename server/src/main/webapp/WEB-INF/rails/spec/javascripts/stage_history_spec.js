@@ -22,12 +22,12 @@ describe("stage_history", function () {
     );
   });
 
-  var actual_jquery_ajax = $j.ajax;
+  var actual_jquery_ajax = $.ajax;
   var options;
   var afterRef;
 
   beforeEach(function () {
-    $j.ajax = function (opts) {
+    $.ajax = function (opts) {
       options = opts;
     };
     afterRef = null;
@@ -35,7 +35,7 @@ describe("stage_history", function () {
 
   afterEach(function () {
     AjaxRefreshers.clear();
-    $j.ajax = actual_jquery_ajax;
+    $.ajax = actual_jquery_ajax;
   });
 
   it("test_page_change", function () {
@@ -56,26 +56,26 @@ describe("stage_history", function () {
 
   it("test_bind_link_no_link", async () => {
     stub_main_refresher();
-    $j("#stage-history-page").val("should-not-change");
+    $("#stage-history-page").val("should-not-change");
     expect(jQuery('#doesnt_exist')[0]).toBeUndefined();
     expect(document.getElementById('doesnt_exist')).toBeNull();
     await StageHistory.bindHistoryLink('#doesnt_exist', "url-to-page-3", 3);
-    $j(document).click();
+    $(document).click();
     expect(jQuery("#stage-history-page").val()).toBe("should-not-change");
     afterRef();
-    $j(document).click();
+    $(document).click();
     expect(jQuery("#stage-history-page").val()).toBe("should-not-change");
   });
 
   it("test_bind_link", async () => {
     stub_main_refresher();
-    $j("#stage-history-page").val("0");
+    $("#stage-history-page").val("0");
     await StageHistory.bindHistoryLink('#stage_history_3', "url-to-page-3", 3);
-    $j('#stage_history_3').click();
+    $('#stage_history_3').click();
     expect(jQuery("#stage-history-page").val()).toBe("3");
-    $j("#stage-history-page").val("0");
+    $("#stage-history-page").val("0");
     afterRef();
-    $j('#stage_history_3').click();
+    $('#stage_history_3').click();
     expect(jQuery("#stage-history-page").val()).toBe("3");
   });
 });

@@ -18,18 +18,18 @@
     {for revision in revisions}
     <div class="material_revision">
         <div class="material">
-            <span class="revision_scmtype">${%revision.scmType%}</span>
-            <span class="revision_location">{if revision.materialName}${%revision.materialName.concat(' - ')%} {/if}${%revision.location%}</span>
+            <span class="revision_scmtype">${% revision.scmType %}</span>
+            <span class="revision_location">{if revision.materialName}${% revision.materialName.concat(' - ') %} {/if}${% revision.location %}</span>
             <br/>
             {if revision.scmType=='Dependency'}
             {var modification = revision.modifications[0]}
-            <div class="dependency_revision_highlight-${%revision.changed%}">
+            <div class="dependency_revision_highlight-${% revision.changed %}">
                 <span class="revision_revision">
                     <a href="</#noparse>${req.getContextPath()}<#noparse>/${% revision.revision_href %}">${% revision.revision %}</a>
                 </span>
-                <span>${%revision.action%}</span>
+                <span>${% revision.action %}</span>
                 on
-                <span>${%revision.date%}</span>
+                <span>${% revision.date %}</span>
             </div>
             {/if}
         </div>
@@ -38,9 +38,9 @@
             {for modification in revision.modifications}
             <tbody>
             <tr>
-                <th colspan="2" class="highlight-${%revision.changed%}">
+                <th colspan="2" class="highlight-${% revision.changed %}">
 
-                    <span class="normal revision_information">Revision: ${%modification.revision%}, modified by ${%modification.user.escapeHTML()%} on ${%modification.date%} </span>
+                    <span class="normal revision_information">Revision: ${% modification.revision %}, modified by ${% _.escape(modification.user) %} on ${% modification.date %} </span>
                     <br/>
 
                     <span title="Comment" class="comment">
@@ -48,24 +48,24 @@
                             {if modification.comment != null && modification.comment != ""}
                                 {var comment_map = JSON.parse(modification.comment)}
                                 {if comment_map.COMMENT != null}
-                                    ${%comment_map.COMMENT%}<br/>
+                                    ${% comment_map.COMMENT %}<br/>
                                 {/if}
                                 {if comment_map.TRACKBACK_URL != null}
-                                    Trackback: <a href="${%comment_map.TRACKBACK_URL%}">${%comment_map.TRACKBACK_URL%}</a>
+                                    Trackback: <a href="${% comment_map.TRACKBACK_URL %}">${% comment_map.TRACKBACK_URL %}</a>
                                 {else}
                                     Trackback: Not Provided
                                 {/if}
                             {/if}
                         {else}
-                            "${%modification.comment.replace(/\n/g,"<br/>")%}"
+                            "${% modification.comment.replace(/\n/g,"<br/>") %}"
                         {/if}
                     </span>
                 </th>
             </tr>
             {for file in modification.modifiedFiles}
             <tr class="{if file_index%2==0} even {else} odd {/if}">
-                <td title="${%file.action%}" class="${%file.action%}">
-                     <span class="modified_file">${%file.fileName%}</span>
+                <td title="${% file.action %}" class="${% file.action %}">
+                     <span class="modified_file">${% file.fileName %}</span>
                 </td>
             </tr>
             {/for}

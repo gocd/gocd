@@ -41,7 +41,7 @@ describe "stage_trigger_gate.html" do
     @stage.setApprovedBy(nil)
     @stage.setApprovalType("manual")
     render :partial => "pipelines/stage_trigger_gate",
-           :locals => {:scope => {:stage_in_status_bar => @stage, :update_opts => {}}}
+           :locals => {:scope => {:stage_in_status_bar => @stage}}
     expect(response).to have_selector("a[title='Awaiting approval'][class='manual']")
   end
 
@@ -55,7 +55,7 @@ describe "stage_trigger_gate.html" do
     @stage.setApprovalType("success")
 
     render :partial => "pipelines/stage_trigger_gate",
-           :locals => {:scope => {:stage_in_status_bar => @stage, :update_opts => {}}}
+           :locals => {:scope => {:stage_in_status_bar => @stage}}
     expect(response).to have_selector("a[title='Awaiting approval'][class='auto']")
   end
 

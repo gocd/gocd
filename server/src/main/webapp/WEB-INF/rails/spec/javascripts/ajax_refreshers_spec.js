@@ -16,9 +16,10 @@
 describe("ajax_refreshers", function () {
   var first, second;
   beforeEach(function () {
-    setFixtures("<div class='under_test'>\n" +
-                "    <div id=\"elem_id\"></div>\n" +
-                "</div>"
+    setFixtures(`
+      <div class='under_test'>
+        <div id="elem_id"></div>
+      </div>`
     );
     AjaxRefreshers.clear();
     first = mockRefresher();

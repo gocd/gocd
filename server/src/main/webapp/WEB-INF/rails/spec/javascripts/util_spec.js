@@ -15,20 +15,27 @@
  */
 describe("util", function () {
   beforeEach(function () {
-    setFixtures("<div class='under_test'>\n" +
-          "    <div id=\"elem_id\">\n" +
-          "        <a href=\"turner\">Turner's legacy</a>\n" +
-          "    </div>\n" +
-          "</div>");
+    setFixtures(`
+      <div class='under_test'>
+          <div id="elem_id">
+              <a href="turner">Turner's legacy</a>
+          </div>
+      </div>
+    `);
   });
 
   it("test_should_replace_element_with_spinny_image", function () {
-    Util.spinny($('elem_id'));
-    assertEquals($('elem_id').innerHTML, "&nbsp;");
-    assertTrue($('elem_id').hasClassName('spinny'));
+    Util.spinny('elem_id');
+    assertEquals("&nbsp;", jQuery('#elem_id').html());
+    assertTrue(jQuery('#elem_id').hasClass('spinny'));
   });
 
-  it("test_escapeDotsFromId", function () {
-    assertEquals("#2\\.1\\.1\\.2", Util.escapeDotsFromId("2.1.1.2"));
+  it("test_should_do_nothing_on_empty_spinner_id", function () {
+    Util.spinny('');
+    expect(jQuery('#elem_id').html()).toContain("<a href=\"turner\">Turner's legacy</a>");
+  });
+
+  it("test_idToSelector", function () {
+    assertEquals("#2\\.1\\.1\\.2\\:15", Util.idToSelector("2.1.1.2:15"));
   });
 });

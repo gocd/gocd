@@ -2,12 +2,18 @@
   "extends": [
     "eslint:recommended"
   ],
+  "parser": "@babel/eslint-parser",
   "env": {
     "browser": true,
     "amd": true,
     "es2018": true,
     "jasmine": true,
     "jquery": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "ecmaVersion": 2018
+    }
   },
   "rules": {
     "arrow-parens": [

@@ -24,13 +24,22 @@ var StageHistory = function() {
     });
   }
 
-  function changePage(url, pageNum) {    
-    new Ajax.Updater($('stage_history'), url, {method: 'get', evalScripts: true});
+  function changePage(url, pageNum) {
+    AjaxRefreshers.disableAjax();
+    jQuery.ajax({
+      url: url,
+      method: "GET",
+      dataType: "html",
+      complete: function(response) {
+        jQuery('.stage_history').html(response);
+        AjaxRefreshers.enableAjax();
+      }
+    });
     setCurrentPage(pageNum);
   }
 
   function setCurrentPage(pageNum) {
-    $("stage-history-page").value = pageNum;
+    jQuery("#stage-history-page").val(pageNum);
   }
 
   function init() {

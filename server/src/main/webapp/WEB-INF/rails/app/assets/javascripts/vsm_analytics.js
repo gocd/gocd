@@ -115,7 +115,7 @@
         return;
       }
       var errorEl = document.createElement("div");
-      $(errorEl).addClass("error");
+      $j(errorEl).addClass("error");
       errorEl.textContent = xhr.responseText;
       vsmModal.appendChild(errorEl);
     }).always(function () {
@@ -161,7 +161,6 @@
     };
 
     this.init = function () {
-      new PrototypeOverrides().overrideJSONStringify();
       graphRenderer.registerSelectPipelineCallback(this.selectPipeline);
       graphRenderer.registerSelectMaterialCallback(this.selectMaterial);
 

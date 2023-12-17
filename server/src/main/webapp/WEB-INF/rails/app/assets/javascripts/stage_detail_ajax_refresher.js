@@ -13,49 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function StageDetailAjaxRefresher(url, redirectUrl, after_callback_map) {
-  var oldCheckboxes = null;
-  var replicator = new FieldStateReplicator();
+function StageDetailAjaxRefresher(url, after_callback_map) {
+  const replicator = new FieldStateReplicator();
+  let oldCheckboxes = null;
 
-  function registerAgentSelectorsUnder(table) {
-    $(table).select('.job_selector').each(function (elem) {
-      replicator.register(elem, elem.value);
-    });
+  function registerAgentSelectorsUnder(elementOrSelector) {
+    const element = jQuery(elementOrSelector);
+    if (element.length > 0) {
+      element.find('.job_selector').each(function (i, elem) {
+        replicator.register(elem, elem.value);
+      });
+    }
   }
 
-  var jobs_grid = $('jobs_grid');
-  if (jobs_grid){
-    registerAgentSelectorsUnder(jobs_grid);
-  }
+  registerAgentSelectorsUnder('#jobs_grid');
 
-  return new AjaxRefresher(url, redirectUrl, {
+  return new AjaxRefresher(url, {
     afterRefresh: function (receiver_id) {
-      var callback = after_callback_map[receiver_id];  
+      const callback = after_callback_map[receiver_id];
       callback && callback();
       if (receiver_id === 'jobs_grid') {
-        oldCheckboxes.each(function (elem) {
+        oldCheckboxes.each(function (i, elem) {
           replicator.unregister(elem, elem.value);
         });
         oldCheckboxes = null;
       }
     },
     dataFetcher: function () {
-      return $("stage-history-page")? {"stage-history-page": $("stage-history-page").value} : {};
+      const pageElement = jQuery("#stage-history-page");
+      return pageElement ? {
+        "stage-history-page": pageElement.val()
+      } : {};
     },
     manipulateReplacement: function (receiver_id, replaceElement) {
       if (receiver_id === 'jobs_grid') {
         registerAgentSelectorsUnder(replaceElement);
-        oldCheckboxes = $$('.job_selector');
+        oldCheckboxes = jQuery('.job_selector');
       }
     }
   });
 }
 
 function compare_link_handlers() {
-  jQuery(".stage_history .stage").mouseover(function() {
+  const individualStage = jQuery(".stage_history .stage");
+  individualStage.mouseover(function() {
     jQuery(this).find(".compare_pipeline").removeClass("hidden");
   });
-  jQuery(".stage_history .stage").mouseout(function() {
+  individualStage.mouseout(function() {
     jQuery(this).find(".compare_pipeline").addClass("hidden");
   });
 }

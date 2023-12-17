@@ -619,7 +619,7 @@ Graph_Renderer = function (container) {
     var source, target, p1, p2, x1, x2, y1, y2;
     $j.each(levels, function (i, level) {
       $j.each(level.nodes, function (j, node) {
-        source = $j(Util.escapeDotsFromId(node.id.replace(/\./g, '_id-')));
+        source = $j(Util.idToSelector(node.id.replace(/\./g, '_id-')));
 
         p1 = source.position();
         x1 = p1.left + source.outerWidth();
@@ -629,7 +629,7 @@ Graph_Renderer = function (container) {
           y1 += 0;
         }
         $j.each(node.dependents, function (k, dependent) {
-          target = $j(Util.escapeDotsFromId(dependent.replace(/\./g, '_id-')));
+          target = $j(Util.idToSelector(dependent.replace(/\./g, '_id-')));
           p2 = target.position();
           x2 = p2.left;
           y2 = p2.top + (source.outerHeight() / 2);
@@ -672,7 +672,7 @@ Graph_Renderer = function (container) {
         {"x": x2, "y": y2}
       ];
     }
-    addDependencyArrow(source, target, arrowData, ($j(Util.escapeDotsFromId(source)).text() == 'dummy-' + source));
+    addDependencyArrow(source, target, arrowData, ($j(Util.idToSelector(source)).text() == 'dummy-' + source));
   }
 
   function dependencyArrow(source, target, pathData) {

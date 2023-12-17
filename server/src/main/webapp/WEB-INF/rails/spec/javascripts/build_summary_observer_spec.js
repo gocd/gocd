@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
-  var orig_write_attribute = Element.writeAttribute;
   var observer;
   beforeEach(function () {
-    setFixtures("<div id=\"container\" class=\"build_detail\">\n" +
-            "    <span class=\"page_panel\"><b class=\"rtop\"><b class=\"r1\"></b> <b class=\"r2\"></b> <b class=\"r3\"></b> <b class=\"r4\"></b></b></span>\n" +
-            "\n" +
-            "<div id=\"build_status\" class=\"build-status\"></div>\n" +
-            "<div class=\"build_detail_summary\">\n" +
-            "    <ul class=\"summary\">\n" +
-            "        <li><strong>Building since:</strong> $buildSince</li>\n" +
-            "        <li><strong>Elapsed time:</strong> <span id=\"${projectName}_time_elapsed\"></span></li>\n" +
-            "        <li><strong>Previous successful build:</strong> $durationToSuccessfulBuild</li>\n" +
-            "        <li><strong>Remaining time:</strong> <span id=\"${projectName}_time_remaining\"></span></li>\n" +
-            "        <span id=\"build_status\"></span>\n" +
-            "    </ul>\n" +
-            "</div>\n" +
-            "<span class=\"page_panel\"><b class=\"rbottom\"><b class=\"r4\"></b> <b class=\"r3\"></b> <b class=\"r2\"></b> <b\n" +
-            "            class=\"r1\"></b></b></span>\n" +
-            "</div>\n" +
-            "\n" +
-            "<span class=\"buildoutput_pre\"></span>\n" +
-            "\n" +
-            "<div id=\"trans_content\"></div>");
+    setFixtures(`
+      <div id="container" class="build_detail">
+        <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+      
+        <div id="build_status" class="build-status"></div>
+        <div class="build_detail_summary">
+            <ul class="summary">
+                <li><strong>Building since:</strong> $buildSince</li>
+                <li><strong>Elapsed time:</strong> <span id="$\{projectName}_time_elapsed"></span></li>
+                <li><strong>Previous successful build:</strong> $durationToSuccessfulBuild</li>
+                <li><strong>Remaining time:</strong> <span id="$\{projectName}_time_remaining"></span></li>
+                <span id="build_status"></span>
+            </ul>
+        </div>
+        <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+      </div>
+      
+      <span class="buildoutput_pre"></span>
+      
+      <div id="trans_content"></div>
+      `);
 
-    Element.addMethods({writeAttribute: orig_write_attribute});
     jQuery('.buildoutput_pre').html('');
 
     observer = new BuildSummaryObserver(jQuery(".build_detail_summary"));

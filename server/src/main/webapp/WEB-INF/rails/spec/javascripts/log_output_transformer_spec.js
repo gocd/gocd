@@ -30,7 +30,12 @@
 
     beforeEach(function () {
       window.requestAnimationFrame = function (callback) { callback(); };
-      setFixtures("<div id='fixture'><div class='console-log-loading'></div><div id=\"console\"></div></div>");
+      setFixtures(`
+        <div id='fixture'>
+          <div class='console-log-loading'></div>
+          <div id="console"></div>
+        </div>
+      `);
       fixture = $('#fixture');
       transformer = new LogOutputTransformer(output = $("#console"), FoldableSection, false);
     });

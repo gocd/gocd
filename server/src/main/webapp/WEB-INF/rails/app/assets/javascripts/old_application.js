@@ -13,25 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-var CruiseBasicService = {
-  redirectToLoginPage: function(){
-    window.location= window.location.protocol + '//' + window.location.host + context_path('auth/login');
-  }
-};
-
-Ajax.Responders.register({
-  onComplete: function(request, transport, json){
-    if(transport && (transport.status && transport.status == 401
-                        || transport.statusText && transport.statusText == '401')) {
-      //if 401 has been handled, just return
-      if(request && request.options && request.options.on401) return;
-      CruiseBasicService.redirectToLoginPage();
-    }
-  }
-});
-
-
 //iframe resizer + back to top
 function iframeResizer(iframe){
   if (iframe.is(':visible') && iframe.attr('sandbox') === undefined) {

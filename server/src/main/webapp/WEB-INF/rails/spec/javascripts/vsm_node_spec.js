@@ -25,11 +25,11 @@ describe("vsm_node", function () {
       expect(node.parents).toContain("21f6ea93b7");
       expect(node.dependents).toContain("plugins");
 
-      expect(node.instances.size()).toBe(1);
+      expect(node.instances.length).toBe(1);
       expect(node.instances[0].counter).toBe(2590);
       expect(node.instances[0].label).toBe("2590");
 
-      expect(node.instances[0].stages.size()).toBe(2);
+      expect(node.instances[0].stages.length).toBe(2);
       expect(node.instances[0].stages[0].name).toBe("build-non-server");
       expect(node.instances[0].stages[0].status).toBe("Passed");
       expect(node.instances[0].stages[0].counter).toBe(2);
@@ -48,8 +48,8 @@ describe("vsm_node", function () {
       expect(node.name).toBe("post-release-github-activities");
       expect(node.type).toBe("PIPELINE");
       expect(node.parents).toContain("PublishStableRelease");
-      expect(node.dependents.size()).toBe(0);
-      expect(node.instances.size()).toBe(0);
+      expect(node.dependents.length).toBe(0);
+      expect(node.instances.length).toBe(0);
     });
 
     it("should deserialize a scm material node from JSON", function () {
@@ -61,11 +61,11 @@ describe("vsm_node", function () {
       expect(node.dependents).toContain("519591c7-74ef-458d-b094-d4c15a80c0ab");
       expect(node.dependents).toContain("build-linux");
 
-      expect(node.material_revisions.size()).toBe(2);
-      expect(node.material_revisions[0].modifications.size()).toBe(1);
+      expect(node.material_revisions.length).toBe(2);
+      expect(node.material_revisions[0].modifications.length).toBe(1);
       expect(node.material_revisions[0].modifications[0].revision).toContain("878f029dd4fe4f9d36b575152a5086c2e0b1fc93");
 
-      expect(node.material_revisions[1].modifications.size()).toBe(1);
+      expect(node.material_revisions[1].modifications.length).toBe(1);
       expect(node.material_revisions[1].modifications[0].revision).toContain("10b2c55bfc06c4c465447a5986f27a1d83570206");
     });
 
@@ -75,10 +75,10 @@ describe("vsm_node", function () {
       expect(node.id).toBe("b667d782-64b0-475e-9bf2-d8db9a8c3b2c");
       expect(node.type).toBe("DUMMY");
 
-      expect(node.dependents.size()).toBe(1);
+      expect(node.dependents.length).toBe(1);
       expect(node.dependents).toContain("e9448492-0d94-4c24-a7c4-a139e92dadff");
 
-      expect(node.parents.size()).toBe(1);
+      expect(node.parents.length).toBe(1);
       expect(node.parents).toContain("21f6ea93b72144560a90ad9398e67c5c9f0f7c6cdf03e022a7fc2445bd8a3f2b");
     });
   });

@@ -15,8 +15,7 @@
  */
 describe("value_stream_map_renderer", function () {
   beforeEach(function () {
-    setFixtures("<div id=\"vsm-container\">\n" +
-      "</div>");
+    setFixtures(`<div id="vsm-container"></div>`);
   });
 
   it("testCurrentPipelineShouldHaveHighlightingBackground", function () {
@@ -140,7 +139,7 @@ describe("value_stream_map_renderer", function () {
      * hide/show revisions
      */
     assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible'));
-    jQuery(jQuery("#hg_fingerprint .more")).trigger('click');
+    jQuery("#hg_fingerprint .more").trigger('click');
     assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible'));
 
     /*
@@ -260,10 +259,6 @@ describe("value_stream_map_renderer", function () {
       ]
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
-    var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
-    var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
-    var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
-    var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
     assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
     assertEquals("first comment is not populated correctly.", 'Trackback: Not Provided',
@@ -288,8 +283,8 @@ describe("value_stream_map_renderer", function () {
 
     assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
     assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
-    jQuery(jQuery("#svn_fingerprint_1 .more")).trigger('click');
-    jQuery(jQuery("#svn_fingerprint_2 .more")).trigger('click');
+    jQuery("#svn_fingerprint_1 .more").trigger('click');
+    jQuery("#svn_fingerprint_2 .more").trigger('click');
     assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
     assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
   });
@@ -337,7 +332,7 @@ describe("value_stream_map_renderer", function () {
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
     assertEquals("pipeline should show all instance details.", "1 more...", jQuery("#downstream .show-more").find("a").text());
-    jQuery(jQuery("#downstream .show-more a")).trigger('click');
+    jQuery("#downstream .show-more a").trigger('click');
     assertEquals("pipeline should show all instance details.", "1 less...", jQuery("#downstream .show-more").find("a").text());
   });
 
@@ -405,7 +400,6 @@ describe("value_stream_map_renderer", function () {
 
   VsmGrid = function (container) {
     var allNodes = [];
-    var nodePositions = {};
     var levelVersusNodes = [];
 
     var svgPosition = jQuery("div#vsm-container")[0].getBoundingClientRect();
@@ -424,7 +418,7 @@ describe("value_stream_map_renderer", function () {
 
       jQuery.each(nodes, function (i, node) {
         nodeObj = new VsmNode();
-        nodeObj.id = $(this).id;
+        nodeObj.id = jQuery(this).id;
 
         nodeObj.type = (jQuery(node).hasClass('material')) ?
           'material' : ((jQuery(node).hasClass('current')) ?
@@ -451,16 +445,6 @@ describe("value_stream_map_renderer", function () {
       });
     }
 
-    var nodeAt = function (level, depth) {
-      for (var i = 0; i < allNodes.length; i++) {
-        var node = allNodes[i];
-        if (node.level == level && node.depth == depth) {
-          return node;
-        }
-      }
-      return null;
-    };
-
     this.getInfo = function () {
       var str = '';
       for (var i = 0; i < allNodes.length; i++) {
@@ -468,118 +452,6 @@ describe("value_stream_map_renderer", function () {
       }
       return str;
     };
-
-    this.nodeIdAt = function (level, depth) {
-      var node = nodeAt(level, depth);
-      if (node) {
-        return node.id;
-      }
-      return null;
-    };
-
-    this.hasNoOverlap = function () {
-      var expectedHeight;
-      var expectedWidth;
-
-      for (i = 0; i < allNodes.length; i++) {
-        if (allNodes[i].type == 'pipeline') {
-          expectedHeight = allNodes[i].nodePosition.height;
-          expectedWidth = allNodes[i].nodePosition.width;
-          i = allNodes.length; // exit loop
-        }
-      }
-
-      //make sure every node has same height & width
-      for (var i = 0; i < allNodes.length; i++) {
-        var nodePosition = allNodes[i].nodePosition;
-        var node = allNodes[i];
-        if (node.type == 'pipeline') {
-          if (nodePosition.height != expectedHeight || nodePosition.width != expectedWidth) {
-            return false;
-          }
-        }
-      }
-
-      // check there is enough gap between levels
-      for (var level = 0; level < levelVersusNodes.length - 1; level++) {
-        var nodesAtCurrentLevel = levelVersusNodes[level];
-        var nodesAtNextLevel = levelVersusNodes[level + 1];
-
-        var allNodesHaveSameLeftPosition = function (nodes) {
-          var firstNode = nodes[0];
-          if (firstNode.type != 'current-pipeline') {
-            for (var i = 1; i < nodes.length; i++) {
-              if (firstNode.nodePosition.right != nodes[i].nodePosition.right) {
-                return false;
-              }
-            }
-          }
-          return true;
-        };
-
-        if (!allNodesHaveSameLeftPosition(nodesAtCurrentLevel) || !allNodesHaveSameLeftPosition(nodesAtNextLevel) ||
-          (nodesAtCurrentLevel[0].nodePosition.right + 20) > (nodesAtNextLevel[0].nodePosition.left)) {
-          return false;
-        }
-      }
-
-      // for each level - check there is enough gap between depths
-      for (var level = 0; level < levelVersusNodes.length - 1; level++) {
-        for (var i = 0; i < levelVersusNodes[level].length - 1; i++) {
-          if ((levelVersusNodes[level][i].nodePosition.bottom) > (levelVersusNodes[level][i + 1].nodePosition.top)) {
-            return false;
-          }
-        }
-      }
-
-
-      return true;
-    };
-
-    this.hasAnEdgeBetween = function (fromNodeId, toNodeId) {
-      var nodePositionFromNode = jQuery("#" + fromNodeId)[0].getBoundingClientRect();
-      var nodePositionToNode = jQuery("#" + toNodeId)[0].getBoundingClientRect();
-      var classOfSvg = "." + fromNodeId + "." + toNodeId;
-      var nodePositionSvgArrow = jQuery(classOfSvg)[0].getBoundingClientRect();
-      // incident on from node
-      if (Math.abs(nodePositionFromNode.right - nodePositionSvgArrow.left) > 15) {
-        alert(Math.abs(nodePositionFromNode.right) + ':' + Math.abs(nodePositionSvgArrow.left) + ':' + classOfSvg);
-        return false;
-      }
-      //incident on to node
-      if (Math.abs(nodePositionSvgArrow.right - nodePositionToNode.left) > 10) {
-        return false;
-      }
-      // is between from node
-      if ((isBetween(nodePositionFromNode.top, nodePositionSvgArrow.top, nodePositionFromNode.bottom))) {
-        if (!(isBetween(nodePositionToNode.top, nodePositionSvgArrow.bottom, nodePositionToNode.bottom))) {
-          return false;
-        }
-      } else if ((isBetween(nodePositionFromNode.top, nodePositionSvgArrow.bottom, nodePositionFromNode.bottom))) {
-        if (!(isBetween(nodePositionToNode.top, nodePositionSvgArrow.top, nodePositionToNode.bottom))) {
-          return false;
-        }
-      } else {
-        return false;
-      }
-      return true;
-    };
-
-    this.hasHighlightedEdgeBetween = function (fromNodeId, toNodeId) {
-      var classOfSvg = "." + fromNodeId + "." + toNodeId + ".pinned";
-      var nodePositionSvgArrow = jQuery(classOfSvg);
-      if (nodePositionSvgArrow && nodePositionSvgArrow.length > 0) {
-        return true;
-      }
-      return false;
-    };
-
-    function isBetween(left, middle, right) {
-      if (left < middle && middle < right) {
-        return true;
-      }
-      return false;
-    }
 
     init();
   };

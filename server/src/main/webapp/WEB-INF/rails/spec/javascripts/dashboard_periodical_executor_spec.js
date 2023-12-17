@@ -18,14 +18,15 @@ describe("dashboard_periodical_executor", function(){
 
   beforeEach(function(){
     contextPath = "/go";
-    setFixtures("<div id=\"project1_profile\">\n" +
-            "    <div id=\"control_panel\">\n" +
-            "        <a id=\"project1_forcebuild\"></a>\n" +
-            "        <a id=\"project1_config_panel\"></a>\n" +
-            "        <a id=\"project1_all_builds\"></a>\n" +
-            "        <a id=\"project1_all_successful_builds\"></a>\n" +
-            "    </div>\n" +
-            "</div>");
+    setFixtures(`
+      <div id="project1_profile">
+        <div id="control_panel">
+          <a id="project1_forcebuild"></a>
+          <a id="project1_config_panel"></a>
+          <a id="project1_all_builds"></a>
+          <a id="project1_all_successful_builds"></a>
+        </div>
+      </div>`);
     dashboard_periodical_executor.clean();
   });
 
@@ -44,7 +45,7 @@ describe("dashboard_periodical_executor", function(){
     }};
     dashboard_periodical_executor.clean();
     dashboard_periodical_executor.register(fakeObserver);
-    assertEquals(1, dashboard_periodical_executor.observers.size());
+    assertEquals(1, dashboard_periodical_executor.observers.length);
     dashboard_periodical_executor.start();
     assertTrue(invoked);
   });
@@ -76,7 +77,7 @@ describe("dashboard_periodical_executor", function(){
     dashboard_periodical_executor.clean();
     dashboard_periodical_executor.pause();
     dashboard_periodical_executor.register(fakeOb);
-    assertEquals(1, dashboard_periodical_executor.observers.size());
+    assertEquals(1, dashboard_periodical_executor.observers.length);
     dashboard_periodical_executor.start();
     dashboard_periodical_executor.fireNow();
 
@@ -103,16 +104,16 @@ describe("dashboard_periodical_executor", function(){
       invoked = true;
     }};
     dashboard_periodical_executor.clean();
-    assertEquals(0, dashboard_periodical_executor.observers.size());
+    assertEquals(0, dashboard_periodical_executor.observers.length);
 
     dashboard_periodical_executor.register(fakeOb);
     dashboard_periodical_executor.register(fakeOb);
     dashboard_periodical_executor.register(fakeOb);
     dashboard_periodical_executor.register(fakeOb);
 
-    assertEquals(4, dashboard_periodical_executor.observers.size());
+    assertEquals(4, dashboard_periodical_executor.observers.length);
     dashboard_periodical_executor.clean();
-    assertEquals(0, dashboard_periodical_executor.observers.size());
+    assertEquals(0, dashboard_periodical_executor.observers.length);
   });
 
   it("test_should_remove_observer_when_unregister", function(){
@@ -121,26 +122,26 @@ describe("dashboard_periodical_executor", function(){
       invoked = true;
     }};
     dashboard_periodical_executor.clean();
-    assertEquals(0, dashboard_periodical_executor.observers.size());
+    assertEquals(0, dashboard_periodical_executor.observers.length);
 
     dashboard_periodical_executor.register(fakeOb);
     dashboard_periodical_executor.register(fakeOb);
 
-    assertEquals(2, dashboard_periodical_executor.observers.size());
+    assertEquals(2, dashboard_periodical_executor.observers.length);
     dashboard_periodical_executor.unregister(fakeOb);
-    assertEquals(1, dashboard_periodical_executor.observers.size());
+    assertEquals(1, dashboard_periodical_executor.observers.length);
   });
 
   it("test_should_register_one_observer", function(){
-    assertEquals(0, dashboard_periodical_executor.observers.size());
+    assertEquals(0, dashboard_periodical_executor.observers.length);
     dashboard_periodical_executor.register("fake_observer");
-    assertEquals(1, dashboard_periodical_executor.observers.size());
+    assertEquals(1, dashboard_periodical_executor.observers.length);
   });
 
   it("test_should_register_multiple_observer", function(){
-    assertEquals(0, dashboard_periodical_executor.observers.size());
+    assertEquals(0, dashboard_periodical_executor.observers.length);
     dashboard_periodical_executor.register("fake_observer", "fake_observer2");
-    assertEquals(2, dashboard_periodical_executor.observers.size());
+    assertEquals(2, dashboard_periodical_executor.observers.length);
   });
 
   it("test_executer_should_pause_when_pause_condition_is_true", function() {

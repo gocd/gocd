@@ -53,16 +53,6 @@ describe ApplicationHelper do
     end
   end
 
-  describe "url_for_login" do
-    before :each do
-      allow(controller).to receive(:root_path).and_return("/go/quux?x")
-    end
-
-    it "should give the url for login" do
-      expect(url_for_login).to eq("/go/quux/auth/login?x")
-    end
-  end
-
   it "should give the server version" do
     version == "N/A"
   end
@@ -109,24 +99,20 @@ describe ApplicationHelper do
     it "should create a blocking link to a remote location" do
       actual = link_blocking_post_to_server :name => "&nbsp;",
                                             :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
-                                            :update => {:failure => "message_pane", :success => 'function(){}'},
                                             :html => {},
-                                            :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
-                                            :before => "Util.spinny('schedule');"
+                                            :idForSpinner => "schedule"
 
-      exp = %q|<a href="#"  onclick="AjaxRefreshers.disableAjax();Util.spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  onclick="Util.ajaxUpdate('/api/pipelines/SOME_NAME/schedule', 'schedule'); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
 
     it "should create a blocking link to a remote location with extra HTML provided" do
       actual = link_blocking_post_to_server :name => "&nbsp;",
                                             :url => com.thoughtworks.go.spark.Routes::Pipeline.schedule('SOME_NAME'),
-                                            :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json'},
-                                            :update => {:failure => "message_pane", :success => 'function(){}'},
                                             :html => {:class => "ABC", :title => "TITLE", :id => "SOME-ID" },
-                                            :before => "Util.spinny('schedule');"
+                                            :idForSpinner => "schedule"
 
-      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="AjaxRefreshers.disableAjax();Util.spinny('schedule');; new Ajax.Updater({success:'function(){}',failure:'message_pane'}, '/api/pipelines/SOME_NAME/schedule', {method:'post', on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, requestHeaders:{'X-GoCD-Confirm':'true', 'Accept':'application/vnd.go.cd.v1+json'}}); return false;">&nbsp;</a>|
+      exp = %q|<a href="#"  class="ABC" title="TITLE" id="SOME-ID" onclick="Util.ajaxUpdate('/api/pipelines/SOME_NAME/schedule', 'schedule'); return false;">&nbsp;</a>|
       expect(actual).to eq(exp)
     end
   end

@@ -15,8 +15,7 @@
  */
 describe("value_stream_map", function () {
   beforeEach(function () {
-    setFixtures("<div id=\"vsm-container\">\n" +
-            "</div>");
+    setFixtures(`<div id="vsm-container"></div>`);
   });
   var called;
   beforeEach(function () {

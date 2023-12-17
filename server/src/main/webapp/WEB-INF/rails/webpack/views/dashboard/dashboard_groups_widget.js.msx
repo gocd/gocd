@@ -22,10 +22,6 @@ import {BehaviorPrompt} from "views/components/behavior_prompt/behavior_prompt";
 import * as Buttons from "views/components/buttons/index";
 
 const GroupHeading = {
-  goToAddPipeline(url) {
-    window.location.href = url;
-  },
-
   view(vnode) {
     const vm    = vnode.attrs.vm;
     const paths = vm.routes();

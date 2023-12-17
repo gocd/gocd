@@ -17,19 +17,6 @@ function fail(failureMessage) {
   throw "Call to fail()" + failureMessage;
 }
 
-function fire_event(element, event, before) {
-  if (document.createEvent) {
-    var evt = document.createEvent("HTMLEvents");
-    evt.initEvent(event, true, true);
-    before && before(evt, element);
-    return !$(element).dispatchEvent(evt);
-  } else if (document.createEventObject) {
-    document.createEventObject();
-    before && before(event, element);
-    return element.fireEvent('on' + event);
-  }
-}
-
 function failed_json(planName) {
   return construct_new_json(planName, "Waiting", "Failed");
 }
@@ -43,8 +30,9 @@ function construct_new_json(projectname, current_status, result) {
 }
 
 function assertEquals() {
-  var actual;
-  if (arguments.length == 2) {
+  let expected;
+  let actual;
+  if (arguments.length === 2) {
     expected = arguments[0];
     actual = arguments[1];
   } else {
@@ -55,7 +43,7 @@ function assertEquals() {
 }
 
 function assertTrue() {
-  var actual;
+  let actual;
   if (arguments.length > 1) {
     actual = arguments[1];
   } else {
@@ -65,7 +53,7 @@ function assertTrue() {
 }
 
 function assert() {
-  var actual;
+  let actual;
   if (arguments.length > 1) {
     actual = arguments[1];
   } else {
@@ -75,7 +63,7 @@ function assert() {
 }
 
 function assertFalse() {
-  var actual;
+  let actual;
   if (arguments.length > 1) {
     actual = arguments[1];
   } else {
@@ -85,7 +73,7 @@ function assertFalse() {
 }
 
 function assertNotNull() {
-  var actual;
+  let actual;
   if (arguments.length > 1) {
     actual = arguments[1];
   } else {
@@ -95,7 +83,7 @@ function assertNotNull() {
 }
 
 function assertNull() {
-  var actual;
+  let actual;
   if (arguments.length > 1) {
     actual = arguments[1];
   } else {
@@ -105,7 +93,7 @@ function assertNull() {
 }
 
 function assertUndefined() {
-  var actual;
+  let actual;
   if (arguments.length > 1) {
     actual = arguments[1];
   } else {
@@ -115,15 +103,15 @@ function assertUndefined() {
 }
 
 function assertContains() {
-  var textToBeSearched;
-  var maintext;
+  let textToBeSearched;
+  let mainText;
 
   if (arguments.length > 2) {
     textToBeSearched = arguments[1];
-    maintext = arguments[2];
+    mainText = arguments[2];
   } else {
     textToBeSearched = arguments[0];
-    maintext = arguments[1];
+    mainText = arguments[1];
   }
-  expect(maintext).toContain(textToBeSearched);
+  expect(mainText).toContain(textToBeSearched);
 }

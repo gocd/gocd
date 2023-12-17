@@ -29,11 +29,6 @@
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
 
-// A number of things depend on this including Class.create + Event.observe + $() + $A() + Element.removeClassName calls.
-// Also causes some issues with hacks it applies to the browser toJSON that need to be worked around
-// with Json.parse(Json.stringify(jsonObject)) in various places
-//= require "lib/prototype-1.6.0.3.js"
-
 // Used by Rails build/job detail page job history dropdown (data-toggle='dropdown' and .dropdown-menu)
 //= require "lib/bootstrap-dropdown-2.3.2.js"
 

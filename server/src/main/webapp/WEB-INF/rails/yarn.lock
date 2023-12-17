@@ -6815,7 +6815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jasmine-browser-runner@npm:2.3.0":
+"jasmine-browser-runner@npm:^2.3.0":
   version: 2.3.0
   resolution: "jasmine-browser-runner@npm:2.3.0"
   dependencies:
@@ -6828,22 +6828,6 @@ __metadata:
   bin:
     jasmine-browser-runner: bin/jasmine-browser-runner
   checksum: 2c5ac6e77765f3cc72a5aaa241e9eea55ab7c445aef730ae0b8980c899cc6a2f59c2ab06765fb98fd0953635bbea591bde72673b6134caafcd81ff1d07517fe6
-  languageName: node
-  linkType: hard
-
-"jasmine-browser-runner@patch:jasmine-browser-runner@npm%3A2.3.0#./.yarn/patches/jasmine-browser-runner-npm-2.3.0-40f5d8899b.patch::locator=gocd-server-ui%40workspace%3A.":
-  version: 2.3.0
-  resolution: "jasmine-browser-runner@patch:jasmine-browser-runner@npm%3A2.3.0#./.yarn/patches/jasmine-browser-runner-npm-2.3.0-40f5d8899b.patch::version=2.3.0&hash=59cd68&locator=gocd-server-ui%40workspace%3A."
-  dependencies:
-    ejs: "npm:^3.1.6"
-    express: "npm:^4.16.4"
-    glob: "npm:^10.0.0"
-    selenium-webdriver: "npm:^4.12.0"
-  peerDependencies:
-    jasmine-core: ^5.0.0
-  bin:
-    jasmine-browser-runner: bin/jasmine-browser-runner
-  checksum: 3a0c339ef5f0bb7be357dbe840d66dc152123b95af963c196ee2c35fb0b4eed19e8001b822fb493f10f38c60b8556f89d8aea4736581dbf8971a0873273133eb
   languageName: node
   linkType: hard
 

@@ -17,8 +17,10 @@
         <% if @pipeline.hasStage(@lockedPipeline) %>
             <% if @pipeline.canUnlock() %>
                 <div class="locked_instance" id='unlock'>
-                  <%== link_blocking_post_to_server :name => "Click to unlock", :method => :post, :url => "/go/api/pipelines/#{@pipeline.getName()}/unlock",
-                                                    :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json', 'Content-Type' => 'application/json'}, :before => "Util.spinny('unlock');" %>
+                  <%== link_blocking_post_to_server :name => "Click to unlock",
+                                                    :html => {},
+                                                    :url => "/go/api/pipelines/#{@pipeline.getName()}/unlock",
+                                                    :idForSpinner => "unlock" %>
                 </div>
             <% else %>
                 <div class="locked_instance">

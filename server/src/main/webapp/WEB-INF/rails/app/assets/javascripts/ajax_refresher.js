@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function AjaxRefresher(url, redirectUrl, options) {
+function AjaxRefresher(url, options) {
   options = options || {};
-  redirectUrl = redirectUrl || "/go/auth/login";
-  var noBeforeCallback = ! options.beforeRefresh;
-  var hasAfterCallback = !! options.afterRefresh;
-  var hasRefreshBegining = !! options.refreshBegining;
-  var hasRefreshCompletedCallback = !! options.refreshCompleted;
-  var hasManipulateReplacement = !! options.manipulateReplacement;
+  const hasAfterCallback = !!options.afterRefresh;
+  const hasManipulateReplacement = !!options.manipulateReplacement;
 
-  var tempDom = jQuery(document.createElement('div'));
-  var in_progress = false;
-  var stopped = false;
-  var ajaxRequest;
-  var eTag;
-  var periodicalExecuter;
+  const tempDom = jQuery(document.createElement('div'));
+  let in_progress = false;
+  let stopped = false;
+  let ajaxRequest;
+  let eTag;
+  let periodicExecutor;
 
-  var transient_after_refresh_callbacks = {};
-  var permanent_after_refresh_callbacks = {};
+  const transient_after_refresh_callbacks = {};
+  const permanent_after_refresh_callbacks = {};
 
   function getValue(map, key, attribute, mandatory) {
-    var value = map[attribute];
+    const value = map[attribute];
     if (mandatory && value === undefined) {
       throw "no '" + attribute + "' given for dom id '" + key + "'";
     }
@@ -45,7 +41,7 @@ function AjaxRefresher(url, redirectUrl, options) {
   }
 
   function _updateWithTempDom(key) {
-    var recv = receiver(key);
+    const recv = receiver(key);
     recv.empty();
     recv.append(tempDom.contents());
   }
@@ -56,40 +52,32 @@ function AjaxRefresher(url, redirectUrl, options) {
     }
 
     if (isResponseNotModified()) {
-      var isPartialRefresh = true;
-      hasRefreshBegining && options.refreshBegining(isPartialRefresh);
-      hasRefreshCompletedCallback && options.refreshCompleted(isPartialRefresh);
       return;
     }
 
-    hasRefreshBegining && options.refreshBegining();
-
-    for (var key in json) {
-      var value = json[key];
-      var html_content = getValue(value, key, 'html', true);
-      if (noBeforeCallback || options.beforeRefresh(key, value)) {
-        if (hasManipulateReplacement) {
-          tempDom.html(html_content);
-          options.manipulateReplacement(key, tempDom.get(0));
-          _updateWithTempDom(key);
-        } else {
-          receiver(key).html(html_content);
-        }
-        hasAfterCallback && options.afterRefresh(key);
-        transient_after_refresh_callbacks_for(key).each(function(callback) {
-          callback(key);
-        });
-
-        permanent_after_refresh_callbacks_for(key).each(function(callback) {
-          callback(key);
-        });
-        reset_transient_after_refresh_callbacks_for(key);
+    for (const key in json) {
+      const value = json[key];
+      const html_content = getValue(value, key, 'html', true);
+      if (hasManipulateReplacement) {
+        tempDom.html(html_content);
+        options.manipulateReplacement(key, tempDom.get(0));
+        _updateWithTempDom(key);
+      } else {
+        receiver(key).html(html_content);
       }
+      hasAfterCallback && options.afterRefresh(key);
+      transient_after_refresh_callbacks_for(key).forEach(function(callback) {
+        callback(key);
+      });
+
+      permanent_after_refresh_callbacks_for(key).forEach(function(callback) {
+        callback(key);
+      });
+      reset_transient_after_refresh_callbacks_for(key);
     }
-    hasRefreshCompletedCallback && options.refreshCompleted(false);
   }
 
-  function _onComplete(xhr) {
+  function _onComplete() {
     in_progress = false;
   }
 
@@ -100,51 +88,51 @@ function AjaxRefresher(url, redirectUrl, options) {
   }
 
   function _redirectToLoginPage() {
-    window.location = window.location.protocol + '//' + window.location.host + redirectUrl;
+    window.location = window.location.protocol + '//' + window.location.host + "/go/auth/login";
   }
 
-  var _request = function() {
+  const _request = function () {
     if (in_progress) return;
     in_progress = true;
     ajaxRequest = jQuery.ajax({
-      data: (options.dataFetcher? options.dataFetcher() : {}),
+      data: (options.dataFetcher ? options.dataFetcher() : {}),
       url: url,
       context: document.body,
       dataType: 'json',
-      success: _onSuccess,
-      complete: _onComplete,
-      error: _onError
+      success: _onSuccess.bind(this),
+      complete: _onComplete.bind(this),
+      error: _onError.bind(this)
     });
   };
 
-  var _startExecution = function() {
+  const _startExecution = function () {
     _hookupAutoRefresh();
   };
 
   function _hookupAutoRefresh() {
-    periodicalExecuter = new PeriodicalExecuter(_request, options.time || 10);
+    periodicExecutor = new PeriodicExecutor(_request, options.time || 10);
   }
 
   options.updateOnce ? _request() : _startExecution();
 
   this.stopRefresh = function() {
-    if (periodicalExecuter) {
-      periodicalExecuter.stop();
+    if (periodicExecutor) {
+      periodicExecutor.stop();
     }
     stopped = true;
   };
 
   this.restartRefresh = function() {
     stopped = false;
-    if (periodicalExecuter) {
-      periodicalExecuter.registerCallback();
-      periodicalExecuter.execute();
+    if (periodicExecutor) {
+      periodicExecutor.registerCallback();
+      periodicExecutor.execute();
     }
   };
 
   function isResponseNotModified() {
     if (ajaxRequest) {
-      var responseETag = ajaxRequest.getResponseHeader("ETag");
+      const responseETag = ajaxRequest.getResponseHeader("ETag");
       if (eTag == responseETag) {
         return true;
       } else {
@@ -173,4 +161,40 @@ function AjaxRefresher(url, redirectUrl, options) {
   this.afterRefreshOf = function(id, callback, permanent) {
     (permanent ? permanent_after_refresh_callbacks_for(id) : transient_after_refresh_callbacks_for(id)).push(callback);
   };
+}
+
+
+class PeriodicExecutor {
+  constructor(callback, frequencySeconds) {
+    this.callback = callback;
+    this.frequencySeconds = frequencySeconds;
+    this.currentlyExecuting = false;
+
+    this.registerCallback();
+  }
+
+  registerCallback() {
+    this.timer = setInterval(this.onTimerEvent.bind(this), this.frequencySeconds * 1000);
+  }
+
+  execute() {
+    this.callback(this);
+  }
+
+  stop() {
+    if (!this.timer) return;
+    clearInterval(this.timer);
+    this.timer = null;
+  }
+
+  onTimerEvent() {
+    if (!this.currentlyExecuting) {
+      try {
+        this.currentlyExecuting = true;
+        this.execute();
+      } finally {
+        this.currentlyExecuting = false;
+      }
+    }
+  }
 }

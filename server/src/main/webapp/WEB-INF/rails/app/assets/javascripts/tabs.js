@@ -13,152 +13,156 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var TabsContainer = Class.create({
-  initialize: function(element, type, id, subtab_callback_map){
-    var container_parent = $(element);
-    var container = container_parent.down('ul');
-    this.container = container;
+class TabsContainer {
+  constructor(element, type, id, subtab_callback_map) {
+    const container = jQuery(element).find('ul');
+    this.container = container[0];
     this.container.tab_type = type;
     this.container.tab_id = id;
-    container.tabs = container.select('li').filter(function(tab) { return ! tab.hasClassName('external_pointing'); }).collect(function(tab){
-      var tab_name = jQuery(tab).find('.tab_button_body_match_text').text();
+    this.container.tabs = container.find('li').filter(function (i, tab) {
+      return !jQuery(tab).hasClass('external_pointing');
+    }).map(function (i, tab) {
+      const tab_name = jQuery(tab).find('.tab_button_body_match_text').text();
       return (subtab_callback_map && subtab_callback_map[tab_name]) || new SubTabs(tab);
     });
-    container.hideAllSubTabs = this.hideAllSubTabs.bind(this);
-  },
-  hideAllSubTabs: function(){
-    this.container.tabs.each(function(tab){
+    this.container.hideAllSubTabs = this.hideAllSubTabs.bind(this);
+  }
+
+  hideAllSubTabs() {
+    this.container.tabs.each(function (i, tab) {
       tab.hideContent();
     });
   }
-});
-var SubTabs = Class.create({
-  initialize: function(element, before_open_callback){
-    var element = $(element);
-    this.element = element;
-    this.container = element.parentNode;
-    this.link = element.down('a', 0);
-    this.initializeLinkAndContent();
-    element.open = this.open.bind(this);
-    element.observe('click', this.handleTabClick.bindAsEventListener(this));
-    this.before_open_callback = before_open_callback;
-  },
-  initializeLinkAndContent: function(){
-    var content_name = this.element.down('a.tab_button_body_match_text', 0).innerHTML;
-    this.tab_name = content_name;
-    this.link.id = 'tab-link-of-' + content_name;
-    this.link.href = 'javascript:void(0)';
-    var content_id = 'tab-content-of-' + content_name;
-    this.content = $(content_id);
-  },
-  hideContent: function(){
-    this.element.removeClassName('current_tab');
+}
 
-    if(this.content){
+class SubTabs {
+  constructor(selector, before_open_callback) {
+    this.element = jQuery(selector);
+    this.container = this.element.parent()[0];
+    this.link = jQuery(selector).find('a');
+    this.initializeLinkAndContent();
+    this.element.get(0).open = this.open.bind(this);
+    this.element.on('click', this.handleTabClick.bind(this));
+    this.before_open_callback = before_open_callback;
+  }
+
+  initializeLinkAndContent() {
+    const content_name = this.element.find('a.tab_button_body_match_text').html();
+    this.tab_name = content_name;
+    this.link.attr('id', 'tab-link-of-' + content_name);
+    this.link.attr('href', 'javascript:void(0)');
+    this.content = jQuery('#tab-content-of-' + content_name);
+  }
+
+  hideContent() {
+    this.element.removeClass('current_tab');
+
+    if (this.content.length > 0) {
       this.content.hide();
     }
-  },
-  handleTabClick: function(event) {
+  }
+
+  handleTabClick(event) {
     if (event) {
-      var target = jQuery(event.target);
-      var hasDisabledParent = (target.parents("li.disabled").length > 0);
-      var isDisabled = target.hasClass("disabled");
+      const target = jQuery(event.target);
+      const hasDisabledParent = target.parents("li.disabled").length > 0;
+      const isDisabled = target.hasClass("disabled");
       if (!(hasDisabledParent || isDisabled)) {
         this.open(event);
       }
     }
-  },
-  open: function(event){
-    if(event != true){
-      try{
+  }
+
+  open(event) {
+    if (event != true) {
+      try {
         window.location.hash = '#';
-      }catch(e){}
+      } catch (e) {
+      }
     }
     this.container.hideAllSubTabs();
-    this.element.addClassName('current_tab');
+    this.element.addClass('current_tab');
     if (this.before_open_callback) {
       this.before_open_callback(this.tab_name);
     }
-    if (this.content) {
+    if (this.content.length > 0) {
       this.content.show();
-      var init_method_name = this.content.id+ "_callback";
-      if(window[init_method_name]){
+      const init_method_name = this.content.attr('id') + "_callback";
+      if (window[init_method_name]) {
         window[init_method_name]();
       }
     }
     TabsManager.prototype.updateLinkToThisPage(this.tab_name);
   }
-});
-var TabsManager = Class.create({
-  initialize: function(tab, type, id, defaultTabName, subtab_callback_map){
+}
+
+class TabsManager {
+  constructor(tab, type, id, defaultTabName, subtab_callback_map) {
     this.type = type;
     this.unique_id = id;
     this.containers = [];
     this.defaultTabName = defaultTabName;
     this.bindTabsObserver(subtab_callback_map);
     this.initializeCurrentTab(tab);
-  },
-  bindTabsObserver: function(subtab_callback_map){
-    var type = this.type;
-    var id = this.unique_id;
-    var self = this;
-    $$('.sub_tabs_container').each(function(tabs_container){
+  }
+
+  bindTabsObserver(subtab_callback_map) {
+    const type = this.type;
+    const id = this.unique_id;
+    const self = this;
+    jQuery('.sub_tabs_container').each(function (i, tabs_container) {
       self.containers.push(new TabsContainer(tabs_container, type, id, subtab_callback_map));
     });
-  },
-  subTabByName: function(name) {
-    for(var i = 0; i < this.containers.length; i++) {
-      var container = this.containers[i].container;
-      for(var j = 0; j < container.tabs.length; j++) {
-        var tab = container.tabs[j];
-        if (tab.tab_name === name) {
-          return tab;
-        }
-      }
-    }
-  },
-  getCurrentTab: function(tab) {
-    var tabName = tab;
+  }
 
-    if(tabName){
+  getCurrentTab(tab) {
+    let tabName = tab;
+
+    if (tabName) {
       return tabName;
     } else {
       tabName = this.getCurrentTabFromUrl();
-      if(tabName){
+      if (tabName) {
         return tabName;
-      }else {
+      } else {
         if (this.defaultTabName) {
           return this.defaultTabName;
         }
         return null;
       }
     }
-  },
-  getCurrentTabFromUrl: function() {
-    var url = window.location.href;
+  }
+
+  getCurrentTabFromUrl() {
+    const url = window.location.href;
 
     try {
-      if(url.lastIndexOf('#tab-') > -1) {
-        var tabName = url.substring(url.lastIndexOf('#tab-') + 5, url.length);
-        return tabName;
+      if (url.lastIndexOf('#tab-') > -1) {
+        return url.substring(url.lastIndexOf('#tab-') + 5, url.length);
       }
-    } catch(e) {}
+    } catch (e) {
+    }
 
     return null; // return undefined if no name in the tail of URL
-  },
-  initializeCurrentTab: function(tab) {
-    var current_tab_content_id = this.getCurrentTab(tab);
+  }
+
+  initializeCurrentTab(tab) {
+    const current_tab_content_id = this.getCurrentTab(tab);
     if (current_tab_content_id) {
-      var current_tab_link = $('tab-link-of-' + current_tab_content_id);
-      if (current_tab_link) {
-        current_tab_link.parentNode.open(true);
+      const current_tab_link = jQuery('#tab-link-of-' + current_tab_content_id);
+      if (current_tab_link.length > 0) {
+        current_tab_link.parent().get(0).open(true);
       }
       this.updateLinkToThisPage(current_tab_content_id);
     }
-  },
-  updateLinkToThisPage: function(tabName){
-    var url = window.location.href;
-    var url_without_hash = url.lastIndexOf('#') > -1 ? url.substring(0, url.lastIndexOf('#')) : url;
-    $('link-to-this-page') && $('link-to-this-page').href && ($('link-to-this-page').href = url_without_hash + '#tab-' + tabName);
   }
-});
+
+  updateLinkToThisPage(tabName) {
+    const url = window.location.href;
+    const url_without_hash = url.lastIndexOf('#') > -1 ? url.substring(0, url.lastIndexOf('#')) : url;
+    const linkToThisPage = jQuery('#link-to-this-page');
+    if (linkToThisPage.length > 0 && linkToThisPage.attr('href')) {
+      linkToThisPage.attr('href', url_without_hash + '#tab-' + tabName);
+    }
+  }
+}

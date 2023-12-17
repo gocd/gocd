@@ -18,7 +18,7 @@
 module ApplicationHelper
   include Services
   include JavaImports
-  include PrototypeHelper
+  include ActionView::Helpers::JavaScriptHelper
 
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
@@ -39,10 +39,6 @@ module ApplicationHelper
 
   def url_for_job_identifier(id)
     url_for_path("/tab/build/detail/#{id.getPipelineName()}/#{id.getPipelineCounter()}/#{id.getStageName()}/#{id.getStageCounter()}/#{id.getBuildName()}")
-  end
-
-  def url_for_login
-    url_for_path("/auth/login")
   end
 
   def url_for_job(job)
@@ -169,40 +165,15 @@ module ApplicationHelper
   end
 
   def link_blocking_post_to_server(options = {})
-    [:name, :url, :html, :before].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
-
-    options[:before] = "AjaxRefreshers.disableAjax();" + (options[:before] || "")
-    options[:complete] = "AjaxRefreshers.enableAjax();" + (options[:complete] || "")
-    options[401] = "redirectToLoginPage('#{url_for_login}');" + (options[401] || "")
-    options[:method] = "post"
+    [:name, :url, :html].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
 
     tag_options = raw tag.tag_options(options[:html], true)
+
     %Q|<a href="#" #{tag_options} onclick="#{javascript_post_to_server(options)}; return false;">#{options[:name]}</a>|
   end
 
   def javascript_post_to_server(options)
-    javascript_options = options_for_ajax(options)
-
-    update = ''
-    if options[:update] && options[:update].is_a?(Hash)
-      update = []
-      update << "success:'#{options[:update][:success]}'" if options[:update][:success]
-      update << "failure:'#{options[:update][:failure]}'" if options[:update][:failure]
-      update = '{' + update.join(',') + '}'
-    elsif options[:update]
-      update << "'#{options[:update]}'"
-    end
-
-    url_options = options[:url]
-    url_options = url_options.merge(escape: false) if url_options.is_a?(Hash)
-
-    function = update.empty? ? "new Ajax.Request(" : "new Ajax.Updater(#{update}, "
-    function << "'#{escape_javascript(url_for(url_options))}'"
-    function << ", #{javascript_options})"
-
-    function = "#{options[:before]}; #{function}" if options[:before]
-
-    function
+    "Util.ajaxUpdate('#{escape_javascript(url_for(options[:url]))}', '#{escape_javascript(options[:idForSpinner])}')"
   end
 
   def content_wrapper_tag

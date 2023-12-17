@@ -19,15 +19,12 @@
 </div>
 <script>
 window["tab-content-of-${customized_name?lower_case}_callback"] = function() {
-    var innerHTML = $("tab-content-of-${customized_name?lower_case}").innerHTML;
-    innerHTML = innerHTML ? innerHTML : "";
-    if (innerHTML.include("iframe")) {
+    const contentElement = jQuery("#tab-content-of-${customized_name?lower_case}");
+    if ((contentElement.html() || "").include("iframe")) {
         return;
     }
-    var iframe = '<iframe src="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}" frameborder="0"></iframe>';
-    $("tab-content-of-${customized_name?lower_case}")
-      .innerHTML = '<div><a href="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}">Download ${customized_name}</a></div>' + iframe;
-    $("tab-content-of-${customized_name?lower_case}")
-      .show();
+    const iframe = '<iframe src="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}" frameborder="0"></iframe>';
+    contentElement.html('<div><a href="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}">Download ${customized_name}</a></div>' + iframe);
+    contentElement.show();
 }
 </script>

@@ -16,16 +16,16 @@
 FieldStateReplicator = function() {
 
   function update_state(self, id, originator) {
-    var pears = self.id_fields_map[id];
-    update_pears_state(self, id, originator, pears);
+    const peers = self.id_fields_map[id];
+    update_peers_state(self, id, originator, peers);
   }
 
-  function update_pears_state(self, id, originator, pears, prop) {
-    var check_type = (originator.type === 'checkbox' || originator.type === 'radiobutton');
-    var checked = check_type && originator.checked;
-    var value = check_type || originator.value;
-    pears.each(function (field) {
-      if(check_type) {
+  function update_peers_state(self, id, originator, peers) {
+    const check_type = (originator.type === 'checkbox' || originator.type === 'radiobutton');
+    const checked = check_type && originator.checked;
+    const value = check_type || originator.value;
+    peers.forEach(function (field) {
+      if (check_type) {
         field.checked = checked;
       } else {
         field.value = value;
@@ -39,52 +39,36 @@ FieldStateReplicator = function() {
 
   //js is single threaded :-)
   init.prototype.register = function(field, id) {
-    var self = this;
-    Event.observe(field, 'change', function () {
+    const self = this;
+    jQuery(field).on('change', function () {
       update_state(self, id, field);
     });
 
-    Event.observe(field, 'keyup', function () {
+    jQuery(field).on('keyup', function () {
       update_state(self, id, field);
     });
-    var pears = this.id_fields_map[id];
-    if (pears) {
-      pears.push(field);
-      update_pears_state(this, id, pears[0], pears);
+    const peers = this.id_fields_map[id];
+    if (peers) {
+      peers.push(field);
+      update_peers_state(this, id, peers[0], peers);
       return;
     }
     this.id_fields_map[id] = [field];
   };
 
   init.prototype.unregister = function(field, id) {
-    var pears = this.id_fields_map[id];
-    if(pears) {
-      this.id_fields_map[id] = pears.reject(function(pear) {
-        if (pear === field) {
-          Event.stopObserving(field);
+    const peers = this.id_fields_map[id];
+    if (peers) {
+      this.id_fields_map[id] = _.reject(peers, function(peer) {
+        if (peer === field) {
+          jQuery(field).off('change');
+          jQuery(field).off('keyup');
           return true;
         } else {
           return false;
         }
       });
     }
-  };
-
-  init.prototype.unregister_all = function() {
-    for(var id in this.id_fields_map) {
-      var pears = this.id_fields_map[id];
-      for(var i = 0; i < pears.length; i++) {
-        Event.stopObserving(pears[i]);
-      }
-      this.id_fields_map[id] = [];
-    }
-  };
-
-  init.prototype.register_all_matching = function(under, css_selector, id_loader) {
-    var self = this;
-    under.select(css_selector).each(function (elem) {
-      self.register(elem, id_loader(elem));
-    });
   };
 
   return init;

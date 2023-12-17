@@ -22,14 +22,20 @@
                scope[:id] = "stage_bar_#{scope[:label]}_#{scope[:stage_name]}"
                scope[:title] = "#{scope[:label]} #{scope[:stage_name]}"
                scope[:html_opts] = {:class => "stage_action", :id => scope[:id], :title => scope[:title], :'aria-label' => scope[:title]}
-               scope[:before_opts] = "Util.spinny('operate_#{scope[:stage_name]}')"
+               scope[:idForSpinner] = "operate_#{scope[:stage_name]}"
                if scope[:stage_in_status_bar].canRun() && scope[:stage_in_status_bar].isScheduled() %>
-                <%== link_blocking_post_to_server :name => "&nbsp;", :method => :post, :url => run_stage_path(:stage_name => scope[:stage_name], stage_counter: scope[:stage_counter]), :html => scope[:html_opts], :headers => { 'X-GoCD-Confirm': 'true', 'Accept': 'application/vnd.go.cd+json', 'Content-Type': 'application/json'}, :before => scope[:before_opts] %>
+                <%== link_blocking_post_to_server :name => "&nbsp;",
+                                                  :html => scope[:html_opts],
+                                                  :url => run_stage_path(:stage_name => scope[:stage_name], stage_counter: scope[:stage_counter]),
+                                                  :idForSpinner => scope[:idForSpinner] %>
 
-        <% end %>
-            <% if scope[:stage_in_status_bar].isRunning() %>
-                <%== link_blocking_post_to_server :name => "&nbsp;", :method => :post, :url => cancel_stage_path(@pipeline), :html => scope[:html_opts], :headers => { 'X-GoCD-Confirm': 'true', 'Accept': 'application/vnd.go.cd+json', 'Content-Type': 'application/json'} , :before => scope[:before_opts] %>
-            <% end %>
+                <% end %>
+                <% if scope[:stage_in_status_bar].isRunning() %>
+                    <%== link_blocking_post_to_server :name => "&nbsp;",
+                                                      :html => scope[:html_opts],
+                                                      :url => cancel_stage_path(@pipeline),
+                                                      :idForSpinner => scope[:idForSpinner] %>
+                <% end %>
         </div>
     <% end %>
 </div>

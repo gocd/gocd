@@ -15,13 +15,48 @@
  */
 Util = function() {
   return {
-    escapeDotsFromId: function(theId) {
-      return '#' + theId.replace(/(:|\.)/g,'\\$1');
+    idToSelector: function(theId) {
+      return '#' + theId.replace(/([:.])/g,'\\$1');
     },
 
-    spinny: function(element) {
-      $(element).update('&nbsp;');
-      $(element).addClassName('spinny');
+    spinny: function(elementId) {
+      if (_.isEmpty(elementId)) return;
+
+      const element = jQuery(Util.idToSelector(elementId));
+      element.html('&nbsp;');
+      element.addClass('spinny');
     },
+
+    unspinny: function(elementId) {
+      if (_.isEmpty(elementId)) return;
+
+      const element = $(Util.idToSelector(elementId));
+      element.removeClass('spinny');
+    },
+
+    ajaxUpdate: function(url, idForSpinner) {
+      $("#message_pane").html('');
+      AjaxRefreshers.disableAjax();
+      Util.spinny(idForSpinner);
+      jQuery.ajax({
+        url: url,
+        type: 'post',
+        dataType: 'json',
+        headers: {
+          'X-GoCD-Confirm': true,
+          'Accept': 'application/vnd.go.cd+json'
+        },
+        complete: function() {
+          Util.unspinny(idForSpinner);
+          AjaxRefreshers.enableAjax();
+        },
+        error: function(xhr) {
+          if (xhr.status === 401) {
+            window.location = window.location.protocol + '//' + window.location.host + '/go/auth/login';
+          }
+          $("#message_pane").html(`<p class="error">${xhr.responseText}</p>`);
+        }
+      });
+    }
   };
 }();

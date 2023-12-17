@@ -160,23 +160,6 @@
       }
     ]
   },
-  "prototypejs": {
-    "moduleName": "prototypejs",
-    "moduleVersion": "1.6.0.3",
-    "moduleUrls": [
-      "https://github.com/prototypejs/prototype",
-      "https://prototypejs.org/"
-    ],
-    "filenames": [
-      "prototype-1.6.0.3.js"
-    ],
-    "moduleLicenses": [
-      {
-        "moduleLicense": "MIT",
-        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
-      }
-    ]
-  },
   "trimpath-template": {
     "moduleName": "trimpath-template",
     "moduleVersion": "1.0.38",

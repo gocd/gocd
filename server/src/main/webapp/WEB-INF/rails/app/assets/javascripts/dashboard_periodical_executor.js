@@ -110,10 +110,10 @@ DashboardPeriodicalExecutor.prototype = {
     }
   },
   unregister : function(observer) {
-    this.observers = $A(this.observers);
+    this.observers = Array.from(this.observers);
     var position = this.observers.indexOf(observer);
     this.observers[position] = null;
-    this.observers = this.observers.compact();
+    this.observers = _.compact(this.observers);
   },
   clean : function() {
     this.observers = [];

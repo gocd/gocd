@@ -137,7 +137,7 @@ task verifyJar(type: VerifyJarTask) {
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
       "domain-${project.version}.jar",
-      "failureaccess-1.0.1.jar",
+      "failureaccess-1.0.2.jar",
       "go-plugin-access-${project.version}.jar",
       "go-plugin-activator.jar",
       "go-plugin-api-${project.version}.jar",

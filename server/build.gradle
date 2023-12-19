@@ -773,7 +773,7 @@ task verifyWar(type: VerifyJarTask) {
         "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-core-${project.versions.ehcache}.jar",
-        "failureaccess-1.0.1.jar",
+        "failureaccess-1.0.2.jar",
         "freemarker-${project.versions.freemarker}.jar",
         "go-plugin-access-${project.version}.jar",
         "go-plugin-activator-${project.version}.jar",

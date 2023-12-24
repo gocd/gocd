@@ -26,8 +26,8 @@ describe("util", function () {
 
   it("test_should_replace_element_with_spinny_image", function () {
     Util.spinny('elem_id');
-    assertEquals("&nbsp;", jQuery('#elem_id').html());
-    assertTrue(jQuery('#elem_id').hasClass('spinny'));
+    expect(jQuery('#elem_id').html()).toBe("&nbsp;");
+    expect(jQuery('#elem_id').hasClass('spinny')).toBe(true);
   });
 
   it("test_should_do_nothing_on_empty_spinner_id", function () {
@@ -36,6 +36,6 @@ describe("util", function () {
   });
 
   it("test_idToSelector", function () {
-    assertEquals("#2\\.1\\.1\\.2\\:15", Util.idToSelector("2.1.1.2:15"));
+    expect(Util.idToSelector("2.1.1.2:15")).toBe("#2\\.1\\.1\\.2\\:15");
   });
 });

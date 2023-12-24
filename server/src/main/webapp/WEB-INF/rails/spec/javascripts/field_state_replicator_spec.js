@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("field_state_replicator", function(){
+describe("field_state_replicator", function () {
   const replicator = new FieldStateReplicator();
   let chkbox_a;
   let chkbox_b;
   let text_a;
   let text_b;
 
-  beforeEach(function(){
+  beforeEach(function () {
     setFixtures(
       `<div class='under_test'>
         <form name='form_a' id="form_a">
@@ -39,7 +39,7 @@ describe("field_state_replicator", function(){
     text_b = jQuery('#form_b_textfield');
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     text_a.val("");
     chkbox_a.prop('checked', false);
     text_b.val("foo bar");
@@ -48,82 +48,82 @@ describe("field_state_replicator", function(){
     replicator.register(text_a[0], 'text');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     replicator.unregister(chkbox_a[0], 'chkbox');
     replicator.unregister(chkbox_b[0], 'chkbox');
     replicator.unregister(text_a[0], 'text');
     replicator.unregister(text_b[0], 'text');
   });
 
-  it("test_replicates_checkbox_value_after_registration", function() {
-    assertFalse("Form b checkbox must start out unchecked", chkbox_b.is(':checked'));
+  it("test_replicates_checkbox_value_after_registration", function () {
+    expect(chkbox_b.is(':checked')).toBe(false);
     replicator.register(chkbox_b[0], 'chkbox');
     chkbox_a.prop('checked', true);
     chkbox_a.change();
-    assertTrue("Form a checkbox state change must stick", chkbox_a.is(':checked'));
-    assertTrue("Form b checkbox state must reflect that of form a", chkbox_b.is(':checked'));
+    expect(chkbox_a.is(':checked')).toBe(true);
+    expect(chkbox_b.is(':checked')).toBe(true);
     chkbox_b.prop('checked', false);
     chkbox_b.change();
-    assertFalse("Form b checkbox state must stick", chkbox_b.is(':checked'));
-    assertFalse("Form a checkbox state must reflect that of form b", chkbox_a.is(':checked'));
+    expect(chkbox_b.is(':checked')).toBe(false);
+    expect(chkbox_a.is(':checked')).toBe(false);
   });
 
-  it("test_replicates_text_field_value_after_registration", function() {
-    assertEquals("Form b field must start out with given value", "foo bar", text_b.val());
+  it("test_replicates_text_field_value_after_registration", function () {
+    expect(text_b.val()).toBe("foo bar");
     replicator.register(text_b[0], 'text');
     text_a.val("baz quux");
     text_a.change();
-    assertEquals("Form a textfield state must stick", "baz quux", text_a.val());
-    assertEquals("Form b textfield state must reflect that of form a", "baz quux", text_b.val());
+    expect(text_a.val()).toBe("baz quux");
+    expect(text_b.val()).toBe("baz quux");
     text_b.val("bar baz");
     text_b.change();
-    assertEquals("Form b textfield state must sick", "bar baz", text_b.val());
-    assertEquals("Form a textfield state must reflect that of form b", "bar baz", text_a.val());
+    expect(text_b.val()).toBe("bar baz");
+    expect(text_a.val()).toBe("bar baz");
   });
 
-  it("test_replicates_checkbox_value_on_registration", function() {
+  it("test_replicates_checkbox_value_on_registration", function () {
     chkbox_a.prop('checked', true);
-    assertTrue("Form a checkbox must start out checked", chkbox_a.is(':checked'));
-    assertFalse("Form b checkbox must start out unchecked", chkbox_b.is(':checked'));
+    expect(chkbox_a.is(':checked')).toBe(true);
+    expect(chkbox_b.is(':checked')).toBe(false);
     replicator.register(chkbox_b[0], 'chkbox');
-    assertTrue("Form a checkbox state change must stick", chkbox_a.is(':checked'));
-    assertTrue("Form b checkbox state must reflect that of form a", chkbox_b.is(':checked'));
+    expect(chkbox_a.is(':checked')).toBe(true);
+    expect(chkbox_b.is(':checked')).toBe(true);
   });
 
-  it("test_replicates_text_field_value_on_registration", function() {
+  it("test_replicates_text_field_value_on_registration", function () {
     text_a.val("baz quux");
-    assertEquals("Form a textfield must start out with given value", "baz quux", text_a.val());
-    assertEquals("Form b field must start out with given default", "foo bar", text_b.val());
+    expect(text_a.val()).toBe("baz quux");
+    expect(text_b.val()).toBe("foo bar");
     replicator.register(text_b[0], 'text');
-    assertEquals("Form a textfield state must stick", "baz quux", text_a.val());
-    assertEquals("Form b textfield state must reflect that of form a", "baz quux", text_b.val());
+    expect(text_a.val()).toBe("baz quux");
+    expect(text_b.val()).toBe("baz quux");
   });
 
-  it("test_stops_replicating_checkbox_value_after_unregistration", function() {
+  it("test_stops_replicating_checkbox_value_after_unregistration", function () {
     replicator.register(chkbox_b[0], 'chkbox');
     replicator.unregister(chkbox_b[0], 'chkbox');
     chkbox_a.prop('checked', true);
     chkbox_a.change();
-    assertTrue("Form a checkbox state must stick", chkbox_a.is(':checked'));
-    assertFalse("Form b checkbox state must remain unaltered", chkbox_b.is(':checked'));
+    expect(chkbox_a.is(':checked')).toBe(true);
+    expect(chkbox_b.is(':checked')).toBe(false);
     chkbox_a.prop('checked', false);
     chkbox_b.prop('checked', true);
     chkbox_b.change();
-    assertFalse("Form a checkbox state must remain unaleterd", chkbox_a.is(':checked'));
-    assertTrue("Form b checkbox state must stick", chkbox_b.is(':checked'));
+    expect(chkbox_a.is(':checked')).toBe(false);
+    expect(chkbox_b.is(':checked')).toBe(true);
   });
 
-  it("test_stops_replicating_text_field_value_after_registration", function() {
+  it("test_stops_replicating_text_field_value_after_registration", function () {
     replicator.register(text_b[0], 'text');
     replicator.unregister(text_b[0], 'text');
     text_b.val("foo bar");
     text_a.val("hello world");
     text_a.change();
-    assertEquals("Form a field state must stick", "hello world", text_a.val());
-    assertEquals("Form b field state must remain unaltered", "foo bar", text_b.val());
+    expect(text_a.val()).toBe("hello world");
+    expect(text_b.val()).toBe("foo bar");
     text_b.val("bar baz");
     text_b.change();
-    assertEquals("Form a field state must remain unaleterd", "hello world", text_a.val());
-    assertEquals("Form b field state must stick", "bar baz", text_b.val());
+    expect(text_a.val()).toBe("hello world");
+    expect(text_b.val()).toBe("bar baz");
   });
 });

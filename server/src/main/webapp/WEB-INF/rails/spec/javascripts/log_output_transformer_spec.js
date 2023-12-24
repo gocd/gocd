@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function($) {
+(function ($) {
   "use strict";
 
   describe("LogOutputTransformerSpec", function LogOutputTransformerSpec() {
     var transformer, output, fixture;
 
     function extractText(collection) {
-      return _.map(collection, function (el) { return $(el).text(); });
+      return _.map(collection, function (el) {
+        return $(el).text();
+      });
     }
 
     function extractAttr(collection, name) {
-      return _.map(collection, function (el) { return $(el).attr(name); });
+      return _.map(collection, function (el) {
+        return $(el).attr(name);
+      });
     }
 
 
     beforeEach(function () {
-      window.requestAnimationFrame = function (callback) { callback(); };
+      window.requestAnimationFrame = function (callback) {
+        callback();
+      };
       setFixtures(`
         <div id='fixture'>
           <div class='console-log-loading'></div>
@@ -40,7 +46,7 @@
       transformer = new LogOutputTransformer(output = $("#console"), FoldableSection, false);
     });
 
-    afterEach(function() {
+    afterEach(function () {
       delete window.requestAnimationFrame;
     });
 
@@ -51,10 +57,10 @@
       ];
 
       transformer.transform(lines);
-      assertEquals(2, output.find("dd").length);
+      expect(output.find("dd").length).toBe(2);
 
       var actual = extractText(output.find("dd"));
-      assertEquals(lines.join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
+      expect(actual.join("\n")).toBe(lines.join("\n")); // can't assertEquals() on arrays, so compare as strings
     });
 
     it("basic prefixed append to console", function () {
@@ -65,36 +71,36 @@
 
       transformer.transform(lines);
       var section = output.find(".log-fs-type-info");
-      assertTrue(!!section.length);
+      expect(!!section.length).toBe(true);
 
       var timestamps = extractAttr(section.find(".log-fs-line"), "data-timestamp").join(",");
-      assertEquals(["01:01:00.123", "01:02:00.123"].join(","), timestamps);
+      expect(timestamps).toBe(["01:01:00.123", "01:02:00.123"].join(","));
 
       output.find(".ts").remove(); // exclude timestamps so it's easier to assert content
       var actual = extractText(output.find(".log-fs-line-INFO"));
-      assertEquals(["Starting build", "Build finished in no time!"].join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
+      expect(actual.join("\n")).toBe(["Starting build", "Build finished in no time!"].join("\n")); // can't assertEquals() on arrays, so compare as strings
     });
 
-    it("should remove loading bar when console has lines to show", function() {
+    it("should remove loading bar when console has lines to show", function () {
       var lines = [
         "##|01:01:00.123 Starting build",
         "##|01:02:00.123 Build finished in no time!"
       ];
 
-      assertTrue(fixture.find(".console-log-loading").is(':visible'));
+      expect(fixture.find(".console-log-loading").is(':visible')).toBe(true);
       transformer.transform(lines);
 
-      assertFalse(fixture.find(".console-log-loading").is(':visible'));
+      expect(fixture.find(".console-log-loading").is(':visible')).toBe(false);
     });
 
-    it("should remove loading bar when build has finished and there is no output", function() {
-      assertTrue(fixture.find(".console-log-loading").is(':visible'));
+    it("should remove loading bar when build has finished and there is no output", function () {
+      expect(fixture.find(".console-log-loading").is(':visible')).toBe(true);
       output.trigger('consoleCompleted');
 
-      assertFalse(fixture.find(".console-log-loading").is(':visible'));
+      expect(fixture.find(".console-log-loading").is(':visible')).toBe(false);
     });
 
-    it("should inline multiline executable task", function() {
+    it("should inline multiline executable task", function () {
       var lines = [
         "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \n",
         "!!|12:33:01.817 theBestUse \n",
@@ -108,7 +114,7 @@
 
       transformer.transform(lines);
 
-      assertEquals(lines[0], expectedLines[0]);
+      expect(expectedLines[0]).toBe(lines[0]);
     });
   });
 

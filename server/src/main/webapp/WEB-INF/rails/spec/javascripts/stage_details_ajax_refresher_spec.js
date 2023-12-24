@@ -54,25 +54,29 @@ describe("stage_details_ajax_refresher", function () {
     refresher.stopRefresh();
     refresher.restartRefresh();
     options.success({jobs_failed: {html: "new_jobs_failed"}});
-    assertEquals("new_jobs_failed", jQuery('#jobs_failed').html());
+    expect(jQuery('#jobs_failed').html()).toBe("new_jobs_failed");
   });
 
   it("test_invokes_callback_for_a_specified_id", function () {
-    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {jobs_failed: function () {
-      after_called = true;
-    }}, {time: 0});
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {
+      jobs_failed: function () {
+        after_called = true;
+      }
+    }, {time: 0});
     refresher.stopRefresh();
     refresher.restartRefresh();
 
     options.success({jobs_failed: {html: "new_jobs_failed"}});
-    assertEquals("new_jobs_failed", jQuery('#jobs_failed').html());
-    assertEquals(after_called, true);
+    expect(jQuery('#jobs_failed').html()).toBe("new_jobs_failed");
+    expect(true).toBe(after_called);
   });
 
   it("test_invokes_callback_AFTER_REPLACEMENT", function () {
-    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {jobs_failed: function () {
-      assertEquals("new_jobs_failed", jQuery('#jobs_failed').html());
-    }}, {time: 0});
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {
+      jobs_failed: function () {
+        expect(jQuery('#jobs_failed').html()).toBe("new_jobs_failed");
+      }
+    }, {time: 0});
     refresher.stopRefresh();
     refresher.restartRefresh();
 
@@ -81,13 +85,15 @@ describe("stage_details_ajax_refresher", function () {
 
   it("test_refresh_should_honor_page_number", function () {
     jQuery("#stage-history-page").val("3");
-    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {jobs_failed: function () {
-      assertEquals("new_jobs_failed", jQuery('#jobs_failed').html());
-    }}, {time: 0});
+    var refresher = new StageDetailAjaxRefresher("http://blah/refresh_stage_detail", {
+      jobs_failed: function () {
+        expect(jQuery('#jobs_failed').html()).toBe("new_jobs_failed");
+      }
+    }, {time: 0});
     refresher.stopRefresh();
     refresher.restartRefresh();
 
-    assertEquals("3", options.data["stage-history-page"]);
+    expect(options.data["stage-history-page"]).toBe("3");
   });
 
 
@@ -102,7 +108,7 @@ describe("stage_details_ajax_refresher", function () {
     jQuery("#foo_checkbox").change();
     options.success({jobs_grid: {html: table}});
     chkbox = jQuery("#foo_checkbox").get(0);
-    assertTrue(chkbox.checked);
+    expect(chkbox.checked).toBe(true);
   });
 
   it("test_updator_does_not_fail_when_jobs_table_is_not_present", function () {
@@ -112,6 +118,6 @@ describe("stage_details_ajax_refresher", function () {
     refresher.restartRefresh();
 
     options.success({jobs_failed: {html: "foo"}});
-    assertEquals("foo", jQuery('#jobs_failed').html());
+    expect(jQuery('#jobs_failed').html()).toBe("foo");
   });
 });

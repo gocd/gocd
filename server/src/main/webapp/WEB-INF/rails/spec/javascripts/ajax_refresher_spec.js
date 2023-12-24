@@ -52,7 +52,7 @@ describe("ajax_refresher", function () {
     refresher.restartRefresh();
 
     ajax_opts.success({elem_id: {html: "new_content"}});
-    assertEquals("new_content", jQuery('#elem_id').html());
+    expect(jQuery('#elem_id').html()).toBe("new_content");
   });
 
   it("test_not_bomb_when_the_html_is_empty", function () {
@@ -61,7 +61,7 @@ describe("ajax_refresher", function () {
     refresher.restartRefresh();
 
     ajax_opts.success({elem_id: {html: ""}});
-    assertEquals("", jQuery('#elem_id').html());
+    expect(jQuery('#elem_id').html()).toBe("");
   });
 
   it("test_should_process_data", function () {
@@ -77,19 +77,19 @@ describe("ajax_refresher", function () {
     refresher.stopRefresh();
     refresher.restartRefresh();
 
-    assertEquals("bar-value", opts.data["bar-name"]);
-    assertEquals("foo-value", opts.data["foo-name"]);
+    expect(opts.data["bar-name"]).toBe("bar-value");
+    expect(opts.data["foo-name"]).toBe("foo-value");
   });
 
   it("test_errors_out_when_no_html_element_given", function () {
     new AjaxRefresher("http://blah/refresh_stage_detail", {time: 0, updateOnce: true});
     try {
       ajax_opts.success({elem_id: {parent_id: "bar", index: 10}});
-      fail("should throw up when no html given");
+      throw "succeeded unexpectedly - should throw up when no html given";
     } catch (e) {
-      assertEquals("no 'html' given for dom id 'elem_id'", e);
+      expect(e).toBe("no 'html' given for dom id 'elem_id'");
     }
-    assertEquals("im_old_content", jQuery('#elem_id').html());
+    expect(jQuery('#elem_id').html()).toBe("im_old_content");
   });
 
   it("test_errors_out_when_no_parent_id_or_index_element_given", function () {
@@ -97,9 +97,9 @@ describe("ajax_refresher", function () {
     try {
       ajax_opts.success({elem_id: {html: "bar"}});
     } catch (e) {
-      fail("should not throw up when no parent_id or index given" + e);
+      throw "should not throw up when no parent_id or index given" + e;
     }
-    assertEquals("bar", jQuery('#elem_id').html());
+    expect(jQuery('#elem_id').html()).toBe("bar");
   });
 
   it("test_calls_manipulate_replacement_before_replacement", function () {
@@ -116,9 +116,9 @@ describe("ajax_refresher", function () {
     refresher.restartRefresh();
 
     ajax_opts.success({elem_id: {html: "<div>new_content</div>", parent_id: "daddy", index: 1, type: 'type'}});
-    assertEquals("must use the correct dom id", 'elem_id', before_elem_id);
-    assertContains("must use the correct replacement dom", 'new_content', before_dom_inner_html);
-    assertEquals("must not have replaced old dom when before called", 'im_old_content', actual_dom_inner_html);
+    expect(before_elem_id).toBe('elem_id');
+    expect(before_dom_inner_html).toContain('new_content');
+    expect(actual_dom_inner_html).toBe('im_old_content');
   });
 
   it("test_uses_dom_manipulated_by_manipulate_replacement_as_replacement", function () {
@@ -137,7 +137,7 @@ describe("ajax_refresher", function () {
     ajax_opts.success({elem_id: {html: "<div>new_content<span id='foo_bar_baz'>empty</span></div>", parent_id: "daddy", index: 1, type: 'type'}});
     const replaced_content_holder = jQuery('#foo_bar_baz');
     replaced_content_holder.click();
-    assertEquals('on click should have been honored', "on click honored", replaced_content_holder.html());
+    expect(replaced_content_holder.html()).toBe("on click honored");
   });
 
   it("test_calls_transient_after_refresh_only_once_after_refresh_is_done", function () {
@@ -153,13 +153,13 @@ describe("ajax_refresher", function () {
       call_count++;
     });
     ajax_opts.success({elem_id: {html: "<div>new_content</div>"}});
-    assertEquals("must use the correct dom id", 'elem_id', after_elem_id);
-    assertContains("must have replaced old dom when after called", 'new_content', actual_dom_inner_html);
-    assertEquals("must not call transient after refresh callback except for the first refresh after registration", 1, call_count);
+    expect(after_elem_id).toBe('elem_id');
+    expect(actual_dom_inner_html).toContain('new_content');
+    expect(call_count).toBe(1);
     ajax_opts.success({elem_id: {html: "<div>new_fancy_content</div>"}});
-    assertContains("must have replaced old dom when after called", 'new_content', actual_dom_inner_html);
-    assertContains("refresh must go through inspite of after refresh callback being expired", "new_fancy_content", jQuery("#elem_id").html());
-    assertEquals("must not call transient after refresh callback except for the first refresh after registration", 1, call_count);
+    expect(actual_dom_inner_html).toContain('new_content');
+    expect(jQuery("#elem_id").html()).toContain('new_fancy_content');
+    expect(call_count).toBe(1);
   });
 
   it("test_calls_permanent_after_refresh_once_after_every_refresh", function () {
@@ -175,13 +175,13 @@ describe("ajax_refresher", function () {
       call_count++;
     }, true);
     ajax_opts.success({elem_id: {html: "<div>new_content</div>"}});
-    assertEquals("must use the correct dom id", 'elem_id', after_elem_id);
-    assertContains("must have replaced old dom when after called", 'new_content', actual_dom_inner_html);
-    assertEquals("must not call transient after refresh callback except for the first refresh after registration", 1, call_count);
+    expect(after_elem_id).toBe('elem_id');
+    expect(actual_dom_inner_html).toContain('new_content');
+    expect(call_count).toBe(1);
     ajax_opts.success({elem_id: {html: "<div>new_fancy_content</div>"}});
-    assertContains("must have replaced old dom when after called", 'new_fancy_content', actual_dom_inner_html);
-    assertContains("refresh must go through inspite of after refresh callback being expired", "new_fancy_content", jQuery("#elem_id").html());
-    assertEquals("must not call transient after refresh callback except for the first refresh after registration", 2, call_count);
+    expect(actual_dom_inner_html).toContain('new_fancy_content');
+    expect(jQuery("#elem_id").html()).toContain("new_fancy_content");
+    expect(call_count).toBe(2);
   });
 
   it("test_refreshes_only_once_if_requested", function () {
@@ -195,8 +195,8 @@ describe("ajax_refresher", function () {
       options.success({elem_id: {html: "new_content"}});
     };
     new AjaxRefresher("http://blah/refresh_stage_detail", {updateOnce: true});
-    assertEquals("should not have instantiated periodical executor", false, periodical_executor_instantiated);
-    assertEquals("new_content", jQuery('#elem_id').html());
+    expect(periodical_executor_instantiated).toBe(false);
+    expect(jQuery('#elem_id').html()).toBe("new_content");
   });
 
   it("test_should_stop_refreshing_on_stop", function () {
@@ -222,8 +222,8 @@ describe("ajax_refresher", function () {
 
     refresher.stopRefresh();
     onSuccess({"elem_id": {html: "new_text"}});
-    assertEquals("should have stopped the periodical executor", false, periodical_executor_executing);
-    assertEquals("im_old_content", jQuery('#elem_id').html());
+    expect(periodical_executor_executing).toBe(false);
+    expect(jQuery('#elem_id').html()).toBe("im_old_content");
   });
 
   it("test_should_be_able_to_restart_refreshing", function () {
@@ -247,12 +247,12 @@ describe("ajax_refresher", function () {
     };
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {time: 0});
     refresher.stopRefresh();
-    assertEquals("should have stopped the periodical executor", false, periodical_executor_executing);
+    expect(periodical_executor_executing).toBe(false);
     refresher.restartRefresh();
-    assertEquals("should have started the periodical executor", true, periodical_executor_executing);
-    assertEquals("should have re-registered the periodical executor", true, callback_registered);
+    expect(periodical_executor_executing).toBe(true);
+    expect(callback_registered).toBe(true);
     onSuccess({"elem_id": {html: "new_text"}});
-    assertEquals("new_text", jQuery('#elem_id').html());
+    expect(jQuery('#elem_id').html()).toBe("new_text");
   });
 });
 

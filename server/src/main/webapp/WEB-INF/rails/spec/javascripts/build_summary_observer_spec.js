@@ -49,8 +49,15 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
 
   it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
     var status = jQuery(".build-status").addClass("building_passed");
-    var json = failed_json('project1');
+    var json = {
+      building_info: {
+        name: 'project1',
+        build_completed_date: "1 day ago",
+        current_status: "Waiting",
+        result: "Failed"
+      }
+    };
     observer.updateBuildResult(json);
-    assertTrue(status.hasClass("failed"));
+    expect(status.hasClass("failed")).toBe(true);
   });
 });

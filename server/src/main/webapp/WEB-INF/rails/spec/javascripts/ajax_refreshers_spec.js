@@ -27,6 +27,7 @@ describe("ajax_refreshers", function () {
     AjaxRefreshers.addRefresher(first);
     AjaxRefreshers.addRefresher(second);
   });
+
   function mockRefresher() {
     return {
       stopRefresh: function () {
@@ -49,7 +50,7 @@ describe("ajax_refreshers", function () {
     AjaxRefreshers.main().afterRefreshOf("foo", function () {
       wasCalled = true;
     });
-    assertTrue("Default main refresher must call the afterRefreshOf without waiting for anything", wasCalled);
+    expect(wasCalled).toBe(true);
   });
 
   it("test_should_understand_main_ajax_refresher", function () {
@@ -57,19 +58,19 @@ describe("ajax_refreshers", function () {
     var another = new mockRefresher();
     AjaxRefreshers.addRefresher(main, true);
     AjaxRefreshers.addRefresher(another, false);
-    assertTrue("Should return whatever refresher that was marked main", main === AjaxRefreshers.main());
-    assertTrue("Should not return non main refresher", another !== AjaxRefreshers.main());
+    expect(main === AjaxRefreshers.main()).toBe(true);
+    expect(another !== AjaxRefreshers.main()).toBe(true);
   });
 
   it("test_should_disable_all_ajax_refreshers", function () {
     AjaxRefreshers.disableAjax();
-    assertEquals("Should have disabled ajax on all refreshers", true, first.stopped);
-    assertEquals("Should have disabled ajax on all refreshers", true, second.stopped);
+    expect(first.stopped).toBe(true);
+    expect(second.stopped).toBe(true);
   });
 
   it("test_should_enable_all_ajax_refreshers", function () {
     AjaxRefreshers.enableAjax();
-    assertEquals("Should have enabled ajax on all refreshers", true, first.started);
-    assertEquals("Should have enabled ajax on all refreshers", true, second.started);
+    expect(first.started).toBe(true);
+    expect(second.started).toBe(true);
   });
 });

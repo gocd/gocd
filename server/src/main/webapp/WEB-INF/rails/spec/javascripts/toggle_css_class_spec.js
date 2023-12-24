@@ -48,9 +48,9 @@ describe("toggle_css_class", function () {
   });
 
   it("test_make_collapsible", function () {
-    assertTrue("should not be expanded", container.hasClass('hidereveal_collapsed'));
+    expect(container.hasClass('hidereveal_collapsed')).toBe(true);
     jQuery(".hidereveal_expander").click();
-    assertFalse("should be expanded", container.hasClass('hidereveal_collapsed'));
+    expect(container.hasClass('hidereveal_collapsed')).toBe(false);
   });
 
   it("test_prevents_click_from_bubbling", function () {
@@ -59,6 +59,6 @@ describe("toggle_css_class", function () {
       click_bubbled = true;
     });
     jQuery(".hidereveal_expander").click();
-    assertFalse("parent must not hear click as it can lead to text selection if done fast", click_bubbled);
+    expect(click_bubbled).toBe(false);
   });
 });

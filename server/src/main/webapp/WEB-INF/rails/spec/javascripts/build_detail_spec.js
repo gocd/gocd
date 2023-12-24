@@ -53,38 +53,38 @@ describe("build_detail", function () {
 
   it("test_should_expand_the_directory", function () {
     var expectedId = "#dashboard_download_project1_log123\\.xml_abc";
-    assertFalse(jQuery(expectedId).is(':visible'));
-    assertTrue('need class name directory', jQuery('#directory').hasClass('directory'));
+    expect(jQuery(expectedId).is(':visible')).toBe(false);
+    expect(jQuery('#directory').hasClass('directory')).toBe(true);
     BuildDetail.tree_navigator(jQuery('#link'), "dashboard/download/project1/log123.xml/abc");
-    assertTrue('div should be visible', jQuery(expectedId).is(':visible'));
-    assertTrue('class name should be opened_directory', jQuery('#directory').hasClass('opened_directory'));
+    expect(jQuery(expectedId).is(':visible')).toBe(true);
+    expect(jQuery('#directory').hasClass('opened_directory')).toBe(true);
     BuildDetail.tree_navigator(jQuery('#link'), "dashboard/download/project1/log123.xml/abc");
-    assertFalse(jQuery(expectedId).is(':visible'));
-    assertTrue(jQuery('#directory').hasClass('directory'));
+    expect(jQuery(expectedId).is(':visible')).toBe(false);
+    expect(jQuery('#directory').hasClass('directory')).toBe(true);
   });
 
   it("test_should_click_current_tab_element_should_not_move_current_tab", function () {
     jQuery('#li1').click();
-    assertTrue(jQuery('#li1').hasClass('current_tab'));
-    assertTrue(jQuery('#tab-content-of-dummy-first-tab').is(':visible'));
+    expect(jQuery('#li1').hasClass('current_tab')).toBe(true);
+    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
     jQuery('#li1').click();
-    assertTrue(jQuery('#li1').hasClass('current_tab'));
-    assertTrue(jQuery('#tab-content-of-dummy-first-tab').is(':visible'));
+    expect(jQuery('#li1').hasClass('current_tab')).toBe(true);
+    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
   });
 
   it("test_should_click_another_element_should_move_current_tab", function () {
-    assertTrue("'li1' should have class 'current_tab'", jQuery('#li1').hasClass('current_tab'));
-    assertTrue("'tab-content-of-dummy-first-tab' should be visible", jQuery('#tab-content-of-dummy-first-tab').is(':visible'));
-    assertFalse("'tab-content-of-dummy-second-tab' should not be visible", jQuery('#tab-content-of-dummy-second-tab').is(':visible'));
+    expect(jQuery('#li1').hasClass('current_tab')).toBe(true);
+    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
+    expect(jQuery('#tab-content-of-dummy-second-tab').is(':visible')).toBe(false);
     jQuery('#li2').click();
-    assertTrue("'li2' should have class 'current_tab'", jQuery('#li2').hasClass('current_tab'));
-    assertFalse("'li1' should not have class 'current_tab'", jQuery('#li1').hasClass('current_tab'));
-    assertTrue("'dummy-second-tab' should be visible", jQuery('#tab-content-of-dummy-second-tab').is(':visible'));
-    assertFalse("'dummy-first-tab' should not be visible", jQuery('#tab-content-of-dummy-first-tab').is(':visible'));
+    expect(jQuery('#li2').hasClass('current_tab')).toBe(true);
+    expect(jQuery('#li1').hasClass('current_tab')).toBe(false);
+    expect(jQuery('#tab-content-of-dummy-second-tab').is(':visible')).toBe(true);
+    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(false);
   });
 
   it("test_should_return_subcontainer", function () {
     var theContainer = BuildDetail.getSubContainer(jQuery("#link"));
-    assertTrue("should return dashboard_download_project1_log123.xml_abc", theContainer.id == "dashboard_download_project1_log123.xml_abc");
+    expect(theContainer.id == "dashboard_download_project1_log123.xml_abc").toBe(true);
   });
 });

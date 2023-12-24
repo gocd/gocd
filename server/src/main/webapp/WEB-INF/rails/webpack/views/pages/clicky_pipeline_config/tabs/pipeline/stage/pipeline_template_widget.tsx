@@ -73,7 +73,7 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
   templateOptions({attrs}: { attrs: Attrs }) {
     const config = attrs.pipelineConfig;
 
-    const sortedTemplates = _.sortBy(attrs.templates(), (template: Template) => template.name);
+    const sortedTemplates = _.sortBy(attrs.templates(), (template: Template) => template.name.toLocaleLowerCase());
 
     const templatesAsOptions = _.map(sortedTemplates, (template: Template) => {
       return { id: template.name, text: template.name } as Option;

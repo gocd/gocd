@@ -33,10 +33,10 @@ describe("field_state_replicator", function () {
         </form>
       </div>`
     );
-    chkbox_a = jQuery('#form_a_chkbox');
-    chkbox_b = jQuery('#form_b_chkbox');
-    text_a = jQuery('#form_a_textfield');
-    text_b = jQuery('#form_b_textfield');
+    chkbox_a = $('#form_a_chkbox');
+    chkbox_b = $('#form_b_chkbox');
+    text_a = $('#form_a_textfield');
+    text_b = $('#form_b_textfield');
   });
 
   beforeEach(function () {

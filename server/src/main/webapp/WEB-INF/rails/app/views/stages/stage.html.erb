@@ -53,13 +53,13 @@
 
 <script type="text/javascript">
 
-    jQuery(function() {
+    $(function() {
       var stage_run_timestamp_format_handler = function() {
-        jQuery(".schedule_info .time").each(function (idx, timeSpan) {
-          var timestamp = parseInt(jQuery(timeSpan).attr("data"));
+        $(".schedule_info .time").each(function (idx, timeSpan) {
+          var timestamp = parseInt($(timeSpan).attr("data"));
           if (isNaN(timestamp)) return;
           var time = new Date(timestamp);
-          jQuery(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+          $(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
         });
       };
 

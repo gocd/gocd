@@ -38,17 +38,17 @@ describe("BuildSummaryObserverSpec", function BuildSummaryObserverSpec() {
       <div id="trans_content"></div>
       `);
 
-    jQuery('.buildoutput_pre').html('');
+    $('.buildoutput_pre').html('');
 
-    observer = new BuildSummaryObserver(jQuery(".build_detail_summary"));
-    jQuery('#container').addClass("building_passed");
+    observer = new BuildSummaryObserver($(".build_detail_summary"));
+    $('#container').addClass("building_passed");
 
-    jQuery('#trans_content').html('');
+    $('#trans_content').html('');
     TransMessage.prototype.initialize = function() {};
   });
 
   it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
-    var status = jQuery(".build-status").addClass("building_passed");
+    var status = $(".build-status").addClass("building_passed");
     var json = {
       building_info: {
         name: 'project1',

@@ -18,7 +18,7 @@ function AjaxRefresher(url, options) {
   const hasAfterCallback = !!options.afterRefresh;
   const hasManipulateReplacement = !!options.manipulateReplacement;
 
-  const tempDom = jQuery(document.createElement('div'));
+  const tempDom = $(document.createElement('div'));
   let in_progress = false;
   let stopped = false;
   let ajaxRequest;
@@ -37,7 +37,7 @@ function AjaxRefresher(url, options) {
   }
 
   function receiver(key) {
-    return jQuery(document.getElementById(key));
+    return $(document.getElementById(key));
   }
 
   function _updateWithTempDom(key) {
@@ -94,7 +94,7 @@ function AjaxRefresher(url, options) {
   const _request = function () {
     if (in_progress) return;
     in_progress = true;
-    ajaxRequest = jQuery.ajax({
+    ajaxRequest = $.ajax({
       data: (options.dataFetcher ? options.dataFetcher() : {}),
       url: url,
       context: document.body,

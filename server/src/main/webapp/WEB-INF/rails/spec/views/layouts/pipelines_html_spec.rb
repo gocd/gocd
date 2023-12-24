@@ -106,7 +106,7 @@ describe "layouts/pipelines.html.erb" do
         assign(:stage, stage_with_three_runs)
         allow(view).to receive(:stage_detail_tab_path_for).and_return("some_tab_path")
         render :inline => '<div>content</div>', :layout => @layout_name
-        expect(response.body).to have_selector("script[type='text/javascript']", :text => /new\sMicroContentPopup\(jQuery\('#other_stage_runs'\)\)/, :visible => false)
+        expect(response.body).to have_selector("script[type='text/javascript']", :text => /new\sMicroContentPopup\(\$\('#other_stage_runs'\)\)/, :visible => false)
       end
     end
 

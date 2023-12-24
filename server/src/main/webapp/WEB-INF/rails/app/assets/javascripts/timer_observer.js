@@ -27,7 +27,7 @@ class TimerObserver {
         continue;
       }
       // relies on trimpath-template via String.prototype.process hack
-      jQuery('#build-detail-summary').html(jQuery('#build-summary-template').val().process({build:jsonArray[i].building_info}));
+      $('#build-detail-summary').html($('#build-summary-template').val().process({build:jsonArray[i].building_info}));
     }
   }
 }

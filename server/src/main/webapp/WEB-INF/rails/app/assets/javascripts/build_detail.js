@@ -15,22 +15,22 @@
  */
 var BuildDetail = {
   getSubContainer: function (element) {
-    const dirContainer = jQuery(element).parents(".dir-container")[0];
-    return jQuery(dirContainer).nextAll(".subdir-container")[0];
+    const dirContainer = $(element).parents(".dir-container")[0];
+    return $(dirContainer).nextAll(".subdir-container")[0];
   },
   expandAll: function () {
-    jQuery('.files .directory a').each(function (i, element) {
+    $('.files .directory a').each(function (i, element) {
       BuildDetail.tree_navigator(element);
     });
   },
   collapseAll: function () {
-    jQuery('.files .opened_directory a').each(function (i, element) {
+    $('.files .opened_directory a').each(function (i, element) {
       BuildDetail.tree_navigator(element);
     });
   },
   tree_navigator: function (element) {
-    const subDirElement = jQuery(BuildDetail.getSubContainer(element));
-    const spanElem = jQuery(jQuery(element).parents()[0]);
+    const subDirElement = $(BuildDetail.getSubContainer(element));
+    const spanElem = $($(element).parents()[0]);
     if (subDirElement.is(':visible')) {
       spanElem.removeClass("opened_directory");
       spanElem.addClass("directory");

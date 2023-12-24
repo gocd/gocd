@@ -19,7 +19,7 @@
 </div>
 <script>
 window["tab-content-of-${customized_name?lower_case}_callback"] = function() {
-    const contentElement = jQuery("#tab-content-of-${customized_name?lower_case}");
+    const contentElement = $("#tab-content-of-${customized_name?lower_case}");
     if ((contentElement.html() || "").include("iframe")) {
         return;
     }

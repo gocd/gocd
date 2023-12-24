@@ -23,14 +23,14 @@
     var other_stages_popup_shower = null;
 
     function wire_up_stage_runs_popup() {
-      const otherStageRuns = jQuery('#show_other_stage_runs')
+      const otherStageRuns = $('#show_other_stage_runs')
       if (otherStageRuns.length > 0) {
         other_stages_popup_shower.bindShowButton(otherStageRuns.get(0));
       }
     }
 
-    jQuery(function() {
-        var other_stages_popup = new MicroContentPopup(jQuery('#other_stage_runs'));
+    $(function() {
+        var other_stages_popup = new MicroContentPopup($('#other_stage_runs'));
         other_stages_popup_shower = new MicroContentPopup.ClickShower(other_stages_popup);
         wire_up_stage_runs_popup();
     });

@@ -34,7 +34,7 @@
           <%= form.text_area html_escape(:content), value: nil, :size => '100%x100%', :class => "code" ,:id => "content", :autocomplete => 'off', :autocorrect => 'off', :autocapitalize => 'off', :spellcheck => "false", 'data-config-url' => "/go/api/admin/config/#{@go_config.md5}.xml" , style: 'visibility: hidden; display: none;'%>
       </div>
       <script type="text/javascript">
-        jQuery(function () {
+        $(function () {
           var httpRequest = new XMLHttpRequest();
           var textArea = document.querySelector('#content_area textarea.code');
           httpRequest.open('GET', textArea.getAttribute('data-config-url'), true);
@@ -42,7 +42,7 @@
           httpRequest.onreadystatechange = function () {
             if (httpRequest.readyState === XMLHttpRequest.DONE) {
               if (httpRequest.status === 200) {
-                jQuery("input#save_config").removeAttr("disabled");
+                $("input#save_config").removeAttr("disabled");
                 textArea.value = httpRequest.responseText;
               } else {
                 textArea.value = "There was an error fetching the config xml. Please try again in some time. If the error persists, contact the GoCD server administrator for help.";
@@ -61,8 +61,8 @@
         <%= form.text_area html_escape(:content), :size => '100%x100%', :class => "code" ,:id => "content", :autocomplete => 'off', :autocorrect => 'off', :autocapitalize => 'off', :spellcheck => "false", 'data-config-url' => "/go/api/admin/config/#{@go_config.md5}.xml" %>
       </div>
       <script type="text/javascript">
-        jQuery(document).ready(function() {
-          jQuery("input#save_config").removeAttr("disabled");
+        $(document).ready(function() {
+          $("input#save_config").removeAttr("disabled");
         });
       </script>
     <% end %>

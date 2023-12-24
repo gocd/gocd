@@ -26,13 +26,13 @@ describe("util", function () {
 
   it("test_should_replace_element_with_spinny_image", function () {
     Util.spinny('elem_id');
-    expect(jQuery('#elem_id').html()).toBe("&nbsp;");
-    expect(jQuery('#elem_id').hasClass('spinny')).toBe(true);
+    expect($('#elem_id').html()).toBe("&nbsp;");
+    expect($('#elem_id').hasClass('spinny')).toBe(true);
   });
 
   it("test_should_do_nothing_on_empty_spinner_id", function () {
     Util.spinny('');
-    expect(jQuery('#elem_id').html()).toContain("<a href=\"turner\">Turner's legacy</a>");
+    expect($('#elem_id').html()).toContain("<a href=\"turner\">Turner's legacy</a>");
   });
 
   it("test_idToSelector", function () {

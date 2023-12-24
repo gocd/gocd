@@ -15,7 +15,7 @@
         <% end %>
     </ul>
     <script type='text/javascript'>
-        jQuery(function() {
+        $(function() {
             AjaxRefreshers.main().afterRefreshOf('<%= scope[:parent_id] %>', (function() {
                 make_collapsable('<%= scope[:parent_id] %>');
             }));

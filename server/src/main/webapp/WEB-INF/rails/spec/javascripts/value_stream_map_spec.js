@@ -19,7 +19,7 @@ describe("value_stream_map", function () {
   });
   var called;
   beforeEach(function () {
-    jQuery('#vsm-container').html("");
+    $('#vsm-container').html("");
     called = false;
   });
 
@@ -42,6 +42,6 @@ describe("value_stream_map", function () {
     var vsm = eval('({"error":"error message"})');
     new VSM(vsm, "#vsm-container", new mockRenderer()).render();
     expect(called).toBe(false);
-    expect(jQuery("#vsm-container").html()).toBe(unableToFind);
+    expect($("#vsm-container").html()).toBe(unableToFind);
   });
 });

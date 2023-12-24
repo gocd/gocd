@@ -23,7 +23,7 @@ MicroContentPopup = function() {
   });
 
   init.register = function(){
-    jQuery(document).on('click', close_opened_popup.bind(this));
+    $(document).on('click', close_opened_popup.bind(this));
   };
 
   function reset_opened_popup(new_popup) {
@@ -47,7 +47,7 @@ MicroContentPopup = function() {
 
   function open_box(self, event, button_dom) {
     reset_opened_popup(self);
-    show_panel(self, jQuery(button_dom));
+    show_panel(self, $(button_dom));
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -59,7 +59,7 @@ MicroContentPopup = function() {
 
   function viewportOffset(element) {
     const offset = element.offset();
-    return [offset.left - jQuery(window).scrollLeft(), offset.top - jQuery(window).scrollTop()];
+    return [offset.left - $(window).scrollLeft(), offset.top - $(window).scrollTop()];
   }
 
   function adjust_view_port(left, top, body_content) {
@@ -69,7 +69,7 @@ MicroContentPopup = function() {
 
   function show_panel(self, button_dom) {
     let view_port = viewportOffset(button_dom);
-    const body_content = jQuery(document.body);
+    const body_content = $(document.body);
     view_port = adjust_view_port(view_port[0], view_port[1] + button_dom.height(), body_content);
 
     if (body_content.length > 0) {
@@ -87,8 +87,8 @@ MicroContentPopup = function() {
   }
 
   function register_close_handler(self) {
-    jQuery(self.panel).click(function(event) {
-      if ((event.target.tagName.toLowerCase() !== "a") && !jQuery(event.target).closest("a")) {
+    $(self.panel).click(function(event) {
+      if ((event.target.tagName.toLowerCase() !== "a") && !$(event.target).closest("a")) {
         event.stopPropagation();
       }
     });
@@ -123,7 +123,7 @@ MicroContentPopup = function() {
 
     click_shower_init.prototype.bindShowButton = function(button_dom) {
       var self = this;
-      jQuery(button_dom).on('click', function(event) {
+      $(button_dom).on('click', function(event) {
         self.toggle_popup(event, button_dom);
       });
     };

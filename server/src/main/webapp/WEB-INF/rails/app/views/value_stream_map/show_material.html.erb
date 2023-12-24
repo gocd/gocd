@@ -30,7 +30,7 @@
 </div>
 
 <script type="text/javascript">
-    jQuery(function() {
+    $(function() {
 
         resizeMapContainer();
         function resizeMapContainer() {
@@ -42,7 +42,7 @@
 
         $('#pre-loader-overlay').show();
 
-        jQuery.ajax({
+        $.ajax({
             url: "<%= vsm_show_material_path(:material_fingerprint => params[:material_fingerprint], :revision => params[:revision], :format => 'json')%>"
         }).done(function (data) {
           graphRenderer = new Graph_Renderer("#vsm-container");

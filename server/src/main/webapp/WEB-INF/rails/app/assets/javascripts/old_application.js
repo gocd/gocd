@@ -19,47 +19,47 @@ function iframeResizer(iframe){
     iframe.contents().find("body").css({margin:0});
     iframe.contents().find("body > pre").css({whiteSpace:'pre-wrap',margin : 0,fontSize : '12px',fontFamily: 'consolas, monaco, menlo, courier', wordWrap:'break-word', '-ms-word-wrap':'break-word', overflow:'hidden'});
     setTimeout(function(){
-      jQuery('iframe').each(function(){
+      $('iframe').each(function(){
         iframe.height(iframe.contents().find("body").height());
       });
     }, 200);
   }
 }
 function loadIframes(){
-  jQuery('iframe').each(function(){
-    jQuery(this).off('load').on('load',function(){
-      iframeResizer(jQuery(this));
+  $('iframe').each(function(){
+    $(this).off('load').on('load',function(){
+      iframeResizer($(this));
     });
   });
 }
 
 //Back to top button
-jQuery(function () {
+$(function () {
   loadIframes();//initial loading of all iframes
-  jQuery(window).on('resize',function(){
-    jQuery('iframe').each(function(){
-      iframeResizer(jQuery(this));
+  $(window).on('resize',function(){
+    $('iframe').each(function(){
+      iframeResizer($(this));
     });
   });
-  jQuery('.sub_tabs_container ul li').click(function(){loadIframes();});
-  jQuery(window).scroll(function(){
-    if(jQuery(this).scrollTop() > 300)
-      jQuery('.back_to_top').fadeIn(800);
-    if(jQuery(this).scrollTop() < 300)
-      jQuery('.back_to_top').fadeOut(200);
+  $('.sub_tabs_container ul li').click(function(){loadIframes();});
+  $(window).scroll(function(){
+    if($(this).scrollTop() > 300)
+      $('.back_to_top').fadeIn(800);
+    if($(this).scrollTop() < 300)
+      $('.back_to_top').fadeOut(200);
 
   });
-  jQuery('#back_to_top,.back-to-top-in-console').click(function(){
-    jQuery('body,html').stop(true).animate({scrollTop : 0},'fast');
+  $('#back_to_top,.back-to-top-in-console').click(function(){
+    $('body,html').stop(true).animate({scrollTop : 0},'fast');
   });
 });
 
 //breadcrumb shadow
-jQuery(function(){
-  jQuery(window).scroll(function(){
-    if(jQuery(this).scrollTop() > 50)
-      jQuery('.page_header').addClass('shadow');
-    if(jQuery(this).scrollTop() < 50)
-      jQuery('.page_header').removeClass('shadow');
+$(function(){
+  $(window).scroll(function(){
+    if($(this).scrollTop() > 50)
+      $('.page_header').addClass('shadow');
+    if($(this).scrollTop() < 50)
+      $('.page_header').removeClass('shadow');
   });
 });

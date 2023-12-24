@@ -20,7 +20,7 @@
     </script>
     <script type="text/javascript">
         window.addEventListener('load', function() {
-            jQuery('#tab-content-of-materials').html(jQuery('#tab-content-of-materials-template').val().process({revisions:json}));
+            $('#tab-content-of-materials').html($('#tab-content-of-materials-template').val().process({revisions:json}));
         });
     </script>
     <#include '_material_revisions_jstemplate.ftlh'>

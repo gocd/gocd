@@ -22,7 +22,7 @@ Util = function() {
     spinny: function(elementId) {
       if (_.isEmpty(elementId)) return;
 
-      const element = jQuery(Util.idToSelector(elementId));
+      const element = $(Util.idToSelector(elementId));
       element.html('&nbsp;');
       element.addClass('spinny');
     },
@@ -38,7 +38,7 @@ Util = function() {
       $("#message_pane").html('');
       AjaxRefreshers.disableAjax();
       Util.spinny(idForSpinner);
-      jQuery.ajax({
+      $.ajax({
         url: url,
         type: 'post',
         dataType: 'json',

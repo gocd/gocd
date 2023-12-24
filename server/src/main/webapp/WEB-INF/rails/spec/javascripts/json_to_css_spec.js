@@ -35,19 +35,19 @@ describe("json_to_css", function () {
 
   it("should add current status as a class to build status and job details header", function () {
     new JsonToCss().update_build_detail_header(building_info_for('job1', 'Failed', 'Failed'));
-    expect(jQuery("#build_status").hasClass('failed')).toBe(true);
-    expect(jQuery("#job_details_header").hasClass('failed')).toBe(true);
+    expect($("#build_status").hasClass('failed')).toBe(true);
+    expect($("#job_details_header").hasClass('failed')).toBe(true);
   });
 
   it("should replace old status with current status as a class to build status and job details header", function () {
-    jQuery("#build_status").attr('class', "failed");
-    jQuery("#job_details_header").attr('class', "failed");
+    $("#build_status").attr('class', "failed");
+    $("#job_details_header").attr('class', "failed");
 
     new JsonToCss().update_build_detail_header(building_info_for('job1', 'passed', 'Passed'));
 
-    expect(jQuery("#build_status").hasClass('passed')).toBe(true);
-    expect(jQuery("#build_status").hasClass('failed')).toBe(false);
-    expect(jQuery("#job_details_header").hasClass('passed')).toBe(true);
-    expect(jQuery("#job_details_header").hasClass('failed')).toBe(false);
+    expect($("#build_status").hasClass('passed')).toBe(true);
+    expect($("#build_status").hasClass('failed')).toBe(false);
+    expect($("#job_details_header").hasClass('passed')).toBe(true);
+    expect($("#job_details_header").hasClass('failed')).toBe(false);
   });
 });

@@ -53,38 +53,38 @@ describe("build_detail", function () {
 
   it("test_should_expand_the_directory", function () {
     var expectedId = "#dashboard_download_project1_log123\\.xml_abc";
-    expect(jQuery(expectedId).is(':visible')).toBe(false);
-    expect(jQuery('#directory').hasClass('directory')).toBe(true);
-    BuildDetail.tree_navigator(jQuery('#link'), "dashboard/download/project1/log123.xml/abc");
-    expect(jQuery(expectedId).is(':visible')).toBe(true);
-    expect(jQuery('#directory').hasClass('opened_directory')).toBe(true);
-    BuildDetail.tree_navigator(jQuery('#link'), "dashboard/download/project1/log123.xml/abc");
-    expect(jQuery(expectedId).is(':visible')).toBe(false);
-    expect(jQuery('#directory').hasClass('directory')).toBe(true);
+    expect($(expectedId).is(':visible')).toBe(false);
+    expect($('#directory').hasClass('directory')).toBe(true);
+    BuildDetail.tree_navigator($('#link'), "dashboard/download/project1/log123.xml/abc");
+    expect($(expectedId).is(':visible')).toBe(true);
+    expect($('#directory').hasClass('opened_directory')).toBe(true);
+    BuildDetail.tree_navigator($('#link'), "dashboard/download/project1/log123.xml/abc");
+    expect($(expectedId).is(':visible')).toBe(false);
+    expect($('#directory').hasClass('directory')).toBe(true);
   });
 
   it("test_should_click_current_tab_element_should_not_move_current_tab", function () {
-    jQuery('#li1').click();
-    expect(jQuery('#li1').hasClass('current_tab')).toBe(true);
-    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
-    jQuery('#li1').click();
-    expect(jQuery('#li1').hasClass('current_tab')).toBe(true);
-    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
+    $('#li1').click();
+    expect($('#li1').hasClass('current_tab')).toBe(true);
+    expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
+    $('#li1').click();
+    expect($('#li1').hasClass('current_tab')).toBe(true);
+    expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
   });
 
   it("test_should_click_another_element_should_move_current_tab", function () {
-    expect(jQuery('#li1').hasClass('current_tab')).toBe(true);
-    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
-    expect(jQuery('#tab-content-of-dummy-second-tab').is(':visible')).toBe(false);
-    jQuery('#li2').click();
-    expect(jQuery('#li2').hasClass('current_tab')).toBe(true);
-    expect(jQuery('#li1').hasClass('current_tab')).toBe(false);
-    expect(jQuery('#tab-content-of-dummy-second-tab').is(':visible')).toBe(true);
-    expect(jQuery('#tab-content-of-dummy-first-tab').is(':visible')).toBe(false);
+    expect($('#li1').hasClass('current_tab')).toBe(true);
+    expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(true);
+    expect($('#tab-content-of-dummy-second-tab').is(':visible')).toBe(false);
+    $('#li2').click();
+    expect($('#li2').hasClass('current_tab')).toBe(true);
+    expect($('#li1').hasClass('current_tab')).toBe(false);
+    expect($('#tab-content-of-dummy-second-tab').is(':visible')).toBe(true);
+    expect($('#tab-content-of-dummy-first-tab').is(':visible')).toBe(false);
   });
 
   it("test_should_return_subcontainer", function () {
-    var theContainer = BuildDetail.getSubContainer(jQuery("#link"));
+    var theContainer = BuildDetail.getSubContainer($("#link"));
     expect(theContainer.id == "dashboard_download_project1_log123.xml_abc").toBe(true);
   });
 });

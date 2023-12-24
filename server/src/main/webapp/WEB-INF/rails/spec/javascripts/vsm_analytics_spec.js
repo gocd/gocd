@@ -23,7 +23,7 @@ describe("vsm_analytics", function () {
 
   describe("selectPipeline", function () {
     it("should have current pipeline as source if a downstream pipeline is selected", function () {
-      var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
+      var graph = $.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
       spyOn(AnalyticsPanel, "update");
 
@@ -35,7 +35,7 @@ describe("vsm_analytics", function () {
     });
 
     it("should have current_pipeline as destination if an upstream node is selected", function () {
-      var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
+      var graph = $.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
       spyOn(AnalyticsPanel, "update");
 
@@ -47,7 +47,7 @@ describe("vsm_analytics", function () {
     });
 
     it("should have current_material as source and downstream pipeline as destination", function () {
-      var graph = jQuery.extend({ "current_material": "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629" }, vsmGraphJSON());
+      var graph = $.extend({ "current_material": "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
       spyOn(AnalyticsPanel, "update");
 
@@ -59,7 +59,7 @@ describe("vsm_analytics", function () {
     });
 
     it("should do nothing in absence of pipeline name", function () {
-      var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
+      var graph = $.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
       spyOn(AnalyticsPanel, "update");
 
@@ -71,7 +71,7 @@ describe("vsm_analytics", function () {
 
   describe("selectMaterial", function () {
     it("should have current_pipeline as destination node if a scm node is selected", function () {
-      var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
+      var graph = $.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
       spyOn(AnalyticsPanel, "update");
 
@@ -82,7 +82,7 @@ describe("vsm_analytics", function () {
     });
 
     it("should do nothing if showing vsm for material", function () {
-      var graph = jQuery.extend({ "current_material": "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629" }, vsmGraphJSON());
+      var graph = $.extend({ "current_material": "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
       spyOn(AnalyticsPanel, "update");
 

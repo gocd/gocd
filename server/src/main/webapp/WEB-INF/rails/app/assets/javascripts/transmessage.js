@@ -22,14 +22,14 @@ class TransMessage {
     this.options = {
       type: TransMessage.TYPE_NOTICE,
       autoHide: true,
-      height: jQuery(targetElement).height() * 0.9,
+      height: $(targetElement).height() * 0.9,
       hideDelay: 2,
       offsetTop: 0,
       offsetLeft: 0,
       ...(options || {})
     };
-    this.trans_message = jQuery(Util.idToSelector(trans_message));
-    this.targetElement = jQuery(targetElement);
+    this.trans_message = $(Util.idToSelector(trans_message));
+    this.targetElement = $(targetElement);
     this.changeType();
     this.show();
   }
@@ -62,11 +62,11 @@ class TransMessage {
     const _me = this;
     this.trans_message.find(".r1, .r2, .r3, .r4, .transparent_message").each(function (i, elem) {
       if (_me.options.type === TransMessage.TYPE_NOTICE) {
-        jQuery(elem).removeClass("transparent_" + TransMessage.TYPE_ERROR);
-        jQuery(elem).addClass("transparent_" + TransMessage.TYPE_NOTICE);
+        $(elem).removeClass("transparent_" + TransMessage.TYPE_ERROR);
+        $(elem).addClass("transparent_" + TransMessage.TYPE_NOTICE);
       } else {
-        jQuery(elem).removeClass("transparent_" + TransMessage.TYPE_NOTICE);
-        jQuery(elem).addClass("transparent_" + TransMessage.TYPE_ERROR);
+        $(elem).removeClass("transparent_" + TransMessage.TYPE_NOTICE);
+        $(elem).addClass("transparent_" + TransMessage.TYPE_ERROR);
       }
     });
   }

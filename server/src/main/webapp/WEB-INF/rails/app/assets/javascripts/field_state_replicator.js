@@ -40,11 +40,11 @@ FieldStateReplicator = function() {
   //js is single threaded :-)
   init.prototype.register = function(field, id) {
     const self = this;
-    jQuery(field).on('change', function () {
+    $(field).on('change', function () {
       update_state(self, id, field);
     });
 
-    jQuery(field).on('keyup', function () {
+    $(field).on('keyup', function () {
       update_state(self, id, field);
     });
     const peers = this.id_fields_map[id];
@@ -61,8 +61,8 @@ FieldStateReplicator = function() {
     if (peers) {
       this.id_fields_map[id] = _.reject(peers, function(peer) {
         if (peer === field) {
-          jQuery(field).off('change');
-          jQuery(field).off('keyup');
+          $(field).off('change');
+          $(field).off('keyup');
           return true;
         } else {
           return false;

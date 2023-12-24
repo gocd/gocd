@@ -15,7 +15,7 @@
  */
 var StageHistory = function() {
   function _bindHistoryLink(id, url, page_num) {
-    var elem = jQuery(id).get(0);
+    var elem = $(id).get(0);
     if (!elem) return;        
     var element = $(elem);
     element.unbind();
@@ -26,12 +26,12 @@ var StageHistory = function() {
 
   function changePage(url, pageNum) {
     AjaxRefreshers.disableAjax();
-    jQuery.ajax({
+    $.ajax({
       url: url,
       method: "GET",
       dataType: "html",
       complete: function(response) {
-        jQuery('.stage_history').html(response);
+        $('.stage_history').html(response);
         AjaxRefreshers.enableAjax();
       }
     });
@@ -39,7 +39,7 @@ var StageHistory = function() {
   }
 
   function setCurrentPage(pageNum) {
-    jQuery("#stage-history-page").val(pageNum);
+    $("#stage-history-page").val(pageNum);
   }
 
   function init() {
@@ -49,7 +49,7 @@ var StageHistory = function() {
   init.prototype._changePage = changePage;
 
   init.prototype.bindHistoryLink = function(id, url, page_num) {
-    return new Promise((resolve) => jQuery(function() {
+    return new Promise((resolve) => $(function() {
       _bindHistoryLink(id, url, page_num);
       AjaxRefreshers.main().afterRefreshOf('stage_history', function() {
         _bindHistoryLink(id, url, page_num);
@@ -59,24 +59,24 @@ var StageHistory = function() {
   };
 
   init.prototype.bindConfigChangeModal = function(modalId, contentSelector) {
-    jQuery(".stage_history .config_change a").click(function(event) {
+    $(".stage_history .config_change a").click(function(event) {
       event.preventDefault();
       AjaxRefreshers.disableAjax();
-      const url = jQuery(this).attr("href");
-      jQuery.ajax({
+      const url = $(this).attr("href");
+      $.ajax({
         url: url,
         success: function(data) {
-          jQuery(contentSelector).html(jQuery(data).find("#body_content").html());
+          $(contentSelector).html($(data).find("#body_content").html());
           document.getElementById(modalId).showModal();
         },
         error: function(response, textStatus) {
-          jQuery(contentSelector).html(`<div class="callout">There was an error loading changes (${response.status} ${textStatus})</div>`);
+          $(contentSelector).html(`<div class="callout">There was an error loading changes (${response.status} ${textStatus})</div>`);
           document.getElementById(modalId).showModal();
         }
       });
     });
 
-    jQuery("#modal-close").click(function(event) {
+    $("#modal-close").click(function(event) {
       event.preventDefault();
       document.getElementById(modalId).close();
       AjaxRefreshers.enableAjax();

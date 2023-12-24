@@ -4,8 +4,8 @@
         <label class="inline">This will refresh the page and you will lose your changes on this page.</label>
     </div>
     <script type="text/javascript">
-        jQuery(function() {
-           jQuery("#reload_config").click(function() {
+        $(function() {
+           $("#reload_config").click(function() {
                var location = "<%= request.referer -%>";
                if (location.endsWith("#")) {
                    location = location.substring(0, location.length - 1);

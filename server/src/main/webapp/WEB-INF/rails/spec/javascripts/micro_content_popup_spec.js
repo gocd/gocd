@@ -27,10 +27,10 @@ describe("micro_content_popup", function () {
           </div>`
     );
 
-    content_box = jQuery('#content_box');
+    content_box = $('#content_box');
     popup = new MicroContentPopup(content_box);
     popup_shower = new MicroContentPopup.ClickShower(popup);
-    show_link = jQuery('#show_popup');
+    show_link = $('#show_popup');
     popup_shower.bindShowButton(show_link.get(0));
   });
   var popup = null;
@@ -52,7 +52,7 @@ describe("micro_content_popup", function () {
   it("test_should_close_popup_when_a_random_element_is_clicked", function () {
     show_link.click();
     expect(content_box.hasClass("hidden")).toBe(false);
-    jQuery("#random_element").click();
+    $("#random_element").click();
     expect(content_box.hasClass("hidden")).toBe(true);
   });
 });

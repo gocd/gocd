@@ -40,12 +40,12 @@
         json_to_css.update_build_list(eval(${listPresenter.toJsonString()?no_esc}), ${listPresenter?counter}, "${req.getContextPath()}/${concatenatedStageBarCancelledIconFilePath}");
         </#list>
 
-      jQuery(function() {
-          jQuery(".buildlist .time_ago").each(function(idx, timeSpan) {
-            var timestamp = parseInt(jQuery(timeSpan).attr("data"));
+      $(function() {
+          $(".buildlist .time_ago").each(function(idx, timeSpan) {
+            var timestamp = parseInt($(timeSpan).attr("data"));
             if (isNaN(timestamp)) return;
             var time = new Date(timestamp);
-            jQuery(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+            $(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
           });
         });
     </script>

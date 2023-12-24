@@ -37,28 +37,28 @@ describe("toggle_css_class", function () {
   var originalmarkup;
 
   beforeEach(function () {
-    originalmarkup = jQuery(".under_test")[0].innerHTML;
-    container = jQuery("#pare\\.nt\\.div1");
+    originalmarkup = $(".under_test")[0].innerHTML;
+    container = $("#pare\\.nt\\.div1");
     make_collapsable("pare.nt.div1");
-    clickable = jQuery(".hidereveal_expander")[0];
+    clickable = $(".hidereveal_expander")[0];
   });
 
   afterEach(function () {
-    jQuery(".under_test")[0].innerHTML = originalmarkup;
+    $(".under_test")[0].innerHTML = originalmarkup;
   });
 
   it("test_make_collapsible", function () {
     expect(container.hasClass('hidereveal_collapsed')).toBe(true);
-    jQuery(".hidereveal_expander").click();
+    $(".hidereveal_expander").click();
     expect(container.hasClass('hidereveal_collapsed')).toBe(false);
   });
 
   it("test_prevents_click_from_bubbling", function () {
     var click_bubbled = false;
-    jQuery('#pare\\.nt\\.div1').on('click', function () {
+    $('#pare\\.nt\\.div1').on('click', function () {
       click_bubbled = true;
     });
-    jQuery(".hidereveal_expander").click();
+    $(".hidereveal_expander").click();
     expect(click_bubbled).toBe(false);
   });
 });

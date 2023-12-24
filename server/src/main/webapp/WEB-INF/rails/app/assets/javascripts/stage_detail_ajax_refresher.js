@@ -18,7 +18,7 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
   let oldCheckboxes = null;
 
   function registerAgentSelectorsUnder(elementOrSelector) {
-    const element = jQuery(elementOrSelector);
+    const element = $(elementOrSelector);
     if (element.length > 0) {
       element.find('.job_selector').each(function (i, elem) {
         replicator.register(elem, elem.value);
@@ -40,7 +40,7 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
       }
     },
     dataFetcher: function () {
-      const pageElement = jQuery("#stage-history-page");
+      const pageElement = $("#stage-history-page");
       return pageElement ? {
         "stage-history-page": pageElement.val()
       } : {};
@@ -48,18 +48,18 @@ function StageDetailAjaxRefresher(url, after_callback_map) {
     manipulateReplacement: function (receiver_id, replaceElement) {
       if (receiver_id === 'jobs_grid') {
         registerAgentSelectorsUnder(replaceElement);
-        oldCheckboxes = jQuery('.job_selector');
+        oldCheckboxes = $('.job_selector');
       }
     }
   });
 }
 
 function compare_link_handlers() {
-  const individualStage = jQuery(".stage_history .stage");
+  const individualStage = $(".stage_history .stage");
   individualStage.mouseover(function() {
-    jQuery(this).find(".compare_pipeline").removeClass("hidden");
+    $(this).find(".compare_pipeline").removeClass("hidden");
   });
   individualStage.mouseout(function() {
-    jQuery(this).find(".compare_pipeline").addClass("hidden");
+    $(this).find(".compare_pipeline").addClass("hidden");
   });
 }

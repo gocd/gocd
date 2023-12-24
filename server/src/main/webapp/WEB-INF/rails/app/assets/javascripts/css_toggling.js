@@ -15,8 +15,8 @@
  */
 function make_collapsable(container_id) {
   const container_id_selector = Util.idToSelector(container_id);
-  jQuery(container_id_selector + " .hidereveal_expander").click(function (event) {
-    jQuery(container_id_selector).toggleClass("hidereveal_collapsed");
+  $(container_id_selector + " .hidereveal_expander").click(function (event) {
+    $(container_id_selector).toggleClass("hidereveal_collapsed");
     event.stopPropagation();
   });
 }

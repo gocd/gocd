@@ -28,8 +28,8 @@ var ACTIVE_STATUS = ['passed', 'failed', 'inactive', 'discontinued', 'paused', '
 
 function clean_active_css_class_on_element(element) {
   ACTIVE_STATUS.forEach(function (status) {
-    jQuery(element).removeClass(status);
-    jQuery(element).removeClass('build_profile_' + status);
+    $(element).removeClass(status);
+    $(element).removeClass('build_profile_' + status);
   });
 }
 

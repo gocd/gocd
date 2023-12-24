@@ -27,7 +27,7 @@ class JsonToCss {
     const css_class_name = json.building_info.current_status.toLowerCase();
     this._renew_class_name(elementId, [css_class_name]);
     if (css_class_name === "cancelled") {
-      const colorCodeElement = jQuery(elementId).get(0).getElementsByClassName("color_code_small")[0];
+      const colorCodeElement = $(elementId).get(0).getElementsByClassName("color_code_small")[0];
       const img = document.createElement('img');
       img.setAttribute('src', imgSrc);
       colorCodeElement.appendChild(img);
@@ -35,7 +35,7 @@ class JsonToCss {
   }
     
   _renew_class_name(elementOrSelector, cssClasses) {
-    const element = jQuery(elementOrSelector);
+    const element = $(elementOrSelector);
     clean_active_css_class_on_element(element[0]);
     cssClasses.forEach(function(cssClass) {
       element.addClass(cssClass);

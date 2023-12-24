@@ -21,7 +21,7 @@ describe("ajax_refresher", function () {
   let ajax_opts;
 
   beforeEach(function () {
-    actual_ajax_request        = jQuery.ajax;
+    actual_ajax_request        = $.ajax;
     after_called               = false;
     actual_periodical_executor = PeriodicExecutor;
     newPageUrl        = null;
@@ -35,11 +35,11 @@ describe("ajax_refresher", function () {
 
     after_called = false;
 
-    jQuery.ajax = function (options) {
+    $.ajax = function (options) {
       ajax_opts = options;
     };
 
-    jQuery('#elem_id').html("im_old_content");
+    $('#elem_id').html("im_old_content");
   });
 
   afterEach(function () {
@@ -52,7 +52,7 @@ describe("ajax_refresher", function () {
     refresher.restartRefresh();
 
     ajax_opts.success({elem_id: {html: "new_content"}});
-    expect(jQuery('#elem_id').html()).toBe("new_content");
+    expect($('#elem_id').html()).toBe("new_content");
   });
 
   it("test_not_bomb_when_the_html_is_empty", function () {
@@ -61,12 +61,12 @@ describe("ajax_refresher", function () {
     refresher.restartRefresh();
 
     ajax_opts.success({elem_id: {html: ""}});
-    expect(jQuery('#elem_id').html()).toBe("");
+    expect($('#elem_id').html()).toBe("");
   });
 
   it("test_should_process_data", function () {
     let opts;
-    jQuery.ajax = function (options) {
+    $.ajax = function (options) {
       opts = options;
     };
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {
@@ -89,7 +89,7 @@ describe("ajax_refresher", function () {
     } catch (e) {
       expect(e).toBe("no 'html' given for dom id 'elem_id'");
     }
-    expect(jQuery('#elem_id').html()).toBe("im_old_content");
+    expect($('#elem_id').html()).toBe("im_old_content");
   });
 
   it("test_errors_out_when_no_parent_id_or_index_element_given", function () {
@@ -99,7 +99,7 @@ describe("ajax_refresher", function () {
     } catch (e) {
       throw "should not throw up when no parent_id or index given" + e;
     }
-    expect(jQuery('#elem_id').html()).toBe("bar");
+    expect($('#elem_id').html()).toBe("bar");
   });
 
   it("test_calls_manipulate_replacement_before_replacement", function () {
@@ -109,7 +109,7 @@ describe("ajax_refresher", function () {
       manipulateReplacement: function (elem_id, dom) {
         before_elem_id = elem_id;
         before_dom_inner_html = dom.innerHTML;
-        actual_dom_inner_html = jQuery('#elem_id').html();
+        actual_dom_inner_html = $('#elem_id').html();
       }
     });
     refresher.stopRefresh();
@@ -125,7 +125,7 @@ describe("ajax_refresher", function () {
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {
       time: 0,
       manipulateReplacement: function (elem_id, dom) {
-        jQuery(dom).find('#foo_bar_baz').click(function () {
+        $(dom).find('#foo_bar_baz').click(function () {
           this.innerHTML = "on click honored";
         });
         return true;
@@ -135,7 +135,7 @@ describe("ajax_refresher", function () {
     refresher.restartRefresh();
 
     ajax_opts.success({elem_id: {html: "<div>new_content<span id='foo_bar_baz'>empty</span></div>", parent_id: "daddy", index: 1, type: 'type'}});
-    const replaced_content_holder = jQuery('#foo_bar_baz');
+    const replaced_content_holder = $('#foo_bar_baz');
     replaced_content_holder.click();
     expect(replaced_content_holder.html()).toBe("on click honored");
   });
@@ -149,7 +149,7 @@ describe("ajax_refresher", function () {
 
     refresher.afterRefreshOf("elem_id", function (elem_id) {
       after_elem_id = elem_id;
-      actual_dom_inner_html = jQuery('#elem_id').html();
+      actual_dom_inner_html = $('#elem_id').html();
       call_count++;
     });
     ajax_opts.success({elem_id: {html: "<div>new_content</div>"}});
@@ -158,7 +158,7 @@ describe("ajax_refresher", function () {
     expect(call_count).toBe(1);
     ajax_opts.success({elem_id: {html: "<div>new_fancy_content</div>"}});
     expect(actual_dom_inner_html).toContain('new_content');
-    expect(jQuery("#elem_id").html()).toContain('new_fancy_content');
+    expect($("#elem_id").html()).toContain('new_fancy_content');
     expect(call_count).toBe(1);
   });
 
@@ -171,7 +171,7 @@ describe("ajax_refresher", function () {
 
     refresher.afterRefreshOf("elem_id", function (elem_id) {
       after_elem_id = elem_id;
-      actual_dom_inner_html = jQuery('#elem_id').html();
+      actual_dom_inner_html = $('#elem_id').html();
       call_count++;
     }, true);
     ajax_opts.success({elem_id: {html: "<div>new_content</div>"}});
@@ -180,7 +180,7 @@ describe("ajax_refresher", function () {
     expect(call_count).toBe(1);
     ajax_opts.success({elem_id: {html: "<div>new_fancy_content</div>"}});
     expect(actual_dom_inner_html).toContain('new_fancy_content');
-    expect(jQuery("#elem_id").html()).toContain("new_fancy_content");
+    expect($("#elem_id").html()).toContain("new_fancy_content");
     expect(call_count).toBe(2);
   });
 
@@ -191,12 +191,12 @@ describe("ajax_refresher", function () {
         periodical_executor_instantiated = true;
       };
     };
-    jQuery.ajax = function (options) {
+    $.ajax = function (options) {
       options.success({elem_id: {html: "new_content"}});
     };
     new AjaxRefresher("http://blah/refresh_stage_detail", {updateOnce: true});
     expect(periodical_executor_instantiated).toBe(false);
-    expect(jQuery('#elem_id').html()).toBe("new_content");
+    expect($('#elem_id').html()).toBe("new_content");
   });
 
   it("test_should_stop_refreshing_on_stop", function () {
@@ -213,7 +213,7 @@ describe("ajax_refresher", function () {
       };
     };
     let onSuccess;
-    jQuery.ajax = function (options) {
+    $.ajax = function (options) {
       onSuccess = options.success;
     };
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {time: 0});
@@ -223,7 +223,7 @@ describe("ajax_refresher", function () {
     refresher.stopRefresh();
     onSuccess({"elem_id": {html: "new_text"}});
     expect(periodical_executor_executing).toBe(false);
-    expect(jQuery('#elem_id').html()).toBe("im_old_content");
+    expect($('#elem_id').html()).toBe("im_old_content");
   });
 
   it("test_should_be_able_to_restart_refreshing", function () {
@@ -242,7 +242,7 @@ describe("ajax_refresher", function () {
       };
     };
     let onSuccess;
-    jQuery.ajax = function (options) {
+    $.ajax = function (options) {
       onSuccess = options.success;
     };
     const refresher = new AjaxRefresher("http://blah/refresh_stage_detail", {time: 0});
@@ -252,7 +252,7 @@ describe("ajax_refresher", function () {
     expect(periodical_executor_executing).toBe(true);
     expect(callback_registered).toBe(true);
     onSuccess({"elem_id": {html: "new_text"}});
-    expect(jQuery('#elem_id').html()).toBe("new_text");
+    expect($('#elem_id').html()).toBe("new_text");
   });
 });
 

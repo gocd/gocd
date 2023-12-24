@@ -35,7 +35,7 @@ describe("dashboard_periodical_executor", function () {
   });
 
   it("test_should_call_observer_notify_when_success", function () {
-    spyOn(jQuery, "ajax").and.callFake(function (options) {
+    spyOn($, "ajax").and.callFake(function (options) {
       options.success([1, 2, 3]);
     });
 
@@ -54,7 +54,7 @@ describe("dashboard_periodical_executor", function () {
 
   it("test_should_call_redirect_to_login_when_response_header_is_401", function () {
     var invoked = false;
-    spyOn(jQuery, "ajax").and.callFake(function (options) {
+    spyOn($, "ajax").and.callFake(function (options) {
       options.statusCode[401]();
     });
 
@@ -69,7 +69,7 @@ describe("dashboard_periodical_executor", function () {
   });
 
   it("test_should_not_call_observer_when_executer_is_paused", function () {
-    spyOn(jQuery, "ajax").and.callFake(function (options) {
+    spyOn($, "ajax").and.callFake(function (options) {
       options.success([1, 2, 3.4]);
     });
     var invoked = false;
@@ -153,7 +153,7 @@ describe("dashboard_periodical_executor", function () {
   });
 
   it("test_executer_should_pause_when_pause_condition_is_true", function () {
-    spyOn(jQuery, "ajax").and.callFake(function (options) {
+    spyOn($, "ajax").and.callFake(function (options) {
       options.success({pause: true});
     });
 

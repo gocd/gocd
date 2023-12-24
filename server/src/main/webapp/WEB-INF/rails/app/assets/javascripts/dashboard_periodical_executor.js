@@ -53,7 +53,7 @@ DashboardPeriodicalExecutor.prototype = {
   onRequest: function() {
     var executer = this;
     var requestSequenceNumber = this.generateSequenceNumber();
-    this.ongoingRequest = jQuery.ajax({
+    this.ongoingRequest = $.ajax({
       url: executer.url,
       dataType: "json",
       success: function(json_array) {

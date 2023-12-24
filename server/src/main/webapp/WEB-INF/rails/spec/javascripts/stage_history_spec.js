@@ -41,7 +41,7 @@ describe("stage_history", function () {
   it("test_page_change", function () {
     StageHistory._changePage('url', "4");
     expect(options.url).toBe("url");
-    expect(jQuery("#stage-history-page").val()).toBe("4");
+    expect($("#stage-history-page").val()).toBe("4");
   });
 
   function stub_main_refresher() {
@@ -57,14 +57,14 @@ describe("stage_history", function () {
   it("test_bind_link_no_link", async () => {
     stub_main_refresher();
     $("#stage-history-page").val("should-not-change");
-    expect(jQuery('#doesnt_exist')[0]).toBeUndefined();
+    expect($('#doesnt_exist')[0]).toBeUndefined();
     expect(document.getElementById('doesnt_exist')).toBeNull();
     await StageHistory.bindHistoryLink('#doesnt_exist', "url-to-page-3", 3);
     $(document).click();
-    expect(jQuery("#stage-history-page").val()).toBe("should-not-change");
+    expect($("#stage-history-page").val()).toBe("should-not-change");
     afterRef();
     $(document).click();
-    expect(jQuery("#stage-history-page").val()).toBe("should-not-change");
+    expect($("#stage-history-page").val()).toBe("should-not-change");
   });
 
   it("test_bind_link", async () => {
@@ -72,10 +72,10 @@ describe("stage_history", function () {
     $("#stage-history-page").val("0");
     await StageHistory.bindHistoryLink('#stage_history_3', "url-to-page-3", 3);
     $('#stage_history_3').click();
-    expect(jQuery("#stage-history-page").val()).toBe("3");
+    expect($("#stage-history-page").val()).toBe("3");
     $("#stage-history-page").val("0");
     afterRef();
     $('#stage_history_3').click();
-    expect(jQuery("#stage-history-page").val()).toBe("3");
+    expect($("#stage-history-page").val()).toBe("3");
   });
 });

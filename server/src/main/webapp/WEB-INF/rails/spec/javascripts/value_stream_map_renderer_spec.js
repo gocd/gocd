@@ -26,7 +26,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(1).toBe(jQuery('#vsm-container .highlight').length);
+    expect(1).toBe($('#vsm-container .highlight').length);
   });
 
   it("testShouldCheckIfPipelineHasRunMessageVisible", function () {
@@ -72,7 +72,7 @@ describe("value_stream_map_renderer", function () {
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(1).toBe(jQuery('#vsm-container #sample .waiting').length);
+    expect(1).toBe($('#vsm-container #sample .waiting').length);
   });
 
   it("testShouldRenderNodeWithRestrictions_WhenUserDoesNotHavePermissionToViewPipelineOrPipelineHasBeenDeleted", function () {
@@ -95,13 +95,13 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + deleted_pipeline + ']},{"nodes":[' + no_view_permission + ']},{"nodes":[' + current + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery("#vsm-container #no_view_permission h3").hasClass("restricted")).toBe(true);
-    expect(jQuery("#vsm-container #no_view_permission h3").find("a").length).toBe(0);
-    expect(jQuery("#vsm-container #no_view_permission .message span").text()).toBe(pipeline_no_permission_message);
+    expect($("#vsm-container #no_view_permission h3").hasClass("restricted")).toBe(true);
+    expect($("#vsm-container #no_view_permission h3").find("a").length).toBe(0);
+    expect($("#vsm-container #no_view_permission .message span").text()).toBe(pipeline_no_permission_message);
 
-    expect(jQuery("#vsm-container #deleted_pipeline h3").hasClass("deleted")).toBe(true);
-    expect(jQuery("#vsm-container #deleted_pipeline h3").find("a").length).toBe(0);
-    expect(jQuery("#vsm-container #deleted_pipeline .message span").text()).toBe(deleted_pipeline_message);
+    expect($("#vsm-container #deleted_pipeline h3").hasClass("deleted")).toBe(true);
+    expect($("#vsm-container #deleted_pipeline h3").find("a").length).toBe(0);
+    expect($("#vsm-container #deleted_pipeline .message span").text()).toBe(deleted_pipeline_message);
   });
 
   it("testShouldDisplayAllDetailsForSCMMaterialNodes", function () {
@@ -117,19 +117,19 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery("#vsm-container #hg_fingerprint .material_revisions").hasClass("hg")).toBe(true);
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').length).toBe(2);
+    expect($("#vsm-container #hg_fingerprint .material_revisions").hasClass("hg")).toBe(true);
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').length).toBe(2);
 
     /*
      * material url
      */
-    expect(jQuery("#hg_fingerprint .material_type").html()).toBe("../manual-testing/ant_hg/dummy");
+    expect($("#hg_fingerprint .material_type").html()).toBe("../manual-testing/ant_hg/dummy");
 
     /*
      * material image
      */
-    var boundingRectOfMaterialNode = jQuery("#hg_fingerprint")[0].getBoundingClientRect();
-    var boundingRectOfMaterialImageNode = jQuery("#hg_fingerprint .material_type")[0].getBoundingClientRect();
+    var boundingRectOfMaterialNode = $("#hg_fingerprint")[0].getBoundingClientRect();
+    var boundingRectOfMaterialImageNode = $("#hg_fingerprint .material_type")[0].getBoundingClientRect();
     var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
     var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
     expect(Math.abs(centerOfNode - centerOfImage) < 5).toBe(true);
@@ -138,24 +138,24 @@ describe("value_stream_map_renderer", function () {
     /*
      * hide/show revisions
      */
-    expect(jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible')).toBe(false);
-    jQuery("#hg_fingerprint .more").trigger('click');
-    expect(jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible')).toBe(true);
+    expect($(".instances[data-materialname='hg_fingerprint']").is(':visible')).toBe(false);
+    $("#hg_fingerprint .more").trigger('click');
+    expect($(".instances[data-materialname='hg_fingerprint']").is(':visible')).toBe(true);
 
     /*
      first commit
      */
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim()).toBe("Revision: revision1");
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim()).toBe("comment1");
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim()).toBe("user1");
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text()).toBe("modified_time1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim()).toBe("Revision: revision1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim()).toBe("comment1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim()).toBe("user1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text()).toBe("modified_time1");
     /*
      second commit
      */
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim()).toBe("Revision: revision2");
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim()).toBe("comment2");
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim()).toBe("user2");
-    expect(jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text()).toBe("modified_time2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim()).toBe("Revision: revision2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim()).toBe("comment2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim()).toBe("user2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text()).toBe("modified_time2");
   });
 
   it("testShouldCommitDetailsForPackageMaterial", function () {
@@ -202,13 +202,13 @@ describe("value_stream_map_renderer", function () {
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim())
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim())
       .toBe("Revision: go-agent-13.1.1-16714.noarch");
-    expect(jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html())
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html())
       .toBe('Built on server.<br>Trackback: <a href="google.com">google.com</a>');
-    expect(jQuery('#pkg_id .material_revisions_label').html())
+    expect($('#pkg_id .material_revisions_label').html())
       .toBe('Built on server.<br>Trackback: <a href="google.com">google.com</a>');
-    expect(jQuery('#pkg_id .material_revisions_label').attr("title"))
+    expect($('#pkg_id .material_revisions_label').attr("title"))
       .toBe('Built on server.\nTrackback: google.com');
   });
 
@@ -257,10 +257,10 @@ describe("value_stream_map_renderer", function () {
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim()).toBe("Revision: go-agent-13.1.1-16714.noarch");
-    expect(jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html()).toBe('Trackback: Not Provided');
-    expect(jQuery('#pkg_id .material_revisions_label').html()).toBe('Trackback: Not Provided');
-    expect(jQuery('#pkg_id .material_revisions_label').attr("title")).toBe('Trackback: Not Provided');
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim()).toBe("Revision: go-agent-13.1.1-16714.noarch");
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html()).toBe('Trackback: Not Provided');
+    expect($('#pkg_id .material_revisions_label').html()).toBe('Trackback: Not Provided');
+    expect($('#pkg_id .material_revisions_label').attr("title")).toBe('Trackback: Not Provided');
   });
 
   it("testShouldCheckIfCommentsBoxIsShownCorrectlyIfTwoOrMoreSameSVNorTFSorP4IsConfiguredWithDifferentCredentials", function () {
@@ -275,12 +275,12 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + svn_material_1 + ',' + svn_material_2 + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(false);
-    expect(jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible')).toBe(false);
-    jQuery("#svn_fingerprint_1 .more").trigger('click');
-    jQuery("#svn_fingerprint_2 .more").trigger('click');
-    expect(jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(true);
-    expect(jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible')).toBe(true);
+    expect($(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(false);
+    expect($(".instances[data-materialname='svn_fingerprint_2']").is(':visible')).toBe(false);
+    $("#svn_fingerprint_1 .more").trigger('click');
+    $("#svn_fingerprint_2 .more").trigger('click');
+    expect($(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(true);
+    expect($(".instances[data-materialname='svn_fingerprint_2']").is(':visible')).toBe(true);
   });
 
   it("testShouldDisplayAllDetailsForPipelineNodes", function () {
@@ -298,11 +298,11 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery("#vsm-container #current h3 a").attr("href")).toBe("/go/pipeline/activity/current");
-    expect(jQuery("#vsm-container #current ul li h4 a").attr("href")).toBe("/go/pipelines/value_stream_map/current/1");
-    expect(jQuery("#vsm-container #current ul").find("li.instance").length).toBe(1);
-    expect(jQuery("#vsm-container #current ul ul").find(".stage_bar").length).toBe(2);
-    expect(jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title')).toBe("defaultStage (took 1m 57.0s)");
+    expect($("#vsm-container #current h3 a").attr("href")).toBe("/go/pipeline/activity/current");
+    expect($("#vsm-container #current ul li h4 a").attr("href")).toBe("/go/pipelines/value_stream_map/current/1");
+    expect($("#vsm-container #current ul").find("li.instance").length).toBe(1);
+    expect($("#vsm-container #current ul ul").find(".stage_bar").length).toBe(2);
+    expect($("#vsm-container #current ul ul li.stage_bar.Passed").attr('title')).toBe("defaultStage (took 1m 57.0s)");
   });
 
 
@@ -325,9 +325,9 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']},{"nodes":[' + downstream + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery("#downstream .show-more").find("a").text()).toBe("1 more...");
-    jQuery("#downstream .show-more a").trigger('click');
-    expect(jQuery("#downstream .show-more").find("a").text()).toBe("1 less...");
+    expect($("#downstream .show-more").find("a").text()).toBe("1 more...");
+    $("#downstream .show-more a").trigger('click');
+    expect($("#downstream .show-more").find("a").text()).toBe("1 less...");
   });
 
   it("shouldShowThePipelineRunDurationForACompletedPipeline", function () {
@@ -345,7 +345,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery("#p1 .duration").text()).toBe("Duration: 2m 6.0s");
+    expect($("#p1 .duration").text()).toBe("Duration: 2m 6.0s");
   });
 
   it("shouldShowThePipelineRunAsInProgressForAPipelineWhichIsInProgress", function () {
@@ -362,7 +362,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    expect(jQuery("#p1 .duration").text()).toBe("Duration: In Progress");
+    expect($("#p1 .duration").text()).toBe("Duration: In Progress");
   });
 
   function scmMaterialNode(nodeId, nodeName, type, dependents, depth, material_revisions) {
@@ -396,7 +396,7 @@ describe("value_stream_map_renderer", function () {
     var allNodes = [];
     var levelVersusNodes = [];
 
-    var svgPosition = jQuery("div#vsm-container")[0].getBoundingClientRect();
+    var svgPosition = $("div#vsm-container")[0].getBoundingClientRect();
     var verticalDistanceBetweenNodesAtSameLevel = 50;
     var borderSize = 0;
     var verticalOffsetFromTop = 20 + borderSize;
@@ -408,14 +408,14 @@ describe("value_stream_map_renderer", function () {
     var nodeHeight = 100;
 
     function init() {
-      var nodes = jQuery(container).find('div.vsm-entity');
+      var nodes = $(container).find('div.vsm-entity');
 
-      jQuery.each(nodes, function (i, node) {
+      $.each(nodes, function (i, node) {
         nodeObj = new VsmNode();
-        nodeObj.id = jQuery(this).id;
+        nodeObj.id = $(this).id;
 
-        nodeObj.type = (jQuery(node).hasClass('material')) ?
-          'material' : ((jQuery(node).hasClass('current')) ?
+        nodeObj.type = ($(node).hasClass('material')) ?
+          'material' : (($(node).hasClass('current')) ?
             'current-pipeline' :
             'pipeline');
 

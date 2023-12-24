@@ -523,7 +523,7 @@ Graph_Renderer = function (container) {
           var pipelineName = stageLocatorSplit.pop();
 
           gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><a href="#" onclick="window.getStageOverviewFor(\''+ pipelineName + '\',\'' + pipelineCounter + '\',\'' + stageName + '\',\'' + stageCounter + '\',\'' + instance.stages[i].status + '\',\'' + i + '\',\'' + instance.stages.length + '\',\'' + node.can_edit  + '\',\'' + node.template_name +'\')"></a></li>';
-          gui += '<div id="stage-overview-container-for-pipeline-'+ pipelineName + '-' + pipelineCounter + '-stage-' + stageName + '-' + stageCounter +'"/>';
+          gui += '<div id="stage-overview-container-for-pipeline-'+ pipelineName + '-' + pipelineCounter + '-stage-' + stageName + '-' + stageCounter +'"></div>';
         }
       }
       gui += '</ul>';

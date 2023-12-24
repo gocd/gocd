@@ -16,8 +16,9 @@
 package com.thoughtworks.go.api.representers
 
 import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.StreamReadFeature
 import com.fasterxml.jackson.databind.JsonMappingException
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
 import com.thoughtworks.go.api.base.JsonOutputWriter
 import com.thoughtworks.go.spark.mocks.TestRequestContext
 import org.junit.jupiter.api.Test
@@ -284,7 +285,7 @@ class JsonOutputWriterTest {
       .hasMessageContaining("Failed due to an exception.")
   }
 
-  def OBJECT_MAPPER = new ObjectMapper()
+  def OBJECT_MAPPER = JsonMapper.builder().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION).build()
 
   Object fromJSON(String jsonString) {
     OBJECT_MAPPER.readValue(jsonString, Map.class)

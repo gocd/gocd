@@ -5832,7 +5832,7 @@ __metadata:
     optimize-css-assets-webpack-plugin: "npm:^6.0.1"
     prismjs: "npm:^1.29.0"
     sass-embedded: "npm:^1.69.5"
-    sass-loader: "npm:^10.5.0"
+    sass-loader: "npm:^10.5.1"
     shell-quote: "npm:^1.8.1"
     shellwords-ts: "npm:^3.0.1"
     simulate-event: "npm:^1.4.0"
@@ -9865,9 +9865,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-loader@npm:^10.5.0":
-  version: 10.5.0
-  resolution: "sass-loader@npm:10.5.0"
+"sass-loader@npm:^10.5.1":
+  version: 10.5.1
+  resolution: "sass-loader@npm:10.5.1"
   dependencies:
     klona: "npm:^2.0.4"
     loader-utils: "npm:^2.0.0"
@@ -9886,7 +9886,7 @@ __metadata:
       optional: true
     sass:
       optional: true
-  checksum: 0a8a90fc5979812695615872f87ea661fb015d920684e78ee7c55f5155d84c59e4753e8230ac7b3a7e4cba2a4a6a646ea1bccf3c89404bf77ac0addb7844db19
+  checksum: 97da5ecdb1f852c384d967cc5cd6bfbab914f3afd5dedf6948eaa9f05371ba94f7cb030099d6e1b07611d1ee93985785dd7ec5c83f1b3599e7bb836c0c134e7f
   languageName: node
   linkType: hard
 

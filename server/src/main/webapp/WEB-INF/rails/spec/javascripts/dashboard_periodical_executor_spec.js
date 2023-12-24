@@ -68,7 +68,7 @@ describe("dashboard_periodical_executor", function () {
     expect(invoked).toBe(true);
   });
 
-  it("test_should_not_call_observer_when_executer_is_paused", function () {
+  it("test_should_not_call_observer_when_executor_is_paused", function () {
     spyOn($, "ajax").and.callFake(function (options) {
       options.success([1, 2, 3.4]);
     });
@@ -152,7 +152,7 @@ describe("dashboard_periodical_executor", function () {
     expect(dashboard_periodical_executor.observers.length).toBe(2);
   });
 
-  it("test_executer_should_pause_when_pause_condition_is_true", function () {
+  it("test_executor_should_pause_when_pause_condition_is_true", function () {
     spyOn($, "ajax").and.callFake(function (options) {
       options.success({pause: true});
     });

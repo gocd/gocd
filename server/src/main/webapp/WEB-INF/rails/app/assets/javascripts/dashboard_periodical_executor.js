@@ -51,34 +51,34 @@ DashboardPeriodicalExecutor.prototype = {
   },
 
   onRequest: function() {
-    var executer = this;
+    var executor = this;
     var requestSequenceNumber = this.generateSequenceNumber();
     this.ongoingRequest = $.ajax({
-      url: executer.url,
+      url: executor.url,
       dataType: "json",
       success: function(json_array) {
-        executer._loop_observers(json_array, requestSequenceNumber);
-        if (executer.pause_condition && executer.pause_condition(json_array)) {
-          executer.is_paused = true;
+        executor._loop_observers(json_array, requestSequenceNumber);
+        if (executor.pause_condition && executor.pause_condition(json_array)) {
+          executor.is_paused = true;
         }
       },
       error: function(jqXHR, textStatus) {
       },
       complete : function() {
         //makes sure only 1 timer in this executor
-        clearTimeout(executer.timer);
-        delete executer.timer;
+        clearTimeout(executor.timer);
+        delete executor.timer;
 
-        if (!executer.is_paused) {
-          executer.timer = setTimeout(executer.onRequest.bind(executer), executer.frequency);
+        if (!executor.is_paused) {
+          executor.timer = setTimeout(executor.onRequest.bind(executor), executor.frequency);
         }
         //avoid memory leak
-        executer = null;
+        executor = null;
         requestSequenceNumber = null;
       },
       statusCode: {
         401: function () {
-          executer.redirectToLoginPage();
+          executor.redirectToLoginPage();
         }
       }
     });

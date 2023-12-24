@@ -54,7 +54,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
     }
 
     this.cache.prime(() => {
-      this.templates(this.cache.contents());
+      this.templates(_.sortBy(this.cache.contents(), (template: Template) => template.name.toLocaleLowerCase()));
     }, () => {
       this.templates([]);
     });

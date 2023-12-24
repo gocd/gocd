@@ -33,14 +33,16 @@ describe("Pipeline Template Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render templates dropdown", () => {
-    mount(["template1"]);
+    mount(["template3", "template1", "Template2"]);
 
     expect(helper.byTestId("form-field-label-template")).toContainText("Template");
 
     expect(helper.byTestId("form-field-input-template")).toBeInDOM();
 
-    expect(helper.qa("option")).toHaveLength(1);
+    expect(helper.qa("option")).toHaveLength(3);
     expect(helper.qa("option")[0]).toContainText("template1");
+    expect(helper.qa("option")[1]).toContainText("Template2");
+    expect(helper.qa("option")[2]).toContainText("template3");
   });
 
   it("should render no templates found message", () => {

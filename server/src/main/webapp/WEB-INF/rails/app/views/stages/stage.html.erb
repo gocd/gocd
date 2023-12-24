@@ -53,20 +53,20 @@
 
 <script type="text/javascript">
 
-    jQuery(function() {
+    $(function() {
       var stage_run_timestamp_format_handler = function() {
-        jQuery(".schedule_info .time").each(function (idx, timeSpan) {
-          var timestamp = parseInt(jQuery(timeSpan).attr("data"));
+        $(".schedule_info .time").each(function (idx, timeSpan) {
+          var timestamp = parseInt($(timeSpan).attr("data"));
           if (isNaN(timestamp)) return;
           var time = new Date(timestamp);
-          jQuery(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+          $(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
         });
       };
 
       stage_run_timestamp_format_handler()
 
       <% unless ['stats'].include?(params[:action]) -%>
-          AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
+          AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', {current_stage_run: wire_up_stage_runs_popup, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
       <% end %>
   });
 </script>

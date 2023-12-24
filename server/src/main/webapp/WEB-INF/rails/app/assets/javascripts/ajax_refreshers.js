@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 var AjaxRefreshers = function () {
-  var ajaxRefreshers = $A();
+  var ajaxRefreshers = [];
   var mainContentRefresher = {
     afterRefreshOf: function(_, executeThis) {
       executeThis();
@@ -23,13 +23,13 @@ var AjaxRefreshers = function () {
 
   return {
     disableAjax: function() {
-      ajaxRefreshers.each(function (ajaxRefresher) {
+      ajaxRefreshers.forEach(function (ajaxRefresher) {
         ajaxRefresher.stopRefresh();
       });
     },
 
     enableAjax: function() {
-      ajaxRefreshers.each(function (ajaxRefresher) {
+      ajaxRefreshers.forEach(function (ajaxRefresher) {
         ajaxRefresher.restartRefresh();
       });
     },
@@ -51,7 +51,7 @@ var AjaxRefreshers = function () {
           executeThis();
         }
       };
-      ajaxRefreshers.clear();
+      ajaxRefreshers.length = 0;
     }
   };
 }();

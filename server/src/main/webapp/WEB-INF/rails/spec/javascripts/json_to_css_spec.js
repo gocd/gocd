@@ -21,21 +21,33 @@ describe("json_to_css", function () {
     );
   });
 
+  function building_info_for(projectname, current_status, result) {
+    return {
+      building_info: {
+        name: projectname,
+        build_completed_date: "1 day ago",
+        current_status: current_status,
+        result: result
+      }
+    };
+  }
+
+
   it("should add current status as a class to build status and job details header", function () {
-    new JsonToCss().update_build_detail_header(construct_new_json('job1', 'Failed', 'Failed'));
-    assertTrue($("build_status").hasClassName('failed'));
-    assertTrue($("job_details_header").hasClassName('failed'));
+    new JsonToCss().update_build_detail_header(building_info_for('job1', 'Failed', 'Failed'));
+    expect($("#build_status").hasClass('failed')).toBe(true);
+    expect($("#job_details_header").hasClass('failed')).toBe(true);
   });
 
   it("should replace old status with current status as a class to build status and job details header", function () {
-    $("build_status").className = "failed";
-    $("job_details_header").className = "failed";
+    $("#build_status").attr('class', "failed");
+    $("#job_details_header").attr('class', "failed");
 
-    new JsonToCss().update_build_detail_header(construct_new_json('job1', 'passed', 'Passed'));
+    new JsonToCss().update_build_detail_header(building_info_for('job1', 'passed', 'Passed'));
 
-    assertTrue($("build_status").hasClassName('passed'));
-    assertFalse($("build_status").hasClassName('failed'));
-    assertTrue($("job_details_header").hasClassName('passed'));
-    assertFalse($("job_details_header").hasClassName('failed'));
+    expect($("#build_status").hasClass('passed')).toBe(true);
+    expect($("#build_status").hasClass('failed')).toBe(false);
+    expect($("#job_details_header").hasClass('passed')).toBe(true);
+    expect($("#job_details_header").hasClass('failed')).toBe(false);
   });
 });

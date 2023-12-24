@@ -246,14 +246,9 @@ describe("vsm_graph", function () {
   };
 
   var vsmGraphJSON = function () {
-    new PrototypeOverrides().overrideJSONStringify();
-    return JSON.parse(JSON.stringify({
-      "current_pipeline"
-      :
-      "P4",
-      "levels"
-      :
-      [
+    return {
+      "current_pipeline": "P4",
+      "levels": [
         {
           "nodes": [
             {
@@ -472,7 +467,7 @@ describe("vsm_graph", function () {
           ]
         }
       ]
-    }));
+    };
   };
 
 });

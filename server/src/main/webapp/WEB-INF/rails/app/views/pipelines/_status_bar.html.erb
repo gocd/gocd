@@ -1,6 +1,4 @@
-<% unless scope[:pipeline].nil?
-   scope[:update_opts] = {:failure => "message_pane", :success => 'function(){}'}
-%>
+<% unless scope[:pipeline].nil? %>
     <%- if is_config_used_to_run_this_stage_out_of_sync_with_current?(scope[:current_config_version], scope[:stage_config_version]) -%>
         <div class='config_changed_info notification'>
             <p class='information'>Configuration has since been updated and any operations performed will use the current configuration</p>

@@ -43,7 +43,7 @@
   };
 
   var currentNode = function currentNode(vsmGraph) {
-    if ($j.trim(vsmGraph.current_pipeline)) {
+    if ($.trim(vsmGraph.current_pipeline)) {
       return new PipelineNode(vsmGraph.current_pipeline, currentNodeIndex(vsmGraph));
     } else {
       return new MaterialNode(vsmGraph.current_material, vsmGraph.levels[0].nodes[0].name, currentNodeIndex(vsmGraph));
@@ -58,7 +58,7 @@
         var splitURL = url.split('?');
         var search = splitURL[1];
         var jsonData = JSON.parse('{"' + decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
-        $j.ajax({
+        $.ajax({
           url: splitURL[0],
           type: "POST",
           dataType: "json",
@@ -84,11 +84,11 @@
 
     var vsmModal = document.createElement("div");
     defineHandlers(options.vsmAnalyticsChart.id);
-    $j(vsmModal).addClass("vsm_modal");
-    $j(vsmModal).append($j(loadingOverlay));
-    $j("#analytics-overlay").append(vsmModal);
+    $(vsmModal).addClass("vsm_modal");
+    $(vsmModal).append($(loadingOverlay));
+    $("#analytics-overlay").append(vsmModal);
 
-    $j.ajax({
+    $.ajax({
       url:      options.vsmAnalyticsChart.url,
       dataType: "json",
       data:     options.data,
@@ -119,7 +119,7 @@
       errorEl.textContent = xhr.responseText;
       vsmModal.appendChild(errorEl);
     }).always(function () {
-      $j('.loading-overlay').remove();
+      $('.loading-overlay').remove();
     });
   }
 
@@ -143,8 +143,8 @@
     };
 
     var renderAnalytics = function renderAnalytics() {
-      $j("#analytics-overlay").removeClass("hide");
-      $j("body").addClass("noscroll");
+      $("#analytics-overlay").removeClass("hide");
+      $("body").addClass("noscroll");
       showAnalytics({
         vsmAnalyticsChart: vsmAnalyticsChart,
         type:              'POST',
@@ -161,7 +161,6 @@
     };
 
     this.init = function () {
-      new PrototypeOverrides().overrideJSONStringify();
       graphRenderer.registerSelectPipelineCallback(this.selectPipeline);
       graphRenderer.registerSelectMaterialCallback(this.selectMaterial);
 
@@ -169,12 +168,12 @@
       panel.registerResetCallback(this.resetAnalytics);
       panel.registerViewAnalyticsCallback(renderAnalytics);
 
-      $j(analyticsButton).click(this.enableAnalytics);
+      $(analyticsButton).click(this.enableAnalytics);
     };
 
     var clearAnalytics = function () {
-      $j("#analytics-overlay").addClass("hide");
-      $j("#analytics-overlay").empty();
+      $("#analytics-overlay").addClass("hide");
+      $("#analytics-overlay").empty();
     };
 
     this.enableAnalytics = function () {

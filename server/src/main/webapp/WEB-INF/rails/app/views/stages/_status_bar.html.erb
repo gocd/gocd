@@ -21,13 +21,16 @@
 
 <script type="text/javascript">
     var other_stages_popup_shower = null;
+
     function wire_up_stage_runs_popup() {
-        other_stages_popup_shower.cleanup_buttons();
-        $('show_other_stage_runs') && other_stages_popup_shower.bindShowButton($('show_other_stage_runs'));
+      const otherStageRuns = $('#show_other_stage_runs')
+      if (otherStageRuns.length > 0) {
+        other_stages_popup_shower.bindShowButton(otherStageRuns.get(0));
+      }
     }
 
-    jQuery(function() {
-        var other_stages_popup = new MicroContentPopup($('other_stage_runs'), new MicroContentPopup.NoOpHandler());
+    $(function() {
+        var other_stages_popup = new MicroContentPopup($('#other_stage_runs'));
         other_stages_popup_shower = new MicroContentPopup.ClickShower(other_stages_popup);
         wire_up_stage_runs_popup();
     });

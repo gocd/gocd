@@ -19,9 +19,9 @@
   {if build.agent_uuid != null }
     <span>
       {if ${isAgentAlive?c} }
-            <a id="agent_name" href="${req.getContextPath()}/agents/${r'${% build.agent_uuid %}'}">${r'${% build.agent.escapeHTML() %}'} (${r'${% build.agent_ip %}'})</a>
+            <a id="agent_name" href="${req.getContextPath()}/agents/${r'${% build.agent_uuid %}'}">${r'${% _.escape(build.agent) %}'} (${r'${% build.agent_ip %}'})</a>
       {else}
-        <#noparse><span id="agent_name">${% build.agent.escapeHTML() %} (${% build.agent_ip %})</span></#noparse>
+        <#noparse><span id="agent_name">${% _.escape(build.agent) %} (${% build.agent_ip %})</span></#noparse>
       {/if}
     </span>
   {else}
@@ -44,7 +44,7 @@
         {if parseInt(build.current_build_duration) > parseInt(build.last_build_duration)}
             Longer by: ${r"${ moment.duration(parseInt(build.current_build_duration) - parseInt(build.last_build_duration), 's').humanizeForGoCD() }"}
         {else}
-            Elapsed: ${r"${%moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() %}"}, ETA: ${r"${ moment.duration(parseInt(build.last_build_duration) - parseInt(build.current_build_duration), 's').humanizeForGoCD() }"}
+            Elapsed: ${r"${% moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() %}"}, ETA: ${r"${ moment.duration(parseInt(build.last_build_duration) - parseInt(build.current_build_duration), 's').humanizeForGoCD() }"}
         {/if}
     {else}
         Elapsed: ${r"${ moment.duration(parseInt(build.current_build_duration), 's').humanizeForGoCD() }"}

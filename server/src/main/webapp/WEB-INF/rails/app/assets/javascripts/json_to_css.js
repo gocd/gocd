@@ -13,36 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var JsonToCss = Class.create();
 
-JsonToCss.prototype = {
-  initialize: function() {},
+class JsonToCss {
 
-  update_build_detail_header: function(json) {
-    var css_class_name = json.building_info.current_status.toLowerCase();
-    this._renew_class_name('build_status', [css_class_name]);
-    this._renew_class_name('job_details_header', [css_class_name]);
-  },
+  update_build_detail_header(json) {
+    const css_class_name = json.building_info.current_status.toLowerCase();
+    this._renew_class_name('#build_status', [css_class_name]);
+    this._renew_class_name('#job_details_header', [css_class_name]);
+  }
 
-  update_build_list: function(json, id, imgSrc) {
-    var elementId = "build_list_" + id;
-    var css_class_name = json.building_info.current_status.toLowerCase();
+  update_build_list(json, id, imgSrc) {
+    const elementId = "#build_list_" + id;
+    const css_class_name = json.building_info.current_status.toLowerCase();
     this._renew_class_name(elementId, [css_class_name]);
-    if (css_class_name == "cancelled"){
-      var colorCodeElement = $(elementId).getElementsByClassName("color_code_small")[0];
-      var img = document.createElement('img');
+    if (css_class_name === "cancelled") {
+      const colorCodeElement = $(elementId).get(0).getElementsByClassName("color_code_small")[0];
+      const img = document.createElement('img');
       img.setAttribute('src', imgSrc);
       colorCodeElement.appendChild(img);
     }
-  },
+  }
     
-  _renew_class_name: function(elementOrId, cssClasses) {
-    var element = $(elementOrId);
-    clean_active_css_class_on_element(element);
-    $A(cssClasses).each(function(cssClass) {
-      Element.addClassName(element, cssClass);
+  _renew_class_name(elementOrSelector, cssClasses) {
+    const element = $(elementOrSelector);
+    clean_active_css_class_on_element(element[0]);
+    cssClasses.forEach(function(cssClass) {
+      element.addClass(cssClass);
     });
   }
-};
+}
 
-var json_to_css = new JsonToCss();
+const json_to_css = new JsonToCss();

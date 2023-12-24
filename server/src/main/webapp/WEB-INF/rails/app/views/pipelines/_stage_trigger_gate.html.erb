@@ -18,7 +18,9 @@ trigger_id = "stage_bar_trigger_" + stage_name
 scope[:html_opts] = {:class => clazz, :title=> title, :id => trigger_id }
 
 if scope[:stage_in_status_bar].canRun() && !scope[:stage_in_status_bar].isScheduled() %>
-    <%== link_blocking_post_to_server :name=>" ", :method => :post, :url => run_stage_path(:stage_name => stage_name), :html => scope[:html_opts], :headers => { 'X-GoCD-Confirm': 'true', 'Accept': 'application/vnd.go.cd+json', 'Content-Type': 'application/json'}, :before => scope[:before_opts] %>
+    <%== link_blocking_post_to_server :name=>" ",
+                                      :html => scope[:html_opts],
+                                      :url => run_stage_path(:stage_name => stage_name) %>
 <% else %>
     <span class="<%= clazz %>" title="<%= title %>" id="<%= trigger_id %>"> </span>
 <% end %>

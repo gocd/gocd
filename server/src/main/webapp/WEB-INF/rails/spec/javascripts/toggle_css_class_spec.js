@@ -14,46 +14,51 @@
  * limitations under the License.
  */
 describe("toggle_css_class", function () {
+
   beforeEach(function () {
-    setFixtures("<div class='under_test'>\n" +
-            "    <div id=\"parent_div\">\n" +
-            "        <div>\n" +
-            "            <a id=\"clickable\">CLickable</a>\n" +
-            "        </div>\n" +
-            "    </div>\n" +
-            "\n" +
-            "    <div id=\"pare.nt.div1\" class=\"hidereveal_collapsed\">\n" +
-            "        <span class=\"hidereveal_expander\">expander</span>\n" +
-            "        <div class=\"hidereveal_content\">contents here</div>\n" +
-            "    </div>\n" +
-            "</div>");
+    setFixtures(`
+      <div class='under_test'>
+        <div id="parent_div">
+          <div>
+            <a id="clickable">CLickable</a>
+          </div>
+        </div>
+    
+        <div id="pare.nt.div1" class="hidereveal_collapsed">
+          <span class="hidereveal_expander">expander</span>
+          <div class="hidereveal_content">contents here</div>
+        </div>
+      </div>`
+    );
   });
+
   var clickable;
   var container;
   var originalmarkup;
+
   beforeEach(function () {
-    originalmarkup = $$(".under_test")[0].innerHTML;
-    container = $("pare.nt.div1");
+    originalmarkup = $(".under_test")[0].innerHTML;
+    container = $("#pare\\.nt\\.div1");
     make_collapsable("pare.nt.div1");
-    clickable = $$(".hidereveal_expander")[0];
+    clickable = $(".hidereveal_expander")[0];
   });
 
   afterEach(function () {
-    $$(".under_test")[0].innerHTML = originalmarkup;
+    $(".under_test")[0].innerHTML = originalmarkup;
   });
 
   it("test_make_collapsible", function () {
-    assertTrue("should not be expanded", container.hasClassName('hidereveal_collapsed'));
-    fire_event($$(".hidereveal_expander")[0], 'click');
-    assertFalse("should be expanded", container.hasClassName('hidereveal_collapsed'));
+    expect(container.hasClass('hidereveal_collapsed')).toBe(true);
+    $(".hidereveal_expander").click();
+    expect(container.hasClass('hidereveal_collapsed')).toBe(false);
   });
 
   it("test_prevents_click_from_bubbling", function () {
     var click_bubbled = false;
-    Event.observe($('pare.nt.div1'), 'click', function () {
+    $('#pare\\.nt\\.div1').on('click', function () {
       click_bubbled = true;
     });
-    fire_event($$(".hidereveal_expander")[0], 'click');
-    assertFalse("parent must not hear click as it can lead to text selection if done fast", click_bubbled);
+    $(".hidereveal_expander").click();
+    expect(click_bubbled).toBe(false);
   });
 });

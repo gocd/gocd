@@ -21,15 +21,15 @@ function context_path(path_info) {
   return contextPath + pathSeparator + path_info;
 }
 
-var ACTIVE_STATUS = $A(['passed', 'failed', 'inactive', 'discontinued', 'paused', 'queued', 'scheduled', 'assigned',
+var ACTIVE_STATUS = ['passed', 'failed', 'inactive', 'discontinued', 'paused', 'queued', 'scheduled', 'assigned',
   'preparing', 'building', 'completing', 'building_passed',
   'building_failed', 'building_unknown', 'unknown',
-  'level_0', 'level_1', 'level_2', 'level_3', 'level_4', 'level_5', 'level_6', 'level_7', 'level_8']);
+  'level_0', 'level_1', 'level_2', 'level_3', 'level_4', 'level_5', 'level_6', 'level_7', 'level_8'];
 
 function clean_active_css_class_on_element(element) {
-  ACTIVE_STATUS.each(function (status) {
-    Element.removeClassName($(element), status);
-    Element.removeClassName($(element), 'build_profile_' + status);
+  ACTIVE_STATUS.forEach(function (status) {
+    $(element).removeClass(status);
+    $(element).removeClass('build_profile_' + status);
   });
 }
 
@@ -37,6 +37,7 @@ function is_result_unknown(json) {
   return json.building_info.result.toLowerCase() == 'unknown';
 }
 
+// noinspection JSUnusedGlobalSymbols May be used from FreeMarker template
 function isEstimatable(status) {
   if (!status) return false;
   var buildStatus = status.toLowerCase();

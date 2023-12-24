@@ -71,7 +71,7 @@
     return new PipelineDependencyNode.Instance.Stage({
       name:     json.name,
       status:   json.status,
-      counter:  parseInt(json.locator.split("/").last()),
+      counter:  parseInt(_.last(json.locator.split("/"))),
       duration: json.duration
     });
   };

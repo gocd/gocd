@@ -15,7 +15,7 @@
  */
 Graph_Renderer = function (container) {
   'use strict';
-  var container = $j(container);
+  var container = $(container);
   var width = 200; // Default width of a node
   var height = 110; // Default height of a node
   var current, current_material;
@@ -52,66 +52,66 @@ Graph_Renderer = function (container) {
   };
 
   var highlightCurrentNode = function highlightCurrentNode() {
-    $j(".current").addClass("vsm-current-node");
+    $(".current").addClass("vsm-current-node");
   };
 
   var removeNodeSelection = function removeNodeSelection() {
-    $j(".current").removeClass("vsm-current-node");
-    $j(".other-node").removeClass("vsm-other-node");
+    $(".current").removeClass("vsm-current-node");
+    $(".other-node").removeClass("vsm-other-node");
   };
 
   var hoverOnMaterial = function () {
-    var isSelected = $j(this).hasClass("vsm-other-node") || $j(this).hasClass("vsm-current-node");
-    !isSelected && $j(this).find('.onhover-material-overlay').removeClass("hidden");
+    var isSelected = $(this).hasClass("vsm-other-node") || $(this).hasClass("vsm-current-node");
+    !isSelected && $(this).find('.onhover-material-overlay').removeClass("hidden");
   };
 
   var hoverOutMaterial = function () {
-    $j(this).find('.onhover-material-overlay').addClass("hidden");
+    $(this).find('.onhover-material-overlay').addClass("hidden");
   };
 
   var hoverOnPipeline = function () {
-    var isSelected = $j(this).hasClass("vsm-other-node");
-    !isSelected && $j(this).find('.onhover-pipeline-overlay').removeClass("hidden");
+    var isSelected = $(this).hasClass("vsm-other-node");
+    !isSelected && $(this).find('.onhover-pipeline-overlay').removeClass("hidden");
   };
 
   var hoverOutPipeline = function () {
-    $j(this).find('.onhover-pipeline-overlay').addClass("hidden");
+    $(this).find('.onhover-pipeline-overlay').addClass("hidden");
   };
 
   var addPipelineOnHoverSelectStyles = function () {
-    $j("<div class=\"onhover-pipeline-overlay hidden\">" +
+    $("<div class=\"onhover-pipeline-overlay hidden\">" +
         "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">select pipeline</div>" +
         "</div>").appendTo('.vsm-entity.pipeline');
 
-    $j(".vsm-entity.pipeline.other-node").bind('mouseover', hoverOnPipeline).bind('mouseout', hoverOutPipeline);
+    $(".vsm-entity.pipeline.other-node").bind('mouseover', hoverOnPipeline).bind('mouseout', hoverOutPipeline);
   };
 
   var addMaterialOnHoverSelectStyles = function () {
-    $j("<div class=\"onhover-material-overlay hidden\">" +
+    $("<div class=\"onhover-material-overlay hidden\">" +
         "    <div class=\"plus-symbol\">+</div><div class=\"click-text\">select material</div>" +
         "</div>").appendTo('.vsm-entity.material');
 
-    $j(".vsm-entity.material.other-node").bind('mouseover', hoverOnMaterial).bind('mouseout', hoverOutMaterial);
+    $(".vsm-entity.material.other-node").bind('mouseover', hoverOnMaterial).bind('mouseout', hoverOutMaterial);
   };
 
   var removePipelineOnHoverStyles = function () {
-    $j(".onhover-pipeline-overlay").remove();
-    $j(".vsm-entity.pipeline.other-node").unbind('mouseover', hoverOnPipeline).unbind('mouseout', hoverOutPipeline);
+    $(".onhover-pipeline-overlay").remove();
+    $(".vsm-entity.pipeline.other-node").unbind('mouseover', hoverOnPipeline).unbind('mouseout', hoverOutPipeline);
   };
 
   var removeMaterialOnHoverStyles = function () {
-    $j(".onhover-material-overlay").remove();
-    $j(".vsm-entity.material.other-node").unbind('mouseover', hoverOnMaterial).unbind('mouseout', hoverOutMaterial);
+    $(".onhover-material-overlay").remove();
+    $(".vsm-entity.material.other-node").unbind('mouseover', hoverOnMaterial).unbind('mouseout', hoverOutMaterial);
   };
 
   function hideMultiplePipelineInstances() {
-    $j('.vsm-entity.pipeline .show-more').addClass("hidden");
+    $('.vsm-entity.pipeline .show-more').addClass("hidden");
 
-    $j('.vsm-entity.pipeline .instances').get().forEach(function (instances) {
-      if ($j(instances).children().length > 1) {
-        $j(instances).children().get().forEach(function (instance, index) {
+    $('.vsm-entity.pipeline .instances').get().forEach(function (instances) {
+      if ($(instances).children().length > 1) {
+        $(instances).children().get().forEach(function (instance, index) {
           if (index !== 0) {
-            $j(instance).addClass("hidden");
+            $(instance).addClass("hidden");
           }
         });
       }
@@ -123,17 +123,17 @@ Graph_Renderer = function (container) {
       return;
     }
     analyticsModeEnabled = true;
-    $j('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
-    $j('#vsm-container').height($j('#vsm-container').height() - 92);
-    $j('.vsm-entity.material').click(selectMaterial);
-    $j('.vsm-entity.pipeline').click(selectPipeline);
+    $('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
+    $('#vsm-container').height($('#vsm-container').height() - 92);
+    $('.vsm-entity.material').click(selectMaterial);
+    $('.vsm-entity.pipeline').click(selectPipeline);
 
-    $j('.vsm-entity.pipeline').addClass("vsm-pipeline-node");
-    $j('.vsm-entity.pipeline').removeClass("expanded");
-    $j('.vsm-entity.pipeline h3 a').addClass("vsm-pipeline-unclickable-name");
-    $j('.vsm-entity.pipeline .pipeline_actions').addClass("hidden");
-    $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').addClass("hidden");
-    $j('.vsm-entity.pipeline .instances .instance .duration').addClass("hidden");
+    $('.vsm-entity.pipeline').addClass("vsm-pipeline-node");
+    $('.vsm-entity.pipeline').removeClass("expanded");
+    $('.vsm-entity.pipeline h3 a').addClass("vsm-pipeline-unclickable-name");
+    $('.vsm-entity.pipeline .pipeline_actions').addClass("hidden");
+    $('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').addClass("hidden");
+    $('.vsm-entity.pipeline .instances .instance .duration').addClass("hidden");
     hideMultiplePipelineInstances();
 
     addPipelineOnHoverSelectStyles();
@@ -144,20 +144,20 @@ Graph_Renderer = function (container) {
 
   Graph_Renderer.prototype.disableAnalyticsMode = function () {
     analyticsModeEnabled = false;
-    $j('.vsm-entity a').css({ "pointer-events": "auto" });
-    $j('#vsm-container').height($j('#vsm-container').height() + 92);
-    $j('.vsm-entity.material').css({ "pointer-events": "auto" });
-    $j('.vsm-entity.material').unbind('click', selectMaterial);
-    $j('.vsm-entity.pipeline').unbind('click', selectPipeline);
+    $('.vsm-entity a').css({ "pointer-events": "auto" });
+    $('#vsm-container').height($('#vsm-container').height() + 92);
+    $('.vsm-entity.material').css({ "pointer-events": "auto" });
+    $('.vsm-entity.material').unbind('click', selectMaterial);
+    $('.vsm-entity.pipeline').unbind('click', selectPipeline);
 
-    $j('.vsm-entity.pipeline').removeClass("vsm-pipeline-node");
-    $j('div.show-more:contains("less...")').parent().addClass('expanded');
-    $j('.vsm-entity.pipeline h3 a').removeClass("vsm-pipeline-unclickable-name");
-    $j('.vsm-entity.pipeline .pipeline_actions').removeClass("hidden");
-    $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').removeClass("hidden");
-    $j('.vsm-entity.pipeline .instances .instance .duration').removeClass("hidden");
-    $j('.vsm-entity.pipeline .instances .instance').removeClass("hidden");
-    $j('.vsm-entity.pipeline .show-more').removeClass("hidden");
+    $('.vsm-entity.pipeline').removeClass("vsm-pipeline-node");
+    $('div.show-more:contains("less...")').parent().addClass('expanded');
+    $('.vsm-entity.pipeline h3 a').removeClass("vsm-pipeline-unclickable-name");
+    $('.vsm-entity.pipeline .pipeline_actions').removeClass("hidden");
+    $('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').removeClass("hidden");
+    $('.vsm-entity.pipeline .instances .instance .duration').removeClass("hidden");
+    $('.vsm-entity.pipeline .instances .instance').removeClass("hidden");
+    $('.vsm-entity.pipeline .show-more').removeClass("hidden");
 
     removePipelineOnHoverStyles();
     removeMaterialOnHoverStyles();
@@ -166,7 +166,7 @@ Graph_Renderer = function (container) {
   };
 
   Graph_Renderer.prototype.resetAnalyticsMode = function () {
-    $j(".other-node").removeClass("vsm-other-node");
+    $(".other-node").removeClass("vsm-other-node");
   };
 
   Graph_Renderer.prototype.registerSelectPipelineCallback = function (callback) {
@@ -178,29 +178,29 @@ Graph_Renderer = function (container) {
   };
 
   var clearCurrentSelection = function clearCurrentSelection() {
-    $j(".other-node").removeClass("vsm-other-node");
+    $(".other-node").removeClass("vsm-other-node");
   };
 
   var selectMaterial = function selectMaterial(e) {
     e.stopPropagation();
     clearCurrentSelection();
 
-    var vsmEntity = $j(this).closest('.vsm-entity');
-    $j(vsmEntity).addClass("vsm-other-node");
-    $j(vsmEntity).find('.onhover-material-overlay').addClass("hidden");
+    var vsmEntity = $(this).closest('.vsm-entity');
+    $(vsmEntity).addClass("vsm-other-node");
+    $(vsmEntity).find('.onhover-material-overlay').addClass("hidden");
     selectMaterialCallback(vsmEntity.data("material-name"), vsmEntity.data("fingerprint"), vsmEntity.data("level"));
   };
 
   var selectPipeline = function selectPipeline() {
     clearCurrentSelection();
 
-    var vsmEntity = $j(this).closest('.vsm-entity');
-    if ($j(vsmEntity).hasClass('vsm-current-node')) {
+    var vsmEntity = $(this).closest('.vsm-entity');
+    if ($(vsmEntity).hasClass('vsm-current-node')) {
       return;
     }
 
-    $j(vsmEntity).addClass("vsm-other-node");
-    $j(vsmEntity).find('.onhover-pipeline-overlay').addClass("hidden");
+    $(vsmEntity).addClass("vsm-other-node");
+    $(vsmEntity).find('.onhover-pipeline-overlay').addClass("hidden");
     selectPipelineCallback(vsmEntity.data("pipeline-name"), vsmEntity.data("level"));
   };
 
@@ -210,8 +210,8 @@ Graph_Renderer = function (container) {
   }
 
   function renderEntities(levels) {
-    $j.each(levels, function (i, level) {
-      $j.each(level.nodes, function (j, node) {
+    $.each(levels, function (i, level) {
+      $.each(level.nodes, function (j, node) {
         var depth = node.depth - 1;
 
         if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
@@ -239,7 +239,7 @@ Graph_Renderer = function (container) {
           }
           isCurrent = false;
         } else {
-          $j(container).find('.highlight').css({ 'left': (((width * i) + (90 * i))) });
+          $(container).find('.highlight').css({ 'left': (((width * i) + (90 * i))) });
           pipeline_gui = '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity ' + node.node_type.toLowerCase() + ' current" style="';
           pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 30) + 'px; left:' + (((width * i) + (90 * i))) + 'px';
           pipeline_gui += '">';
@@ -253,7 +253,7 @@ Graph_Renderer = function (container) {
         }
         pipeline_gui += '</div>';
         container.append(pipeline_gui);
-        $j(container).find('.highlight').show();
+        $(container).find('.highlight').show();
       });
     });
   }
@@ -329,23 +329,23 @@ Graph_Renderer = function (container) {
   }
 
   function materialBoxCreation() {
-    var $MaterialRevision = $j('.vsm-entity.material');
+    var $MaterialRevision = $('.vsm-entity.material');
 
     $MaterialRevision.click(function (event) {
       if(analyticsModeEnabled) return;
 
-      var CommentsBox = $j('ul[data-materialname="' + $j(this).attr('id') + '"]');
+      var CommentsBox = $('ul[data-materialname="' + $(this).attr('id') + '"]');
       CommentsBox.slideToggle(100);
 
-      var top = $j(this).offset().top + $j(this).height() - 3;
-      var left = $j(this).offset().left + ($j(this).outerWidth() / 2) - ($MaterialRevision.outerWidth() / 2) - 20;
+      var top = $(this).offset().top + $(this).height() - 3;
+      var left = $(this).offset().left + ($(this).outerWidth() / 2) - ($MaterialRevision.outerWidth() / 2) - 20;
 
       CommentsBox.offset({top: top, left: left});
 
       //keeping last opened box on the top - start
       var index_highest = 0;
-      $j("ul[data-materialname]").each(function () {
-        var index_current = parseInt($j(this).css("zIndex"));
+      $("ul[data-materialname]").each(function () {
+        var index_current = parseInt($(this).css("zIndex"));
         if (index_current > index_highest) {
           index_highest = index_current;
         }
@@ -354,15 +354,15 @@ Graph_Renderer = function (container) {
       //keeping last opened box on the top - ends
 
       event.stopPropagation();
-      $j(CommentsBox).click(function (event) {
+      $(CommentsBox).click(function (event) {
         event.stopPropagation();
       });
 
     });
 
-    $j(document).click(function () {
-      if ($j('ul[data-materialname]').is(':visible')) {
-        $j('ul[data-materialname]').hide();
+    $(document).click(function () {
+      if ($('ul[data-materialname]').is(':visible')) {
+        $('ul[data-materialname]').hide();
       }
     });
 
@@ -605,8 +605,8 @@ Graph_Renderer = function (container) {
       })
       .append('title')
       .text(function (d) {
-        if (!($j('#' + d.source).hasClass('pipeline') || $j('#' + d.source).hasClass('dummy'))) {
-          return $j('#' + d.source.replace(/\./g, '_id-') + ' h3').attr('title') + ' -> ' + d.target;
+        if (!($('#' + d.source).hasClass('pipeline') || $('#' + d.source).hasClass('dummy'))) {
+          return $('#' + d.source.replace(/\./g, '_id-') + ' h3').attr('title') + ' -> ' + d.target;
         }
         else {
           return d.source + ' -> ' + d.target;
@@ -617,9 +617,9 @@ Graph_Renderer = function (container) {
 
   function parseConnections(levels) {
     var source, target, p1, p2, x1, x2, y1, y2;
-    $j.each(levels, function (i, level) {
-      $j.each(level.nodes, function (j, node) {
-        source = $j(Util.escapeDotsFromId(node.id.replace(/\./g, '_id-')));
+    $.each(levels, function (i, level) {
+      $.each(level.nodes, function (j, node) {
+        source = $(Util.idToSelector(node.id.replace(/\./g, '_id-')));
 
         p1 = source.position();
         x1 = p1.left + source.outerWidth();
@@ -628,8 +628,8 @@ Graph_Renderer = function (container) {
           x1 += 0;
           y1 += 0;
         }
-        $j.each(node.dependents, function (k, dependent) {
-          target = $j(Util.escapeDotsFromId(dependent.replace(/\./g, '_id-')));
+        $.each(node.dependents, function (k, dependent) {
+          target = $(Util.idToSelector(dependent.replace(/\./g, '_id-')));
           p2 = target.position();
           x2 = p2.left;
           y2 = p2.top + (source.outerHeight() / 2);
@@ -672,7 +672,7 @@ Graph_Renderer = function (container) {
         {"x": x2, "y": y2}
       ];
     }
-    addDependencyArrow(source, target, arrowData, ($j(Util.escapeDotsFromId(source)).text() == 'dummy-' + source));
+    addDependencyArrow(source, target, arrowData, ($(Util.idToSelector(source)).text() == 'dummy-' + source));
   }
 
   function dependencyArrow(source, target, pathData) {
@@ -694,7 +694,7 @@ Graph_Renderer = function (container) {
     source = source.replace(/\./g, '_id-');
     target = target.replace(/\./g, '_id-');
 
-    $j.each(dependencyArrows, function (i, arrow) {
+    $.each(dependencyArrows, function (i, arrow) {
       currentZIndex++;
       if (arrow.source.replace(/\./g, '_id-') == source && arrow.target.replace(/\./g, '_id-') == target) {
         arrow.zIndex = currentZIndex;
@@ -711,7 +711,7 @@ Graph_Renderer = function (container) {
 
     var sortSelector = '';
 
-    $j.each(dependencyArrows, function (i, e) {
+    $.each(dependencyArrows, function (i, e) {
       sortSelector += '.' + e.source.replace(/\./g, '_id-') + '.' + e.target.replace(/\./g, '_id-') + ', ';
     });
 
@@ -727,7 +727,7 @@ Graph_Renderer = function (container) {
   function pinEntity(entity) {
     pinnedEntities.splice(pinnedEntities.length, 0, entity);
     d3.select('svg#svg').selectAll('path.pinned').classed('pinned', false);
-    $j.each(pinnedEntities, function (i, e) {
+    $.each(pinnedEntities, function (i, e) {
       d3.select('svg#svg').selectAll('path.' + e).classed('pinned', true);
       sortDependencyArrows(e, 'dependency');
       sortDependencyArrows('dependency', e);
@@ -737,7 +737,7 @@ Graph_Renderer = function (container) {
   function unpinEntity(entity) {
     pinnedEntities.splice(pinnedEntities.indexOf(entity), 1);
     d3.select('svg#svg').selectAll('path.pinned').classed('pinned', false);
-    $j.each(pinnedEntities, function (i, e) {
+    $.each(pinnedEntities, function (i, e) {
       d3.select('svg#svg').selectAll('path.' + e).classed('pinned', true);
       sortDependencyArrows(e, 'dependency');
       sortDependencyArrows('dependency', e);
@@ -760,9 +760,9 @@ Graph_Renderer = function (container) {
   // Minimap ===========================================================================================
 
   var context;
-  var minimap = $j('.pan');
-  var miniKnob = $j('.knob');
-  var constrainer = $j('.pan .constrainer');
+  var minimap = $('.pan');
+  var miniKnob = $('.knob');
+  var constrainer = $('.pan .constrainer');
 
   var minimapWidth;
   var minimapHeight;
@@ -780,7 +780,7 @@ Graph_Renderer = function (container) {
 
     resizeKnob();
     toggleMiniMap();
-    $j(window).bind('resize', function () {
+    $(window).bind('resize', function () {
       resizeKnob();
       toggleMiniMap();
     });
@@ -791,12 +791,12 @@ Graph_Renderer = function (container) {
   function miniMapContainerSize() {
     if (maxHeight > 5000 && maxHeight < 10000) {
       minimap.height(300);
-      $j('.pan canvas').attr({'height': 300, 'width': 200});
+      $('.pan canvas').attr({'height': 300, 'width': 200});
     } else if (maxHeight > 10000) {
       minimap.height(450);
-      $j('.pan canvas').attr({'height': 450, 'width': 200});
+      $('.pan canvas').attr({'height': 450, 'width': 200});
     } else {
-      $j('.pan canvas').attr({'height': 150, 'width': 200});
+      $('.pan canvas').attr({'height': 150, 'width': 200});
     }
   }
 
@@ -814,12 +814,12 @@ Graph_Renderer = function (container) {
   }
 
   function toggleMiniMap() {
-    if (($j('#vsm-container')[0].scrollHeight - $j('#vsm-container').height()) > 200) {
-      $j('.pan').show();
-    } else if ($j('#vsm-container')[0].scrollWidth - $j('#vsm-container').width() > 200) {
-      $j('.pan').show();
+    if (($('#vsm-container')[0].scrollHeight - $('#vsm-container').height()) > 200) {
+      $('.pan').show();
+    } else if ($('#vsm-container')[0].scrollWidth - $('#vsm-container').width() > 200) {
+      $('.pan').show();
     } else {
-      $j('.pan').hide();
+      $('.pan').hide();
     }
   }
 
@@ -835,21 +835,21 @@ Graph_Renderer = function (container) {
     }
 
     //scrollbar moves knob
-    $j(container).bind('scroll', setKnobPosition);
+    $(container).bind('scroll', setKnobPosition);
 
 
-    $j('.pan .constrainer').on('click', function (e) {
+    $('.pan .constrainer').on('click', function (e) {
       if (e.target !== this) {
         return;
       }
-      var top = e.clientY - $j(this).offset().top - (miniKnob.height() / 2);
-      var left = e.clientX - $j(this).offset().left - (miniKnob.width() / 2 );
+      var top = e.clientY - $(this).offset().top - (miniKnob.height() / 2);
+      var left = e.clientX - $(this).offset().left - (miniKnob.width() / 2 );
 
-      if (top + miniKnob.height() > $j('.constrainer').height()) {
-        top = $j('.constrainer').height() - miniKnob.height() - 3;
+      if (top + miniKnob.height() > $('.constrainer').height()) {
+        top = $('.constrainer').height() - miniKnob.height() - 3;
       }
-      if (left + miniKnob.width() > $j('.constrainer').width()) {
-        left = $j('.constrainer').width() - miniKnob.width() - 3;
+      if (left + miniKnob.width() > $('.constrainer').width()) {
+        left = $('.constrainer').width() - miniKnob.width() - 3;
       }
       if (top < 1) {
         top = 0;
@@ -865,11 +865,11 @@ Graph_Renderer = function (container) {
 
 
     function setKnobPosition() {
-      var topPossible = $j('.constrainer').height() - miniKnob.height();
-      var leftPossible = $j('.constrainer').width() - miniKnob.width();
-      var top = ($j('#vsm-container')[0].scrollHeight - $j('#vsm-container').height());
-      var left = ($j('#vsm-container')[0].scrollWidth - $j('#vsm-container').width());
-      miniKnob.css({'top': $j('#vsm-container').scrollTop() * (topPossible / top), 'left': $j('#vsm-container').scrollLeft() * (leftPossible / left)});
+      var topPossible = $('.constrainer').height() - miniKnob.height();
+      var leftPossible = $('.constrainer').width() - miniKnob.width();
+      var top = ($('#vsm-container')[0].scrollHeight - $('#vsm-container').height());
+      var left = ($('#vsm-container')[0].scrollWidth - $('#vsm-container').width());
+      miniKnob.css({'top': $('#vsm-container').scrollTop() * (topPossible / top), 'left': $('#vsm-container').scrollLeft() * (leftPossible / left)});
     }
 
     function scrollDocument(top, left) {
@@ -877,10 +877,10 @@ Graph_Renderer = function (container) {
     }
 
     //knob moves scrollbar
-    $j('.pan .knob').draggable({cursor: "move", containment: ".constrainer", start: function () {
-      $j(container).unbind('scroll');
+    $('.pan .knob').draggable({cursor: "move", containment: ".constrainer", start: function () {
+      $(container).unbind('scroll');
     }, stop: function () {
-      $j(container).bind('scroll', setKnobPosition);
+      $(container).bind('scroll', setKnobPosition);
     }}).bind('drag', function (event) {
       var knobPos = miniKnob.position();
       var knobX = knobPos.left;
@@ -888,25 +888,25 @@ Graph_Renderer = function (container) {
       scrollDocument(knobY / ratio, knobX / ratio);
     });
 
-    $j('#vsm-container .vsm-entity').each(function (i, level) {
-      var position = $j(this).position();
+    $('#vsm-container .vsm-entity').each(function (i, level) {
+      var position = $(this).position();
       var x = position.left * ratio;
       var y = position.top * ratio;
-      var w = $j(this).outerWidth() * ratio;
-      var h = $j(this).outerHeight() * ratio;
-      if ($j(this).hasClass('current')) {
+      var w = $(this).outerWidth() * ratio;
+      var h = $(this).outerHeight() * ratio;
+      if ($(this).hasClass('current')) {
         if (context != null && context != undefined) {
           context.fillStyle = 'rgb(242,242,242)';
           context.fillRect(x, 0, w, minimap.height());
         }
       }
-      if (!($j(this).hasClass('dummy'))) {
+      if (!($(this).hasClass('dummy'))) {
         if (context != null && context != undefined) {
           context.fillStyle = 'rgb(255,255,255)';
           context.strokeStyle = 'rgb(60, 60, 60)';
           context.lineWidth = 1;
           context.beginPath();
-          if ($j(this).hasClass('material')) {//check if it is material, then we are rendering cirlce in VSM
+          if ($(this).hasClass('material')) {//check if it is material, then we are rendering cirlce in VSM
             context.arc(x + (w / 2), y + (h / 2), h / 2, 0, 2 * Math.PI, false);
             context.fill();
             context.stroke();
@@ -926,71 +926,71 @@ Graph_Renderer = function (container) {
     var currentExpanded;
     var currentExpandedLink;
 
-    $j('#vsm-container .highlight').css({'height': maxHeight, 'min-height': $j('#vsm-container').height() - 20}); // Expand
+    $('#vsm-container .highlight').css({'height': maxHeight, 'min-height': $('#vsm-container').height() - 20}); // Expand
 
     // Keep current in viewport when initally loaded
-    if (container && $j('.pipeline.current') && $j('.pipeline.current').position()) {
-      container.scrollLeft($j('.pipeline.current').position().left - ($j(window).width() / 2) + 100);
+    if (container && $('.pipeline.current') && $('.pipeline.current').position()) {
+      container.scrollLeft($('.pipeline.current').position().left - ($(window).width() / 2) + 100);
     }
 
-    $j('#vsm-container').find('.show-more a').click(function (event) {
-      currentExpanded = $j('#vsm-container .expanded').not($j(this).closest('.vsm-entity'));
+    $('#vsm-container').find('.show-more a').click(function (event) {
+      currentExpanded = $('#vsm-container .expanded').not($(this).closest('.vsm-entity'));
       if (currentExpanded.length > 0) {
         currentExpandedLink = currentExpanded.find('.show-more a');
         currentExpandedLink.html(currentExpandedLink.html().replace('less', 'more'));
         currentExpanded.removeClass('expanded xl l');
       }
-      $j(this).closest('.vsm-entity').toggleClass('expanded');
-      if ($j(this).hasClass('xl')) {
-        $j(this).closest('.vsm-entity').toggleClass('xl');
+      $(this).closest('.vsm-entity').toggleClass('expanded');
+      if ($(this).hasClass('xl')) {
+        $(this).closest('.vsm-entity').toggleClass('xl');
       }
-      if ($j(this).hasClass('l')) {
-        $j(this).closest('.vsm-entity').toggleClass('l');
+      if ($(this).hasClass('l')) {
+        $(this).closest('.vsm-entity').toggleClass('l');
       }
-      if ($j(this).html().indexOf('more') > -1) {
-        $j(this).html($j(this).html().replace('more', 'less'));
+      if ($(this).html().indexOf('more') > -1) {
+        $(this).html($(this).html().replace('more', 'less'));
       } else {
-        $j(this).html($j(this).html().replace('less', 'more'));
+        $(this).html($(this).html().replace('less', 'more'));
       }
       return false;
     });
 
-    $j('.vsm-entity .pin').click(function (e) {
+    $('.vsm-entity .pin').click(function (e) {
       e.stopPropagation();
 
-      var _entity = $j(this).closest('.vsm-entity');
+      var _entity = $(this).closest('.vsm-entity');
       var _id = _entity.attr('id');
-      if ($j(this).hasClass('pinned')) {
-        $j(this).removeClass('pinned');
+      if ($(this).hasClass('pinned')) {
+        $(this).removeClass('pinned');
         _entity.removeClass('pinned');
         unpinEntity(_id);
       } else {
-        $j(this).addClass('pinned');
+        $(this).addClass('pinned');
         _entity.addClass('pinned');
         pinEntity(_id);
       }
     });
 
-    $j('.vsm-entity').hover(function () {
-      var _id = $j(this).attr('id');
+    $('.vsm-entity').hover(function () {
+      var _id = $(this).attr('id');
       d3.select('svg#svg').selectAll('path.' + _id).classed('hovered', true);
-      $j(this).addClass('hovered');
+      $(this).addClass('hovered');
       sortDependencyArrows(_id, 'dependency');
       sortDependencyArrows('dependency', _id);
     }, function () {
-      var _id = $j(this).attr('id');
+      var _id = $(this).attr('id');
       d3.select('svg#svg').selectAll('path.' + _id).classed('hovered', false);
-      $j(this).removeClass('hovered');
+      $(this).removeClass('hovered');
     });
 
     var material_names;
     var material_title;
-    $j('.vsm-entity .material_names').each(function () {
-      $j(this).attr('title', function () {
-        material_names = $j(this).find('span');
+    $('.vsm-entity .material_names').each(function () {
+      $(this).attr('title', function () {
+        material_names = $(this).find('span');
         material_title = '';
         material_names.each(function () {
-          material_title += $j(this).attr('data-title') + ', ';
+          material_title += $(this).attr('data-title') + ', ';
         });
         material_title = material_title.substring(0, material_title.length - 2);
         return material_title;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 function make_collapsable(container_id) {
-  var container_id_selector = "#" + container_id.replace(/\./g,"\\.");
-  jQuery(container_id_selector + " .hidereveal_expander").click(function (event) {
-    jQuery(container_id_selector).toggleClass("hidereveal_collapsed");
+  const container_id_selector = Util.idToSelector(container_id);
+  $(container_id_selector + " .hidereveal_expander").click(function (event) {
+    $(container_id_selector).toggleClass("hidereveal_collapsed");
     event.stopPropagation();
   });
 }

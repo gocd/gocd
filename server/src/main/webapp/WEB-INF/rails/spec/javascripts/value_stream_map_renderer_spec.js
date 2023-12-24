@@ -15,8 +15,7 @@
  */
 describe("value_stream_map_renderer", function () {
   beforeEach(function () {
-    setFixtures("<div id=\"vsm-container\">\n" +
-      "</div>");
+    setFixtures(`<div id="vsm-container"></div>`);
   });
 
   it("testCurrentPipelineShouldHaveHighlightingBackground", function () {
@@ -27,7 +26,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("Should have highlighting behind current pipeline", jQuery('#vsm-container .highlight').length, 1);
+    expect(1).toBe($('#vsm-container .highlight').length);
   });
 
   it("testShouldCheckIfPipelineHasRunMessageVisible", function () {
@@ -73,7 +72,7 @@ describe("value_stream_map_renderer", function () {
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("Should have message if pipeline has not run and waiting", jQuery('#vsm-container #sample .waiting').length, 1);
+    expect(1).toBe($('#vsm-container #sample .waiting').length);
   });
 
   it("testShouldRenderNodeWithRestrictions_WhenUserDoesNotHavePermissionToViewPipelineOrPipelineHasBeenDeleted", function () {
@@ -96,13 +95,13 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + deleted_pipeline + ']},{"nodes":[' + no_view_permission + ']},{"nodes":[' + current + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("pipeline without view permission is being shown.", true, jQuery("#vsm-container #no_view_permission h3").hasClass("restricted"));
-    assertEquals("pipeline without view permission is being shown.", 0, jQuery("#vsm-container #no_view_permission h3").find("a").length);
-    assertEquals("pipeline without view permission is being shown.", pipeline_no_permission_message, jQuery("#vsm-container #no_view_permission .message span").text());
+    expect($("#vsm-container #no_view_permission h3").hasClass("restricted")).toBe(true);
+    expect($("#vsm-container #no_view_permission h3").find("a").length).toBe(0);
+    expect($("#vsm-container #no_view_permission .message span").text()).toBe(pipeline_no_permission_message);
 
-    assertEquals("details of deleted pipeline are shown.", true, jQuery("#vsm-container #deleted_pipeline h3").hasClass("deleted"));
-    assertEquals("details of deleted pipeline are shown.", 0, jQuery("#vsm-container #deleted_pipeline h3").find("a").length);
-    assertEquals("details of deleted pipeline are shown.", deleted_pipeline_message, jQuery("#vsm-container #deleted_pipeline .message span").text());
+    expect($("#vsm-container #deleted_pipeline h3").hasClass("deleted")).toBe(true);
+    expect($("#vsm-container #deleted_pipeline h3").find("a").length).toBe(0);
+    expect($("#vsm-container #deleted_pipeline .message span").text()).toBe(deleted_pipeline_message);
   });
 
   it("testShouldDisplayAllDetailsForSCMMaterialNodes", function () {
@@ -118,45 +117,45 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("material details are not populated correctly.", true, jQuery("#vsm-container #hg_fingerprint .material_revisions").hasClass("hg"));
-    assertEquals("material details are not populated correctly.", 2, jQuery('ul[data-materialname="hg_fingerprint"] li.instance').length);
+    expect($("#vsm-container #hg_fingerprint .material_revisions").hasClass("hg")).toBe(true);
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').length).toBe(2);
 
     /*
      * material url
      */
-    assertEquals("material url is not populated correctly.", "../manual-testing/ant_hg/dummy", jQuery("#hg_fingerprint .material_type").html());
+    expect($("#hg_fingerprint .material_type").html()).toBe("../manual-testing/ant_hg/dummy");
 
     /*
      * material image
      */
-    var boundingRectOfMaterialNode = jQuery("#hg_fingerprint")[0].getBoundingClientRect();
-    var boundingRectOfMaterialImageNode = jQuery("#hg_fingerprint .material_type")[0].getBoundingClientRect();
+    var boundingRectOfMaterialNode = $("#hg_fingerprint")[0].getBoundingClientRect();
+    var boundingRectOfMaterialImageNode = $("#hg_fingerprint .material_type")[0].getBoundingClientRect();
     var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
     var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
-    assertEquals("material image should be positioned at center of node", true, Math.abs(centerOfNode - centerOfImage) < 5);
+    expect(Math.abs(centerOfNode - centerOfImage) < 5).toBe(true);
 
 
     /*
      * hide/show revisions
      */
-    assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible'));
-    jQuery(jQuery("#hg_fingerprint .more")).trigger('click');
-    assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='hg_fingerprint']").is(':visible'));
+    expect($(".instances[data-materialname='hg_fingerprint']").is(':visible')).toBe(false);
+    $("#hg_fingerprint .more").trigger('click');
+    expect($(".instances[data-materialname='hg_fingerprint']").is(':visible')).toBe(true);
 
     /*
      first commit
      */
-    assertEquals("first revision is not populated correctly.", "Revision: revision1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim());
-    assertEquals("first comment is not populated correctly.", "comment1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim());
-    assertEquals("first user is not populated correctly.", "user1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim());
-    assertEquals("first modified_time is populated correctly.", "modified_time1", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text());
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('0').text().trim()).toBe("Revision: revision1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('1').text().trim()).toBe("comment1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('0').text().trim()).toBe("user1");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('0').find('div').eq('2').find('p').eq('1').text()).toBe("modified_time1");
     /*
      second commit
      */
-    assertEquals("second revision is not populated correctly.", "Revision: revision2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim());
-    assertEquals("second comment is not populated correctly.", "comment2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim());
-    assertEquals("second user is not populated correctly.", "user2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim());
-    assertEquals("second modified_time is populated correctly.", "modified_time2", jQuery('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text());
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('0').text().trim()).toBe("Revision: revision2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('1').text().trim()).toBe("comment2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('0').text().trim()).toBe("user2");
+    expect($('ul[data-materialname="hg_fingerprint"] li.instance').eq('1').find('div').eq('2').find('p').eq('1').text()).toBe("modified_time2");
   });
 
   it("testShouldCommitDetailsForPackageMaterial", function () {
@@ -202,18 +201,15 @@ describe("value_stream_map_renderer", function () {
       ]
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
-    var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
-    var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
-    var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
-    var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
-    assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
-    assertEquals("first comment is not populated correctly.", 'Built on server.<br>Trackback: <a href="google.com">google.com</a>',
-      jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html());
-    assertEquals("Brief comment is not correct", 'Built on server.<br>Trackback: <a href="google.com">google.com</a>',
-      jQuery('#pkg_id .material_revisions_label').html());
-    assertEquals("Brief comment is not correct", 'Built on server.\nTrackback: google.com',
-      jQuery('#pkg_id .material_revisions_label').attr("title"));
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim())
+      .toBe("Revision: go-agent-13.1.1-16714.noarch");
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html())
+      .toBe('Built on server.<br>Trackback: <a href="google.com">google.com</a>');
+    expect($('#pkg_id .material_revisions_label').html())
+      .toBe('Built on server.<br>Trackback: <a href="google.com">google.com</a>');
+    expect($('#pkg_id .material_revisions_label').attr("title"))
+      .toBe('Built on server.\nTrackback: google.com');
   });
 
 
@@ -260,18 +256,11 @@ describe("value_stream_map_renderer", function () {
       ]
     };
     new Graph_Renderer("#vsm-container").invoke(vsm);
-    var boundingRectOfMaterialNode = jQuery("#pkg_id")[0].getBoundingClientRect();
-    var boundingRectOfMaterialImageNode = jQuery("#pkg_id .material_type")[0].getBoundingClientRect();
-    var centerOfNode = boundingRectOfMaterialNode.left + (boundingRectOfMaterialNode.width / 2);
-    var centerOfImage = boundingRectOfMaterialImageNode.left + (boundingRectOfMaterialImageNode.width / 2);
 
-    assertEquals("first revision is not populated correctly.", "Revision: go-agent-13.1.1-16714.noarch", jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim());
-    assertEquals("first comment is not populated correctly.", 'Trackback: Not Provided',
-      jQuery('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html());
-    assertEquals("Brief comment is not correct", 'Trackback: Not Provided',
-      jQuery('#pkg_id .material_revisions_label').html());
-    assertEquals("Brief comment is not correct", 'Trackback: Not Provided',
-      jQuery('#pkg_id .material_revisions_label').attr("title"));
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('0').text().trim()).toBe("Revision: go-agent-13.1.1-16714.noarch");
+    expect($('ul[data-materialname="pkg_id"] li.instance').eq('0').find('div').eq('1').html()).toBe('Trackback: Not Provided');
+    expect($('#pkg_id .material_revisions_label').html()).toBe('Trackback: Not Provided');
+    expect($('#pkg_id .material_revisions_label').attr("title")).toBe('Trackback: Not Provided');
   });
 
   it("testShouldCheckIfCommentsBoxIsShownCorrectlyIfTwoOrMoreSameSVNorTFSorP4IsConfiguredWithDifferentCredentials", function () {
@@ -286,12 +275,12 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + svn_material_1 + ',' + svn_material_2 + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
-    assertEquals("revision details should be hidden by default", false, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
-    jQuery(jQuery("#svn_fingerprint_1 .more")).trigger('click');
-    jQuery(jQuery("#svn_fingerprint_2 .more")).trigger('click');
-    assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_1']").is(':visible'));
-    assertEquals("revision details should be on click of more", true, jQuery(".instances[data-materialname='svn_fingerprint_2']").is(':visible'));
+    expect($(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(false);
+    expect($(".instances[data-materialname='svn_fingerprint_2']").is(':visible')).toBe(false);
+    $("#svn_fingerprint_1 .more").trigger('click');
+    $("#svn_fingerprint_2 .more").trigger('click');
+    expect($(".instances[data-materialname='svn_fingerprint_1']").is(':visible')).toBe(true);
+    expect($(".instances[data-materialname='svn_fingerprint_2']").is(':visible')).toBe(true);
   });
 
   it("testShouldDisplayAllDetailsForPipelineNodes", function () {
@@ -309,11 +298,11 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("pipeline node name does not point to pipeline history page.", "/go/pipeline/activity/current", jQuery("#vsm-container #current h3 a").attr("href"));
-    assertEquals("label of a pipeline instance does not point to th vsm page.", "/go/pipelines/value_stream_map/current/1", jQuery("#vsm-container #current ul li h4 a").attr("href"));
-    assertEquals("pipeline node does not have all instances populated correctly.", 1, jQuery("#vsm-container #current ul").find("li.instance").length);
-    assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #current ul ul").find(".stage_bar").length);
-    assertEquals("stage hover message is not correctly populated", "defaultStage (took 1m 57.0s)", jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title'));
+    expect($("#vsm-container #current h3 a").attr("href")).toBe("/go/pipeline/activity/current");
+    expect($("#vsm-container #current ul li h4 a").attr("href")).toBe("/go/pipelines/value_stream_map/current/1");
+    expect($("#vsm-container #current ul").find("li.instance").length).toBe(1);
+    expect($("#vsm-container #current ul ul").find(".stage_bar").length).toBe(2);
+    expect($("#vsm-container #current ul ul li.stage_bar.Passed").attr('title')).toBe("defaultStage (took 1m 57.0s)");
   });
 
 
@@ -336,9 +325,9 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"current","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + current + ']},{"nodes":[' + downstream + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("pipeline should show all instance details.", "1 more...", jQuery("#downstream .show-more").find("a").text());
-    jQuery(jQuery("#downstream .show-more a")).trigger('click');
-    assertEquals("pipeline should show all instance details.", "1 less...", jQuery("#downstream .show-more").find("a").text());
+    expect($("#downstream .show-more").find("a").text()).toBe("1 more...");
+    $("#downstream .show-more a").trigger('click');
+    expect($("#downstream .show-more").find("a").text()).toBe("1 less...");
   });
 
   it("shouldShowThePipelineRunDurationForACompletedPipeline", function () {
@@ -356,7 +345,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("Duration: 2m 6.0s", jQuery("#p1 .duration").text());
+    expect($("#p1 .duration").text()).toBe("Duration: 2m 6.0s");
   });
 
   it("shouldShowThePipelineRunAsInProgressForAPipelineWhichIsInProgress", function () {
@@ -373,7 +362,7 @@ describe("value_stream_map_renderer", function () {
     var vsm = eval('({"current_pipeline":"p1","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
     new Graph_Renderer("#vsm-container").invoke(vsm);
 
-    assertEquals("Duration: In Progress", jQuery("#p1 .duration").text());
+    expect($("#p1 .duration").text()).toBe("Duration: In Progress");
   });
 
   function scmMaterialNode(nodeId, nodeName, type, dependents, depth, material_revisions) {
@@ -405,10 +394,9 @@ describe("value_stream_map_renderer", function () {
 
   VsmGrid = function (container) {
     var allNodes = [];
-    var nodePositions = {};
     var levelVersusNodes = [];
 
-    var svgPosition = jQuery("div#vsm-container")[0].getBoundingClientRect();
+    var svgPosition = $("div#vsm-container")[0].getBoundingClientRect();
     var verticalDistanceBetweenNodesAtSameLevel = 50;
     var borderSize = 0;
     var verticalOffsetFromTop = 20 + borderSize;
@@ -420,14 +408,14 @@ describe("value_stream_map_renderer", function () {
     var nodeHeight = 100;
 
     function init() {
-      var nodes = jQuery(container).find('div.vsm-entity');
+      var nodes = $(container).find('div.vsm-entity');
 
-      jQuery.each(nodes, function (i, node) {
+      $.each(nodes, function (i, node) {
         nodeObj = new VsmNode();
         nodeObj.id = $(this).id;
 
-        nodeObj.type = (jQuery(node).hasClass('material')) ?
-          'material' : ((jQuery(node).hasClass('current')) ?
+        nodeObj.type = ($(node).hasClass('material')) ?
+          'material' : (($(node).hasClass('current')) ?
             'current-pipeline' :
             'pipeline');
 
@@ -451,16 +439,6 @@ describe("value_stream_map_renderer", function () {
       });
     }
 
-    var nodeAt = function (level, depth) {
-      for (var i = 0; i < allNodes.length; i++) {
-        var node = allNodes[i];
-        if (node.level == level && node.depth == depth) {
-          return node;
-        }
-      }
-      return null;
-    };
-
     this.getInfo = function () {
       var str = '';
       for (var i = 0; i < allNodes.length; i++) {
@@ -468,118 +446,6 @@ describe("value_stream_map_renderer", function () {
       }
       return str;
     };
-
-    this.nodeIdAt = function (level, depth) {
-      var node = nodeAt(level, depth);
-      if (node) {
-        return node.id;
-      }
-      return null;
-    };
-
-    this.hasNoOverlap = function () {
-      var expectedHeight;
-      var expectedWidth;
-
-      for (i = 0; i < allNodes.length; i++) {
-        if (allNodes[i].type == 'pipeline') {
-          expectedHeight = allNodes[i].nodePosition.height;
-          expectedWidth = allNodes[i].nodePosition.width;
-          i = allNodes.length; // exit loop
-        }
-      }
-
-      //make sure every node has same height & width
-      for (var i = 0; i < allNodes.length; i++) {
-        var nodePosition = allNodes[i].nodePosition;
-        var node = allNodes[i];
-        if (node.type == 'pipeline') {
-          if (nodePosition.height != expectedHeight || nodePosition.width != expectedWidth) {
-            return false;
-          }
-        }
-      }
-
-      // check there is enough gap between levels
-      for (var level = 0; level < levelVersusNodes.length - 1; level++) {
-        var nodesAtCurrentLevel = levelVersusNodes[level];
-        var nodesAtNextLevel = levelVersusNodes[level + 1];
-
-        var allNodesHaveSameLeftPosition = function (nodes) {
-          var firstNode = nodes[0];
-          if (firstNode.type != 'current-pipeline') {
-            for (var i = 1; i < nodes.length; i++) {
-              if (firstNode.nodePosition.right != nodes[i].nodePosition.right) {
-                return false;
-              }
-            }
-          }
-          return true;
-        };
-
-        if (!allNodesHaveSameLeftPosition(nodesAtCurrentLevel) || !allNodesHaveSameLeftPosition(nodesAtNextLevel) ||
-          (nodesAtCurrentLevel[0].nodePosition.right + 20) > (nodesAtNextLevel[0].nodePosition.left)) {
-          return false;
-        }
-      }
-
-      // for each level - check there is enough gap between depths
-      for (var level = 0; level < levelVersusNodes.length - 1; level++) {
-        for (var i = 0; i < levelVersusNodes[level].length - 1; i++) {
-          if ((levelVersusNodes[level][i].nodePosition.bottom) > (levelVersusNodes[level][i + 1].nodePosition.top)) {
-            return false;
-          }
-        }
-      }
-
-
-      return true;
-    };
-
-    this.hasAnEdgeBetween = function (fromNodeId, toNodeId) {
-      var nodePositionFromNode = jQuery("#" + fromNodeId)[0].getBoundingClientRect();
-      var nodePositionToNode = jQuery("#" + toNodeId)[0].getBoundingClientRect();
-      var classOfSvg = "." + fromNodeId + "." + toNodeId;
-      var nodePositionSvgArrow = jQuery(classOfSvg)[0].getBoundingClientRect();
-      // incident on from node
-      if (Math.abs(nodePositionFromNode.right - nodePositionSvgArrow.left) > 15) {
-        alert(Math.abs(nodePositionFromNode.right) + ':' + Math.abs(nodePositionSvgArrow.left) + ':' + classOfSvg);
-        return false;
-      }
-      //incident on to node
-      if (Math.abs(nodePositionSvgArrow.right - nodePositionToNode.left) > 10) {
-        return false;
-      }
-      // is between from node
-      if ((isBetween(nodePositionFromNode.top, nodePositionSvgArrow.top, nodePositionFromNode.bottom))) {
-        if (!(isBetween(nodePositionToNode.top, nodePositionSvgArrow.bottom, nodePositionToNode.bottom))) {
-          return false;
-        }
-      } else if ((isBetween(nodePositionFromNode.top, nodePositionSvgArrow.bottom, nodePositionFromNode.bottom))) {
-        if (!(isBetween(nodePositionToNode.top, nodePositionSvgArrow.top, nodePositionToNode.bottom))) {
-          return false;
-        }
-      } else {
-        return false;
-      }
-      return true;
-    };
-
-    this.hasHighlightedEdgeBetween = function (fromNodeId, toNodeId) {
-      var classOfSvg = "." + fromNodeId + "." + toNodeId + ".pinned";
-      var nodePositionSvgArrow = jQuery(classOfSvg);
-      if (nodePositionSvgArrow && nodePositionSvgArrow.length > 0) {
-        return true;
-      }
-      return false;
-    };
-
-    function isBetween(left, middle, right) {
-      if (left < middle && middle < right) {
-        return true;
-      }
-      return false;
-    }
 
     init();
   };

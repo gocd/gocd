@@ -16,21 +16,18 @@
 describe("stage_history", function () {
   beforeEach(function () {
     AjaxRefreshers.clear();
-    setFixtures("<a href=\"#\" id=\"stage_history_3\">3</a>\n" +
-            "<input id=\"stage-history-page\" name=\"stage-history-page\">");
+    setFixtures(`
+      <a href="#" id="stage_history_3">3</a>
+      <input id="stage-history-page" name="stage-history-page">`
+    );
   });
 
-  var actual_ajax_updater = Ajax.Updater;
-  var updater_url;
-  var actual_jquery_ajax = $j.ajax;
+  var actual_jquery_ajax = $.ajax;
   var options;
   var afterRef;
 
   beforeEach(function () {
-    Ajax.Updater = function (container, url, opts) {
-      updater_url = url;
-    };
-    $j.ajax = function (opts) {
+    $.ajax = function (opts) {
       options = opts;
     };
     afterRef = null;
@@ -38,45 +35,47 @@ describe("stage_history", function () {
 
   afterEach(function () {
     AjaxRefreshers.clear();
-    Ajax.Updater = actual_ajax_updater;
-    $j.ajax = actual_jquery_ajax;
+    $.ajax = actual_jquery_ajax;
   });
 
   it("test_page_change", function () {
     StageHistory._changePage('url', "4");
-    assertEquals("url", updater_url);
-    assertEquals("4", $("stage-history-page").value);
+    expect(options.url).toBe("url");
+    expect($("#stage-history-page").val()).toBe("4");
   });
 
   function stub_main_refresher() {
-    AjaxRefreshers.addRefresher({afterRefreshOf: function (id, fn) {
-      assertEquals('stage_history', id);
-      afterRef = fn;
-    }}, true);
+    AjaxRefreshers.addRefresher({
+      afterRefreshOf: function (id, fn) {
+        expect(id).toBe('stage_history');
+        afterRef = fn;
+      },
+      stopRefresh: () => {}
+    }, true);
   }
 
   it("test_bind_link_no_link", async () => {
     stub_main_refresher();
-    $j("#stage-history-page").val("should-not-change");
-    assertNull($('doesnt_exist'));
-    assertNull(document.getElementById('doesnt_exist'));
-    await StageHistory.bindHistoryLink('doesnt_exist', "url-to-page-3", 3);
-    $j(document).click();
-    assertEquals("should-not-change", $("stage-history-page").value);
+    $("#stage-history-page").val("should-not-change");
+    expect($('#doesnt_exist')[0]).toBeUndefined();
+    expect(document.getElementById('doesnt_exist')).toBeNull();
+    await StageHistory.bindHistoryLink('#doesnt_exist', "url-to-page-3", 3);
+    $(document).click();
+    expect($("#stage-history-page").val()).toBe("should-not-change");
     afterRef();
-    $j(document).click();
-    assertEquals("should-not-change", $("stage-history-page").value);
+    $(document).click();
+    expect($("#stage-history-page").val()).toBe("should-not-change");
   });
 
   it("test_bind_link", async () => {
     stub_main_refresher();
-    $j("#stage-history-page").value = "0";
+    $("#stage-history-page").val("0");
     await StageHistory.bindHistoryLink('#stage_history_3', "url-to-page-3", 3);
-    $j('#stage_history_3').click();
-    assertEquals("3", $("stage-history-page").value);
-    $j("#stage-history-page").value = "0";
+    $('#stage_history_3').click();
+    expect($("#stage-history-page").val()).toBe("3");
+    $("#stage-history-page").val("0");
     afterRef();
-    $j('#stage_history_3').click();
-    assertEquals("3", $("stage-history-page").value);
+    $('#stage_history_3').click();
+    expect($("#stage-history-page").val()).toBe("3");
   });
 });

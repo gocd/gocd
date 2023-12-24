@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function ($, c) {
+(function ($) {
   "use strict";
 
   function LogOutputTransformer(consoleElement, Section, deferTransform) {
@@ -206,4 +206,4 @@
 
   // export
   window.LogOutputTransformer = LogOutputTransformer;
-})(jQuery, crel);
+})(jQuery);

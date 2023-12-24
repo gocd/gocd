@@ -179,7 +179,7 @@ describe("Websocket Wrapper", function () {
     myWebsocket.on("error", onError);
 
     myWebsocket.on("beforeInitialize", function () {
-      fail("Expected callback not to be called");
+      throw "Expected callback not to be called";
     });
 
     expect(onError).not.toHaveBeenCalled();

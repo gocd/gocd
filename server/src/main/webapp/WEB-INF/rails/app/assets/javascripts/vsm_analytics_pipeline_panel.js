@@ -30,51 +30,51 @@
     var viewAnalyticsCallback = void 0;
 
     var viewAnalytics = function viewAnalytics() {
-      if (!$j(viewAnalyticsButton).hasClass("disabled")) {
-        $j(container).find(resetAnalyticsButton).removeClass("hide");
-        $j(container).find(viewAnalyticsButton).addClass("hide");
+      if (!$(viewAnalyticsButton).hasClass("disabled")) {
+        $(container).find(resetAnalyticsButton).removeClass("hide");
+        $(container).find(viewAnalyticsButton).addClass("hide");
         viewAnalyticsCallback();
       }
     };
 
     var resetAnalytics = function resetAnalytics() {
-      $j(container).find(resetAnalyticsButton).addClass("hide");
-      $j(container).find(viewAnalyticsButton).removeClass("hide");
+      $(container).find(resetAnalyticsButton).addClass("hide");
+      $(container).find(viewAnalyticsButton).removeClass("hide");
       disableViewAnalytics();
       self.reset();
     };
 
     var init = function init() {
-      $j(container).find(".analytics-close").click(self.hide);
-      $j(container).find(resetAnalyticsButton).click(resetAnalytics);
-      $j(container).find(viewAnalyticsButton).click(viewAnalytics);
+      $(container).find(".analytics-close").click(self.hide);
+      $(container).find(resetAnalyticsButton).click(resetAnalytics);
+      $(container).find(viewAnalyticsButton).click(viewAnalytics);
     };
 
     this.show = function () {
-      $j(container).show();
+      $(container).show();
     };
 
     var showSelected = function showSelected() {
-      $j(selectedPipelines).removeClass("hide");
-      $j(selectPipelines).addClass("hide");
+      $(selectedPipelines).removeClass("hide");
+      $(selectPipelines).addClass("hide");
       enableViewAnalytics();
     };
 
     var showSelectionTemplate = function showSelectionTemplate() {
-      $j(selectPipelines).removeClass("hide");
-      $j(selectedPipelines).addClass("hide");
+      $(selectPipelines).removeClass("hide");
+      $(selectedPipelines).addClass("hide");
     };
 
     var enableViewAnalytics = function enableViewAnalytics() {
-      $j(viewAnalyticsButton).removeClass("disabled");
+      $(viewAnalyticsButton).removeClass("disabled");
     };
 
     var disableViewAnalytics = function disableViewAnalytics() {
-      $j(viewAnalyticsButton).addClass("disabled");
+      $(viewAnalyticsButton).addClass("disabled");
     };
 
     var updateSource = function (src, isCurrent) {
-      var source = $j(selectedPipelines).find(".analytics-source");
+      var source = $(selectedPipelines).find(".analytics-source");
 
       source.removeClass("analytics-current");
       source.removeClass("analytics-other");
@@ -84,7 +84,7 @@
     };
 
     var updateDestination = function (dest, isCurrent) {
-      var destination = $j(selectedPipelines).find(".analytics-destination");
+      var destination = $(selectedPipelines).find(".analytics-destination");
 
       destination.removeClass("analytics-current");
       destination.removeClass("analytics-other");
@@ -98,12 +98,12 @@
       disableViewAnalytics();
       resetCallback();
 
-      $j(selectedPipelines).find(".analytics-source").text("");
-      $j(selectedPipelines).find(".analytics-destination").text("");
+      $(selectedPipelines).find(".analytics-source").text("");
+      $(selectedPipelines).find(".analytics-destination").text("");
     };
 
     this.hide = function () {
-      $j(container).hide();
+      $(container).hide();
       resetAnalytics();
       closeCallback();
     };

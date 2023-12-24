@@ -15,12 +15,11 @@
  */
 describe("value_stream_map", function () {
   beforeEach(function () {
-    setFixtures("<div id=\"vsm-container\">\n" +
-            "</div>");
+    setFixtures(`<div id="vsm-container"></div>`);
   });
   var called;
   beforeEach(function () {
-    jQuery('#vsm-container').html("");
+    $('#vsm-container').html("");
     called = false;
   });
 
@@ -35,14 +34,14 @@ describe("value_stream_map", function () {
     var node2 = '{"node_type":"PIPELINE","name":"p2","parents":["hg_fingerprint"],"dependents":[],"id":"p2"}]}';
     var vsm = eval('({"current_pipeline":"p2","levels":[{"nodes":[' + node1 + ']},{"nodes":[' + node2 + ']})');
     new VSM(vsm, "#vsm-container", new mockRenderer()).render();
-    assertEquals(true, called);
+    expect(called).toBe(true);
   });
 
   it("testShouldRenderErrorMessageIfVSMHasErrors", function () {
     var unableToFind = '<div class="pagenotfound"><div class="biggest">:(</div><h3>' + _.escape("error message") + '</h3><span>Go to <a href="/go/pipelines">Pipelines</a></span></div>';
     var vsm = eval('({"error":"error message"})');
     new VSM(vsm, "#vsm-container", new mockRenderer()).render();
-    assertEquals(false, called);
-    assertEquals(unableToFind, jQuery("#vsm-container").html());
+    expect(called).toBe(false);
+    expect($("#vsm-container").html()).toBe(unableToFind);
   });
 });

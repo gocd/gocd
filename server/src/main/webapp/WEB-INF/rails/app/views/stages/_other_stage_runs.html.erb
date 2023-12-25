@@ -5,7 +5,7 @@
             <li>
                 <a href="<%= stage_detail_tab_path_for(:stage_counter => n_in_other_stage_runs, :action => params[:action]) %>">
                     <span style="float:left; margin-right: 10px;">Run: <%= n_in_other_stage_runs %> of <%= @stage.getTotalRuns() %></span>
-                    <%= render :partial=> "stages/stage_result", :locals=>{:scope => {:state=>@stage.getStateForRun(n_in_other_stage_runs)}} %>
+                    <%= render :partial=> "stages/stage_result", :locals=>{:scope => {:state=>@stage.getStateForRun(n_in_other_stage_runs), :cancelledBy=>@stage.getCancelledByForRun(n_in_other_stage_runs)}} %>
                 </a>
             </li>
         <% end %>

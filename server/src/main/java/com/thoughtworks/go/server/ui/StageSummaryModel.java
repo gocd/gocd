@@ -15,19 +15,12 @@
  */
 package com.thoughtworks.go.server.ui;
 
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.server.domain.JobDurationStrategy;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.RunDuration;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageState;
-import com.thoughtworks.go.domain.Stages;
-import com.thoughtworks.go.server.domain.JobDurationStrategy;
 
 public class StageSummaryModel {
 
@@ -117,6 +110,10 @@ public class StageSummaryModel {
 
     public StageState getStateForRun(int stageCounter) {
         return stages.byCounter(stageCounter).stageState();
+    }
+
+    public String getCancelledByForRun(int stageCounter) {
+        return stages.byCounter(stageCounter).getCancelledBy();
     }
 
     public List<JobInstanceModel> passedJobs() {

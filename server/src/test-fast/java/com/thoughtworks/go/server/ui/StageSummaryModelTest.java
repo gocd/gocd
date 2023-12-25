@@ -26,6 +26,7 @@ import static com.thoughtworks.go.helper.StageMother.completedFailedStageInstanc
 import static com.thoughtworks.go.helper.StageMother.custom;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class StageSummaryModelTest {
     private static final JobDurationStrategy JOB_DURATION_STRATEGY = JobDurationStrategy.ALWAYS_ZERO;
@@ -54,6 +55,8 @@ public class StageSummaryModelTest {
         assertThat(stageSummaryModel.getTotalRuns(), is(2));
         assertThat(stageSummaryModel.getStateForRun(1), is(StageState.Failed));
         assertThat(stageSummaryModel.getStateForRun(2), is(StageState.Passed));
+        assertThat(stageSummaryModel.getCancelledByForRun(1), is(nullValue()));
+        assertThat(stageSummaryModel.getCancelledByForRun(2), is(nullValue()));
     }
 
     @Test

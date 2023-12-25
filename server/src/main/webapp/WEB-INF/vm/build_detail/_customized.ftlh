@@ -20,7 +20,7 @@
 <script>
 window["tab-content-of-${customized_name?lower_case}_callback"] = function() {
     const contentElement = $("#tab-content-of-${customized_name?lower_case}");
-    if ((contentElement.html() || "").include("iframe")) {
+    if ((contentElement.html() || "").includes("iframe")) {
         return;
     }
     const iframe = '<iframe src="${req.getContextPath()}/${presenter.getRestfulUrl(customized_path)}" frameborder="0"></iframe>';

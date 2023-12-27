@@ -9957,13 +9957,13 @@ __metadata:
   linkType: hard
 
 "selenium-webdriver@npm:^4.12.0":
-  version: 4.16.0
-  resolution: "selenium-webdriver@npm:4.16.0"
+  version: 4.15.0
+  resolution: "selenium-webdriver@npm:4.15.0"
   dependencies:
     jszip: "npm:^3.10.1"
     tmp: "npm:^0.2.1"
     ws: "npm:>=8.14.2"
-  checksum: b0d33dd53b8115790272564fde86bbd1c5dc64d28ca48c55a0a474bcf409eeb2cb1cbcdf08674af4dbd2b3a6f742bdf1f3eebf9032c950022b98454374282fdf
+  checksum: 77c0c3b250e04a7eea70aa4edad3abbe9f4683fac29c6bc0fb365423c986de657bc6a174e25e8a679f32ff9be39fdd397c84d60168dafefb621f18b04031f0e3
   languageName: node
   linkType: hard
 

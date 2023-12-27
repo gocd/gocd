@@ -40,7 +40,7 @@
 //= require "lib/lodash-4.17.21.js"
 
 // Used by Rails job details and console log for formatting timestamps, along with Rails value stream map
-//= require "lib/moment-2.29.4.js"
+//= require "lib/moment-2.30.0.js"
 //= require "lib/moment-duration-format-2.3.2.js"
 //= require "lib/humanize-for-gocd.js"
 

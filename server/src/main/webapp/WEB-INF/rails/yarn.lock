@@ -5836,7 +5836,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^1.6.2"
     mithril: "npm:^2.2.2"
     mockdate: "npm:^3.0.5"
-    moment: "npm:^2.29.4"
+    moment: "npm:^2.30.0"
     moment-duration-format: "npm:^2.3.2"
     normalize-scss: "npm:^8.0.0"
     opensans: "file:vendor/assets/fonts/opensans"
@@ -7910,10 +7910,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.29.4":
-  version: 2.29.4
-  resolution: "moment@npm:2.29.4"
-  checksum: 157c5af5a0ba8196e577bc67feb583303191d21ba1f7f2af30b3b40d4c63a64d505ba402be2a1454832082fac6be69db1e0d186c3279dae191e6634b0c33705c
+"moment@npm:^2.30.0":
+  version: 2.30.0
+  resolution: "moment@npm:2.30.0"
+  checksum: 3effc8c3dfe8c26045a313b1d9a049ca4a0feaafd4f098240ee90d0802888a3ac30b443a9036975508e6bad2e80308148984b0711263465178810cdfccef8d6f
   languageName: node
   linkType: hard
 
@@ -9030,12 +9030,12 @@ __metadata:
   linkType: hard
 
 "postcss-selector-parser@npm:^6.0.13, postcss-selector-parser@npm:^6.0.2, postcss-selector-parser@npm:^6.0.4, postcss-selector-parser@npm:^6.0.5, postcss-selector-parser@npm:^6.0.9":
-  version: 6.0.13
-  resolution: "postcss-selector-parser@npm:6.0.13"
+  version: 6.0.14
+  resolution: "postcss-selector-parser@npm:6.0.14"
   dependencies:
     cssesc: "npm:^3.0.0"
     util-deprecate: "npm:^1.0.2"
-  checksum: e779aa1f8ca9ee45d562400aac6109a2bccc59559b6e15adec8bc2a71d395ca563a378fd68f6a61963b4ef2ca190e0c0486e6dc6c41d755f3b82dd6e480e6941
+  checksum: 13e6cc530ada19de983fdd0940d1f5ad272488712307a311ce26a76bae6582b979479f6e3f087df60676007f6da86cb720583d42aa51af1705a919ec3405c035
   languageName: node
   linkType: hard
 
@@ -9957,13 +9957,13 @@ __metadata:
   linkType: hard
 
 "selenium-webdriver@npm:^4.12.0":
-  version: 4.15.0
-  resolution: "selenium-webdriver@npm:4.15.0"
+  version: 4.16.0
+  resolution: "selenium-webdriver@npm:4.16.0"
   dependencies:
     jszip: "npm:^3.10.1"
     tmp: "npm:^0.2.1"
     ws: "npm:>=8.14.2"
-  checksum: 77c0c3b250e04a7eea70aa4edad3abbe9f4683fac29c6bc0fb365423c986de657bc6a174e25e8a679f32ff9be39fdd397c84d60168dafefb621f18b04031f0e3
+  checksum: b0d33dd53b8115790272564fde86bbd1c5dc64d28ca48c55a0a474bcf409eeb2cb1cbcdf08674af4dbd2b3a6f742bdf1f3eebf9032c950022b98454374282fdf
   languageName: node
   linkType: hard
 

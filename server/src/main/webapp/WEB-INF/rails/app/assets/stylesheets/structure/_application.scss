@@ -69,9 +69,6 @@ button,
 textarea {
   /* this allows you to declare a size regardless of padding and border attributes  */
   box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  -ms-box-sizing: border-box;
 }
 
 input:focus,
@@ -79,9 +76,6 @@ textarea:focus {
   border-color: #78d2f0;
   background-color: #ecf4f9;
   box-shadow: inset 0 0 3px #78d2f0;
-  -moz-box-shadow: inset 0 0 3px #78d2f0;
-  -webkit-box-shadow: inset 0 0 3px #78d2f0;
-  -o-box-shadow: inset 0 0 3px #78d2f0;
 }
 
 label {
@@ -122,8 +116,6 @@ input[type="url"],
 textarea {
   border: 1px solid #ccc;
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 19.9%);
-  -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 19.9%);
-  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 19.9%);
   display: inline;
   font-size: 12px;
   outline: none;
@@ -186,36 +178,8 @@ table td {
   vertical-align: middle;
 }
 
-/**
- * =HELPER_CLASSES
-**/
 .hidden {
   display: none;
-}
-
-
-/**
- * =FLOAT CLEARING
- * NOTE: DO NOT ADD NEW STYLES BELOW THIS SECTION
- */
-
-/**
- * ==STANDARDS COMPLIANT FLOAT CLEARING
- */
-.clear_float::after {
-  clear: both;
-  content: ".";
-  display: block;
-  height: 0;
-  visibility: hidden;
-}
-
-/**
- * ==IE7 FLOAT CLEARING HACK
- */
-* + html .clear_float {
-  display: inline-block;
-  zoom: 1;
 }
 
 @mixin floating-button($bottom: 60px) {

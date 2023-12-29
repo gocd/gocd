@@ -17,7 +17,7 @@
 function iframeResizer(iframe){
   if (iframe.is(':visible') && iframe.attr('sandbox') === undefined) {
     iframe.contents().find("body").css({margin:0});
-    iframe.contents().find("body > pre").css({whiteSpace:'pre-wrap',margin : 0,fontSize : '12px',fontFamily: 'consolas, monaco, menlo, courier', wordWrap:'break-word', '-ms-word-wrap':'break-word', overflow:'hidden'});
+    iframe.contents().find("body > pre").css({whiteSpace:'pre-wrap',margin : 0,fontSize : '12px',fontFamily: 'consolas, monaco, menlo, courier', wordWrap:'break-word', overflow:'hidden'});
     setTimeout(function(){
       $('iframe').each(function(){
         iframe.height(iframe.contents().find("body").height());

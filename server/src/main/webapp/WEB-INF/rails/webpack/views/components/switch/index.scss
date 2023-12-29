@@ -58,7 +58,6 @@ $switch-small-translate-x: 1rem;
   display: flex;
   border-radius: 35px;
   background-color: $switch-off-color;
-  -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 
@@ -71,13 +70,10 @@ $switch-small-translate-x: 1rem;
   height: $switch-large-paddle-size;
   width: $switch-large-paddle-size;
   background-color: $white;
-  -webkit-transition: 0.4s;
   transition: 0.4s;
 }
 
 input:checked ~ .switch-paddle::after {
-  -webkit-transform: translateX($switch-large-translate-x);
-  -ms-transform: translateX($switch-large-translate-x);
   transform: translateX($switch-large-translate-x);
 }
 
@@ -106,8 +102,6 @@ input:checked ~ .switch-paddle::after {
   }
 
   input:checked ~ .switch-paddle::after {
-    -webkit-transform: translateX($switch-small-translate-x);
-    -ms-transform: translateX($switch-small-translate-x);
     transform: translateX($switch-small-translate-x);
   }
 }

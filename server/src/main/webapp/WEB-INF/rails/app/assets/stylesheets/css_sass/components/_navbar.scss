@@ -15,15 +15,6 @@
  */
 @import "../base/mixins";
 
-.header #application_logo {
-  background-image: image_url("g9/logo_go.png");
-  background-repeat: no-repeat;
-  background-position: 0 4px;
-  float: left;
-  height: 35px;
-  width: 114px;
-}
-
 .user {
   a:hover {
     color: #fff;

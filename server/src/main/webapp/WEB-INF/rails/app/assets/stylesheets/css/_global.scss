@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-/* Uses icons from http://www.famfamfam.com/lab/icons/silk/ */
-
 /* header and footer */
 
 #header {
@@ -25,13 +23,6 @@
   clear: both;
 }
 
-div#pageTitle {
-  font-size: 16pt;
-  font-weight: bold;
-  padding-top: 15px;
-  float: left;
-  margin: 10px 0;
-}
 
 div#logo {
   float: right;
@@ -78,16 +69,9 @@ h3 {
   font-size: 1.25em;
 }
 
-/* forms: see http://www.456bereastreet.com/lab/forms/ for form layout styling */
-
 form label.req {
   font-weight: bold;
   color: #300;
-}
-
-div.inputblk {
-  display: block;
-  margin: 1em 1em 1em 0;
 }
 
 input {
@@ -150,16 +134,8 @@ div.clear {
   overflow: hidden;
 }
 
-.control_panel a {
-  margin-left: 0.2em;
-}
-
 .wrap_pre {
-  white-space: pre-wrap; /* css-3 */
-  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-  white-space: -pre-wrap; /* Opera 4-6 */
-  white-space: -o-pre-wrap; /* Opera 7 */
-  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  white-space: pre-wrap;
 }
 
 caption {
@@ -174,14 +150,4 @@ caption {
 
 #warning {
   margin-bottom: 5px;
-}
-
-#warning_content {
-  background-color: lightgoldenrodyellow;
-  background-position: 10px center;
-  background-repeat: no-repeat;
-  background-image: image_url("icon-warning-small.gif");
-  padding-left: 35px;
-  font-size: small;
-  font-weight: bold;
 }

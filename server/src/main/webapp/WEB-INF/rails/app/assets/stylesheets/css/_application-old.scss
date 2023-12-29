@@ -97,8 +97,6 @@ select.width-medium {
 fieldset {
   background-color: #eee;
   border: 1px solid #ccc;
-  -moz-border-radius: 6px;
-  -moz-box-shadow: inset 0 0 5px #ccc;
   margin: 0 0 15px 0;
   padding: 15px;
 }
@@ -263,10 +261,6 @@ a.collapse-all:hover {
 #user a:visited {
   text-decoration: none;
   color: #1f2314;
-}
-
-img#application_logo {
-  display: none;
 }
 
 input:-webkit-autofill {

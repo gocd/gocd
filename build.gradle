@@ -229,7 +229,6 @@ subprojects {
     exclude '**/tmp/**'
     exclude '**/logs/**'
     exclude '**/log/**'
-    exclude '**/reset-fonts-grids.scss'
     exclude '**/robots.txt'
     exclude '**/rails/bin/**'
 

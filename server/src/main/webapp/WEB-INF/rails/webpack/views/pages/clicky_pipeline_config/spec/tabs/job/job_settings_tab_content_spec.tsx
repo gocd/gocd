@@ -320,7 +320,7 @@ describe("Job Settings Tab Content", () => {
 
     beforeEach(() => {
       property     = Stream("");
-      allResources = Stream(["firefox", "chrome", "ie11", "jdk8", "jdk11", "windows", "linux"]);
+      allResources = Stream(["firefox", "chrome", "edge", "jdk8", "jdk11", "windows", "linux"]);
       provider     = new ResourcesSuggestionsProvider(property, allResources);
     });
 
@@ -341,16 +341,16 @@ describe("Job Settings Tab Content", () => {
       expect(property()).toEqual("");
       provider.replace({value: "firefox"});
       expect(property()).toEqual("firefox,");
-      provider.replace({value: "ie11"});
-      expect(property()).toEqual("firefox,ie11,");
+      provider.replace({value: "edge"});
+      expect(property()).toEqual("firefox,edge,");
     });
 
     it("should show the suggestion when it is not specified on the property", () => {
-      property("firefox,chrome,ie11");
+      property("firefox,chrome,edge");
 
       expect(provider.filter({value: "firefox"}, property())).toBe(false);
       expect(provider.filter({value: "chrome"}, property())).toBe(false);
-      expect(provider.filter({value: "ie11"}, property())).toBe(false);
+      expect(provider.filter({value: "edge"}, property())).toBe(false);
       expect(provider.filter({value: "jdk8"}, property())).toBe(true);
       expect(provider.filter({value: "jdk11"}, property())).toBe(true);
       expect(provider.filter({value: "windows"}, property())).toBe(true);

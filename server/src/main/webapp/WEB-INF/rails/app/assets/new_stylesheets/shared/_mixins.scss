@@ -52,17 +52,11 @@
 }
 
 @mixin sort-cursor {
-  cursor: move;
   cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
 }
 
 @mixin sort-cursor-active {
-  cursor: move;
   cursor: grabbing;
-  cursor: -moz-grabbing;
-  cursor: -webkit-grabbing;
 }
 
 @mixin grip-icon($color: #ccc, $shadow-color: #333) {
@@ -86,8 +80,5 @@
 }
 
 @mixin unselectable {
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
   user-select: none !important;
 }

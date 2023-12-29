@@ -106,30 +106,9 @@ h4 {
     background: $header-bg;
     padding: 0;
   }
-
-  #application_logo {
-    float: left;
-    background: image-url("go_logo.svg") no-repeat 0 0;
-    height: 20px;
-    width: 60px;
-    margin: 10px 1rem 0 0;
-  }
 }
 
 // environments
-
-.page_header {
-  a.link_as_header_button {
-    background: $go-primary !important;
-    color: $go-white !important;
-    border: 0;
-
-    &:hover {
-      color: $go-white;
-      border: 0;
-    }
-  }
-}
 
 .environment .pipeline .deploy {
   margin-top: 10px;
@@ -833,23 +812,12 @@ input[type="submit"]:hover,
 button.submit,
 button.submit:hover,
 button.submit_hover,
-button.submit.header_submit,
-button.submit.header_submit:hover,
-button.submit_hover.header_submit,
-button.ui-state-default,
-button.ui-state-default:hover,
 a.link_as_button,
 a.link_as_button:hover,
 a.link_as_button_hover,
-a.link_as_header_button,
-a.link_as_header_button:hover,
-a.link_as_header_button_hover,
 button.submit.disabled,
 button.submit.disabled:hover,
 button.submit.disabled_hover,
-button.submit.header_submit.disabled,
-button.submit.header_submit.disabled:hover,
-button.submit.header_submit.disabled_hover,
 input.submit,
 input.submit:hover,
 input.submit_hover,
@@ -857,10 +825,7 @@ input.submit.disabled,
 input.submit.disabled:hover,
 input.submit.disabled_hover,
 a.link_as_button.disabled,
-a.link_as_button.disabled:hover,
-a.link_as_button_hover.disabled a.link_as_header_button.disabled,
-a.link_as_header_button.disabled:hover,
-a.link_as_header_button_hover.disabled {
+a.link_as_button.disabled:hover {
   background: $btn-bg;
   box-shadow: none !important;
   font-size: rem-calc(13px) !important;
@@ -1079,10 +1044,6 @@ a:visited#link-to-this-page {
 
     .entity_title {
       cursor: pointer;
-      -moz-user-select: none;
-      -khtml-user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
       user-select: none;
 
       @include icon-after(caret-down,

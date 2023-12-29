@@ -46,17 +46,8 @@
   text-decoration: none;
   color: #333;
   padding: 12px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
-  background: #f7f7f7; /* Old browsers */
-  background: -moz-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f7f7f7), color-stop(100%, #eee)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* IE10+ */
-  background: linear-gradient(to bottom, #f7f7f7 0%, #eee 100%); /* W3C */
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="#f7f7f7", endColorstr="#eeeeee", GradientType=0); /* IE6-9 */
+  background: linear-gradient(to bottom, #f7f7f7 0%, #eee 100%);
 }
 
 .stage_history .stage > a:hover {
@@ -67,8 +58,6 @@
 .stage_history div.stage a.selected:hover {
   background: #fff;
   border-radius: 3px;
-  -moz-box-shadow: inset 0 0 3px #ccc;
-  -webkit-box-shadow: inset 0 0 3px #ccc;
   box-shadow: inset 0 0 3px #ccc;
 }
 

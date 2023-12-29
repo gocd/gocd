@@ -84,7 +84,7 @@ describe("SiteFooter", () => {
     expect(helper.root).not.toContainText("unsupported browser");
   });
 
-  it("should render old browser message on IE11", () => {
+  it("should render unsupported browser message", () => {
     const attrs = {
       copyrightYear: "2000",
       formattedVersion: "x.y.z-1234-sha",

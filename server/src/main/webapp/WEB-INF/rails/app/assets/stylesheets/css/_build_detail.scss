@@ -19,10 +19,6 @@
 @import "css_sass/base/mixins";
 @import "_font-awesome-glyphs";
 
-#build_detail_summary_container .ab-corner {
-  border-color: #fff;
-}
-
 $sidebar-color: #555;
 $sidebar-width: 257px;
 $sidebar-border: 10px;
@@ -31,8 +27,6 @@ $console-action-bar-active: #79f582;
 
 #build_detail_summary_container {
   zoom: 1;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
@@ -100,18 +94,7 @@ div.maincol.build_detail {
   display: block;
   text-decoration: none;
   color: #333;
-  padding: 9px;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
-  background: #f7f7f7; /* Old browsers */
-  background: -moz-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* FF3.6+ */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f7f7f7), color-stop(100%, #eee)); /* Chrome,Safari4+ */
-  background: -webkit-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* Chrome10+,Safari5.1+ */
-  background: -o-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* Opera 11.10+ */
-  background: -ms-linear-gradient(top, #f7f7f7 0%, #eee 100%); /* IE10+ */
-  background: linear-gradient(to bottom, #f7f7f7 0%, #eee 100%); /* W3C */
-  filter: progid:dximagetransform.microsoft.gradient(startColorstr="#f7f7f7", endColorstr="#eeeeee", GradientType=0); /* IE6-9 */
 }
 
 #buildlist-container .buildlist li a:hover {
@@ -120,18 +103,6 @@ div.maincol.build_detail {
 
 #buildlist-container .buildlist li a strong {
   font-weight: normal;
-}
-
-#buildlist-container .buildlist li.current a,
-#buildlist-container .buildlist li.current a:hover {
-  background: #fff;
-  box-shadow: inset 0 0 3px #ccc;
-  -webkit-box-shadow: inset 0 0 3px #ccc;
-}
-
-#buildlist-container .ab-corner {
-  padding: 0;
-  margin: 0;
 }
 
 /* Status list in the summary bar at the top of the page */
@@ -221,10 +192,6 @@ div.build_detail_container_content {
       width: 10px;
       height: 20px;
       background: image-url("scroll_off.png") no-repeat scroll 0 50% / 10px auto;
-      -moz-transform: rotate(180deg);
-      -webkit-transform: rotate(180deg);
-      -o-transform: rotate(180deg);
-      -ms-transform: rotate(180deg);
       transform: rotate(180deg);
     }
   }
@@ -255,8 +222,6 @@ div.build_detail_container_content {
   }
 
   60% {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
     box-shadow: none;
 
     @include -go-opacity(60);
@@ -273,8 +238,6 @@ div.build_detail_container_content {
   }
 
   60% {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
     box-shadow: none;
 
     @include -go-opacity(60);
@@ -291,8 +254,6 @@ div.build_detail_container_content {
   }
 
   60% {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
     box-shadow: none;
 
     @include -go-opacity(60);
@@ -309,8 +270,6 @@ div.build_detail_container_content {
   }
 
   60% {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
     box-shadow: none;
 
     @include -go-opacity(60);
@@ -327,8 +286,6 @@ div.build_detail_container_content {
   }
 
   60% {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
     box-shadow: none;
 
     @include -go-opacity(60);
@@ -341,12 +298,6 @@ div.build_detail_container_content {
 
 .tests li {
   margin-bottom: 0.5em;
-}
-
-div.sub_tab_container_content {
-  /* padding: 1em; */
-
-  /* padding-top: 0.5em; */
 }
 
 .material_revision {
@@ -434,9 +385,6 @@ a.collapse-all {
   margin-bottom: 1em;
 }
 
-.build_detail_summary .ab-corner {
-  border-color: #eee;
-}
 
 /* supports 6 status of stage-detail
    passed, failed, building, failing, discontinued, unknow
@@ -576,11 +524,8 @@ a.collapse-all {
   background-color: #eee;
   padding: 15px 0;
   margin-left: 0;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
   border-radius: 5px;
   box-shadow: 0 0 4px #ddd;
-  -webkit-box-shadow: 0 0 4px #ddd;
   overflow: hidden;
 }
 

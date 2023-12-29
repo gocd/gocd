@@ -31,7 +31,6 @@
   background-color: #fff;
   float: right;
   margin: 5px 0 10px 0;
-  -moz-box-shadow: none;
 }
 
 #pipeline_snippet_edit #content_container_for_edit,
@@ -75,8 +74,6 @@
 #modifiable_groups li.selected {
   background-color: #d2ebf0;
   color: #333;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
   border-radius: 5px;
   font-weight: bold;
 }

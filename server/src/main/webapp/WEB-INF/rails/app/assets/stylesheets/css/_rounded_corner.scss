@@ -14,19 +14,6 @@
  * limitations under the License.
  */
 
-/* rounded corner (use luke's trick) */
-.ab-corner {
-  border-style: solid;
-  border-color: #e7e1d1;
-  background-color: transparent;
-  display: block;
-  font-size: 0;
-  margin-left: 0;
-  margin-right: 0;
-  width: auto;
-  overflow: hidden;
-}
-
 /* float rounded corner container, with white background and grey border */
 .rounded-corner-for-pipeline,
 .rounded-corner-for-tab-container {

@@ -17,22 +17,15 @@
 
 @mixin box-shadow($top, $left, $blur, $color, $inset: false) {
   @if $inset {
-    -webkit-box-shadow: inset $top $left $blur $color;
-    -moz-box-shadow: inset $top $left $blur $color;
     box-shadow: inset $top $left $blur $color;
   } @else {
-    -webkit-box-shadow: $top $left $blur $color;
-    -moz-box-shadow: $top $left $blur $color;
     box-shadow: $top $left $blur $color;
   }
 }
 
 @mixin -go-opacity($trans) {
   opacity: $trans;
-  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=#{$trans * 100})";
   filter: alpha(opacity=$trans * 100);
-  -khtml-opacity: $trans;
-  -moz-opacity: $trans;
 }
 
 @mixin button($color: $red, $text_color: $white) {
@@ -65,8 +58,6 @@
 }
 
 @mixin rounded($radius: 0.5em) {
-  -webkit-border-radius: $radius;
-  -moz-border-radius: $radius;
   border-radius: $radius;
 }
 

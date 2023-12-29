@@ -84,25 +84,15 @@ $spinner-wrapper-height: 175px;
 
 @mixin no-select {
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
 @mixin sort-cursor {
-  cursor: move;
   cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
 }
 
 @mixin sort-cursor-active {
-  cursor: move;
   cursor: grabbing;
-  cursor: -moz-grabbing;
-  cursor: -webkit-grabbing;
 }
 
 @mixin grip-icon($color: #ccc, $shadow-color: #333) {
@@ -126,8 +116,5 @@ $spinner-wrapper-height: 175px;
 }
 
 @mixin unselectable {
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
   user-select: none !important;
 }

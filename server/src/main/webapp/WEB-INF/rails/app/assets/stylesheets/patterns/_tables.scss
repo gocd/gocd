@@ -18,22 +18,10 @@
  * Tables.css
  */
 
-/**
- * TABLE OF CONTENTS
- *
- * =LIST_TABLE
- * != NEEDS MIGRATING
- */
-
-/**
- * =LIST_TABLE
-**/
 .list_table {
   background: #fff;
   border: 1px solid #ccc;
   box-shadow: 0 0 5px #bbb;
-  -moz-box-shadow: 0 0 5px #bbb;
-  -webkit-box-shadow: 0 0 5px #bbb;
   font-size: 11px;
   width: 100%;
 }
@@ -61,10 +49,6 @@
   color: #999;
   font-style: italic;
 }
-
-/**
- * != NEEDS MIGRATING
-**/
 
 th.remove,
 th.actions {

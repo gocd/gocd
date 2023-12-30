@@ -285,8 +285,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
     public DependencyMaterialRevision findDependencyMaterialRevision(String pipelineName) {
         for (MaterialRevision materialRevision : this) {
             Revision revision = materialRevision.getRevision();
-            if (revision instanceof DependencyMaterialRevision) {
-                DependencyMaterialRevision dependencyMaterialRevision = (DependencyMaterialRevision) revision;
+            if (revision instanceof DependencyMaterialRevision dependencyMaterialRevision) {
                 if (dependencyMaterialRevision.getPipelineName().equalsIgnoreCase(pipelineName)) {
                     return dependencyMaterialRevision;
                 }

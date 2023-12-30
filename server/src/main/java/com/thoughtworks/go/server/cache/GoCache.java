@@ -106,13 +106,12 @@ public class GoCache {
     }
 
     private void logUnsavedPersistentObjectInteraction(Object value, String message) {
-        if (value instanceof PersistentObject) {
+        if (value instanceof PersistentObject persistentObject) {
             for (Class<? extends PersistentObject> nullObjectClass : nullObjectClasses) {
                 if (value.getClass().equals(nullObjectClass)) {
                     return;
                 }
             }
-            PersistentObject persistentObject = (PersistentObject) value;
             if (!persistentObject.hasId()) {
                 String msg = String.format(message, persistentObject);
                 IllegalStateException exception = new IllegalStateException();

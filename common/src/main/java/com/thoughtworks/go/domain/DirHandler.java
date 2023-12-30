@@ -85,11 +85,9 @@ public class DirHandler implements FetchHandler {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DirHandler)) {
+        if (!(o instanceof DirHandler that)) {
             return false;
         }
-
-        DirHandler that = (DirHandler) o;
 
         if (destOnAgent != null ? !destOnAgent.equals(that.destOnAgent) : that.destOnAgent != null) {
             return false;

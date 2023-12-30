@@ -142,8 +142,7 @@ public class FetchArtifactViewHelper {
 
     private static void addMaterialsToQueue(Queue<JobHierarchyQueueEntry> bfsQueue, PipelineConfig pipelineConfig, String pathFromThisPipeline) {
         for (MaterialConfig mat : pipelineConfig.materialConfigs()) {
-            if (mat instanceof DependencyMaterialConfig) {
-                DependencyMaterialConfig depMat = (DependencyMaterialConfig) mat;
+            if (mat instanceof DependencyMaterialConfig depMat) {
                 bfsQueue.add(new JobHierarchyQueueEntry(pathFromThisPipeline, depMat.getPipelineName(), depMat.getStageName()));
             }
         }

@@ -55,8 +55,7 @@ public class ElasticProfileUsage {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ElasticProfileUsage)) return false;
-        ElasticProfileUsage that = (ElasticProfileUsage) o;
+        if (!(o instanceof ElasticProfileUsage that)) return false;
         return Objects.equals(pipelineName, that.pipelineName) &&
                 Objects.equals(stageName, that.stageName) &&
                 Objects.equals(jobName, that.jobName) &&

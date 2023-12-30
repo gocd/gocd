@@ -361,8 +361,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
             @Override
             public boolean matches(Object o) {
-                if (o instanceof PipelineInstanceModels) {
-                    PipelineInstanceModels pipelineInstanceModels = (PipelineInstanceModels) o;
+                if (o instanceof PipelineInstanceModels pipelineInstanceModels) {
                     for (PipelineInstanceModel pipelineInstanceModel : pipelineInstanceModels) {
                         if (pipelineInstanceModel.getName().equals(pipeline.getName()) && pipelineInstanceModel.getCounter().equals(pipeline.getCounter())) {
                             return true;

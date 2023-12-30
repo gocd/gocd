@@ -208,12 +208,11 @@ public class TimeConverter {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof ConvertedTime)) {
+            if (!(obj instanceof ConvertedTime other)) {
                 return false;
             }
 
             boolean eq = true;
-            ConvertedTime other = (ConvertedTime) obj;
             eq &= ObjectUtils.nullSafeEquals(code, other.code);
             eq &= ObjectUtils.nullSafeEquals(arguments, other.arguments);
             eq &= ObjectUtils.nullSafeEquals(message, other.message);

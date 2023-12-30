@@ -140,10 +140,8 @@ public class PluginRoleConfig extends Configuration implements Role {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PluginRoleConfig)) return false;
+        if (!(o instanceof PluginRoleConfig that)) return false;
         if (!super.equals(o)) return false;
-
-        PluginRoleConfig that = (PluginRoleConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         return authConfigId != null ? authConfigId.equals(that.authConfigId) : that.authConfigId == null;

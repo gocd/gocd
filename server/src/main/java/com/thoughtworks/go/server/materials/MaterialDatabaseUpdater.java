@@ -179,8 +179,7 @@ public class MaterialDatabaseUpdater {
     }
 
     private String mutexForMaterial(Material material) {
-        if (material instanceof DependencyMaterial) {
-            DependencyMaterial dep = ((DependencyMaterial) material);
+        if (material instanceof DependencyMaterial dep) {
             return String.format(MATERIALS_MUTEX_FORMAT, dep.getPipelineName().toLower(), dep.getStageName().toLower()).intern();
         } else {
             return String.format(MATERIALS_MUTEX_FORMAT, material.getFingerprint(), "-this-lock-should-not-be-acquired-by-anyone-else-inadvertently").intern();

@@ -234,9 +234,7 @@ public class ArtifactPlan extends PersistentObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ArtifactPlan)) return false;
-
-        ArtifactPlan that = (ArtifactPlan) o;
+        if (!(o instanceof ArtifactPlan that)) return false;
 
         if (artifactPlanType != that.artifactPlanType) return false;
         if (src != null ? !src.equals(that.src) : that.src != null) return false;

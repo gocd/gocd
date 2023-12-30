@@ -219,11 +219,9 @@ public class Modification extends PersistentObject implements Comparable<Modific
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Modification)) {
+        if (!(o instanceof Modification that)) {
             return false;
         }
-
-        Modification that = (Modification) o;
 
         // Doesn't include additionalDataMap or materialInstance
         return Objects.equals(userName, that.userName) &&

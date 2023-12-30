@@ -45,11 +45,9 @@ public class ModifiedFile extends PersistentObject implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof ModifiedFile)) {
+        if (!(o instanceof ModifiedFile mod)) {
             return false;
         }
-
-        ModifiedFile mod = (ModifiedFile) o;
 
         boolean folderNamesAreEqual = (folderName != null)
                 ? folderName.equals(mod.folderName)

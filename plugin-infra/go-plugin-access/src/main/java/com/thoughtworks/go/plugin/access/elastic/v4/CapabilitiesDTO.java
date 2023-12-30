@@ -38,9 +38,7 @@ class CapabilitiesDTO {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CapabilitiesDTO)) return false;
-
-        CapabilitiesDTO that = (CapabilitiesDTO) o;
+        if (!(o instanceof CapabilitiesDTO that)) return false;
 
         if (supportsStatusReport != that.supportsStatusReport) return false;
         return supportsAgentStatusReport == that.supportsAgentStatusReport;

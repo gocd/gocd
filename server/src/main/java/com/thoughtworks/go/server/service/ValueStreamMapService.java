@@ -193,9 +193,8 @@ public class ValueStreamMapService {
 
     private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
         for (Node node : valueStreamMap.allNodes()) {
-            if (node instanceof PipelineDependencyNode) {
+            if (node instanceof PipelineDependencyNode pipelineDependencyNode) {
                 String pipelineName = node.getName();
-                PipelineDependencyNode pipelineDependencyNode = (PipelineDependencyNode) node;
 
                 if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
                     pipelineDependencyNode.setDeleted();

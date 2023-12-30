@@ -44,9 +44,7 @@ public class UsernamePassword implements Credentials {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UsernamePassword)) return false;
-
-        UsernamePassword that = (UsernamePassword) o;
+        if (!(o instanceof UsernamePassword that)) return false;
 
         if (username != null ? !username.equals(that.username) : that.username != null) return false;
         return password != null ? password.equals(that.password) : that.password == null;

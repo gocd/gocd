@@ -36,9 +36,7 @@ public class AccessToken implements Credentials {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AccessToken)) return false;
-
-        AccessToken that = (AccessToken) o;
+        if (!(o instanceof AccessToken that)) return false;
 
         return credentials != null ? credentials.equals(that.credentials) : that.credentials == null;
     }

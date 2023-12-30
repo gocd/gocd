@@ -218,8 +218,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     @Override
     public void updateFromConfig(MaterialConfig materialConfig) {
-        if (materialConfig instanceof PasswordAwareMaterial) {
-            PasswordAwareMaterial passwordConfig = (PasswordAwareMaterial) materialConfig;
+        if (materialConfig instanceof PasswordAwareMaterial passwordConfig) {
             ((PasswordAwareMaterial) this).setUserName(passwordConfig.getUserName());
             ((PasswordAwareMaterial) this).setPassword(passwordConfig.getPassword());
         }

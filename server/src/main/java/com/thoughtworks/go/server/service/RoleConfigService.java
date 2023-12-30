@@ -145,8 +145,7 @@ public class RoleConfigService {
     }
 
     private void validatePluginRoleMetadata(Role newRole) {
-        if (newRole instanceof PluginRoleConfig) {
-            PluginRoleConfig role = (PluginRoleConfig) newRole;
+        if (newRole instanceof PluginRoleConfig role) {
             String pluginId = pluginIdForRole(role);
 
             if (pluginId == null) {

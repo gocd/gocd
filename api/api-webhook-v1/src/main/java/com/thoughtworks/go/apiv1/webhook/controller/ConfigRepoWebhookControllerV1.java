@@ -88,8 +88,7 @@ public class ConfigRepoWebhookControllerV1 extends BaseWebhookController {
 
         final Payload payload = determinePayload(github);
 
-        if (payload instanceof GitHubPR) {
-            final GitHubPR pr = (GitHubPR) payload;
+        if (payload instanceof GitHubPR pr) {
 
             if (!pr.isInteresting()) {
                 LOGGER.debug("[WebHook] Ignoring {} because we are not interested in action: {}", pr.descriptor(), pr.action());

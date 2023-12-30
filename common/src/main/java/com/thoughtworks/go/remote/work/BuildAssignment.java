@@ -135,9 +135,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BuildAssignment)) return false;
-
-        BuildAssignment that = (BuildAssignment) o;
+        if (!(o instanceof BuildAssignment that)) return false;
 
         if (fetchMaterials != that.fetchMaterials) return false;
         if (cleanWorkingDirectory != that.cleanWorkingDirectory) return false;

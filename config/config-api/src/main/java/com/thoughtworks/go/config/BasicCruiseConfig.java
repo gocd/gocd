@@ -159,8 +159,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     private List<PartialConfig> removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(List<PartialConfig> partList) {
         List<Object> notToBeMerged = new ArrayList<>();
         for (PartialConfig partialConfig : partList) {
-            if (partialConfig.getOrigin() instanceof RepoConfigOrigin) {
-                RepoConfigOrigin origin = (RepoConfigOrigin) partialConfig.getOrigin();
+            if (partialConfig.getOrigin() instanceof RepoConfigOrigin origin) {
                 if (!configRepos.hasMaterialWithFingerprint(origin.getMaterial().getFingerprint()))
                     notToBeMerged.add(partialConfig);
             }
@@ -1109,8 +1108,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     public Set<StageConfig> getStagesUsedAsMaterials(PipelineConfig pipelineConfig) {
         Set<String> stagesUsedAsMaterials = new HashSet<>();
         for (MaterialConfig materialConfig : getAllUniqueMaterials()) {
-            if (materialConfig instanceof DependencyMaterialConfig) {
-                DependencyMaterialConfig dep = (DependencyMaterialConfig) materialConfig;
+            if (materialConfig instanceof DependencyMaterialConfig dep) {
                 stagesUsedAsMaterials.add(dep.getPipelineName() + "|" + dep.getStageName());
             }
         }
@@ -1591,9 +1589,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BasicCruiseConfig)) return false;
-
-        BasicCruiseConfig that = (BasicCruiseConfig) o;
+        if (!(o instanceof BasicCruiseConfig that)) return false;
 
         if (serverConfig != null ? !serverConfig.equals(that.serverConfig) : that.serverConfig != null) return false;
         if (elasticConfig != null ? !elasticConfig.equals(that.elasticConfig) : that.elasticConfig != null)

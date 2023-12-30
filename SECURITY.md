@@ -12,6 +12,18 @@ Having said this, wherever possible we will try and provide suggested mitigation
 
 Please report any issues to https://hackerone.com/gocd according to the listed policy.
 
+## Baseline
+
+This represents the oldest version which has **no known exploitable vulnerabilities**. Users are strongly recommended to be on at least this version; and preferably the latest version. 
+
+| Baseline Version |
+| ---------------- |
+| `23.1.0`         |
+
+Please note that this does *not* mean that there are zero potential vulnerabilities known from GoCD's dependencies
+in this or subsequent versions. However where such vulnerabilities exist, none have been confirmed to be exploitable via GoCD
+itself (without a prior non-GoCD breach).
+
 ## How do I know if I am using a release with known vulnerabilities?
 
 In more recent years, an effort has been made to publish and request CVEs for responsibly disclosed & fixed issues to increase transparency and help users assess risk of running older versions.

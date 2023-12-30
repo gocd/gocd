@@ -65,16 +65,12 @@ public class DigestObjectPools {
     }
 
     private ThreadLocal<MessageDigest> get(String algorithm) {
-        switch (algorithm) {
-            case SHA_512_256:
-                return sha512DigestLocal;
-            case SHA_256:
-                return sha256DigestLocal;
-            case MD5:
-                return md5DigestLocal;
-            default:
-                throw new IllegalArgumentException("Algorithm not supported");
-        }
+        return switch (algorithm) {
+            case SHA_512_256 -> sha512DigestLocal;
+            case SHA_256 -> sha256DigestLocal;
+            case MD5 -> md5DigestLocal;
+            default -> throw new IllegalArgumentException("Algorithm not supported");
+        };
     }
 
     public interface DigestOperation {

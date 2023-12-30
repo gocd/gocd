@@ -89,25 +89,18 @@ public enum StageState {
 
 
     public String cctrayStatus() {
-        switch (this) {
-            case Failed:
-            case Failing:
-            case Cancelled:
-                return "Failure";
-            default:
-                return "Success";
-        }
+        return switch (this) {
+            case Failed, Failing, Cancelled -> "Failure";
+            default -> "Success";
+        };
 
     }
 
     public String cctrayActivity() {
-        switch (this) {
-            case Building:
-            case Failing:
-                return "Building";
-            default:
-                return "Sleeping";
-        }
+        return switch (this) {
+            case Building, Failing -> "Building";
+            default -> "Sleeping";
+        };
     }
 
     public String status() {

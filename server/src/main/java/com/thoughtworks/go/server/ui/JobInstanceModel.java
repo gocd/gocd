@@ -64,16 +64,12 @@ public class JobInstanceModel {
 
     public String getStatus() {
         // we know switch is evil, but this is for generating css, we don't want to put it into domain model class
-        switch (result()) {
-            case Passed:
-                return "Passed";
-            case Failed:
-                return "Failed";
-            case Cancelled:
-                return "Cancelled";
-            default:
-                return "Active";
-        }
+        return switch (result()) {
+            case Passed -> "Passed";
+            case Failed -> "Failed";
+            case Cancelled -> "Cancelled";
+            default -> "Active";
+        };
     }
 
     public JobResult result() {

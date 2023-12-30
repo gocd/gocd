@@ -67,8 +67,7 @@ public class ScmVersionInfoProvider implements ServerInfoProvider {
     private String getHgVersion() {
         try {
             CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding(UTF_8);
-            String hgOut = hg.runOrBomb(new NamedProcessTag("hg version check")).outputAsString();
-            return hgOut;
+            return hg.runOrBomb(new NamedProcessTag("hg version check")).outputAsString();
         } catch (Exception e) {
             return null;
         }

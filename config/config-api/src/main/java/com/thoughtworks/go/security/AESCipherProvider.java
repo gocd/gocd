@@ -71,8 +71,7 @@ public class AESCipherProvider implements Serializable {
     private byte[] generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keygen = KeyGenerator.getInstance("AES");
         keygen.init(128);
-        byte[] key = keygen.generateKey().getEncoded();
-        return key;
+        return keygen.generateKey().getEncoded();
     }
 
     public void resetCipher() {

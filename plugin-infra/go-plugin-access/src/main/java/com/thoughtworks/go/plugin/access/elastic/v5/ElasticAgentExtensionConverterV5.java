@@ -189,16 +189,11 @@ class ElasticAgentExtensionConverterV5 {
     }
 
     public String getClusterProfileChangedRequestBody(ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
-        switch (status) {
-            case CREATED:
-                return getClusterCreatedRequestBody(newClusterProfile);
-            case UPDATED:
-                return getClusterUpdatedRequestBody(oldClusterProfile, newClusterProfile);
-            case DELETED:
-                return getClusterDeletedRequestBody(oldClusterProfile);
-            default:
-                throw new RuntimeException("Invalid status specified for cluster profiles changed. Can not construct request body.");
-        }
+        return switch (status) {
+            case CREATED -> getClusterCreatedRequestBody(newClusterProfile);
+            case UPDATED -> getClusterUpdatedRequestBody(oldClusterProfile, newClusterProfile);
+            case DELETED -> getClusterDeletedRequestBody(oldClusterProfile);
+        };
     }
 
     private String getClusterCreatedRequestBody(Map<String, String> clusterProfile) {

@@ -100,8 +100,7 @@ public class TestingClock implements Clock {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(currentTime);
         calendar.add(axis, duration);
-        Date date = calendar.getTime();
-        return date;
+        return calendar.getTime();
     }
 
     public void setTime(Date date) {

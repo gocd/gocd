@@ -69,8 +69,7 @@ public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingTask() {
-        CRTask value = curl;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(curl);
         assertThat(jsonObject.get("type").getAsString(), is(CRPluggableTask.TYPE_NAME));
     }
 

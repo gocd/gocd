@@ -396,9 +396,7 @@ public class ElasticAgentExtensionV5Test {
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
         extensionV5.migrateConfig(PLUGIN_ID, elasticAgentInformation);
 
-        final String expectedRequestBody = responseBody;
-
-        assertExtensionRequest("5.0", REQUEST_MIGRATE_CONFIGURATION, expectedRequestBody);
+        assertExtensionRequest("5.0", REQUEST_MIGRATE_CONFIGURATION, responseBody);
     }
 
     @Test

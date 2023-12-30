@@ -85,9 +85,8 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
 
     @Override
     public String getErrorMessageFromResponse(String responseBody) {
-        String errorMessage = (String) new Gson().fromJson(responseBody, Map.class).get("message");
 
-        return errorMessage;
+        return (String) new Gson().fromJson(responseBody, Map.class).get("message");
     }
 
     private JsonObject mapToJsonObject(Map<String, String> configuration) {

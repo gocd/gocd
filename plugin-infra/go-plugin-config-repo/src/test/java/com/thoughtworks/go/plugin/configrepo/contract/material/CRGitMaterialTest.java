@@ -73,8 +73,7 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
-        CRMaterial value = veryCustomGit;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(veryCustomGit);
         assertThat(jsonObject.get("type").getAsString(), is(CRGitMaterial.TYPE_NAME));
     }
 

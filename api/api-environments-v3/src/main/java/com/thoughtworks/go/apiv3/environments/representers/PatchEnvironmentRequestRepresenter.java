@@ -46,10 +46,8 @@ public class PatchEnvironmentRequestRepresenter {
                     ));
         });
 
-        PatchEnvironmentRequest patchRequest = new PatchEnvironmentRequest(
+        return new PatchEnvironmentRequest(
                 pipelineToAdd, pipelineToRemove, envVariablesToAdd, envVariableToRemove
         );
-
-        return patchRequest;
     }
 }

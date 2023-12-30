@@ -37,13 +37,10 @@ public enum DirectiveType {
             return Optional.empty();
         }
 
-        switch (directive) {
-            case "allow":
-                return Optional.of(ALLOW);
-            case "deny":
-                return Optional.of(DENY);
-            default:
-                return Optional.empty();
-        }
+        return switch (directive) {
+            case "allow" -> Optional.of(ALLOW);
+            case "deny" -> Optional.of(DENY);
+            default -> Optional.empty();
+        };
     }
 }

@@ -66,8 +66,7 @@ public class CRExecTaskTest extends AbstractCRTest<CRExecTask> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingTasks() {
-        CRTask value = simpleExecWithArgs;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(simpleExecWithArgs);
         assertThat(jsonObject.get("type").getAsString(), is(CRExecTask.TYPE_NAME));
     }
 

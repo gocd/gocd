@@ -22,16 +22,12 @@ public enum ModifiedAction {
     unknown;
 
     public static ModifiedAction parseSvnAction(char action) {
-        switch (action) {
-            case 'A':
-                return added;
-            case 'M':
-                return modified;
-            case 'D':
-                return deleted;
-            default:
-                return unknown;
-        }
+        return switch (action) {
+            case 'A' -> added;
+            case 'M' -> modified;
+            case 'D' -> deleted;
+            default -> unknown;
+        };
     }
 
     public static ModifiedAction parseP4Action(String action) {

@@ -65,8 +65,7 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
-        CRMaterial value = p4custom;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(p4custom);
         assertThat(jsonObject.get("type").getAsString(), is(CRP4Material.TYPE_NAME));
     }
 

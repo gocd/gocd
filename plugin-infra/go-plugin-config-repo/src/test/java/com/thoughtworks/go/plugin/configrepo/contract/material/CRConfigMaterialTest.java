@@ -59,8 +59,7 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
-        CRMaterial value = named;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(named);
         assertThat(jsonObject.get("type").getAsString(), is(CRConfigMaterial.TYPE_NAME));
     }
 

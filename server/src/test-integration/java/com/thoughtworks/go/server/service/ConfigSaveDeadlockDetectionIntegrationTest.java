@@ -116,24 +116,19 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         final List<Thread> group4 = new ArrayList<>();
         final List<Thread> group5 = new ArrayList<>();
         int count = 100;
-        final int pipelineCreatedThroughApiCount = count;
-        final int pipelineCreatedThroughUICount = count;
-        final int configRepoAdditionThreadCount = count;
-        final int configRepoDeletionThreadCount = count;
-        final int fullConfigSaveThreadCount = count;
 
-        for (int i = 0; i < pipelineCreatedThroughUICount; i++) {
+        for (int i = 0; i < count; i++) {
             Thread thread = configSaveThread(i);
             group1.add(thread);
         }
 
-        for (int i = 0; i < pipelineCreatedThroughApiCount; i++) {
+        for (int i = 0; i < count; i++) {
             Thread thread = pipelineSaveThread(i);
             group2.add(thread);
         }
 
         ConfigReposConfig configRepos = new ConfigReposConfig();
-        for (int i = 0; i < configRepoAdditionThreadCount; i++) {
+        for (int i = 0; i < count; i++) {
             ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url" + i), "plugin", "id-" + i);
             configRepoConfig.getRules().add(new Allow("refer", "*", "*"));
             configRepos.add(configRepoConfig);
@@ -141,14 +136,14 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             group3.add(thread);
         }
 
-        for (int i = 0; i < configRepoDeletionThreadCount; i++) {
+        for (int i = 0; i < count; i++) {
             ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("to-be-deleted-url" + i), "plugin", "to-be-deleted-" + i);
             cachedGoPartials.cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), PartialConfigMother.withPipeline("to-be-deleted" + i, new RepoConfigOrigin(configRepoConfig, "plugin")));
             configRepos.add(configRepoConfig);
             Thread thread = configRepoDeleteThread(configRepoConfig, i);
             group4.add(thread);
         }
-        for (int i = 0; i < fullConfigSaveThreadCount; i++) {
+        for (int i = 0; i < count; i++) {
             Thread thread = fullConfigSaveThread(i);
             group5.add(thread);
         }
@@ -188,9 +183,9 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
         }
 
-        assertThat(goConfigService.getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount + configRepoAdditionThreadCount));
-        assertThat(goConfigService.getConfigForEditing().getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount));
-        assertThat(goConfigService.getConfigForEditing().getEnvironments().size(), is(fullConfigSaveThreadCount + EXISTING_ENV_COUNT));
+        assertThat(goConfigService.getAllPipelineConfigs().size(), is(count + count + count));
+        assertThat(goConfigService.getConfigForEditing().getAllPipelineConfigs().size(), is(count + count));
+        assertThat(goConfigService.getConfigForEditing().getEnvironments().size(), is(count + EXISTING_ENV_COUNT));
     }
 
     private void writeConfigToFile(File configFile) throws IOException {

@@ -67,12 +67,9 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
         validatePluginRequest(request);
-        switch (Request.fromString(request.api())) {
-            case CONSOLE_LOG:
-                return processConsoleLogRequest(pluginDescriptor, request);
-            default:
-                return DefaultGoApiResponse.error("Illegal api request");
-        }
+        return switch (Request.fromString(request.api())) {
+            case CONSOLE_LOG -> processConsoleLogRequest(pluginDescriptor, request);
+        };
     }
 
     private GoApiResponse processConsoleLogRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
@@ -87,13 +84,10 @@ public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
     }
 
     private Optional<String> parseTag(ProcessType requestType, LogLevel logLevel) {
-        switch (requestType) {
-            case FETCH:
-                return Optional.ofNullable(FETCH_ARTIFACT_LOG_LEVEL_TAG.get(logLevel));
-            case PUBLISH:
-                return Optional.ofNullable(PUBLISH_ARTIFACT_LOG_LEVEL_TAG.get(logLevel));
-        }
-        return Optional.empty();
+        return switch (requestType) {
+            case FETCH -> Optional.ofNullable(FETCH_ARTIFACT_LOG_LEVEL_TAG.get(logLevel));
+            case PUBLISH -> Optional.ofNullable(PUBLISH_ARTIFACT_LOG_LEVEL_TAG.get(logLevel));
+        };
     }
 
     private void validatePluginRequest(GoApiRequest goPluginApiRequest) {

@@ -170,17 +170,11 @@ public class ConfigConverter {
         if (runIf == null)
             return new RunIfConfigs(RunIfConfig.PASSED);
 
-        switch (runIf) {
-            case any:
-                return new RunIfConfigs(RunIfConfig.ANY);
-            case passed:
-                return new RunIfConfigs(RunIfConfig.PASSED);
-            case failed:
-                return new RunIfConfigs(RunIfConfig.FAILED);
-            default:
-                throw new RuntimeException(
-                        String.format("unknown run if condition '%s'", runIf));
-        }
+        return switch (runIf) {
+            case any -> new RunIfConfigs(RunIfConfig.ANY);
+            case passed -> new RunIfConfigs(RunIfConfig.PASSED);
+            case failed -> new RunIfConfigs(RunIfConfig.FAILED);
+        };
     }
 
     public AbstractTask toAbstractTask(CRTask crTask) {
@@ -245,23 +239,15 @@ public class ConfigConverter {
     }
 
     public BuildTask toBuildTask(CRBuildTask crBuildTask) {
-        BuildTask buildTask;
-        switch (crBuildTask.getType()) {
-            case rake:
-                buildTask = new RakeTask();
-                break;
-            case ant:
-                buildTask = new AntTask();
-                break;
-            case nant:
+        BuildTask buildTask = switch (crBuildTask.getType()) {
+            case rake -> new RakeTask();
+            case ant -> new AntTask();
+            case nant -> {
                 NantTask nantTask = new NantTask();
-                nantTask.setNantPath(((CRNantTask)crBuildTask).getNantPath());
-                buildTask = nantTask;
-                break;
-            default:
-                throw new RuntimeException(
-                        String.format("unknown type of build task '%s'", crBuildTask.getType()));
-        }
+                nantTask.setNantPath(((CRNantTask) crBuildTask).getNantPath());
+                yield nantTask;
+            }
+        };
         setCommonBuildTaskMembers(buildTask, crBuildTask);
         setCommonTaskMembers(buildTask, crBuildTask);
         return buildTask;

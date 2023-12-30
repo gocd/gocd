@@ -98,16 +98,14 @@ public class Marshaling {
             final String type = defensivelyGetString(jsonObject, KEY_TYPE);
             if (StringUtils.isBlank(type)) throw new JsonParseException("Missing filter type");
 
-            switch (type) {
-                case TYPE_INCLUDES:
-                    return context.deserialize(jsonObject,
-                            IncludesFilter.class);
-                case TYPE_EXCLUDES:
-                    return context.deserialize(jsonObject,
-                            ExcludesFilter.class);
-                default:
-                    throw new JsonParseException(format("Don't know how to deserialize filter type: \"%s\"", type));
-            }
+            return switch (type) {
+                case TYPE_INCLUDES -> context.deserialize(jsonObject,
+                        IncludesFilter.class);
+                case TYPE_EXCLUDES -> context.deserialize(jsonObject,
+                        ExcludesFilter.class);
+                default ->
+                        throw new JsonParseException(format("Don't know how to deserialize filter type: \"%s\"", type));
+            };
         }
     }
 

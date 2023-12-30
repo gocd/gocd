@@ -67,8 +67,7 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
 
     @Test
     public void shouldAppendTypeFieldWhenSerializingMaterials() {
-        CRMaterial value = pluggableGit;
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(pluggableGit);
         assertThat(jsonObject.get("type").getAsString(), is(CRPluggableScmMaterial.TYPE_NAME));
     }
 

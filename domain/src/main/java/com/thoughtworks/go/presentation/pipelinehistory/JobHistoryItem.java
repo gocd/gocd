@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 
 import java.util.Date;
+import java.util.stream.Stream;
 
 public class JobHistoryItem implements BuildStateAware {
     private long id;
@@ -94,6 +95,6 @@ public class JobHistoryItem implements BuildStateAware {
     }
 
     public boolean isRunning() {
-        return state == JobState.Assigned || state == JobState.Preparing || state == JobState.Building || state == JobState.Completing || state == JobState.Scheduled;
+        return Stream.of(JobState.Assigned, JobState.Preparing, JobState.Building, JobState.Completing, JobState.Scheduled).anyMatch(jobState -> state == jobState);
     }
 }

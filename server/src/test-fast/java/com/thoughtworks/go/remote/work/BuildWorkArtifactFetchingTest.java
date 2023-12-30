@@ -108,6 +108,6 @@ public class BuildWorkArtifactFetchingTest {
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, stubManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"), null, null, null, null, null));
 
-        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
+        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", new File(String.join(File.separator, "pipelines", PIPELINE_NAME, DEST)))));
     }
 }

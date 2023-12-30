@@ -140,8 +140,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
         Map<String, String> config = new HashMap<>();
         config.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
-        config.put(Constants.FRAMEWORK_BOOTDELEGATION, osgiFrameworkPackage + ", " + goPluginApiPackage + ", " + subPackagesOfGoPluginApiPackage
-                + ", " + internalServicesPackage + ", " + javaxPackages + ", " + orgXmlSaxPackages + ", " + orgW3cDomPackages);
+        config.put(Constants.FRAMEWORK_BOOTDELEGATION, String.join(", ", osgiFrameworkPackage, goPluginApiPackage, subPackagesOfGoPluginApiPackage, internalServicesPackage, javaxPackages, orgXmlSaxPackages, orgW3cDomPackages));
         config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
         config.put(BundleCache.CACHE_LOCKING_PROP, "false");
         config.put(FelixConstants.SERVICE_URLHANDLERS_PROP, "false");

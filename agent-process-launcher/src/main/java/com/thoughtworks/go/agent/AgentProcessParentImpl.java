@@ -175,7 +175,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     private String javaCmd() {
         String javaHome = System.getProperty("java.home");
         String pathSep = System.getProperty("file.separator");
-        return javaHome + pathSep + "bin" + pathSep + "java";
+        return String.join(pathSep, javaHome, "bin", "java");
     }
 
     Process invoke(String[] command) throws IOException {

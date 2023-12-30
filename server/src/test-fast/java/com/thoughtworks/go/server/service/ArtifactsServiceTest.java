@@ -115,7 +115,7 @@ public class ArtifactsServiceTest {
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
         final File destFile = new File(logsDir,
-                buildInstanceId + File.separator + "generated" + File.separator + LOG_XML_NAME);
+                String.join(File.separator, buildInstanceId, "generated", LOG_XML_NAME));
         final IOException ioException = new IOException();
 
         assumeArtifactsRoot(logsDir);
@@ -138,7 +138,7 @@ public class ArtifactsServiceTest {
         final ByteArrayInputStream stream = new ByteArrayInputStream("".getBytes());
         String buildInstanceId = "1";
         final File destFile = new File(logsDir,
-                buildInstanceId + File.separator + "generated" + File.separator + LOG_XML_NAME);
+                String.join(File.separator, buildInstanceId, "generated", LOG_XML_NAME));
         final IOException ioException = new IOException();
 
         doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));

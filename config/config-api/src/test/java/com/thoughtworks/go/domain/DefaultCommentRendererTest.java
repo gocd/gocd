@@ -233,6 +233,6 @@ public class DefaultCommentRendererTest {
     }
 
     private String dynamicLink(String id) {
-        return "<a href=\"http://mingle05/projects/cce/cards/" + id + "\" target=\"story_tracker\">#" + id + "</a>";
+        return String.join(id, "<a href=\"http://mingle05/projects/cce/cards/", "\" target=\"story_tracker\">#", "</a>");
     }
 }

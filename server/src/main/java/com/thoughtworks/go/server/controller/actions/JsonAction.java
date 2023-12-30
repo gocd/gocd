@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_JSON;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
@@ -79,10 +80,7 @@ public class JsonAction implements RestfulAction {
     }
 
     public static JsonAction jsonByValidity(Object json, GoConfigValidity.InvalidGoConfig configValidity) {
-        return (configValidity.isType(GoConfigValidity.VT_CONFLICT) ||
-                configValidity.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR) ||
-                configValidity.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR) ||
-                configValidity.isType(GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR)) ? jsonConflict(json) : jsonNotFound(json);
+        return (Stream.of(GoConfigValidity.VT_CONFLICT, GoConfigValidity.VT_MERGE_OPERATION_ERROR, GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR, GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR).anyMatch(configValidity::isType)) ? jsonConflict(json) : jsonNotFound(json);
     }
 
     @Override

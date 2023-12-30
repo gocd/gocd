@@ -39,6 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -64,10 +65,7 @@ public class PluginsZip implements PluginChangeListener {
         externalPlugins = new File(systemEnvironment.get(SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH));
         this.pluginManager = pluginManager;
         this.pluginManager.addPluginChangeListener(this);
-        predicate = goPluginDescriptor -> PluginsZip.this.pluginManager.isPluginOfType("task", goPluginDescriptor.id()) ||
-                PluginsZip.this.pluginManager.isPluginOfType("scm", goPluginDescriptor.id()) ||
-                PluginsZip.this.pluginManager.isPluginOfType("package-repository", goPluginDescriptor.id()) ||
-                PluginsZip.this.pluginManager.isPluginOfType("artifact", goPluginDescriptor.id());
+        predicate = goPluginDescriptor -> Stream.of("task", "scm", "package-repository", "artifact").anyMatch(s -> PluginsZip.this.pluginManager.isPluginOfType(s, goPluginDescriptor.id()));
     }
 
     public void create() {
